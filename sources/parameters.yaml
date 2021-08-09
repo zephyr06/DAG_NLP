@@ -1,0 +1,58 @@
+%YAML:1.0
+
+sensorFusionTolerance: 1.0
+
+# ****************************************old ones
+runMode: compare
+
+testDataSetName: test_n5_v8
+
+deltaOptimizer: 1e-5
+
+
+enableMaxComputation: 1
+minWeightToBegin: 1e9
+weightStep: 1e2
+eliminateTol: 1e-1
+eliminateStep: 3
+enableIPM: 0
+iterationNumIPM_Max: 10
+exactJacobian: 0
+weightLogBarrier: 0
+roundTypeInClamp: "fine"
+# If this number is much larger than the other parts(kike, weightEntry), 
+# the system may be indetermined in Jacobian
+
+# This is actually a relative parameter compared with weightEnergy
+punishmentInBarrier: 1e5
+
+noiseModelSigma: 1e-3
+relativeErrorTolerance: 1e-5
+relErrorTolIPM: 1e-5
+xTolIPM: 1e-3
+toleranceBarrier: 1e-6
+
+
+computationBound: 2.0
+punishmentFrequency: 10
+
+optimizerType: 1 # 1 means dogleg, 2 means LM
+
+deltaInitialDogleg: 1e10
+
+initialLambda: 1e10
+lowerLambda: 1e-15
+upperLambda: 1e30
+
+
+granularityInBF:1
+readTaskMode: RM
+eliminateVariableThreshold: 1.0
+
+debugMode: 0
+
+# something not used 
+weightEnergyMinOrder: -10
+weightEnergyMaxOrder: 1
+weightEnergy: 1e8
+
