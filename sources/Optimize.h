@@ -52,6 +52,17 @@ namespace DAG_SPACE
         return startTimeVector(firstTaskInstance + j, 0);
     }
 
+    
+
+    inline double ComputationTime_IJK(double startTime_i, Task& task_i, double startTime_j, Task& task_j, double startTime_k, Task& task_k)
+    {
+        if(startTime_i <= startTime_k && startTime_k+task_k.executionTime <= startTime_j+task_j.executionTime)
+        {
+            return task_k.executionTime;
+        }
+        else return 0;
+    }
+
     // we need to declare all kinds of factors, corresponding to different type of constraints
 
     // we need a main optimization process, given a DAG input, and return all the start time for all the instances
@@ -99,15 +110,8 @@ namespace DAG_SPACE
                     // this factor is explained as: variable * -1 < -1 *(i * tasks[i].period)
                     graph.emplace_shared<LinearInequalityFactor1D>(keysOfVariables[i][j], -1, -1 * (i * tasks[i].period), model);
 
-                    // sensor fusion
-                    // this factor is explained: first argument for main task, following arguments for source task
-                    if (i == 3)
-                        graph.emplace_shared<SensorFusionFactor3D>(keysOfVariables[3][j], keysOfVariables[0][j],
-                                                                   keysOfVariables[1][j], keysOfVariables[2][j], sensorFusionTolerance, model);
-                    // event chain
-                    // this factor is explained as: the difference between the first node's start time,
-                    // and last node's finish time, is bounded
-                    graph.emplace_shared<LinearInequalityFactor1D>(keysOfVariables[i][j], -1, -1 * (i * tasks[i].period), model);
+                    //demand bound function
+
                 }
             }
             return res;
@@ -128,6 +132,8 @@ namespace DAG_SPACE
         Sensor chain: s1 - Task0 - Task3 - Task4
 
         All tasks are non-preemptive;
+
+        All nodes have the same frequency;
 
         --------------------------------------------------------------------------------------
 
