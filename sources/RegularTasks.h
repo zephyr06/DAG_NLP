@@ -12,10 +12,10 @@
 #include "colormod.h"
 
 #include "Parameters.h"
-#include "DeclaraeDAG.h"
+#include "DeclareDAG.h"
 using namespace std;
 
-#define TaskSet vector<Task>
+#define TaskSet vector<RegularTaskSystem::Task>
 Color::Modifier red(Color::FG_RED);
 Color::Modifier green(Color::FG_GREEN);
 Color::Modifier blue(Color::FG_BLUE);

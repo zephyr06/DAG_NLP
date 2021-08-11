@@ -1,7 +1,56 @@
-#include "DeclareDAG.h"
+#include <boost/function.hpp>
 #include "RegularTasks.h"
 
-inline VectorDynamic CreateVectorDynamic(LLint N)
+using namespace RegularTaskSystem;
+// -------------------------------------------------------- from previous optimization begins
+/**
+ * barrier function for the optimization
+ **/
+double Barrier(double x)
+{
+    if (x > 0)
+        // return pow(x, 2);
+        return weightLogBarrier * log(x);
+    else if (x < 0)
+    {
+        if (TASK_NUMBER == 0)
+        {
+            cout << red << "Please set TASK_NUMBER!" << def << endl;
+            throw;
+        }
+        return punishmentInBarrier * pow(10, TASK_NUMBER - 3) * pow(1 - x, 1);
+    }
+    else // it basically means x=0
+        return weightLogBarrier *
+               log(x + toleranceBarrier);
+}
+
+MatrixDynamic NumericalDerivativeDynamicUpper(boost::function<VectorDynamic(const VectorDynamic &)> h,
+                                              VectorDynamic x, double deltaOptimizer, int mOfJacobian)
+{
+    int n = x.rows();
+    MatrixDynamic jacobian;
+    jacobian.resize(mOfJacobian, n);
+    VectorDynamic currErr = h(x);
+
+    for (int i = 0; i < n; i++)
+    {
+        VectorDynamic xDelta = x;
+        xDelta(i, 0) = xDelta(i, 0) + deltaOptimizer;
+        VectorDynamic resPlus;
+        resPlus.resize(mOfJacobian, 1);
+        resPlus = h(xDelta);
+        for (int j = 0; j < mOfJacobian; j++)
+        {
+            jacobian(j, i) = (resPlus(j, 0) - currErr(j, 0)) / deltaOptimizer;
+        }
+    }
+    return jacobian;
+}
+
+// -------------------------------------------------------- from previous optimization ends
+
+inline VectorDynamic GenerateVectorDynamic(LLint N)
 {
     VectorDynamic v;
     v.resize(N, 1);
@@ -21,7 +70,7 @@ namespace DAG_SPACE
         {
             length += sizeOfVariables[i];
         }
-        VectorDynamic initial = CreateVectorDynamic(length);
+        VectorDynamic initial = GenerateVectorDynamic(length);
         LLint index = 0;
         for (int i = 0; i < N; i++)
         {
@@ -42,25 +91,36 @@ namespace DAG_SPACE
      * @param instanceIndex instance-index
      * @return double start time of the extracted instance
      */
-    double ExtractVariable(const VectorDynamic &startTimeVector, vector<LLint> &sizeOfVariables, int taskIndex, int instanceIndex)
+    double ExtractVariable(const VectorDynamic &startTimeVector, const vector<LLint> &sizeOfVariables, int taskIndex, int instanceIndex)
     {
         LLint firstTaskInstance = 0;
         for (int i = 0; i < taskIndex; i++)
         {
             firstTaskInstance += sizeOfVariables[i];
         }
-        return startTimeVector(firstTaskInstance + j, 0);
+        return startTimeVector(firstTaskInstance + instanceIndex, 0);
     }
 
-    
-
-    inline double ComputationTime_IJK(double startTime_i, Task& task_i, double startTime_j, Task& task_j, double startTime_k, Task& task_k)
+    /**
+     * @brief get c_{ijk} according to ILP paper
+     * 
+     * @param startTime_i 
+     * @param task_i 
+     * @param startTime_j 
+     * @param task_j 
+     * @param startTime_k 
+     * @param task_k 
+     * @return double 
+     */
+    inline double ComputationTime_IJK(double startTime_i, const Task &task_i, double startTime_j,
+                                      const Task &task_j, double startTime_k, const Task &task_k)
     {
-        if(startTime_i <= startTime_k && startTime_k+task_k.executionTime <= startTime_j+task_j.executionTime)
+        if (startTime_i <= startTime_k && startTime_k + task_k.executionTime <= startTime_j + task_j.executionTime)
         {
             return task_k.executionTime;
         }
-        else return 0;
+        else
+            return 0;
     }
 
     // we need to declare all kinds of factors, corresponding to different type of constraints
@@ -91,32 +151,85 @@ namespace DAG_SPACE
 
         Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
         {
-            // dependency, self DDL, sensor fusion, event chain
-            VectorDynamic res = CreateVectorDynamic(N + length * 2 + sizeOfVariables[3] +);
 
-            for (int i = 0; i < N; i++)
+            boost::function<Matrix(const VectorDynamic &)> f =
+                [this](const VectorDynamic &startTimeVector)
             {
+                // dependency, self DDL, sensor fusion, event chain
+                VectorDynamic res = GenerateVectorDynamic(1);
+                double rhs = startTimeVector(startTimeVector.rows() - 1, 0);
+
                 // add dependency constraints
-                if (i < N - 1)
+                res(0, 0) += Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -
+                                     ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) - tasks[0].executionTime + rhs);
+                res(0, 0) += Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -
+                                     ExtractVariable(startTimeVector, sizeOfVariables, 1, 0) - tasks[1].executionTime + rhs);
+                res(0, 0) += Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -
+                                     ExtractVariable(startTimeVector, sizeOfVariables, 2, 0) - tasks[2].executionTime + rhs);
+
+                //demand bound function
+                for (int i = 0; i < N; i++)
                 {
-                    graph.emplace_shared<DependencyFactor>(keysOfVariables[i][0], keysOfVariables[i + 1][0], model);
+                    double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, 0);
+                    for (int j = 0; j < N; j++)
+                    {
+                        double sumIJK = 0;
+                        double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, 0);
+                        for (int k = 0; k < N; k++)
+                        {
+                            if (k == i || k == j)
+                                continue;
+                            double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, 0);
+                            sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
+                            res(0, 0) += Barrier(startTime_j + tasks[j].executionTime - startTime_i - sumIJK + rhs);
+                        }
+                    }
                 }
 
-                for (int j = 0; j < int(keysOfVariables[i].size()); j++)
+                // self DDL
+                for (int i = 0; i < N; i++)
                 {
-                    // self DDL
-                    // this factor is explained as: variable * 1 < tasks[i].deadline + i * tasks[i].period
-                    graph.emplace_shared<LinearInequalityFactor1D>(keysOfVariables[i][j], 1, tasks[i].deadline + i * tasks[i].period, model);
-                    // this factor is explained as: variable * -1 < -1 *(i * tasks[i].period)
-                    graph.emplace_shared<LinearInequalityFactor1D>(keysOfVariables[i][j], -1, -1 * (i * tasks[i].period), model);
 
-                    //demand bound function
-
+                    for (int j = 0; j < int(sizeOfVariables[i]); j++)
+                    {
+                        // this factor is explained as: variable * 1 < tasks[i].deadline + i * tasks[i].period
+                        res(0, 0) += Barrier(tasks[i].deadline + i * tasks[i].period -
+                                             ExtractVariable(startTimeVector, sizeOfVariables, i, j) - tasks[i].executionTime + rhs);
+                        // this factor is explained as: variable * -1 < -1 *(i * tasks[i].period)
+                        res(0, 0) += Barrier(ExtractVariable(startTimeVector, sizeOfVariables, i, j) - (i * tasks[i].period) + rhs);
+                    }
                 }
+                return res;
+            };
+
+            if (H)
+            {
+                *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, 1);
             }
-            return res;
+
+            return f(startTimeVector);
         }
     };
+
+    /**
+     * @brief Generate initial solution for the whole optimization
+     * 
+     * @param tasks 
+     * @param sizeOfVariables 
+     * @return VectorDynamic size (N+1), first N is start time for nodes, the last one is r.h.s.
+     */
+    VectorDynamic GenerateInitialForDAG(TaskSet &tasks, vector<LLint> &sizeOfVariables)
+    {
+        int N = tasks.size();
+        VectorDynamic initial = GenerateVectorDynamic(N + 1);
+        vector<double> executionTimeVec = GetParameter<double>(tasks, "executionTime");
+        for (int i = 0; i < N; i++)
+        {
+            initial(i, 0) = 0;
+            initial(N, 0) += executionTimeVec[i];
+        }
+        return initial;
+    }
 
     /**
      * @brief Given a example regular task sets, perform instance-level optimization
@@ -151,26 +264,26 @@ namespace DAG_SPACE
         using namespace RegularTaskSystem;
         TaskSet tasks = ReadTaskSet("../TaskData/test_n5_v1.csv", "orig");
         int N = tasks.size();
-        long long int hyperPeriod = HyperPeriod(tasks);
+        LLint hyperPeriod = HyperPeriod(tasks);
 
         // declare variables
-        vector<long long int> sizeOfVariables;
+        vector<LLint> sizeOfVariables;
         int variableDimension = 0;
         for (int i = 0; i < N; i++)
         {
 
-            long long int size = hyperPeriod / tasks[i].period;
+            LLint size = hyperPeriod / tasks[i].period;
             sizeOfVariables.push_back(size);
             variableDimension += size;
         }
 
         // build the factor graph
-        auto model = noiseModel::Isotropic::Sigma(variableDimension, noiseModelSigma);
+        auto model = noiseModel::Isotropic::Sigma(1, noiseModelSigma);
         NonlinearFactorGraph graph;
         Symbol key('a', 0);
-        graph.emplace_shared<DAG_ConstraintsFactor>(key, tasks, sizeOfVariables, model);
+        graph.emplace_shared<DAG_ConstraintFactor>(key, tasks, sizeOfVariables, model);
 
-        initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables);
+        VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables);
         Values initialEstimateFG;
         initialEstimateFG.insert(key, initialEstimate);
 

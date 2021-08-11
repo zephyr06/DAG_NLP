@@ -3,8 +3,6 @@
 #include <chrono>
 #include <math.h>
 
-#pragma once
-
 #include <Eigen/Dense>
 
 #include <gtsam/base/numericalDerivative.h>
@@ -18,9 +16,6 @@
 #include <gtsam/nonlinear/NonlinearFactorGraph.h>
 #include <gtsam/nonlinear/Values.h>
 
-#include "Tasks.h"
-#include "ResponseTimeAnalysis.h"
-#include "Energy.h"
 #include "Parameters.h"
 
 using namespace std;
