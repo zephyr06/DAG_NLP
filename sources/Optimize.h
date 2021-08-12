@@ -289,7 +289,23 @@ namespace DAG_SPACE
         //     initial(N, 0) += executionTimeVec[i];
         // }
         // initial(N, 0) *= 1;
-        initial << 0, 100, 1, 2, 3, 40;
+        LLint index = 0;
+        int executionTimeAccum = 0;
+        for (int i = 0; i < N; i++)
+        {
+            for (LLint j = 0; j < sizeOfVariables[i]; j++)
+            {
+                initial(index++, 0) = executionTimeAccum + tasks[i].period * j;
+                executionTimeAccum += tasks[i].executionTime;
+            }
+        }
+        if (index != variableDimension)
+        {
+            cout << red << "The errorDimension is set wrong in GenerateInitialForDAG!" << def << endl;
+            throw;
+        }
+
+        // initial << 0, 100, 1, 2, 3, 40;
         return initial;
     }
 
