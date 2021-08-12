@@ -1,4 +1,15 @@
 #include "../sources/Optimize.h"
+TEST(random, v1)
+{
+    // VectorDynamic a;
+    // a.resize(6, 1);
+    // for (int i = 0; i < 6; i++)
+    // {
+    //     a(i, 0) = i;
+    // }
+    // cout << a << endl;
+    ;
+}
 
 TEST(ExtractVariable, v1)
 {
