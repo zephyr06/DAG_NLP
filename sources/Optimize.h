@@ -168,7 +168,7 @@ namespace DAG_SPACE
 
                 // dependency, self DDL, sensor fusion, event chain
                 // minimize makespan
-                res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
+                res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, N - 1, sizeOfVariables[4] - 1) -
                                              ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) + 0) *
                                      makespanWeight;
 
@@ -185,35 +185,45 @@ namespace DAG_SPACE
                 //demand bound function
                 for (int i = 0; i < N; i++)
                 {
-                    double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, 0);
-                    for (int j = 0; j < N; j++)
+                    for (LLint instance_i = 0; instance_i < sizeOfVariables[i]; instance_i++)
                     {
-                        if (i == j)
-                        {
-                            res(indexRes++, 0) = 0;
-                            continue;
-                        }
 
-                        double sumIJK = 0;
-                        double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, 0);
-                        if (startTime_i <= startTime_j &&
-                            startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
+                        double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, instance_i);
+
+                        for (int j = 0; j < N; j++)
                         {
-                            for (int k = 0; k < N; k++)
+                            for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
                             {
-                                // if (k == i || k == j)
-                                //     continue;
-                                double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, 0);
-                                sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
-                            }
-                            double valueT = Barrier(startTime_j + tasks[j].executionTime - startTime_i - sumIJK + 0);
-                            res(indexRes++, 0) = valueT;
-                        }
-                        else
-                        {
 
-                            res(indexRes++, 0) = 0;
-                            continue;
+                                if (i == j && instance_i == instance_j)
+                                {
+                                    res(indexRes++, 0) = 0;
+                                    continue;
+                                }
+
+                                double sumIJK = 0;
+                                double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
+                                if (startTime_i <= startTime_j &&
+                                    startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
+                                {
+                                    for (int k = 0; k < N; k++)
+                                    {
+                                        for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
+                                        {
+                                            double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
+                                            sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
+                                        }
+                                    }
+                                    double valueT = Barrier(startTime_j + tasks[j].executionTime - startTime_i - sumIJK + 0);
+                                    res(indexRes++, 0) = valueT;
+                                }
+                                else
+                                {
+
+                                    res(indexRes++, 0) = 0;
+                                    continue;
+                                }
+                            }
                         }
                     }
                 }
@@ -245,12 +255,15 @@ namespace DAG_SPACE
                 *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
                 if (debugMode == 1)
                 {
-                    cout << "The Jacobian matrix is " << *H << endl;
+                    cout << "The Jacobian matrix is " << endl
+                         << *H << endl;
                 }
                 if (debugMode == 1)
                 {
-                    cout << "The input startTimeVector is " << startTimeVector << endl;
-                    cout << "The error vector is " << f(startTimeVector) << endl;
+                    cout << "The input startTimeVector is " << endl
+                         << startTimeVector << endl;
+                    cout << "The error vector is " << endl
+                         << f(startTimeVector) << endl;
                 }
             }
 
@@ -265,10 +278,10 @@ namespace DAG_SPACE
      * @param sizeOfVariables 
      * @return VectorDynamic size (N+1), first N is start time for nodes, the last one is r.h.s.
      */
-    VectorDynamic GenerateInitialForDAG(TaskSet &tasks, vector<LLint> &sizeOfVariables)
+    VectorDynamic GenerateInitialForDAG(TaskSet &tasks, vector<LLint> &sizeOfVariables, LLint variableDimension)
     {
         int N = tasks.size();
-        VectorDynamic initial = GenerateVectorDynamic(N);
+        VectorDynamic initial = GenerateVectorDynamic(variableDimension);
         // vector<double> executionTimeVec = GetParameter<double>(tasks, "executionTime");
         // for (int i = 0; i < N; i++)
         // {
@@ -276,7 +289,7 @@ namespace DAG_SPACE
         //     initial(N, 0) += executionTimeVec[i];
         // }
         // initial(N, 0) *= 1;
-        initial << 0, 1, 2, 3, 40;
+        initial << 0, 100, 1, 2, 3, 40;
         return initial;
     }
 
@@ -327,13 +340,13 @@ namespace DAG_SPACE
         }
 
         // build the factor graph
-        LLint errorDimension = N * N + 1 + 4 + 2 * N;
+        LLint errorDimension = variableDimension * variableDimension + 1 + 4 + 2 * variableDimension;
         auto model = noiseModel::Isotropic::Sigma(errorDimension, noiseModelSigma);
         NonlinearFactorGraph graph;
         Symbol key('a', 0);
         graph.emplace_shared<DAG_ConstraintFactor>(key, tasks, sizeOfVariables, errorDimension, model);
 
-        VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables);
+        VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
         Values initialEstimateFG;
         initialEstimateFG.insert(key, initialEstimate);
 
