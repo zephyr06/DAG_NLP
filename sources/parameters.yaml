@@ -15,7 +15,7 @@ initialRHS: 0
 
 minWeightToBegin: 1e9
 exactJacobian: 0
-weightLogBarrier: -1.0
+weightLogBarrier: 1.0
 # If this number is much larger than the other parts(kike, weightEntry), 
 # the system may be indetermined in Jacobian
 

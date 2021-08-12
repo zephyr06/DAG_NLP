@@ -189,6 +189,11 @@ namespace DAG_SPACE
                     double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, 0);
                     for (int j = 0; j < N; j++)
                     {
+                        if (i == j)
+                        {
+                            res(indexRes++, 0) = 0;
+                            continue;
+                        }
 
                         double sumIJK = 0;
                         double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, 0);
