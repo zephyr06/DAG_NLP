@@ -8,16 +8,16 @@ using namespace RegularTaskSystem;
  **/
 double Barrier(double x)
 {
-    if (x > 0)
+    if (x >= 0)
         // return pow(x, 2);
-        return weightLogBarrier * log(x) + barrierBase;
+        return weightLogBarrier * log(x + 1) + barrierBase;
     else if (x < 0)
     {
         return punishmentInBarrier * pow(1 - x, 1);
     }
     else // it basically means x=0
         return weightLogBarrier *
-               log(x + toleranceBarrier);
+               log(x + 1);
 }
 
 MatrixDynamic NumericalDerivativeDynamicUpper(boost::function<VectorDynamic(const VectorDynamic &)> h,
@@ -65,30 +65,6 @@ inline VectorDynamic GenerateVectorDynamic(LLint N)
 
 namespace DAG_SPACE
 {
-
-    // VectorDynamic GenerateInitialStartTime(TaskSet &tasks, vector<LLint> &sizeOfVariables)
-    // {
-    //     int N = tasks.size();
-    //     LLint length = 0;
-
-    //     for (int i = 0; i < N; i++)
-    //     {
-    //         length += sizeOfVariables[i];
-    //     }
-    //     VectorDynamic initial = GenerateVectorDynamic(length);
-    //     // LLint index = 0;
-    //     // for (int i = 0; i < N; i++)
-    //     // {
-    //     //     for (int j = 0; j < sizeOfVariables[i]; j++)
-    //     //     {
-    //     //         initial(index, 0) = tasks[i].period * j;
-    //     //         index++;
-    //     //     }
-    //     // }
-    //     initial << 0, 10, 20, 25, 30, 60;
-    //     return initial;
-    // }
-
     /**
      * @brief extract instance from the large vector
      * 
@@ -168,8 +144,11 @@ namespace DAG_SPACE
 
                 // dependency, self DDL, sensor fusion, event chain
                 // minimize makespan
-                res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, N - 1, sizeOfVariables[4] - 1) -
-                                             ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) + 0) *
+                cout << startTimeVector << endl
+                     << endl;
+
+                res(indexRes++, 0) = (ExtractVariable(startTimeVector, sizeOfVariables, N - 1, sizeOfVariables[N - 1] - 1) -
+                                      ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) + 0) *
                                      makespanWeight;
 
                 // add dependency constraints
@@ -246,7 +225,8 @@ namespace DAG_SPACE
                     cout << red << "The errorDimension is set wrong!" << def << endl;
                     throw;
                 }
-
+                // cout << "One startTimeVector is " << endl
+                //      << startTimeVector << endl;
                 return res;
             };
 
@@ -263,10 +243,17 @@ namespace DAG_SPACE
                     cout << "The input startTimeVector is " << endl
                          << startTimeVector << endl;
                     cout << "The error vector is " << endl
-                         << f(startTimeVector) << endl;
+                         << f(startTimeVector).transpose() << endl;
                 }
             }
 
+            if (debugMode == 1)
+            {
+                // cout << "The input startTimeVector is " << endl
+                //      << startTimeVector << endl;
+                cout << "The error vector is " << endl
+                     << f(startTimeVector).transpose() << endl;
+            }
             return f(startTimeVector);
         }
     };
@@ -391,9 +378,11 @@ namespace DAG_SPACE
         }
 
         VectorDynamic optComp = result.at<VectorDynamic>(key);
+
         Values finalEstimate;
         finalEstimate.insert(key, optComp);
-        cout << "The error after optimization is " << graph.error(finalEstimate) << endl;
+        cout << blue << "The error before optimization is " << graph.error(initialEstimateFG) << def << endl;
+        cout << blue << "The error after optimization is " << graph.error(finalEstimate) << def << endl;
         return optComp;
     }
 }

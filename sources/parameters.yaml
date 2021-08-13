@@ -8,9 +8,8 @@ weight_U: 1e4
 makespanWeight: 1e1
 testDataSetName: test_n5_v8
 
-deltaOptimizer: 1e-1
+deltaOptimizer: 1e0
 barrierBase: 10
-initialRHS: 0
 
 
 minWeightToBegin: 1e9
@@ -19,8 +18,8 @@ weightLogBarrier: 1.0
 # If this number is much larger than the other parts(kike, weightEntry), 
 # the system may be indetermined in Jacobian
 
-# This is actually a relative parameter compared with weight_U
-punishmentInBarrier: 1e8
+
+punishmentInBarrier: 1e5
 
 noiseModelSigma: 1e-3
 relativeErrorTolerance: 1e-5
