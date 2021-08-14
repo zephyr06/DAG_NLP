@@ -17,7 +17,7 @@ const double sensorFusionTolerance = (double)ConfigParameters["sensorFusionToler
 // int TASK_NUMBER_DYNAMIC = 10;
 int TASK_NUMBER = 0;
 double weight_U = (double)ConfigParameters["weight_U"];
-double punishmentInBarrier = weight_U * (double)ConfigParameters["punishmentInBarrier"];
+double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
 double minWeightToBegin = (double)ConfigParameters["minWeightToBegin"];
 
 const int exactJacobian = (int)ConfigParameters["exactJacobian"];

@@ -8,9 +8,9 @@ using namespace RegularTaskSystem;
  **/
 double Barrier(double x)
 {
-    if (x > 0)
+    if (x >= 0)
         // return pow(x, 2);
-        return weightLogBarrier * log(x) + barrierBase;
+        return weightLogBarrier * log(x + 1) + barrierBase;
     else if (x < 0)
     {
         return punishmentInBarrier * pow(1 - x, 1);
@@ -276,7 +276,7 @@ namespace DAG_SPACE
         //     initial(N, 0) += executionTimeVec[i];
         // }
         // initial(N, 0) *= 1;
-        initial << 0, 1, 2, 3, 40;
+        initial << 0, 1, 2, 3, 4;
         return initial;
     }
 

@@ -20,7 +20,7 @@ weightLogBarrier: 1.0
 # the system may be indetermined in Jacobian
 
 # This is actually a relative parameter compared with weight_U
-punishmentInBarrier: 1e8
+punishmentInBarrier: 1e4
 
 noiseModelSigma: 1e-3
 relativeErrorTolerance: 1e-5
