@@ -13,7 +13,7 @@ double Barrier(double x)
         return weightLogBarrier * log(x + 1) + barrierBase;
     else if (x < 0)
     {
-        return punishmentInBarrier * pow(1 - x, 1);
+        return punishmentInBarrier * pow(1 - x, 2);
     }
     else // it basically means x=0
         return weightLogBarrier *
@@ -362,9 +362,11 @@ namespace DAG_SPACE
         }
 
         VectorDynamic optComp = result.at<VectorDynamic>(key);
+
         Values finalEstimate;
         finalEstimate.insert(key, optComp);
-        cout << "The error after optimization is " << graph.error(finalEstimate) << endl;
+        cout << blue << "The error before optimization is " << graph.error(initialEstimateFG) << def << endl;
+        cout << blue << "The error after optimization is " << graph.error(finalEstimate) << def << endl;
         return optComp;
     }
 }
