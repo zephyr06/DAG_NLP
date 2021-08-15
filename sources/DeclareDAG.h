@@ -4,7 +4,7 @@
 #include <math.h>
 
 #include <Eigen/Dense>
-
+#include <dirent.h>
 #include <gtsam/base/numericalDerivative.h>
 #include <gtsam/geometry/Point3.h>
 #include <gtsam/inference/Key.h>

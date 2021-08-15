@@ -40,6 +40,10 @@ MatrixDynamic NumericalDerivativeDynamicUpper(boost::function<VectorDynamic(cons
         VectorDynamic resPlus;
         resPlus.resize(mOfJacobian, 1);
         resPlus = h(xDelta);
+        xDelta(i, 0) = xDelta(i, 0) - 2 * deltaOptimizer;
+        VectorDynamic resMinus;
+        resMinus.resize(mOfJacobian, 1);
+        resMinus = h(xDelta);
         // if (debugMode == 1)
         // {
         //     cout << "resPlus" << resPlus << endl;
@@ -47,7 +51,7 @@ MatrixDynamic NumericalDerivativeDynamicUpper(boost::function<VectorDynamic(cons
 
         for (int j = 0; j < mOfJacobian; j++)
         {
-            jacobian(j, i) = (resPlus(j, 0) - currErr(j, 0)) / deltaOptimizer;
+            jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaOptimizer;
         }
     }
     return jacobian;
@@ -243,6 +247,7 @@ namespace DAG_SPACE
             if (H)
             {
                 *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
+                // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {
                     cout << "The Jacobian matrix is " << *H << endl;
