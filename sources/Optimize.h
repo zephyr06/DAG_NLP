@@ -10,10 +10,10 @@ double Barrier(double x)
 {
     if (x >= 0)
         // return pow(x, 2);
-        return weightLogBarrier * log(x + 1) + barrierBase;
+        return 0;
     else if (x < 0)
     {
-        return punishmentInBarrier * pow(1 - x, 2);
+        return -1 * x;
     }
     else // it basically means x=0
         return weightLogBarrier *
@@ -52,6 +52,8 @@ MatrixDynamic NumericalDerivativeDynamicUpper(boost::function<VectorDynamic(cons
         for (int j = 0; j < mOfJacobian; j++)
         {
             jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaOptimizer;
+            // jacobian(j, i) = (resMinus(j, 0) - currErr(j, 0)) / deltaOptimizer * -1;
+            // jacobian(j, i) = (resPlus(j, 0) - currErr(j, 0)) / deltaOptimizer;
         }
     }
     return jacobian;
@@ -185,18 +187,18 @@ namespace DAG_SPACE
                                              ExtractVariable(startTimeVector, sizeOfVariables, 2, 0) - tasks[2].executionTime + 0);
                 res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
                                              ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) - tasks[3].executionTime + 0);
-
+                res(indexRes, 0) = 0;
                 //demand bound function
                 for (int i = 0; i < N; i++)
                 {
                     double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, 0);
                     for (int j = 0; j < N; j++)
                     {
-                        if (i == j)
-                        {
-                            res(indexRes++, 0) = 0;
-                            continue;
-                        }
+                        // if (i == j)
+                        // {
+                        //     res(indexRes++, 0) = 0;
+                        //     continue;
+                        // }
 
                         double sumIJK = 0;
                         double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, 0);
@@ -211,16 +213,17 @@ namespace DAG_SPACE
                                 sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
                             }
                             double valueT = Barrier(startTime_j + tasks[j].executionTime - startTime_i - sumIJK + 0);
-                            res(indexRes++, 0) = valueT;
+                            res(indexRes, 0) += valueT;
                         }
                         else
                         {
 
-                            res(indexRes++, 0) = 0;
+                            // res(indexRes++, 0) = 0;
                             continue;
                         }
                     }
                 }
+                indexRes++;
 
                 // self DDL
                 for (int i = 0; i < N; i++)
@@ -281,7 +284,9 @@ namespace DAG_SPACE
         //     initial(N, 0) += executionTimeVec[i];
         // }
         // initial(N, 0) *= 1;
-        initial << 0, 1, 2, 3, 4;
+        // initial << 0, 1, 0.4, 1.5, 0.9;
+        initial << 0, 0, 0, 0, 0;
+        // initial << 6, 2.5, 2, 0.5, 0;
         return initial;
     }
 
@@ -332,7 +337,7 @@ namespace DAG_SPACE
         }
 
         // build the factor graph
-        LLint errorDimension = N * N + 1 + 4 + 2 * N;
+        LLint errorDimension = 1 + 1 + 4 + 2 * N;
         auto model = noiseModel::Isotropic::Sigma(errorDimension, noiseModelSigma);
         NonlinearFactorGraph graph;
         Symbol key('a', 0);
