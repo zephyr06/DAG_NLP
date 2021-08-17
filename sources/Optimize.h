@@ -65,7 +65,7 @@ inline VectorDynamic GenerateVectorDynamic(LLint N)
 {
     VectorDynamic v;
     v.resize(N, 1);
-    // v.setZero();
+    v.setZero();
     return v;
 }
 
@@ -273,10 +273,10 @@ namespace DAG_SPACE
      * @param sizeOfVariables 
      * @return VectorDynamic size (N+1), first N is start time for nodes, the last one is r.h.s.
      */
-    VectorDynamic GenerateInitialForDAG(TaskSet &tasks, vector<LLint> &sizeOfVariables)
+    VectorDynamic GenerateInitialForDAG(TaskSet &tasks, vector<LLint> &sizeOfVariables, int variableDimension)
     {
         int N = tasks.size();
-        VectorDynamic initial = GenerateVectorDynamic(N);
+        VectorDynamic initial = GenerateVectorDynamic(variableDimension);
         // vector<double> executionTimeVec = GetParameter<double>(tasks, "executionTime");
         // for (int i = 0; i < N; i++)
         // {
@@ -285,7 +285,7 @@ namespace DAG_SPACE
         // }
         // initial(N, 0) *= 1;
         // initial << 0, 1, 0.4, 1.5, 0.9;
-        initial << 0, 0, 0, 0, 0;
+        // initial << 0, 0, 0, 0, 0, 0;
         // initial << 6, 2.5, 2, 0.5, 0;
         return initial;
     }
@@ -337,13 +337,13 @@ namespace DAG_SPACE
         }
 
         // build the factor graph
-        LLint errorDimension = 1 + 1 + 4 + 2 * N;
+        LLint errorDimension = 1 + 1 + 4 + 2 * variableDimension;
         auto model = noiseModel::Isotropic::Sigma(errorDimension, noiseModelSigma);
         NonlinearFactorGraph graph;
         Symbol key('a', 0);
         graph.emplace_shared<DAG_ConstraintFactor>(key, tasks, sizeOfVariables, errorDimension, model);
 
-        VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables);
+        VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
         Values initialEstimateFG;
         initialEstimateFG.insert(key, initialEstimate);
 
