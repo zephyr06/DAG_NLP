@@ -19,7 +19,6 @@ weightLogBarrier: 1.0
 # If this number is much larger than the other parts(kike, weightEntry), 
 # the system may be indetermined in Jacobian
 
-# This is actually a relative parameter compared with weight_U
 punishmentInBarrier: 1e5
 
 noiseModelSigma: 1e-3
@@ -40,7 +39,7 @@ upperLambda: 1e60
 granularityInBF: 1
 readTaskMode: orig
 
-debugMode: 1
+debugMode: 0
 
 # something not used
 

@@ -191,35 +191,37 @@ namespace DAG_SPACE
                 //demand bound function
                 for (int i = 0; i < N; i++)
                 {
-                    double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, 0);
-                    for (int j = 0; j < N; j++)
+                    for (LLint instance_i = 0; instance_i < sizeOfVariables[i]; instance_i++)
                     {
-                        // if (i == j)
-                        // {
-                        //     res(indexRes++, 0) = 0;
-                        //     continue;
-                        // }
-
-                        double sumIJK = 0;
-                        double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, 0);
-                        if (startTime_i <= startTime_j &&
-                            startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
+                        double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, instance_i);
+                        for (int j = 0; j < N; j++)
                         {
-                            for (int k = 0; k < N; k++)
+                            for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
                             {
-                                // if (k == i || k == j)
-                                //     continue;
-                                double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, 0);
-                                sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
-                            }
-                            double valueT = Barrier(startTime_j + tasks[j].executionTime - startTime_i - sumIJK + 0);
-                            res(indexRes, 0) += valueT;
-                        }
-                        else
-                        {
 
-                            // res(indexRes++, 0) = 0;
-                            continue;
+                                double sumIJK = 0;
+                                double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
+                                if (startTime_i <= startTime_j &&
+                                    startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
+                                {
+                                    for (int k = 0; k < N; k++)
+                                    {
+                                        for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
+                                        {
+                                            double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
+                                            sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
+                                        }
+                                    }
+                                    double valueT = Barrier(startTime_j + tasks[j].executionTime - startTime_i - sumIJK + 0);
+                                    res(indexRes, 0) += valueT;
+                                }
+                                else
+                                {
+
+                                    // res(indexRes++, 0) = 0;
+                                    continue;
+                                }
+                            }
                         }
                     }
                 }
@@ -277,16 +279,22 @@ namespace DAG_SPACE
     {
         int N = tasks.size();
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
-        // vector<double> executionTimeVec = GetParameter<double>(tasks, "executionTime");
-        // for (int i = 0; i < N; i++)
-        // {
-        //     initial(i, 0) = 0;
-        //     initial(N, 0) += executionTimeVec[i];
-        // }
+        vector<double> executionTimeVec = GetParameter<double>(tasks, "executionTime");
+        LLint index = 0;
+        for (int i = 0; i < N; i++)
+        {
+            for (int j = 0; j < sizeOfVariables[i]; j++)
+            {
+                initial(index++, 0) = j * tasks[i].period + index;
+            }
+            // initial(i, 0) = 0;
+            // initial(N, 0) += executionTimeVec[i];
+        }
         // initial(N, 0) *= 1;
         // initial << 0, 1, 0.4, 1.5, 0.9;
         // initial << 0, 0, 0, 0, 0, 0;
         // initial << 6, 2.5, 2, 0.5, 0;
+        // initial << 1, 100, 0, 0, 0, 0;
         return initial;
     }
 
