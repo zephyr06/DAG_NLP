@@ -11,6 +11,36 @@ TEST(random, v1)
     ;
 }
 
+// TEST(sensorFusion, v1)
+// {
+//     using namespace DAG_SPACE;
+//     using namespace RegularTaskSystem;
+
+//     TaskSet tasks = ReadTaskSet("../TaskData/test_n5_v1.csv", "orig");
+//     int N = tasks.size();
+//     LLint hyperPeriod = HyperPeriod(tasks);
+
+//     // declare variables
+//     vector<LLint> sizeOfVariables;
+//     int variableDimension = 0;
+//     for (int i = 0; i < N; i++)
+//     {
+
+//         LLint size = hyperPeriod / tasks[i].period;
+//         sizeOfVariables.push_back(size);
+//         variableDimension += size;
+//     }
+//     LLint errorDimensionSF = 1;
+//     Symbol key('a', 0);
+//     auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
+//     SensorFusion_ConstraintFactor factor(key, tasks, sizeOfVariables,
+//                                          errorDimensionSF, sensorFusionTolerance, model);
+//     VectorDynamic initial = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
+//     // initial << 0, 1, 2, 3, 4;
+//     auto sth = factor.evaluateError(initial);
+//     cout << sth << endl;
+// }
+
 TEST(ExtractVariable, v1)
 {
     using namespace DAG_SPACE;

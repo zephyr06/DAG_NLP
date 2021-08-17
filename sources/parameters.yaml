@@ -1,12 +1,12 @@
 %YAML:1.0
 
-sensorFusionTolerance: 1.0
+sensorFusionTolerance: 10.0
 
 # ****************************************old ones
 runMode: compare
 weight_U: 1e4
 makespanWeight: 1e1
-testDataSetName: test_n5_v8
+testDataSetName: test_n5_v1
 
 deltaOptimizer: 1e-1
 barrierBase: 10
@@ -15,11 +15,11 @@ initialRHS: 0
 
 minWeightToBegin: 1e9
 exactJacobian: 0
-weightLogBarrier: 1.0
+weightLogBarrier: -1.0
 # If this number is much larger than the other parts(kike, weightEntry), 
 # the system may be indetermined in Jacobian
 
-punishmentInBarrier: 1e5
+punishmentInBarrier: 1e2
 
 noiseModelSigma: 1e-3
 relativeErrorTolerance: 1e-5
@@ -39,7 +39,7 @@ upperLambda: 1e60
 granularityInBF: 1
 readTaskMode: orig
 
-debugMode: 0
+debugMode: 1
 
 # something not used
 

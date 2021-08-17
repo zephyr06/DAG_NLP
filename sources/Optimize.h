@@ -20,6 +20,20 @@ double Barrier(double x)
                log(x + toleranceBarrier);
 }
 
+double BarrierLog(double x)
+{
+    if (x >= 0)
+        // return pow(x, 2);
+        return -1 * log(x + 1) + barrierBase;
+    else if (x < 0)
+    {
+        return punishmentInBarrier * pow(1 - x, 2);
+    }
+    else // it basically means x=0
+        return weightLogBarrier *
+               log(x + toleranceBarrier);
+}
+
 MatrixDynamic NumericalDerivativeDynamicUpper(boost::function<VectorDynamic(const VectorDynamic &)> h,
                                               VectorDynamic x, double deltaOptimizer, int mOfJacobian)
 {
@@ -174,8 +188,8 @@ namespace DAG_SPACE
 
                 // dependency, self DDL, sensor fusion, event chain
                 // minimize makespan
-                res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
-                                             ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) + 0) *
+                res(indexRes++, 0) = (ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
+                                      ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) + 0) *
                                      makespanWeight;
 
                 // add dependency constraints
@@ -197,7 +211,8 @@ namespace DAG_SPACE
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {
-                    cout << "The Jacobian matrix is " << *H << endl;
+                    cout << "The Jacobian matrix of DAG_ConstraintFactor is " << endl
+                         << *H << endl;
                 }
                 if (debugMode == 1)
                 {
@@ -289,7 +304,8 @@ namespace DAG_SPACE
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {
-                    cout << "The Jacobian matrix is " << *H << endl;
+                    cout << "The Jacobian matrix of DBF_ConstraintFactor is " << endl
+                         << *H << endl;
                 }
                 if (debugMode == 1)
                 {
@@ -362,7 +378,8 @@ namespace DAG_SPACE
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {
-                    cout << "The Jacobian matrix is " << *H << endl;
+                    cout << "The Jacobian matrix of DDL_ConstraintFactor is " << endl
+                         << *H << endl;
                 }
                 if (debugMode == 1)
                 {
@@ -374,6 +391,107 @@ namespace DAG_SPACE
             return f(startTimeVector);
         }
     };
+
+    double ExtractMaxDistance(vector<double> &sourceFinishTime)
+    {
+        return *max_element(sourceFinishTime.begin(), sourceFinishTime.end()) -
+               *min_element(sourceFinishTime.begin(), sourceFinishTime.end());
+    }
+    class SensorFusion_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
+    {
+    public:
+        TaskSet tasks;
+        vector<LLint> sizeOfVariables;
+        int N;
+        LLint errorDimension;
+        LLint length;
+        double sensorFusionTol;
+
+        SensorFusion_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables, LLint errorDimension,
+                                      double sensorFusionTol,
+                                      SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
+                                                                tasks(tasks), sizeOfVariables(sizeOfVariables),
+                                                                N(tasks.size()), sensorFusionTol(sensorFusionTol),
+                                                                errorDimension(errorDimension)
+        {
+            length = 0;
+
+            for (int i = 0; i < N; i++)
+            {
+                length += sizeOfVariables[i];
+            }
+        }
+
+        Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
+        {
+
+            boost::function<Matrix(const VectorDynamic &)> f =
+                [this](const VectorDynamic &startTimeVector)
+            {
+                VectorDynamic res;
+                res.resize(errorDimension, 1);
+                LLint indexRes = 0;
+
+                vector<double> sourceFinishTime;
+                // TODO: this is a customized number
+                sourceFinishTime.reserve(3);
+                // go through all the instances of task 3
+                for (int instance_j = 0; instance_j < sizeOfVariables[3]; instance_j++)
+                {
+                    double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, 3, instance_j);
+                    for (int k = 0; k < 3; k++)
+                    {
+                        LLint instance_l = floor(startTimeCurr / tasks[k].period);
+                        double startTime_k_l = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_l);
+                        if (startTime_k_l < startTimeCurr)
+                            sourceFinishTime.push_back(startTime_k_l + tasks[k].executionTime);
+                        else if (instance_l - 1 >= 0)
+                        {
+                            double startTime_k_l_prev = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_l - 1);
+                            if (startTime_k_l_prev < startTimeCurr)
+                                sourceFinishTime.push_back(startTime_k_l_prev + tasks[k].executionTime);
+                            else
+                            {
+                                cout << "Error in SensorFusion_ConstraintFactor" << endl;
+                                throw;
+                            }
+                        }
+                        // there is no previous instance, i.e., DAG constraints are violated,
+                        // find a later instance, and return it
+                        else
+                        {
+                            double startTime_k_l_next = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_l + 1);
+                            sourceFinishTime.push_back(startTime_k_l_next + tasks[k].executionTime);
+                        }
+                    }
+                }
+
+                // res(0, 0) = BarrierLog(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
+                res(0, 0) = Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
+
+                return res;
+            };
+
+            if (H)
+            {
+                *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
+                // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
+                if (debugMode == 1)
+                {
+                    cout << "The Jacobian matrix of SensorFusion_ConstraintFactor is " << endl
+                         << *H << endl;
+                }
+                if (debugMode == 1)
+                {
+                    cout << "The input startTimeVector is " << startTimeVector << endl;
+                    cout << "The error vector is " << f(startTimeVector) << endl;
+                }
+            }
+
+            return f(startTimeVector);
+        }
+    };
+
     /**
      * @brief Generate initial solution for the whole optimization
      * 
@@ -435,7 +553,8 @@ namespace DAG_SPACE
     VectorDynamic OptimizeTaskSystem1()
     {
         using namespace RegularTaskSystem;
-        TaskSet tasks = ReadTaskSet("../TaskData/test_n5_v1.csv", "orig");
+
+        TaskSet tasks = ReadTaskSet("../TaskData/" + testDataSetName + ".csv", "orig");
         int N = tasks.size();
         LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -464,6 +583,10 @@ namespace DAG_SPACE
         LLint errorDimensionDDL = 2 * variableDimension;
         model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
         graph.emplace_shared<DDL_ConstraintFactor>(key, tasks, sizeOfVariables, errorDimensionDDL, model);
+        // LLint errorDimensionSF = 1;
+        // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
+        // graph.emplace_shared<SensorFusion_ConstraintFactor>(key, tasks, sizeOfVariables,
+        //                                                     errorDimensionSF, sensorFusionTolerance, model);
 
         VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
         Values initialEstimateFG;
