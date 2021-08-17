@@ -187,6 +187,61 @@ namespace DAG_SPACE
                                              ExtractVariable(startTimeVector, sizeOfVariables, 2, 0) - tasks[2].executionTime + 0);
                 res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
                                              ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) - tasks[3].executionTime + 0);
+
+                return res;
+            };
+
+            if (H)
+            {
+                *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
+                // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
+                if (debugMode == 1)
+                {
+                    cout << "The Jacobian matrix is " << *H << endl;
+                }
+                if (debugMode == 1)
+                {
+                    cout << "The input startTimeVector is " << startTimeVector << endl;
+                    cout << "The error vector is " << f(startTimeVector) << endl;
+                }
+            }
+
+            return f(startTimeVector);
+        }
+    };
+
+    class DBF_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
+    {
+    public:
+        TaskSet tasks;
+        vector<LLint> sizeOfVariables;
+        int N;
+        LLint errorDimension;
+        LLint length;
+
+        DBF_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables, LLint errorDimension,
+                             SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
+                                                       tasks(tasks), sizeOfVariables(sizeOfVariables),
+                                                       N(tasks.size()), errorDimension(errorDimension)
+        {
+            length = 0;
+
+            for (int i = 0; i < N; i++)
+            {
+                length += sizeOfVariables[i];
+            }
+        }
+
+        Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
+        {
+
+            boost::function<Matrix(const VectorDynamic &)> f =
+                [this](const VectorDynamic &startTimeVector)
+            {
+                VectorDynamic res;
+                res.resize(errorDimension, 1);
+                LLint indexRes = 0;
+
                 res(indexRes, 0) = 0;
                 //demand bound function
                 for (int i = 0; i < N; i++)
@@ -225,7 +280,59 @@ namespace DAG_SPACE
                         }
                     }
                 }
-                indexRes++;
+                return res;
+            };
+
+            if (H)
+            {
+                *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
+                // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
+                if (debugMode == 1)
+                {
+                    cout << "The Jacobian matrix is " << *H << endl;
+                }
+                if (debugMode == 1)
+                {
+                    cout << "The input startTimeVector is " << startTimeVector << endl;
+                    cout << "The error vector is " << f(startTimeVector) << endl;
+                }
+            }
+
+            return f(startTimeVector);
+        }
+    };
+
+    class DDL_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
+    {
+    public:
+        TaskSet tasks;
+        vector<LLint> sizeOfVariables;
+        int N;
+        LLint errorDimension;
+        LLint length;
+
+        DDL_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables, LLint errorDimension,
+                             SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
+                                                       tasks(tasks), sizeOfVariables(sizeOfVariables),
+                                                       N(tasks.size()), errorDimension(errorDimension)
+        {
+            length = 0;
+
+            for (int i = 0; i < N; i++)
+            {
+                length += sizeOfVariables[i];
+            }
+        }
+
+        Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
+        {
+
+            boost::function<Matrix(const VectorDynamic &)> f =
+                [this](const VectorDynamic &startTimeVector)
+            {
+                VectorDynamic res;
+                res.resize(errorDimension, 1);
+                LLint indexRes = 0;
 
                 // self DDL
                 for (int i = 0; i < N; i++)
@@ -267,7 +374,6 @@ namespace DAG_SPACE
             return f(startTimeVector);
         }
     };
-
     /**
      * @brief Generate initial solution for the whole optimization
      * 
@@ -345,11 +451,19 @@ namespace DAG_SPACE
         }
 
         // build the factor graph
-        LLint errorDimension = 1 + 1 + 4 + 2 * variableDimension;
-        auto model = noiseModel::Isotropic::Sigma(errorDimension, noiseModelSigma);
         NonlinearFactorGraph graph;
         Symbol key('a', 0);
-        graph.emplace_shared<DAG_ConstraintFactor>(key, tasks, sizeOfVariables, errorDimension, model);
+
+        //  + 4 + 2 * variableDimension;
+        LLint errorDimensionDAG = 1 + 4;
+        auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
+        graph.emplace_shared<DAG_ConstraintFactor>(key, tasks, sizeOfVariables, errorDimensionDAG, model);
+        LLint errorDimensionDBF = 1;
+        model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+        graph.emplace_shared<DBF_ConstraintFactor>(key, tasks, sizeOfVariables, errorDimensionDBF, model);
+        LLint errorDimensionDDL = 2 * variableDimension;
+        model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
+        graph.emplace_shared<DDL_ConstraintFactor>(key, tasks, sizeOfVariables, errorDimensionDDL, model);
 
         VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
         Values initialEstimateFG;
