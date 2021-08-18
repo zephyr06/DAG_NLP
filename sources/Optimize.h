@@ -188,8 +188,8 @@ namespace DAG_SPACE
 
                 // dependency, self DDL, sensor fusion, event chain
                 // minimize makespan
-                res(indexRes++, 0) = (ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
-                                      ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) + 0) *
+                res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
+                                             ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) + 0) *
                                      makespanWeight;
 
                 // add dependency constraints
@@ -464,10 +464,10 @@ namespace DAG_SPACE
                             sourceFinishTime.push_back(startTime_k_l_next + tasks[k].executionTime);
                         }
                     }
+                    res(indexRes++, 0) = Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
                 }
 
                 // res(0, 0) = BarrierLog(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
-                res(0, 0) = Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
 
                 return res;
             };
@@ -583,10 +583,10 @@ namespace DAG_SPACE
         LLint errorDimensionDDL = 2 * variableDimension;
         model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
         graph.emplace_shared<DDL_ConstraintFactor>(key, tasks, sizeOfVariables, errorDimensionDDL, model);
-        // LLint errorDimensionSF = 1;
-        // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-        // graph.emplace_shared<SensorFusion_ConstraintFactor>(key, tasks, sizeOfVariables,
-        //                                                     errorDimensionSF, sensorFusionTolerance, model);
+        LLint errorDimensionSF = sizeOfVariables[3];
+        model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
+        graph.emplace_shared<SensorFusion_ConstraintFactor>(key, tasks, sizeOfVariables,
+                                                            errorDimensionSF, sensorFusionTolerance, model);
 
         VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
         Values initialEstimateFG;
