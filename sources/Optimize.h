@@ -24,7 +24,7 @@ double BarrierLog(double x)
 {
     if (x >= 0)
         // return pow(x, 2);
-        return -1 * log(x + 1) + barrierBase;
+        return weightLogBarrier * log(x + 1) + barrierBase;
     else if (x < 0)
     {
         return punishmentInBarrier * pow(1 - x, 2);
@@ -188,7 +188,7 @@ namespace DAG_SPACE
 
                 // dependency, self DDL, sensor fusion, event chain
                 // minimize makespan
-                res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
+                res(indexRes++, 0) = BarrierLog(ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
                                              ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) + 0) *
                                      makespanWeight;
 
@@ -216,7 +216,7 @@ namespace DAG_SPACE
                 }
                 if (debugMode == 1)
                 {
-                    cout << "The input startTimeVector is " << startTimeVector << endl;
+                    // cout << "The input startTimeVector is " << startTimeVector << endl;
                     cout << "The error vector is " << f(startTimeVector) << endl;
                 }
             }
@@ -309,7 +309,7 @@ namespace DAG_SPACE
                 }
                 if (debugMode == 1)
                 {
-                    cout << "The input startTimeVector is " << startTimeVector << endl;
+                    // cout << "The input startTimeVector is " << startTimeVector << endl;
                     cout << "The error vector is " << f(startTimeVector) << endl;
                 }
             }
@@ -383,7 +383,7 @@ namespace DAG_SPACE
                 }
                 if (debugMode == 1)
                 {
-                    cout << "The input startTimeVector is " << startTimeVector << endl;
+                    // cout << "The input startTimeVector is " << startTimeVector << endl;
                     cout << "The error vector is " << f(startTimeVector) << endl;
                 }
             }
@@ -428,6 +428,7 @@ namespace DAG_SPACE
             boost::function<Matrix(const VectorDynamic &)> f =
                 [this](const VectorDynamic &startTimeVector)
             {
+                cout << "The startTimeVector: " << startTimeVector.transpose() << endl;
                 VectorDynamic res;
                 res.resize(errorDimension, 1);
                 LLint indexRes = 0;
@@ -436,32 +437,36 @@ namespace DAG_SPACE
                 // TODO: this is a customized number
                 sourceFinishTime.reserve(3);
                 // go through all the instances of task 3
-                for (int instance_j = 0; instance_j < sizeOfVariables[3]; instance_j++)
+                for (int instanceCurr = 0; instanceCurr < sizeOfVariables[3]; instanceCurr++)
                 {
-                    double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, 3, instance_j);
-                    for (int k = 0; k < 3; k++)
+                    double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, 3, instanceCurr);
+                    // go through three source sensor tasks
+                    for (int sourceIndex = 0; sourceIndex < 3; sourceIndex++)
                     {
-                        LLint instance_l = floor(startTimeCurr / tasks[k].period);
-                        double startTime_k_l = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_l);
-                        if (startTime_k_l < startTimeCurr)
-                            sourceFinishTime.push_back(startTime_k_l + tasks[k].executionTime);
-                        else if (instance_l - 1 >= 0)
+                        LLint instanceSource = floor(startTimeCurr / tasks[sourceIndex].period);
+                        double startTimeSourceInstance = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource);
+                        double finishTimeSourceInstance = startTimeSourceInstance + tasks[sourceIndex].executionTime;
+                        if (finishTimeSourceInstance < startTimeCurr)
+                            sourceFinishTime.push_back(finishTimeSourceInstance);
+                        else if (instanceSource - 1 >= 0)
                         {
-                            double startTime_k_l_prev = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_l - 1);
-                            if (startTime_k_l_prev < startTimeCurr)
-                                sourceFinishTime.push_back(startTime_k_l_prev + tasks[k].executionTime);
+                            double startTime_k_l_prev = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource - 1);
+                            if (startTime_k_l_prev + tasks[sourceIndex].executionTime < startTimeCurr)
+                                sourceFinishTime.push_back(startTime_k_l_prev + tasks[sourceIndex].executionTime);
                             else
                             {
-                                cout << "Error in SensorFusion_ConstraintFactor" << endl;
-                                throw;
+                                //in this case, self deadline constraint is violated
+                                sourceFinishTime.push_back(startTime_k_l_prev + tasks[sourceIndex].executionTime);
+                                // cout << "Error in SensorFusion_ConstraintFactor" << endl;
+                                // throw;
                             }
                         }
                         // there is no previous instance, i.e., DAG constraints are violated,
-                        // find a later instance, and return it
+                        // find a later instance, and return it because it will give a bigger error
                         else
                         {
-                            double startTime_k_l_next = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_l + 1);
-                            sourceFinishTime.push_back(startTime_k_l_next + tasks[k].executionTime);
+                            double startTime_k_l_next = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource + 1);
+                            sourceFinishTime.push_back(startTime_k_l_next + tasks[sourceIndex].executionTime);
                         }
                     }
                     res(indexRes++, 0) = Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
@@ -483,7 +488,7 @@ namespace DAG_SPACE
                 }
                 if (debugMode == 1)
                 {
-                    cout << "The input startTimeVector is " << startTimeVector << endl;
+                    // cout << "The input startTimeVector is " << startTimeVector << endl;
                     cout << "The error vector is " << f(startTimeVector) << endl;
                 }
             }
@@ -585,8 +590,8 @@ namespace DAG_SPACE
         graph.emplace_shared<DDL_ConstraintFactor>(key, tasks, sizeOfVariables, errorDimensionDDL, model);
         LLint errorDimensionSF = sizeOfVariables[3];
         model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-        graph.emplace_shared<SensorFusion_ConstraintFactor>(key, tasks, sizeOfVariables,
-                                                            errorDimensionSF, sensorFusionTolerance, model);
+        // graph.emplace_shared<SensorFusion_ConstraintFactor>(key, tasks, sizeOfVariables,
+        //                                                     errorDimensionSF, sensorFusionTolerance, model);
 
         VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
         Values initialEstimateFG;
