@@ -21,7 +21,7 @@ weightLogBarrier: -1.0
 
 punishmentInBarrier: 1e2
 
-noiseModelSigma: 1e-3
+noiseModelSigma: 1e0
 relativeErrorTolerance: 1e-5
 
 toleranceBarrier: 1e-6

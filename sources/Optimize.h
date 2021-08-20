@@ -189,7 +189,7 @@ namespace DAG_SPACE
                 // dependency, self DDL, sensor fusion, event chain
                 // minimize makespan
                 res(indexRes++, 0) = BarrierLog(ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
-                                             ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) + 0) *
+                                                ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) + 0) *
                                      makespanWeight;
 
                 // add dependency constraints
@@ -211,13 +211,13 @@ namespace DAG_SPACE
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {
-                    cout << "The Jacobian matrix of DAG_ConstraintFactor is " << endl
+                    cout << "The Jacobian matrix of DAG_ConstraintFactor (including makespac) is " << endl
                          << *H << endl;
                 }
                 if (debugMode == 1)
                 {
                     // cout << "The input startTimeVector is " << startTimeVector << endl;
-                    cout << "The error vector is " << f(startTimeVector) << endl;
+                    cout << "The error vector is " << blue << f(startTimeVector) << def << endl;
                 }
             }
 
@@ -310,7 +310,7 @@ namespace DAG_SPACE
                 if (debugMode == 1)
                 {
                     // cout << "The input startTimeVector is " << startTimeVector << endl;
-                    cout << "The error vector is " << f(startTimeVector) << endl;
+                    cout << "The error vector is " << blue << f(startTimeVector) << def << endl;
                 }
             }
 
@@ -384,7 +384,7 @@ namespace DAG_SPACE
                 if (debugMode == 1)
                 {
                     // cout << "The input startTimeVector is " << startTimeVector << endl;
-                    cout << "The error vector is " << f(startTimeVector) << endl;
+                    cout << "The error vector is " << blue << f(startTimeVector) << def << endl;
                 }
             }
 
@@ -489,7 +489,7 @@ namespace DAG_SPACE
                 if (debugMode == 1)
                 {
                     // cout << "The input startTimeVector is " << startTimeVector << endl;
-                    cout << "The error vector is " << f(startTimeVector) << endl;
+                    cout << "The error vector is " << blue << f(startTimeVector) << def << endl;
                 }
             }
 
@@ -555,30 +555,30 @@ namespace DAG_SPACE
             - event chain RTA
      * @return all the instances' start time
      */
-    VectorDynamic OptimizeTaskSystem1()
+    VectorDynamic UnitOptimization(TaskSet &tasks, VectorDynamic &initialEstimate,
+                                   boost::function<VectorDynamic(const VectorDynamic &)> MappingFunc,
+                                   vector<LLint> &sizeOfVariables, int variableDimension, LLint hyperPeriod)
     {
         using namespace RegularTaskSystem;
 
-        TaskSet tasks = ReadTaskSet("../TaskData/" + testDataSetName + ".csv", "orig");
         int N = tasks.size();
-        LLint hyperPeriod = HyperPeriod(tasks);
+        // LLint hyperPeriod = HyperPeriod(tasks);
 
         // declare variables
-        vector<LLint> sizeOfVariables;
-        int variableDimension = 0;
-        for (int i = 0; i < N; i++)
-        {
+        // vector<LLint> sizeOfVariables;
+        // int variableDimension = 0;
+        // for (int i = 0; i < N; i++)
+        // {
 
-            LLint size = hyperPeriod / tasks[i].period;
-            sizeOfVariables.push_back(size);
-            variableDimension += size;
-        }
+        //     LLint size = hyperPeriod / tasks[i].period;
+        //     sizeOfVariables.push_back(size);
+        //     variableDimension += size;
+        // }
 
         // build the factor graph
         NonlinearFactorGraph graph;
         Symbol key('a', 0);
 
-        //  + 4 + 2 * variableDimension;
         LLint errorDimensionDAG = 1 + 4;
         auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
         graph.emplace_shared<DAG_ConstraintFactor>(key, tasks, sizeOfVariables, errorDimensionDAG, model);
@@ -593,7 +593,6 @@ namespace DAG_SPACE
         // graph.emplace_shared<SensorFusion_ConstraintFactor>(key, tasks, sizeOfVariables,
         //                                                     errorDimensionSF, sensorFusionTolerance, model);
 
-        VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
         Values initialEstimateFG;
         initialEstimateFG.insert(key, initialEstimate);
 
@@ -628,5 +627,65 @@ namespace DAG_SPACE
         cout << blue << "The error before optimization is " << graph.error(initialEstimateFG) << def << endl;
         cout << blue << "The error after optimization is " << graph.error(finalEstimate) << def << endl;
         return optComp;
+    }
+
+    bool CheckEliminate(TaskSet &tasks, VectorDynamic &startTimeVec,
+                        boost::function<VectorDynamic(const VectorDynamic &)> MappingFunc)
+    {
+        ;
+        return false;
+    }
+    /**
+     * @brief Perform scheduling based on optimization
+     * 
+     * @param tasks 
+     * @return VectorDynamic all the task instances' start time
+     */
+    VectorDynamic OptimizeScheduling(TaskSet &tasks)
+    {
+        int N = tasks.size();
+        LLint hyperPeriod = HyperPeriod(tasks);
+
+        // declare variables
+        vector<LLint> sizeOfVariables;
+        int variableDimension = 0;
+        for (int i = 0; i < N; i++)
+        {
+            LLint size = hyperPeriod / tasks[i].period;
+            sizeOfVariables.push_back(size);
+            variableDimension += size;
+        }
+        VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
+        boost::function<VectorDynamic(const VectorDynamic &)> MappingFunc = [](const VectorDynamic &startTimeVec)
+        {
+            return startTimeVec;
+        };
+
+        int loopNumber = 0;
+        VectorDynamic resTemp = GenerateVectorDynamic(variableDimension);
+        while (1)
+        {
+            resTemp = UnitOptimization(tasks, initialEstimate,
+                                       MappingFunc, sizeOfVariables, variableDimension, hyperPeriod);
+            if (CheckEliminate(tasks, resTemp, MappingFunc))
+            {
+                // update initialEstimate
+                // update MappingFunc
+                ;
+            }
+            else
+            {
+                break;
+            }
+            loopNumber++;
+            if (loopNumber > N)
+            {
+                cout << "Loop number error in OptimizeScheduling" << endl;
+                throw;
+            }
+        }
+
+        VectorDynamic trueResult = MappingFunc(resTemp);
+        return trueResult;
     }
 }

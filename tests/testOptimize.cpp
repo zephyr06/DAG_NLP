@@ -44,7 +44,8 @@ TEST(random, v1)
 TEST(ExtractVariable, v1)
 {
     using namespace DAG_SPACE;
-    auto res = OptimizeTaskSystem1();
+    TaskSet tasks = ReadTaskSet("../TaskData/" + testDataSetName + ".csv", "orig");
+    auto res = OptimizeScheduling(tasks);
     cout << "The result after optimization is " << res << endl;
 }
 int main()
