@@ -66,7 +66,8 @@ namespace DAG_SPACE
         boost::function<Matrix(const VectorDynamic &)> f =
             [this](const VectorDynamic &startTimeVectorOrig)
         {
-            VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig, maskForEliminate, mapIndex);
+            VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
+                                                                   maskForEliminate, mapIndex);
             VectorDynamic res;
             res.resize(errorDimension, 1);
             LLint indexRes = 0;
@@ -125,8 +126,8 @@ namespace DAG_SPACE
                 }
                 if (debugMode == 1)
                 {
-                    // cout << "The input startTimeVector is " << startTimeVector << endl;
-                    cout << "The error vector is " << blue << f(startTimeVector) << def << endl;
+                    cout << "The input startTimeVector of DBF is " << startTimeVector << endl;
+                    cout << "The error vector of DBF is " << blue << f(startTimeVector) << def << endl;
                 }
             }
 
@@ -173,6 +174,11 @@ namespace DAG_SPACE
                                 {
                                     LLint index_i_overall = IndexTran_Instance2Overall(i, instance_i, sizeOfVariables);
                                     LLint index_j_overall = IndexTran_Instance2Overall(j, instance_j, sizeOfVariables);
+                                    if (index_i_overall == index_j_overall)
+                                    {
+                                        // this is a self interval, no need to replace one task with itself
+                                        continue;
+                                    }
                                     maskForEliminate[index_j_overall] = true;
                                     whetherEliminate = true;
                                     MappingDataStruct m{index_i_overall, sumIJK};

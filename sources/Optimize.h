@@ -173,14 +173,15 @@ namespace DAG_SPACE
         VectorDynamic trueResult;
         while (1)
         {
-
+            whetherEliminate = false;
             // TODO: modify interface later
             auto sth = UnitOptimization(tasks, initialEstimate,
                                         mapIndex, maskForEliminate,
                                         sizeOfVariables, variableDimension,
                                         hyperPeriod);
-            sth.first = resTemp;
-            sth.second = graph;
+
+            resTemp = sth.first;
+            graph = sth.second;
 
             // we don't have to check all the dimension
             for (LLint i = 0; i < LLint(maskForEliminate.size()); i++)
@@ -199,29 +200,9 @@ namespace DAG_SPACE
                                             mapIndex, maskForEliminate, model);
                 // this function performs in-place modification for all the variables!
                 factor.addMappingFunction(resTemp, mapIndex, whetherEliminate, maskForEliminate);
-                // VectorDynamic errorBase = factor.evaluateError(resTemp);
-                // resTemp(i, 0) += deltaEliminator;
-                // VectorDynamic errorIncrement = factor.evaluateError(resTemp);
-                // // we don't have to check all the dimension
-                // for (size_t k = 0; k < errorIncrement.rows(); k++)
-                // {
-                //     if (abs(errorIncrement(k, 0) - errorBase(k, 0)) > toleranceEliminator)
-                //     {
-                //         bool success;
-                //         FuncV2V mapCurr;
-                //         success, mapCurr = factor.getMappingFunction(j, resTemp, maskForEliminate);
-                //         if (success)
-                //         {
-                //             mapIndex[i] = mapCurr;
-                //             whetherEliminate = true;
-                //             maskForEliminate[i] == true;
-                //         }
-                //         else
-                //         {
-                //             continue;
-                //         }
-                //     }
-                // }
+
+                // update initialestimate !!!
+                int a = 1;
             }
 
             if (not whetherEliminate)

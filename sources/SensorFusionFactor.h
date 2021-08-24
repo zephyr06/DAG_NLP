@@ -112,7 +112,7 @@ namespace DAG_SPACE
                 if (debugMode == 1)
                 {
                     // cout << "The input startTimeVector is " << startTimeVector << endl;
-                    cout << "The error vector is " << blue << f(startTimeVector) << def << endl;
+                    cout << "The error vector of SensorFusion is " << blue << f(startTimeVector) << def << endl;
                 }
             }
 
