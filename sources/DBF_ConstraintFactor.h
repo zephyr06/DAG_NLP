@@ -1,0 +1,196 @@
+#include "DeclareDAG.h"
+#include "RegularTasks.h"
+
+namespace DAG_SPACE
+{
+    using namespace RegularTaskSystem;
+    /**
+     * @brief get c_{ijk} according to ILP paper
+     * 
+     * @param startTime_i 
+     * @param task_i 
+     * @param startTime_j 
+     * @param task_j 
+     * @param startTime_k 
+     * @param task_k 
+     * @return double 
+     */
+    inline double ComputationTime_IJK(double startTime_i, const Task &task_i, double startTime_j,
+                                      const Task &task_j, double startTime_k, const Task &task_k)
+    {
+        if (startTime_i <= startTime_k && startTime_k + task_k.executionTime <= startTime_j + task_j.executionTime)
+        {
+            return task_k.executionTime;
+        }
+        else
+            return 0;
+    }
+    class DBF_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
+    {
+    public:
+        TaskSet tasks;
+        vector<LLint> sizeOfVariables;
+        int N;
+        LLint errorDimension;
+        LLint length;
+        vector<bool> maskForEliminate;
+        MAP_Index2Data &mapIndex;
+
+        DBF_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables,
+                             LLint errorDimension, MAP_Index2Data &mapIndex,
+                             vector<bool> &maskForEliminate, SharedNoiseModel model)
+            : NoiseModelFactor1<VectorDynamic>(model, key),
+              tasks(tasks), sizeOfVariables(sizeOfVariables),
+              N(tasks.size()), errorDimension(errorDimension),
+              maskForEliminate(maskForEliminate), mapIndex(mapIndex)
+        {
+            length = 0;
+
+            for (int i = 0; i < N; i++)
+            {
+                length += sizeOfVariables[i];
+            }
+        }
+        static pair<bool, boost::function<VectorDynamic(const VectorDynamic &)>>
+        getMappingFunction(int j, VectorDynamic &startTimeVector)
+        {
+            bool success;
+            FuncV2V f;
+            return make_pair(false, f);
+        }
+        /**
+         * @brief for error evaluation; this returns a scalar, 
+         * which is the merged version of all DBF error
+         * 
+         */
+        boost::function<Matrix(const VectorDynamic &)> f =
+            [this](const VectorDynamic &startTimeVectorOrig)
+        {
+            VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig, maskForEliminate, mapIndex);
+            VectorDynamic res;
+            res.resize(errorDimension, 1);
+            LLint indexRes = 0;
+
+            res(indexRes, 0) = 0;
+            //demand bound function
+            for (int i = 0; i < N; i++)
+            {
+                for (LLint instance_i = 0; instance_i < sizeOfVariables[i]; instance_i++)
+                {
+                    double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, instance_i);
+                    for (int j = 0; j < N; j++)
+                    {
+                        for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
+                        {
+
+                            double sumIJK = 0;
+                            double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
+                            if (startTime_i <= startTime_j &&
+                                startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
+                            {
+                                for (int k = 0; k < N; k++)
+                                {
+                                    for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
+                                    {
+                                        double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
+                                        sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
+                                    }
+                                }
+                                double valueT = Barrier(startTime_j + tasks[j].executionTime - startTime_i - sumIJK + 0);
+                                res(indexRes, 0) += valueT;
+                            }
+                            else
+                            {
+
+                                // res(indexRes++, 0) = 0;
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+            return res;
+        };
+        Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
+        {
+
+            if (H)
+            {
+                *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
+                // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
+                if (debugMode == 1)
+                {
+                    cout << "The Jacobian matrix of DBF_ConstraintFactor is " << endl
+                         << *H << endl;
+                }
+                if (debugMode == 1)
+                {
+                    // cout << "The input startTimeVector is " << startTimeVector << endl;
+                    cout << "The error vector is " << blue << f(startTimeVector) << def << endl;
+                }
+            }
+
+            return f(startTimeVector);
+        }
+
+        void addMappingFunction(VectorDynamic &resTemp,
+                                MAP_Index2Data &mapIndex, bool &whetherEliminate,
+                                vector<bool> &maskForEliminate)
+        {
+            VectorDynamic startTimeVector = RecoverStartTimeVector(resTemp, maskForEliminate, mapIndex);
+            VectorDynamic res;
+            res.resize(errorDimension, 1);
+            LLint indexRes = 0;
+
+            res(indexRes, 0) = 0;
+            //demand bound function
+
+            for (int i = 0; i < N; i++)
+            {
+                for (LLint instance_i = 0; instance_i < sizeOfVariables[i]; instance_i++)
+                {
+                    double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, instance_i);
+                    for (int j = 0; j < N; j++)
+                    {
+                        for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
+                        {
+
+                            double sumIJK = 0;
+                            double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
+                            if (startTime_i <= startTime_j &&
+                                startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
+                            {
+                                for (int k = 0; k < N; k++)
+                                {
+                                    for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
+                                    {
+                                        double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
+                                        sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
+                                    }
+                                }
+                                double distanceToBound = startTime_j + tasks[j].executionTime - startTime_i - sumIJK;
+                                if (distanceToBound < toleranceEliminator && distanceToBound >= 0)
+                                {
+                                    LLint index_i_overall = IndexTran_Instance2Overall(i, instance_i, sizeOfVariables);
+                                    LLint index_j_overall = IndexTran_Instance2Overall(j, instance_j, sizeOfVariables);
+                                    maskForEliminate[index_j_overall] = true;
+                                    whetherEliminate = true;
+                                    MappingDataStruct m{index_i_overall, sumIJK};
+                                    mapIndex[index_j_overall] = m;
+                                }
+                                else
+                                    continue;
+                            }
+                            else
+                            {
+
+                                // res(indexRes++, 0) = 0;
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+}

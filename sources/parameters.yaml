@@ -9,6 +9,8 @@ makespanWeight: 1e-1
 testDataSetName: test_n5_v1
 
 deltaOptimizer: 1e-1
+deltaEliminator: 1e-1
+toleranceEliminator: 10
 barrierBase: 100
 initialRHS: 0
 

@@ -1,502 +1,17 @@
 #include <boost/function.hpp>
 #include "RegularTasks.h"
+#include "DAG_ConstraintFactor.h"
+#include "DBF_ConstraintFactor.h"
+#include "DDL_ConstraintFactor.h"
+#include "SensorFusionFactor.h"
 
 using namespace RegularTaskSystem;
 // -------------------------------------------------------- from previous optimization begins
-/**
- * barrier function for the optimization
- **/
-double Barrier(double x)
-{
-    if (x >= 0)
-        // return pow(x, 2);
-        return 0;
-    else if (x < 0)
-    {
-        return -1 * x;
-    }
-    else // it basically means x=0
-        return weightLogBarrier *
-               log(x + toleranceBarrier);
-}
-
-double BarrierLog(double x)
-{
-    if (x >= 0)
-        // return pow(x, 2);
-        return weightLogBarrier * log(x + 1) + barrierBase;
-    else if (x < 0)
-    {
-        return punishmentInBarrier * pow(1 - x, 2);
-    }
-    else // it basically means x=0
-        return weightLogBarrier *
-               log(x + toleranceBarrier);
-}
-
-MatrixDynamic NumericalDerivativeDynamicUpper(boost::function<VectorDynamic(const VectorDynamic &)> h,
-                                              VectorDynamic x, double deltaOptimizer, int mOfJacobian)
-{
-    int n = x.rows();
-    MatrixDynamic jacobian;
-    jacobian.resize(mOfJacobian, n);
-    VectorDynamic currErr = h(x);
-    // if (debugMode == 1)
-    // {
-    //     cout << "currErr" << currErr << endl
-    //          << endl;
-    // }
-
-    for (int i = 0; i < n; i++)
-    {
-        VectorDynamic xDelta = x;
-        xDelta(i, 0) = xDelta(i, 0) + deltaOptimizer;
-        VectorDynamic resPlus;
-        resPlus.resize(mOfJacobian, 1);
-        resPlus = h(xDelta);
-        xDelta(i, 0) = xDelta(i, 0) - 2 * deltaOptimizer;
-        VectorDynamic resMinus;
-        resMinus.resize(mOfJacobian, 1);
-        resMinus = h(xDelta);
-        // if (debugMode == 1)
-        // {
-        //     cout << "resPlus" << resPlus << endl;
-        // }
-
-        for (int j = 0; j < mOfJacobian; j++)
-        {
-            jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaOptimizer;
-            // jacobian(j, i) = (resMinus(j, 0) - currErr(j, 0)) / deltaOptimizer * -1;
-            // jacobian(j, i) = (resPlus(j, 0) - currErr(j, 0)) / deltaOptimizer;
-        }
-    }
-    return jacobian;
-}
 
 // -------------------------------------------------------- from previous optimization ends
 
-inline VectorDynamic GenerateVectorDynamic(LLint N)
-{
-    VectorDynamic v;
-    v.resize(N, 1);
-    v.setZero();
-    return v;
-}
-
 namespace DAG_SPACE
 {
-
-    // VectorDynamic GenerateInitialStartTime(TaskSet &tasks, vector<LLint> &sizeOfVariables)
-    // {
-    //     int N = tasks.size();
-    //     LLint length = 0;
-
-    //     for (int i = 0; i < N; i++)
-    //     {
-    //         length += sizeOfVariables[i];
-    //     }
-    //     VectorDynamic initial = GenerateVectorDynamic(length);
-    //     // LLint index = 0;
-    //     // for (int i = 0; i < N; i++)
-    //     // {
-    //     //     for (int j = 0; j < sizeOfVariables[i]; j++)
-    //     //     {
-    //     //         initial(index, 0) = tasks[i].period * j;
-    //     //         index++;
-    //     //     }
-    //     // }
-    //     initial << 0, 10, 20, 25, 30, 60;
-    //     return initial;
-    // }
-
-    /**
-     * @brief extract instance from the large vector
-     * 
-     * @param startTimeVector large, combined vector of start time for all instances
-     * @param taskIndex task-index
-     * @param instanceIndex instance-index
-     * @return double start time of the extracted instance
-     */
-    double ExtractVariable(const VectorDynamic &startTimeVector, const vector<LLint> &sizeOfVariables, int taskIndex, int instanceIndex)
-    {
-        LLint firstTaskInstance = 0;
-        for (int i = 0; i < taskIndex; i++)
-        {
-            firstTaskInstance += sizeOfVariables[i];
-        }
-        return startTimeVector(firstTaskInstance + instanceIndex, 0);
-    }
-
-    /**
-     * @brief get c_{ijk} according to ILP paper
-     * 
-     * @param startTime_i 
-     * @param task_i 
-     * @param startTime_j 
-     * @param task_j 
-     * @param startTime_k 
-     * @param task_k 
-     * @return double 
-     */
-    inline double ComputationTime_IJK(double startTime_i, const Task &task_i, double startTime_j,
-                                      const Task &task_j, double startTime_k, const Task &task_k)
-    {
-        if (startTime_i <= startTime_k && startTime_k + task_k.executionTime <= startTime_j + task_j.executionTime)
-        {
-            return task_k.executionTime;
-        }
-        else
-            return 0;
-    }
-
-    // we need to declare all kinds of factors, corresponding to different type of constraints
-
-    // we need a main optimization process, given a DAG input, and return all the start time for all the instances
-
-    // we need an initialization method for phase-1 problem
-    class DAG_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
-    {
-    public:
-        TaskSet tasks;
-        vector<LLint> sizeOfVariables;
-        int N;
-        LLint errorDimension;
-        LLint length;
-
-        DAG_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables, LLint errorDimension,
-                             SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
-                                                       tasks(tasks), sizeOfVariables(sizeOfVariables),
-                                                       N(tasks.size()), errorDimension(errorDimension)
-        {
-            length = 0;
-
-            for (int i = 0; i < N; i++)
-            {
-                length += sizeOfVariables[i];
-            }
-        }
-
-        Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
-        {
-
-            boost::function<Matrix(const VectorDynamic &)> f =
-                [this](const VectorDynamic &startTimeVector)
-            {
-                VectorDynamic res;
-                res.resize(errorDimension, 1);
-                LLint indexRes = 0;
-
-                // dependency, self DDL, sensor fusion, event chain
-                // minimize makespan
-                res(indexRes++, 0) = BarrierLog(ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
-                                                ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) + 0) *
-                                     makespanWeight;
-
-                // add dependency constraints
-                res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -
-                                             ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) - tasks[0].executionTime + 0);
-                res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -
-                                             ExtractVariable(startTimeVector, sizeOfVariables, 1, 0) - tasks[1].executionTime + 0);
-                res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -
-                                             ExtractVariable(startTimeVector, sizeOfVariables, 2, 0) - tasks[2].executionTime + 0);
-                res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
-                                             ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) - tasks[3].executionTime + 0);
-
-                return res;
-            };
-
-            if (H)
-            {
-                *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
-                // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
-                if (debugMode == 1)
-                {
-                    cout << "The Jacobian matrix of DAG_ConstraintFactor (including makespac) is " << endl
-                         << *H << endl;
-                }
-                if (debugMode == 1)
-                {
-                    // cout << "The input startTimeVector is " << startTimeVector << endl;
-                    cout << "The error vector is " << blue << f(startTimeVector) << def << endl;
-                }
-            }
-
-            return f(startTimeVector);
-        }
-    };
-
-    class DBF_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
-    {
-    public:
-        TaskSet tasks;
-        vector<LLint> sizeOfVariables;
-        int N;
-        LLint errorDimension;
-        LLint length;
-
-        DBF_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables, LLint errorDimension,
-                             SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
-                                                       tasks(tasks), sizeOfVariables(sizeOfVariables),
-                                                       N(tasks.size()), errorDimension(errorDimension)
-        {
-            length = 0;
-
-            for (int i = 0; i < N; i++)
-            {
-                length += sizeOfVariables[i];
-            }
-        }
-
-        Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
-        {
-
-            boost::function<Matrix(const VectorDynamic &)> f =
-                [this](const VectorDynamic &startTimeVector)
-            {
-                VectorDynamic res;
-                res.resize(errorDimension, 1);
-                LLint indexRes = 0;
-
-                res(indexRes, 0) = 0;
-                //demand bound function
-                for (int i = 0; i < N; i++)
-                {
-                    for (LLint instance_i = 0; instance_i < sizeOfVariables[i]; instance_i++)
-                    {
-                        double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, instance_i);
-                        for (int j = 0; j < N; j++)
-                        {
-                            for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
-                            {
-
-                                double sumIJK = 0;
-                                double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
-                                if (startTime_i <= startTime_j &&
-                                    startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
-                                {
-                                    for (int k = 0; k < N; k++)
-                                    {
-                                        for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
-                                        {
-                                            double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
-                                            sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
-                                        }
-                                    }
-                                    double valueT = Barrier(startTime_j + tasks[j].executionTime - startTime_i - sumIJK + 0);
-                                    res(indexRes, 0) += valueT;
-                                }
-                                else
-                                {
-
-                                    // res(indexRes++, 0) = 0;
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-                }
-                return res;
-            };
-
-            if (H)
-            {
-                *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
-                // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
-                if (debugMode == 1)
-                {
-                    cout << "The Jacobian matrix of DBF_ConstraintFactor is " << endl
-                         << *H << endl;
-                }
-                if (debugMode == 1)
-                {
-                    // cout << "The input startTimeVector is " << startTimeVector << endl;
-                    cout << "The error vector is " << blue << f(startTimeVector) << def << endl;
-                }
-            }
-
-            return f(startTimeVector);
-        }
-    };
-
-    class DDL_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
-    {
-    public:
-        TaskSet tasks;
-        vector<LLint> sizeOfVariables;
-        int N;
-        LLint errorDimension;
-        LLint length;
-
-        DDL_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables, LLint errorDimension,
-                             SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
-                                                       tasks(tasks), sizeOfVariables(sizeOfVariables),
-                                                       N(tasks.size()), errorDimension(errorDimension)
-        {
-            length = 0;
-
-            for (int i = 0; i < N; i++)
-            {
-                length += sizeOfVariables[i];
-            }
-        }
-
-        Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
-        {
-
-            boost::function<Matrix(const VectorDynamic &)> f =
-                [this](const VectorDynamic &startTimeVector)
-            {
-                VectorDynamic res;
-                res.resize(errorDimension, 1);
-                LLint indexRes = 0;
-
-                // self DDL
-                for (int i = 0; i < N; i++)
-                {
-                    for (int j = 0; j < int(sizeOfVariables[i]); j++)
-                    {
-                        // this factor is explained as: variable * 1 < tasks[i].deadline + i * tasks[i].period
-                        res(indexRes++, 0) = Barrier(tasks[i].deadline + j * tasks[i].period -
-                                                     ExtractVariable(startTimeVector, sizeOfVariables, i, j) - tasks[i].executionTime + 0);
-                        // this factor is explained as: variable * -1 < -1 *(i * tasks[i].period)
-                        res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, i, j) - (j * tasks[i].period) + 0);
-                    }
-                }
-
-                if (indexRes != errorDimension)
-                {
-                    cout << red << "The errorDimension is set wrong!" << def << endl;
-                    throw;
-                }
-
-                return res;
-            };
-
-            if (H)
-            {
-                *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
-                // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
-                if (debugMode == 1)
-                {
-                    cout << "The Jacobian matrix of DDL_ConstraintFactor is " << endl
-                         << *H << endl;
-                }
-                if (debugMode == 1)
-                {
-                    // cout << "The input startTimeVector is " << startTimeVector << endl;
-                    cout << "The error vector is " << blue << f(startTimeVector) << def << endl;
-                }
-            }
-
-            return f(startTimeVector);
-        }
-    };
-
-    double ExtractMaxDistance(vector<double> &sourceFinishTime)
-    {
-        return *max_element(sourceFinishTime.begin(), sourceFinishTime.end()) -
-               *min_element(sourceFinishTime.begin(), sourceFinishTime.end());
-    }
-    class SensorFusion_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
-    {
-    public:
-        TaskSet tasks;
-        vector<LLint> sizeOfVariables;
-        int N;
-        LLint errorDimension;
-        LLint length;
-        double sensorFusionTol;
-
-        SensorFusion_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables, LLint errorDimension,
-                                      double sensorFusionTol,
-                                      SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
-                                                                tasks(tasks), sizeOfVariables(sizeOfVariables),
-                                                                N(tasks.size()), sensorFusionTol(sensorFusionTol),
-                                                                errorDimension(errorDimension)
-        {
-            length = 0;
-
-            for (int i = 0; i < N; i++)
-            {
-                length += sizeOfVariables[i];
-            }
-        }
-
-        Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
-        {
-
-            boost::function<Matrix(const VectorDynamic &)> f =
-                [this](const VectorDynamic &startTimeVector)
-            {
-                cout << "The startTimeVector: " << startTimeVector.transpose() << endl;
-                VectorDynamic res;
-                res.resize(errorDimension, 1);
-                LLint indexRes = 0;
-
-                vector<double> sourceFinishTime;
-                // TODO: this is a customized number
-                sourceFinishTime.reserve(3);
-                // go through all the instances of task 3
-                for (int instanceCurr = 0; instanceCurr < sizeOfVariables[3]; instanceCurr++)
-                {
-                    double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, 3, instanceCurr);
-                    // go through three source sensor tasks
-                    for (int sourceIndex = 0; sourceIndex < 3; sourceIndex++)
-                    {
-                        LLint instanceSource = floor(startTimeCurr / tasks[sourceIndex].period);
-                        double startTimeSourceInstance = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource);
-                        double finishTimeSourceInstance = startTimeSourceInstance + tasks[sourceIndex].executionTime;
-                        if (finishTimeSourceInstance < startTimeCurr)
-                            sourceFinishTime.push_back(finishTimeSourceInstance);
-                        else if (instanceSource - 1 >= 0)
-                        {
-                            double startTime_k_l_prev = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource - 1);
-                            if (startTime_k_l_prev + tasks[sourceIndex].executionTime < startTimeCurr)
-                                sourceFinishTime.push_back(startTime_k_l_prev + tasks[sourceIndex].executionTime);
-                            else
-                            {
-                                //in this case, self deadline constraint is violated
-                                sourceFinishTime.push_back(startTime_k_l_prev + tasks[sourceIndex].executionTime);
-                                // cout << "Error in SensorFusion_ConstraintFactor" << endl;
-                                // throw;
-                            }
-                        }
-                        // there is no previous instance, i.e., DAG constraints are violated,
-                        // find a later instance, and return it because it will give a bigger error
-                        else
-                        {
-                            double startTime_k_l_next = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource + 1);
-                            sourceFinishTime.push_back(startTime_k_l_next + tasks[sourceIndex].executionTime);
-                        }
-                    }
-                    res(indexRes++, 0) = Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
-                }
-
-                // res(0, 0) = BarrierLog(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
-
-                return res;
-            };
-
-            if (H)
-            {
-                *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
-                // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
-                if (debugMode == 1)
-                {
-                    cout << "The Jacobian matrix of SensorFusion_ConstraintFactor is " << endl
-                         << *H << endl;
-                }
-                if (debugMode == 1)
-                {
-                    // cout << "The input startTimeVector is " << startTimeVector << endl;
-                    cout << "The error vector is " << blue << f(startTimeVector) << def << endl;
-                }
-            }
-
-            return f(startTimeVector);
-        }
-    };
-
     /**
      * @brief Generate initial solution for the whole optimization
      * 
@@ -555,25 +70,14 @@ namespace DAG_SPACE
             - event chain RTA
      * @return all the instances' start time
      */
-    VectorDynamic UnitOptimization(TaskSet &tasks, VectorDynamic &initialEstimate,
-                                   boost::function<VectorDynamic(const VectorDynamic &)> MappingFunc,
-                                   vector<LLint> &sizeOfVariables, int variableDimension, LLint hyperPeriod)
+    pair<VectorDynamic, NonlinearFactorGraph> UnitOptimization(TaskSet &tasks, VectorDynamic &initialEstimate,
+                                                               MAP_Index2Data mapIndex, vector<bool> &maskForEliminate,
+                                                               vector<LLint> &sizeOfVariables, int variableDimension,
+                                                               LLint hyperPeriod)
     {
         using namespace RegularTaskSystem;
 
         int N = tasks.size();
-        // LLint hyperPeriod = HyperPeriod(tasks);
-
-        // declare variables
-        // vector<LLint> sizeOfVariables;
-        // int variableDimension = 0;
-        // for (int i = 0; i < N; i++)
-        // {
-
-        //     LLint size = hyperPeriod / tasks[i].period;
-        //     sizeOfVariables.push_back(size);
-        //     variableDimension += size;
-        // }
 
         // build the factor graph
         NonlinearFactorGraph graph;
@@ -581,17 +85,24 @@ namespace DAG_SPACE
 
         LLint errorDimensionDAG = 1 + 4;
         auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
-        graph.emplace_shared<DAG_ConstraintFactor>(key, tasks, sizeOfVariables, errorDimensionDAG, model);
+        graph.emplace_shared<DAG_ConstraintFactor>(key, tasks, sizeOfVariables,
+                                                   errorDimensionDAG, mapIndex,
+                                                   maskForEliminate, model);
         LLint errorDimensionDBF = 1;
         model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-        graph.emplace_shared<DBF_ConstraintFactor>(key, tasks, sizeOfVariables, errorDimensionDBF, model);
+        graph.emplace_shared<DBF_ConstraintFactor>(key, tasks, sizeOfVariables,
+                                                   errorDimensionDBF, mapIndex,
+                                                   maskForEliminate,
+                                                   model);
         LLint errorDimensionDDL = 2 * variableDimension;
         model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
-        graph.emplace_shared<DDL_ConstraintFactor>(key, tasks, sizeOfVariables, errorDimensionDDL, model);
+        graph.emplace_shared<DDL_ConstraintFactor>(key, tasks, sizeOfVariables,
+                                                   errorDimensionDDL, mapIndex,
+                                                   maskForEliminate, model);
         LLint errorDimensionSF = sizeOfVariables[3];
         model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
         // graph.emplace_shared<SensorFusion_ConstraintFactor>(key, tasks, sizeOfVariables,
-        //                                                     errorDimensionSF, sensorFusionTolerance, model);
+        //                                                     errorDimensionSF, sensorFusionTolerance,mappingFunc, model);
 
         Values initialEstimateFG;
         initialEstimateFG.insert(key, initialEstimate);
@@ -622,19 +133,9 @@ namespace DAG_SPACE
 
         VectorDynamic optComp = result.at<VectorDynamic>(key);
 
-        Values finalEstimate;
-        finalEstimate.insert(key, optComp);
-        cout << blue << "The error before optimization is " << graph.error(initialEstimateFG) << def << endl;
-        cout << blue << "The error after optimization is " << graph.error(finalEstimate) << def << endl;
-        return optComp;
+        return make_pair(optComp, graph);
     }
 
-    bool CheckEliminate(TaskSet &tasks, VectorDynamic &startTimeVec,
-                        boost::function<VectorDynamic(const VectorDynamic &)> MappingFunc)
-    {
-        ;
-        return false;
-    }
     /**
      * @brief Perform scheduling based on optimization
      * 
@@ -656,26 +157,77 @@ namespace DAG_SPACE
             variableDimension += size;
         }
         VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
-        boost::function<VectorDynamic(const VectorDynamic &)> MappingFunc = [](const VectorDynamic &startTimeVec)
+
+        MAP_Index2Data mapIndex;
+        for (LLint i = 0; i < variableDimension; i++)
         {
-            return startTimeVec;
+            MappingDataStruct m{i, 0};
+            mapIndex[i] = m;
         };
 
+        bool whetherEliminate = false;
         int loopNumber = 0;
+        vector<bool> maskForEliminate(variableDimension, false);
         VectorDynamic resTemp = GenerateVectorDynamic(variableDimension);
+        NonlinearFactorGraph graph;
+        VectorDynamic trueResult;
         while (1)
         {
-            resTemp = UnitOptimization(tasks, initialEstimate,
-                                       MappingFunc, sizeOfVariables, variableDimension, hyperPeriod);
-            if (CheckEliminate(tasks, resTemp, MappingFunc))
+
+            // TODO: modify interface later
+            auto sth = UnitOptimization(tasks, initialEstimate,
+                                        mapIndex, maskForEliminate,
+                                        sizeOfVariables, variableDimension,
+                                        hyperPeriod);
+            sth.first = resTemp;
+            sth.second = graph;
+
+            // we don't have to check all the dimension
+            for (LLint i = 0; i < LLint(maskForEliminate.size()); i++)
             {
-                // update initialEstimate
-                // update MappingFunc
-                ;
+                if (maskForEliminate[i] == true)
+                {
+                    // this variable is already eliminated, cannot eliminate twice
+                    continue;
+                }
+
+                // factors that require elimination analysis are: DBF
+                LLint errorDimensionDBF = 1;
+                auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+                Symbol key('b', 0);
+                DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
+                                            mapIndex, maskForEliminate, model);
+                // this function performs in-place modification for all the variables!
+                factor.addMappingFunction(resTemp, mapIndex, whetherEliminate, maskForEliminate);
+                // VectorDynamic errorBase = factor.evaluateError(resTemp);
+                // resTemp(i, 0) += deltaEliminator;
+                // VectorDynamic errorIncrement = factor.evaluateError(resTemp);
+                // // we don't have to check all the dimension
+                // for (size_t k = 0; k < errorIncrement.rows(); k++)
+                // {
+                //     if (abs(errorIncrement(k, 0) - errorBase(k, 0)) > toleranceEliminator)
+                //     {
+                //         bool success;
+                //         FuncV2V mapCurr;
+                //         success, mapCurr = factor.getMappingFunction(j, resTemp, maskForEliminate);
+                //         if (success)
+                //         {
+                //             mapIndex[i] = mapCurr;
+                //             whetherEliminate = true;
+                //             maskForEliminate[i] == true;
+                //         }
+                //         else
+                //         {
+                //             continue;
+                //         }
+                //     }
+                // }
             }
-            else
+
+            if (not whetherEliminate)
             {
                 break;
+                trueResult = RecoverStartTimeVector(resTemp, maskForEliminate, mapIndex);
             }
             loopNumber++;
             if (loopNumber > N)
@@ -684,8 +236,15 @@ namespace DAG_SPACE
                 throw;
             }
         }
+        Symbol key('a', 0);
 
-        VectorDynamic trueResult = MappingFunc(resTemp);
+        Values finalEstimate;
+        finalEstimate.insert(key, trueResult);
+        Values initialEstimateFG;
+        initialEstimateFG.insert(key, initialEstimate);
+        cout << blue << "The error before optimization is " << graph.error(initialEstimateFG) << def << endl;
+        cout << blue << "The error after optimization is " << graph.error(finalEstimate) << def << endl;
+
         return trueResult;
     }
 }

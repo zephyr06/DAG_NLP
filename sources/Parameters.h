@@ -22,6 +22,9 @@ double minWeightToBegin = (double)ConfigParameters["minWeightToBegin"];
 
 const int exactJacobian = (int)ConfigParameters["exactJacobian"];
 
+const double toleranceEliminator = (double)ConfigParameters["toleranceEliminator"];
+
+const double deltaEliminator = (double)ConfigParameters["deltaEliminator"];
 const double initialRHS = (double)ConfigParameters["initialRHS"];
 const double makespanWeight = (double)ConfigParameters["makespanWeight"];
 const double deltaOptimizer = (double)ConfigParameters["deltaOptimizer"];
