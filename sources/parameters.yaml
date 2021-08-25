@@ -5,8 +5,8 @@ sensorFusionTolerance: 40
 # ****************************************old ones
 runMode: compare
 weight_U: 1e4
-makespanWeight: 1e-1
-testDataSetName: test_n5_v1
+makespanWeight: 1e-6
+testDataSetName: test_n5_v4
 
 deltaOptimizer: 1e-1
 deltaEliminator: 1e-1
@@ -33,7 +33,7 @@ optimizerType: 2 # 1 means dogleg, 2 means LM
 
 deltaInitialDogleg: 1e5
 
-initialLambda: 1e6
+initialLambda: 1e-6
 lowerLambda: 1e-15
 upperLambda: 1e60
 

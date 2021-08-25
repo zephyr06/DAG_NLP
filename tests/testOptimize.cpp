@@ -1,14 +1,25 @@
 #include "../sources/Optimize.h"
-TEST(random, v1)
+TEST(RecoverStartTimeVector, v1)
 {
-    // VectorDynamic a;
-    // a.resize(6, 1);
-    // for (int i = 0; i < 6; i++)
-    // {
-    //     a(i, 0) = i;
-    // }
-    // cout << a << endl;
-    ;
+    VectorDynamic compressed;
+    compressed.resize(2, 1);
+    compressed << 0, 180;
+    vector<bool> maskEliminate{false, true, true, true, false};
+    MAP_Index2Data mapIndex;
+    mapIndex[0] = MappingDataStruct{0, 0};
+    mapIndex[1] = MappingDataStruct{0, 10};
+    mapIndex[2] = MappingDataStruct{1, 10};
+    mapIndex[3] = MappingDataStruct{2, 10};
+    mapIndex[4] = MappingDataStruct{4, 0};
+    VectorDynamic expected;
+    expected.resize(5, 1);
+    expected << 0, 10, 20, 30, 180;
+    VectorDynamic actual = DAG_SPACE::RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
+    if (expected != actual)
+    {
+        cout << red << "RecoverStartTimeVector failed!" << def << endl;
+        throw;
+    }
 }
 
 // TEST(sensorFusion, v1)

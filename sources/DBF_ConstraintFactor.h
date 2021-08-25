@@ -134,6 +134,7 @@ namespace DAG_SPACE
             return f(startTimeVector);
         }
 
+        // TODO: find a way to avoid eliminate same variable twice
         void addMappingFunction(VectorDynamic &resTemp,
                                 MAP_Index2Data &mapIndex, bool &whetherEliminate,
                                 vector<bool> &maskForEliminate)
@@ -179,10 +180,15 @@ namespace DAG_SPACE
                                         // this is a self interval, no need to replace one task with itself
                                         continue;
                                     }
-                                    maskForEliminate[index_j_overall] = true;
-                                    whetherEliminate = true;
-                                    MappingDataStruct m{index_i_overall, sumIJK};
-                                    mapIndex[index_j_overall] = m;
+                                    if (not maskForEliminate[index_j_overall])
+                                    {
+                                        maskForEliminate[index_j_overall] = true;
+                                        whetherEliminate = true;
+                                        MappingDataStruct m{index_i_overall, sumIJK - tasks[j].executionTime};
+                                        mapIndex[index_j_overall] = m;
+                                    }
+                                    else
+                                        continue;
                                 }
                                 else
                                     continue;

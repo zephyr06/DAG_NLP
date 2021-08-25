@@ -99,8 +99,8 @@ namespace DAG_SPACE
         graph.emplace_shared<DDL_ConstraintFactor>(key, tasks, sizeOfVariables,
                                                    errorDimensionDDL, mapIndex,
                                                    maskForEliminate, model);
-        LLint errorDimensionSF = sizeOfVariables[3];
-        model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
+        // LLint errorDimensionSF = sizeOfVariables[3];
+        // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
         // graph.emplace_shared<SensorFusion_ConstraintFactor>(key, tasks, sizeOfVariables,
         //                                                     errorDimensionSF, sensorFusionTolerance,mappingFunc, model);
 
@@ -132,7 +132,7 @@ namespace DAG_SPACE
         }
 
         VectorDynamic optComp = result.at<VectorDynamic>(key);
-
+        cout << green << "UnitOptimization finishes for one time" << def << endl;
         return make_pair(optComp, graph);
     }
 
@@ -182,33 +182,39 @@ namespace DAG_SPACE
 
             resTemp = sth.first;
             graph = sth.second;
+            VectorDynamic startTimeComplete = RecoverStartTimeVector(resTemp, maskForEliminate, mapIndex);
 
-            // we don't have to check all the dimension
-            for (LLint i = 0; i < LLint(maskForEliminate.size()); i++)
+            // factors that require elimination analysis are: DBF
+            LLint errorDimensionDBF = 1;
+            auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+            Symbol key('b', 0);
+            DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
+                                        mapIndex, maskForEliminate, model);
+            // this function performs in-place modification for all the variables!
+            factor.addMappingFunction(resTemp, mapIndex, whetherEliminate, maskForEliminate);
+            // update initial estimate
+            vector<double> initialUpdateVec;
+            initialUpdateVec.reserve(variableDimension - 1);
+            LLint indexUpdate = 0;
+            for (size_t i = 0; i < variableDimension; i++)
             {
-                if (maskForEliminate[i] == true)
+                if (not maskForEliminate[i])
                 {
-                    // this variable is already eliminated, cannot eliminate twice
-                    continue;
+                    initialUpdateVec.push_back(startTimeComplete(i, 0));
                 }
-
-                // factors that require elimination analysis are: DBF
-                LLint errorDimensionDBF = 1;
-                auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-                Symbol key('b', 0);
-                DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                            mapIndex, maskForEliminate, model);
-                // this function performs in-place modification for all the variables!
-                factor.addMappingFunction(resTemp, mapIndex, whetherEliminate, maskForEliminate);
-
-                // update initialestimate !!!
-                int a = 1;
             }
+            VectorDynamic initialUpdate;
+            initialUpdate.resize(initialUpdateVec.size(), 1);
+            for (size_t i = 0; i < initialUpdateVec.size(); i++)
+            {
+                initialUpdate(i, 0) = initialUpdateVec[i];
+            }
+            initialEstimate = initialUpdate;
 
             if (not whetherEliminate)
             {
-                break;
                 trueResult = RecoverStartTimeVector(resTemp, maskForEliminate, mapIndex);
+                break;
             }
             loopNumber++;
             if (loopNumber > N)
@@ -222,9 +228,10 @@ namespace DAG_SPACE
         Values finalEstimate;
         finalEstimate.insert(key, trueResult);
         Values initialEstimateFG;
+        initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
         initialEstimateFG.insert(key, initialEstimate);
-        cout << blue << "The error before optimization is " << graph.error(initialEstimateFG) << def << endl;
-        cout << blue << "The error after optimization is " << graph.error(finalEstimate) << def << endl;
+        // cout << blue << "The error before optimization is " << graph.error(initialEstimateFG) << def << endl;
+        // cout << blue << "The error after optimization is " << graph.error(finalEstimate) << def << endl;
 
         return trueResult;
     }
