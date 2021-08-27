@@ -1,12 +1,12 @@
 %YAML:1.0
 
-sensorFusionTolerance: 190
+sensorFusionTolerance: 300
 
 # ****************************************old ones
 runMode: compare
 weight_U: 1e4
 makespanWeight: 1e-6
-testDataSetName: test_n5_v4
+testDataSetName: test_n5_v6
 
 deltaOptimizer: 1e-1
 deltaEliminator: 1e-1
