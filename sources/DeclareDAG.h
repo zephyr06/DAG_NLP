@@ -45,7 +45,9 @@ typedef unordered_map<int, MappingDataStruct> MAP_Index2Data;
 typedef boost::function<VectorDynamic(const VectorDynamic &)> FuncV2V;
 
 /**
- * @brief decode mapping
+ * @brief decode mapping; used in RecoverStartTimeVector, 
+ * given compressed startTimeVector and one index in original startTimeVector,
+ * return the true value of original startTimeVector[index]
  * 
  * @param startTimeVector 
  * @param index 
@@ -59,14 +61,16 @@ inline double DecodeMap(const VectorDynamic &startTimeVector, const LLint index,
 
 // ************************************************************ SOME FUNCTIONS
 /**
-     * @brief extract instance from the large vector
+     * @brief Given a task index and instance index, return its start time in startTimeVector
      * 
      * @param startTimeVector large, combined vector of start time for all instances
      * @param taskIndex task-index
      * @param instanceIndex instance-index
      * @return double start time of the extracted instance
      */
-double ExtractVariable(const VectorDynamic &startTimeVector, const vector<LLint> &sizeOfVariables, int taskIndex, int instanceIndex)
+double ExtractVariable(const VectorDynamic &startTimeVector,
+                       const vector<LLint> &sizeOfVariables,
+                       int taskIndex, int instanceIndex)
 {
     LLint firstTaskInstance = 0;
     for (int i = 0; i < taskIndex; i++)
@@ -90,6 +94,25 @@ LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const vector<LLint> 
     for (size_t k = 0; k < i; k++)
         index += sizeOfVariables[k];
     return index + instance_i;
+}
+
+/**
+ * @brief Given index in startTimeVector, decode its task index
+ * 
+ * @param index 
+ * @param sizeOfVariables 
+ * @return int: task index
+ */
+int BigIndex2TaskIndex(LLint index, const vector<LLint> &sizeOfVariables)
+{
+    int taskIndex = 0;
+    int N = sizeOfVariables.size();
+    while (index >= 0 && taskIndex < N)
+    {
+        index -= sizeOfVariables[taskIndex];
+        taskIndex++;
+    }
+    return taskIndex - 1;
 }
 
 inline VectorDynamic GenerateVectorDynamic(LLint N)

@@ -1,5 +1,6 @@
 #include "DeclareDAG.h"
 #include "RegularTasks.h"
+#include "Interval.h"
 
 namespace DAG_SPACE
 {
@@ -66,10 +67,18 @@ namespace DAG_SPACE
         boost::function<Matrix(const VectorDynamic &)> f =
             [this](const VectorDynamic &startTimeVectorOrig)
         {
-            VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
-                                                                   maskForEliminate, mapIndex);
             VectorDynamic res;
             res.resize(errorDimension, 1);
+
+            VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
+                                                                   maskForEliminate, mapIndex);
+
+            if (overlapMode)
+            {
+                res = DbfInterval(startTimeVector);
+                return res;
+            }
+
             LLint indexRes = 0;
 
             res(indexRes, 0) = 0;
@@ -203,6 +212,39 @@ namespace DAG_SPACE
                     }
                 }
             }
+        }
+
+        VectorDynamic DbfInterval(const VectorDynamic &startTimeVector)
+        {
+
+            LLint n = startTimeVector.rows();
+            vector<Interval> intervalVec;
+            intervalVec.reserve(n);
+            for (size_t i = 0; i < n; i++)
+            {
+                double start = startTimeVector(i, 0);
+                double length = tasks[BigIndex2TaskIndex(i, sizeOfVariables)].executionTime;
+                intervalVec.push_back(Interval{start, length});
+            }
+            sort(intervalVec.begin(), intervalVec.end(), compare);
+
+            double overlapAll = 0;
+            for (size_t i = 0; i < n; i++)
+            {
+                double endTime = intervalVec[i].start + intervalVec[i].length;
+                for (size_t j = i + 1; j < n; j++)
+                {
+                    if (intervalVec[j].start >= endTime)
+                        break;
+                    else
+                        overlapAll += Overlap(intervalVec[i], intervalVec[j]);
+                }
+            }
+
+            VectorDynamic res;
+            res.resize(1, 1);
+            res(0, 0) = overlapAll;
+            return res;
         }
     };
 }

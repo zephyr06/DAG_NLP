@@ -21,6 +21,7 @@ double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
 double minWeightToBegin = (double)ConfigParameters["minWeightToBegin"];
 
 const int exactJacobian = (int)ConfigParameters["exactJacobian"];
+const int overlapMode = (int)ConfigParameters["overlapMode"];
 
 const double toleranceEliminator = (double)ConfigParameters["toleranceEliminator"];
 
