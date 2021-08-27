@@ -1,6 +1,6 @@
 %YAML:1.0
 
-sensorFusionTolerance: 40
+sensorFusionTolerance: 190
 
 # ****************************************old ones
 runMode: compare
@@ -33,7 +33,7 @@ optimizerType: 2 # 1 means dogleg, 2 means LM
 
 deltaInitialDogleg: 1e5
 
-initialLambda: 1e-6
+initialLambda: 1e0
 lowerLambda: 1e-15
 upperLambda: 1e60
 

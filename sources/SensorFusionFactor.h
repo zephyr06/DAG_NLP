@@ -51,7 +51,6 @@ namespace DAG_SPACE
             {
                 VectorDynamic startTimeVector = RecoverStartTimeVector(
                     startTimeVectorOrig, maskForEliminate, mapIndex);
-                cout << "The startTimeVector: " << startTimeVector.transpose() << endl;
                 VectorDynamic res;
                 res.resize(errorDimension, 1);
                 LLint indexRes = 0;
@@ -62,6 +61,7 @@ namespace DAG_SPACE
                 // go through all the instances of task 3
                 for (int instanceCurr = 0; instanceCurr < sizeOfVariables[3]; instanceCurr++)
                 {
+                    sourceFinishTime.clear();
                     double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, 3, instanceCurr);
                     // go through three source sensor tasks
                     for (int sourceIndex = 0; sourceIndex < 3; sourceIndex++)

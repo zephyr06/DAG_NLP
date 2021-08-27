@@ -25,17 +25,15 @@ namespace DAG_SPACE
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
         vector<double> executionTimeVec = GetParameter<double>(tasks, "executionTime");
         LLint index = 0;
-        for (int i = 0; i < N; i++)
-        {
-            for (int j = 0; j < sizeOfVariables[i]; j++)
-            {
-                initial(index++, 0) = j * tasks[i].period + index;
-            }
-            // initial(i, 0) = 0;
-            // initial(N, 0) += executionTimeVec[i];
-        }
+        // for (int i = 0; i < N; i++)
+        // {
+        //     for (int j = 0; j < sizeOfVariables[i]; j++)
+        //     {
+        //         initial(index++, 0) = j * tasks[i].period + index;
+        //     }
+        // }
         // initial(N, 0) *= 1;
-        // initial << 0, 1, 0.4, 1.5, 0.9;
+        initial << 1, 101, 202, 303, 4, 5, 206, 50, 258, 67;
         // initial << 0, 0, 0, 0, 0, 0;
         // initial << 6, 2.5, 2, 0.5, 0;
         // initial << 1, 100, 0, 0, 0, 0;
@@ -99,10 +97,11 @@ namespace DAG_SPACE
         graph.emplace_shared<DDL_ConstraintFactor>(key, tasks, sizeOfVariables,
                                                    errorDimensionDDL, mapIndex,
                                                    maskForEliminate, model);
-        // LLint errorDimensionSF = sizeOfVariables[3];
-        // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-        // graph.emplace_shared<SensorFusion_ConstraintFactor>(key, tasks, sizeOfVariables,
-        //                                                     errorDimensionSF, sensorFusionTolerance,mappingFunc, model);
+        LLint errorDimensionSF = sizeOfVariables[3];
+        model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
+        graph.emplace_shared<SensorFusion_ConstraintFactor>(key, tasks, sizeOfVariables,
+                                                            errorDimensionSF, sensorFusionTolerance,
+                                                            mapIndex, maskForEliminate, model);
 
         Values initialEstimateFG;
         initialEstimateFG.insert(key, initialEstimate);

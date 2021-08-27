@@ -126,7 +126,7 @@ namespace DAG_SPACE
                 }
                 if (debugMode == 1)
                 {
-                    cout << "The input startTimeVector of DBF is " << startTimeVector << endl;
+                    cout << green << "The input startTimeVector of DBF is " << startTimeVector << def << endl;
                     cout << "The error vector of DBF is " << blue << f(startTimeVector) << def << endl;
                 }
             }
