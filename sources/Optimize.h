@@ -1,4 +1,4 @@
-#include <boost/function.hpp>
+
 #include "RegularTasks.h"
 #include "DAG_ConstraintFactor.h"
 #include "DBF_ConstraintFactor.h"

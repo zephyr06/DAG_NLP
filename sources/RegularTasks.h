@@ -6,7 +6,7 @@
 #include <math.h>
 // #include <filesystem>
 #include <boost/integer/common_factor.hpp>
-
+#include <boost/function.hpp>
 #include <CppUnitLite/TestHarness.h>
 
 #include "colormod.h"
@@ -32,6 +32,8 @@ namespace RegularTaskSystem
         int overhead;
         double executionTime;
         int deadline;
+        int id;
+        int processorId;
 
         // initializer
 
@@ -42,6 +44,11 @@ namespace RegularTaskSystem
              int deadline) : offset(offset), period(period),
                              overhead(overhead), executionTime(executionTime),
                              deadline(deadline) {}
+        Task(int offset, int period, int overhead, double executionTime,
+             int deadline, int id, int processorId) : offset(offset), period(period),
+                                                      overhead(overhead), executionTime(executionTime),
+                                                      deadline(deadline), id(id),
+                                                      processorId(processorId) {}
 
         /**
  * only used in ReadTaskSet because the input parameter's type is int
