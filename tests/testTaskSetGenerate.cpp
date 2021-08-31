@@ -12,6 +12,13 @@ TEST(ExtractVariable, v1)
     AssertEqualScalar(sumUtil, all);
 }
 
+TEST(ReadDAG_Tasks, V1)
+{
+    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/dat-test-n5-v7.csv";
+    auto dm = ReadDAG_Tasks(path);
+    dm.print();
+}
+
 int main()
 {
     TestResult tr;

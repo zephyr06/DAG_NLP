@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
                                             numberOfProcessor,
                                             periodMin,
                                             periodMax);
-            string fileName = "periodic-set-" + to_string(i) + "-syntheticJobs";
+            string fileName = "periodic-set-" + to_string(i) + "-syntheticJobs" + ".csv";
             ofstream myfile;
             myfile.open(outDirectory + fileName);
             WriteTaskSets(myfile, tasks);
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
                                           numberOfProcessor,
                                           periodMin,
                                           periodMax);
-            string fileName = "dag-set-" + to_string(i) + "-syntheticJobs";
+            string fileName = "dag-set-" + to_string(i) + "-syntheticJobs" + ".csv";
             ofstream myfile;
             myfile.open(outDirectory + fileName);
             WriteDAG(myfile, tasks);

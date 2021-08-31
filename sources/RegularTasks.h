@@ -43,7 +43,11 @@ namespace RegularTaskSystem
         Task(int offset, int period, int overhead, double executionTime,
              int deadline) : offset(offset), period(period),
                              overhead(overhead), executionTime(executionTime),
-                             deadline(deadline) {}
+                             deadline(deadline)
+        {
+            id = -1;
+            processorId = -1;
+        }
         Task(int offset, int period, int overhead, double executionTime,
              int deadline, int id, int processorId) : offset(offset), period(period),
                                                       overhead(overhead), executionTime(executionTime),
@@ -55,18 +59,19 @@ namespace RegularTaskSystem
  **/
         Task(vector<int> dataInLine)
         {
-            if (dataInLine.size() != 5)
+            if (dataInLine.size() != 7)
             {
-                cout << red << "The length of dataInLine in Task constructor is wrong! Must be 5!\n"
+                cout << red << "The length of dataInLine in Task constructor is wrong! Must be 7!\n"
                      << def;
                 throw;
             }
-
-            offset = dataInLine[0];
-            period = dataInLine[1];
-            overhead = dataInLine[2];
-            executionTime = dataInLine[3];
-            deadline = dataInLine[4];
+            id = dataInLine[0];
+            offset = dataInLine[1];
+            period = dataInLine[2];
+            overhead = dataInLine[3];
+            executionTime = dataInLine[4];
+            deadline = dataInLine[5];
+            processorId = dataInLine[6];
         }
 
         void print()
@@ -260,8 +265,9 @@ namespace RegularTaskSystem
                     line.erase(0, pos + delimiter.length());
                 }
                 dataInLine.push_back(atoi(line.c_str()));
-                dataInLine.erase(dataInLine.begin());
-                taskSet.push_back(Task(dataInLine));
+                // dataInLine.erase(dataInLine.begin());
+                Task taskCurr(dataInLine);
+                taskSet.push_back(taskCurr);
             }
 
             TaskSet ttt(taskSet);

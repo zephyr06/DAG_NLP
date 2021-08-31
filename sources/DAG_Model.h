@@ -27,6 +27,65 @@ namespace DAG_SPACE
             tasks.push_back(task);
             N++;
         }
+
+        void print()
+        {
+            for (auto &task : tasks)
+                task.print();
+            for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
+            {
+                for (int i = 0; i < (itr->second).size(); i++)
+                    cout << "Edge: " << ((itr->second)[i].id) << "-->" << (itr->first) << endl;
+            }
+        }
     };
 
+    DAG_Model ReadDAG_Tasks(string &path)
+    {
+        TaskSet tasks = ReadTaskSet(path);
+        // some default parameters in this function
+        string delimiter = ",";
+        string token;
+        string line;
+        size_t pos = 0;
+
+        MAP_Prev mapPrev;
+
+        fstream file;
+        file.open(path, ios::in);
+        if (file.is_open())
+        {
+            string line;
+            while (getline(file, line))
+            {
+                if (line[0] != '*')
+                    continue;
+                line = line.substr(1, int(line.size()) - 1);
+                vector<int> dataInLine;
+                while ((pos = line.find(delimiter)) != string::npos)
+                {
+                    token = line.substr(0, pos);
+                    int temp = atoi(token.c_str());
+                    dataInLine.push_back(temp);
+                    line.erase(0, pos + delimiter.length());
+                }
+                dataInLine.push_back(atoi(line.c_str()));
+                dataInLine.erase(dataInLine.begin());
+                mapPrev[dataInLine[0]].push_back(tasks[dataInLine[1]]);
+            }
+
+            DAG_Model ttt(tasks, mapPrev);
+
+            if (debugMode == 1)
+                cout << "Finish reading the data file succesfully!\n";
+            return ttt;
+        }
+        else
+        {
+            cout << red << "The path does not exist in ReadTaskSet!" << endl
+                 << path
+                 << def << endl;
+            throw;
+        }
+    }
 }
