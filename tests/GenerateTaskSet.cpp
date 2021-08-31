@@ -30,6 +30,14 @@ int main(int argc, char *argv[])
         .default_value(1000)
         .help("the maximum period of tasks in DAG")
         .scan<'i', int>();
+    program.add_argument("--taskType")
+        .default_value(1)
+        .help("type of tasksets, 0 means normal, 1 means DAG")
+        .scan<'i', int>();
+    // program.add_argument("--parallelismFactor")
+    //     .default_value(1000)
+    //     .help("the parallelismFactor DAG")
+    //     .scan<'i', int>();
 
     try
     {
@@ -43,12 +51,42 @@ int main(int argc, char *argv[])
     }
 
     int N = program.get<int>("--N");
-    int DAG_Number = program.get<int>("--taskSetNumber");
+    int DAG_taskSetNumber = program.get<int>("--taskSetNumber");
     double totalUtilization = program.get<double>("--totalUtilization");
-    int NumberOfProcessor = program.get<int>("--NumberOfProcessor");
+    int numberOfProcessor = program.get<int>("--NumberOfProcessor");
     int periodMin = program.get<int>("--periodMin");
     int periodMax = program.get<int>("--periodMax");
-    cout << N << ", " << DAG_Number << ", " << totalUtilization << ", " << NumberOfProcessor << ", " << periodMin << ", " << periodMax << ", " << endl;
+    int taskType = program.get<int>("--taskType");
+    cout << N << ", " << DAG_taskSetNumber << ", " << totalUtilization << ", " << numberOfProcessor << ", " << periodMin << ", " << periodMax << ", " << endl;
+
+    string outDirectory = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks/";
+
+    for (size_t i = 0; i < DAG_taskSetNumber; i++)
+    {
+        if (taskType == 0)
+        {
+            TaskSet tasks = GenerateTaskSet(N, totalUtilization,
+                                            numberOfProcessor,
+                                            periodMin,
+                                            periodMax);
+            string fileName = "periodic-set-" + to_string(i) + "-syntheticJobs";
+            ofstream myfile;
+            myfile.open(outDirectory + fileName);
+            WriteTaskSets(myfile, tasks);
+        }
+        else if (taskType == 1)
+        {
+            DAG_Model tasks = GenerateDAG(N, totalUtilization,
+                                          numberOfProcessor,
+                                          periodMin,
+                                          periodMax);
+            string fileName = "dag-set-" + to_string(i) + "-syntheticJobs";
+            ofstream myfile;
+            myfile.open(outDirectory + fileName);
+            WriteDAG(myfile, tasks);
+            myfile.close();
+        }
+    }
 
     return 0;
 }

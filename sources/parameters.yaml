@@ -14,6 +14,7 @@ deltaEliminator: 1e-1
 toleranceEliminator: 10
 barrierBase: 100
 initialRHS: 0
+parallelFactor: 0.4
 
 
 minWeightToBegin: 1e9

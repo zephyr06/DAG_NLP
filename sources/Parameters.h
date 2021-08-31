@@ -12,6 +12,7 @@ using namespace std;
 
 const double sensorFusionTolerance = (double)ConfigParameters["sensorFusionTolerance"];
 
+const double parallelFactor = (double)ConfigParameters["parallelFactor"];
 // **************************************************************old ones
 // const int TASK_NUMBER = (int)ConfigParameters["TASK_NUMBER"];
 // int TASK_NUMBER_DYNAMIC = 10;

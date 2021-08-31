@@ -21,11 +21,12 @@ namespace DAG_SPACE
         {
             mapPrev[nextIndex].push_back(tasks[prevIndex]);
         }
+
+        void addTask(Task &task)
+        {
+            tasks.push_back(task);
+            N++;
+        }
     };
 
-    DAG_Model GenerateRandomDAG(int N, double utilAll, double loadBalenceCoeff)
-    {
-        DAG_Model s;
-        return s;
-    }
 }
