@@ -70,8 +70,7 @@ namespace DAG_SPACE
                     line.erase(0, pos + delimiter.length());
                 }
                 dataInLine.push_back(atoi(line.c_str()));
-                dataInLine.erase(dataInLine.begin());
-                mapPrev[dataInLine[0]].push_back(tasks[dataInLine[1]]);
+                mapPrev[dataInLine[1]].push_back(tasks[dataInLine[0]]);
             }
 
             DAG_Model ttt(tasks, mapPrev);

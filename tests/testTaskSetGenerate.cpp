@@ -14,9 +14,11 @@ TEST(ExtractVariable, v1)
 
 TEST(ReadDAG_Tasks, V1)
 {
-    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/dat-test-n5-v7.csv";
-    auto dm = ReadDAG_Tasks(path);
+    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v8.csv";
+    DAG_Model dm = ReadDAG_Tasks(path);
     dm.print();
+    AssertBool(true, dm.mapPrev[3].size() == 3);
+    AssertBool(true, dm.mapPrev[4][0].id == 3);
 }
 
 int main()

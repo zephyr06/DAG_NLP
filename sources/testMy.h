@@ -9,9 +9,10 @@
 
 using namespace std;
 
-void AssertUnEqual(double expect, double actual)
+template <typename T>
+void AssertUnEqual(T expect, T actual)
 {
-    std::cout << "Scalar Assertion failed!" << std::endl;
+    std::cout << "Assertion failed!" << std::endl;
     cout << red << "EXpect is " << expect << ", while the actual is " << actual << def << endl;
     throw;
 }
@@ -21,8 +22,14 @@ void AssertEqualScalar(double expected, double actual, double tolerance = 1e-6)
         return;
     else
     {
-        AssertUnEqual(expected, actual);
+        AssertUnEqual<double>(expected, actual);
     }
+}
+
+void AssertBool(bool expected, bool actual)
+{
+    if (expected != actual)
+        return AssertUnEqual<bool>(expected, actual);
 }
 
 template <typename T>
