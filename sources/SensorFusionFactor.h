@@ -12,6 +12,7 @@ namespace DAG_SPACE
     class SensorFusion_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
     {
     public:
+        DAG_Model dagTasks;
         TaskSet tasks;
         vector<LLint> sizeOfVariables;
         int N;
@@ -21,10 +22,11 @@ namespace DAG_SPACE
         MAP_Index2Data mapIndex;
         vector<bool> maskForEliminate;
 
-        SensorFusion_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables, LLint errorDimension,
+        SensorFusion_ConstraintFactor(Key key, DAG_Model &dagTasks, vector<LLint> sizeOfVariables, LLint errorDimension,
                                       double sensorFusionTol, MAP_Index2Data &mapIndex, vector<bool> &maskForEliminate,
                                       SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
-                                                                tasks(tasks), sizeOfVariables(sizeOfVariables),
+                                                                dagTasks(dagTasks),
+                                                                tasks(dagTasks.tasks), sizeOfVariables(sizeOfVariables),
                                                                 N(tasks.size()), sensorFusionTol(sensorFusionTol),
                                                                 errorDimension(errorDimension), mapIndex(mapIndex),
                                                                 maskForEliminate(maskForEliminate)
@@ -55,47 +57,54 @@ namespace DAG_SPACE
                 res.resize(errorDimension, 1);
                 LLint indexRes = 0;
 
-                vector<double> sourceFinishTime;
-                // TODO: this is a customized number
-                sourceFinishTime.reserve(3);
                 // go through all the instances of task 3
-                for (int instanceCurr = 0; instanceCurr < sizeOfVariables[3]; instanceCurr++)
+                for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
                 {
-                    sourceFinishTime.clear();
-                    double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, 3, instanceCurr);
-                    // go through three source sensor tasks
-                    for (int sourceIndex = 0; sourceIndex < 3; sourceIndex++)
+                    const TaskSet &tasksPrev = itr->second;
+                    if (tasksPrev.size() > 1)
                     {
-                        LLint instanceSource = floor(startTimeCurr / tasks[sourceIndex].period);
-                        double startTimeSourceInstance = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource);
-                        double finishTimeSourceInstance = startTimeSourceInstance + tasks[sourceIndex].executionTime;
-                        if (finishTimeSourceInstance < startTimeCurr)
-                            sourceFinishTime.push_back(finishTimeSourceInstance);
-                        else if (instanceSource - 1 >= 0)
+                        vector<double> sourceFinishTime;
+                        sourceFinishTime.reserve(3);
+                        size_t indexCurr = itr->first;
+
+                        for (int instanceCurr = 0; instanceCurr < sizeOfVariables[indexCurr]; instanceCurr++)
                         {
-                            double startTime_k_l_prev = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource - 1);
-                            if (startTime_k_l_prev + tasks[sourceIndex].executionTime < startTimeCurr)
-                                sourceFinishTime.push_back(startTime_k_l_prev + tasks[sourceIndex].executionTime);
-                            else
+                            sourceFinishTime.clear();
+                            double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, 3, instanceCurr);
+                            // go through three source sensor tasks
+                            // for (int sourceIndex = 0; sourceIndex < 3; sourceIndex++)
+                            for (size_t sourceIndex = 0; sourceIndex < tasksPrev.size(); sourceIndex++)
                             {
-                                //in this case, self deadline constraint is violated
-                                sourceFinishTime.push_back(startTime_k_l_prev + tasks[sourceIndex].executionTime);
-                                // cout << "Error in SensorFusion_ConstraintFactor" << endl;
-                                // throw;
+                                LLint instanceSource = floor(startTimeCurr / tasks[sourceIndex].period);
+                                double startTimeSourceInstance = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource);
+                                double finishTimeSourceInstance = startTimeSourceInstance + tasks[sourceIndex].executionTime;
+                                if (finishTimeSourceInstance < startTimeCurr)
+                                    sourceFinishTime.push_back(finishTimeSourceInstance);
+                                else if (instanceSource - 1 >= 0)
+                                {
+                                    double startTime_k_l_prev = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource - 1);
+                                    if (startTime_k_l_prev + tasks[sourceIndex].executionTime < startTimeCurr)
+                                        sourceFinishTime.push_back(startTime_k_l_prev + tasks[sourceIndex].executionTime);
+                                    else
+                                    {
+                                        //in this case, self deadline constraint is violated
+                                        sourceFinishTime.push_back(startTime_k_l_prev + tasks[sourceIndex].executionTime);
+                                        // cout << "Error in SensorFusion_ConstraintFactor" << endl;
+                                        // throw;
+                                    }
+                                }
+                                // there is no previous instance, i.e., DAG constraints are violated,
+                                // find a later instance, and return it because it will give a bigger error
+                                else
+                                {
+                                    double startTime_k_l_next = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource + 1);
+                                    sourceFinishTime.push_back(startTime_k_l_next + tasks[sourceIndex].executionTime);
+                                }
                             }
-                        }
-                        // there is no previous instance, i.e., DAG constraints are violated,
-                        // find a later instance, and return it because it will give a bigger error
-                        else
-                        {
-                            double startTime_k_l_next = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource + 1);
-                            sourceFinishTime.push_back(startTime_k_l_next + tasks[sourceIndex].executionTime);
+                            res(indexRes++, 0) = Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
                         }
                     }
-                    res(indexRes++, 0) = Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
                 }
-
-                // res(0, 0) = BarrierLog(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
 
                 return res;
             };

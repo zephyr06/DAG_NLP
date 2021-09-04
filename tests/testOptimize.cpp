@@ -1,4 +1,5 @@
 #include "../sources/Optimize.h"
+/*
 TEST(RecoverStartTimeVector, v1)
 {
     VectorDynamic compressed;
@@ -131,6 +132,17 @@ TEST(ExtractVariable, v1)
     TaskSet tasks = ReadTaskSet("../TaskData/" + testDataSetName + ".csv", "orig");
     auto res = OptimizeScheduling(tasks);
     cout << "The result after optimization is " << res << endl;
+}
+
+
+*/
+TEST(DAG_Generated, v1)
+{
+    using namespace DAG_SPACE;
+    DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
+
+    VectorDynamic res = OptimizeScheduling(tasks);
+    cout << "The result after optimization is " << blue << res << def << endl;
 }
 int main()
 {

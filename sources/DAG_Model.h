@@ -40,9 +40,9 @@ namespace DAG_SPACE
         }
     };
 
-    DAG_Model ReadDAG_Tasks(string &path)
+    DAG_Model ReadDAG_Tasks(string path, string priorityType = "orig")
     {
-        TaskSet tasks = ReadTaskSet(path);
+        TaskSet tasks = ReadTaskSet(path, priorityType);
         // some default parameters in this function
         string delimiter = ",";
         string token;

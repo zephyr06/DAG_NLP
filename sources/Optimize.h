@@ -1,5 +1,6 @@
 
 #include "RegularTasks.h"
+#include "DAG_Model.h"
 #include "DAG_ConstraintFactor.h"
 #include "DBF_ConstraintFactor.h"
 #include "DDL_ConstraintFactor.h"
@@ -68,14 +69,14 @@ namespace DAG_SPACE
             - event chain RTA
      * @return all the instances' start time
      */
-    pair<VectorDynamic, NonlinearFactorGraph> UnitOptimization(TaskSet &tasks, VectorDynamic &initialEstimate,
+    pair<VectorDynamic, NonlinearFactorGraph> UnitOptimization(DAG_Model &dagTasks, VectorDynamic &initialEstimate,
                                                                MAP_Index2Data mapIndex, vector<bool> &maskForEliminate,
                                                                vector<LLint> &sizeOfVariables, int variableDimension,
                                                                LLint hyperPeriod)
     {
         using namespace RegularTaskSystem;
 
-        int N = tasks.size();
+        int N = dagTasks.tasks.size();
 
         // build the factor graph
         NonlinearFactorGraph graph;
@@ -83,23 +84,23 @@ namespace DAG_SPACE
 
         LLint errorDimensionDAG = 1 + 4;
         auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
-        graph.emplace_shared<DAG_ConstraintFactor>(key, tasks, sizeOfVariables,
+        graph.emplace_shared<DAG_ConstraintFactor>(key, dagTasks, sizeOfVariables,
                                                    errorDimensionDAG, mapIndex,
                                                    maskForEliminate, model);
         LLint errorDimensionDBF = 1;
         model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-        graph.emplace_shared<DBF_ConstraintFactor>(key, tasks, sizeOfVariables,
+        graph.emplace_shared<DBF_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
                                                    errorDimensionDBF, mapIndex,
                                                    maskForEliminate,
                                                    model);
         LLint errorDimensionDDL = 2 * variableDimension;
         model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
-        graph.emplace_shared<DDL_ConstraintFactor>(key, tasks, sizeOfVariables,
+        graph.emplace_shared<DDL_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
                                                    errorDimensionDDL, mapIndex,
                                                    maskForEliminate, model);
         LLint errorDimensionSF = sizeOfVariables[3];
         model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-        graph.emplace_shared<SensorFusion_ConstraintFactor>(key, tasks, sizeOfVariables,
+        graph.emplace_shared<SensorFusion_ConstraintFactor>(key, dagTasks, sizeOfVariables,
                                                             errorDimensionSF, sensorFusionTolerance,
                                                             mapIndex, maskForEliminate, model);
 
@@ -141,8 +142,9 @@ namespace DAG_SPACE
      * @param tasks 
      * @return VectorDynamic all the task instances' start time
      */
-    VectorDynamic OptimizeScheduling(TaskSet &tasks)
+    VectorDynamic OptimizeScheduling(DAG_Model &dagTasks)
     {
+        TaskSet tasks = dagTasks.tasks;
         int N = tasks.size();
         LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -174,7 +176,7 @@ namespace DAG_SPACE
         {
             whetherEliminate = false;
             // TODO: modify interface later
-            auto sth = UnitOptimization(tasks, initialEstimate,
+            auto sth = UnitOptimization(dagTasks, initialEstimate,
                                         mapIndex, maskForEliminate,
                                         sizeOfVariables, variableDimension,
                                         hyperPeriod);

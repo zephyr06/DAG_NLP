@@ -7,6 +7,7 @@ namespace DAG_SPACE
     class DAG_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
     {
     public:
+        DAG_Model dagTasks;
         TaskSet tasks;
         vector<LLint> sizeOfVariables;
         int N;
@@ -15,10 +16,11 @@ namespace DAG_SPACE
         vector<bool> maskForEliminate;
         MAP_Index2Data mapIndex;
 
-        DAG_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables, LLint errorDimension,
+        DAG_ConstraintFactor(Key key, DAG_Model &dagTasks, vector<LLint> sizeOfVariables, LLint errorDimension,
                              MAP_Index2Data &mapIndex, const vector<bool> &maskForEliminate,
                              SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
-                                                       tasks(tasks), sizeOfVariables(sizeOfVariables),
+                                                       dagTasks(dagTasks),
+                                                       tasks(dagTasks.tasks), sizeOfVariables(sizeOfVariables),
                                                        N(tasks.size()), errorDimension(errorDimension),
                                                        maskForEliminate(maskForEliminate),
                                                        mapIndex(mapIndex)
@@ -51,14 +53,25 @@ namespace DAG_SPACE
                                      makespanWeight;
 
                 // add dependency constraints
-                res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -
-                                             ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) - tasks[0].executionTime + 0);
-                res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -
-                                             ExtractVariable(startTimeVector, sizeOfVariables, 1, 0) - tasks[1].executionTime + 0);
-                res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -
-                                             ExtractVariable(startTimeVector, sizeOfVariables, 2, 0) - tasks[2].executionTime + 0);
-                res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
-                                             ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) - tasks[3].executionTime + 0);
+                for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
+                {
+                    const TaskSet &tasksPrev = itr->second;
+                    size_t indexNext = itr->first;
+                    for (size_t i = 0; i < tasksPrev.size(); i++)
+                    {
+                        res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, indexNext, 0) -
+                                                     ExtractVariable(startTimeVector, sizeOfVariables, tasksPrev[i].id, 0) -
+                                                     tasksPrev[i].executionTime + 0);
+                    }
+                }
+                // res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -
+                //                              ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) - tasks[0].executionTime + 0);
+                // res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -
+                //                              ExtractVariable(startTimeVector, sizeOfVariables, 1, 0) - tasks[1].executionTime + 0);
+                // res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -
+                //                              ExtractVariable(startTimeVector, sizeOfVariables, 2, 0) - tasks[2].executionTime + 0);
+                // res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
+                //                              ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) - tasks[3].executionTime + 0);
 
                 return res;
             };
