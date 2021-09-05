@@ -21,6 +21,7 @@ double weight_U = (double)ConfigParameters["weight_U"];
 double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
 double minWeightToBegin = (double)ConfigParameters["minWeightToBegin"];
 
+const int randomInitialize = (int)ConfigParameters["randomInitialize"];
 const int temperatureSA = (int)ConfigParameters["temperatureSA"];
 const double coolingRateSA = (double)ConfigParameters["coolingRateSA"];
 const int exactJacobian = (int)ConfigParameters["exactJacobian"];

@@ -14,14 +14,16 @@ namespace moe
         SimulatedAnnealing(const SAParameters<GenotypeType> &_parameters);
 
         void run(unsigned int _iterations) override;
-        void runSA(unsigned int _iterations, vector<double> initialSA)
+        void runSA(unsigned int _iterations, vector<double> initialSA, int whetherRandomInitialize)
         {
 
             // this->init(_iterations);
             m_iterations = _iterations;
 
-            // m_initial_candidate = NumericAlgorithm<GenotypeType>::getRandomGenotype();
-            m_initial_candidate = initialSA;
+            if (whetherRandomInitialize)
+                m_initial_candidate = NumericAlgorithm<GenotypeType>::getRandomGenotype();
+            else
+                m_initial_candidate = initialSA;
 
             Algorithm<GenotypeType>::m_bestMoe.genotype = m_initial_candidate;
             Algorithm<GenotypeType>::m_bestMoe.fitness = Algorithm<GenotypeType>::m_fitnessFunction(Algorithm<GenotypeType>::m_bestMoe);

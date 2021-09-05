@@ -96,7 +96,7 @@ VectorDynamic OptimizeSchedulingSA(DAG_Model &dagTasks)
     auto start = std::chrono::high_resolution_clock::now();
     VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
     auto initialSA = Eigen2Vector(initialEstimate);
-    moether.runSA(SA_iteration, initialSA);
+    moether.runSA(SA_iteration, initialSA, randomInitialize);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<float> diff = end - start;
