@@ -44,8 +44,8 @@ granularityInBF: 1
 readTaskMode: orig
 
 debugMode: 0
-SA_iteration: 10000
-temperatureSA: 10000
+SA_iteration: 100000
+temperatureSA: 10000000
 coolingRateSA: 0.1
 
 # something not used
