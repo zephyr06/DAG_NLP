@@ -21,8 +21,11 @@ double weight_U = (double)ConfigParameters["weight_U"];
 double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
 double minWeightToBegin = (double)ConfigParameters["minWeightToBegin"];
 
+const int temperatureSA = (int)ConfigParameters["temperatureSA"];
+const double coolingRateSA = (double)ConfigParameters["coolingRateSA"];
 const int exactJacobian = (int)ConfigParameters["exactJacobian"];
 const int overlapMode = (int)ConfigParameters["overlapMode"];
+const int SA_iteration = (int)ConfigParameters["SA_iteration"];
 
 const double toleranceEliminator = (double)ConfigParameters["toleranceEliminator"];
 

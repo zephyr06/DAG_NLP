@@ -53,8 +53,8 @@ VectorDynamic OptimizeSchedulingSA(DAG_Model &dagTasks)
     vector<bool> maskForEliminate(variableDimension, false);
 
     moe::SimulatedAnnealing<double> moether(moe::SAParameters<double>()
-                                                .withTemperature(10000)
-                                                .withCoolingRate(0.9f)
+                                                .withTemperature(temperatureSA)
+                                                .withCoolingRate(coolingRateSA)
                                                 .withDimensions(variableDimension)
                                                 .withRange({0, double(hyperPeriod)}));
 
@@ -94,8 +94,9 @@ VectorDynamic OptimizeSchedulingSA(DAG_Model &dagTasks)
                                });
 
     auto start = std::chrono::high_resolution_clock::now();
-
-    moether.run(1000);
+    VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
+    // auto initialSA = Eigen2Vector(initialEstimate);
+    moether.run(SA_iteration);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<float> diff = end - start;

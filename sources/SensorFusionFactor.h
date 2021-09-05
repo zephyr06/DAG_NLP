@@ -81,7 +81,9 @@ namespace DAG_SPACE
                             {
                                 LLint instanceSource = floor(startTimeCurr / tasks[sourceIndex].period);
                                 // if instanceSource<0, that means startTimeCurr <0, we'll use the first sourceInstance in a period instead
-                                instanceSource = max(instanceSource, 0);
+                                // instanceSource = (instanceSource < 0) ? 0 : instanceSource;
+                                if (instanceSource < 0)
+                                    instanceSource = 0;
 
                                 double startTimeSourceInstance = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource);
                                 double finishTimeSourceInstance = startTimeSourceInstance + tasks[sourceIndex].executionTime;
@@ -106,6 +108,8 @@ namespace DAG_SPACE
                                 {
                                     double startTime_k_l_next = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource + 1);
                                     sourceFinishTime.push_back(startTime_k_l_next + tasks[sourceIndex].executionTime);
+                                    // if all the sources violate DAG constraints, this error will drag them back
+                                    addedError += startTime_k_l_next + tasks[sourceIndex].executionTime - startTimeCurr;
                                 }
                             }
                             res(indexRes++, 0) = addedError + Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
@@ -122,8 +126,8 @@ namespace DAG_SPACE
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {
-                    cout << "The Jacobian matrix of SensorFusion_ConstraintFactor is " << endl
-                         << *H << endl;
+                    cout << "The Jacobian matrix of SensorFusion_ConstraintFactor is " << endl;
+                    cout << *H << endl;
                 }
                 if (debugMode == 1)
                 {

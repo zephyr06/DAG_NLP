@@ -3,6 +3,7 @@
 #include <chrono>
 #include <unordered_map>
 #include <math.h>
+#include <algorithm>
 
 #include <Eigen/Dense>
 #include <dirent.h>
@@ -19,6 +20,7 @@
 #include <gtsam/nonlinear/Values.h>
 
 #include "Parameters.h"
+#include "colormod.h"
 
 using namespace std;
 using namespace gtsam;
@@ -74,6 +76,7 @@ double ExtractVariable(const VectorDynamic &startTimeVector,
 {
     if (taskIndex < 0 || instanceIndex < 0)
     {
+
         cout << red << "Index Error in ExtractVariable!" << def << endl;
         throw;
     }
