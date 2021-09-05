@@ -72,6 +72,11 @@ double ExtractVariable(const VectorDynamic &startTimeVector,
                        const vector<LLint> &sizeOfVariables,
                        int taskIndex, int instanceIndex)
 {
+    if (taskIndex < 0 || instanceIndex < 0)
+    {
+        cout << red << "Index Error in ExtractVariable!" << def << endl;
+        throw;
+    }
     LLint firstTaskInstance = 0;
     for (int i = 0; i < taskIndex; i++)
     {

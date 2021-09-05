@@ -70,12 +70,19 @@ namespace DAG_SPACE
                         for (int instanceCurr = 0; instanceCurr < sizeOfVariables[indexCurr]; instanceCurr++)
                         {
                             sourceFinishTime.clear();
+
+                            // if DAG constraints are violated, addedError will count the violated part
+                            double addedError = 0;
                             double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, 3, instanceCurr);
+
                             // go through three source sensor tasks
                             // for (int sourceIndex = 0; sourceIndex < 3; sourceIndex++)
                             for (size_t sourceIndex = 0; sourceIndex < tasksPrev.size(); sourceIndex++)
                             {
                                 LLint instanceSource = floor(startTimeCurr / tasks[sourceIndex].period);
+                                // if instanceSource<0, that means startTimeCurr <0, we'll use the first sourceInstance in a period instead
+                                instanceSource = max(instanceSource, 0);
+
                                 double startTimeSourceInstance = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource);
                                 double finishTimeSourceInstance = startTimeSourceInstance + tasks[sourceIndex].executionTime;
                                 if (finishTimeSourceInstance < startTimeCurr)
@@ -101,7 +108,7 @@ namespace DAG_SPACE
                                     sourceFinishTime.push_back(startTime_k_l_next + tasks[sourceIndex].executionTime);
                                 }
                             }
-                            res(indexRes++, 0) = Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
+                            res(indexRes++, 0) = addedError + Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
                         }
                     }
                 }
