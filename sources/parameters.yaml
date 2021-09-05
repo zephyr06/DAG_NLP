@@ -45,8 +45,8 @@ readTaskMode: orig
 
 debugMode: 0
 SA_iteration: 100000
-temperatureSA: 1000
-coolingRateSA: 0.09
+temperatureSA: 100000000
+coolingRateSA: 0.99
 randomInitialize: 0
 
 # something not used
