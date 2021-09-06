@@ -21,6 +21,7 @@
 
 #include "Parameters.h"
 #include "colormod.h"
+#include "testMy.h"
 
 using namespace std;
 using namespace gtsam;
@@ -33,7 +34,10 @@ struct MappingDataStruct
     LLint index;
     double distance;
 
-    double getIndex() const
+    MappingDataStruct() : index(0), distance(0) {}
+    MappingDataStruct(LLint index, double distance) : index(index), distance(distance) {}
+
+    LLint getIndex() const
     {
         return index;
     }
@@ -45,21 +49,6 @@ struct MappingDataStruct
 // typedef unordered_map<int, boost::function<double(const VectorDynamic &, int)>> MAP_Index2Func;
 typedef unordered_map<int, MappingDataStruct> MAP_Index2Data;
 typedef boost::function<VectorDynamic(const VectorDynamic &)> FuncV2V;
-
-/**
- * @brief decode mapping; used in RecoverStartTimeVector, 
- * given compressed startTimeVector and one index in original startTimeVector,
- * return the true value of original startTimeVector[index]
- * 
- * @param startTimeVector 
- * @param index 
- * @param m 
- * @return double 
- */
-inline double DecodeMap(const VectorDynamic &startTimeVector, const LLint index, MAP_Index2Data m)
-{
-    return startTimeVector(m[index].getIndex(), 0) + m[index].getDistance();
-}
 
 // ************************************************************ SOME FUNCTIONS
 /**
@@ -223,21 +212,50 @@ namespace DAG_SPACE
         return jacobian;
     }
 
+    double GetSingleElement(LLint index, VectorDynamic &actual,
+                            const MAP_Index2Data &mapIndex,
+                            vector<bool> &filledTable)
+    {
+        if (filledTable[index])
+            return actual(index, 0);
+        auto it = mapIndex.find(index);
+        if (it != mapIndex.end())
+        {
+            MappingDataStruct curr = it->second;
+            actual(index, 0) = GetSingleElement(curr.getIndex(), actual,
+                                                mapIndex, filledTable) +
+                               curr.getDistance();
+        }
+        else
+        {
+            CoutError("Out of boundary in GetSingleElement, RecoverStartTimeVector!");
+        }
+        return actual(index, 0);
+    }
+
     VectorDynamic RecoverStartTimeVector(const VectorDynamic &compressed,
                                          const vector<bool> &maskEliminate,
                                          const MAP_Index2Data &mapIndex)
     {
         LLint variableDimension = maskEliminate.size();
+        vector<bool> filledTable(variableDimension, 0);
+
         VectorDynamic actual = GenerateVectorDynamic(variableDimension);
-        size_t index = 0;
+        LLint index = 0;
         for (size_t i = 0; i < variableDimension; i++)
         {
-            if (maskEliminate[i])
+            if (not maskEliminate[i])
             {
-                actual(i, 0) = DecodeMap(actual, i, mapIndex);
+                filledTable[i] = 1;
+                actual[i] = compressed(index++, 0);
             }
-            else
-                actual(i, 0) = compressed(index++, 0);
+        }
+        for (size_t i = 0; i < variableDimension; i++)
+        {
+            if (not filledTable[i])
+            {
+                actual(i, 0) = GetSingleElement(i, actual, mapIndex, filledTable);
+            }
         }
         return actual;
     }

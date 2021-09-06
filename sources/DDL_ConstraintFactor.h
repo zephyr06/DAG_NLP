@@ -30,22 +30,6 @@ namespace DAG_SPACE
             }
         }
 
-        /**
-         * @brief Get the Mapping Function object
-         *          This function is skipped because we don't consider its related elimination for now
-         * 
-         * @param j 
-         * @param startTimeVector 
-         * @return pair<bool, boost::function<VectorDynamic(const VectorDynamic &)>> 
-         */
-        pair<bool, boost::function<VectorDynamic(const VectorDynamic &)>>
-        getMappingFunction(int j, VectorDynamic &startTimeVector)
-        {
-            bool success;
-            FuncV2V f;
-            return make_pair(false, f);
-        }
-
         Vector evaluateError(const VectorDynamic &startTimeVector,
                              boost::optional<Matrix &> H = boost::none) const override
         {

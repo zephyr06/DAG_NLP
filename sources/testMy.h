@@ -47,3 +47,9 @@ void AssertEqualVector(T expected, T actual, double tolerance = 1e-6)
     }
     return;
 }
+
+void CoutError(string message)
+{
+    cout << red << message << def << endl;
+    throw;
+}

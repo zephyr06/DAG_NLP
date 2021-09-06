@@ -52,13 +52,6 @@ namespace DAG_SPACE
                 length += sizeOfVariables[i];
             }
         }
-        static pair<bool, boost::function<VectorDynamic(const VectorDynamic &)>>
-        getMappingFunction(int j, VectorDynamic &startTimeVector)
-        {
-            bool success;
-            FuncV2V f;
-            return make_pair(false, f);
-        }
         /**
          * @brief for error evaluation; this returns a scalar, 
          * which is the merged version of all DBF error
@@ -253,7 +246,10 @@ namespace DAG_SPACE
                     if (intervalVec[j].start >= endTime)
                         break;
                     else
-                        overlapAll += Overlap(intervalVec[i], intervalVec[j]);
+                    {
+                        double ttttt = Overlap(intervalVec[i], intervalVec[j]);
+                        overlapAll += ttttt;
+                    }
                 }
             }
 

@@ -1,4 +1,5 @@
 #include "../sources/Optimize.h"
+#include "../sources/testMy.h"
 /*
 TEST(RecoverStartTimeVector, v1)
 {
@@ -133,20 +134,75 @@ TEST(ExtractVariable, v1)
     auto res = OptimizeScheduling(tasks);
     cout << "The result after optimization is " << res << endl;
 }
+TEST(Overlap, v1)
+{
+    Interval v1(0, 10), v2(11, 10);
+    AssertEqualScalar(0, Overlap(v1, v2));
 
+    v1.start = 100;
+    AssertEqualScalar(0, Overlap(v1, v2));
+    v1.start = 0;
+
+    v2.start = -5;
+    AssertEqualScalar(5, Overlap(v1, v2));
+    v2.start = 11;
+
+    v2.start = 1;
+    v2.length = 5;
+    AssertEqualScalar(5, Overlap(v1, v2));
+
+    v2.start = -1;
+    v2.length = 100;
+    AssertEqualScalar(10, Overlap(v1, v2));
+
+    v2.start = 5;
+    v2.length = 10;
+    AssertEqualScalar(5, Overlap(v1, v2));
+}
 
 */
-TEST(DAG_Generated, v1)
+
+TEST(RecoverStartTime, v2)
 {
-    using namespace DAG_SPACE;
-    DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
+    VectorDynamic compressed;
+    compressed.resize(2, 1);
+    compressed << 0, 100;
+    vector<bool> maskEliminate;
+    maskEliminate = {1, 0, 1, 1, 0, 1, 1};
+    MAP_Index2Data mapIndex;
+    MappingDataStruct t0(LLint(1), 11.0);
+    MappingDataStruct t1(LLint(1), 0.0);
+    MappingDataStruct t2(LLint(4), 15.0);
+    MappingDataStruct t3(LLint(0), 10.0);
+    MappingDataStruct t4(LLint(4), 0.0);
+    MappingDataStruct t5(LLint(0), 22.0);
+    MappingDataStruct t6(LLint(0), 35.0);
+    mapIndex[0] = t0;
+    mapIndex[1] = t1;
+    mapIndex[2] = t2;
+    mapIndex[3] = t3;
+    mapIndex[4] = t4;
+    mapIndex[5] = t5;
+    mapIndex[6] = t6;
+    VectorDynamic actual = DAG_SPACE::RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
+    VectorDynamic expect;
+    expect.resize(7, 1);
+    expect << 11, 0, 115, 21, 100, 33, 46;
 
-    auto sth = OptimizeScheduling(tasks);
-    double success = sth.first;
-    VectorDynamic res = sth.second;
-
-    cout << "The result after optimization is " << green << success << blue << res << def << endl;
+    assert_equal(expect, actual);
 }
+
+// TEST(DAG_Generated, v1)
+// {
+//     using namespace DAG_SPACE;
+//     DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
+
+//     auto sth = OptimizeScheduling(tasks);
+//     double success = sth.first;
+//     VectorDynamic res = sth.second;
+
+//     cout << "The result after optimization is " << green << success << blue << res << def << endl;
+// }
 int main()
 {
     TestResult tr;

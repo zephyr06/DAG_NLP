@@ -38,13 +38,7 @@ namespace DAG_SPACE
                 length += sizeOfVariables[i];
             }
         }
-        pair<bool, boost::function<VectorDynamic(const VectorDynamic &)>>
-        getMappingFunction(int j, VectorDynamic &startTimeVector)
-        {
-            bool success;
-            FuncV2V f;
-            return make_pair(false, f);
-        }
+
         Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
         {
 
