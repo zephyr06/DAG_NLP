@@ -141,8 +141,11 @@ TEST(DAG_Generated, v1)
     using namespace DAG_SPACE;
     DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
 
-    VectorDynamic res = OptimizeScheduling(tasks);
-    cout << "The result after optimization is " << blue << res << def << endl;
+    auto sth = OptimizeScheduling(tasks);
+    double success = sth.first;
+    VectorDynamic res = sth.second;
+
+    cout << "The result after optimization is " << green << success << blue << res << def << endl;
 }
 int main()
 {

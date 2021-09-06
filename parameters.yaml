@@ -1,0 +1,51 @@
+%YAML:1.0
+
+sensorFusionTolerance: 300
+
+overlapMode: 1
+runMode: compare
+weight_U: 1e4
+makespanWeight: 1e-6
+testDataSetName: test_n5_v9
+
+deltaOptimizer: 1e-1
+deltaEliminator: 1e-1
+toleranceEliminator: 10
+barrierBase: 100
+initialRHS: 0
+parallelFactor: 0.4
+optimizeNLP_ErrorTolerance: 1e-3
+
+minWeightToBegin: 1e9
+exactJacobian: 0
+weightLogBarrier: -1.0
+
+punishmentInBarrier: 1e2
+
+noiseModelSigma: 1e0
+relativeErrorTolerance: 1e-5
+
+toleranceBarrier: 1e-6
+
+
+optimizerType: 2 # 1 means dogleg, 2 means LM
+
+deltaInitialDogleg: 1e5
+
+initialLambda: 1e0
+lowerLambda: 1e-15
+upperLambda: 1e60
+
+
+granularityInBF: 1
+readTaskMode: orig
+
+debugMode: 0
+SA_iteration: 100000
+temperatureSA: 100000000
+coolingRateSA: 0.99
+randomInitialize: 0
+
+# something not used
+
+

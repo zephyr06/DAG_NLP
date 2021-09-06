@@ -142,7 +142,7 @@ namespace DAG_SPACE
      * @param tasks 
      * @return VectorDynamic all the task instances' start time
      */
-    VectorDynamic OptimizeScheduling(DAG_Model &dagTasks)
+    pair<double, VectorDynamic> OptimizeScheduling(DAG_Model &dagTasks)
     {
         TaskSet tasks = dagTasks.tasks;
         int N = tasks.size();
@@ -233,7 +233,7 @@ namespace DAG_SPACE
         initialEstimateFG.insert(key, initialEstimate);
         // cout << blue << "The error before optimization is " << graph.error(initialEstimateFG) << def << endl;
         // cout << blue << "The error after optimization is " << graph.error(finalEstimate) << def << endl;
-
-        return trueResult;
+        double finalSuccess = 0;
+        return make_pair(finalSuccess, trueResult);
     }
 }
