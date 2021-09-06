@@ -4,17 +4,13 @@
 
 barrierBase: 100
 coolingRateSA: 0.99
-debugMode: 1
-deltaEliminator: 1e-1
+debugMode: 2
 deltaInitialDogleg: 1e5
 deltaOptimizer: 1e-1
 exactJacobian: 0
-granularityInBF: 1
 initialLambda: 1e3
-initialRHS: 0
 lowerLambda: 1e-15
 makespanWeight: 1e-6
-minWeightToBegin: 1e9
 noiseModelSigma: 1e0
 optimizeNLP_ErrorTolerance: 1e-3
 optimizerType: 2 # 1 means dogleg, 2 means LM
@@ -23,15 +19,14 @@ parallelFactor: 0.4
 punishmentInBarrier: 1e2
 randomInitialize: 0
 readTaskMode: orig
+
 relativeErrorTolerance: 1e-5
 runMode: compare
 SA_iteration: 100000
 sensorFusionTolerance: 6000
 temperatureSA: 100000000
-tightEliminate: 0
-testDataSetName: test_n5_v12
-toleranceBarrier: 1e-6
+testDataSetName: test_n5_v13
+tightEliminate: 1
 toleranceEliminator: 10
 upperLambda: 1e60
-weight_U: 1e4
 weightLogBarrier: -1.0

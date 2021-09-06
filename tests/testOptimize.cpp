@@ -160,8 +160,6 @@ TEST(Overlap, v1)
     AssertEqualScalar(5, Overlap(v1, v2));
 }
 
-*/
-
 TEST(RecoverStartTime, v2)
 {
     VectorDynamic compressed;
@@ -191,18 +189,19 @@ TEST(RecoverStartTime, v2)
 
     assert_equal(expect, actual);
 }
+*/
 
-// TEST(DAG_Generated, v1)
-// {
-//     using namespace DAG_SPACE;
-//     DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
+TEST(DAG_Generated, v1)
+{
+    using namespace DAG_SPACE;
+    DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
 
-//     auto sth = OptimizeScheduling(tasks);
-//     double success = sth.first;
-//     VectorDynamic res = sth.second;
+    auto sth = OptimizeScheduling(tasks);
+    double success = sth.first;
+    VectorDynamic res = sth.second;
 
-//     cout << "The result after optimization is " << green << success << blue << res << def << endl;
-// }
+    cout << "The result after optimization is " << green << success << blue << res << def << endl;
+}
 int main()
 {
     TestResult tr;

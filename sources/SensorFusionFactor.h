@@ -51,7 +51,7 @@ namespace DAG_SPACE
                 res.resize(errorDimension, 1);
                 LLint indexRes = 0;
 
-                // go through all the instances of task 3
+                // go through all the instances of task, 3 in the example
                 for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
                 {
                     const TaskSet &tasksPrev = itr->second;
@@ -70,7 +70,6 @@ namespace DAG_SPACE
                             double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, 3, instanceCurr);
 
                             // go through three source sensor tasks
-                            // for (int sourceIndex = 0; sourceIndex < 3; sourceIndex++)
                             for (size_t sourceIndex = 0; sourceIndex < tasksPrev.size(); sourceIndex++)
                             {
                                 LLint instanceSource = floor(startTimeCurr / tasks[sourceIndex].period);
@@ -102,8 +101,22 @@ namespace DAG_SPACE
                                 // find a later instance, and return it because it will give a bigger error
                                 else
                                 {
-                                    double startTime_k_l_next = ExtractVariable(startTimeVector,
-                                                                                sizeOfVariables, sourceIndex, instanceSource + 1);
+
+                                    double startTime_k_l_next;
+                                    if (instanceSource + 1 > sizeOfVariables[sourceIndex] - 1)
+                                    {
+                                        startTime_k_l_next = ExtractVariable(startTimeVector,
+                                                                             sizeOfVariables, sourceIndex,
+                                                                             (instanceSource + 1) % sizeOfVariables[sourceIndex]) +
+                                                             sizeOfVariables[sourceIndex] * tasks[sourceIndex].period;
+                                    }
+                                    else
+                                    {
+                                        startTime_k_l_next = ExtractVariable(startTimeVector,
+                                                                             sizeOfVariables, sourceIndex,
+                                                                             (instanceSource + 1));
+                                    }
+
                                     sourceFinishTime.push_back(startTime_k_l_next + tasks[sourceIndex].executionTime);
                                     // if all the sources violate DAG constraints, this error will drag them back
                                     addedError += startTime_k_l_next + tasks[sourceIndex].executionTime - startTimeCurr;

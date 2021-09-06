@@ -63,12 +63,13 @@ double ExtractVariable(const VectorDynamic &startTimeVector,
                        const vector<LLint> &sizeOfVariables,
                        int taskIndex, int instanceIndex)
 {
-    if (taskIndex < 0 || instanceIndex < 0)
+    if (taskIndex < 0 || instanceIndex < 0 || instanceIndex > sizeOfVariables[taskIndex] - 1)
     {
 
         cout << red << "Index Error in ExtractVariable!" << def << endl;
         throw;
     }
+
     LLint firstTaskInstance = 0;
     for (int i = 0; i < taskIndex; i++)
     {
@@ -154,9 +155,10 @@ namespace DAG_SPACE
         {
             return -1 * x;
         }
-        else // it basically means x=0
-            return weightLogBarrier *
-                   log(x + toleranceBarrier);
+        // else // it basically means x=0
+        //     return weightLogBarrier *
+        //            log(x + toleranceBarrier);
+        return 0;
     }
 
     double BarrierLog(double x)
@@ -168,9 +170,10 @@ namespace DAG_SPACE
         {
             return punishmentInBarrier * pow(1 - x, 2);
         }
-        else // it basically means x=0
-            return weightLogBarrier *
-                   log(x + toleranceBarrier);
+        // else // it basically means x=0
+        //     return weightLogBarrier *
+        //            log(x + toleranceBarrier);
+        return 0;
     }
 
     MatrixDynamic NumericalDerivativeDynamicUpper(boost::function<VectorDynamic(const VectorDynamic &)> h,
