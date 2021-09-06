@@ -4,13 +4,13 @@
 
 barrierBase: 100
 coolingRateSA: 0.99
-debugMode: 0
+debugMode: 1
 deltaEliminator: 1e-1
 deltaInitialDogleg: 1e5
 deltaOptimizer: 1e-1
 exactJacobian: 0
 granularityInBF: 1
-initialLambda: 1e0
+initialLambda: 1e3
 initialRHS: 0
 lowerLambda: 1e-15
 makespanWeight: 1e-6
@@ -26,9 +26,10 @@ readTaskMode: orig
 relativeErrorTolerance: 1e-5
 runMode: compare
 SA_iteration: 100000
-sensorFusionTolerance: 300
+sensorFusionTolerance: 6000
 temperatureSA: 100000000
-testDataSetName: test_n5_v9
+tightEliminate: 0
+testDataSetName: test_n5_v11
 toleranceBarrier: 1e-6
 toleranceEliminator: 10
 upperLambda: 1e60

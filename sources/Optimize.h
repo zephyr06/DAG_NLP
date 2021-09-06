@@ -41,6 +41,62 @@ namespace DAG_SPACE
         return initial;
     }
 
+    double GraphErrorEvaluation(DAG_Model &dagTasks, VectorDynamic startTimeVector)
+    {
+        TaskSet tasks = dagTasks.tasks;
+        int N = tasks.size();
+        LLint hyperPeriod = HyperPeriod(tasks);
+
+        // declare variables
+        vector<LLint> sizeOfVariables;
+        int variableDimension = 0;
+        for (int i = 0; i < N; i++)
+        {
+            LLint size = hyperPeriod / tasks[i].period;
+            sizeOfVariables.push_back(size);
+            variableDimension += size;
+        }
+
+        MAP_Index2Data mapIndex;
+        for (LLint i = 0; i < variableDimension; i++)
+        {
+            MappingDataStruct m{i, 0};
+            mapIndex[i] = m;
+        }
+        bool whetherEliminate = false;
+        vector<bool> maskForEliminate(variableDimension, false);
+
+        // build the factor graph
+        NonlinearFactorGraph graph;
+        Symbol key('a', 0);
+
+        LLint errorDimensionDAG = 1 + 4;
+        auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
+        graph.emplace_shared<DAG_ConstraintFactor>(key, dagTasks, sizeOfVariables,
+                                                   errorDimensionDAG, mapIndex,
+                                                   maskForEliminate, model);
+        LLint errorDimensionDBF = 1;
+        model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+        graph.emplace_shared<DBF_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
+                                                   errorDimensionDBF, mapIndex,
+                                                   maskForEliminate,
+                                                   model);
+        LLint errorDimensionDDL = 2 * variableDimension;
+        model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
+        graph.emplace_shared<DDL_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
+                                                   errorDimensionDDL, mapIndex,
+                                                   maskForEliminate, model);
+        LLint errorDimensionSF = sizeOfVariables[3];
+        model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
+        graph.emplace_shared<SensorFusion_ConstraintFactor>(key, dagTasks, sizeOfVariables,
+                                                            errorDimensionSF, sensorFusionTolerance,
+                                                            mapIndex, maskForEliminate, model);
+
+        Values initialEstimateFG;
+        initialEstimateFG.insert(key, startTimeVector);
+        return graph.error(initialEstimateFG);
+    }
+
     /**
      * @brief Given a example regular task sets, perform instance-level optimization
      * 
@@ -82,7 +138,7 @@ namespace DAG_SPACE
         NonlinearFactorGraph graph;
         Symbol key('a', 0);
 
-        LLint errorDimensionDAG = 1 + 4;
+        LLint errorDimensionDAG = 1 + dagTasks.edgeNumber();
         auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
         graph.emplace_shared<DAG_ConstraintFactor>(key, dagTasks, sizeOfVariables,
                                                    errorDimensionDAG, mapIndex,
@@ -111,7 +167,7 @@ namespace DAG_SPACE
         if (optimizerType == 1)
         {
             DoglegParams params;
-            if (debugMode == 1)
+            if (debugMode >= 1)
                 params.setVerbosityDL("VERBOSE");
             params.setDeltaInitial(deltaInitialDogleg);
             params.setRelativeErrorTol(relativeErrorTolerance);
@@ -122,7 +178,7 @@ namespace DAG_SPACE
         {
             LevenbergMarquardtParams params;
             params.setlambdaInitial(initialLambda);
-            if (debugMode == 1)
+            if (debugMode >= 1)
                 params.setVerbosityLM("SUMMARY");
             params.setlambdaLowerBound(lowerLambda);
             params.setlambdaUpperBound(upperLambda);
@@ -170,7 +226,7 @@ namespace DAG_SPACE
         int loopNumber = 0;
         vector<bool> maskForEliminate(variableDimension, false);
         VectorDynamic resTemp = GenerateVectorDynamic(variableDimension);
-        NonlinearFactorGraph graph;
+        // NonlinearFactorGraph graph;
         VectorDynamic trueResult;
         while (1)
         {
@@ -182,7 +238,7 @@ namespace DAG_SPACE
                                         hyperPeriod);
 
             resTemp = sth.first;
-            graph = sth.second;
+            // graph = sth.second;
             VectorDynamic startTimeComplete = RecoverStartTimeVector(resTemp, maskForEliminate, mapIndex);
 
             // factors that require elimination analysis are: DBF
@@ -224,16 +280,12 @@ namespace DAG_SPACE
                 throw;
             }
         }
-        Symbol key('a', 0);
 
-        Values finalEstimate;
-        finalEstimate.insert(key, trueResult);
-        Values initialEstimateFG;
         initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
-        initialEstimateFG.insert(key, initialEstimate);
-        // cout << blue << "The error before optimization is " << graph.error(initialEstimateFG) << def << endl;
-        // cout << blue << "The error after optimization is " << graph.error(finalEstimate) << def << endl;
-        double finalSuccess = 0;
-        return make_pair(finalSuccess, trueResult);
+        cout << blue << "The error before optimization is "
+             << GraphErrorEvaluation(dagTasks, initialEstimate) << def << endl;
+        double finalError = GraphErrorEvaluation(dagTasks, trueResult);
+        cout << blue << "The error after optimization is " << finalError << def << endl;
+        return make_pair(finalError, trueResult);
     }
 }

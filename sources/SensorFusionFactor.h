@@ -85,13 +85,15 @@ namespace DAG_SPACE
                                 if (instanceSource < 0)
                                     instanceSource = 0;
 
-                                double startTimeSourceInstance = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource);
+                                double startTimeSourceInstance = ExtractVariable(startTimeVector, sizeOfVariables,
+                                                                                 sourceIndex, instanceSource);
                                 double finishTimeSourceInstance = startTimeSourceInstance + tasks[sourceIndex].executionTime;
-                                if (finishTimeSourceInstance < startTimeCurr)
+                                if (finishTimeSourceInstance <= startTimeCurr)
                                     sourceFinishTime.push_back(finishTimeSourceInstance);
                                 else if (instanceSource - 1 >= 0)
                                 {
-                                    double startTime_k_l_prev = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource - 1);
+                                    double startTime_k_l_prev = ExtractVariable(startTimeVector, sizeOfVariables,
+                                                                                sourceIndex, instanceSource - 1);
                                     if (startTime_k_l_prev + tasks[sourceIndex].executionTime < startTimeCurr)
                                         sourceFinishTime.push_back(startTime_k_l_prev + tasks[sourceIndex].executionTime);
                                     else
@@ -106,7 +108,8 @@ namespace DAG_SPACE
                                 // find a later instance, and return it because it will give a bigger error
                                 else
                                 {
-                                    double startTime_k_l_next = ExtractVariable(startTimeVector, sizeOfVariables, sourceIndex, instanceSource + 1);
+                                    double startTime_k_l_next = ExtractVariable(startTimeVector,
+                                                                                sizeOfVariables, sourceIndex, instanceSource + 1);
                                     sourceFinishTime.push_back(startTime_k_l_next + tasks[sourceIndex].executionTime);
                                     // if all the sources violate DAG constraints, this error will drag them back
                                     addedError += startTime_k_l_next + tasks[sourceIndex].executionTime - startTimeCurr;

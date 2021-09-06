@@ -56,7 +56,7 @@ void BatchOptimize()
             DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(path, readTaskMode);
             auto start = chrono::high_resolution_clock::now();
             auto res = DAG_SPACE::OptimizeScheduling(dagTasks);
-            // cout << "The energy saving ratio is " << res << endl;
+
             auto stop = chrono::high_resolution_clock::now();
             auto duration = duration_cast<microseconds>(stop - start);
             double timeTaken = double(duration.count()) / 1e6;

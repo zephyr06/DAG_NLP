@@ -38,6 +38,16 @@ namespace DAG_SPACE
                     cout << "Edge: " << ((itr->second)[i].id) << "-->" << (itr->first) << endl;
             }
         }
+
+        int edgeNumber()
+        {
+            int count = 0;
+            for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
+            {
+                count += (itr->second).size();
+            }
+            return count;
+        }
     };
 
     DAG_Model ReadDAG_Tasks(string path, string priorityType = "orig")

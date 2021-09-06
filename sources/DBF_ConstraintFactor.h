@@ -193,8 +193,24 @@ namespace DAG_SPACE
                                     {
                                         maskForEliminate[index_j_overall] = true;
                                         whetherEliminate = true;
-                                        MappingDataStruct m{index_i_overall, sumIJK - tasks[j].executionTime};
-                                        mapIndex[index_j_overall] = m;
+                                        // this should respect original relationship
+                                        if (tightEliminate == 1)
+                                        {
+                                            MappingDataStruct m{index_i_overall, sumIJK - tasks[j].executionTime};
+                                            mapIndex[index_j_overall] = m;
+                                        }
+                                        else if (tightEliminate == 0)
+                                        {
+                                            MappingDataStruct m{index_i_overall,
+                                                                startTimeVector(index_j_overall, 0) -
+                                                                    startTimeVector(index_i_overall, 0)};
+                                            mapIndex[index_j_overall] = m;
+                                        }
+                                        else
+                                        {
+                                            cout << red << "Eliminate option error, not recognized!" << def << endl;
+                                            throw;
+                                        }
                                     }
                                     else
                                         continue;

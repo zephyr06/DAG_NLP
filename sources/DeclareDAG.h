@@ -131,6 +131,26 @@ inline VectorDynamic GenerateVectorDynamic(LLint N)
     return v;
 }
 
+vector<double> Eigen2Vector(VectorDynamic &input)
+{
+    vector<double> res;
+    LLint len = input.rows();
+    res.reserve(len);
+    for (LLint i = 0; i < len; i++)
+        res.push_back(input(i, 0));
+    return res;
+}
+VectorDynamic Vector2Eigen(vector<double> &input)
+{
+
+    LLint len = input.size();
+    VectorDynamic res;
+    res.resize(len, 1);
+    for (LLint i = 0; i < len; i++)
+        res(i, 0) = input[i];
+    return res;
+}
+
 namespace DAG_SPACE
 {
     /**
