@@ -58,7 +58,7 @@ namespace DAG_SPACE
 
                 if (indexRes != errorDimension)
                 {
-                    cout << red << "The errorDimension is set wrong!" << def << endl;
+                    cout << Color::red << "The errorDimension is set wrong!" << Color::def << endl;
                     throw;
                 }
 
@@ -77,7 +77,7 @@ namespace DAG_SPACE
                 if (debugMode == 1)
                 {
                     // cout << "The input startTimeVector is " << startTimeVector << endl;
-                    cout << "The error vector of DDL is " << blue << f(startTimeVector) << def << endl;
+                    cout << "The error vector of DDL is " << Color::blue << f(startTimeVector) << Color::def << endl;
                 }
             }
 

@@ -13,7 +13,7 @@ template <typename T>
 void AssertUnEqual(T expect, T actual)
 {
     std::cout << "Assertion failed!" << std::endl;
-    cout << red << "EXpect is " << expect << ", while the actual is " << actual << def << endl;
+    cout << Color::red << "EXpect is " << expect << ", while the actual is " << actual << Color::def << endl;
     throw;
 }
 void AssertEqualScalar(double expected, double actual, double tolerance = 1e-6)
@@ -50,6 +50,6 @@ void AssertEqualVector(T expected, T actual, double tolerance = 1e-6)
 
 void CoutError(string message)
 {
-    cout << red << message << def << endl;
+    cout << Color::red << message << Color::def << endl;
     throw;
 }

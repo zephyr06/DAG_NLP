@@ -1,10 +1,14 @@
 
+#pragma once
+
 #include "RegularTasks.h"
 #include "DAG_Model.h"
 #include "DAG_ConstraintFactor.h"
 #include "DBF_ConstraintFactor.h"
 #include "DDL_ConstraintFactor.h"
 #include "SensorFusionFactor.h"
+#include "GraphUtilsFromBGL.h"
+#include "colormod.h"
 
 using namespace RegularTaskSystem;
 // -------------------------------------------------------- from previous optimization begins
@@ -190,7 +194,7 @@ namespace DAG_SPACE
         }
 
         VectorDynamic optComp = result.at<VectorDynamic>(key);
-        cout << green << "UnitOptimization finishes for one time" << def << endl;
+        cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
         return make_pair(optComp, graph);
     }
 
@@ -284,10 +288,10 @@ namespace DAG_SPACE
         }
 
         initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
-        cout << blue << "The error before optimization is "
-             << GraphErrorEvaluation(dagTasks, initialEstimate) << def << endl;
+        cout << Color::blue << "The error before optimization is "
+             << GraphErrorEvaluation(dagTasks, initialEstimate) << Color::def << endl;
         double finalError = GraphErrorEvaluation(dagTasks, trueResult);
-        cout << blue << "The error after optimization is " << finalError << def << endl;
+        cout << Color::blue << "The error after optimization is " << finalError << Color::def << endl;
         return make_pair(finalError, trueResult);
     }
 }

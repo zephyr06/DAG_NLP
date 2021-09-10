@@ -66,7 +66,7 @@ double ExtractVariable(const VectorDynamic &startTimeVector,
     if (taskIndex < 0 || instanceIndex < 0 || instanceIndex > sizeOfVariables[taskIndex] - 1)
     {
 
-        cout << red << "Index Error in ExtractVariable!" << def << endl;
+        cout << Color::red << "Index Error in ExtractVariable!" << Color::def << endl;
         throw;
     }
 

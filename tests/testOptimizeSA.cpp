@@ -6,7 +6,7 @@ TEST(DAG_Generated, v1)
     DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
 
     VectorDynamic res = OptimizeSchedulingSA(tasks);
-    cout << "The result after optimization is " << blue << res << def << endl;
+    cout << "The result after optimization is " << Color::blue << res << Color::def << endl;
 }
 int main()
 {

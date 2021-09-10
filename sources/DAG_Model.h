@@ -1,3 +1,4 @@
+#pragma once
 #include "RegularTasks.h"
 
 namespace DAG_SPACE
@@ -91,9 +92,9 @@ namespace DAG_SPACE
         }
         else
         {
-            cout << red << "The path does not exist in ReadTaskSet!" << endl
+            cout << Color::red << "The path does not exist in ReadTaskSet!" << endl
                  << path
-                 << def << endl;
+                 << Color::def << endl;
             throw;
         }
     }

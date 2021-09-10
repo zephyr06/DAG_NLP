@@ -35,7 +35,7 @@ double Overlap(Interval &v1, Interval &v2)
     }
     else
     {
-        cout << red << "Error in Overlap, no case found!" << def << endl;
+        cout << Color::red << "Error in Overlap, no case found!" << Color::def << endl;
         throw;
     }
     return 0;

@@ -128,8 +128,8 @@ namespace DAG_SPACE
                 }
                 if (debugMode == 1)
                 {
-                    cout << green << "The input startTimeVector of DBF is " << startTimeVector << def << endl;
-                    cout << "The error vector of DBF is " << blue << f(startTimeVector) << def << endl;
+                    cout << Color::green << "The input startTimeVector of DBF is " << startTimeVector << Color::def << endl;
+                    cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << endl;
                 }
             }
 
@@ -201,7 +201,7 @@ namespace DAG_SPACE
                                         }
                                         else
                                         {
-                                            cout << red << "Eliminate option error, not recognized!" << def << endl;
+                                            cout << Color::red << "Eliminate option error, not recognized!" << Color::def << endl;
                                             throw;
                                         }
                                     }

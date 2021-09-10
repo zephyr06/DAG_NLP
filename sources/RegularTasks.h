@@ -57,8 +57,8 @@ namespace RegularTaskSystem
         {
             if (dataInLine.size() != 7)
             {
-                cout << red << "The length of dataInLine in Task constructor is wrong! Must be 7!\n"
-                     << def;
+                cout << Color::red << "The length of dataInLine in Task constructor is wrong! Must be 7!\n"
+                     << Color::def << endl;
                 throw;
             }
             id = dataInLine[0];
@@ -115,8 +115,8 @@ namespace RegularTaskSystem
                 parameterList.push_back((T)(taskset[i].offset));
             else
             {
-                cout << red << "parameterType in GetParameter is not recognized!\n"
-                     << def;
+                cout << Color::red << "parameterType in GetParameter is not recognized!\n"
+                     << Color::def << endl;
                 throw;
             }
         }
@@ -144,8 +144,8 @@ namespace RegularTaskSystem
                 parameterList(i, 0) = ((T)(taskset[i].offset));
             else
             {
-                cout << red << "parameterType in GetParameter is not recognized!\n"
-                     << def;
+                cout << Color::red << "parameterType in GetParameter is not recognized!\n"
+                     << Color::def << endl;
                 throw;
             }
         }
@@ -192,7 +192,7 @@ namespace RegularTaskSystem
         int N = tasks.size();
         if (N == 0)
         {
-            cout << red << "Empty task set in HyperPeriod()!\n";
+            cout << Color::red << "Empty task set in HyperPeriod()!\n";
             throw;
         }
         else
@@ -203,7 +203,7 @@ namespace RegularTaskSystem
                 hyper = lcm(hyper, tasks[i].period);
                 if (hyper < 0 || hyper > LLONG_MAX)
                 {
-                    cout << red << "The hyper-period over flows!" << def << endl;
+                    cout << Color::red << "The hyper-period over flows!" << Color::def << endl;
                     throw;
                 }
             }
@@ -227,8 +227,8 @@ namespace RegularTaskSystem
         }
         else
         {
-            cout << red << "Unrecognized priorityType in Reorder!\n"
-                 << def;
+            cout << Color::red << "Unrecognized priorityType in Reorder!\n"
+                 << Color::def << endl;
             throw;
         }
         return tasks;
@@ -274,9 +274,9 @@ namespace RegularTaskSystem
         }
         else
         {
-            cout << red << "The path does not exist in ReadTaskSet!" << endl
+            cout << Color::red << "The path does not exist in ReadTaskSet!" << endl
                  << path
-                 << def << endl;
+                 << Color::def << endl;
             throw;
         }
     }
