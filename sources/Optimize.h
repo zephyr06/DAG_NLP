@@ -1,5 +1,6 @@
 
 #pragma once
+#include "unordered_map"
 
 #include "RegularTasks.h"
 #include "DAG_Model.h"
@@ -24,26 +25,40 @@ namespace DAG_SPACE
      * @param sizeOfVariables 
      * @return VectorDynamic size (N+1), first N is start time for nodes, the last one is r.h.s.
      */
-    VectorDynamic GenerateInitialForDAG(TaskSet &tasks, vector<LLint> &sizeOfVariables, int variableDimension)
+    VectorDynamic GenerateInitialForDAG(DAG_Model &dagTasks, vector<LLint> &sizeOfVariables, int variableDimension)
     {
-        int N = tasks.size();
+        int N = dagTasks.tasks.size();
+        TaskSet &tasks = dagTasks.tasks;
+        vector<int> order = FindDependencyOrder(dagTasks);
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
+
         vector<double> executionTimeVec = GetParameter<double>(tasks, "executionTime");
-        // LLint index = 0;
-        // for (int i = 0; i < N; i++)
-        // {
-        //     for (int j = 0; j < sizeOfVariables[i]; j++)
-        //     {
-        //         initial(index++, 0) = j * tasks[i].period + index;
-        //     }
-        // }
+
+        std::unordered_map<int, int> m;
+        LLint sumVariableNum = 0;
+        for (int i = 0; i < N; i++)
+        {
+            m[i] = sumVariableNum;
+            sumVariableNum += sizeOfVariables[i];
+        }
+
+        LLint index = 0;
+        for (int i = 0; i < N; i++)
+        {
+            int currTaskIndex = order[i];
+            for (int j = 0; j < sizeOfVariables[currTaskIndex]; j++)
+            {
+                initial(m[currTaskIndex] + j, 0) = j * tasks[i].period + index++;
+            }
+        }
         // initial(N, 0) *= 1;
         // initial << 1, 101, 202, 303, 4, 5, 206, 50, 258, 67;
         // initial << 0, 9, 17, 19, 25;
         // initial << 1, 5, 2, 3, 0;
-        initial << 4, 3, 2, 1, 0;
+        // initial << 4, 3, 2, 1, 0;
         // initial << 6, 2.5, 2, 0.5, 0;
         // initial << 1, 100, 0, 0, 0, 0;
+        // cout << "Initial estimate is " << initial << endl;
         return initial;
     }
 
@@ -219,7 +234,7 @@ namespace DAG_SPACE
             sizeOfVariables.push_back(size);
             variableDimension += size;
         }
-        VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
+        VectorDynamic initialEstimate = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
 
         MAP_Index2Data mapIndex;
         for (LLint i = 0; i < variableDimension; i++)
@@ -287,7 +302,7 @@ namespace DAG_SPACE
             }
         }
 
-        initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
+        initialEstimate = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
         cout << Color::blue << "The error before optimization is "
              << GraphErrorEvaluation(dagTasks, initialEstimate) << Color::def << endl;
         double finalError = GraphErrorEvaluation(dagTasks, trueResult);

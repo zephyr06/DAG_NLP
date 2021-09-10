@@ -200,6 +200,30 @@ TEST(FindDependencyOrder, v1)
     AssertEqualVector(expected, actual);
 }
 
+TEST(GenerateInitialForDAG, V2)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto actual = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic expected;
+    expected.resize(8, 1);
+    expected << 6, 107, 5, 3, 104, 2, 0, 101;
+    assert_equal(expected, actual);
+}
+
 // TEST(DAG_Generated, v1)
 // {
 //     using namespace DAG_SPACE;
