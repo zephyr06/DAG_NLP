@@ -237,7 +237,7 @@ TEST(sensorFusion, v1)
     // cout << sth << endl;
     initial << 3, 5, 1, 6, 7;
     sth = factor.evaluateError(initial);
-    AssertEqualScalar(7, sth(0, 0));
+    AssertEqualScalar(8, sth(0, 0));
 
     sensorFusionTolerance = defaultSF;
 }
@@ -301,7 +301,11 @@ TEST(sensorFusion, v2)
     //     initial << 6, 107, 5, 3, 104, 2, 0, 101;
     // sth = factor.evaluateError(initial);
     // AssertEqualScalar(7, sth(0, 0));
-
+    initial << 16, 107, 5, 3, 104, 2, 0, 101;
+    sth = factor.evaluateError(initial);
+    AssertEqualScalar(2, sth(0, 0));  // Node 0
+    AssertEqualScalar(2, sth(1, 0));  // Node 0
+    AssertEqualScalar(10, sth(2, 0)); // Node 1
     sensorFusionTolerance = defaultSF;
 }
 
