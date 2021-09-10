@@ -18,7 +18,7 @@ namespace DAG_SPACE
         int N;
         LLint errorDimension;
         LLint length;
-        double sensorFusionTol;
+        double sensorFusionTol; // not used, actually
         MAP_Index2Data mapIndex;
         vector<bool> maskForEliminate;
 
@@ -71,8 +71,9 @@ namespace DAG_SPACE
                             double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, indexCurr, instanceCurr);
 
                             // go through three source sensor tasks
-                            for (size_t sourceIndex = 0; sourceIndex < tasksPrev.size(); sourceIndex++)
+                            for (size_t ii = 0; ii < tasksPrev.size(); ii++)
                             {
+                                int sourceIndex = tasksPrev.at(ii).id;
                                 LLint instanceSource = floor(startTimeCurr / tasks[sourceIndex].period);
                                 // if instanceSource<0, that means startTimeCurr <0, we'll use the first sourceInstance in a period instead
                                 // instanceSource = (instanceSource < 0) ? 0 : instanceSource;
@@ -118,9 +119,11 @@ namespace DAG_SPACE
                                 }
                             }
                             if (addedErrorDAG == -1)
-                                res(indexRes++, 0) = Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
+                                res(indexRes++, 0) = addedErrorDDL + Barrier(sensorFusionTolerance -
+                                                                             ExtractMaxDistance(sourceFinishTime));
                             else
-                                res(indexRes++, 0) = addedErrorDDL + addedErrorDAG + Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
+                                res(indexRes++, 0) = addedErrorDDL + addedErrorDAG +
+                                                     Barrier(sensorFusionTolerance - ExtractMaxDistance(sourceFinishTime));
                         }
                     }
                 }

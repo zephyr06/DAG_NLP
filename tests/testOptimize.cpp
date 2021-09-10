@@ -242,6 +242,69 @@ TEST(sensorFusion, v1)
     sensorFusionTolerance = defaultSF;
 }
 
+TEST(sensorFusion, v2)
+{
+    using namespace DAG_SPACE;
+    using namespace RegularTaskSystem;
+
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    Symbol key('a', 0);
+    LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
+    AssertEqualScalar(3, errorDimensionSF);
+    MAP_Index2Data mapIndex;
+    for (LLint i = 0; i < variableDimension; i++)
+    {
+        MappingDataStruct m{i, 0};
+        mapIndex[i] = m;
+    }
+    bool whetherEliminate = false;
+    vector<bool> maskForEliminate(variableDimension, false);
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
+    SensorFusion_ConstraintFactor factor(key, dagTasks, sizeOfVariables,
+                                         errorDimensionSF, sensorFusionTolerance,
+                                         mapIndex, maskForEliminate,
+                                         model);
+    VectorDynamic initialEstimate = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    cout << initialEstimate << endl;
+
+    VectorDynamic initial;
+    initial.resize(8, 1);
+    initial << 6, 107, 5, 3, 104, 2, 0, 101;
+
+    double defaultSF = sensorFusionTolerance;
+    sensorFusionTolerance = 2;
+    auto sth = factor.evaluateError(initial);
+    AssertEqualScalar(8, sth(0, 0)); // Node 0-1
+    AssertEqualScalar(0, sth(1, 0)); // Node 0-2
+    AssertEqualScalar(9, sth(2, 0)); // Node 1
+    sensorFusionTolerance = 0;
+    sth = factor.evaluateError(initial);
+    AssertEqualScalar(10, sth(0, 0)); // Node 0
+    AssertEqualScalar(2, sth(1, 0));  // Node 0
+    AssertEqualScalar(10, sth(2, 0)); // Node 1
+
+    //     initial << 6, 107, 5, 3, 104, 2, 0, 101;
+    // sth = factor.evaluateError(initial);
+    // AssertEqualScalar(7, sth(0, 0));
+
+    sensorFusionTolerance = defaultSF;
+}
+
 // TEST(DAG_Optimize_schedule, v1)
 // {
 //     using namespace DAG_SPACE;

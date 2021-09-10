@@ -189,33 +189,6 @@ namespace DAG_SPACE
                                                            mapIndex, maskForEliminate,
                                                            sizeOfVariables, variableDimension,
                                                            hyperPeriod);
-        // Symbol key('a', 0);
-
-        // LLint errorDimensionDAG = 1 + dagTasks.edgeNumber();
-        // auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
-        // graph.emplace_shared<DAG_ConstraintFactor>(key, dagTasks, sizeOfVariables,
-        //                                            errorDimensionDAG, mapIndex,
-        //                                            maskForEliminate, model);
-        // LLint errorDimensionDBF = 1;
-        // model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-        // graph.emplace_shared<DBF_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
-        //                                            errorDimensionDBF, mapIndex,
-        //                                            maskForEliminate,
-        //                                            model);
-        // LLint errorDimensionDDL = 2 * variableDimension;
-        // model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
-        // graph.emplace_shared<DDL_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
-        //                                            errorDimensionDDL, mapIndex,
-        //                                            maskForEliminate, model);
-        // LLint errorDimensionSF = 0;
-        // for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
-        // {
-        //     errorDimensionSF += sizeOfVariables[(itr->first)];
-        // }
-        // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-        // graph.emplace_shared<SensorFusion_ConstraintFactor>(key, dagTasks, sizeOfVariables,
-        //                                                     errorDimensionSF, sensorFusionTolerance,
-        //                                                     mapIndex, maskForEliminate, model);
 
         Values initialEstimateFG;
         initialEstimateFG.insert(key, initialEstimate);
@@ -305,6 +278,7 @@ namespace DAG_SPACE
             DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
                                         mapIndex, maskForEliminate, model);
             // this function performs in-place modification for all the variables!
+            // TODO: should we add eliminate function for sensorFusion?
             factor.addMappingFunction(resTemp, mapIndex, whetherEliminate, maskForEliminate);
             // update initial estimate
             vector<double> initialUpdateVec;
