@@ -37,6 +37,7 @@ VectorDynamic OptimizeSchedulingSA(DAG_Model &dagTasks)
 
     auto start = std::chrono::high_resolution_clock::now();
     VectorDynamic initialEstimate = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
+    cout << "Initial estimation for SA is " << initialEstimate << endl;
     auto initialSA = Eigen2Vector(initialEstimate);
     moether.runSA(SA_iteration, initialSA, randomInitialize);
 

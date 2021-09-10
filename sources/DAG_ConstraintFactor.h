@@ -59,9 +59,10 @@ namespace DAG_SPACE
                     size_t indexNext = itr->first;
                     for (size_t i = 0; i < tasksPrev.size(); i++)
                     {
-                        res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, indexNext, 0) -
-                                                     ExtractVariable(startTimeVector, sizeOfVariables, tasksPrev[i].id, 0) -
-                                                     tasksPrev[i].executionTime + 0);
+                        double err = ExtractVariable(startTimeVector, sizeOfVariables, indexNext, 0) -
+                                     ExtractVariable(startTimeVector, sizeOfVariables, tasksPrev[i].id, 0) -
+                                     tasksPrev[i].executionTime + 0;
+                        res(indexRes++, 0) = Barrier(err);
                     }
                 }
                 // res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -

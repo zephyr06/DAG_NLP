@@ -119,7 +119,8 @@ namespace DAG_SPACE
 
                                     sourceFinishTime.push_back(startTime_k_l_next + tasks[sourceIndex].executionTime);
                                     // if all the sources violate DAG constraints, this error will drag them back
-                                    addedError += startTime_k_l_next + tasks[sourceIndex].executionTime - startTimeCurr;
+                                    if (withAddedSensorFusionError)
+                                        addedError += startTime_k_l_next + tasks[sourceIndex].executionTime - startTimeCurr;
                                 }
                             }
                             res(indexRes++, 0) = addedError + Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));

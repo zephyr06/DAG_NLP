@@ -6,7 +6,6 @@
 cv::FileStorage ConfigParameters("/home/zephyr/Programming/DAG_NLP/sources/parameters.yaml", cv::FileStorage::READ);
 using namespace std;
 
-
 const double barrierBase = (double)ConfigParameters["barrierBase"];
 const double coolingRateSA = (double)ConfigParameters["coolingRateSA"];
 const double deltaInitialDogleg = (double)ConfigParameters["deltaInitialDogleg"];
@@ -30,6 +29,8 @@ const int randomInitialize = (int)ConfigParameters["randomInitialize"];
 const int SA_iteration = (int)ConfigParameters["SA_iteration"];
 const int temperatureSA = (int)ConfigParameters["temperatureSA"];
 const int tightEliminate = (int)ConfigParameters["tightEliminate"];
+const int withAddedSensorFusionError = (int)ConfigParameters["withAddedSensorFusionError"];
+
 const string readTaskMode = (string)ConfigParameters["readTaskMode"];
 const string runMode = (string)ConfigParameters["runMode"];
 const string testDataSetName = (string)ConfigParameters["testDataSetName"];

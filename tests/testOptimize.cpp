@@ -202,6 +202,46 @@ TEST(DAG_Generated, v1)
 
     cout << "The result after optimization is " << green << success << blue << res << def << endl;
 }
+
+// void FindOrder(DAG_Model &dagTasks, vector<LLint> &sizeOfVariables, int variableDimension)
+// {
+//     int N = tasks.size();
+//     VectorDynamic res = GenerateVectorDynamic(variableDimension);
+//     // find least constraint tasks, and remove them from the current task pool
+//     DAG_Model taskPool = dagTasks.tasks;
+//     while (taskPool.size())
+//     {
+//         vector<bool> eliminateList(taskPool.size(), 0);
+//         for (auto itr = taskPool.mapPrev.begin(); itr != taskPool.mapPrev.end(); itr++)
+//         {
+//             const TaskSet &tasksPrev = itr->second;
+//             size_t indexNext = itr->first;
+//             for (size_t i = 0; i < tasksPrev.size(); i++)
+//             {
+//                 ;
+//             }
+//         }
+//     }
+// }
+// TEST(decodeDAG, v1)
+// {
+//     using namespace DAG_SPACE;
+//     DAG_Model tasks = ReadDAG_Tasks("../TaskData/test_n5_v15.csv", "orig");
+//     int N = tasks.tasks.size();
+//     LLint hyperPeriod = HyperPeriod(tasks);
+
+//     // declare variables
+//     vector<LLint> sizeOfVariables;
+//     int variableDimension = 0;
+//     for (int i = 0; i < N; i++)
+//     {
+//         LLint size = hyperPeriod / tasks[i].period;
+//         sizeOfVariables.push_back(size);
+//         variableDimension += size;
+//     }
+
+//     FindOrder(tasks, sizeOfVariables, variableDimension);
+// }
 int main()
 {
     TestResult tr;

@@ -4,7 +4,7 @@
 
 barrierBase: 100
 coolingRateSA: 0.99
-debugMode: 2
+debugMode: 1
 deltaInitialDogleg: 1e5
 deltaOptimizer: 1e-1
 exactJacobian: 0
@@ -19,13 +19,14 @@ parallelFactor: 0.4
 punishmentInBarrier: 1e2
 randomInitialize: 0
 readTaskMode: orig
+withAddedSensorFusionError: 0
 
 relativeErrorTolerance: 1e-5
 runMode: compare
 SA_iteration: 100000
-sensorFusionTolerance: 6000
+sensorFusionTolerance: 200000
 temperatureSA: 100000000
-testDataSetName: test_n5_v13
+testDataSetName: test_n5_v15
 tightEliminate: 1
 toleranceEliminator: 10
 upperLambda: 1e60
