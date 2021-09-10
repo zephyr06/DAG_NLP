@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     cout << N << ", " << DAG_taskSetNumber << ", " << totalUtilization << ", " << numberOfProcessor << ", " << periodMin << ", " << periodMax << ", " << endl;
 
     string outDirectory = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks/";
-
+    srand(time(0));
     for (size_t i = 0; i < DAG_taskSetNumber; i++)
     {
         if (taskType == 0)

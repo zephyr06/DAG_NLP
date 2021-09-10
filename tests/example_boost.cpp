@@ -7,147 +7,193 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //=======================================================================
 
-#include <boost/config.hpp>
-#include <iostream>          // for std::cout
-#include <utility>           // for std::pair
-#include <algorithm>         // for std::for_each
-#include <boost/utility.hpp> // for boost::tie
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/graphviz.hpp>
+// Some small modifications are done by Alexander Holler
 
+/*
+
+  Paul Moore's request:
+
+  As an example of a practical problem which is not restricted to graph
+  "experts", consider file dependencies. It's basically graph construction,
+  plus topological sort, but it might make a nice "tutorial" example. Build a
+  dependency graph of files, then use the algorithms to do things like
+
+  1. Produce a full recompilation order (topological sort, by modified date)
+  2. Produce a "parallel" recompilation order (same as above, but group files
+  which can be built in parallel)
+  3. Change analysis (if I change file x, which others need recompiling)
+  4. Dependency changes (if I add a dependency between file x and file y, what
+  are the effects)
+
+*/
+
+#include <boost/config.hpp> // put this first to suppress some VC++ warnings
+
+#include <iostream>
+#include <iterator>
+#include <algorithm>
+#include <time.h>
+
+#include <boost/utility.hpp>
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/topological_sort.hpp>
+#include <boost/graph/depth_first_search.hpp>
+#include <boost/graph/dijkstra_shortest_paths.hpp>
+#include <boost/graph/visitors.hpp>
+
+using namespace std;
 using namespace boost;
 
-template <class Graph>
-struct exercise_vertex
+enum files_e
 {
-    exercise_vertex(Graph &g_, const char name_[]) : g(g_), name(name_) {}
-    typedef typename graph_traits<Graph>::vertex_descriptor Vertex;
-    void operator()(const Vertex &v) const
+    dax_h,
+    yow_h,
+    boz_h,
+    zow_h,
+    foo_cpp,
+    foo_o,
+    bar_cpp,
+    bar_o,
+    libfoobar_a,
+    zig_cpp,
+    zig_o,
+    zag_cpp,
+    zag_o,
+    libzigzag_a,
+    killerapp,
+    N
+};
+const char *name[] = {"dax.h", "yow.h", "boz.h", "zow.h", "foo.cpp", "foo.o",
+                      "bar.cpp", "bar.o", "libfoobar.a", "zig.cpp", "zig.o", "zag.cpp", "zag.o",
+                      "libzigzag.a", "killerapp"};
+
+struct print_visitor : public bfs_visitor<>
+{
+    template <class Vertex, class Graph>
+    void discover_vertex(Vertex v, Graph &)
     {
-        using namespace boost;
-        typename property_map<Graph, vertex_index_t>::type vertex_id = get(vertex_index, g);
-        std::cout << "vertex: " << name[get(vertex_id, v)] << std::endl;
-
-        // Write out the outgoing edges
-        std::cout << "\tout-edges: ";
-        typename graph_traits<Graph>::out_edge_iterator out_i, out_end;
-        typename graph_traits<Graph>::edge_descriptor e;
-        for (boost::tie(out_i, out_end) = out_edges(v, g); out_i != out_end;
-             ++out_i)
-        {
-            e = *out_i;
-            Vertex src = source(e, g), targ = target(e, g);
-            std::cout << "(" << name[get(vertex_id, src)] << ","
-                      << name[get(vertex_id, targ)] << ") ";
-        }
-        std::cout << std::endl;
-
-        // Write out the incoming edges
-        std::cout << "\tin-edges: ";
-        typename graph_traits<Graph>::in_edge_iterator in_i, in_end;
-        for (boost::tie(in_i, in_end) = in_edges(v, g); in_i != in_end; ++in_i)
-        {
-            e = *in_i;
-            Vertex src = source(e, g), targ = target(e, g);
-            std::cout << "(" << name[get(vertex_id, src)] << ","
-                      << name[get(vertex_id, targ)] << ") ";
-        }
-        std::cout << std::endl;
-
-        // Write out all adjacent vertices
-        std::cout << "\tadjacent vertices: ";
-        typename graph_traits<Graph>::adjacency_iterator ai, ai_end;
-        for (boost::tie(ai, ai_end) = adjacent_vertices(v, g); ai != ai_end;
-             ++ai)
-            std::cout << name[get(vertex_id, *ai)] << " ";
-        std::cout << std::endl;
+        cout << name[v] << " ";
     }
-    Graph &g;
-    const char *name;
+};
+
+struct cycle_detector : public dfs_visitor<>
+{
+    cycle_detector(bool &has_cycle) : m_has_cycle(has_cycle) {}
+
+    template <class Edge, class Graph>
+    void back_edge(Edge, Graph &)
+    {
+        m_has_cycle = true;
+    }
+
+protected:
+    bool &m_has_cycle;
 };
 
 int main(int, char *[])
 {
-    // create a typedef for the Graph type
-    typedef adjacency_list<vecS, vecS, bidirectionalS, no_property,
-                           property<edge_weight_t, float>>
-        Graph;
 
-    // Make convenient labels for the vertices
-    enum
-    {
-        A,
-        B,
-        C,
-        D,
-        E,
-        N
-    };
-    const int num_vertices = N;
-    const char name[] = "ABCDE";
+    typedef pair<int, int> Edge;
+    Edge used_by[] = {Edge(dax_h, foo_cpp), Edge(dax_h, bar_cpp),
+                      Edge(dax_h, yow_h), Edge(yow_h, bar_cpp), Edge(yow_h, zag_cpp),
+                      Edge(boz_h, bar_cpp), Edge(boz_h, zig_cpp), Edge(boz_h, zag_cpp),
+                      Edge(zow_h, foo_cpp), Edge(foo_cpp, foo_o), Edge(foo_o, libfoobar_a),
+                      Edge(bar_cpp, bar_o), Edge(bar_o, libfoobar_a),
+                      Edge(libfoobar_a, libzigzag_a), Edge(zig_cpp, zig_o),
+                      Edge(zig_o, libzigzag_a), Edge(zag_cpp, zag_o),
+                      Edge(zag_o, libzigzag_a), Edge(libzigzag_a, killerapp)};
+    const std::size_t nedges = sizeof(used_by) / sizeof(Edge);
 
-    // writing out the edges in the graph
-    typedef std::pair<int, int> Edge;
-    Edge edge_array[] = {
-        Edge(A, B),
-        Edge(A, D),
-        Edge(C, A),
-        Edge(D, C),
-        Edge(C, E),
-        Edge(B, D),
-        Edge(D, E),
-    };
-    const int num_edges = sizeof(edge_array) / sizeof(edge_array[0]);
-
-    // average transmission delay (in milliseconds) for each connection
-    float transmission_delay[] = {1.2, 4.5, 2.6, 0.4, 5.2, 1.8, 3.3, 9.1};
-
-    // declare a graph object, adding the edges and edge properties
+    typedef adjacency_list<vecS, vecS, bidirectionalS> Graph;
 #if defined(BOOST_MSVC) && BOOST_MSVC <= 1300
     // VC++ can't handle the iterator constructor
-    Graph g(num_vertices);
-    property_map<Graph, edge_weight_t>::type weightmap = get(edge_weight, g);
-    for (std::size_t j = 0; j < num_edges; ++j)
+    Graph g(N);
+    for (std::size_t j = 0; j < nedges; ++j)
     {
         graph_traits<Graph>::edge_descriptor e;
         bool inserted;
-        boost::tie(e, inserted) = add_edge(edge_array[j].first, edge_array[j].second, g);
-        weightmap[e] = transmission_delay[j];
+        boost::tie(e, inserted) = add_edge(used_by[j].first, used_by[j].second, g);
     }
 #else
-    Graph g(
-        edge_array, edge_array + num_edges, transmission_delay, num_vertices);
+    Graph g(used_by, used_by + nedges, N);
 #endif
+    typedef graph_traits<Graph>::vertex_descriptor Vertex;
 
-    boost::property_map<Graph, vertex_index_t>::type vertex_id = get(vertex_index, g);
-    boost::property_map<Graph, edge_weight_t>::type trans_delay = get(edge_weight, g);
+    // Determine ordering for a full recompilation
+    // and the order with files that can be compiled in parallel
+    {
+        typedef list<Vertex> MakeOrder;
+        MakeOrder::iterator i;
+        MakeOrder make_order;
 
-    std::cout << "vertices(g) = ";
-    typedef graph_traits<Graph>::vertex_iterator vertex_iter;
-    std::pair<vertex_iter, vertex_iter> vp;
-    for (vp = vertices(g); vp.first != vp.second; ++vp.first)
-        std::cout << name[get(vertex_id, *vp.first)] << " ";
-    std::cout << std::endl;
+        topological_sort(g, std::front_inserter(make_order));
+        cout << "make ordering: ";
+        for (i = make_order.begin(); i != make_order.end(); ++i)
+            cout << name[*i] << " ";
 
-    std::cout << "edges(g) = ";
-    graph_traits<Graph>::edge_iterator ei, ei_end;
-    for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei)
-        std::cout << "(" << name[get(vertex_id, source(*ei, g))] << ","
-                  << name[get(vertex_id, target(*ei, g))] << ") ";
-    std::cout << std::endl;
+        cout << endl
+             << endl;
 
-    std::for_each(vertices(g).first, vertices(g).second,
-                  exercise_vertex<Graph>(g, name));
+        // Parallel compilation ordering
+        std::vector<int> time(N, 0);
+        for (i = make_order.begin(); i != make_order.end(); ++i)
+        {
+            // Walk through the in_edges an calculate the maximum time.
+            if (in_degree(*i, g) > 0)
+            {
+                Graph::in_edge_iterator j, j_end;
+                int maxdist = 0;
+                // Through the order from topological sort, we are sure that
+                // every time we are using here is already initialized.
+                for (boost::tie(j, j_end) = in_edges(*i, g); j != j_end; ++j)
+                    maxdist = (std::max)(time[source(*j, g)], maxdist);
+                time[*i] = maxdist + 1;
+            }
+        }
 
-    std::map<std::string, std::string> graph_attr, vertex_attr, edge_attr;
-    graph_attr["size"] = "3,3";
-    graph_attr["rankdir"] = "LR";
-    graph_attr["ratio"] = "fill";
-    vertex_attr["shape"] = "circle";
+        cout << "parallel make ordering, " << endl
+             << "vertices with same group number can be made in parallel"
+             << endl;
+        {
+            graph_traits<Graph>::vertex_iterator i, iend;
+            for (boost::tie(i, iend) = vertices(g); i != iend; ++i)
+                cout << "time_slot[" << name[*i] << "] = " << time[*i] << endl;
+        }
+    }
+    cout << endl;
 
-    boost::write_graphviz(std::cout, g, make_label_writer(name),
-                          make_label_writer(trans_delay),
-                          make_graph_attributes_writer(graph_attr, vertex_attr, edge_attr));
+    // if I change yow.h what files need to be re-made?
+    {
+        cout << "A change to yow.h will cause what to be re-made?" << endl;
+        print_visitor vis;
+        breadth_first_search(g, vertex(yow_h, g), visitor(vis));
+        cout << endl;
+    }
+    cout << endl;
+
+    // are there any cycles in the graph?
+    {
+        bool has_cycle = false;
+        cycle_detector vis(has_cycle);
+        depth_first_search(g, visitor(vis));
+        cout << "The graph has a cycle? " << has_cycle << endl;
+    }
+    cout << endl;
+
+    // add a dependency going from bar.cpp to dax.h
+    {
+        cout << "adding edge bar_cpp -> dax_h" << endl;
+        add_edge(bar_cpp, dax_h, g);
+    }
+    cout << endl;
+
+    // are there any cycles in the graph?
+    {
+        bool has_cycle = false;
+        cycle_detector vis(has_cycle);
+        depth_first_search(g, visitor(vis));
+        cout << "The graph has a cycle now? " << has_cycle << endl;
+    }
 
     return 0;
 }

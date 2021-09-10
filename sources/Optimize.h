@@ -36,7 +36,8 @@ namespace DAG_SPACE
         // initial(N, 0) *= 1;
         // initial << 1, 101, 202, 303, 4, 5, 206, 50, 258, 67;
         // initial << 0, 9, 17, 19, 25;
-        initial << 1, 5, 2, 3, 0;
+        // initial << 1, 5, 2, 3, 0;
+        initial << 4, 3, 2, 1, 0;
         // initial << 6, 2.5, 2, 0.5, 0;
         // initial << 1, 100, 0, 0, 0, 0;
         return initial;

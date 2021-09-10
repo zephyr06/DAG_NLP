@@ -5,6 +5,8 @@
 #include <boost/utility.hpp> // for boost::tie
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
+#include <boost/graph/graph_traits.hpp>
+#include <boost/graph/topological_sort.hpp>
 
 #include "../sources/RegularTasks.h"
 #include "../sources/DeclareDAG.h"
@@ -81,6 +83,21 @@ int main()
     for (int i = 0; i < 5; i++)
         boost::put(name, i, dagTasks.tasks[i]);
     who_owes_who(edges(g).first, edges(g).second, g);
+
+    typedef std::list<vertex_t> MakeOrder;
+    MakeOrder make_order;
+    boost::topological_sort(g, std::front_inserter(make_order));
+
+    std::cout << "dependency ordering: ";
+    for (MakeOrder::iterator i = make_order.begin();
+         i != make_order.end(); ++i)
+    // std::cout << (*i).print() << " ";
+    {
+        cout << *i << endl;
+        // cout << i << endl;
+    }
+    // i->print();
+    std::cout << std::endl;
     // boost::write_graphviz(
     //     std::cout, g, [&](auto &out, auto v)
     //     { out << "[label=\"" << g[v].executionTime << "\"]"; },

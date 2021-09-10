@@ -14,10 +14,11 @@ vector<double> Uunifast(int N, double utilAll)
 {
     double sumU = utilAll;
     vector<double> utilVec(N, 0);
-    srand(time(0));
+
     double nextU;
     for (size_t i = 1; i < N; i++)
     {
+
         nextU = sumU * pow(double(rand()) / RAND_MAX, 1.0 / (N - 1));
         utilVec[i - 1] = sumU - nextU;
         sumU = nextU;
@@ -33,11 +34,13 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
     vector<double> utilVec = Uunifast(N, totalUtilization);
     TaskSet tasks;
     int periodMaxRatio = periodMax / periodMin;
+
     for (int i = 0; i < N; i++)
     {
-        int periodCurr = rand() % periodMaxRatio * periodMin;
+
+        int periodCurr = (1 + rand() % periodMaxRatio) * periodMin;
         Task task(0, periodCurr,
-                  0, round(periodCurr * utilVec[i]),
+                  0, ceil(periodCurr * utilVec[i]),
                   periodCurr, i,
                   rand() % numberOfProcessor);
         tasks.push_back(task);
