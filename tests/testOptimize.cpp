@@ -1,6 +1,8 @@
 #include "../sources/Optimize.h"
 #include "../sources/testMy.h"
 /*
+
+*/
 TEST(RecoverStartTimeVector, v1)
 {
     VectorDynamic compressed;
@@ -23,36 +25,6 @@ TEST(RecoverStartTimeVector, v1)
         throw;
     }
 }
-
-// TEST(sensorFusion, v1)
-// {
-//     using namespace DAG_SPACE;
-//     using namespace RegularTaskSystem;
-
-//     TaskSet tasks = ReadTaskSet("../TaskData/test_n5_v1.csv", "orig");
-//     int N = tasks.size();
-//     LLint hyperPeriod = HyperPeriod(tasks);
-
-//     // declare variables
-//     vector<LLint> sizeOfVariables;
-//     int variableDimension = 0;
-//     for (int i = 0; i < N; i++)
-//     {
-
-//         LLint size = hyperPeriod / tasks[i].period;
-//         sizeOfVariables.push_back(size);
-//         variableDimension += size;
-//     }
-//     LLint errorDimensionSF = 1;
-//     Symbol key('a', 0);
-//     auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-//     SensorFusion_ConstraintFactor factor(key, tasks, sizeOfVariables,
-//                                          errorDimensionSF, sensorFusionTolerance, model);
-//     VectorDynamic initial = GenerateInitialForDAG(tasks, sizeOfVariables, variableDimension);
-//     // initial << 0, 1, 2, 3, 4;
-//     auto sth = factor.evaluateError(initial);
-//     cout << sth << endl;
-// }
 
 TEST(BigIndex2TaskIndex, v1)
 {
@@ -127,13 +99,6 @@ TEST(BigIndex2TaskIndex, v1)
 //     }
 // }
 
-TEST(ExtractVariable, v1)
-{
-    using namespace DAG_SPACE;
-    TaskSet tasks = ReadTaskSet("../TaskData/" + testDataSetName + ".csv", "orig");
-    auto res = OptimizeScheduling(tasks);
-    cout << "The result after optimization is " << res << endl;
-}
 TEST(Overlap, v1)
 {
     Interval v1(0, 10), v2(11, 10);
@@ -189,7 +154,6 @@ TEST(RecoverStartTime, v2)
 
     assert_equal(expect, actual);
 }
-*/
 
 TEST(FindDependencyOrder, v1)
 {
@@ -224,7 +188,61 @@ TEST(GenerateInitialForDAG, V2)
     assert_equal(expected, actual);
 }
 
-// TEST(DAG_Generated, v1)
+TEST(sensorFusion, v1)
+{
+    using namespace DAG_SPACE;
+    using namespace RegularTaskSystem;
+
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v9.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    Symbol key('a', 0);
+    LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
+    AssertEqualScalar(1, errorDimensionSF);
+    MAP_Index2Data mapIndex;
+    for (LLint i = 0; i < variableDimension; i++)
+    {
+        MappingDataStruct m{i, 0};
+        mapIndex[i] = m;
+    }
+    bool whetherEliminate = false;
+    vector<bool> maskForEliminate(variableDimension, false);
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
+    SensorFusion_ConstraintFactor factor(key, dagTasks, sizeOfVariables,
+                                         errorDimensionSF, sensorFusionTolerance,
+                                         mapIndex, maskForEliminate,
+                                         model);
+    VectorDynamic initial;
+    initial.resize(5, 1);
+    initial << 2, 1, 0, 3, 4;
+
+    double defaultSF = sensorFusionTolerance;
+    sensorFusionTolerance = 2;
+    auto sth = factor.evaluateError(initial);
+    AssertEqualScalar(9, sth(0, 0));
+
+    // cout << sth << endl;
+    initial << 3, 5, 1, 6, 7;
+    sth = factor.evaluateError(initial);
+    AssertEqualScalar(7, sth(0, 0));
+
+    sensorFusionTolerance = defaultSF;
+}
+
+// TEST(DAG_Optimize_schedule, v1)
 // {
 //     using namespace DAG_SPACE;
 //     DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
@@ -236,45 +254,6 @@ TEST(GenerateInitialForDAG, V2)
 //     cout << "The result after optimization is " << Color::green << success << Color::blue << res << Color::def << endl;
 // }
 
-// void FindOrder(DAG_Model &dagTasks, vector<LLint> &sizeOfVariables, int variableDimension)
-// {
-//     int N = tasks.size();
-//     VectorDynamic res = GenerateVectorDynamic(variableDimension);
-//     // find least constraint tasks, and remove them from the current task pool
-//     DAG_Model taskPool = dagTasks.tasks;
-//     while (taskPool.size())
-//     {
-//         vector<bool> eliminateList(taskPool.size(), 0);
-//         for (auto itr = taskPool.mapPrev.begin(); itr != taskPool.mapPrev.end(); itr++)
-//         {
-//             const TaskSet &tasksPrev = itr->second;
-//             size_t indexNext = itr->first;
-//             for (size_t i = 0; i < tasksPrev.size(); i++)
-//             {
-//                 ;
-//             }
-//         }
-//     }
-// }
-// TEST(decodeDAG, v1)
-// {
-//     using namespace DAG_SPACE;
-//     DAG_Model tasks = ReadDAG_Tasks("../TaskData/test_n5_v15.csv", "orig");
-//     int N = tasks.tasks.size();
-//     LLint hyperPeriod = HyperPeriod(tasks);
-
-//     // declare variables
-//     vector<LLint> sizeOfVariables;
-//     int variableDimension = 0;
-//     for (int i = 0; i < N; i++)
-//     {
-//         LLint size = hyperPeriod / tasks[i].period;
-//         sizeOfVariables.push_back(size);
-//         variableDimension += size;
-//     }
-
-//     FindOrder(tasks, sizeOfVariables, variableDimension);
-// }
 int main()
 {
     TestResult tr;

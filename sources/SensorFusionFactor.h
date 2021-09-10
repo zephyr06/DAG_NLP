@@ -38,7 +38,7 @@ namespace DAG_SPACE
                 length += sizeOfVariables[i];
             }
         }
-
+        // TODO: design some tests for SensorFusion
         Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
         {
 
@@ -51,23 +51,24 @@ namespace DAG_SPACE
                 res.resize(errorDimension, 1);
                 LLint indexRes = 0;
 
-                // go through all the instances of task, 3 in the example
+                // go through all the instances of task, 3 in the example DAG
                 for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
                 {
                     const TaskSet &tasksPrev = itr->second;
                     if (tasksPrev.size() > 1)
                     {
                         vector<double> sourceFinishTime;
-                        sourceFinishTime.reserve(3);
+                        sourceFinishTime.reserve(tasksPrev.size());
                         size_t indexCurr = itr->first;
 
                         for (int instanceCurr = 0; instanceCurr < sizeOfVariables[indexCurr]; instanceCurr++)
                         {
                             sourceFinishTime.clear();
 
-                            // if DAG constraints are violated, addedError will count the violated part
-                            double addedError = 0;
-                            double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, 3, instanceCurr);
+                            // if DAG constraints are violated, addedErrorDAG will count the violated part
+                            double addedErrorDAG = -1;
+                            double addedErrorDDL = 0;
+                            double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, indexCurr, instanceCurr);
 
                             // go through three source sensor tasks
                             for (size_t sourceIndex = 0; sourceIndex < tasksPrev.size(); sourceIndex++)
@@ -91,39 +92,35 @@ namespace DAG_SPACE
                                         sourceFinishTime.push_back(startTime_k_l_prev + tasks[sourceIndex].executionTime);
                                     else
                                     {
-                                        //in this case, self deadline constraint is violated
+                                        //in this case, self deadline constraint is violated, and so we'll just add addedErrorDDL
+                                        addedErrorDDL += startTime_k_l_prev + tasks[sourceIndex].executionTime - startTimeCurr;
                                         sourceFinishTime.push_back(startTime_k_l_prev + tasks[sourceIndex].executionTime);
-                                        // cout << "Error in SensorFusion_ConstraintFactor" << endl;
-                                        // throw;
                                     }
                                 }
                                 // there is no previous instance, i.e., DAG constraints are violated,
+                                // instanceSource = 0
                                 // find a later instance, and return it because it will give a bigger error
                                 else
                                 {
-
-                                    double startTime_k_l_next;
-                                    if (instanceSource + 1 > sizeOfVariables[sourceIndex] - 1)
-                                    {
-                                        startTime_k_l_next = ExtractVariable(startTimeVector,
-                                                                             sizeOfVariables, sourceIndex,
-                                                                             (instanceSource + 1) % sizeOfVariables[sourceIndex]) +
-                                                             sizeOfVariables[sourceIndex] * tasks[sourceIndex].period;
-                                    }
-                                    else
-                                    {
-                                        startTime_k_l_next = ExtractVariable(startTimeVector,
-                                                                             sizeOfVariables, sourceIndex,
-                                                                             (instanceSource + 1));
-                                    }
+                                    double startTime_k_l_next = ExtractVariable(startTimeVector, sizeOfVariables,
+                                                                                sourceIndex, instanceSource);
 
                                     sourceFinishTime.push_back(startTime_k_l_next + tasks[sourceIndex].executionTime);
                                     // if all the sources violate DAG constraints, this error will drag them back
                                     if (withAddedSensorFusionError)
-                                        addedError += startTime_k_l_next + tasks[sourceIndex].executionTime - startTimeCurr;
+                                    {
+                                        if (addedErrorDAG == -1)
+                                            addedErrorDAG = startTime_k_l_next + tasks[sourceIndex].executionTime - startTimeCurr;
+                                        else
+                                            addedErrorDAG = min(addedErrorDAG, startTime_k_l_next +
+                                                                                   tasks[sourceIndex].executionTime - startTimeCurr);
+                                    }
                                 }
                             }
-                            res(indexRes++, 0) = addedError + Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
+                            if (addedErrorDAG == -1)
+                                res(indexRes++, 0) = Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
+                            else
+                                res(indexRes++, 0) = addedErrorDDL + addedErrorDAG + Barrier(sensorFusionTol - ExtractMaxDistance(sourceFinishTime));
                         }
                     }
                 }
