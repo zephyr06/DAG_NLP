@@ -52,7 +52,7 @@ namespace DAG_SPACE
                 {
                     double err = ExtractVariable(startTimeVector, sizeOfVariables, indexNext, 0) -
                                  ExtractVariable(startTimeVector, sizeOfVariables, tasksPrev[i].id, 0) -
-                                 tasksPrev[i].executionTime + 0;
+                                 tasksPrev[i].executionTime;
                     res(indexRes++, 0) = Barrier(err);
                 }
             }
