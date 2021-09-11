@@ -49,7 +49,7 @@ namespace DAG_SPACE
                                                    sizeOfVariables[sinkNode] - 1) +
                                    tasks[sinkNode].executionTime;
             double startTimeDAG = startTimeVector.minCoeff();
-            res(indexRes++, 0) = (finishTimeDAG - startTimeDAG) *
+            res(indexRes++, 0) = BarrierLog(finishTimeDAG - startTimeDAG) *
                                  makespanWeight;
 
             return res;
