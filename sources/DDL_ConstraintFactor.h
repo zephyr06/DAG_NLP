@@ -45,9 +45,13 @@ namespace DAG_SPACE
                 {
                     // this factor is explained as: variable * 1 < tasks[i].deadline + i * tasks[i].period
                     res(indexRes++, 0) = Barrier(tasks[i].deadline + j * tasks[i].period -
-                                                 ExtractVariable(startTimeVector, sizeOfVariables, i, j) - tasks[i].executionTime + 0);
+                                                 ExtractVariable(startTimeVector, sizeOfVariables, i, j) -
+                                                 tasks[i].executionTime + 0) *
+                                         weightDDL_factor;
                     // this factor is explained as: variable * -1 < -1 *(i * tasks[i].period)
-                    res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, i, j) - (j * tasks[i].period) + 0);
+                    res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, i, j) -
+                                                 (j * tasks[i].period) + 0) *
+                                         weightDDL_factor;
                 }
             }
 

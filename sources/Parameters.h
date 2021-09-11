@@ -21,7 +21,9 @@ double sensorFusionTolerance = (double)ConfigParameters["sensorFusionTolerance"]
 const double toleranceEliminator = (double)ConfigParameters["toleranceEliminator"];
 const double upperLambda = (double)ConfigParameters["upperLambda"];
 const double weightLogBarrier = (double)ConfigParameters["weightLogBarrier"];
-const int debugMode = (int)ConfigParameters["debugMode"];
+
+const double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"];
+int debugMode = (int)ConfigParameters["debugMode"];
 const int exactJacobian = (int)ConfigParameters["exactJacobian"];
 const int optimizerType = (int)ConfigParameters["optimizerType"];
 const int overlapMode = (int)ConfigParameters["overlapMode"];
