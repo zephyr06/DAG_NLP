@@ -29,41 +29,39 @@ namespace DAG_SPACE
                 length += sizeOfVariables[i];
             }
         }
+        boost::function<Matrix(const VectorDynamic &)> f =
+            [this](const VectorDynamic &startTimeVectorOrig)
+        {
+            VectorDynamic startTimeVector = RecoverStartTimeVector(
+                startTimeVectorOrig, maskForEliminate, mapIndex);
+            VectorDynamic res;
+            res.resize(errorDimension, 1);
+            LLint indexRes = 0;
 
+            // self DDL
+            for (int i = 0; i < N; i++)
+            {
+                for (int j = 0; j < int(sizeOfVariables[i]); j++)
+                {
+                    // this factor is explained as: variable * 1 < tasks[i].deadline + i * tasks[i].period
+                    res(indexRes++, 0) = Barrier(tasks[i].deadline + j * tasks[i].period -
+                                                 ExtractVariable(startTimeVector, sizeOfVariables, i, j) - tasks[i].executionTime + 0);
+                    // this factor is explained as: variable * -1 < -1 *(i * tasks[i].period)
+                    res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, i, j) - (j * tasks[i].period) + 0);
+                }
+            }
+
+            if (indexRes != errorDimension)
+            {
+                cout << Color::red << "The errorDimension is set wrong!" << Color::def << endl;
+                throw;
+            }
+
+            return res;
+        };
         Vector evaluateError(const VectorDynamic &startTimeVector,
                              boost::optional<Matrix &> H = boost::none) const override
         {
-
-            boost::function<Matrix(const VectorDynamic &)> f =
-                [this](const VectorDynamic &startTimeVectorOrig)
-            {
-                VectorDynamic startTimeVector = RecoverStartTimeVector(
-                    startTimeVectorOrig, maskForEliminate, mapIndex);
-                VectorDynamic res;
-                res.resize(errorDimension, 1);
-                LLint indexRes = 0;
-
-                // self DDL
-                for (int i = 0; i < N; i++)
-                {
-                    for (int j = 0; j < int(sizeOfVariables[i]); j++)
-                    {
-                        // this factor is explained as: variable * 1 < tasks[i].deadline + i * tasks[i].period
-                        res(indexRes++, 0) = Barrier(tasks[i].deadline + j * tasks[i].period -
-                                                     ExtractVariable(startTimeVector, sizeOfVariables, i, j) - tasks[i].executionTime + 0);
-                        // this factor is explained as: variable * -1 < -1 *(i * tasks[i].period)
-                        res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, i, j) - (j * tasks[i].period) + 0);
-                    }
-                }
-
-                if (indexRes != errorDimension)
-                {
-                    cout << Color::red << "The errorDimension is set wrong!" << Color::def << endl;
-                    throw;
-                }
-
-                return res;
-            };
 
             if (H)
             {

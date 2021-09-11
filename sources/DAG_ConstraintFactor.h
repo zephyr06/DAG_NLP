@@ -32,50 +32,35 @@ namespace DAG_SPACE
                 length += sizeOfVariables[i];
             }
         }
+        boost::function<Matrix(const VectorDynamic &)> f =
+            [this](const VectorDynamic &startTimeVectorOrig)
+        {
+            VectorDynamic startTimeVector = RecoverStartTimeVector(
+                startTimeVectorOrig, maskForEliminate, mapIndex);
+            VectorDynamic res;
+            res.resize(errorDimension, 1);
+            LLint indexRes = 0;
 
+            // dependency, self DDL, sensor fusion, event chain
+
+            // add dependency constraints
+            for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
+            {
+                const TaskSet &tasksPrev = itr->second;
+                size_t indexNext = itr->first;
+                for (size_t i = 0; i < tasksPrev.size(); i++)
+                {
+                    double err = ExtractVariable(startTimeVector, sizeOfVariables, indexNext, 0) -
+                                 ExtractVariable(startTimeVector, sizeOfVariables, tasksPrev[i].id, 0) -
+                                 tasksPrev[i].executionTime + 0;
+                    res(indexRes++, 0) = Barrier(err);
+                }
+            }
+            return res;
+        };
         Vector evaluateError(const VectorDynamic &startTimeVector,
                              boost::optional<Matrix &> H = boost::none) const override
         {
-
-            boost::function<Matrix(const VectorDynamic &)> f =
-                [this](const VectorDynamic &startTimeVectorOrig)
-            {
-                VectorDynamic startTimeVector = RecoverStartTimeVector(
-                    startTimeVectorOrig, maskForEliminate, mapIndex);
-                VectorDynamic res;
-                res.resize(errorDimension, 1);
-                LLint indexRes = 0;
-
-                // dependency, self DDL, sensor fusion, event chain
-                // minimize makespan
-                res(indexRes++, 0) = BarrierLog(ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
-                                                ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) + 0) *
-                                     makespanWeight;
-
-                // add dependency constraints
-                for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
-                {
-                    const TaskSet &tasksPrev = itr->second;
-                    size_t indexNext = itr->first;
-                    for (size_t i = 0; i < tasksPrev.size(); i++)
-                    {
-                        double err = ExtractVariable(startTimeVector, sizeOfVariables, indexNext, 0) -
-                                     ExtractVariable(startTimeVector, sizeOfVariables, tasksPrev[i].id, 0) -
-                                     tasksPrev[i].executionTime + 0;
-                        res(indexRes++, 0) = Barrier(err);
-                    }
-                }
-                // res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -
-                //                              ExtractVariable(startTimeVector, sizeOfVariables, 0, 0) - tasks[0].executionTime + 0);
-                // res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -
-                //                              ExtractVariable(startTimeVector, sizeOfVariables, 1, 0) - tasks[1].executionTime + 0);
-                // res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) -
-                //                              ExtractVariable(startTimeVector, sizeOfVariables, 2, 0) - tasks[2].executionTime + 0);
-                // res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, 4, 0) -
-                //                              ExtractVariable(startTimeVector, sizeOfVariables, 3, 0) - tasks[3].executionTime + 0);
-
-                return res;
-            };
 
             if (H)
             {

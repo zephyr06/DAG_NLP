@@ -54,51 +54,6 @@ TEST(BigIndex2TaskIndex, v1)
     }
 }
 
-// TEST(testDBF, v1)
-// {
-//     using namespace DAG_SPACE;
-//     TaskSet tasks = ReadTaskSet("../TaskData/test_n5_v1.csv", "orig");
-//     int N = tasks.size();
-//     LLint hyperPeriod = HyperPeriod(tasks);
-
-//     // declare variables
-//     vector<LLint> sizeOfVariables;
-//     int variableDimension = 0;
-//     for (int i = 0; i < N; i++)
-//     {
-//         LLint size = hyperPeriod / tasks[i].period;
-//         sizeOfVariables.push_back(size);
-//         variableDimension += size;
-//     }
-
-//     VectorDynamic compressed;
-//     compressed.resize(2, 1);
-//     compressed << 0, 180;
-//     vector<bool> maskForEliminate{false, false, 0, 0, false};
-//     MAP_Index2Data mapIndex;
-//     mapIndex[0] = MappingDataStruct{0, 0};
-//     mapIndex[1] = MappingDataStruct{1, 0};
-//     mapIndex[2] = MappingDataStruct{2, 0};
-//     mapIndex[3] = MappingDataStruct{3, 0};
-//     mapIndex[4] = MappingDataStruct{4, 0};
-//     Symbol key('a', 0);
-//     LLint errorDimensionDBF = 1;
-//     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-//     DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-//                                 mapIndex, maskForEliminate, model);
-//     VectorDynamic startTimeVector;
-//     startTimeVector.resize(5, 1);
-//     startTimeVector << 1, 2, 3, 4, 5;
-//     VectorDynamic dbfExpect = factor.f(startTimeVector);
-//     VectorDynamic dbfActual = factor.DbfInterval(startTimeVector);
-//     // VectorDynamic actual = DAG_SPACE::RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
-//     if (dbfExpect != dbfActual)
-//     {
-//         cout << Color::red << "testDBF failed!" << Color::def << endl;
-//         throw;
-//     }
-// }
-
 TEST(Overlap, v1)
 {
     Interval v1(0, 10), v2(11, 10);
@@ -280,7 +235,7 @@ TEST(sensorFusion, v2)
                                          mapIndex, maskForEliminate,
                                          model);
     VectorDynamic initialEstimate = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
-    cout << initialEstimate << endl;
+    // cout << initialEstimate << endl;
 
     VectorDynamic initial;
     initial.resize(8, 1);
@@ -309,6 +264,229 @@ TEST(sensorFusion, v2)
     sensorFusionTolerance = defaultSF;
 }
 
+TEST(testDBF, v1)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v1.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    VectorDynamic compressed;
+    compressed.resize(2, 1);
+    compressed << 0, 180;
+    vector<bool> maskForEliminate{false, false, 0, 0, false};
+    MAP_Index2Data mapIndex;
+    mapIndex[0] = MappingDataStruct{0, 0};
+    mapIndex[1] = MappingDataStruct{1, 0};
+    mapIndex[2] = MappingDataStruct{2, 0};
+    mapIndex[3] = MappingDataStruct{3, 0};
+    mapIndex[4] = MappingDataStruct{4, 0};
+    Symbol key('a', 0);
+    LLint errorDimensionDBF = 1;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
+                                mapIndex, maskForEliminate, model);
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(5, 1);
+    startTimeVector << 1, 2, 3, 4, 5;
+    VectorDynamic dbfExpect;
+    dbfExpect.resize(1, 1);
+    dbfExpect << 90;
+    VectorDynamic dbfExpect1 = factor.f(startTimeVector);
+    VectorDynamic dbfActual = factor.DbfInterval(startTimeVector);
+    // VectorDynamic actual = DAG_SPACE::RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
+    assert_equal(dbfExpect1, dbfActual);
+    assert_equal(dbfExpect, dbfExpect1);
+
+    startTimeVector << 1, 2, 3, 4, 19;
+    dbfExpect1(0, 0) = 54;
+    dbfActual = factor.DbfInterval(startTimeVector);
+    assert_equal(dbfExpect1, dbfActual);
+}
+TEST(testDBF, v2)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+
+    Symbol key('a', 0);
+    LLint errorDimensionDBF = 1;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
+                                mapIndex, maskForEliminate, model);
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(8, 1);
+    startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
+    VectorDynamic dbfExpect;
+    dbfExpect.resize(1, 1);
+    dbfExpect << 128;
+
+    VectorDynamic dbfActual = factor.DbfInterval(startTimeVector);
+    VectorDynamic dbfActual2 = factor.f(startTimeVector);
+    assert_equal(dbfExpect, dbfActual);
+    assert_equal(dbfExpect, dbfActual2);
+}
+
+TEST(testDDL, v1)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+
+    Symbol key('a', 0);
+    LLint errorDimensionDDL = 2 * variableDimension;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
+    DDL_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDDL,
+                                mapIndex, maskForEliminate, model);
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(8, 1);
+    startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
+    VectorDynamic dbfExpect = GenerateVectorDynamic(2 * variableDimension);
+    VectorDynamic dbfActual = factor.f(startTimeVector);
+    assert_equal(dbfExpect, dbfActual);
+
+    startTimeVector << 6, 107, 5, 3, 104, 2, 0, 201;
+    dbfExpect(14, 0) = 15;
+    dbfActual = factor.f(startTimeVector);
+    assert_equal(dbfExpect, dbfActual);
+}
+
+TEST(testMakeSpan, v1)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+
+    Symbol key('a', 0);
+    LLint errorDimensionMS = 1;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
+    MakeSpanFactor factor(key, dagTasks, sizeOfVariables, errorDimensionMS,
+                          mapIndex, maskForEliminate, model);
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(8, 1);
+    startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
+    VectorDynamic dbfExpect = GenerateVectorDynamic(errorDimensionMS);
+    dbfExpect << 117;
+    double makeSpanDef = makespanWeight;
+    makespanWeight = 1;
+    VectorDynamic dbfActual = factor.f(startTimeVector);
+    assert_equal(dbfExpect, dbfActual);
+
+    startTimeVector << 6, 107, 5, 3, 104, 2, 0, 201;
+    dbfExpect(0, 0) = 117;
+    dbfActual = factor.f(startTimeVector);
+    assert_equal(dbfExpect, dbfActual);
+    makespanWeight = makeSpanDef;
+}
+
+// TEST(testDAG, v1)
+// {
+//     using namespace DAG_SPACE;
+//     auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+//     TaskSet tasks = dagTasks.tasks;
+
+//     int N = tasks.size();
+//     LLint hyperPeriod = HyperPeriod(tasks);
+
+//     // declare variables
+//     vector<LLint> sizeOfVariables;
+//     int variableDimension = 0;
+//     for (int i = 0; i < N; i++)
+//     {
+//         LLint size = hyperPeriod / tasks[i].period;
+//         sizeOfVariables.push_back(size);
+//         variableDimension += size;
+//     }
+
+//     vector<bool> maskForEliminate(variableDimension, false);
+//     MAP_Index2Data mapIndex;
+//     for (int i = 0; i < variableDimension; i++)
+//         mapIndex[i] = MappingDataStruct{i, 0};
+
+//     Symbol key('a', 0);
+//     LLint errorDimensionDAG = 1 + dagTasks.edgeNumber();
+//     auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
+//     DAG_ConstraintFactor factor(key, dagTasks, sizeOfVariables, errorDimensionDAG,
+//                                 mapIndex, maskForEliminate, model);
+//     VectorDynamic startTimeVector;
+//     startTimeVector.resize(8, 1);
+//     startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
+//     VectorDynamic dbfExpect = GenerateVectorDynamic(errorDimensionDAG);
+//     dbfExpect << 1;
+//     VectorDynamic dbfActual = factor.f(startTimeVector);
+//     assert_equal(dbfExpect, dbfActual);
+
+//     startTimeVector << 6, 107, 5, 3, 104, 2, 0, 201;
+//     dbfExpect(14, 0) = 15;
+//     dbfActual = factor.f(startTimeVector);
+//     assert_equal(dbfExpect, dbfActual);
+// }
 // TEST(DAG_Optimize_schedule, v1)
 // {
 //     using namespace DAG_SPACE;
