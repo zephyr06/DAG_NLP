@@ -7,7 +7,7 @@ coolingRateSA: 0.99
 debugMode: 1
 deltaInitialDogleg: 1e5
 weightDDL_factor: 1
-deltaOptimizer: 1e-1
+deltaOptimizer: 1e-2
 exactJacobian: 0
 initialLambda: 1e1
 lowerLambda: 1e-15
@@ -29,6 +29,6 @@ sensorFusionTolerance: 200000
 temperatureSA: 100000000
 testDataSetName: test_n5_v18
 tightEliminate: 0
-toleranceEliminator: 10
+toleranceEliminator: 1
 upperLambda: 1e60
 weightLogBarrier: -1.0

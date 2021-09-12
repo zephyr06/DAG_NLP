@@ -2,7 +2,7 @@
 #include "../sources/testMy.h"
 /*
 
-
+*/
 TEST(RecoverStartTimeVector, v1)
 {
     VectorDynamic compressed;
@@ -431,17 +431,17 @@ TEST(testMakeSpan, v1)
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
-    VectorDynamic dbfExpect = GenerateVectorDynamic(errorDimensionMS);
-    dbfExpect << 117;
+    VectorDynamic msExpect = GenerateVectorDynamic(errorDimensionMS);
+    msExpect << 117;
     double makeSpanDef = makespanWeight;
     makespanWeight = 1;
     VectorDynamic dbfActual = factor.f(startTimeVector);
-    assert_equal(dbfExpect, dbfActual);
+    assert_equal(msExpect, dbfActual);
 
     startTimeVector << 6, 107, 5, 3, 104, 2, 0, 201;
-    dbfExpect(0, 0) = 117;
+    msExpect(0, 0) = 117;
     dbfActual = factor.f(startTimeVector);
-    assert_equal(dbfExpect, dbfActual);
+    assert_equal(msExpect, dbfActual);
     makespanWeight = makeSpanDef;
 }
 
@@ -487,7 +487,24 @@ TEST(testDAG, v1)
     dbfActual = factor.f(startTimeVector);
     AssertEqualScalar(96, dbfActual.sum());
 }
-*/
+TEST(RecoverStartTimeVector, v3)
+{
+    VectorDynamic compressed;
+    compressed.resize(2, 1);
+    compressed << 0, 180;
+    vector<bool> maskEliminate{false, true, true, true, false};
+    MAP_Index2Data mapIndex;
+    mapIndex[0] = MappingDataStruct{0, 0};
+    mapIndex[1] = MappingDataStruct{2, 10};
+    mapIndex[2] = MappingDataStruct{3, 10};
+    mapIndex[3] = MappingDataStruct{4, 10};
+    mapIndex[4] = MappingDataStruct{4, 0};
+    VectorDynamic expected;
+    expected.resize(5, 1);
+    expected << 0, 210, 200, 190, 180;
+    VectorDynamic actual = DAG_SPACE::RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
+    assert_equal(expected, actual);
+}
 TEST(DAG_Optimize_schedule, v1)
 {
     using namespace DAG_SPACE;

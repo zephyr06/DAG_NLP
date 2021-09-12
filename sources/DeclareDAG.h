@@ -233,6 +233,7 @@ namespace DAG_SPACE
             actual(index, 0) = GetSingleElement(curr.getIndex(), actual,
                                                 mapIndex, filledTable) +
                                curr.getDistance();
+            filledTable[index] = true;
         }
         else
         {

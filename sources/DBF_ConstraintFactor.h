@@ -71,47 +71,51 @@ namespace DAG_SPACE
                 res = DbfInterval(startTimeVector);
                 return res;
             }
-
-            LLint indexRes = 0;
-
-            res(indexRes, 0) = 0;
-            //demand bound function
-            for (int i = 0; i < N; i++)
+            else
             {
-                for (LLint instance_i = 0; instance_i < sizeOfVariables[i]; instance_i++)
-                {
-                    double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, instance_i);
-                    for (int j = 0; j < N; j++)
-                    {
-                        for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
-                        {
-
-                            double sumIJK = 0;
-                            double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
-                            if (startTime_i <= startTime_j &&
-                                startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
-                            {
-                                for (int k = 0; k < N; k++)
-                                {
-                                    for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
-                                    {
-                                        double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
-                                        sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
-                                    }
-                                }
-                                double valueT = Barrier(startTime_j + tasks[j].executionTime - startTime_i - sumIJK + 0);
-                                res(indexRes, 0) += valueT;
-                            }
-                            else
-                            {
-
-                                // res(indexRes++, 0) = 0;
-                                continue;
-                            }
-                        }
-                    }
-                }
+                CoutError("You should consider overlapMode, otherwise please comment this and the following lines.");
             }
+
+            // LLint indexRes = 0;
+
+            // res(indexRes, 0) = 0;
+            // //demand bound function
+            // for (int i = 0; i < N; i++)
+            // {
+            //     for (LLint instance_i = 0; instance_i < sizeOfVariables[i]; instance_i++)
+            //     {
+            //         double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, instance_i);
+            //         for (int j = 0; j < N; j++)
+            //         {
+            //             for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
+            //             {
+
+            //                 double sumIJK = 0;
+            //                 double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
+            //                 if (startTime_i <= startTime_j &&
+            //                     startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
+            //                 {
+            //                     for (int k = 0; k < N; k++)
+            //                     {
+            //                         for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
+            //                         {
+            //                             double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
+            //                             sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
+            //                         }
+            //                     }
+            //                     double valueT = Barrier(startTime_j + tasks[j].executionTime - startTime_i - sumIJK + 0);
+            //                     res(indexRes, 0) += valueT;
+            //                 }
+            //                 else
+            //                 {
+
+            //                     // res(indexRes++, 0) = 0;
+            //                     continue;
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
             return res;
         };
         Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
