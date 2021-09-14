@@ -505,17 +505,106 @@ TEST(RecoverStartTimeVector, v3)
     VectorDynamic actual = DAG_SPACE::RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
     assert_equal(expected, actual);
 }
-TEST(DAG_Optimize_schedule, v1)
+
+TEST(EliminationTree, build_maintain_tree)
 {
+
+    // elimination steps:
+    // In main loop
+    // 1. build a tree with only nodes, no edges
+    // 2. add a few edges to some nodes
+    // 3. maintain the tree structure during loops
+    // In 'add eliminate mapping'
+    // 3. identify the two considered nodes, and their associated trees
+    // 4. extract all the nodes in the two trees, check interval overlap
+    // 5. return whether there is overlap or not
     using namespace DAG_SPACE;
-    DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
 
-    auto sth = OptimizeScheduling(tasks);
-    double success = sth.first;
-    VectorDynamic res = sth.second;
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto actual = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    typedef adjacency_list<vecS, vecS, undirectedS,
+                           property<vertex_name_t, LLint>>
+        Graph;
+    Graph g;
+    typedef property_map<Graph, vertex_name_t>::type instance_name_map_t;
+    // map to access properties of vertex from the graph
+    instance_name_map_t vertex2indexBig = get(vertex_name, g);
+    typedef graph_traits<Graph>::vertex_descriptor Vertex;
+    // map to access vertex from its global index
+    typedef std::map<LLint, Vertex> indexVertexMap;
+    indexVertexMap indexesBGL;
+    for (LLint i = 0; i < variableDimension; i++)
+    {
+        indexVertexMap::iterator pos;
+        bool inserted;
+        Vertex u;
+        boost::tie(pos, inserted) = indexesBGL.insert(std::make_pair(i, Vertex()));
+        if (inserted)
+        {
+            // u = pos->second;
+            u = add_vertex(g);
+            vertex2indexBig[u] = i;
+            // make sure the inserted vertex in indexesBGL
+            //  is the same as the one inserted in the graph
+            pos->second = u;
+        }
+        else
+        {
+            CoutError("Error building indexVertexMap!");
+        }
+    }
+    graph_traits<Graph>::vertex_iterator i, end;
+    for (boost::tie(i, end) = vertices(g); i != end; ++i)
+    {
+        std::cout << vertex2indexBig[*i] << std::endl;
+    }
+    // basic graph functions that we need
+    // create a graph, insert node, insert edge to part of nodes
+    // find a node in a graph, or return if doesn't exist
+    // extract sub-tree from a graph
+    // check overlap among sub-tree
 
-    cout << "The result after optimization is " << Color::green << success << Color::blue << res << Color::def << endl;
+    // beign the function
+
+    // VectorDynamic compressed;
+    // compressed.resize(2, 1);
+    // compressed << 0, 180;
+    // vector<bool> maskEliminate{false, true, true, true, false};
+    // MAP_Index2Data mapIndex;
+    // mapIndex[0] = MappingDataStruct{0, 0};
+    // mapIndex[1] = MappingDataStruct{2, 10};
+    // mapIndex[2] = MappingDataStruct{3, 10};
+    // mapIndex[3] = MappingDataStruct{4, 10};
+    // mapIndex[4] = MappingDataStruct{4, 0};
+    // VectorDynamic expected;
+    // expected.resize(5, 1);
+    // expected << 0, 210, 200, 190, 180;
+    // VectorDynamic actual = DAG_SPACE::RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
+    // assert_equal(expected, actual);
 }
+// TEST(DAG_Optimize_schedule, v1)
+// {
+//     using namespace DAG_SPACE;
+//     DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
+
+//     auto sth = OptimizeScheduling(tasks);
+//     double success = sth.first;
+//     VectorDynamic res = sth.second;
+
+//     cout << "The result after optimization is " << Color::green << success << Color::blue << res << Color::def << endl;
+// }
 
 int main()
 {

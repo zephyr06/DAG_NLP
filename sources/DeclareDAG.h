@@ -222,11 +222,7 @@ namespace DAG_SPACE
         if (filledTable[index])
             return actual(index, 0);
         auto it = mapIndex.find(index);
-        if (it == mapIndex.end())
-        {
-            cout << Color::red << "Element not found in mapIndex, GetSingleElement" << Color::def << endl;
-            throw;
-        }
+
         if (it != mapIndex.end())
         {
             MappingDataStruct curr = it->second;

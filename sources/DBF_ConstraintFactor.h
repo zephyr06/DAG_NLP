@@ -140,6 +140,40 @@ namespace DAG_SPACE
             return f(startTimeVector);
         }
 
+        // /**
+        //  * @brief this function performs in-place modification; return results are stored at
+        //  * whetherEliminate and mapIndex!
+        //  *
+        //  * @param index_i_overall
+        //  * @param maskForEliminate
+        //  * @param whetherEliminate
+        //  * @param mapIndex
+        //  */
+        // void Eliminate_j_based_i(LLint index_j_overall, LLint index_i_overall,
+        //                          vector<bool> &maskForEliminate, bool &whetherEliminate,
+        //                          MAP_Index2Data &mapIndex, VectorDynamic &startTimeVector,
+        //                          double sumIJK, TaskSet &tasks, int j)
+        // {
+        //     maskForEliminate[index_j_overall] = true;
+        //     whetherEliminate = true;
+        //     // this should respect original relationship
+        //     if (tightEliminate == 1)
+        //     {
+        //         MappingDataStruct m{index_i_overall, sumIJK - tasks[j].executionTime};
+        //         mapIndex[index_j_overall] = m;
+        //     }
+        //     else if (tightEliminate == 0)
+        //     {
+        //         MappingDataStruct m{index_i_overall,
+        //                             startTimeVector(index_j_overall, 0) -
+        //                                 startTimeVector(index_i_overall, 0)};
+        //         mapIndex[index_j_overall] = m;
+        //     }
+        //     else
+        //     {
+        //         CoutError("Eliminate option error, not recognized!");
+        //     }
+        // }
         // TODO: find a way to avoid eliminate same variable twice
         void addMappingFunction(VectorDynamic &resTemp,
                                 MAP_Index2Data &mapIndex, bool &whetherEliminate,
@@ -162,6 +196,11 @@ namespace DAG_SPACE
                     {
                         for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
                         {
+                            if (i == j && instance_i == instance_j)
+                            {
+                                // this is a self interval, no need to replace one task with itself
+                                continue;
+                            }
 
                             double sumIJK = 0;
                             double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
@@ -176,18 +215,21 @@ namespace DAG_SPACE
                                         sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
                                     }
                                 }
-                                double distanceToBound = startTime_j + tasks[j].executionTime - startTime_i - sumIJK;
-                                if (distanceToBound < toleranceEliminator && distanceToBound >= 0)
+                                // computation speed can be improved by 1 times there
+                                double distanceToBound_j_i = startTime_j + tasks[j].executionTime - startTime_i - sumIJK;
+                                if (distanceToBound_j_i < toleranceEliminator && distanceToBound_j_i >= 0)
                                 {
                                     LLint index_i_overall = IndexTran_Instance2Overall(i, instance_i, sizeOfVariables);
                                     LLint index_j_overall = IndexTran_Instance2Overall(j, instance_j, sizeOfVariables);
-                                    if (index_i_overall == index_j_overall)
-                                    {
-                                        // this is a self interval, no need to replace one task with itself
-                                        continue;
-                                    }
+
+                                    // since we go over all the pairs, we only need to check j in each pair (i, j)
                                     if (not maskForEliminate[index_j_overall])
+                                    // this if condition is posed to avoid repeated elimination, and avoid conflicting elimination
+                                    // because one variable j can only depend on one single variable i;
                                     {
+                                        // Eliminate_j_based_i(index_j_overall, index_i_overall,
+                                        //                     maskForEliminate, whetherEliminate,
+                                        //                     mapIndex, startTimeVector, sumIJK, tasks, j);
                                         maskForEliminate[index_j_overall] = true;
                                         whetherEliminate = true;
                                         // this should respect original relationship
@@ -205,8 +247,7 @@ namespace DAG_SPACE
                                         }
                                         else
                                         {
-                                            cout << Color::red << "Eliminate option error, not recognized!" << Color::def << endl;
-                                            throw;
+                                            CoutError("Eliminate option error, not recognized!");
                                         }
                                     }
                                     else
