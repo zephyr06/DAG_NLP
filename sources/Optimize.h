@@ -304,6 +304,7 @@ namespace DAG_SPACE
             params.setlambdaLowerBound(lowerLambda);
             params.setlambdaUpperBound(upperLambda);
             params.setRelativeErrorTol(relativeErrorTolerance);
+            params.setMaxIterations(maxIterations);
             LevenbergMarquardtOptimizer optimizer(graph, initialEstimateFG, params);
             result = optimizer.optimize();
         }
