@@ -68,7 +68,7 @@ namespace DAG_SPACE
 
             if (overlapMode)
             {
-                res = DbfInterval(startTimeVector);
+                res = DbfIntervalOverlapError(startTimeVector);
                 return res;
             }
             else
@@ -177,7 +177,9 @@ namespace DAG_SPACE
         // TODO: find a way to avoid eliminate same variable twice
         void addMappingFunction(VectorDynamic &resTemp,
                                 MAP_Index2Data &mapIndex, bool &whetherEliminate,
-                                vector<bool> &maskForEliminate)
+                                vector<bool> &maskForEliminate,
+                                Graph &eliminationTrees,
+                                indexVertexMap &indexesBGL)
         {
             VectorDynamic startTimeVector = RecoverStartTimeVector(resTemp, maskForEliminate, mapIndex);
             VectorDynamic res;
@@ -230,24 +232,55 @@ namespace DAG_SPACE
                                         // Eliminate_j_based_i(index_j_overall, index_i_overall,
                                         //                     maskForEliminate, whetherEliminate,
                                         //                     mapIndex, startTimeVector, sumIJK, tasks, j);
-                                        maskForEliminate[index_j_overall] = true;
-                                        whetherEliminate = true;
-                                        // this should respect original relationship
-                                        if (tightEliminate == 1)
+
+                                        // check eliminationTrees confliction; only preceed if no confliction exists
+                                        vector<LLint> tree_i, tree_j;
+                                        FindSubTree(eliminationTrees, tree_i, indexesBGL[index_i_overall]);
+                                        FindSubTree(eliminationTrees, tree_j, indexesBGL[index_j_overall]);
+                                        if (CheckNoConflictionTree(tree_i, tree_j, startTimeVector))
+                                        // if (true)
                                         {
-                                            MappingDataStruct m{index_i_overall, sumIJK - tasks[j].executionTime};
-                                            mapIndex[index_j_overall] = m;
-                                        }
-                                        else if (tightEliminate == 0)
-                                        {
-                                            MappingDataStruct m{index_i_overall,
-                                                                startTimeVector(index_j_overall, 0) -
-                                                                    startTimeVector(index_i_overall, 0)};
-                                            mapIndex[index_j_overall] = m;
+                                            maskForEliminate[index_j_overall] = true;
+                                            whetherEliminate = true;
+                                            // this should respect original relationship
+                                            if (tightEliminate == 1)
+                                            {
+                                                MappingDataStruct m{index_i_overall, sumIJK - tasks[j].executionTime};
+                                                mapIndex[index_j_overall] = m;
+                                            }
+                                            else if (tightEliminate == 0)
+                                            {
+                                                double distt = startTimeVector(index_j_overall, 0) -
+                                                               startTimeVector(index_i_overall, 0);
+                                                if (distt >= 142.0 && distt <= 143.0)
+                                                    int a = 1;
+                                                if (distt >= 54 && distt <= 55.0)
+                                                    int a = 1;
+                                                if (distt >= 28.0 && distt <= 29.0)
+                                                    int a = 1;
+                                                MappingDataStruct m{index_i_overall,
+                                                                    distt};
+                                                mapIndex[index_j_overall] = m;
+                                            }
+                                            else
+                                            {
+                                                CoutError("Eliminate option error, not recognized!");
+                                            }
+                                            // add edge to eliminationTrees
+                                            graph_traits<Graph>::edge_descriptor e;
+                                            bool inserted;
+                                            boost::tie(e, inserted) = add_edge(indexesBGL[index_j_overall],
+                                                                               indexesBGL[index_i_overall],
+                                                                               eliminationTrees);
+                                            if (inserted)
+                                            {
+                                                edge_name_map_t edgeMapCurr = get(edge_name, eliminationTrees);
+                                                edgeMapCurr[e] = mapIndex[index_j_overall].getDistance();
+                                            }
                                         }
                                         else
                                         {
-                                            CoutError("Eliminate option error, not recognized!");
+                                            continue;
                                         }
                                     }
                                     else
@@ -267,41 +300,58 @@ namespace DAG_SPACE
                 }
             }
         }
-
-        VectorDynamic DbfInterval(const VectorDynamic &startTimeVector)
+        vector<Interval> CreateIntervalFromSTV(vector<LLint> &tree1, const VectorDynamic &startTimeVector)
         {
-
-            LLint n = startTimeVector.rows();
+            size_t n = tree1.size();
             vector<Interval> intervalVec;
             intervalVec.reserve(n);
             for (size_t i = 0; i < n; i++)
             {
-                double start = startTimeVector(i, 0);
-                double length = tasks[BigIndex2TaskIndex(i, sizeOfVariables)].executionTime;
+                size_t index = tree1[i];
+                double start = startTimeVector(index, 0);
+                double length = tasks[BigIndex2TaskIndex(index, sizeOfVariables)].executionTime;
                 intervalVec.push_back(Interval{start, length});
             }
-            sort(intervalVec.begin(), intervalVec.end(), compare);
+            return intervalVec;
+        }
 
-            double overlapAll = 0;
-            for (size_t i = 0; i < n; i++)
-            {
-                double endTime = intervalVec[i].start + intervalVec[i].length;
-                for (size_t j = i + 1; j < n; j++)
-                {
-                    if (intervalVec[j].start >= endTime)
-                        break;
-                    else
-                    {
-                        double ttttt = Overlap(intervalVec[i], intervalVec[j]);
-                        overlapAll += ttttt;
-                    }
-                }
-            }
+        VectorDynamic DbfIntervalOverlapError(const VectorDynamic &startTimeVector)
+        {
+            vector<LLint> indexes;
+            indexes.reserve(startTimeVector.size());
+            for (size_t i = 0; i < startTimeVector.size(); i++)
+                indexes.push_back(i);
+            vector<Interval> intervalVec = CreateIntervalFromSTV(indexes, startTimeVector);
 
             VectorDynamic res;
             res.resize(1, 1);
-            res(0, 0) = overlapAll;
+            res(0, 0) = IntervalOverlapError(intervalVec);
             return res;
+        }
+
+        bool CheckNoConflictionTree(const vector<LLint> &tree1, const vector<LLint> &tree2,
+                                    const VectorDynamic &startTimeVector)
+        {
+            // TODO: separate this checking process can improve speed
+            vector<LLint> trees;
+            LLint ssize = tree1.size() + tree2.size();
+            trees.reserve(ssize);
+            for (size_t i = 0; i < tree1.size(); i++)
+                trees.push_back(tree1[i]);
+            for (size_t i = 0; i < tree2.size(); i++)
+                trees.push_back(tree2[i]);
+
+            vector<Interval> vv = CreateIntervalFromSTV(trees, startTimeVector);
+            double error_I_O = IntervalOverlapError(vv);
+            if (error_I_O == 0)
+                return true;
+            else if (error_I_O > 0)
+                return false;
+            else
+            {
+                CoutError("IntervalOverlapError returns negative!");
+            }
+            return false;
         }
     };
 }

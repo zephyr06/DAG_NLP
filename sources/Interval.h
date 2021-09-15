@@ -40,3 +40,26 @@ double Overlap(Interval &v1, Interval &v2)
     }
     return 0;
 }
+
+double IntervalOverlapError(vector<Interval> &intervalVec)
+{
+    sort(intervalVec.begin(), intervalVec.end(), compare);
+
+    double overlapAll = 0;
+    int n = intervalVec.size();
+    for (size_t i = 0; i < n; i++)
+    {
+        double endTime = intervalVec[i].start + intervalVec[i].length;
+        for (size_t j = i + 1; j < n; j++)
+        {
+            if (intervalVec[j].start >= endTime)
+                break;
+            else
+            {
+                double ttttt = Overlap(intervalVec[i], intervalVec[j]);
+                overlapAll += ttttt;
+            }
+        }
+    }
+    return overlapAll;
+}

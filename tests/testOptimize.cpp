@@ -306,14 +306,14 @@ TEST(testDBF, v1)
     dbfExpect.resize(1, 1);
     dbfExpect << 90;
     VectorDynamic dbfExpect1 = factor.f(startTimeVector);
-    VectorDynamic dbfActual = factor.DbfInterval(startTimeVector);
+    VectorDynamic dbfActual = factor.DbfIntervalOverlapError(startTimeVector);
     // VectorDynamic actual = DAG_SPACE::RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
     assert_equal(dbfExpect1, dbfActual);
     assert_equal(dbfExpect, dbfExpect1);
 
     startTimeVector << 1, 2, 3, 4, 19;
     dbfExpect1(0, 0) = 54;
-    dbfActual = factor.DbfInterval(startTimeVector);
+    dbfActual = factor.DbfIntervalOverlapError(startTimeVector);
     assert_equal(dbfExpect1, dbfActual);
 }
 TEST(testDBF, v2)
@@ -352,7 +352,7 @@ TEST(testDBF, v2)
     dbfExpect.resize(1, 1);
     dbfExpect << 128;
 
-    VectorDynamic dbfActual = factor.DbfInterval(startTimeVector);
+    VectorDynamic dbfActual = factor.DbfIntervalOverlapError(startTimeVector);
     VectorDynamic dbfActual2 = factor.f(startTimeVector);
     assert_equal(dbfExpect, dbfActual);
     assert_equal(dbfExpect, dbfActual2);
@@ -537,69 +537,6 @@ TEST(EliminationTree, build_maintain_tree)
     }
 }
 
-vector<LLint> FindNodesInEliminateTree(Graph &g, LLint index_i)
-{
-    vertex_name_map_t vertex2indexBig = get(vertex_name, g);
-    edge_name_map_t edge2Distance = get(edge_name, g);
-
-    vector<LLint> res;
-    return res;
-}
-
-void FindSubTreeUp(Graph &g, vector<LLint> &subTreeIndex, Vertex v)
-{
-    vertex_name_map_t vertex2indexBig = get(vertex_name, g);
-    if (v)
-    {
-        boost::graph_traits<Graph>::in_edge_iterator ei, edge_end;
-        for (boost::tie(ei, edge_end) = in_edges(v, g); ei != edge_end; ++ei)
-        {
-            Vertex vv = source(*ei, g);
-            if (vv)
-            {
-                subTreeIndex.push_back(vertex2indexBig[vv]);
-                FindSubTreeUp(g, subTreeIndex, vv);
-            }
-        }
-    }
-    else
-        return;
-    return;
-}
-
-void FindSubTreeDown(Graph &g, vector<LLint> &subTreeIndex, Vertex v)
-{
-    vertex_name_map_t vertex2indexBig = get(vertex_name, g);
-    if (v)
-    {
-        boost::graph_traits<Graph>::out_edge_iterator eo, edge_end_o;
-        for (boost::tie(eo, edge_end_o) = out_edges(v, g); eo != edge_end_o; ++eo)
-        {
-            Vertex vvv = target(*eo, g);
-            if (vvv)
-            {
-                subTreeIndex.push_back(vertex2indexBig[vvv]);
-                FindSubTreeDown(g, subTreeIndex, vvv);
-            }
-        }
-    }
-    else
-        return;
-    return;
-}
-
-void FindSubTree(Graph &g, vector<LLint> &subTreeIndex, Vertex v)
-{
-    vertex_name_map_t vertex2indexBig = get(vertex_name, g);
-    if (v)
-        subTreeIndex.push_back(vertex2indexBig[v]);
-    else
-        return;
-    FindSubTreeUp(g, subTreeIndex, v);
-    FindSubTreeDown(g, subTreeIndex, v);
-    return;
-}
-
 TEST(EliminationTree, find_sub_tree)
 {
 
@@ -646,17 +583,64 @@ TEST(EliminationTree, find_sub_tree)
     FindSubTree(g, res, u);
     AssertEqualVector({3, 2, 1, 4, 5}, res);
 }
-// TEST(DAG_Optimize_schedule, v1)
-// {
-//     using namespace DAG_SPACE;
-//     DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
 
-//     auto sth = OptimizeScheduling(tasks);
-//     double success = sth.first;
-//     VectorDynamic res = sth.second;
+TEST(CheckEliminationTreeConflict, v1)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
 
-//     cout << "The result after optimization is " << Color::green << success << Color::blue << res << Color::def << endl;
-// }
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto initialSTV = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+
+    vector<LLint> tree1 = {2, 3, 5, 0, 1};
+    vector<LLint> tree2 = {6, 7};
+
+    vector<bool> maskForEliminate(initialSTV.size(), false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+    Symbol key('a', 0);
+    LLint errorDimensionDBF = 1;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
+                                mapIndex, maskForEliminate, model);
+    AssertBool(false, factor.CheckNoConflictionTree(tree1, tree2, initialSTV));
+    tree1 = {2, 4, 5, 6};
+    tree2 = {3, 1, 0, 7};
+    AssertBool(false, factor.CheckNoConflictionTree(tree1, tree2, initialSTV));
+    tree1 = {2};
+    tree2 = {3};
+    AssertBool(false, factor.CheckNoConflictionTree(tree1, tree2, initialSTV));
+    initialSTV << 54, 129, 42, 29, 116, 15, 0, 101;
+    AssertBool(true, factor.CheckNoConflictionTree(tree1, tree2, initialSTV));
+    tree1 = {2, 4, 5, 6};
+    tree2 = {3, 1, 0, 7};
+    AssertBool(true, factor.CheckNoConflictionTree(tree1, tree2, initialSTV));
+    initialSTV << 54, 129, 42, 29, 116, 10, 0, 101;
+    AssertBool(false, factor.CheckNoConflictionTree(tree1, tree2, initialSTV));
+}
+TEST(DAG_Optimize_schedule, v1)
+{
+    using namespace DAG_SPACE;
+    DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
+
+    auto sth = OptimizeScheduling(tasks);
+    double success = sth.first;
+    VectorDynamic res = sth.second;
+
+    cout << "The result after optimization is " << Color::green << success << Color::blue << res << Color::def << endl;
+}
 
 int main()
 {

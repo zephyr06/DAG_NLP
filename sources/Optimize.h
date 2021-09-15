@@ -347,7 +347,10 @@ namespace DAG_SPACE
         int loopNumber = 0;
         vector<bool> maskForEliminate(variableDimension, false);
         VectorDynamic resTemp = GenerateVectorDynamic(variableDimension);
-        // NonlinearFactorGraph graph;
+        // build elimination eliminationTrees
+        pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(dagTasks);
+        Graph eliminationTrees = sth.first;
+        indexVertexMap indexesBGL = sth.second;
         VectorDynamic trueResult;
         while (1)
         {
@@ -370,7 +373,8 @@ namespace DAG_SPACE
                                         mapIndex, maskForEliminate, model);
             // this function performs in-place modification for all the variables!
             // TODO: should we add eliminate function for sensorFusion?
-            factor.addMappingFunction(resTemp, mapIndex, whetherEliminate, maskForEliminate);
+            factor.addMappingFunction(resTemp, mapIndex, whetherEliminate, maskForEliminate,
+                                      eliminationTrees, indexesBGL);
             // update initial estimate
             vector<double> initialUpdateVec;
             initialUpdateVec.reserve(variableDimension - 1);
