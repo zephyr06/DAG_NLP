@@ -37,6 +37,7 @@ void AssertEqualVector(T expected, T actual, double tolerance = 1e-6)
 {
     if (expected.size() != actual.size())
     {
+        cout << Color::red << "Length error! " << Color::def;
         AssertUnEqual(expected.size(), actual.size());
         return;
     }

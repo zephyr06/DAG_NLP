@@ -15,10 +15,75 @@
 
 using namespace std;
 using namespace boost;
+
+typedef adjacency_list<vecS, vecS, bidirectionalS,
+                       property<vertex_name_t, LLint>,
+                       property<edge_name_t, LLint>>
+    Graph;
+typedef property_map<Graph, vertex_name_t>::type vertex_name_map_t;
+typedef graph_traits<Graph>::vertex_descriptor Vertex;
+typedef property_map<Graph, edge_name_t>::type edge_name_map_t;
+
+typedef std::unordered_map<LLint, Vertex> indexVertexMap;
+
 struct first_name_t
 {
     typedef boost::vertex_property_tag kind;
 };
+
+pair<Graph, indexVertexMap> EstablishGraphStartTimeVector(DAG_SPACE::DAG_Model &dagTasks)
+{
+    using namespace DAG_SPACE;
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    // auto actual = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+
+    Graph g;
+
+    // map to access properties of vertex from the graph
+    vertex_name_map_t vertex2indexBig = get(vertex_name, g);
+
+    // map to access vertex from its global index
+
+    indexVertexMap indexesBGL;
+    for (LLint i = 0; i < variableDimension; i++)
+    {
+        indexVertexMap::iterator pos;
+        bool inserted;
+        Vertex u;
+        boost::tie(pos, inserted) = indexesBGL.insert(std::make_pair(i, Vertex()));
+        if (inserted)
+        {
+            // u = pos->second;
+            u = add_vertex(g);
+            vertex2indexBig[u] = i;
+            // make sure the inserted vertex in indexesBGL
+            //  is the same as the one inserted in the graph
+            pos->second = u;
+        }
+        else
+        {
+            CoutError("Error building indexVertexMap!");
+        }
+    }
+    // graph_traits<Graph>::vertex_iterator i, end;
+    // for (boost::tie(i, end) = vertices(g); i != end; ++i)
+    // {
+    //     std::cout << vertex2indexBig[*i] << std::endl;
+    // }
+    return make_pair(g, indexesBGL);
+}
 
 // template <class EdgeIter, class Graph>
 // void who_owes_who(EdgeIter first, EdgeIter last, const Graph &G)
