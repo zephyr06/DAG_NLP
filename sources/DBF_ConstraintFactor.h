@@ -134,7 +134,7 @@ namespace DAG_SPACE
                 }
                 if ((*H).norm() == 0 && f(startTimeVector).norm() != 0)
                 {
-                    CoutError("DBF factor: 0 Jacobian while non-zero error found!");
+                    CoutWarning("DBF factor: 0 Jacobian while non-zero error found!");
                 }
             }
 

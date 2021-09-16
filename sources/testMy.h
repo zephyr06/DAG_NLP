@@ -10,9 +10,13 @@
 
 using namespace std;
 
-void CoutError(string message)
+void CoutWarning(string message)
 {
     cout << Color::red << message << Color::def << endl;
+}
+void CoutError(string message)
+{
+    CoutWarning(message);
     throw;
 }
 

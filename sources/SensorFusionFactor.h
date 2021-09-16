@@ -79,6 +79,8 @@ namespace DAG_SPACE
                                 // instanceSource = (instanceSource < 0) ? 0 : instanceSource;
                                 if (instanceSource < 0)
                                     instanceSource = 0;
+                                else if (instanceSource > sizeOfVariables[sourceIndex] - 1)
+                                    instanceSource = sizeOfVariables[sourceIndex] - 1;
 
                                 double startTimeSourceInstance = ExtractVariable(startTimeVector, sizeOfVariables,
                                                                                  sourceIndex, instanceSource);
