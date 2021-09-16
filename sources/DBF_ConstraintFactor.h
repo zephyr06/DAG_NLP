@@ -129,11 +129,12 @@ namespace DAG_SPACE
                 {
                     cout << "The Jacobian matrix of DBF_ConstraintFactor is " << endl
                          << *H << endl;
-                }
-                if (debugMode == 1)
-                {
                     cout << Color::green << "The input startTimeVector of DBF is " << startTimeVector << Color::def << endl;
                     cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << endl;
+                }
+                if ((*H).norm() == 0 && f(startTimeVector).norm() != 0)
+                {
+                    CoutError("DBF factor: 0 Jacobian while non-zero error found!");
                 }
             }
 
