@@ -1,8 +1,9 @@
 #pragma once
 #include <boost/config.hpp>
-#include <iostream>          // for std::cout
-#include <utility>           // for std::pair
-#include <algorithm>         // for std::for_each
+#include <iostream>  // for std::cout
+#include <utility>   // for std::pair
+#include <algorithm> // for std::for_each
+#include <bits/stdc++.h>
 #include <boost/utility.hpp> // for boost::tie
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
@@ -85,58 +86,100 @@ pair<Graph, indexVertexMap> EstablishGraphStartTimeVector(DAG_SPACE::DAG_Model &
     return make_pair(g, indexesBGL);
 }
 
-void FindSubTreeUp(Graph &g, vector<LLint> &subTreeIndex, Vertex v)
-{
-    vertex_name_map_t vertex2indexBig = get(vertex_name, g);
-    if (v)
-    {
-        boost::graph_traits<Graph>::in_edge_iterator ei, edge_end;
-        for (boost::tie(ei, edge_end) = in_edges(v, g); ei != edge_end; ++ei)
-        {
-            Vertex vv = source(*ei, g);
-            if (vv)
-            {
-                subTreeIndex.push_back(vertex2indexBig[vv]);
-                FindSubTreeUp(g, subTreeIndex, vv);
-            }
-        }
-    }
-    else
-        return;
-    return;
-}
+// void FindSubTreeUp(Graph &g, vector<LLint> &subTreeIndex, Vertex v)
+// {
+//     vertex_name_map_t vertex2indexBig = get(vertex_name, g);
+//     if (v)
+//     {
+//         boost::graph_traits<Graph>::in_edge_iterator ei, edge_end;
+//         for (boost::tie(ei, edge_end) = in_edges(v, g); ei != edge_end; ++ei)
+//         {
+//             Vertex vv = source(*ei, g);
+//             if (vv == v)
+//                 continue;
+//             if (vv)
+//             {
+//                 subTreeIndex.push_back(vertex2indexBig[vv]);
+//                 FindSubTreeUp(g, subTreeIndex, vv);
+//             }
+//         }
+//     }
+//     else
+//         return;
+//     return;
+// }
 
-void FindSubTreeDown(Graph &g, vector<LLint> &subTreeIndex, Vertex v)
+// void FindSubTreeDown(Graph &g, vector<LLint> &subTreeIndex, Vertex v)
+// {
+//     vertex_name_map_t vertex2indexBig = get(vertex_name, g);
+//     if (v)
+//     {
+//         boost::graph_traits<Graph>::out_edge_iterator eo, edge_end_o;
+//         for (boost::tie(eo, edge_end_o) = out_edges(v, g); eo != edge_end_o; ++eo)
+//         {
+//             Vertex vvv = target(*eo, g);
+//             if (vvv == v)
+//                 continue;
+//             if (vvv)
+//             {
+//                 subTreeIndex.push_back(vertex2indexBig[vvv]);
+//                 FindSubTreeDown(g, subTreeIndex, vvv);
+//             }
+//         }
+//     }
+//     else
+//         return;
+//     return;
+// }
+
+void FindSubTree(Graph &g, vector<LLint> &subTreeIndex, std::unordered_set<int> &indexSet, Vertex v)
 {
     vertex_name_map_t vertex2indexBig = get(vertex_name, g);
-    if (v)
+
+    if (indexSet.find(vertex2indexBig[v]) == indexSet.end())
     {
-        boost::graph_traits<Graph>::out_edge_iterator eo, edge_end_o;
-        for (boost::tie(eo, edge_end_o) = out_edges(v, g); eo != edge_end_o; ++eo)
-        {
-            Vertex vvv = target(*eo, g);
-            if (vvv)
-            {
-                subTreeIndex.push_back(vertex2indexBig[vvv]);
-                FindSubTreeDown(g, subTreeIndex, vvv);
-            }
-        }
+        indexSet.insert(vertex2indexBig[v]);
+        subTreeIndex.push_back(vertex2indexBig[v]);
     }
-    else
-        return;
+    // else
+    //     return;
+
+    // FindSubTreeUp(g, subTreeIndex, v);
+    // FindSubTreeDown(g, subTreeIndex, v);
+    boost::graph_traits<Graph>::out_edge_iterator eo, edge_end_o;
+    for (boost::tie(eo, edge_end_o) = out_edges(v, g); eo != edge_end_o; ++eo)
+    {
+        Vertex vvv = target(*eo, g);
+        if (indexSet.find(vertex2indexBig[vvv]) == indexSet.end())
+        {
+            subTreeIndex.push_back(vertex2indexBig[vvv]);
+            indexSet.insert(vertex2indexBig[vvv]);
+            FindSubTree(g, subTreeIndex, indexSet, vvv);
+        }
+        else
+            continue;
+    }
+
+    boost::graph_traits<Graph>::in_edge_iterator ei, edge_end;
+    for (boost::tie(ei, edge_end) = in_edges(v, g); ei != edge_end; ++ei)
+    {
+        Vertex vv = source(*ei, g);
+        if (indexSet.find(vertex2indexBig[vv]) == indexSet.end())
+        {
+            subTreeIndex.push_back(vertex2indexBig[vv]);
+            indexSet.insert(vertex2indexBig[vv]);
+            FindSubTree(g, subTreeIndex, indexSet, vv);
+        }
+        else
+            continue;
+    }
     return;
 }
 
 void FindSubTree(Graph &g, vector<LLint> &subTreeIndex, Vertex v)
 {
-    vertex_name_map_t vertex2indexBig = get(vertex_name, g);
-    if (v)
-        subTreeIndex.push_back(vertex2indexBig[v]);
-    else
-        return;
-    FindSubTreeUp(g, subTreeIndex, v);
-    FindSubTreeDown(g, subTreeIndex, v);
-    return;
+    std::unordered_set<int> indexSet;
+    FindSubTree(g, subTreeIndex, indexSet, v);
 }
 // template <class EdgeIter, class Graph>
 // void who_owes_who(EdgeIter first, EdgeIter last, const Graph &G)

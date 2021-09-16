@@ -292,6 +292,7 @@ namespace DAG_SPACE
                 params.setVerbosityDL("VERBOSE");
             params.setDeltaInitial(deltaInitialDogleg);
             params.setRelativeErrorTol(relativeErrorTolerance);
+            params.setMaxIterations(maxIterations);
             DoglegOptimizer optimizer(graph, initialEstimateFG, params);
             result = optimizer.optimize();
         }

@@ -13,7 +13,7 @@ initialLambda: 1e1
 lowerLambda: 1e-15
 makespanWeight: 0
 noiseModelSigma: 1e0
-optimizeNLP_ErrorTolerance: 1e-5
+optimizeNLP_ErrorTolerance: 1e-6
 optimizerType: 2 # 1 means dogleg, 2 means LM
 overlapMode: 1
 parallelFactor: 0.4

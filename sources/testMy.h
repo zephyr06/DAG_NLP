@@ -4,10 +4,17 @@
 #include <stdlib.h>
 #include <vector>
 #include <iostream>
+#include <bits/stdc++.h>
 
 #include "colormod.h"
 
 using namespace std;
+
+void CoutError(string message)
+{
+    cout << Color::red << message << Color::def << endl;
+    throw;
+}
 
 template <typename T>
 void AssertUnEqual(T expect, T actual)
@@ -33,7 +40,8 @@ void AssertBool(bool expected, bool actual)
 }
 
 template <typename T>
-void AssertEqualVector(T expected, T actual, double tolerance = 1e-6)
+void AssertEqualVector(const vector<T> &expected, const vector<T> &actual,
+                       double tolerance = 1e-6)
 {
     if (expected.size() != actual.size())
     {
@@ -42,15 +50,16 @@ void AssertEqualVector(T expected, T actual, double tolerance = 1e-6)
         return;
     }
     size_t N = expected.size();
-    for (size_t i = 0; i < N; i++)
+    unordered_set<T> s;
+    for (size_t i = 0; i < expected.size(); i++)
+        s.insert(expected.at(i));
+    for (size_t i = 0; i < expected.size(); i++)
     {
-        AssertEqualScalar(expected[i], actual[i]);
+        if (s.find(actual.at(i)) == s.end())
+        {
+            CoutError("Actual element " + to_string(actual.at(i)) + " is not found in expected vector");
+        }
     }
-    return;
-}
 
-void CoutError(string message)
-{
-    cout << Color::red << message << Color::def << endl;
-    throw;
+    return;
 }

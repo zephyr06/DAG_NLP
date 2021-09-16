@@ -235,8 +235,10 @@ namespace DAG_SPACE
 
                                         // check eliminationTrees confliction; only preceed if no confliction exists
                                         vector<LLint> tree_i, tree_j;
-                                        FindSubTree(eliminationTrees, tree_i, indexesBGL[index_i_overall]);
-                                        FindSubTree(eliminationTrees, tree_j, indexesBGL[index_j_overall]);
+                                        Vertex u1 = indexesBGL[index_i_overall];
+                                        Vertex v1 = indexesBGL[index_j_overall];
+                                        FindSubTree(eliminationTrees, tree_i, u1);
+                                        FindSubTree(eliminationTrees, tree_j, v1);
                                         if (CheckNoConflictionTree(tree_i, tree_j, startTimeVector))
                                         // if (true)
                                         {

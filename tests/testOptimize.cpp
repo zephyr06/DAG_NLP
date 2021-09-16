@@ -630,6 +630,56 @@ TEST(CheckEliminationTreeConflict, v1)
     initialSTV << 54, 129, 42, 29, 116, 10, 0, 101;
     AssertBool(false, factor.CheckNoConflictionTree(tree1, tree2, initialSTV));
 }
+
+TEST(find_sub_tree, v2)
+{
+
+    // elimination steps:
+    // In main loop
+    // 1. build a tree with only nodes, no edges
+
+    // 3. maintain the tree structure during loops
+    // In 'add eliminate mapping'
+    // 3. identify the two considered nodes, and their associated trees
+    // 4. extract all the nodes in the two trees, check interval overlap
+    // 5. return whether there is overlap or not
+    // 6. if yes, cannot add edge or eliminate
+    //    if no, then add an edge, and perform eliminate
+
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v18.csv", "orig");
+    auto sth = EstablishGraphStartTimeVector(dagTasks);
+    Graph g = sth.first;
+    indexVertexMap indexesBGL = sth.second;
+
+    vertex_name_map_t vertex2indexBig = get(vertex_name, g);
+    edge_name_map_t edge2Distance = get(edge_name, g);
+
+    // insert an edge
+    // for (int i = 1; i < 5; i++)
+    // {
+    //     Vertex u = indexesBGL[i];
+    //     Vertex v = indexesBGL[i + 1];
+    //     graph_traits<Graph>::edge_descriptor e;
+    //     bool inserted;
+    //     boost::tie(e, inserted) = add_edge(u, v, g);
+    //     if (inserted)
+    //         edge2Distance[e] = 10;
+    // }
+
+    // add_edge(indexesBGL[0], indexesBGL[5], g);
+    // add_edge(indexesBGL[5], indexesBGL[10], g);
+    // add_edge(indexesBGL[10], indexesBGL[12], g);
+    // add_edge(indexesBGL[1], indexesBGL[6], g);
+    add_edge(indexesBGL[2], indexesBGL[7], g);
+    add_edge(indexesBGL[19], indexesBGL[7], g);
+
+    vector<LLint> res;
+    Vertex u = indexesBGL[19];
+    FindSubTree(g, res, u);
+    AssertEqualVector({2, 7, 19}, res);
+}
+
 TEST(DAG_Optimize_schedule, v1)
 {
     using namespace DAG_SPACE;
