@@ -175,7 +175,6 @@ namespace DAG_SPACE
         //            log(x + toleranceBarrier);
         return 0;
     }
-
     MatrixDynamic NumericalDerivativeDynamicUpper(boost::function<VectorDynamic(const VectorDynamic &)> h,
                                                   VectorDynamic x, double deltaOptimizer, int mOfJacobian)
     {
@@ -212,6 +211,52 @@ namespace DAG_SPACE
                 // jacobian(j, i) = (resPlus(j, 0) - currErr(j, 0)) / deltaOptimizer;
             }
         }
+        return jacobian;
+    }
+    MatrixDynamic NumericalDerivativeDynamicUpperDBF(boost::function<VectorDynamic(const VectorDynamic &)> h,
+                                                     VectorDynamic x, double deltaOptimizer, int mOfJacobian)
+    {
+        int n = x.rows();
+        MatrixDynamic jacobian;
+        jacobian.resize(mOfJacobian, n);
+        jacobian.setZero();
+
+        for (int i = 0; i < n; i++)
+        {
+            int iteration = 0;
+            double deltaInIteration = deltaOptimizer;
+            while (iteration < maxJacobianIteration)
+            {
+
+                VectorDynamic xDelta = x;
+                xDelta(i, 0) = xDelta(i, 0) + deltaInIteration;
+                VectorDynamic resPlus;
+                resPlus.resize(mOfJacobian, 1);
+                resPlus = h(xDelta);
+                xDelta(i, 0) = xDelta(i, 0) - 2 * deltaInIteration;
+                VectorDynamic resMinus;
+                resMinus.resize(mOfJacobian, 1);
+                resMinus = h(xDelta);
+                if (resPlus == resMinus && resPlus.norm() != 0)
+                {
+                    deltaInIteration = deltaInIteration * 1.5;
+                    iteration++;
+                }
+                else
+                {
+                    for (int j = 0; j < mOfJacobian; j++)
+                    {
+                        jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaOptimizer;
+                        // jacobian(j, i) = (resMinus(j, 0) - currErr(j, 0)) / deltaOptimizer * -1;
+                        // jacobian(j, i) = (resPlus(j, 0) - currErr(j, 0)) / deltaOptimizer;
+                    }
+                    break;
+                }
+                // if (iteration == maxJacobianIteration)
+                //     CoutError("deltaInIteration is still not big enough to leave non-gradient region!");
+            }
+        }
+
         return jacobian;
     }
 

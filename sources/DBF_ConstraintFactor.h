@@ -123,7 +123,7 @@ namespace DAG_SPACE
 
             if (H)
             {
-                *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
+                *H = NumericalDerivativeDynamicUpperDBF(f, startTimeVector, deltaOptimizer, errorDimension);
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {
@@ -135,6 +135,15 @@ namespace DAG_SPACE
                 if ((*H).norm() == 0 && f(startTimeVector).norm() != 0)
                 {
                     CoutWarning("DBF factor: 0 Jacobian while non-zero error found!");
+                }
+                *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
+                // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
+                if (debugMode == 1)
+                {
+                    cout << "The Jacobian matrix of DBF_ConstraintFactor is " << endl
+                         << *H << endl;
+                    cout << Color::green << "The input startTimeVector of DBF is " << startTimeVector << Color::def << endl;
+                    cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << endl;
                 }
             }
 

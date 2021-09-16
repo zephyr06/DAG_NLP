@@ -33,6 +33,7 @@ const int temperatureSA = (int)ConfigParameters["temperatureSA"];
 const int tightEliminate = (int)ConfigParameters["tightEliminate"];
 const int withAddedSensorFusionError = (int)ConfigParameters["withAddedSensorFusionError"];
 const int maxIterations = (int)ConfigParameters["maxIterations"];
+const int maxJacobianIteration = (int)ConfigParameters["maxJacobianIteration"];
 
 const string readTaskMode = (string)ConfigParameters["readTaskMode"];
 const string runMode = (string)ConfigParameters["runMode"];

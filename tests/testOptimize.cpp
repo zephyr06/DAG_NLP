@@ -395,7 +395,7 @@ TEST(testDDL, v1)
     assert_equal(dbfExpect, dbfActual);
 
     startTimeVector << 6, 107, 5, 3, 104, 2, 0, 201;
-    dbfExpect(14, 0) = 15;
+    dbfExpect(14, 0) = 15 * weightDDL_factor;
     dbfActual = factor.f(startTimeVector);
     assert_equal(dbfExpect, dbfActual);
 }
