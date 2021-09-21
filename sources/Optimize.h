@@ -404,7 +404,8 @@ namespace DAG_SPACE
             loopNumber++;
             if (loopNumber > N)
             {
-                CoutError("Loop number error in OptimizeScheduling");
+                CoutWarning("Loop number Warning in OptimizeScheduling");
+                break;
             }
         }
 

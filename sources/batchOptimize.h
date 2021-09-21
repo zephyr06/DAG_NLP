@@ -37,7 +37,8 @@ vector<string> ReadFilesInDirectory(const char *path)
 void BatchOptimize()
 {
     const char *pathDataset = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks";
-    vector<double> energySaveRatioVec;
+    vector<double> averageErrorAccept;
+    vector<double> errorAll;
     vector<double> runTime;
 
     vector<string> errorFiles;
@@ -56,15 +57,15 @@ void BatchOptimize()
             DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(path, readTaskMode);
             auto start = chrono::high_resolution_clock::now();
             auto res = DAG_SPACE::OptimizeScheduling(dagTasks);
-
             auto stop = chrono::high_resolution_clock::now();
             auto duration = duration_cast<microseconds>(stop - start);
             double timeTaken = double(duration.count()) / 1e6;
-            if (res.first >= 0 && res.first <= optimizeNLP_ErrorTolerance)
+            errorAll.push_back(sqrt(res.first * 2));
+            if (res.first >= 0 && res.first <= AcceptSchedulError)
             {
-                // energySaveRatioVec.push_back(res);
+                averageErrorAccept.push_back(res.first);
                 runTime.push_back(timeTaken);
-                outfileWrite << energySaveRatioVec.back() << endl;
+                outfileWrite << averageErrorAccept.back() << endl;
             }
             else if (res.first == -1 || res.first > 1)
             {
@@ -75,22 +76,22 @@ void BatchOptimize()
 
     double avEnergy = -1;
     double aveTime = -1;
+    double aveErrorAll = -1;
     int n = runTime.size();
     if (n != 0)
     {
-        avEnergy = Average(energySaveRatioVec);
+        avEnergy = Average(averageErrorAccept);
         aveTime = Average(runTime);
+        aveErrorAll = Average(errorAll);
     }
 
     ofstream outfile1, outfile2;
     outfile1.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/data_buffer_energy_task_number.txt", std::ios_base::app);
     outfile1 << avEnergy << endl;
-    // if (debugMode)
-    // {
-    cout << "Average energy saving ratio is " << avEnergy << endl;
-    cout << "Average time consumed is " << aveTime << endl;
-    cout << "The number of tasksets under analyzation is " << energySaveRatioVec.size() << endl;
-    // }
+    cout << "Average error after optimization (accepted) is " << avEnergy << endl;
+    cout << "Average error after optimization (all task) is " << aveErrorAll << endl;
+    cout << "Average time consumed (accepted) is " << aveTime << endl;
+    cout << "The number of tasksets under analyzation is " << averageErrorAccept.size() << endl;
 
     outfile2.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/time_task_number.txt", std::ios_base::app);
     outfile2 << aveTime << endl;
