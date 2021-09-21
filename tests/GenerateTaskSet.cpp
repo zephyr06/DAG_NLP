@@ -57,7 +57,14 @@ int main(int argc, char *argv[])
     int periodMin = program.get<int>("--periodMin");
     int periodMax = program.get<int>("--periodMax");
     int taskType = program.get<int>("--taskType");
-    cout << N << ", " << DAG_taskSetNumber << ", " << totalUtilization << ", " << numberOfProcessor << ", " << periodMin << ", " << periodMax << ", " << endl;
+    cout << "Task configuration: " << endl
+         << "Task number: " << N << endl
+         << "DAG_taskSetNumber: " << DAG_taskSetNumber << endl
+         << "totalUtilization: " << totalUtilization << endl
+         << "numberOfProcessor: " << numberOfProcessor << endl
+         << "periodMin: " << periodMin << endl
+         << "periodMax: " << periodMax << endl
+         << endl;
 
     string outDirectory = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks/";
     srand(time(0));

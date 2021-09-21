@@ -841,6 +841,18 @@ TEST(DAG_Optimize_schedule, v1)
     cout << "The result after optimization is " << Color::green << success << Color::blue << res << Color::def << endl;
 }
 
+// TEST(graphError, v1)
+// {
+//     using namespace DAG_SPACE;
+//     DAG_Model tasks = ReadDAG_Tasks("../TaskData/test_n5_v14.csv", "orig");
+//     VectorDynamic init;
+//     init.resize(5, 1);
+//     init << -12.6972, 64.0853, 84.8531, 114.945, 220.221;
+//     cout << "test graphErrorEvaluation: " << GraphErrorEvaluation(tasks, init) << endl;
+
+//     cout << "test graphErrorEvaluation2: " << GraphErrorEvaluation(tasks, GenerateInitialForDAG(tasks, "orig")) << endl;
+// }
+
 int main()
 {
     TestResult tr;

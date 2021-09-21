@@ -25,14 +25,14 @@ VectorDynamic OptimizeSchedulingSA(DAG_Model &dagTasks)
     moe::SimulatedAnnealing<double> moether(moe::SAParameters<double>()
                                                 .withTemperature(temperatureSA)
                                                 .withCoolingRate(coolingRateSA)
-                                                .withDimensions(variableDimension)
+                                                .withDimensions(variableDimension + 1)
                                                 .withRange({0, double(hyperPeriod)}));
 
     moether.setFitnessFunction([&](auto startTimeVec) -> double
                                {
                                    VectorDynamic startTimeVector = Vector2Eigen<double>(startTimeVec.genotype);
 
-                                   return GraphErrorEvaluation(dagTasks, startTimeVector);
+                                   return GraphErrorEvaluation(dagTasks, startTimeVector) * -1;
                                });
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -46,8 +46,8 @@ VectorDynamic OptimizeSchedulingSA(DAG_Model &dagTasks)
 
     auto best_moe = moether.getBestMoe();
 
-    std::cout << "genotype: " << best_moe.genotype[0] << "\t" << best_moe.genotype[1] << "\n"
-              << "fitness: " << best_moe.fitness << "\n"
-              << "time spent: " << diff.count() << " seconds" << std::endl;
+    std::cout
+        << "fitness: " << best_moe.fitness * -1 << "\n"
+        << "time spent: " << diff.count() << " seconds" << std::endl;
     return Vector2Eigen<double>(best_moe.genotype);
 }
