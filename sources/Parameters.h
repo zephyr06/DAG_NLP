@@ -21,6 +21,7 @@ double sensorFusionTolerance = (double)ConfigParameters["sensorFusionTolerance"]
 const double toleranceEliminator = (double)ConfigParameters["toleranceEliminator"];
 const double upperLambda = (double)ConfigParameters["upperLambda"];
 const double weightLogBarrier = (double)ConfigParameters["weightLogBarrier"];
+const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetectTol"];
 
 const double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"];
 int debugMode = (int)ConfigParameters["debugMode"];

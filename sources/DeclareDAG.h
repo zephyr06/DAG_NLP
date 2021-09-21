@@ -47,7 +47,7 @@ struct MappingDataStruct
     }
 };
 // typedef unordered_map<int, boost::function<double(const VectorDynamic &, int)>> MAP_Index2Func;
-typedef unordered_map<int, MappingDataStruct> MAP_Index2Data;
+typedef std::unordered_map<int, MappingDataStruct> MAP_Index2Data;
 typedef boost::function<VectorDynamic(const VectorDynamic &)> FuncV2V;
 
 // ************************************************************ SOME FUNCTIONS
@@ -121,23 +121,25 @@ inline VectorDynamic GenerateVectorDynamic(LLint N)
     return v;
 }
 
-vector<double> Eigen2Vector(VectorDynamic &input)
+template <class T>
+vector<T> Eigen2Vector(const VectorDynamic &input)
 {
-    vector<double> res;
+    vector<T> res;
     LLint len = input.rows();
     res.reserve(len);
     for (LLint i = 0; i < len; i++)
-        res.push_back(input(i, 0));
+        res.push_back(input.coeff(i, 0));
     return res;
 }
-VectorDynamic Vector2Eigen(vector<double> &input)
+template <class T>
+VectorDynamic Vector2Eigen(const vector<T> &input)
 {
 
     LLint len = input.size();
     VectorDynamic res;
     res.resize(len, 1);
     for (LLint i = 0; i < len; i++)
-        res(i, 0) = input[i];
+        res(i, 0) = input.at(i);
     return res;
 }
 
@@ -211,52 +213,6 @@ namespace DAG_SPACE
                 // jacobian(j, i) = (resPlus(j, 0) - currErr(j, 0)) / deltaOptimizer;
             }
         }
-        return jacobian;
-    }
-    MatrixDynamic NumericalDerivativeDynamicUpperDBF(boost::function<VectorDynamic(const VectorDynamic &)> h,
-                                                     VectorDynamic x, double deltaOptimizer, int mOfJacobian)
-    {
-        int n = x.rows();
-        MatrixDynamic jacobian;
-        jacobian.resize(mOfJacobian, n);
-        jacobian.setZero();
-
-        for (int i = 0; i < n; i++)
-        {
-            int iteration = 0;
-            double deltaInIteration = deltaOptimizer;
-            while (iteration < maxJacobianIteration)
-            {
-
-                VectorDynamic xDelta = x;
-                xDelta(i, 0) = xDelta(i, 0) + deltaInIteration;
-                VectorDynamic resPlus;
-                resPlus.resize(mOfJacobian, 1);
-                resPlus = h(xDelta);
-                xDelta(i, 0) = xDelta(i, 0) - 2 * deltaInIteration;
-                VectorDynamic resMinus;
-                resMinus.resize(mOfJacobian, 1);
-                resMinus = h(xDelta);
-                if (resPlus == resMinus && resPlus.norm() != 0)
-                {
-                    deltaInIteration = deltaInIteration * 1.5;
-                    iteration++;
-                }
-                else
-                {
-                    for (int j = 0; j < mOfJacobian; j++)
-                    {
-                        jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaOptimizer;
-                        // jacobian(j, i) = (resMinus(j, 0) - currErr(j, 0)) / deltaOptimizer * -1;
-                        // jacobian(j, i) = (resPlus(j, 0) - currErr(j, 0)) / deltaOptimizer;
-                    }
-                    break;
-                }
-                // if (iteration == maxJacobianIteration)
-                //     CoutError("deltaInIteration is still not big enough to leave non-gradient region!");
-            }
-        }
-
         return jacobian;
     }
 

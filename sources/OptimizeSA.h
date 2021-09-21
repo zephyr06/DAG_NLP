@@ -30,7 +30,7 @@ VectorDynamic OptimizeSchedulingSA(DAG_Model &dagTasks)
 
     moether.setFitnessFunction([&](auto startTimeVec) -> double
                                {
-                                   VectorDynamic startTimeVector = Vector2Eigen(startTimeVec.genotype);
+                                   VectorDynamic startTimeVector = Vector2Eigen<double>(startTimeVec.genotype);
 
                                    return GraphErrorEvaluation(dagTasks, startTimeVector);
                                });
@@ -38,7 +38,7 @@ VectorDynamic OptimizeSchedulingSA(DAG_Model &dagTasks)
     auto start = std::chrono::high_resolution_clock::now();
     VectorDynamic initialEstimate = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
     cout << "Initial estimation for SA is " << initialEstimate << endl;
-    auto initialSA = Eigen2Vector(initialEstimate);
+    auto initialSA = Eigen2Vector<double>(initialEstimate);
     moether.runSA(SA_iteration, initialSA, randomInitialize);
 
     auto end = std::chrono::high_resolution_clock::now();
@@ -49,5 +49,5 @@ VectorDynamic OptimizeSchedulingSA(DAG_Model &dagTasks)
     std::cout << "genotype: " << best_moe.genotype[0] << "\t" << best_moe.genotype[1] << "\n"
               << "fitness: " << best_moe.fitness << "\n"
               << "time spent: " << diff.count() << " seconds" << std::endl;
-    return Vector2Eigen(best_moe.genotype);
+    return Vector2Eigen<double>(best_moe.genotype);
 }

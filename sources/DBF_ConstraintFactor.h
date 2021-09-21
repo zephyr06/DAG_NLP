@@ -26,6 +26,22 @@ namespace DAG_SPACE
         else
             return 0;
     }
+
+    /**
+     * @brief Given an index, find the final index that it depends on;
+     * 
+     * @param index 
+     * @param mapIndex 
+     * @return LLint 
+     */
+    LLint FindLeaf(LLint index, const MAP_Index2Data &mapIndex)
+    {
+        if (index == mapIndex.at(index).getIndex())
+            return index;
+        else
+            return FindLeaf(mapIndex.at(index).getIndex(), mapIndex);
+        return -1;
+    }
     class DBF_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
     {
     public:
@@ -35,11 +51,12 @@ namespace DAG_SPACE
         LLint errorDimension;
         LLint length;
         vector<bool> maskForEliminate;
-        MAP_Index2Data &mapIndex;
+        MAP_Index2Data mapIndex;
 
         DBF_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables,
                              LLint errorDimension, MAP_Index2Data &mapIndex,
-                             vector<bool> &maskForEliminate, SharedNoiseModel model)
+                             vector<bool> &maskForEliminate,
+                             SharedNoiseModel model)
             : NoiseModelFactor1<VectorDynamic>(model, key),
               tasks(tasks), sizeOfVariables(sizeOfVariables),
               N(tasks.size()), errorDimension(errorDimension),
@@ -132,7 +149,7 @@ namespace DAG_SPACE
                     cout << Color::green << "The input startTimeVector of DBF is " << startTimeVector << Color::def << endl;
                     cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << endl;
                 }
-                if ((*H).norm() == 0 && f(startTimeVector).norm() != 0)
+                if ((*H).norm() <= zeroJacobianDetectTol && f(startTimeVector).norm() != 0)
                 {
                     CoutWarning("DBF factor: 0 Jacobian while non-zero error found!");
                 }
@@ -188,8 +205,8 @@ namespace DAG_SPACE
         void addMappingFunction(VectorDynamic &resTemp,
                                 MAP_Index2Data &mapIndex, bool &whetherEliminate,
                                 vector<bool> &maskForEliminate,
-                                Graph &eliminationTrees,
-                                indexVertexMap &indexesBGL)
+                                Graph &eliminationTrees_Update,
+                                indexVertexMap &indexesBGL_Update)
         {
             VectorDynamic startTimeVector = RecoverStartTimeVector(resTemp, maskForEliminate, mapIndex);
             VectorDynamic res;
@@ -243,12 +260,12 @@ namespace DAG_SPACE
                                         //                     maskForEliminate, whetherEliminate,
                                         //                     mapIndex, startTimeVector, sumIJK, tasks, j);
 
-                                        // check eliminationTrees confliction; only preceed if no confliction exists
+                                        // check eliminationTrees_Update confliction; only preceed if no confliction exists
                                         vector<LLint> tree_i, tree_j;
-                                        Vertex u1 = indexesBGL[index_i_overall];
-                                        Vertex v1 = indexesBGL[index_j_overall];
-                                        FindSubTree(eliminationTrees, tree_i, u1);
-                                        FindSubTree(eliminationTrees, tree_j, v1);
+                                        Vertex u1 = indexesBGL_Update[index_i_overall];
+                                        Vertex v1 = indexesBGL_Update[index_j_overall];
+                                        FindSubTree(eliminationTrees_Update, tree_i, u1);
+                                        FindSubTree(eliminationTrees_Update, tree_j, v1);
                                         if (CheckNoConflictionTree(tree_i, tree_j, startTimeVector))
                                         // if (true)
                                         {
@@ -278,15 +295,15 @@ namespace DAG_SPACE
                                             {
                                                 CoutError("Eliminate option error, not recognized!");
                                             }
-                                            // add edge to eliminationTrees
+                                            // add edge to eliminationTrees_Update
                                             graph_traits<Graph>::edge_descriptor e;
                                             bool inserted;
-                                            boost::tie(e, inserted) = add_edge(indexesBGL[index_j_overall],
-                                                                               indexesBGL[index_i_overall],
-                                                                               eliminationTrees);
+                                            boost::tie(e, inserted) = add_edge(indexesBGL_Update[index_j_overall],
+                                                                               indexesBGL_Update[index_i_overall],
+                                                                               eliminationTrees_Update);
                                             if (inserted)
                                             {
-                                                edge_name_map_t edgeMapCurr = get(edge_name, eliminationTrees);
+                                                edge_name_map_t edgeMapCurr = get(edge_name, eliminationTrees_Update);
                                                 edgeMapCurr[e] = mapIndex[index_j_overall].getDistance();
                                             }
                                         }
@@ -312,7 +329,16 @@ namespace DAG_SPACE
                 }
             }
         }
-        vector<Interval> CreateIntervalFromSTV(vector<LLint> &tree1, const VectorDynamic &startTimeVector)
+
+        /**
+         * @brief Create a Interval vector for indexes specified by the tree1 parameter;
+         * the return interval follows the same order given by tree1!
+         * 
+         * @param tree1 
+         * @param startTimeVector 
+         * @return vector<Interval> 
+         */
+        vector<Interval> CreateIntervalFromSTVSameOrder(vector<LLint> &tree1, const VectorDynamic &startTimeVector) const
         {
             size_t n = tree1.size();
             vector<Interval> intervalVec;
@@ -320,7 +346,7 @@ namespace DAG_SPACE
             for (size_t i = 0; i < n; i++)
             {
                 size_t index = tree1[i];
-                double start = startTimeVector(index, 0);
+                double start = startTimeVector.coeff(index, 0);
                 double length = tasks[BigIndex2TaskIndex(index, sizeOfVariables)].executionTime;
                 intervalVec.push_back(Interval{start, length});
             }
@@ -329,11 +355,12 @@ namespace DAG_SPACE
 
         VectorDynamic DbfIntervalOverlapError(const VectorDynamic &startTimeVector)
         {
+            // vector<LLint> indexes = Eigen2Vector<LLint>(startTimeVector);
             vector<LLint> indexes;
             indexes.reserve(startTimeVector.size());
             for (size_t i = 0; i < startTimeVector.size(); i++)
                 indexes.push_back(i);
-            vector<Interval> intervalVec = CreateIntervalFromSTV(indexes, startTimeVector);
+            vector<Interval> intervalVec = CreateIntervalFromSTVSameOrder(indexes, startTimeVector);
 
             VectorDynamic res;
             res.resize(1, 1);
@@ -353,7 +380,7 @@ namespace DAG_SPACE
             for (size_t i = 0; i < tree2.size(); i++)
                 trees.push_back(tree2[i]);
 
-            vector<Interval> vv = CreateIntervalFromSTV(trees, startTimeVector);
+            vector<Interval> vv = CreateIntervalFromSTVSameOrder(trees, startTimeVector);
             double error_I_O = IntervalOverlapError(vv);
             if (error_I_O == 0)
                 return true;
@@ -364,6 +391,158 @@ namespace DAG_SPACE
                 CoutError("IntervalOverlapError returns negative!");
             }
             return false;
+        }
+
+        /**
+         * @brief FindVanishIndex; given a startTimeVector, some of their intervals may be fully overlapped
+         * by another, and this function finds all the indexes that is related.
+         * 
+         * @param startTimeVectorOrig 
+         * @return vector<LLint> 
+         */
+        vector<LLint> FindVanishIndex(const VectorDynamic &startTimeVectorOrig) const
+        {
+            VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
+                                                                   maskForEliminate, mapIndex);
+            vector<LLint> indexes;
+            indexes.reserve(startTimeVector.size());
+            for (size_t i = 0; i < startTimeVector.size(); i++)
+                indexes.push_back(i);
+            vector<Interval> intervalVec = CreateIntervalFromSTVSameOrder(indexes, startTimeVector);
+
+            LLint variableDimension = intervalVec.size();
+            vector<LLint> coverIntervalIndex;
+            coverIntervalIndex.reserve(variableDimension);
+            std::unordered_set<LLint> indexSetBig;
+
+            for (size_t i = 0; i < variableDimension; i++)
+            {
+                for (size_t j = i + 1; j < variableDimension; j++)
+                {
+                    double s1 = intervalVec[i].start;
+                    double f1 = s1 + intervalVec[i].length;
+                    double s2 = intervalVec[j].start;
+                    double f2 = s2 + intervalVec[j].length;
+                    if ((s2 > s1 && f2 < f1) || (s2 < s1 && f2 > f1))
+                    {
+                        LLint leafIndex = FindLeaf(i, mapIndex);
+                        if (indexSetBig.find(leafIndex) == indexSetBig.end())
+                        {
+                            indexSetBig.insert(leafIndex);
+                        }
+                        leafIndex = FindLeaf(j, mapIndex);
+                        if (indexSetBig.find(leafIndex) == indexSetBig.end())
+                        {
+                            indexSetBig.insert(leafIndex);
+                        }
+                    }
+                }
+            }
+
+            // m maps from index in original startTimeVector to index in compressed startTimeVector
+            std::unordered_map<LLint, LLint> m;
+            // count is the index in compressed startTimeVector
+            int count = 0;
+            for (size_t i = 0; i < maskForEliminate.size(); i++)
+            {
+                if (maskForEliminate[i] == false)
+                    m[i] = count++;
+            }
+            vector<LLint> coverIndexInCompressed;
+            coverIndexInCompressed.reserve(startTimeVectorOrig.rows());
+            for (auto itr = indexSetBig.begin(); itr != indexSetBig.end(); itr++)
+            {
+                coverIndexInCompressed.push_back(m[(*itr)]);
+            }
+            return coverIndexInCompressed;
+        }
+        /**
+     * @brief this version of Jacobian estimation fix the Vanishing gradient problem;
+     * 
+     * this program will identify indexes that have vanishing gradient issues, 
+     * i.e., an interval is fullly covered by another interval without bound overlap,
+     * then apply a bigger, but tight deltaOptimizer for these special indexes to avoid vanishing gradient; 
+     * (probably use binary search to find it)
+     * other indexes are handled normally by provided deltaOptimizer;
+     * 
+     * As for identified as overlap index, increasing deltaOptimizer is only applied when it has a real zero
+     *  gradient at this point; this is a necessary condition
+     * 
+     * @param h 
+     * @param x 
+     * @param deltaOptimizer 
+     * @param mOfJacobian 
+     * @return MatrixDynamic 
+     */
+        MatrixDynamic NumericalDerivativeDynamicUpperDBF(boost::function<VectorDynamic(const VectorDynamic &)> h,
+                                                         const VectorDynamic &x, double deltaOptimizer,
+                                                         int mOfJacobian) const
+        {
+            int n = x.rows();
+            MatrixDynamic jacobian;
+            jacobian.resize(mOfJacobian, n);
+            jacobian.setZero();
+
+            vector<LLint> vanishGradientIndex = FindVanishIndex(x);
+            std::unordered_set<LLint> ss;
+            for (size_t i = 0; i < vanishGradientIndex.size(); i++)
+            {
+                ss.insert(vanishGradientIndex[i]);
+            }
+            for (int i = 0; i < n; i++)
+            {
+                // check whether this variable is directly
+                if (ss.find(i) == ss.end())
+                {
+                    VectorDynamic xDelta = x;
+                    xDelta(i, 0) = xDelta(i, 0) + deltaOptimizer;
+                    VectorDynamic resPlus;
+                    resPlus.resize(mOfJacobian, 1);
+                    resPlus = h(xDelta);
+                    xDelta(i, 0) = xDelta(i, 0) - 2 * deltaOptimizer;
+                    VectorDynamic resMinus;
+                    resMinus.resize(mOfJacobian, 1);
+                    resMinus = h(xDelta);
+
+                    for (int j = 0; j < mOfJacobian; j++)
+                    {
+                        jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaOptimizer;
+                    }
+                }
+                else
+                {
+                    int iteration = 0;
+                    double deltaInIteration = deltaOptimizer;
+                    while (iteration < maxJacobianIteration)
+                    {
+
+                        VectorDynamic xDelta = x;
+                        xDelta(i, 0) = xDelta(i, 0) + deltaInIteration;
+                        VectorDynamic resPlus;
+                        resPlus.resize(mOfJacobian, 1);
+                        resPlus = h(xDelta);
+                        xDelta(i, 0) = xDelta(i, 0) - 2 * deltaInIteration;
+                        VectorDynamic resMinus;
+                        resMinus.resize(mOfJacobian, 1);
+                        resMinus = h(xDelta);
+                        if (resPlus == resMinus && resPlus.norm() != 0)
+                        {
+                            deltaInIteration = deltaInIteration * 1.5;
+                            iteration++;
+                        }
+                        else
+                        {
+                            for (int j = 0; j < mOfJacobian; j++)
+                            {
+                                jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaOptimizer;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return jacobian;
         }
     };
 }

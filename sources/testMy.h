@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <bits/stdc++.h>
+#include <Eigen/Dense>
 
 #include "colormod.h"
 
@@ -20,6 +21,13 @@ void CoutError(string message)
     throw;
 }
 
+/**
+ * @brief This function always trigger throw, it just prints information
+ * 
+ * @tparam T 
+ * @param expect 
+ * @param actual 
+ */
 template <typename T>
 void AssertUnEqual(T expect, T actual)
 {
@@ -44,8 +52,8 @@ void AssertBool(bool expected, bool actual)
 }
 
 template <typename T>
-void AssertEqualVector(const vector<T> &expected, const vector<T> &actual,
-                       double tolerance = 1e-6)
+void AssertEqualVectorNoRepeat(const vector<T> &expected, const vector<T> &actual,
+                               double tolerance = 1e-6)
 {
     if (expected.size() != actual.size())
     {
@@ -63,7 +71,41 @@ void AssertEqualVector(const vector<T> &expected, const vector<T> &actual,
         {
             CoutError("Actual element " + to_string(actual.at(i)) + " is not found in expected vector");
         }
+        else
+        {
+            s.erase(actual.at(i));
+        }
     }
 
     return;
+}
+
+void AssertEigenEqualVector(Eigen::Matrix<double, Eigen::Dynamic, 1> &expected,
+                            Eigen::Matrix<double, Eigen::Dynamic, 1> &actual)
+{
+    int m = expected.rows();
+    int n = expected.cols();
+    for (int i = 0; i < m; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            AssertEqualScalar(expected(i, j), actual(i, j));
+        }
+    }
+}
+
+void AssertEigenEqualMatrix(Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> &expected,
+                            Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> &actual)
+{
+    int m = expected.rows();
+    int n = expected.cols();
+    AssertEqualScalar(m, actual.rows());
+    AssertEqualScalar(n, actual.cols());
+    for (int i = 0; i < m; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            AssertEqualScalar(expected(i, j), actual(i, j));
+        }
+    }
 }

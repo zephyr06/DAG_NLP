@@ -21,11 +21,11 @@ double Overlap(Interval &v1, Interval &v2)
     {
         return f2 - v1.start;
     }
-    else if (v2.start >= v1.start && f2 <= f1)
+    else if (v2.start > v1.start && f2 < f1)
     {
         return v2.length;
     }
-    else if (v1.start >= v2.start && f1 <= f2)
+    else if (v1.start > v2.start && f1 < f2)
     {
         return v1.length;
     }

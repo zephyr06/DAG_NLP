@@ -21,6 +21,7 @@ punishmentInBarrier: 1e2
 randomInitialize: 0
 readTaskMode: orig
 withAddedSensorFusionError: 1
+zeroJacobianDetectTol: 1e-7
 maxIterations: 1000
 
 maxJacobianIteration: 15
@@ -30,7 +31,7 @@ runMode: compare
 SA_iteration: 100000
 sensorFusionTolerance: 200000
 temperatureSA: 100000000
-testDataSetName: test_n5_v19
+testDataSetName: test_n5_v16
 tightEliminate: 1
 toleranceEliminator: 1
 upperLambda: 1e60
