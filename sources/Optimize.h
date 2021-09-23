@@ -9,6 +9,7 @@
 #include "DBF_ConstraintFactor.h"
 #include "DDL_ConstraintFactor.h"
 #include "SensorFusionFactor.h"
+#include "PriorFactor.h"
 #include "GraphUtilsFromBGL.h"
 #include "colormod.h"
 
@@ -35,7 +36,8 @@ namespace DAG_SPACE
 
         vector<double> executionTimeVec = GetParameter<double>(tasks, "executionTime");
 
-        std::unordered_map<int, int> m;
+        // m maps from tasks index to startTimeVector index
+        std::unordered_map<int, LLint> m;
         LLint sumVariableNum = 0;
         for (int i = 0; i < N; i++)
         {
@@ -49,7 +51,7 @@ namespace DAG_SPACE
             int currTaskIndex = order[i];
             for (int j = 0; j < sizeOfVariables[currTaskIndex]; j++)
             {
-                initial(m[currTaskIndex] + j, 0) = j * tasks[i].period + index++;
+                initial(m[currTaskIndex] + j, 0) = j * tasks[currTaskIndex].period + index++;
             }
         }
         // initial(N, 0) *= 1;
@@ -189,6 +191,12 @@ namespace DAG_SPACE
         graph.emplace_shared<DDL_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
                                                    errorDimensionDDL, mapIndex,
                                                    maskForEliminate, model);
+        LLint errorDimensionPrior = 1;
+        vector<int> order = FindDependencyOrder(dagTasks);
+        model = noiseModel::Isotropic::Sigma(errorDimensionPrior, noiseModelSigma);
+        graph.emplace_shared<Prior_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
+                                                     errorDimensionPrior, mapIndex,
+                                                     maskForEliminate, 0.0, order[0], model);
 
         LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
         model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
@@ -274,6 +282,13 @@ namespace DAG_SPACE
                                                    errorDimensionDDL, mapIndex,
                                                    maskForEliminate, model);
 
+        LLint errorDimensionPrior = 1;
+        vector<int> order = FindDependencyOrder(dagTasks);
+        model = noiseModel::Isotropic::Sigma(errorDimensionPrior, noiseModelSigma);
+        graph.emplace_shared<Prior_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
+                                                     errorDimensionPrior, mapIndex,
+                                                     maskForEliminate, 0.0, order[0], model);
+
         LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
         model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
         graph.emplace_shared<SensorFusion_ConstraintFactor>(key, dagTasks, sizeOfVariables,
@@ -301,11 +316,12 @@ namespace DAG_SPACE
             LevenbergMarquardtParams params;
             params.setlambdaInitial(initialLambda);
             if (debugMode >= 1)
-                params.setVerbosityLM("SUMMARY");
+                params.setVerbosityLM("TRYDELTA");
             params.setlambdaLowerBound(lowerLambda);
             params.setlambdaUpperBound(upperLambda);
             params.setRelativeErrorTol(relativeErrorTolerance);
             params.setMaxIterations(maxIterations);
+            params.setUseFixedLambdaFactor(setUseFixedLambdaFactor);
             LevenbergMarquardtOptimizer optimizer(graph, initialEstimateFG, params);
             result = optimizer.optimize();
         }

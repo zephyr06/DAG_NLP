@@ -22,7 +22,10 @@ const double toleranceEliminator = (double)ConfigParameters["toleranceEliminator
 const double upperLambda = (double)ConfigParameters["upperLambda"];
 const double weightLogBarrier = (double)ConfigParameters["weightLogBarrier"];
 const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetectTol"];
+const int moreElimination = (int)ConfigParameters["moreElimination"];
+const int setUseFixedLambdaFactor = (int)ConfigParameters["setUseFixedLambdaFactor"];
 
+const double weightPrior_factor = (double)ConfigParameters["weightPrior_factor"];
 const double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"];
 int debugMode = (int)ConfigParameters["debugMode"];
 const int exactJacobian = (int)ConfigParameters["exactJacobian"];

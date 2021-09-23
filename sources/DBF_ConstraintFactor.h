@@ -204,11 +204,11 @@ namespace DAG_SPACE
         // TODO: find a way to avoid eliminate same variable twice
         void addMappingFunction(VectorDynamic &resTemp,
                                 MAP_Index2Data &mapIndex, bool &whetherEliminate,
-                                vector<bool> &maskForEliminate,
+                                vector<bool> &maskForEliminate_addMap,
                                 Graph &eliminationTrees_Update,
                                 indexVertexMap &indexesBGL_Update)
         {
-            VectorDynamic startTimeVector = RecoverStartTimeVector(resTemp, maskForEliminate, mapIndex);
+            VectorDynamic startTimeVector = RecoverStartTimeVector(resTemp, maskForEliminate_addMap, mapIndex);
             VectorDynamic res;
             res.resize(errorDimension, 1);
             LLint indexRes = 0;
@@ -225,16 +225,19 @@ namespace DAG_SPACE
                     {
                         for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
                         {
-                            if (i == j && instance_i == instance_j)
+                            LLint index_j_overall = IndexTran_Instance2Overall(j, instance_j, sizeOfVariables);
+                            // this is a self interval, no need to replace one task with itself
+                            // OR, the variable has already been eliminated, cannot eliminate it twice
+                            if (i == j && instance_i == instance_j || maskForEliminate_addMap[index_j_overall])
                             {
-                                // this is a self interval, no need to replace one task with itself
                                 continue;
                             }
 
                             double sumIJK = 0;
                             double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
-                            if (startTime_i <= startTime_j &&
-                                startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
+                            // if (startTime_i <= startTime_j &&
+                            //     startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
+                            if (1)
                             {
                                 for (int k = 0; k < N; k++)
                                 {
@@ -246,13 +249,17 @@ namespace DAG_SPACE
                                 }
                                 // computation speed can be improved by 1 times there
                                 double distanceToBound_j_i = startTime_j + tasks[j].executionTime - startTime_i - sumIJK;
-                                if (distanceToBound_j_i < toleranceEliminator && distanceToBound_j_i >= 0)
+                                double distanceToBound_j_i_loose = startTime_j + tasks[j].executionTime - startTime_i;
+
+                                // this condition cannot be added, because that will further add potential gradient vanish problem
+                                // ((0 <= distanceToBound_j_i_loose && distanceToBound_j_i_loose <= toleranceEliminator / 2.0) &&
+                                //  moreElimination)
+                                if ((distanceToBound_j_i < toleranceEliminator && distanceToBound_j_i >= 0))
                                 {
                                     LLint index_i_overall = IndexTran_Instance2Overall(i, instance_i, sizeOfVariables);
-                                    LLint index_j_overall = IndexTran_Instance2Overall(j, instance_j, sizeOfVariables);
 
                                     // since we go over all the pairs, we only need to check j in each pair (i, j)
-                                    if (not maskForEliminate[index_j_overall])
+                                    if (not maskForEliminate_addMap[index_j_overall])
                                     // this if condition is posed to avoid repeated elimination, and avoid conflicting elimination
                                     // because one variable j can only depend on one single variable i;
                                     {
@@ -269,7 +276,7 @@ namespace DAG_SPACE
                                         if (CheckNoConflictionTree(tree_i, tree_j, startTimeVector))
                                         // if (true)
                                         {
-                                            maskForEliminate[index_j_overall] = true;
+                                            maskForEliminate_addMap[index_j_overall] = true;
                                             whetherEliminate = true;
                                             // this should respect original relationship
                                             if (tightEliminate == 1)
@@ -534,7 +541,7 @@ namespace DAG_SPACE
                         {
                             for (int j = 0; j < mOfJacobian; j++)
                             {
-                                jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaOptimizer;
+                                jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaInIteration;
                             }
                             break;
                         }

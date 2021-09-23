@@ -143,6 +143,29 @@ TEST(GenerateInitialForDAG, V2)
     expected << 6, 107, 5, 3, 104, 2, 0, 101;
     assert_equal(expected, actual);
 }
+TEST(GenerateInitialForDAG, V3)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v22.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto actual = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic expected;
+    expected.resize(9, 1);
+    expected << 7, 108, 6, 4, 105, 2, 103, 0, 101;
+    assert_equal(expected, actual);
+}
 
 TEST(sensorFusion, v1)
 {
@@ -829,6 +852,100 @@ TEST(NumericalDerivativeDynamicUpperDBF, v1)
     AssertEigenEqualMatrix(jacob_expect, jacob_actual);
 }
 
+TEST(ExtractVariable, v1)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto initialSTV = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    initialSTV << 3, 107, 5, 3, 104, 2, 0, 102;
+    AssertEqualScalar(3, ExtractVariable(initialSTV, sizeOfVariables, 0, 0));
+    AssertEqualScalar(107, ExtractVariable(initialSTV, sizeOfVariables, 0, 1));
+    AssertEqualScalar(5, ExtractVariable(initialSTV, sizeOfVariables, 1, 0));
+    AssertEqualScalar(3, ExtractVariable(initialSTV, sizeOfVariables, 2, 0));
+    AssertEqualScalar(104, ExtractVariable(initialSTV, sizeOfVariables, 2, 1));
+    AssertEqualScalar(2, ExtractVariable(initialSTV, sizeOfVariables, 3, 0));
+    AssertEqualScalar(0, ExtractVariable(initialSTV, sizeOfVariables, 4, 0));
+    AssertEqualScalar(102, ExtractVariable(initialSTV, sizeOfVariables, 4, 1));
+}
+
+TEST(ExtractVariable, v2)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v20.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto initialSTV = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    initialSTV << 3, 107, 5, 3, 104;
+    AssertEqualScalar(3, ExtractVariable(initialSTV, sizeOfVariables, 0, 0));
+    AssertEqualScalar(107, ExtractVariable(initialSTV, sizeOfVariables, 1, 0));
+    AssertEqualScalar(5, ExtractVariable(initialSTV, sizeOfVariables, 2, 0));
+    AssertEqualScalar(3, ExtractVariable(initialSTV, sizeOfVariables, 3, 0));
+    AssertEqualScalar(104, ExtractVariable(initialSTV, sizeOfVariables, 4, 0));
+}
+TEST(Prior_factor, v1)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+
+    Symbol key('a', 0);
+    LLint errorDimensionPrior = 1;
+    vector<int> order = FindDependencyOrder(dagTasks);
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionPrior, noiseModelSigma);
+
+    Prior_ConstraintFactor factor(key, dagTasks.tasks, sizeOfVariables,
+                                  errorDimensionPrior, mapIndex,
+                                  maskForEliminate, 0.0, order[0], model);
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(8, 1);
+    startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
+    AssertEqualScalar(0, factor.f(startTimeVector)(0, 0));
+    startTimeVector << 6, 107, 5, 3, 104, 2, 10, 101;
+    AssertEqualScalar(10 * weightPrior_factor, factor.f(startTimeVector)(0, 0));
+}
+
 TEST(DAG_Optimize_schedule, v1)
 {
     using namespace DAG_SPACE;
@@ -839,6 +956,46 @@ TEST(DAG_Optimize_schedule, v1)
     VectorDynamic res = sth.second;
 
     cout << "The result after optimization is " << Color::green << success << Color::blue << res << Color::def << endl;
+}
+
+TEST(NumericalDerivativeDynamicUpperDBF, v2)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v22.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto initialSTV = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    initialSTV << 30.1636, 129.772, 40.7072, 0.008139, 105, 27.9779, 100, 3.072, 103.393;
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+
+    Symbol key('a', 0);
+    LLint errorDimensionDBF = 1;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
+                                mapIndex, maskForEliminate, model);
+
+    MatrixDynamic jacob_actual = factor.NumericalDerivativeDynamicUpperDBF(factor.f, initialSTV, deltaOptimizer, errorDimensionDBF);
+    cout << jacob_actual << endl;
+    // MatrixDynamic jacob_expect;
+    // jacob_expect.resize(1, 8);
+    // // if all the vanishing gradient is considered:
+    // //  jacob_expect << 1.5, -2, -4, -1, 0.5, 0, 3.5, 1.5;
+    // jacob_expect << 1.5, -2, -4, -1, 0.5, 0.5, 3, 1.5;
+    // AssertEigenEqualMatrix(jacob_expect, jacob_actual);
 }
 
 // TEST(graphError, v1)

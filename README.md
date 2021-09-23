@@ -7,5 +7,11 @@
 
 
 test todo:
-FindVanishIndex
-FindLeaf
+
+What's elimination condition?
+advanced initialization
+figure more about termination condition
+- * interval cover occurs at later stages *
+---> solution: do not initialize with big overlap error
+
+For 22 test case, we hope to make the optimizer 'behave' based on DBF Jacobian matrix

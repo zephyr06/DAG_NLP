@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
         .help("the minimum period of tasks in DAG")
         .scan<'i', int>();
     program.add_argument("--periodMax")
-        .default_value(1000)
+        .default_value(500)
         .help("the maximum period of tasks in DAG")
         .scan<'i', int>();
     program.add_argument("--taskType")
@@ -58,12 +58,12 @@ int main(int argc, char *argv[])
     int periodMax = program.get<int>("--periodMax");
     int taskType = program.get<int>("--taskType");
     cout << "Task configuration: " << endl
-         << "Task number: " << N << endl
-         << "DAG_taskSetNumber: " << DAG_taskSetNumber << endl
-         << "totalUtilization: " << totalUtilization << endl
-         << "numberOfProcessor: " << numberOfProcessor << endl
-         << "periodMin: " << periodMin << endl
-         << "periodMax: " << periodMax << endl
+         << "the number of tasks in DAG(--N): " << N << endl
+         << "DAG_taskSetNumber(--taskSetNumber): " << DAG_taskSetNumber << endl
+         << "totalUtilization(--totalUtilization): " << totalUtilization << endl
+         << "NumberOfProcessor(--NumberOfProcessor): " << numberOfProcessor << endl
+         << "periodMin(--periodMin): " << periodMin << endl
+         << "periodMax(--periodMax): " << periodMax << endl
          << endl;
 
     string outDirectory = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks/";

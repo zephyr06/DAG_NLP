@@ -155,6 +155,12 @@ void FindSubTree(Graph &g, vector<LLint> &subTreeIndex, Vertex v)
 //     }
 // }
 
+/**
+ * @brief 
+ * 
+ * @param dagTasks 
+ * @return vector<int> execution order of task index, first task first
+ */
 vector<int> FindDependencyOrder(DAG_SPACE::DAG_Model dagTasks)
 {
 
