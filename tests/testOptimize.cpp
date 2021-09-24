@@ -946,18 +946,6 @@ TEST(Prior_factor, v1)
     AssertEqualScalar(10 * weightPrior_factor, factor.f(startTimeVector)(0, 0));
 }
 
-TEST(DAG_Optimize_schedule, v1)
-{
-    using namespace DAG_SPACE;
-    DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
-
-    auto sth = OptimizeScheduling(tasks);
-    double success = sth.first;
-    VectorDynamic res = sth.second;
-
-    cout << "The result after optimization is " << Color::green << success << Color::blue << res << Color::def << endl;
-}
-
 // TODO: not done yet
 TEST(NumericalDerivativeDynamicUpperDBF, v2)
 {
@@ -1021,17 +1009,18 @@ TEST(GenerateInitialForDAG_RelativeStart, v1)
     expected << 50, 150, 39, 27, 127, 14, 0, 100;
     assert_equal(expected, actual);
 }
-// TEST(graphError, v1)
-// {
-//     using namespace DAG_SPACE;
-//     DAG_Model tasks = ReadDAG_Tasks("../TaskData/test_n5_v14.csv", "orig");
-//     VectorDynamic init;
-//     init.resize(5, 1);
-//     init << -12.6972, 64.0853, 84.8531, 114.945, 220.221;
-//     cout << "test graphErrorEvaluation: " << GraphErrorEvaluation(tasks, init) << endl;
 
-//     cout << "test graphErrorEvaluation2: " << GraphErrorEvaluation(tasks, GenerateInitialForDAG(tasks, "orig")) << endl;
-// }
+TEST(DAG_Optimize_schedule, v1)
+{
+    using namespace DAG_SPACE;
+    DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
+
+    auto sth = OptimizeScheduling(tasks);
+    double success = sth.first;
+    VectorDynamic res = sth.second;
+
+    cout << "The result after optimization is " << Color::green << success << Color::blue << res << Color::def << endl;
+}
 
 int main()
 {

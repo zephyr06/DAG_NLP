@@ -25,7 +25,7 @@ zeroJacobianDetectTol: 1e-7
 maxIterations: 1000
 moreElimination: 0
 weightPrior_factor: 0
-
+initializeMethod: 1
 maxJacobianIteration: 15
 
 relativeErrorTolerance: 1e-7
@@ -33,7 +33,7 @@ runMode: compare
 SA_iteration: 100000
 sensorFusionTolerance: 200000
 temperatureSA: 100000000
-testDataSetName: test_n5_v22
+testDataSetName: test_n5_v8
 tightEliminate: 0
 toleranceEliminator: 1
 upperLambda: 1e60

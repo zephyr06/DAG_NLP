@@ -3,9 +3,29 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <opencv2/core/core.hpp>
+#include "testMy.h"
 cv::FileStorage ConfigParameters("/home/zephyr/Programming/DAG_NLP/sources/parameters.yaml", cv::FileStorage::READ);
 using namespace std;
-
+enum InitializeMethod
+{
+    IndexMode,
+    FixedRelativeStart,
+    RM
+};
+InitializeMethod Transform_enum(int a)
+{
+    if (a == 0)
+        return IndexMode;
+    else if (a == 1)
+        return FixedRelativeStart;
+    else if (a == 2)
+        return RM;
+    else
+    {
+        CoutError("Not recognized enum InitializeMethod\n");
+        return IndexMode;
+    }
+}
 const double barrierBase = (double)ConfigParameters["barrierBase"];
 const double coolingRateSA = (double)ConfigParameters["coolingRateSA"];
 const double deltaInitialDogleg = (double)ConfigParameters["deltaInitialDogleg"];
@@ -24,7 +44,7 @@ const double weightLogBarrier = (double)ConfigParameters["weightLogBarrier"];
 const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetectTol"];
 const int moreElimination = (int)ConfigParameters["moreElimination"];
 const int setUseFixedLambdaFactor = (int)ConfigParameters["setUseFixedLambdaFactor"];
-
+const InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initializeMethod"]);
 const double weightPrior_factor = (double)ConfigParameters["weightPrior_factor"];
 const double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"];
 int debugMode = (int)ConfigParameters["debugMode"];

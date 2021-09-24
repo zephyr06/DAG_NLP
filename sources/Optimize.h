@@ -69,7 +69,9 @@ namespace DAG_SPACE
         // cout << "Initial estimate is " << initial << endl;
         return initial;
     }
-    VectorDynamic GenerateInitialForDAG_RelativeStart(DAG_Model &dagTasks, vector<LLint> &sizeOfVariables, int variableDimension)
+    VectorDynamic GenerateInitialForDAG_RelativeStart(DAG_Model &dagTasks,
+                                                      vector<LLint> &sizeOfVariables,
+                                                      int variableDimension)
     {
         int N = dagTasks.tasks.size();
         TaskSet &tasks = dagTasks.tasks;
@@ -379,6 +381,31 @@ namespace DAG_SPACE
         return make_pair(optComp, graph);
     }
 
+    VectorDynamic GenerateInitial(DAG_Model &dagTasks,
+                                  vector<LLint> &sizeOfVariables,
+                                  int variableDimension)
+    {
+        InitializeMethod _initializeMethod = initializeMethod;
+        VectorDynamic initialEstimate;
+        switch (_initializeMethod)
+        {
+        case IndexMode:
+            initialEstimate = GenerateInitialForDAG(dagTasks,
+                                                    sizeOfVariables, variableDimension);
+            break;
+        case FixedRelativeStart:
+            initialEstimate = GenerateInitialForDAG_RelativeStart(dagTasks,
+                                                                  sizeOfVariables,
+                                                                  variableDimension);
+            break;
+        default:
+            initialEstimate = GenerateInitialForDAG_RelativeStart(dagTasks,
+                                                                  sizeOfVariables,
+                                                                  variableDimension);
+        }
+        return initialEstimate;
+    }
+
     /**
      * @brief Perform scheduling based on optimization
      * 
@@ -400,7 +427,9 @@ namespace DAG_SPACE
             sizeOfVariables.push_back(size);
             variableDimension += size;
         }
-        VectorDynamic initialEstimate = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+
+        VectorDynamic initialEstimate = GenerateInitial(dagTasks,
+                                                        sizeOfVariables, variableDimension);
 
         MAP_Index2Data mapIndex;
         for (LLint i = 0; i < variableDimension; i++)
@@ -473,7 +502,7 @@ namespace DAG_SPACE
             }
         }
 
-        initialEstimate = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+        initialEstimate = GenerateInitial(dagTasks, sizeOfVariables, variableDimension);
         cout << Color::blue << "The error before optimization is "
              << GraphErrorEvaluation(dagTasks, initialEstimate) << Color::def << endl;
         double finalError = GraphErrorEvaluation(dagTasks, trueResult);
