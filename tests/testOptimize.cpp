@@ -958,6 +958,7 @@ TEST(DAG_Optimize_schedule, v1)
     cout << "The result after optimization is " << Color::green << success << Color::blue << res << Color::def << endl;
 }
 
+// TODO: not done yet
 TEST(NumericalDerivativeDynamicUpperDBF, v2)
 {
     using namespace DAG_SPACE;
@@ -989,7 +990,7 @@ TEST(NumericalDerivativeDynamicUpperDBF, v2)
                                 mapIndex, maskForEliminate, model);
 
     MatrixDynamic jacob_actual = factor.NumericalDerivativeDynamicUpperDBF(factor.f, initialSTV, deltaOptimizer, errorDimensionDBF);
-    cout << jacob_actual << endl;
+    // cout << jacob_actual << endl;
     // MatrixDynamic jacob_expect;
     // jacob_expect.resize(1, 8);
     // // if all the vanishing gradient is considered:
@@ -997,7 +998,29 @@ TEST(NumericalDerivativeDynamicUpperDBF, v2)
     // jacob_expect << 1.5, -2, -4, -1, 0.5, 0.5, 3, 1.5;
     // AssertEigenEqualMatrix(jacob_expect, jacob_actual);
 }
+TEST(GenerateInitialForDAG_RelativeStart, v1)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
 
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto actual = GenerateInitialForDAG_RelativeStart(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic expected;
+    expected.resize(8, 1);
+    expected << 50, 150, 39, 27, 127, 14, 0, 100;
+    assert_equal(expected, actual);
+}
 // TEST(graphError, v1)
 // {
 //     using namespace DAG_SPACE;

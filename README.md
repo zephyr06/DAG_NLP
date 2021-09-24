@@ -15,3 +15,7 @@ figure more about termination condition
 ---> solution: do not initialize with big overlap error
 
 For 22 test case, we hope to make the optimizer 'behave' based on DBF Jacobian matrix
+Q: why doesn't DBF Jacobian guide the optimization?
+
+# IDEA
+- DIVIDE the solution space appropriately, like cliques in bayes tree
