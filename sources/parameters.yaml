@@ -27,7 +27,7 @@ moreElimination: 0
 weightPrior_factor: 0
 initializeMethod: 1
 maxJacobianIteration: 15
-
+priorityMode: RM
 relativeErrorTolerance: 1e-7
 runMode: compare
 SA_iteration: 100000

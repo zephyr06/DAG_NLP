@@ -137,7 +137,7 @@ TEST(GenerateInitialForDAG, V2)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto actual = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    auto actual = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
     VectorDynamic expected;
     expected.resize(8, 1);
     expected << 6, 107, 5, 3, 104, 2, 0, 101;
@@ -160,7 +160,7 @@ TEST(GenerateInitialForDAG, V3)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto actual = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    auto actual = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
     VectorDynamic expected;
     expected.resize(9, 1);
     expected << 7, 108, 6, 4, 105, 2, 103, 0, 101;
@@ -258,7 +258,7 @@ TEST(sensorFusion, v2)
                                          errorDimensionSF, sensorFusionTolerance,
                                          mapIndex, maskForEliminate,
                                          model);
-    VectorDynamic initialEstimate = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic initialEstimate = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
     // cout << initialEstimate << endl;
 
     VectorDynamic initial;
@@ -624,7 +624,7 @@ TEST(CheckEliminationTreeConflict, v1)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto initialSTV = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    auto initialSTV = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
 
     vector<LLint> tree1 = {2, 3, 5, 0, 1};
     vector<LLint> tree2 = {6, 7};
@@ -726,7 +726,7 @@ TEST(FindLeaf, V1)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto initialSTV = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    auto initialSTV = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
     initialSTV << 3, 107, 5, 3, 104, 2, 0, 102;
     vector<bool> maskForEliminate(variableDimension, false);
     MAP_Index2Data mapIndex;
@@ -758,7 +758,7 @@ TEST(FindVanishIndex, v1)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto initialSTV = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    auto initialSTV = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
     initialSTV << 3, 107, 5, 3, 104, 2, 0, 102;
     vector<bool> maskForEliminate(variableDimension, false);
     MAP_Index2Data mapIndex;
@@ -830,7 +830,7 @@ TEST(NumericalDerivativeDynamicUpperDBF, v1)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto initialSTV = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    auto initialSTV = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
     initialSTV << 3, 107, 5, 3, 104, 2, 0, 102;
     vector<bool> maskForEliminate(variableDimension, false);
     MAP_Index2Data mapIndex;
@@ -869,7 +869,7 @@ TEST(ExtractVariable, v1)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto initialSTV = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    auto initialSTV = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
     initialSTV << 3, 107, 5, 3, 104, 2, 0, 102;
     AssertEqualScalar(3, ExtractVariable(initialSTV, sizeOfVariables, 0, 0));
     AssertEqualScalar(107, ExtractVariable(initialSTV, sizeOfVariables, 0, 1));
@@ -898,7 +898,7 @@ TEST(ExtractVariable, v2)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto initialSTV = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    auto initialSTV = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
     initialSTV << 3, 107, 5, 3, 104;
     AssertEqualScalar(3, ExtractVariable(initialSTV, sizeOfVariables, 0, 0));
     AssertEqualScalar(107, ExtractVariable(initialSTV, sizeOfVariables, 1, 0));
@@ -964,7 +964,7 @@ TEST(NumericalDerivativeDynamicUpperDBF, v2)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto initialSTV = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    auto initialSTV = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
     initialSTV << 30.1636, 129.772, 40.7072, 0.008139, 105, 27.9779, 100, 3.072, 103.393;
     vector<bool> maskForEliminate(variableDimension, false);
     MAP_Index2Data mapIndex;
@@ -1010,17 +1010,117 @@ TEST(GenerateInitialForDAG_RelativeStart, v1)
     assert_equal(expected, actual);
 }
 
-TEST(DAG_Optimize_schedule, v1)
+TEST(RunQueue, V1)
 {
     using namespace DAG_SPACE;
-    DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v10.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
 
-    auto sth = OptimizeScheduling(tasks);
-    double success = sth.first;
-    VectorDynamic res = sth.second;
+    Task tasknew = tasks[4];
+    tasknew.period = 600;
+    tasknew.id = 5;
+    tasks.push_back(tasknew);
 
-    cout << "The result after optimization is " << Color::green << success << Color::blue << res << Color::def << endl;
+    RunQueue q(tasks);
+    q.insert({0, 0});
+    q.insert({1, 0});
+    AssertEqualScalar(0, q.front());
+    q.insert({5, 0});
+    AssertEqualScalar(5, q.taskQueue.back().first);
+    q.erase(0);
+    AssertEqualScalar(1, q.front());
+    q.erase(1);
+    AssertEqualScalar(5, q.front());
+
+    q.insert({4, 0});
+    q.insert({2, 0});
+    q.insert({3, 0});
+    q.insert({1, 0});
+    q.insert({0, 0});
+    if (q.front() != 0 && q.front() != 4)
+        CoutError("Front test failed!");
 }
+TEST(GenerateInitialForDAG_RM, v1)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v14.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto initial = GenerateInitialForDAG_RM(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic expected;
+    expected.resize(5, 1);
+    // order from DAG dependency : 4,3,2,1,0
+    expected << 21, 13, 12, 8, 0;
+    assert_equal(expected, initial);
+}
+TEST(GenerateInitialForDAG_RM, v2)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v23.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto initial = GenerateInitialForDAG_RM(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic expected;
+    expected.resize(6, 1);
+    // order from DAG dependency : 4,3,2,1,0
+    expected << 21, 13, 12, 100, 8, 0;
+    assert_equal(expected, initial);
+}
+TEST(GenerateInitialForDAG_RM, v3)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto initial = GenerateInitialForDAG_RM(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic expected;
+    expected.resize(8, 1);
+    // order from DAG dependency : 4,3,2,1,0
+    // detection order at 100: 2,4,0
+    expected << 50, 126, 39, 27, 100, 14, 0, 112;
+    assert_equal(expected, initial);
+}
+// TEST(DAG_Optimize_schedule, v1)
+// {
+//     using namespace DAG_SPACE;
+//     DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
+
+//     auto sth = OptimizeScheduling(tasks);
+//     double success = sth.first;
+//     VectorDynamic res = sth.second;
+
+//     cout << "The result after optimization is " << Color::green << success << Color::blue << res << Color::def << endl;
+// }
 
 int main()
 {

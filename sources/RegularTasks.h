@@ -13,6 +13,7 @@
 
 #include "Parameters.h"
 #include "DeclareDAG.h"
+#include "testMy.h"
 using namespace std;
 
 #define TaskSet vector<RegularTaskSystem::Task>
@@ -49,7 +50,21 @@ namespace RegularTaskSystem
                                                       overhead(overhead), executionTime(executionTime),
                                                       deadline(deadline), id(id),
                                                       processorId(processorId) {}
-
+        double priority()
+        {
+            if (priorityMode == "RM")
+            {
+                if (period > 0)
+                    return 1.0 / period;
+                else
+                    CoutError("Period parameter less or equal to 0!");
+            }
+            else if (priorityMode == "orig")
+                return id;
+            else
+                CoutError("Priority settings not recognized!");
+            return -1;
+        }
         /**
  * only used in ReadTaskSet because the input parameter's type is int
  **/

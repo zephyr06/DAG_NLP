@@ -11,6 +11,7 @@
 #include "SensorFusionFactor.h"
 #include "PriorFactor.h"
 #include "GraphUtilsFromBGL.h"
+#include "InitialEstimate.h"
 #include "colormod.h"
 
 using namespace RegularTaskSystem;
@@ -20,100 +21,6 @@ using namespace RegularTaskSystem;
 
 namespace DAG_SPACE
 {
-    /**
-     * @brief Generate initial solution for the whole optimization
-     * 
-     * @param tasks 
-     * @param sizeOfVariables 
-     * @return VectorDynamic size (N+1), first N is start time for nodes, the last one is r.h.s.
-     */
-    VectorDynamic GenerateInitialForDAG(DAG_Model &dagTasks, vector<LLint> &sizeOfVariables, int variableDimension)
-    {
-        int N = dagTasks.tasks.size();
-        TaskSet &tasks = dagTasks.tasks;
-        vector<int> order = FindDependencyOrder(dagTasks);
-        VectorDynamic initial = GenerateVectorDynamic(variableDimension);
-
-        vector<double> executionTimeVec = GetParameter<double>(tasks, "executionTime");
-
-        // m maps from tasks index to startTimeVector index
-        std::unordered_map<int, LLint> m;
-        LLint sumVariableNum = 0;
-        for (int i = 0; i < N; i++)
-        {
-            m[i] = sumVariableNum;
-            sumVariableNum += sizeOfVariables[i];
-        }
-
-        LLint index = 0;
-        LLint currTime = 0;
-        // schedule first instance for each DAG
-
-        //
-
-        for (int i = 0; i < N; i++)
-        {
-            int currTaskIndex = order[i];
-            for (int j = 0; j < sizeOfVariables[currTaskIndex]; j++)
-            {
-                initial(m[currTaskIndex] + j, 0) = j * tasks[currTaskIndex].period + index++;
-            }
-        }
-        // initial(N, 0) *= 1;
-        // initial << 1, 101, 202, 303, 4, 5, 206, 50, 258, 67;
-        // initial << 0, 9, 17, 19, 25;
-        // initial << 1, 5, 2, 3, 0;
-        // initial << 4, 3, 2, 1, 0;
-        // initial << 6, 2.5, 2, 0.5, 0;
-        // initial << 1, 100, 0, 0, 0, 0;
-        // cout << "Initial estimate is " << initial << endl;
-        return initial;
-    }
-    VectorDynamic GenerateInitialForDAG_RelativeStart(DAG_Model &dagTasks,
-                                                      vector<LLint> &sizeOfVariables,
-                                                      int variableDimension)
-    {
-        int N = dagTasks.tasks.size();
-        TaskSet &tasks = dagTasks.tasks;
-        vector<int> order = FindDependencyOrder(dagTasks);
-        VectorDynamic initial = GenerateVectorDynamic(variableDimension);
-
-        vector<double> executionTimeVec = GetParameter<double>(tasks, "executionTime");
-
-        // m maps from tasks index to startTimeVector index
-        std::unordered_map<int, LLint> m;
-        LLint sumVariableNum = 0;
-        for (int i = 0; i < N; i++)
-        {
-            m[i] = sumVariableNum;
-            sumVariableNum += sizeOfVariables[i];
-        }
-
-        LLint index = 0;
-        LLint currTime = 0;
-        vector<int> relativeStart;
-        relativeStart.reserve(N);
-        // schedule first instance for each DAG
-        for (int i = 0; i < N; i++)
-        {
-            int currTaskIndex = order[i];
-
-            for (int j = 0; j < sizeOfVariables[currTaskIndex]; j++)
-            {
-                initial(m[currTaskIndex] + j, 0) = j * tasks[currTaskIndex].period + currTime;
-            }
-            currTime += tasks[currTaskIndex].executionTime;
-        }
-        // initial(N, 0) *= 1;
-        // initial << 1, 101, 202, 303, 4, 5, 206, 50, 258, 67;
-        // initial << 0, 9, 17, 19, 25;
-        // initial << 1, 5, 2, 3, 0;
-        // initial << 4, 3, 2, 1, 0;
-        // initial << 6, 2.5, 2, 0.5, 0;
-        // initial << 1, 100, 0, 0, 0, 0;
-        // cout << "Initial estimate is " << initial << endl;
-        return initial;
-    }
 
     LLint CountSFError(DAG_Model &dagTasks, vector<LLint> &sizeOfVariables)
     {
@@ -390,8 +297,8 @@ namespace DAG_SPACE
         switch (_initializeMethod)
         {
         case IndexMode:
-            initialEstimate = GenerateInitialForDAG(dagTasks,
-                                                    sizeOfVariables, variableDimension);
+            initialEstimate = GenerateInitialForDAG_IndexMode(dagTasks,
+                                                              sizeOfVariables, variableDimension);
             break;
         case FixedRelativeStart:
             initialEstimate = GenerateInitialForDAG_RelativeStart(dagTasks,

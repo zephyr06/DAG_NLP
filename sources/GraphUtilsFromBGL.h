@@ -48,7 +48,7 @@ pair<Graph, indexVertexMap> EstablishGraphStartTimeVector(DAG_SPACE::DAG_Model &
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    // auto actual = GenerateInitialForDAG(dagTasks, sizeOfVariables, variableDimension);
+    // auto actual = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
 
     Graph g;
 
