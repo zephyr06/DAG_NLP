@@ -250,4 +250,38 @@ namespace DAG_SPACE
 
         return initial;
     }
+
+    /**
+     * @brief Generate initial estimate based on provided options'
+     * param: initializeMethod: global parameter passed implicitly
+     * 
+     * @param dagTasks 
+     * @param sizeOfVariables 
+     * @param variableDimension 
+     * @return VectorDynamic 
+     */
+    VectorDynamic GenerateInitial(DAG_Model &dagTasks,
+                                  vector<LLint> &sizeOfVariables,
+                                  int variableDimension)
+    {
+        InitializeMethod _initializeMethod = initializeMethod;
+        VectorDynamic initialEstimate;
+        switch (_initializeMethod)
+        {
+        case IndexMode:
+            initialEstimate = GenerateInitialForDAG_IndexMode(dagTasks,
+                                                              sizeOfVariables, variableDimension);
+            break;
+        case FixedRelativeStart:
+            initialEstimate = GenerateInitialForDAG_RelativeStart(dagTasks,
+                                                                  sizeOfVariables,
+                                                                  variableDimension);
+            break;
+        default:
+            initialEstimate = GenerateInitialForDAG_RM(dagTasks,
+                                                       sizeOfVariables,
+                                                       variableDimension);
+        }
+        return initialEstimate;
+    }
 }

@@ -288,31 +288,6 @@ namespace DAG_SPACE
         return make_pair(optComp, graph);
     }
 
-    VectorDynamic GenerateInitial(DAG_Model &dagTasks,
-                                  vector<LLint> &sizeOfVariables,
-                                  int variableDimension)
-    {
-        InitializeMethod _initializeMethod = initializeMethod;
-        VectorDynamic initialEstimate;
-        switch (_initializeMethod)
-        {
-        case IndexMode:
-            initialEstimate = GenerateInitialForDAG_IndexMode(dagTasks,
-                                                              sizeOfVariables, variableDimension);
-            break;
-        case FixedRelativeStart:
-            initialEstimate = GenerateInitialForDAG_RelativeStart(dagTasks,
-                                                                  sizeOfVariables,
-                                                                  variableDimension);
-            break;
-        default:
-            initialEstimate = GenerateInitialForDAG_RelativeStart(dagTasks,
-                                                                  sizeOfVariables,
-                                                                  variableDimension);
-        }
-        return initialEstimate;
-    }
-
     /**
      * @brief Perform scheduling based on optimization
      * 
