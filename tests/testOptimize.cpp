@@ -1110,16 +1110,54 @@ TEST(GenerateInitialForDAG_RM, v3)
     expected << 50, 126, 39, 27, 100, 14, 0, 112;
     assert_equal(expected, initial);
 }
+TEST(GenerateInitialForDAG_RM, vDDL)
+{
+    using namespace DAG_SPACE;
+    DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v16.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+
+    Symbol key('a', 0);
+    LLint errorDimensionDDL = 2 * variableDimension;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
+    DDL_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDDL,
+                                mapIndex, maskForEliminate, model);
+    InitializeMethod sth = initializeMethod;
+    initializeMethod = RM;
+    VectorDynamic startTimeVector = GenerateInitial(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic dbfExpect = GenerateVectorDynamic(2 * variableDimension);
+    VectorDynamic dbfActual = factor.f(startTimeVector);
+    assert_equal(dbfExpect, dbfActual);
+    initializeMethod = sth;
+}
 TEST(DAG_Optimize_schedule, v1)
 {
     using namespace DAG_SPACE;
     DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
 
     auto sth = OptimizeScheduling(tasks);
-    double success = sth.first;
-    VectorDynamic res = sth.second;
 
-    cout << "The result after optimization is " << Color::green << success << Color::blue << res << Color::def << endl;
+    VectorDynamic res = sth.optimizeVariable;
+
+    cout << "The result after optimization is " << Color::green << sth.optimizeError
+         << Color::blue << res << Color::def << endl;
 }
 
 int main()

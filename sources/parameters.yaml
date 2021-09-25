@@ -4,7 +4,7 @@
 
 barrierBase: 100
 coolingRateSA: 0.99
-debugMode: 2
+debugMode: 0
 deltaInitialDogleg: 1e5
 weightDDL_factor: 1.0
 deltaOptimizer: 1e-1
@@ -39,3 +39,4 @@ toleranceEliminator: 1
 upperLambda: 1e60
 weightLogBarrier: -1.0
 setUseFixedLambdaFactor: 1
+batchTestMethod: 1 # 1 means NLP, 2 means SA, 0 means initial

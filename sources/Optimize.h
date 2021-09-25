@@ -288,13 +288,54 @@ namespace DAG_SPACE
         return make_pair(optComp, graph);
     }
 
+    struct OptimizeResult
+    {
+        double initialError;
+        double optimizeError;
+        VectorDynamic initialVariable;
+        VectorDynamic optimizeVariable;
+        OptimizeResult() : initialError(-1), optimizeError(-1)
+        {
+            ;
+        }
+        OptimizeResult(double ie, double oe, VectorDynamic iv, VectorDynamic ov) : initialError(ie), optimizeError(oe), initialVariable(iv), optimizeVariable(ov) {}
+    };
+
+    /**
+     * @brief this function schedules task sets based on initial estimate, 
+     * as a baseline evaluation
+     * 
+     * @param dagTasks 
+     * @return OptimizeResult 
+     */
+    OptimizeResult InitialScheduling(DAG_Model &dagTasks)
+    {
+        TaskSet tasks = dagTasks.tasks;
+        int N = tasks.size();
+        LLint hyperPeriod = HyperPeriod(tasks);
+
+        // declare variables
+        vector<LLint> sizeOfVariables;
+        int variableDimension = 0;
+        for (int i = 0; i < N; i++)
+        {
+            LLint size = hyperPeriod / tasks[i].period;
+            sizeOfVariables.push_back(size);
+            variableDimension += size;
+        }
+
+        VectorDynamic initialEstimate = GenerateInitial(dagTasks,
+                                                        sizeOfVariables, variableDimension);
+        double errorInitial = GraphErrorEvaluation(dagTasks, initialEstimate);
+        return {errorInitial, errorInitial, initialEstimate, initialEstimate};
+    }
     /**
      * @brief Perform scheduling based on optimization
      * 
      * @param tasks 
      * @return VectorDynamic all the task instances' start time
      */
-    pair<double, VectorDynamic> OptimizeScheduling(DAG_Model &dagTasks)
+    OptimizeResult OptimizeScheduling(DAG_Model &dagTasks)
     {
         TaskSet tasks = dagTasks.tasks;
         int N = tasks.size();
@@ -385,10 +426,12 @@ namespace DAG_SPACE
         }
 
         initialEstimate = GenerateInitial(dagTasks, sizeOfVariables, variableDimension);
+        double errorInitial = GraphErrorEvaluation(dagTasks, initialEstimate);
+
         cout << Color::blue << "The error before optimization is "
-             << GraphErrorEvaluation(dagTasks, initialEstimate) << Color::def << endl;
+             << errorInitial << Color::def << endl;
         double finalError = GraphErrorEvaluation(dagTasks, trueResult);
         cout << Color::blue << "The error after optimization is " << finalError << Color::def << endl;
-        return make_pair(finalError, trueResult);
+        return {errorInitial, finalError, initialEstimate, trueResult};
     }
 }

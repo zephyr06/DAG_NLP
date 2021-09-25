@@ -17,5 +17,11 @@ figure more about termination condition
 For 22 test case, we hope to make the optimizer 'behave' based on DBF Jacobian matrix
 Q: why doesn't DBF Jacobian guide the optimization?
 
+# Recent results:
+RM-NLP: 179 failed
+RM-SA: 228 failed
+RM-Init: 228 failed
+
+
 # IDEA
 - DIVIDE the solution space appropriately, like cliques in bayes tree
