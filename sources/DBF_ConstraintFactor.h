@@ -157,7 +157,7 @@ namespace DAG_SPACE
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {
-                    auto sth = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
+                    auto sth = NumericalDerivativeDynamicUpperDBF(f, startTimeVector, deltaOptimizer, errorDimension);
                     cout << "The Jacobian matrix of DBF_ConstraintFactor is " << endl
                          << sth << endl;
                     cout << Color::green << "The input startTimeVector of DBF is " << startTimeVector << Color::def << endl;

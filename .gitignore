@@ -6,4 +6,8 @@ tests/__pycache__
 TaskData/periodic-set-*
 TaskData/*/periodic-set-*
 TaskData/dagTasks/*
+CompareWithBaseline/data_buffer_energy_task_number.txt
+CompareWithBaseline/time_task_number.txt
+Visualize/currGraph.gv.pdf
+Visualize/currGraph.gv
 .vscode
