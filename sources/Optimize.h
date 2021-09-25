@@ -284,7 +284,8 @@ namespace DAG_SPACE
         }
 
         VectorDynamic optComp = result.at<VectorDynamic>(key);
-        cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
+        if (debugMode)
+            cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
         return make_pair(optComp, graph);
     }
 
