@@ -113,6 +113,7 @@ void BatchOptimize()
     outfile2 << aveTime << endl;
     if (debugMode == 1)
         cout << endl;
+    cout << "Files that failed during optimization:\n";
     for (auto &file : errorFiles)
         cout << file << endl;
 

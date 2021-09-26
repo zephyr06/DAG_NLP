@@ -207,7 +207,8 @@ TEST(sensorFusion, v1)
     VectorDynamic initial;
     initial.resize(5, 1);
     initial << 2, 1, 0, 3, 4;
-
+    auto sthh = withAddedSensorFusionError;
+    withAddedSensorFusionError = 1;
     double defaultSF = sensorFusionTolerance;
     sensorFusionTolerance = 2;
     auto sth = factor.evaluateError(initial);
@@ -219,13 +220,15 @@ TEST(sensorFusion, v1)
     AssertEqualScalar(8, sth(0, 0));
 
     sensorFusionTolerance = defaultSF;
+    withAddedSensorFusionError = sthh;
 }
 
 TEST(sensorFusion, v2)
 {
     using namespace DAG_SPACE;
     using namespace RegularTaskSystem;
-
+    auto sthh = withAddedSensorFusionError;
+    withAddedSensorFusionError = 1;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
@@ -286,6 +289,7 @@ TEST(sensorFusion, v2)
     AssertEqualScalar(2, sth(1, 0));  // Node 0
     AssertEqualScalar(10, sth(2, 0)); // Node 1
     sensorFusionTolerance = defaultSF;
+    withAddedSensorFusionError = sthh;
 }
 
 TEST(testDBF, v1)

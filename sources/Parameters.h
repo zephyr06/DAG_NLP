@@ -42,6 +42,8 @@ const double toleranceEliminator = (double)ConfigParameters["toleranceEliminator
 const double upperLambda = (double)ConfigParameters["upperLambda"];
 const double weightLogBarrier = (double)ConfigParameters["weightLogBarrier"];
 const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetectTol"];
+const double FreshTol = (double)ConfigParameters["FreshTol"];
+
 const int moreElimination = (int)ConfigParameters["moreElimination"];
 const int ElimnateLoop_Max = (int)ConfigParameters["ElimnateLoop_Max"];
 
@@ -58,7 +60,7 @@ const int randomInitialize = (int)ConfigParameters["randomInitialize"];
 const int SA_iteration = (int)ConfigParameters["SA_iteration"];
 const int temperatureSA = (int)ConfigParameters["temperatureSA"];
 const int tightEliminate = (int)ConfigParameters["tightEliminate"];
-const int withAddedSensorFusionError = (int)ConfigParameters["withAddedSensorFusionError"];
+int withAddedSensorFusionError = (int)ConfigParameters["withAddedSensorFusionError"];
 const int maxIterations = (int)ConfigParameters["maxIterations"];
 const int maxJacobianIteration = (int)ConfigParameters["maxJacobianIteration"];
 string priorityMode = (string)ConfigParameters["priorityMode"];

@@ -70,7 +70,7 @@ namespace DAG_SPACE
                             double addedErrorDDL = 0;
                             double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, indexCurr, instanceCurr);
 
-                            // go through three source sensor tasks
+                            // go through three source sensor tasks in the example
                             for (size_t ii = 0; ii < tasksPrev.size(); ii++)
                             {
                                 int sourceIndex = tasksPrev.at(ii).id;
@@ -120,12 +120,18 @@ namespace DAG_SPACE
                                     }
                                 }
                             }
+                            // this error is not well tested yet
+                            double sensorFreshError = Barrier(FreshTol - (startTimeCurr +
+                                                                          tasks[indexCurr].executionTime -
+                                                                          *min_element(sourceFinishTime.begin(),
+                                                                                       sourceFinishTime.end())));
                             if (addedErrorDAG == -1)
-                                res(indexRes++, 0) = addedErrorDDL + Barrier(sensorFusionTolerance -
-                                                                             ExtractMaxDistance(sourceFinishTime));
+                                res(indexRes++, 0) = addedErrorDDL + Barrier(sensorFusionTolerance - ExtractMaxDistance(sourceFinishTime)) +
+                                                     sensorFreshError;
                             else
                                 res(indexRes++, 0) = addedErrorDDL + addedErrorDAG +
-                                                     Barrier(sensorFusionTolerance - ExtractMaxDistance(sourceFinishTime));
+                                                     Barrier(sensorFusionTolerance - ExtractMaxDistance(sourceFinishTime)) +
+                                                     sensorFreshError;
                         }
                     }
                 }
