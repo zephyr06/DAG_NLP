@@ -38,7 +38,8 @@ namespace DAG_SPACE
         auto start = std::chrono::high_resolution_clock::now();
         // choose an initialization method there!
         VectorDynamic initialEstimate = GenerateInitial(dagTasks, sizeOfVariables, variableDimension);
-        cout << "Initial estimation for SA is " << initialEstimate << endl;
+        if (debugMode)
+            cout << "Initial estimation for SA is " << initialEstimate << endl;
         auto initialSA = Eigen2Vector<double>(initialEstimate);
         moether.runSA(SA_iteration, initialSA, randomInitialize);
 

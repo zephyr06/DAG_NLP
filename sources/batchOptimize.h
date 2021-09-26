@@ -32,6 +32,7 @@ vector<string> ReadFilesInDirectory(const char *path)
         }
         closedir(dr); //close all directory
     }
+    sort(files.begin(), files.end());
     return files;
 }
 
@@ -39,6 +40,8 @@ void BatchOptimize()
 {
     const char *pathDataset = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks";
     vector<double> averageErrorAccept;
+    vector<double> averageErrorAccept1; // 1.0 accept
+    vector<double> averageErrorAccept2; // 0.1 accept
     vector<double> errorInitial;
     vector<double> errorAfterOpt;
     vector<double> runTimeAccept;
@@ -48,11 +51,12 @@ void BatchOptimize()
     ofstream outfileWrite;
     outfileWrite.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/data_buffer_energy_task_number.txt",
                       std::ios_base::app);
-
-    for (const auto &file : ReadFilesInDirectory(pathDataset))
+    vector<string> files = ReadFilesInDirectory(pathDataset);
+    int TotalTestCases = files.size() - 2;
+    for (const auto &file : files)
     {
         // if (debugMode)
-        cout << file << endl;
+        std::cout << file << endl;
         string delimiter = "-";
         if (file.substr(0, file.find(delimiter)) == "dag")
         {
@@ -79,6 +83,16 @@ void BatchOptimize()
             runTimeAll.push_back(timeTaken);
             errorInitial.push_back(sqrt(res.initialError * 2));
             errorAfterOpt.push_back(sqrt(res.optimizeError * 2));
+
+            if (res.optimizeError >= 0 && res.optimizeError <= 1.0)
+            {
+                averageErrorAccept1.push_back(res.optimizeError);
+            }
+            if (res.optimizeError >= 0 && res.optimizeError <= 0.1)
+            {
+                averageErrorAccept2.push_back(res.optimizeError);
+            }
+
             if (res.optimizeError >= 0 && res.optimizeError <= AcceptSchedulError)
             {
                 averageErrorAccept.push_back(res.optimizeError);
@@ -112,19 +126,24 @@ void BatchOptimize()
     outfile2.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/time_task_number.txt", std::ios_base::app);
     outfile2 << aveTime << endl;
     if (debugMode == 1)
-        cout << endl;
-    cout << "Files that failed during optimization:\n";
+        std::cout << endl;
+    std::cout << "Files that failed during optimization:\n";
     for (auto &file : errorFiles)
-        cout << file << endl;
+        std::cout << file << endl;
 
-    cout << Color::green << "Average error after optimization (accepted) is " << avEnergy << Color::def << endl;
-    cout << Color::green << "Average time consumed (accepted) is " << aveTime << Color::def << endl;
-    cout << Color::green << "The number of tasksets under analyzation is " << averageErrorAccept.size() << Color::def << endl;
-    cout << Color::blue << "Accept rate " << double(averageErrorAccept.size()) / (errorFiles.size() + averageErrorAccept.size()) << Color::def << endl;
-    cout << Color::blue << "Average initial error (all tasks) is " << avInitialError << Color::def << endl;
-    cout << Color::blue << "Average error after optimization (all tasks) is " << averrorAfterOpt << Color::def << endl;
-    cout << Color::blue << "Average time consumed (all) is " << avTimeall << Color::def << endl;
+    std::cout << Color::green << "Average error after optimization (accepted) is " << avEnergy << Color::def << endl;
+    std::cout << Color::green << "Average time consumed (accepted) is " << aveTime << Color::def << endl;
+    std::cout << Color::green << "The number of tasksets under analyzation is " << averageErrorAccept.size() << Color::def << endl;
+    std::cout << Color::green << "Total test cases: " << TotalTestCases << Color::def << endl;
+    std::cout << Color::blue << "Accept rate (Tol=1.0)" << double(averageErrorAccept1.size()) / TotalTestCases << Color::def << endl;
+    std::cout << Color::blue << "Accept rate (Tol=0.1)" << double(averageErrorAccept2.size()) / TotalTestCases << Color::def << endl;
+    std::cout << endl;
 
-    cout << Color::def;
+    std::cout << Color::blue << "Accept rate " << double(averageErrorAccept.size()) / TotalTestCases << Color::def << endl;
+    std::cout << Color::blue << "Average initial error (all tasks) is " << avInitialError << Color::def << endl;
+    std::cout << Color::blue << "Average error after optimization (all tasks) is " << averrorAfterOpt << Color::def << endl;
+    std::cout << Color::blue << "Average time consumed (all) is " << avTimeall << Color::def << endl;
+
+    std::cout << Color::def;
     return;
 }

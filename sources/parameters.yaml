@@ -13,14 +13,14 @@ initialLambda: 1e0
 lowerLambda: 1e-15
 makespanWeight: 0
 noiseModelSigma: 1
-AcceptSchedulError: 1e-1
+AcceptSchedulError: 1e0
 optimizerType: 2 # 1 means dogleg, 2 means LM
 overlapMode: 1
 parallelFactor: 0.4
 punishmentInBarrier: 1e2
 randomInitialize: 0
 readTaskMode: orig
-withAddedSensorFusionError: 0
+withAddedSensorFusionError: 1
 ElimnateLoop_Max: 50
 zeroJacobianDetectTol: 1e-7
 maxIterations: 1000
@@ -41,4 +41,4 @@ toleranceEliminator: 1
 upperLambda: 1e60
 weightLogBarrier: -1.0
 setUseFixedLambdaFactor: 1
-batchTestMethod: 1 # 1 means NLP, 2 means SA, 0 means initial
+batchTestMethod: 0 # 1 means NLP, 2 means SA, 0 means initial
