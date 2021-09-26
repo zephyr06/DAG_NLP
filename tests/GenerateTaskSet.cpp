@@ -1,6 +1,11 @@
 #include "../sources/GenerateRandomTaskset.h"
 #include "../sources/argparse.hpp"
 
+void deleteDirectoryContents(const std::string &dir_path)
+{
+    for (const auto &entry : std::filesystem::directory_iterator(dir_path))
+        std::filesystem::remove_all(entry.path());
+}
 int main(int argc, char *argv[])
 {
     argparse::ArgumentParser program("program name");
@@ -67,6 +72,7 @@ int main(int argc, char *argv[])
          << endl;
 
     string outDirectory = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks/";
+    deleteDirectoryContents(outDirectory);
     srand(time(0));
     for (size_t i = 0; i < DAG_taskSetNumber; i++)
     {
