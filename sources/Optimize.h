@@ -419,9 +419,11 @@ namespace DAG_SPACE
                 break;
             }
             loopNumber++;
-            if (loopNumber > N)
+            if (loopNumber > ElimnateLoop_Max)
             {
                 CoutWarning("Loop number Warning in OptimizeScheduling");
+                // cannot use mapIndex to recover, because mapIndex has already been changed at this point
+                trueResult = startTimeComplete;
                 break;
             }
         }
