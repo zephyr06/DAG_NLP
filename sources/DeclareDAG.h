@@ -29,6 +29,7 @@ using namespace gtsam;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixDynamic;
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> VectorDynamic;
 typedef long long int LLint;
+typedef std::map<int, vector<int>> ProcessorTaskSet;
 struct MappingDataStruct
 {
     LLint index;
@@ -215,7 +216,15 @@ namespace DAG_SPACE
         }
         return jacobian;
     }
-
+    /**
+     * @brief helper function for RecoverStartTimeVector
+     * 
+     * @param index 
+     * @param actual 
+     * @param mapIndex 
+     * @param filledTable 
+     * @return double 
+     */
     double GetSingleElement(LLint index, VectorDynamic &actual,
                             const MAP_Index2Data &mapIndex,
                             vector<bool> &filledTable)

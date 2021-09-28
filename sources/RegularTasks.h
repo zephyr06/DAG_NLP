@@ -303,4 +303,23 @@ namespace RegularTaskSystem
         for (int i = lastTaskDoNotNeedOptimize + 1; i < N; i++)
             taskSet[i].executionTime = executionTimeVec(i - lastTaskDoNotNeedOptimize - 1, 0);
     }
+
+    ProcessorTaskSet ExtractProcessorTaskSet(TaskSet &tasks)
+    {
+        int N = tasks.size();
+        ProcessorTaskSet processorTasks;
+        for (int i = 0; i < N; i++)
+        {
+            if (processorTasks.find(tasks[i].processorId) == processorTasks.end())
+            {
+                vector<int> ttt{tasks[i].id};
+                processorTasks[tasks[i].processorId] = ttt;
+            }
+            else
+            {
+                processorTasks[tasks[i].processorId].push_back(tasks[i].id);
+            }
+        }
+        return processorTasks;
+    }
 }

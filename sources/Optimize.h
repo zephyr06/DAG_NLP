@@ -33,65 +33,6 @@ namespace DAG_SPACE
         return errorDimensionSF;
     }
 
-    /**
-     * @brief Create a Scheduling Graph object;
-     * somehow, the returned graph doesn't contain passed parameters
-     * 
-     * @param dagTasks 
-     * @param initialEstimate 
-     * @param mapIndex 
-     * @param maskForEliminate 
-     * @param sizeOfVariables 
-     * @param variableDimension 
-     * @param hyperPeriod 
-     * @return NonlinearFactorGraph 
-     */
-    NonlinearFactorGraph CreateSchedulingGraph(DAG_Model &dagTasks, VectorDynamic &initialEstimate,
-                                               MAP_Index2Data mapIndex, vector<bool> &maskForEliminate,
-                                               vector<LLint> &sizeOfVariables, int variableDimension,
-                                               LLint hyperPeriod)
-    {
-        using namespace RegularTaskSystem;
-
-        int N = dagTasks.tasks.size();
-
-        // build the factor graph
-        NonlinearFactorGraph graph;
-        Symbol key('a', 0);
-
-        LLint errorDimensionMS = 1;
-        auto model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
-        graph.emplace_shared<MakeSpanFactor>(key, dagTasks, sizeOfVariables,
-                                             errorDimensionMS, mapIndex,
-                                             maskForEliminate, model);
-
-        LLint errorDimensionDAG = dagTasks.edgeNumber();
-        model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
-        graph.emplace_shared<DAG_ConstraintFactor>(key, dagTasks, sizeOfVariables,
-                                                   errorDimensionDAG, mapIndex,
-                                                   maskForEliminate, model);
-
-        LLint errorDimensionDBF = 1;
-        model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-        graph.emplace_shared<DBF_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
-                                                   errorDimensionDBF, mapIndex,
-                                                   maskForEliminate,
-                                                   model);
-
-        LLint errorDimensionDDL = 2 * variableDimension;
-        model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
-        graph.emplace_shared<DDL_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
-                                                   errorDimensionDDL, mapIndex,
-                                                   maskForEliminate, model);
-
-        LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
-        model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-        graph.emplace_shared<SensorFusion_ConstraintFactor>(key, dagTasks, sizeOfVariables,
-                                                            errorDimensionSF, sensorFusionTolerance,
-                                                            mapIndex, maskForEliminate, model);
-        return graph;
-    }
-
     double GraphErrorEvaluation(DAG_Model &dagTasks, VectorDynamic startTimeVector)
     {
         TaskSet tasks = dagTasks.tasks;
@@ -116,11 +57,6 @@ namespace DAG_SPACE
         }
         bool whetherEliminate = false;
         vector<bool> maskForEliminate(variableDimension, false);
-        // build the factor graph
-        // NonlinearFactorGraph graph = CreateSchedulingGraph(dagTasks, startTimeVector,
-        //                                                    mapIndex, maskForEliminate,
-        //                                                    sizeOfVariables, variableDimension,
-        //                                                    hyperPeriod);
 
         Symbol key('a', 0);
         NonlinearFactorGraph graph;
@@ -136,11 +72,12 @@ namespace DAG_SPACE
                                                    errorDimensionDAG, mapIndex,
                                                    maskForEliminate, model);
 
-        LLint errorDimensionDBF = 1;
+        ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+        LLint errorDimensionDBF = processorTaskSet.size();
         model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
         graph.emplace_shared<DBF_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
                                                    errorDimensionDBF, mapIndex,
-                                                   maskForEliminate,
+                                                   maskForEliminate, processorTaskSet,
                                                    model);
 
         LLint errorDimensionDDL = 2 * variableDimension;
@@ -204,13 +141,6 @@ namespace DAG_SPACE
         int N = dagTasks.tasks.size();
 
         // build the factor graph
-        // Symbol key('a', 0);
-        // NonlinearFactorGraph graph = CreateSchedulingGraph(dagTasks, initialEstimate,
-        //                                                    mapIndex, maskForEliminate,
-        //                                                    sizeOfVariables, variableDimension,
-        //                                                    hyperPeriod);
-
-        // build the factor graph
         NonlinearFactorGraph graph;
         Symbol key('a', 0);
 
@@ -226,11 +156,12 @@ namespace DAG_SPACE
                                                    errorDimensionDAG, mapIndex,
                                                    maskForEliminate, model);
 
-        LLint errorDimensionDBF = 1;
+        ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+        LLint errorDimensionDBF = processorTaskSet.size();
         model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
         graph.emplace_shared<DBF_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
                                                    errorDimensionDBF, mapIndex,
-                                                   maskForEliminate,
+                                                   maskForEliminate, processorTaskSet,
                                                    model);
 
         LLint errorDimensionDDL = 2 * variableDimension;
@@ -385,11 +316,13 @@ namespace DAG_SPACE
             VectorDynamic startTimeComplete = RecoverStartTimeVector(resTemp, maskForEliminate, mapIndex);
 
             // factors that require elimination analysis are: DBF
-            LLint errorDimensionDBF = 1;
+            ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+            LLint errorDimensionDBF = processorTaskSet.size();
+
             auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
             Symbol key('b', 0);
             DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                        mapIndex, maskForEliminate, model);
+                                        mapIndex, maskForEliminate, processorTaskSet, model);
             // this function performs in-place modification for all the variables!
             // TODO: should we add eliminate function for sensorFusion?
             factor.addMappingFunction(resTemp, mapIndex, whetherEliminate, maskForEliminate,

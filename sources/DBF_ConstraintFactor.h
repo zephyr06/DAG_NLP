@@ -54,17 +54,18 @@ namespace DAG_SPACE
         vector<bool> maskForEliminate;
         MAP_Index2Data mapIndex;
         // each element contains tasks belonging to the same processor
-        typedef std::unordered_map<int, vector<int>> ProcessorTaskSet;
+
         ProcessorTaskSet processorTasks;
 
         DBF_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables,
                              LLint errorDimension, MAP_Index2Data &mapIndex,
-                             vector<bool> &maskForEliminate,
+                             vector<bool> &maskForEliminate, ProcessorTaskSet &processorTasks,
                              SharedNoiseModel model)
             : NoiseModelFactor1<VectorDynamic>(model, key),
               tasks(tasks), sizeOfVariables(sizeOfVariables),
               N(tasks.size()), errorDimension(errorDimension),
-              maskForEliminate(maskForEliminate), mapIndex(mapIndex)
+              maskForEliminate(maskForEliminate), mapIndex(mapIndex),
+              processorTasks(processorTasks)
         {
             length = 0;
 
@@ -72,85 +73,8 @@ namespace DAG_SPACE
             {
                 length += sizeOfVariables[i];
             }
-            for (int i = 0; i < N; i++)
-            {
-                if (processorTasks.find(tasks[i].processorId) == processorTasks.end())
-                {
-                    vector<int> ttt{tasks[i].id};
-                    processorTasks[tasks[i].processorId] = ttt;
-                }
-                else
-                {
-                    processorTasks[tasks[i].processorId].push_back(tasks[i].id);
-                }
-            }
         }
-        /**
-         * @brief for error evaluation; this returns a scalar, 
-         * which is the merged version of all DBF error
-         * 
-         */
-        boost::function<Matrix(const VectorDynamic &)> f =
-            [this](const VectorDynamic &startTimeVectorOrig)
-        {
-            VectorDynamic res;
-            res.resize(errorDimension, 1);
 
-            VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
-                                                                   maskForEliminate, mapIndex);
-
-            if (overlapMode)
-            {
-                res = DbfIntervalOverlapError(startTimeVector);
-                return res;
-            }
-            else
-            {
-                CoutError("You should consider overlapMode, otherwise please comment this and the following lines.");
-            }
-
-            // LLint indexRes = 0;
-
-            // res(indexRes, 0) = 0;
-            // //demand bound function
-            // for (int i = 0; i < N; i++)
-            // {
-            //     for (LLint instance_i = 0; instance_i < sizeOfVariables[i]; instance_i++)
-            //     {
-            //         double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, instance_i);
-            //         for (int j = 0; j < N; j++)
-            //         {
-            //             for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
-            //             {
-
-            //                 double sumIJK = 0;
-            //                 double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
-            //                 if (startTime_i <= startTime_j &&
-            //                     startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
-            //                 {
-            //                     for (int k = 0; k < N; k++)
-            //                     {
-            //                         for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
-            //                         {
-            //                             double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
-            //                             sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
-            //                         }
-            //                     }
-            //                     double valueT = Barrier(startTime_j + tasks[j].executionTime - startTime_i - sumIJK + 0);
-            //                     res(indexRes, 0) += valueT;
-            //                 }
-            //                 else
-            //                 {
-
-            //                     // res(indexRes++, 0) = 0;
-            //                     continue;
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
-            return res;
-        };
         Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
         {
 
@@ -353,7 +277,28 @@ namespace DAG_SPACE
                 }
             }
         }
+        /**
+         * @brief for error evaluation; this returns a VectorDynamic, 
+         * which is the merged version of all DBF error for each processor
+         * 
+         */
+        boost::function<Matrix(const VectorDynamic &)> f =
+            [this](const VectorDynamic &startTimeVectorOrig)
+        {
+            VectorDynamic res;
+            res.resize(errorDimension, 1);
 
+            VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
+                                                                   maskForEliminate, mapIndex);
+
+            int indexPro = 0;
+            for (auto itr = processorTasks.begin(); itr != processorTasks.end(); itr++)
+            {
+                res(indexPro++, 0) = DbfIntervalOverlapError(startTimeVector, itr->first);
+            }
+
+            return res;
+        };
         /**
          * @brief Create a Interval vector for indexes specified by the tree1 parameter;
          * the return interval follows the same order given by tree1!
@@ -375,6 +320,23 @@ namespace DAG_SPACE
                 intervalVec.push_back(Interval{start, length});
             }
             return intervalVec;
+        }
+
+        double DbfIntervalOverlapError(const VectorDynamic &startTimeVector, int processorId)
+        {
+            vector<LLint> indexes;
+            indexes.reserve(startTimeVector.size());
+            for (int taskId : processorTasks[processorId])
+            {
+                for (int j = 0; j < sizeOfVariables[taskId]; j++)
+                {
+                    indexes.push_back(IndexTran_Instance2Overall(taskId, j, sizeOfVariables));
+                }
+            }
+            vector<Interval> intervalVec = CreateIntervalFromSTVSameOrder(indexes,
+                                                                          startTimeVector);
+
+            return IntervalOverlapError(intervalVec);
         }
 
         VectorDynamic DbfIntervalOverlapError(const VectorDynamic &startTimeVector)
@@ -481,23 +443,23 @@ namespace DAG_SPACE
             return coverIndexInCompressed;
         }
         /**
-     * @brief this version of Jacobian estimation fix the Vanishing gradient problem;
-     * 
-     * this program will identify indexes that have vanishing gradient issues, 
-     * i.e., an interval is fullly covered by another interval without bound overlap,
-     * then apply a bigger, but tight deltaOptimizer for these special indexes to avoid vanishing gradient; 
-     * (probably use binary search to find it)
-     * other indexes are handled normally by provided deltaOptimizer;
-     * 
-     * As for identified as overlap index, increasing deltaOptimizer is only applied when it has a real zero
-     *  gradient at this point; this is a necessary condition
-     * 
-     * @param h 
-     * @param x 
-     * @param deltaOptimizer 
-     * @param mOfJacobian 
-     * @return MatrixDynamic 
-     */
+         * @brief this version of Jacobian estimation fix the Vanishing gradient problem;
+         * 
+         * this program will identify indexes that have vanishing gradient issues, 
+         * i.e., an interval is fullly covered by another interval without bound overlap,
+         * then apply a bigger, but tight deltaOptimizer for these special indexes to avoid vanishing gradient; 
+         * (probably use binary search to find it)
+         * other indexes are handled normally by provided deltaOptimizer;
+         * 
+         * As for identified as overlap index, increasing deltaOptimizer is only applied when it has a real zero
+         *  gradient at this point; this is a necessary condition
+         * 
+         * @param h 
+         * @param x 
+         * @param deltaOptimizer 
+         * @param mOfJacobian 
+         * @return MatrixDynamic 
+         */
         MatrixDynamic NumericalDerivativeDynamicUpperDBF(boost::function<VectorDynamic(const VectorDynamic &)> h,
                                                          const VectorDynamic &x, double deltaOptimizer,
                                                          int mOfJacobian) const
@@ -567,6 +529,51 @@ namespace DAG_SPACE
             }
 
             return jacobian;
+        }
+
+        void textOld()
+        {
+            // LLint indexRes = 0;
+
+            // res(indexRes, 0) = 0;
+            // //demand bound function
+            // for (int i = 0; i < N; i++)
+            // {
+            //     for (LLint instance_i = 0; instance_i < sizeOfVariables[i]; instance_i++)
+            //     {
+            //         double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, instance_i);
+            //         for (int j = 0; j < N; j++)
+            //         {
+            //             for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
+            //             {
+
+            //                 double sumIJK = 0;
+            //                 double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
+            //                 if (startTime_i <= startTime_j &&
+            //                     startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
+            //                 {
+            //                     for (int k = 0; k < N; k++)
+            //                     {
+            //                         for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
+            //                         {
+            //                             double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
+            //                             sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
+            //                         }
+            //                     }
+            //                     double valueT = Barrier(startTime_j + tasks[j].executionTime - startTime_i - sumIJK + 0);
+            //                     res(indexRes, 0) += valueT;
+            //                 }
+            //                 else
+            //                 {
+
+            //                     // res(indexRes++, 0) = 0;
+            //                     continue;
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
+            ;
         }
     };
 }
