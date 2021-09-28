@@ -142,7 +142,16 @@ namespace DAG_SPACE
         //         CoutError("Eliminate option error, not recognized!");
         //     }
         // }
-        // TODO: find a way to avoid eliminate same variable twice
+        /**
+         * @brief detecting elimination and update elimination records for both mapIndex and eliminationTrees_Update
+         * 
+         * @param resTemp 
+         * @param mapIndex 
+         * @param whetherEliminate 
+         * @param maskForEliminate_addMap 
+         * @param eliminationTrees_Update 
+         * @param indexesBGL_Update properties access for eliminationTrees_Update
+         */
         void addMappingFunction(VectorDynamic &resTemp,
                                 MAP_Index2Data &mapIndex, bool &whetherEliminate,
                                 vector<bool> &maskForEliminate_addMap,
@@ -159,11 +168,15 @@ namespace DAG_SPACE
 
             for (int i = 0; i < N; i++)
             {
+                int processorCurr = tasks[i].processorId;
                 for (LLint instance_i = 0; instance_i < sizeOfVariables[i]; instance_i++)
                 {
                     double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, instance_i);
                     for (int j = 0; j < N; j++)
                     {
+                        // only check elimination for the same processor
+                        if (processorCurr != tasks[j].processorId)
+                            continue;
                         for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
                         {
                             LLint index_j_overall = IndexTran_Instance2Overall(j, instance_j, sizeOfVariables);
@@ -182,6 +195,8 @@ namespace DAG_SPACE
                             {
                                 for (int k = 0; k < N; k++)
                                 {
+                                    if (processorCurr != tasks[k].processorId)
+                                        continue;
                                     for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
                                     {
                                         double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
@@ -229,12 +244,7 @@ namespace DAG_SPACE
                                             {
                                                 double distt = startTimeVector(index_j_overall, 0) -
                                                                startTimeVector(index_i_overall, 0);
-                                                if (distt >= 142.0 && distt <= 143.0)
-                                                    int a = 1;
-                                                if (distt >= 54 && distt <= 55.0)
-                                                    int a = 1;
-                                                if (distt >= 28.0 && distt <= 29.0)
-                                                    int a = 1;
+
                                                 MappingDataStruct m{index_i_overall,
                                                                     distt};
                                                 mapIndex[index_j_overall] = m;

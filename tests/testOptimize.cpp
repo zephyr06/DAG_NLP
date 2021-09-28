@@ -1319,6 +1319,154 @@ TEST(testDBF, v5MultiProcess)
     VectorDynamic dbfActual2 = factor.f(startTimeVector);
     assert_equal(dbfExpect, dbfActual2);
 }
+
+TEST(addMappingFunction, singleProcess)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex, mapIndexExpect;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+    mapIndexExpect = mapIndex;
+    bool whetherEliminate;
+    pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(dagTasks);
+    Graph eliminationTrees = sth.first;
+    indexVertexMap indexesBGL = sth.second;
+
+    Symbol key('a', 0);
+    ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+    LLint errorDimensionDBF = processorTaskSet.size();
+
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
+                                mapIndex, maskForEliminate, processorTaskSet, model);
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(8, 1);
+    startTimeVector << 80, 160, 62.1, 50, 105, 14, 0, 100;
+    auto sss = tightEliminate;
+    tightEliminate = 0;
+    factor.addMappingFunction(startTimeVector, mapIndex, whetherEliminate, maskForEliminate,
+                              eliminationTrees, indexesBGL);
+    mapIndexExpect[6] = {5, -14};
+    mapIndexExpect[2] = {3, 12.1};
+    AssertEqualMap(mapIndexExpect, mapIndex);
+    tightEliminate = sss;
+}
+
+TEST(addMappingFunction, MultiProcess)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v29.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex, mapIndexExpect;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+    mapIndexExpect = mapIndex;
+    bool whetherEliminate;
+    pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(dagTasks);
+    Graph eliminationTrees = sth.first;
+    indexVertexMap indexesBGL = sth.second;
+
+    Symbol key('a', 0);
+    ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+    LLint errorDimensionDBF = processorTaskSet.size();
+
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
+                                mapIndex, maskForEliminate, processorTaskSet, model);
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(8, 1);
+    startTimeVector << 81.1, 160, 70, 27.1, 105, 14, 0, 100;
+    auto sss = tightEliminate;
+    tightEliminate = 0;
+    factor.addMappingFunction(startTimeVector, mapIndex, whetherEliminate, maskForEliminate,
+                              eliminationTrees, indexesBGL);
+    mapIndexExpect[0] = {2, 11.1};
+    mapIndexExpect[3] = {5, 13.1};
+    // mapIndexExpect[2] = {3, 12.1};
+    AssertEqualMap(mapIndexExpect, mapIndex);
+    tightEliminate = sss;
+}
+
+TEST(addMappingFunction, MultiProcessV2)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v29.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex, mapIndexExpect;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+    mapIndexExpect = mapIndex;
+    bool whetherEliminate;
+    pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(dagTasks);
+    Graph eliminationTrees = sth.first;
+    indexVertexMap indexesBGL = sth.second;
+
+    Symbol key('a', 0);
+    ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+    LLint errorDimensionDBF = processorTaskSet.size();
+
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
+                                mapIndex, maskForEliminate, processorTaskSet, model);
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(8, 1);
+    startTimeVector << 80, 160, 62.1, 50, 105, 14, 0, 100;
+    auto sss = tightEliminate;
+    tightEliminate = 0;
+    factor.addMappingFunction(startTimeVector, mapIndex, whetherEliminate, maskForEliminate,
+                              eliminationTrees, indexesBGL);
+    // mapIndexExpect[6] = {6, -14};
+    // mapIndexExpect[2] = {3, 12.1};
+    AssertEqualMap(mapIndexExpect, mapIndex);
+    tightEliminate = sss;
+}
 int main()
 {
     TestResult tr;

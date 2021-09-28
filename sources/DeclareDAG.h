@@ -46,7 +46,19 @@ struct MappingDataStruct
     {
         return distance;
     }
+    bool notEqual(const MappingDataStruct &m1, double tolerance = 1e-3)
+    {
+        if (abs(this->index - m1.getIndex()) > tolerance ||
+            abs(this->distance - m1.getDistance()) > tolerance)
+            return true;
+        return false;
+    }
 };
+std::ostream &operator<<(std::ostream &os, MappingDataStruct const &m)
+{
+    return os << m.getIndex() << ", " << m.getDistance() << endl;
+}
+
 // typedef unordered_map<int, boost::function<double(const VectorDynamic &, int)>> MAP_Index2Func;
 typedef std::unordered_map<int, MappingDataStruct> MAP_Index2Data;
 typedef boost::function<VectorDynamic(const VectorDynamic &)> FuncV2V;

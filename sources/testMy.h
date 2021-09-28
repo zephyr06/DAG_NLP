@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+#include <unordered_map>
 #include <iostream>
 #include <bits/stdc++.h>
 #include <Eigen/Dense>
@@ -106,6 +107,34 @@ void AssertEigenEqualMatrix(Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic
         for (int j = 0; j < n; j++)
         {
             AssertEqualScalar(expected(i, j), actual(i, j));
+        }
+    }
+}
+
+template <class T1, class T2>
+void AssertEqualMap(std::unordered_map<T1, T2> &mExpect, std::unordered_map<T1, T2> &mActual)
+{
+    if (mExpect.size() != mActual.size())
+    {
+        CoutWarning("Size error!");
+        AssertEqualScalar(mExpect.size(), mActual.size());
+    }
+    for (auto itr = mExpect.begin(); itr != mExpect.end(); itr++)
+    {
+        auto itrActual = mActual.find(itr->first);
+        if (itrActual == mActual.end() || (itrActual->second).notEqual(itr->second))
+        {
+
+            try
+            {
+                cout << "Expect is " << itr->first << ", " << itr->second << endl;
+                cout << "Actual is " << itrActual->first << ", " << itrActual->second << endl;
+            }
+            catch (const std::exception &e)
+            {
+                cout << "Cannot print the key to show mismatch element\n";
+            }
+            CoutError("Element in mExpect is not found in or not equal to mActual!");
         }
     }
 }
