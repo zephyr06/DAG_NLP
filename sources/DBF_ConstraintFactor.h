@@ -1,3 +1,4 @@
+#include "unordered_map"
 #include "DeclareDAG.h"
 #include "RegularTasks.h"
 #include "Interval.h"
@@ -52,6 +53,9 @@ namespace DAG_SPACE
         LLint length;
         vector<bool> maskForEliminate;
         MAP_Index2Data mapIndex;
+        // each element contains tasks belonging to the same processor
+        typedef std::unordered_map<int, vector<int>> ProcessorTaskSet;
+        ProcessorTaskSet processorTasks;
 
         DBF_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables,
                              LLint errorDimension, MAP_Index2Data &mapIndex,
@@ -67,6 +71,18 @@ namespace DAG_SPACE
             for (int i = 0; i < N; i++)
             {
                 length += sizeOfVariables[i];
+            }
+            for (int i = 0; i < N; i++)
+            {
+                if (processorTasks.find(tasks[i].processorId) == processorTasks.end())
+                {
+                    vector<int> ttt{tasks[i].id};
+                    processorTasks[tasks[i].processorId] = ttt;
+                }
+                else
+                {
+                    processorTasks[tasks[i].processorId].push_back(tasks[i].id);
+                }
             }
         }
         /**

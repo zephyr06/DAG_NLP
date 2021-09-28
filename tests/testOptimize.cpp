@@ -1152,17 +1152,38 @@ TEST(GenerateInitialForDAG_RM, vDDL)
     // assert_equal(dbfExpect, dbfActual);
     initializeMethod = sth;
 }
-TEST(DAG_Optimize_schedule, v1)
+TEST(ProcessorTaskSet, add)
 {
     using namespace DAG_SPACE;
-    DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v21.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
 
-    auto sth = OptimizeScheduling(tasks);
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
 
-    VectorDynamic res = sth.optimizeVariable;
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
 
-    cout << "The result after optimization is " << Color::green << sth.optimizeError
-         << Color::blue << res << Color::def << endl;
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+
+    Symbol key('a', 0);
+    LLint errorDimensionDBF = 1;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
+                                mapIndex, maskForEliminate, model);
+
+    AssertEqualVectorNoRepeat<int>({0, 2, 3}, factor.processorTasks[0]);
+    AssertEqualVectorNoRepeat<int>({1, 4}, factor.processorTasks[1]);
 }
 
 int main()
