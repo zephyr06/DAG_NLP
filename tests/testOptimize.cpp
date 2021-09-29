@@ -1467,6 +1467,104 @@ TEST(addMappingFunction, MultiProcessV2)
     AssertEqualMap(mapIndexExpect, mapIndex);
     tightEliminate = sss;
 }
+TEST(GenerateInitialForDAG_RM, MultiProcessor_v1)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v29.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto initial = GenerateInitialForDAG_RM(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic expected;
+    expected.resize(8, 1);
+    // order from DAG dependency : 4,3,2,1,0
+    // detection order at 100: 2,4,0
+    expected << 50, 114, 39, 27, 100, 14, 0, 100;
+    assert_equal(expected, initial);
+}
+TEST(GenerateInitialForDAG, Multi_v2)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v33.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto actual = GenerateInitialForDAG_RM(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic expected;
+    expected.resize(8, 1);
+    expected << 50, 126, 39, 27, 100, 14, 0, 112;
+    assert_equal(expected, actual);
+}
+TEST(GenerateInitialForDAG, Multi_v3_processorMap)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v34.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto actual = GenerateInitialForDAG_RM(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic expected;
+    expected.resize(10, 1);
+    expected << 39,
+        35,
+        31, 200,
+        28, 100, 200, 300,
+        0, 200;
+    assert_equal(expected, actual);
+}
+// TEST(GenerateInitialForDAG_RM, MultiProcessor_v1)
+// {
+//     using namespace DAG_SPACE;
+//     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v32.csv", "orig");
+//     TaskSet tasks = dagTasks.tasks;
+//     int N = tasks.size();
+//     LLint hyperPeriod = HyperPeriod(tasks);
+//     // declare variables
+//     vector<LLint> sizeOfVariables;
+//     int variableDimension = 0;
+//     for (int i = 0; i < N; i++)
+//     {
+//         LLint size = hyperPeriod / tasks[i].period;
+//         sizeOfVariables.push_back(size);
+//         variableDimension += size;
+//     }
+//     auto initial = GenerateInitialForDAG_RM(dagTasks, sizeOfVariables, variableDimension);
+//     VectorDynamic expected;
+//     expected.resize(8, 1);
+//     // order from DAG dependency : 4,3,2,1,0
+//     // detection order at 100: 2,4,0
+//     expected << 50, 100, 39, 27, 100, 14, 0, 110;
+//     assert_equal(expected, initial);
+// }
 int main()
 {
     TestResult tr;

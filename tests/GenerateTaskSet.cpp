@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
                                             numberOfProcessor,
                                             periodMin,
                                             periodMax);
-            string fileName = "periodic-set-" + to_string(i) + "-syntheticJobs" + ".csv";
+            string fileName = "periodic-set-" + string(3 - to_string(i).size(), '0') + to_string(i) + "-syntheticJobs" + ".csv";
             ofstream myfile;
             myfile.open(outDirectory + fileName);
             WriteTaskSets(myfile, tasks);
