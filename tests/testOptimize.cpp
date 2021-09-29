@@ -1053,7 +1053,7 @@ TEST(RunQueue, V1)
     if (q.front() != 0 && q.front() != 4)
         CoutError("Front test failed!");
 }
-TEST(GenerateInitialForDAG_RM, v1)
+TEST(GenerateInitialForDAG_RM_DAG, v1)
 {
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v14.csv", "orig");
@@ -1069,14 +1069,14 @@ TEST(GenerateInitialForDAG_RM, v1)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto initial = GenerateInitialForDAG_RM(dagTasks, sizeOfVariables, variableDimension);
+    auto initial = GenerateInitialForDAG_RM_DAG(dagTasks, sizeOfVariables, variableDimension);
     VectorDynamic expected;
     expected.resize(5, 1);
     // order from DAG dependency : 4,3,2,1,0
     expected << 21, 13, 12, 8, 0;
     assert_equal(expected, initial);
 }
-TEST(GenerateInitialForDAG_RM, v2)
+TEST(GenerateInitialForDAG_RM_DAG, v2)
 {
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v23.csv", "orig");
@@ -1092,14 +1092,14 @@ TEST(GenerateInitialForDAG_RM, v2)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto initial = GenerateInitialForDAG_RM(dagTasks, sizeOfVariables, variableDimension);
+    auto initial = GenerateInitialForDAG_RM_DAG(dagTasks, sizeOfVariables, variableDimension);
     VectorDynamic expected;
     expected.resize(6, 1);
     // order from DAG dependency : 4,3,2,1,0
     expected << 21, 13, 12, 100, 8, 0;
     assert_equal(expected, initial);
 }
-TEST(GenerateInitialForDAG_RM, v3)
+TEST(GenerateInitialForDAG_RM_DAG, v3)
 {
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
@@ -1115,7 +1115,7 @@ TEST(GenerateInitialForDAG_RM, v3)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto initial = GenerateInitialForDAG_RM(dagTasks, sizeOfVariables, variableDimension);
+    auto initial = GenerateInitialForDAG_RM_DAG(dagTasks, sizeOfVariables, variableDimension);
     VectorDynamic expected;
     expected.resize(8, 1);
     // order from DAG dependency : 4,3,2,1,0
@@ -1123,7 +1123,7 @@ TEST(GenerateInitialForDAG_RM, v3)
     expected << 50, 126, 39, 27, 100, 14, 0, 112;
     assert_equal(expected, initial);
 }
-TEST(GenerateInitialForDAG_RM, vDDL)
+TEST(GenerateInitialForDAG_RM_DAG, vDDL)
 {
     using namespace DAG_SPACE;
     // this task is not schedulable even if only DAG and schedulability constraints are considered
@@ -1467,7 +1467,7 @@ TEST(addMappingFunction, MultiProcessV2)
     AssertEqualMap(mapIndexExpect, mapIndex);
     tightEliminate = sss;
 }
-TEST(GenerateInitialForDAG_RM, MultiProcessor_v1)
+TEST(GenerateInitialForDAG_RM_DAG, MultiProcessor_v1)
 {
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v29.csv", "orig");
@@ -1483,7 +1483,7 @@ TEST(GenerateInitialForDAG_RM, MultiProcessor_v1)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto initial = GenerateInitialForDAG_RM(dagTasks, sizeOfVariables, variableDimension);
+    auto initial = GenerateInitialForDAG_RM_DAG(dagTasks, sizeOfVariables, variableDimension);
     VectorDynamic expected;
     expected.resize(8, 1);
     // order from DAG dependency : 4,3,2,1,0
@@ -1508,7 +1508,7 @@ TEST(GenerateInitialForDAG, Multi_v2)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto actual = GenerateInitialForDAG_RM(dagTasks, sizeOfVariables, variableDimension);
+    auto actual = GenerateInitialForDAG_RM_DAG(dagTasks, sizeOfVariables, variableDimension);
     VectorDynamic expected;
     expected.resize(8, 1);
     expected << 50, 126, 39, 27, 100, 14, 0, 112;
@@ -1531,7 +1531,7 @@ TEST(GenerateInitialForDAG, Multi_v3_processorMap)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto actual = GenerateInitialForDAG_RM(dagTasks, sizeOfVariables, variableDimension);
+    auto actual = GenerateInitialForDAG_RM_DAG(dagTasks, sizeOfVariables, variableDimension);
     VectorDynamic expected;
     expected.resize(10, 1);
     expected << 39,
@@ -1541,7 +1541,62 @@ TEST(GenerateInitialForDAG, Multi_v3_processorMap)
         0, 200;
     assert_equal(expected, actual);
 }
-// TEST(GenerateInitialForDAG_RM, MultiProcessor_v1)
+TEST(GenerateInitial_RM, Multi_v1)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v34.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto actual = GenerateInitial_RM(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic expected;
+    expected.resize(10, 1);
+    expected << 0,
+        0,
+        0, 200,
+        0, 100, 200, 300,
+        0, 200;
+    assert_equal(expected, actual);
+}
+TEST(GenerateInitial_RM, Multi_v2)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v29.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto actual = GenerateInitial_RM(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic expected;
+    expected.resize(8, 1);
+    expected << 14, 114,
+        24,
+        0, 100,
+        12,
+        0, 100;
+    assert_equal(expected, actual);
+}
+
+// TEST(GenerateInitialForDAG_RM_DAG, MultiProcessor_v1)
 // {
 //     using namespace DAG_SPACE;
 //     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v32.csv", "orig");
@@ -1557,7 +1612,7 @@ TEST(GenerateInitialForDAG, Multi_v3_processorMap)
 //         sizeOfVariables.push_back(size);
 //         variableDimension += size;
 //     }
-//     auto initial = GenerateInitialForDAG_RM(dagTasks, sizeOfVariables, variableDimension);
+//     auto initial = GenerateInitialForDAG_RM_DAG(dagTasks, sizeOfVariables, variableDimension);
 //     VectorDynamic expected;
 //     expected.resize(8, 1);
 //     // order from DAG dependency : 4,3,2,1,0

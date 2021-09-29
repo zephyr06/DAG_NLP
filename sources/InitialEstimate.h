@@ -25,8 +25,6 @@ namespace DAG_SPACE
         vector<int> order = FindDependencyOrder(dagTasks);
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
 
-        vector<double> executionTimeVec = GetParameter<double>(tasks, "executionTime");
-
         // m maps from tasks index to startTimeVector index
         std::unordered_map<int, LLint> m;
         LLint sumVariableNum = 0;
@@ -57,8 +55,6 @@ namespace DAG_SPACE
         TaskSet &tasks = dagTasks.tasks;
         vector<int> order = FindDependencyOrder(dagTasks);
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
-
-        vector<double> executionTimeVec = GetParameter<double>(tasks, "executionTime");
 
         LLint index = 0;
         LLint currTime = 0;
@@ -209,9 +205,9 @@ namespace DAG_SPACE
      * @param variableDimension 
      * @return VectorDynamic 
      */
-    VectorDynamic GenerateInitialForDAG_RM(DAG_Model &dagTasks,
-                                           vector<LLint> &sizeOfVariables,
-                                           int variableDimension)
+    VectorDynamic GenerateInitial_RM(DAG_Model &dagTasks,
+                                     vector<LLint> &sizeOfVariables,
+                                     int variableDimension, LLint currTime = 0)
     {
         int N = dagTasks.tasks.size();
         TaskSet &tasks = dagTasks.tasks;
@@ -219,7 +215,84 @@ namespace DAG_SPACE
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
         LLint hyperPeriod = HyperPeriod(tasks);
 
-        vector<double> executionTimeVec = GetParameter<double>(tasks, "executionTime");
+        LLint index = 0;
+        vector<int> relativeStart;
+        relativeStart.reserve(N);
+
+        ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+        int processorNum = processorTaskSet.size();
+        // it maps from tasks[i].processorId to index in runQueues&busy&nextFree
+
+        ProcessorId2Index processorId2Index;
+        int indexP = 0;
+        for (int i = 0; i < N; i++)
+        {
+            if (processorId2Index.find(tasks[i].processorId) == processorId2Index.end())
+            {
+                processorId2Index[tasks[i].processorId] = indexP++;
+            }
+        }
+        // contains the index of tasks to run
+        vector<RunQueue> runQueues;
+        runQueues.reserve(processorNum);
+        for (int i = 0; i < processorNum; i++)
+        {
+            runQueues.push_back(RunQueue(tasks));
+        }
+        // RunQueue runQueue(tasks);
+        // bool busy = false;
+        vector<bool> busy(processorNum, false);
+        vector<LLint> nextFree(processorNum, -1);
+        // LLint nextFree;
+        for (LLint timeNow = currTime; timeNow < hyperPeriod; timeNow++)
+        {
+            // check whether to add new instances
+            for (int i = 0; i < N; i++)
+            {
+                if (timeNow % tasks[i].period == 0)
+                {
+                    int currId = tasks[i].processorId;
+                    runQueues[processorId2Index[currId]].insert({i, timeNow / tasks[i].period});
+                }
+            }
+            for (int i = 0; i < processorNum; i++)
+            {
+                if (timeNow == nextFree[i])
+                {
+                    busy[i] = false;
+                }
+                if (!busy[i] && (!runQueues[i].empty()))
+                {
+                    auto sth = runQueues[i].pop();
+                    int id = sth.first;
+                    LLint instance_id = sth.second;
+                    LLint index_overall = IndexTran_Instance2Overall(id, instance_id, sizeOfVariables);
+                    initial(index_overall, 0) = timeNow;
+                    nextFree[i] = timeNow + tasks[id].executionTime;
+                    busy[i] = true;
+                }
+            }
+        }
+
+        return initial;
+    }
+    /**
+     * @brief Warning! All the tasks's processorId must begin with 0, otherwise it reports Segmentation error.
+     * 
+     * @param dagTasks 
+     * @param sizeOfVariables 
+     * @param variableDimension 
+     * @return VectorDynamic 
+     */
+    VectorDynamic GenerateInitialForDAG_RM_DAG(DAG_Model &dagTasks,
+                                               vector<LLint> &sizeOfVariables,
+                                               int variableDimension)
+    {
+        int N = dagTasks.tasks.size();
+        TaskSet &tasks = dagTasks.tasks;
+        vector<int> order = FindDependencyOrder(dagTasks);
+        VectorDynamic initial = GenerateVectorDynamic(variableDimension);
+        LLint hyperPeriod = HyperPeriod(tasks);
 
         LLint index = 0;
         LLint currTime = 0;
@@ -338,10 +411,19 @@ namespace DAG_SPACE
                                                                   sizeOfVariables,
                                                                   variableDimension);
             break;
+        case RM:
+            initialEstimate = GenerateInitial_RM(dagTasks,
+                                                 sizeOfVariables,
+                                                 variableDimension);
+            break;
+        case RM_DAG:
+            initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,
+                                                           sizeOfVariables,
+                                                           variableDimension);
         default:
-            initialEstimate = GenerateInitialForDAG_RM(dagTasks,
-                                                       sizeOfVariables,
-                                                       variableDimension);
+            initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,
+                                                           sizeOfVariables,
+                                                           variableDimension);
         }
         return initialEstimate;
     }

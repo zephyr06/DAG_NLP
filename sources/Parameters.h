@@ -10,7 +10,8 @@ enum InitializeMethod
 {
     IndexMode,
     FixedRelativeStart,
-    RM
+    RM,
+    RM_DAG
 };
 InitializeMethod Transform_enum(int a)
 {
@@ -20,6 +21,8 @@ InitializeMethod Transform_enum(int a)
         return FixedRelativeStart;
     else if (a == 2)
         return RM;
+    else if (a == 3)
+        return RM_DAG;
     else
     {
         CoutError("Not recognized enum InitializeMethod\n");
