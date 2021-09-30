@@ -1,20 +1,21 @@
 # TODO:
 1. Gradient vanish problem
-2. Initialize fully with RM
-3. Event hain analysis
+3. Event chain analysis
 - ErrorDimension = final job's instances
 - direct modeling: back-ward propogation to get event chain's response time
 - helper modeling: derive necessary condition for each instance, and add barrier function to them
+4. DBF Jacobian factor, do we use single dimension or M-dimension?
 
-
-test todo:
+# test todo:
 
 - * interval cover occurs at later stages *
 ---> solution: do not initialize with big overlap error
 - Test v35 for DBF zero error
 
-
-# Recent results:
+# Big TODO:
+- switch most factors to analytic Jacobian, and remove large '0' blocks if possible
+- Event chain factor: analysis, approximation and implementation
+- Gradient vanish:
 
 
 # IDEA
