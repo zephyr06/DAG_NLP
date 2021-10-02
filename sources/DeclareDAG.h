@@ -133,6 +133,13 @@ inline VectorDynamic GenerateVectorDynamic(LLint N)
     v.setZero();
     return v;
 }
+inline MatrixDynamic GenerateMatrixDynamic(LLint m, LLint n)
+{
+    MatrixDynamic mm;
+    mm.resize(m, n);
+    mm.setZero();
+    return mm;
+}
 
 template <class T>
 vector<T> Eigen2Vector(const VectorDynamic &input)
@@ -286,5 +293,74 @@ namespace DAG_SPACE
         }
         return actual;
     }
+    /**
+     * @brief Given an index, find the final index that it depends on;
+     * 
+     * @param index 
+     * @param mapIndex 
+     * @return LLint 
+     */
+    LLint FindLeaf(LLint index, const MAP_Index2Data &mapIndex)
+    {
+        if (index == mapIndex.at(index).getIndex())
+            return index;
+        else
+            return FindLeaf(mapIndex.at(index).getIndex(), mapIndex);
+        return -1;
+    }
 
+    /**
+     * @brief m maps from index in original startTimeVector to index in compressed startTimeVector
+     * 
+     * @param maskForEliminate 
+     * @return std::unordered_map<LLint, LLint> 
+     */
+    std::unordered_map<LLint, LLint> MapIndex_True2Compress(const vector<bool> &maskForEliminate)
+    {
+
+        std::unordered_map<LLint, LLint> m;
+        // count is the index in compressed startTimeVector
+        int count = 0;
+        for (size_t i = 0; i < maskForEliminate.size(); i++)
+        {
+            if (maskForEliminate.at(i) == false)
+                m[i] = count++;
+        }
+        return m;
+    }
+    /**
+     * @brief generate analytic Jacobian for elimination part
+     * 
+     * @param length 
+     * @param maskForEliminate 
+     * @param n 
+     * @param N 
+     * @param sizeOfVariables 
+     * @param mapIndex 
+     * @param mapIndex_True2Compress 
+     * @return MatrixDynamic 
+     */
+    MatrixDynamic JacobianElimination(LLint length, vector<bool> &maskForEliminate,
+                                      LLint n, LLint N, vector<LLint> &sizeOfVariables,
+                                      MAP_Index2Data &mapIndex,
+                                      std::unordered_map<LLint, LLint> &mapIndex_True2Compress)
+    {
+        LLint n0 = 0;
+        for (size_t i = 0; i < length; i++)
+            if (maskForEliminate[i] == false)
+                n0++;
+        MatrixDynamic j_map = GenerateMatrixDynamic(n, n0);
+        // go through all the variables
+        for (int i = 0; i < N; i++)
+        {
+            for (int j = 0; j < int(sizeOfVariables[i]); j++)
+            {
+                LLint bigIndex = IndexTran_Instance2Overall(i, j, sizeOfVariables);
+                // find its final dependency variable
+                LLint finalIndex = FindLeaf(bigIndex, mapIndex);
+                j_map(bigIndex, mapIndex_True2Compress[finalIndex]) = 1;
+            }
+        }
+        return j_map;
+    }
 }

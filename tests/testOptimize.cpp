@@ -1596,6 +1596,96 @@ TEST(GenerateInitial_RM, Multi_v2)
     assert_equal(expected, actual);
 }
 
+TEST(AnalyticJaocbian_DDL, v1)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+
+    Symbol key('a', 0);
+    LLint errorDimensionDDL = 2 * variableDimension;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
+    DDL_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDDL,
+                                mapIndex, maskForEliminate, model);
+
+    // VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(8, 1);
+    startTimeVector << 1, 2, 3, 4, 5, 6, 7, 8;
+    MatrixDynamic expect = NumericalDerivativeDynamicUpper(factor.f, startTimeVector, deltaOptimizer, errorDimensionDDL);
+    MatrixDynamic actual = factor.JacobianAnalytic(startTimeVector);
+    assert_equal(expect, actual);
+
+    // add mapping
+    mapIndex[1] = MappingDataStruct{3, 5};
+
+    expect = NumericalDerivativeDynamicUpper(factor.f, startTimeVector, deltaOptimizer, errorDimensionDDL);
+    actual = factor.JacobianAnalytic(startTimeVector);
+    assert_equal(expect, actual);
+}
+TEST(AnalyticJaocbian_DDL, v2)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+
+    mapIndex[1] = MappingDataStruct{3, 5};
+    mapIndex[3] = MappingDataStruct{5, 5};
+    mapIndex[2] = MappingDataStruct{4, 5};
+    maskForEliminate[1] = true;
+    maskForEliminate[2] = true;
+    maskForEliminate[3] = true;
+
+    Symbol key('a', 0);
+    LLint errorDimensionDDL = 2 * variableDimension;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
+    DDL_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDDL,
+                                mapIndex, maskForEliminate, model);
+
+    // VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(5, 1);
+    startTimeVector << 1, 4, -1, 6, 8;
+    MatrixDynamic expect = NumericalDerivativeDynamicUpper(factor.f, startTimeVector, deltaOptimizer, errorDimensionDDL);
+    MatrixDynamic actual = factor.JacobianAnalytic(startTimeVector);
+    assert_equal(expect, actual);
+}
 // TEST(GenerateInitialForDAG_RM_DAG, MultiProcessor_v1)
 // {
 //     using namespace DAG_SPACE;

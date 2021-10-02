@@ -28,21 +28,6 @@ namespace DAG_SPACE
             return 0;
     }
 
-    /**
-     * @brief Given an index, find the final index that it depends on;
-     * 
-     * @param index 
-     * @param mapIndex 
-     * @return LLint 
-     */
-    LLint FindLeaf(LLint index, const MAP_Index2Data &mapIndex)
-    {
-        if (index == mapIndex.at(index).getIndex())
-            return index;
-        else
-            return FindLeaf(mapIndex.at(index).getIndex(), mapIndex);
-        return -1;
-    }
     class DBF_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
     {
     public:
@@ -56,6 +41,7 @@ namespace DAG_SPACE
         // each element contains tasks belonging to the same processor
 
         ProcessorTaskSet processorTasks;
+        std::unordered_map<LLint, LLint> mapIndex_True2Compress;
 
         DBF_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables,
                              LLint errorDimension, MAP_Index2Data &mapIndex,
@@ -73,6 +59,7 @@ namespace DAG_SPACE
             {
                 length += sizeOfVariables[i];
             }
+            mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
         }
 
         Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
@@ -435,15 +422,7 @@ namespace DAG_SPACE
                 }
             }
 
-            // m maps from index in original startTimeVector to index in compressed startTimeVector
-            std::unordered_map<LLint, LLint> m;
-            // count is the index in compressed startTimeVector
-            int count = 0;
-            for (size_t i = 0; i < maskForEliminate.size(); i++)
-            {
-                if (maskForEliminate[i] == false)
-                    m[i] = count++;
-            }
+            auto m = MapIndex_True2Compress(maskForEliminate);
             vector<LLint> coverIndexInCompressed;
             coverIndexInCompressed.reserve(startTimeVectorOrig.rows());
             for (auto itr = indexSetBig.begin(); itr != indexSetBig.end(); itr++)
@@ -452,6 +431,7 @@ namespace DAG_SPACE
             }
             return coverIndexInCompressed;
         }
+
         /**
          * @brief this version of Jacobian estimation fix the Vanishing gradient problem;
          * 
