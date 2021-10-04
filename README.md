@@ -5,6 +5,7 @@
 - direct modeling: back-ward propogation to get event chain's response time
 - helper modeling: derive necessary condition for each instance, and add barrier function to them
 4. DBF Jacobian factor, do we use single dimension or M-dimension?
+5. When transforming from numerical Jacobian to analytic Jacobian, how to deal with 'discrete part'?
 
 # test todo:
 

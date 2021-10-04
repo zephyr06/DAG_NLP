@@ -42,3 +42,4 @@ upperLambda: 1e60
 weightLogBarrier: -1.0
 setUseFixedLambdaFactor: 1
 batchTestMethod: 2 # 1 means NLP, 2 means SA, 0 means initial
+numericalJaobian: 1

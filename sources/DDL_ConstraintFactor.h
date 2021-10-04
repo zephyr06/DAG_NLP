@@ -65,7 +65,7 @@ namespace DAG_SPACE
 
             return res;
         };
-        MatrixDynamic JacobianAnalytic(VectorDynamic &startTimeVectorOrig)
+        MatrixDynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
         {
             VectorDynamic startTimeVector = RecoverStartTimeVector(
                 startTimeVectorOrig, maskForEliminate, mapIndex);
@@ -115,7 +115,10 @@ namespace DAG_SPACE
 
             if (H)
             {
-                *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
+                if (numericalJaobian)
+                    *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
+                else
+                    *H = JacobianAnalytic(startTimeVector);
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {

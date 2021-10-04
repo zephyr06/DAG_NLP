@@ -50,6 +50,7 @@ const double FreshTol = (double)ConfigParameters["FreshTol"];
 const int moreElimination = (int)ConfigParameters["moreElimination"];
 const int ElimnateLoop_Max = (int)ConfigParameters["ElimnateLoop_Max"];
 
+const int numericalJaobian = (int)ConfigParameters["numericalJaobian"];
 const int setUseFixedLambdaFactor = (int)ConfigParameters["setUseFixedLambdaFactor"];
 InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initializeMethod"]);
 const double weightPrior_factor = (double)ConfigParameters["weightPrior_factor"];

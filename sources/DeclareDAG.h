@@ -340,25 +340,25 @@ namespace DAG_SPACE
      * @param mapIndex_True2Compress 
      * @return MatrixDynamic 
      */
-    MatrixDynamic JacobianElimination(LLint length, vector<bool> &maskForEliminate,
-                                      LLint n, LLint N, vector<LLint> &sizeOfVariables,
-                                      MAP_Index2Data &mapIndex,
-                                      std::unordered_map<LLint, LLint> &mapIndex_True2Compress)
+    MatrixDynamic JacobianElimination(LLint length, const vector<bool> &maskForEliminate,
+                                      LLint n, LLint N, const vector<LLint> &sizeOfVariables,
+                                      const MAP_Index2Data &mapIndex,
+                                      const std::unordered_map<LLint, LLint> &mapIndex_True2Compress)
     {
         LLint n0 = 0;
         for (size_t i = 0; i < length; i++)
-            if (maskForEliminate[i] == false)
+            if (maskForEliminate.at(i) == false)
                 n0++;
         MatrixDynamic j_map = GenerateMatrixDynamic(n, n0);
         // go through all the variables
         for (int i = 0; i < N; i++)
         {
-            for (int j = 0; j < int(sizeOfVariables[i]); j++)
+            for (int j = 0; j < int(sizeOfVariables.at(i)); j++)
             {
                 LLint bigIndex = IndexTran_Instance2Overall(i, j, sizeOfVariables);
                 // find its final dependency variable
                 LLint finalIndex = FindLeaf(bigIndex, mapIndex);
-                j_map(bigIndex, mapIndex_True2Compress[finalIndex]) = 1;
+                j_map(bigIndex, mapIndex_True2Compress.at(finalIndex)) = 1;
             }
         }
         return j_map;
