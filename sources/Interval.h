@@ -4,13 +4,22 @@ struct Interval
 {
     double start;
     double length;
+    LLint indexInSTV;
 
-    Interval(double s1, double l1) : start(s1), length(l1) {}
+    Interval(double s1, double l1) : start(s1), length(l1) { indexInSTV = 0; }
+    Interval(double s1, double l1, LLint i) : start(s1), length(l1), indexInSTV(i) {}
 };
 bool compare(Interval &i1, Interval &i2)
 {
     return (i1.start < i2.start);
 }
+/**
+ * @brief always return v1 - v2;
+ * 
+ * @param v1 
+ * @param v2 
+ * @return first double, overlap error
+ */
 double Overlap(Interval &v1, Interval &v2)
 {
     double f1 = v1.start + v1.length;
@@ -19,7 +28,7 @@ double Overlap(Interval &v1, Interval &v2)
         return 0;
     else if (v2.start <= v1.start && f2 >= v1.start && f1 >= f2)
     {
-        return f2 - v1.start;
+        return (f2 - v1.start);
     }
     else if (v2.start > v1.start && f2 < f1)
     {
@@ -39,6 +48,44 @@ double Overlap(Interval &v1, Interval &v2)
         throw;
     }
     return 0;
+}
+
+/**
+ * @brief gradient w.r.t. start time of interval
+ * 
+ * @param v1 
+ * @param v2 
+ * @return first double, gradient w.r.t. v1.start
+ *         second double, gradient w.r.t. v2.start
+ */
+pair<double, double> OverlapGradient(Interval &v1, Interval &v2)
+{
+    double f1 = v1.start + v1.length;
+    double f2 = v2.start + v2.length;
+    if (v1.start >= f2 || v2.start >= f1)
+        return make_pair(0, 0);
+    else if (v2.start <= v1.start && f2 >= v1.start && f1 >= f2)
+    {
+        return make_pair(-1, 1);
+    }
+    else if (v2.start > v1.start && f2 < f1)
+    {
+        return make_pair(0, 0);
+    }
+    else if (v1.start > v2.start && f1 < f2)
+    {
+        return make_pair(0, 0);
+    }
+    else if (f1 >= v2.start && f2 >= f1 && v1.start <= v2.start)
+    {
+        return make_pair(1, -1);
+    }
+    else
+    {
+        cout << Color::red << "Error in Overlap, no case found!" << Color::def << endl;
+        throw;
+    }
+    return make_pair(0, 0);
 }
 
 double IntervalOverlapError(vector<Interval> &intervalVec)

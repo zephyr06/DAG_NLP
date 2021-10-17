@@ -60,7 +60,7 @@ namespace DAG_SPACE
             return res;
         };
 
-        MatrixDynamic JacobianAnalytic(VectorDynamic &startTimeVectorOrig)
+        MatrixDynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
         {
             VectorDynamic startTimeVector = RecoverStartTimeVector(
                 startTimeVectorOrig, maskForEliminate, mapIndex);
@@ -105,8 +105,10 @@ namespace DAG_SPACE
 
             if (H)
             {
-                *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
-                // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
+                if (numericalJaobian)
+                    *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
+                else
+                    *H = JacobianAnalytic(startTimeVector);
                 if (debugMode == 1)
                 {
                     cout << "The Jacobian matrix of DAG_ConstraintFactor (including makespac) is " << endl

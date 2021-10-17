@@ -95,6 +95,44 @@ namespace DAG_SPACE
             return f(startTimeVector);
         }
 
+        MatrixDynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
+        {
+            VectorDynamic startTimeVector = RecoverStartTimeVector(
+                startTimeVectorOrig, maskForEliminate, mapIndex);
+
+            int m = errorDimension;
+            LLint n = length;
+            // y -> x
+            MatrixDynamic j_yx = GenerateMatrixDynamic(m, n);
+            j_yx.resize(m, n);
+
+            for (auto proPtr = processorTasks.begin(); proPtr != processorTasks.end(); proPtr++)
+            {
+                vector<Interval> intervalVec = DbfInterval(startTimeVector, proPtr->first);
+                sort(intervalVec.begin(), intervalVec.end(), compare);
+
+                int n = intervalVec.size();
+                for (size_t i = 0; i < n; i++)
+                {
+                    double endTime = intervalVec[i].start + intervalVec[i].length;
+                    for (size_t j = i + 1; j < n; j++)
+                    {
+                        if (intervalVec[j].start >= endTime)
+                            break;
+                        else
+                        {
+                            auto gPair = OverlapGradient(intervalVec[i], intervalVec[j]);
+                            j_yx(proPtr->first, intervalVec[i].indexInSTV) += gPair.first;
+                            j_yx(proPtr->first, intervalVec[j].indexInSTV) += gPair.second;
+                        }
+                    }
+                }
+            }
+            MatrixDynamic j_map = JacobianElimination(length, maskForEliminate, n, N,
+                                                      sizeOfVariables, mapIndex, mapIndex_True2Compress);
+            return j_yx * j_map;
+        }
+
         // /**
         //  * @brief this function performs in-place modification; return results are stored at
         //  * whetherEliminate and mapIndex!
@@ -306,24 +344,24 @@ namespace DAG_SPACE
          */
         vector<Interval> CreateIntervalFromSTVSameOrder(vector<LLint> &tree1, const VectorDynamic &startTimeVector) const
         {
-            size_t n = tree1.size();
+            LLint n = tree1.size();
             vector<Interval> intervalVec;
             intervalVec.reserve(n);
-            for (size_t i = 0; i < n; i++)
+            for (LLint i = 0; i < n; i++)
             {
-                size_t index = tree1[i];
+                LLint index = tree1[i];
                 double start = startTimeVector.coeff(index, 0);
                 double length = tasks[BigIndex2TaskIndex(index, sizeOfVariables)].executionTime;
-                intervalVec.push_back(Interval{start, length});
+                intervalVec.push_back(Interval{start, length, index});
             }
             return intervalVec;
         }
 
-        double DbfIntervalOverlapError(const VectorDynamic &startTimeVector, int processorId)
+        vector<Interval> DbfInterval(const VectorDynamic &startTimeVector, int processorId) const
         {
             vector<LLint> indexes;
             indexes.reserve(startTimeVector.size());
-            for (int taskId : processorTasks[processorId])
+            for (int taskId : processorTasks.at(processorId))
             {
                 for (int j = 0; j < sizeOfVariables[taskId]; j++)
                 {
@@ -333,6 +371,12 @@ namespace DAG_SPACE
             vector<Interval> intervalVec = CreateIntervalFromSTVSameOrder(indexes,
                                                                           startTimeVector);
 
+            return intervalVec;
+        }
+
+        double DbfIntervalOverlapError(const VectorDynamic &startTimeVector, int processorId)
+        {
+            vector<Interval> intervalVec = DbfInterval(startTimeVector, processorId);
             return IntervalOverlapError(intervalVec);
         }
 
