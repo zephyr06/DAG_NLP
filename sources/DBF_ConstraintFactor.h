@@ -67,7 +67,13 @@ namespace DAG_SPACE
 
             if (H)
             {
-                *H = NumericalDerivativeDynamicUpperDBF(f, startTimeVector, deltaOptimizer, errorDimension);
+                if (numericalJaobian)
+                {
+                    *H = NumericalDerivativeDynamicUpperDBF(f, startTimeVector, deltaOptimizer, errorDimension);
+                }
+                else
+                    *H = DBFJacobian(f, startTimeVector, deltaOptimizer, errorDimension);
+
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {
@@ -106,27 +112,28 @@ namespace DAG_SPACE
             MatrixDynamic j_yx = GenerateMatrixDynamic(m, n);
             j_yx.resize(m, n);
 
+            int processorIndex = 0;
             for (auto proPtr = processorTasks.begin(); proPtr != processorTasks.end(); proPtr++)
             {
                 vector<Interval> intervalVec = DbfInterval(startTimeVector, proPtr->first);
                 sort(intervalVec.begin(), intervalVec.end(), compare);
 
-                int n = intervalVec.size();
-                for (size_t i = 0; i < n; i++)
+                for (LLint i = 0; i < LLint(intervalVec.size()); i++)
                 {
                     double endTime = intervalVec[i].start + intervalVec[i].length;
-                    for (size_t j = i + 1; j < n; j++)
+                    for (LLint j = i + 1; j < LLint(intervalVec.size()); j++)
                     {
-                        if (intervalVec[j].start >= endTime)
+                        if (intervalVec[j].start > endTime + deltaOptimizer)
                             break;
                         else
                         {
                             auto gPair = OverlapGradient(intervalVec[i], intervalVec[j]);
-                            j_yx(proPtr->first, intervalVec[i].indexInSTV) += gPair.first;
-                            j_yx(proPtr->first, intervalVec[j].indexInSTV) += gPair.second;
+                            j_yx(processorIndex, intervalVec[i].indexInSTV) += gPair.first;
+                            j_yx(processorIndex, intervalVec[j].indexInSTV) += gPair.second;
                         }
                     }
                 }
+                processorIndex++;
             }
             MatrixDynamic j_map = JacobianElimination(length, maskForEliminate, n, N,
                                                       sizeOfVariables, mapIndex, mapIndex_True2Compress);
@@ -380,20 +387,20 @@ namespace DAG_SPACE
             return IntervalOverlapError(intervalVec);
         }
 
-        VectorDynamic DbfIntervalOverlapError(const VectorDynamic &startTimeVector)
-        {
-            // vector<LLint> indexes = Eigen2Vector<LLint>(startTimeVector);
-            vector<LLint> indexes;
-            indexes.reserve(startTimeVector.size());
-            for (size_t i = 0; i < startTimeVector.size(); i++)
-                indexes.push_back(i);
-            vector<Interval> intervalVec = CreateIntervalFromSTVSameOrder(indexes, startTimeVector);
+        // VectorDynamic DbfIntervalOverlapError(const VectorDynamic &startTimeVector)
+        // {
+        //     // vector<LLint> indexes = Eigen2Vector<LLint>(startTimeVector);
+        //     vector<LLint> indexes;
+        //     indexes.reserve(startTimeVector.size());
+        //     for (size_t i = 0; i < startTimeVector.size(); i++)
+        //         indexes.push_back(i);
+        //     vector<Interval> intervalVec = CreateIntervalFromSTVSameOrder(indexes, startTimeVector);
 
-            VectorDynamic res;
-            res.resize(1, 1);
-            res(0, 0) = IntervalOverlapError(intervalVec);
-            return res;
-        }
+        //     VectorDynamic res;
+        //     res.resize(1, 1);
+        //     res(0, 0) = IntervalOverlapError(intervalVec);
+        //     return res;
+        // }
 
         bool CheckNoConflictionTree(const vector<LLint> &tree1, const vector<LLint> &tree2,
                                     const VectorDynamic &startTimeVector)
@@ -528,6 +535,63 @@ namespace DAG_SPACE
                     {
                         jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaOptimizer;
                     }
+                }
+                else
+                {
+                    int iteration = 0;
+                    double deltaInIteration = deltaOptimizer;
+                    while (iteration < maxJacobianIteration)
+                    {
+
+                        VectorDynamic xDelta = x;
+                        xDelta(i, 0) = xDelta(i, 0) + deltaInIteration;
+                        VectorDynamic resPlus;
+                        resPlus.resize(mOfJacobian, 1);
+                        resPlus = h(xDelta);
+                        xDelta(i, 0) = xDelta(i, 0) - 2 * deltaInIteration;
+                        VectorDynamic resMinus;
+                        resMinus.resize(mOfJacobian, 1);
+                        resMinus = h(xDelta);
+                        if (resPlus == resMinus && resPlus.norm() != 0)
+                        {
+                            deltaInIteration = deltaInIteration * 1.5;
+                            iteration++;
+                        }
+                        else
+                        {
+                            for (int j = 0; j < mOfJacobian; j++)
+                            {
+                                jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaInIteration;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return jacobian;
+        }
+
+        MatrixDynamic DBFJacobian(boost::function<VectorDynamic(const VectorDynamic &)> h,
+                                  const VectorDynamic &x, double deltaOptimizer,
+                                  int mOfJacobian) const
+        {
+            int n = x.rows();
+            MatrixDynamic jacobian = JacobianAnalytic(x);
+
+            vector<LLint> vanishGradientIndex = FindVanishIndex(x);
+            std::unordered_set<LLint> ss;
+            for (size_t i = 0; i < vanishGradientIndex.size(); i++)
+            {
+                ss.insert(vanishGradientIndex[i]);
+            }
+
+            for (int i = 0; i < n; i++)
+            {
+                // check whether this variable is directly
+                if (ss.find(i) == ss.end())
+                {
+                    ;
                 }
                 else
                 {

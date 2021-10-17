@@ -77,24 +77,46 @@ namespace DAG_SPACE
             j_yx.resize(m, n);
             // go through m
             LLint index_m = 0;
+            // Barrier function transforms all the negative error into positive error
             for (int i = 0; i < N; i++)
             {
                 for (int j = 0; j < int(sizeOfVariables[i]); j++)
                 {
-                    // Barrier function transforms all the negative error into positive error
-                    if ((tasks[i].deadline + j * tasks[i].period -
-                         ExtractVariable(startTimeVector, sizeOfVariables, i, j) -
-                         tasks[i].executionTime + 0) < 0)
+                    if (index_m == 99)
+                    {
+                        int a = 1;
+                    }
+                    // finish time is smaller than deadline
+                    double err1 = tasks[i].deadline + j * tasks[i].period -
+                                  ExtractVariable(startTimeVector, sizeOfVariables, i, j) -
+                                  tasks[i].executionTime;
+
+                    if (err1 <= 0 - deltaOptimizer)
                     {
                         j_yx(index_m * 2, index_m) = 1 * weightDDL_factor;
+                    }
+                    else if (err1 <= deltaOptimizer)
+                    {
+
+                        double errP1 = Barrier(err1 - deltaOptimizer);
+                        double errM1 = Barrier(err1 + deltaOptimizer);
+                        j_yx(index_m * 2, index_m) = (errP1 - errM1) / 2 / deltaOptimizer * weightDDL_factor;
                     }
                     else
                         j_yx(index_m * 2, index_m) = 0;
 
-                    if ((ExtractVariable(startTimeVector, sizeOfVariables, i, j) -
-                         (j * tasks[i].period) + 0) < 0)
+                    // start time is larger than start of period
+                    double err2 = ExtractVariable(startTimeVector, sizeOfVariables, i, j) -
+                                  (j * tasks[i].period);
+                    if (err2 <= 0 - deltaOptimizer)
                     {
                         j_yx(index_m * 2 + 1, index_m) = -1 * weightDDL_factor;
+                    }
+                    else if (err2 <= deltaOptimizer)
+                    {
+                        double errP1 = Barrier(err2 + deltaOptimizer);
+                        double errM1 = Barrier(err2 - deltaOptimizer);
+                        j_yx(index_m * 2 + 1, index_m) = (errP1 - errM1) / 2 / deltaOptimizer * weightDDL_factor;
                     }
                     else
                         j_yx(index_m * 2 + 1, index_m) = 0;
@@ -122,8 +144,8 @@ namespace DAG_SPACE
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {
-                    cout << "The Jacobian matrix of DDL_ConstraintFactor is " << endl
-                         << *H << endl;
+                    // cout << "The Jacobian matrix of DDL_ConstraintFactor is " << endl
+                    //      << *H << endl;
                 }
                 if (debugMode == 1)
                 {

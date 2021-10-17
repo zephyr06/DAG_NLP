@@ -1596,8 +1596,10 @@ TEST(GenerateInitial_RM, Multi_v2)
     assert_equal(expected, actual);
 }
 
-TEST(AnalyticJaocbian_DDL, v1)
+TEST(AnalyticJaocbian_DDL, v4)
+
 {
+    cout << "AnalyticJaocbian_DDL, v4" << endl;
     using namespace DAG_SPACE;
     auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
@@ -1640,6 +1642,7 @@ TEST(AnalyticJaocbian_DDL, v1)
     expect = NumericalDerivativeDynamicUpper(factor.f, startTimeVector, deltaOptimizer, errorDimensionDDL);
     actual = factor.JacobianAnalytic(startTimeVector);
     assert_equal(expect, actual);
+    AssertEigenEqualMatrix(expect, actual);
 }
 TEST(AnalyticJaocbian_DDL, v2)
 {
@@ -1686,6 +1689,44 @@ TEST(AnalyticJaocbian_DDL, v2)
     MatrixDynamic actual = factor.JacobianAnalytic(startTimeVector);
     assert_equal(expect, actual);
 }
+
+TEST(AnalyticJaocbian_DDL, v3)
+{
+    cout << "AnalyticJaocbian_DDL, v3" << endl;
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v36.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+
+    Symbol key('a', 0);
+    LLint errorDimensionDDL = 2 * variableDimension;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
+    DDL_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDDL,
+                                mapIndex, maskForEliminate, model);
+
+    VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
+    MatrixDynamic expect = NumericalDerivativeDynamicUpper(factor.f, startTimeVector, deltaOptimizer, errorDimensionDDL);
+    MatrixDynamic actual = factor.JacobianAnalytic(startTimeVector);
+    assert_equal(expect, actual);
+    AssertEigenEqualMatrix(expect, actual);
+}
 TEST(AnalyticJaocbian_DAG, v1)
 {
     using namespace DAG_SPACE;
@@ -1723,6 +1764,7 @@ TEST(AnalyticJaocbian_DAG, v1)
     MatrixDynamic expect = NumericalDerivativeDynamicUpper(factor.f, startTimeVector, deltaOptimizer, errorDimensionDAG);
     MatrixDynamic actual = factor.JacobianAnalytic(startTimeVector);
     assert_equal(expect, actual);
+    AssertEigenEqualMatrix(expect, actual);
 }
 TEST(AnalyticJaocbian_DAG, v2)
 {
@@ -1765,6 +1807,42 @@ TEST(AnalyticJaocbian_DAG, v2)
     VectorDynamic startTimeVector;
     startTimeVector.resize(5, 1);
     startTimeVector << 1, 4, -1, 6, 8;
+    MatrixDynamic expect = NumericalDerivativeDynamicUpper(factor.f, startTimeVector, deltaOptimizer, errorDimensionDAG);
+    MatrixDynamic actual = factor.JacobianAnalytic(startTimeVector);
+    assert_equal(expect, actual);
+}
+TEST(AnalyticJaocbian_DAG, v3)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v36.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+
+    Symbol key('a', 0);
+    LLint errorDimensionDAG = dagTasks.edgeNumber();
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
+    DAG_ConstraintFactor factor(key, dagTasks, sizeOfVariables, errorDimensionDAG,
+                                mapIndex, maskForEliminate, model);
+
+    VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
+
     MatrixDynamic expect = NumericalDerivativeDynamicUpper(factor.f, startTimeVector, deltaOptimizer, errorDimensionDAG);
     MatrixDynamic actual = factor.JacobianAnalytic(startTimeVector);
     assert_equal(expect, actual);
@@ -1816,11 +1894,10 @@ TEST(AnalyticJaocbian_DBF, v1)
     VectorDynamic startTimeVector;
     startTimeVector.resize(5, 1);
     startTimeVector << 1, 4, -1, 6, 8;
-    MatrixDynamic expect = NumericalDerivativeDynamicUpper(factor.f, startTimeVector, deltaOptimizer, errorDimensionDBF);
-    MatrixDynamic expectAna = GenerateMatrixDynamic(1, 5);
-    expectAna << 6, -3, 4, -2, -5;
-    MatrixDynamic actual = factor.JacobianAnalytic(startTimeVector);
-    assert_equal(expectAna, actual);
+    MatrixDynamic expect = factor.NumericalDerivativeDynamicUpperDBF(factor.f, startTimeVector, deltaOptimizer, errorDimensionDBF);
+
+    MatrixDynamic actual = factor.DBFJacobian(factor.f, startTimeVector, deltaOptimizer, errorDimensionDBF);
+    assert_equal(expect, actual);
 }
 
 TEST(AnalyticJaocbian_DBF, v2)
@@ -1869,11 +1946,53 @@ TEST(AnalyticJaocbian_DBF, v2)
     VectorDynamic startTimeVector;
     startTimeVector.resize(5, 1);
     startTimeVector << 1, 2, 3, 4, 5;
-    MatrixDynamic expect = NumericalDerivativeDynamicUpper(factor.f, startTimeVector, deltaOptimizer, errorDimensionDBF);
-    MatrixDynamic expectAna = GenerateMatrixDynamic(1, 5);
-    expectAna << 6, 3, -8, 1, -2;
-    MatrixDynamic actual = factor.JacobianAnalytic(startTimeVector);
-    // assert_equal(expectAna, actual);
+    MatrixDynamic expect = factor.NumericalDerivativeDynamicUpperDBF(factor.f, startTimeVector, deltaOptimizer, errorDimensionDBF);
+
+    MatrixDynamic actual = factor.DBFJacobian(factor.f, startTimeVector, deltaOptimizer, errorDimensionDBF);
+    assert_equal(expect, actual);
+    // assert_equal(expect, actual);
+}
+
+TEST(AnalyticJaocbian_DBF, v3)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v36.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+
+    Symbol key('a', 0);
+    LLint errorDimensionDAG = dagTasks.edgeNumber();
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
+    ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+    LLint errorDimensionDBF = processorTaskSet.size();
+    model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    DBF_ConstraintFactor factor(key, dagTasks.tasks, sizeOfVariables,
+                                errorDimensionDBF, mapIndex,
+                                maskForEliminate, processorTaskSet,
+                                model);
+
+    VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
+
+    MatrixDynamic expect = factor.NumericalDerivativeDynamicUpperDBF(factor.f, startTimeVector, deltaOptimizer, errorDimensionDBF);
+
+    MatrixDynamic actual = factor.DBFJacobian(factor.f, startTimeVector, deltaOptimizer, errorDimensionDBF);
     assert_equal(expect, actual);
 }
 // TEST(GenerateInitialForDAG_RM_DAG, MultiProcessor_v1)

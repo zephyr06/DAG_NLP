@@ -35,11 +35,11 @@ SA_iteration: 100000
 sensorFusionTolerance: 200
 FreshTol: 1000000000
 temperatureSA: 100000000
-testDataSetName: test_n5_v35
+testDataSetName: test_n5_v36
 tightEliminate: 0
 toleranceEliminator: 1
 upperLambda: 1e60
 weightLogBarrier: -1.0
 setUseFixedLambdaFactor: 1
-batchTestMethod: 2 # 1 means NLP, 2 means SA, 0 means initial
-numericalJaobian: 1
+batchTestMethod: 1 # 1 means NLP, 2 means SA, 0 means initial
+numericalJaobian: 0

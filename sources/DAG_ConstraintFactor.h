@@ -84,12 +84,27 @@ namespace DAG_SPACE
                     double err = ExtractVariable(startTimeVector, sizeOfVariables, indexNext, 0) -
                                  ExtractVariable(startTimeVector, sizeOfVariables, tasksPrev[i].id, 0) -
                                  tasksPrev[i].executionTime;
-                    if (err < 0)
+                    // err = Barrier(err);
+                    if (err < -deltaOptimizer * 10 - 10000000)
                     {
                         LLint index_N_overall = IndexTran_Instance2Overall(indexNext, 0, sizeOfVariables);
                         LLint index_P_overall = IndexTran_Instance2Overall(tasksPrev[i].id, 0, sizeOfVariables);
                         j_yx(index_m, index_N_overall) = -1;
                         j_yx(index_m++, index_P_overall) = 1;
+                    }
+                    else if (err < deltaOptimizer * 20)
+                    {
+                        double x1 = ExtractVariable(startTimeVector, sizeOfVariables, indexNext, 0);
+                        double x2 = ExtractVariable(startTimeVector, sizeOfVariables, tasksPrev[i].id, 0);
+                        double c = tasksPrev[i].executionTime;
+                        double errPlus1 = Barrier(x1 + deltaOptimizer - x2 - c);
+                        double errMinus1 = Barrier(x1 - deltaOptimizer - x2 - c);
+                        double errPlus2 = Barrier(x1 - deltaOptimizer - x2 - c);
+                        double errMinus2 = Barrier(x1 + deltaOptimizer - x2 - c);
+                        LLint index_N_overall = IndexTran_Instance2Overall(indexNext, 0, sizeOfVariables);
+                        LLint index_P_overall = IndexTran_Instance2Overall(tasksPrev[i].id, 0, sizeOfVariables);
+                        j_yx(index_m, index_N_overall) = (errPlus1 - errMinus1) / 2 / deltaOptimizer;
+                        j_yx(index_m++, index_P_overall) = (errPlus2 - errMinus2) / 2 / deltaOptimizer;
                     }
                 }
             }
