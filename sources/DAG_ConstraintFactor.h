@@ -69,7 +69,6 @@ namespace DAG_SPACE
             LLint n = length;
             // y -> x
             MatrixDynamic j_yx = GenerateMatrixDynamic(m, n);
-            j_yx.resize(m, n);
             // go through m
             LLint index_m = 0;
 
@@ -85,14 +84,19 @@ namespace DAG_SPACE
                                  ExtractVariable(startTimeVector, sizeOfVariables, tasksPrev[i].id, 0) -
                                  tasksPrev[i].executionTime;
                     // err = Barrier(err);
-                    if (err < -deltaOptimizer * 10 - 10000000)
+                    if (err >= deltaOptimizer)
+                    {
+                        index_m++;
+                        // continue;
+                    }
+                    else if (err <= -deltaOptimizer)
                     {
                         LLint index_N_overall = IndexTran_Instance2Overall(indexNext, 0, sizeOfVariables);
                         LLint index_P_overall = IndexTran_Instance2Overall(tasksPrev[i].id, 0, sizeOfVariables);
                         j_yx(index_m, index_N_overall) = -1;
                         j_yx(index_m++, index_P_overall) = 1;
                     }
-                    else if (err < deltaOptimizer * 20)
+                    else if (err > -deltaOptimizer && err < deltaOptimizer)
                     {
                         double x1 = ExtractVariable(startTimeVector, sizeOfVariables, indexNext, 0);
                         double x2 = ExtractVariable(startTimeVector, sizeOfVariables, tasksPrev[i].id, 0);
@@ -112,6 +116,7 @@ namespace DAG_SPACE
             // x -> x0
             MatrixDynamic j_map = JacobianElimination(length, maskForEliminate, n, N,
                                                       sizeOfVariables, mapIndex, mapIndex_True2Compress);
+
             return j_yx * j_map;
         }
         Vector evaluateError(const VectorDynamic &startTimeVector,

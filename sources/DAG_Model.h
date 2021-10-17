@@ -3,7 +3,7 @@
 
 namespace DAG_SPACE
 {
-    typedef unordered_map<int, TaskSet> MAP_Prev;
+    typedef std::map<int, TaskSet> MAP_Prev;
     using namespace RegularTaskSystem;
     class DAG_Model
     {
