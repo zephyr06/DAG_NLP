@@ -41,7 +41,7 @@ namespace DAG_SPACE
         // TODO: design some tests for SensorFusion
         Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
         {
-
+            BeginTimer("Sensor_evaluateError");
             boost::function<Matrix(const VectorDynamic &)> f =
                 [this](const VectorDynamic &startTimeVectorOrig)
             {
@@ -154,7 +154,7 @@ namespace DAG_SPACE
                     cout << "The error vector of SensorFusion is " << Color::blue << f(startTimeVector) << Color::def << endl;
                 }
             }
-
+            EndTimer("Sensor_evaluateError");
             return f(startTimeVector);
         }
     };

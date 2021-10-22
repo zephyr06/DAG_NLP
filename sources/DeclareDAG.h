@@ -22,12 +22,14 @@
 #include "Parameters.h"
 #include "colormod.h"
 #include "testMy.h"
+#include "profilier.h"
 
 using namespace std;
 using namespace gtsam;
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixDynamic;
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> VectorDynamic;
+
 typedef long long int LLint;
 typedef std::map<int, vector<int>> ProcessorTaskSet;
 struct MappingDataStruct

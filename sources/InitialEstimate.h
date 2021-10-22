@@ -396,10 +396,22 @@ namespace DAG_SPACE
      */
     VectorDynamic GenerateInitial(DAG_Model &dagTasks,
                                   vector<LLint> &sizeOfVariables,
-                                  int variableDimension)
+                                  int variableDimension, VectorDynamic initialUser = GenerateVectorDynamic(1))
     {
-        InitializeMethod _initializeMethod = initializeMethod;
         VectorDynamic initialEstimate;
+        if (initialUser.norm() != 0)
+        {
+            LLint size = GenerateInitial(dagTasks, sizeOfVariables, variableDimension).rows();
+            initialEstimate = initialUser;
+            if (initialUser.rows() != size)
+            {
+                CoutError("User input initial vector has wrong length!");
+            }
+            return initialUser;
+        }
+
+        InitializeMethod _initializeMethod = initializeMethod;
+
         switch (_initializeMethod)
         {
         case IndexMode:

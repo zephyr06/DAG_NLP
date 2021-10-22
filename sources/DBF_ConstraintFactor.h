@@ -64,7 +64,7 @@ namespace DAG_SPACE
 
         Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
         {
-
+            BeginTimer("DBF");
             if (H)
             {
                 if (numericalJaobian)
@@ -97,7 +97,7 @@ namespace DAG_SPACE
                     cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << endl;
                 }
             }
-
+            EndTimer("DBF");
             return f(startTimeVector);
         }
 
@@ -190,6 +190,8 @@ namespace DAG_SPACE
                                 Graph &eliminationTrees_Update,
                                 indexVertexMap &indexesBGL_Update)
         {
+            BeginTimer("addMap");
+
             VectorDynamic startTimeVector = RecoverStartTimeVector(resTemp, maskForEliminate_addMap, mapIndex);
             VectorDynamic res;
             res.resize(errorDimension, 1);
@@ -318,6 +320,7 @@ namespace DAG_SPACE
                     }
                 }
             }
+            EndTimer("addMap");
         }
         /**
          * @brief for error evaluation; this returns a VectorDynamic, 

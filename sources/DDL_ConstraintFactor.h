@@ -34,6 +34,7 @@ namespace DAG_SPACE
         boost::function<Matrix(const VectorDynamic &)> f =
             [this](const VectorDynamic &startTimeVectorOrig)
         {
+            BeginTimer("DDL_f");
             VectorDynamic startTimeVector = RecoverStartTimeVector(
                 startTimeVectorOrig, maskForEliminate, mapIndex);
             VectorDynamic res;
@@ -62,11 +63,12 @@ namespace DAG_SPACE
                 cout << Color::red << "The errorDimension is set wrong!" << Color::def << endl;
                 throw;
             }
-
+            EndTimer("DDL_f");
             return res;
         };
         MatrixDynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
         {
+            BeginTimer("DDL_H");
             VectorDynamic startTimeVector = RecoverStartTimeVector(
                 startTimeVectorOrig, maskForEliminate, mapIndex);
 
@@ -128,6 +130,9 @@ namespace DAG_SPACE
             // x -> x0
             MatrixDynamic j_map = JacobianElimination(length, maskForEliminate, n, N,
                                                       sizeOfVariables, mapIndex, mapIndex_True2Compress);
+            // cout << j_map << endl
+            //      << endl;
+            EndTimer("DDL_H");
             return j_yx * j_map;
         }
 
@@ -137,10 +142,12 @@ namespace DAG_SPACE
 
             if (H)
             {
+
                 if (numericalJaobian)
                     *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
                 else
                     *H = JacobianAnalytic(startTimeVector);
+
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {

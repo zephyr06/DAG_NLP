@@ -1995,30 +1995,122 @@ TEST(AnalyticJaocbian_DBF, v3)
     MatrixDynamic actual = factor.DBFJacobian(factor.f, startTimeVector, deltaOptimizer, errorDimensionDBF);
     assert_equal(expect, actual);
 }
-// TEST(GenerateInitialForDAG_RM_DAG, MultiProcessor_v1)
-// {
-//     using namespace DAG_SPACE;
-//     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v32.csv", "orig");
-//     TaskSet tasks = dagTasks.tasks;
-//     int N = tasks.size();
-//     LLint hyperPeriod = HyperPeriod(tasks);
-//     // declare variables
-//     vector<LLint> sizeOfVariables;
-//     int variableDimension = 0;
-//     for (int i = 0; i < N; i++)
-//     {
-//         LLint size = hyperPeriod / tasks[i].period;
-//         sizeOfVariables.push_back(size);
-//         variableDimension += size;
-//     }
-//     auto initial = GenerateInitialForDAG_RM_DAG(dagTasks, sizeOfVariables, variableDimension);
-//     VectorDynamic expected;
-//     expected.resize(8, 1);
-//     // order from DAG dependency : 4,3,2,1,0
-//     // detection order at 100: 2,4,0
-//     expected << 50, 100, 39, 27, 100, 14, 0, 110;
-//     assert_equal(expected, initial);
-// }
+// ************************************************************
+
+class test1Factor : public NoiseModelFactor1<VectorDynamic>
+{
+public:
+    double c;
+
+    test1Factor(Key key, double c, SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key), c(c) {}
+    Vector evaluateError(const VectorDynamic &startTimeVector,
+                         boost::optional<Matrix &> H = boost::none) const override
+    {
+        VectorDynamic err = GenerateVectorDynamic(1);
+        err(0, 0) = pow(c - startTimeVector(0, 0), 2);
+        if (H)
+        {
+            MatrixDynamic hh = GenerateMatrixDynamic(1, 1);
+            hh(0, 0) = 2 * (c - startTimeVector(0, 0)) * -1;
+            *H = hh;
+        }
+        return err;
+    }
+};
+TEST(somefactor, v1)
+{
+
+    // build the factor graph
+    NonlinearFactorGraph graph;
+    Symbol key('a', 0);
+
+    LLint errorDimensionMS = 1;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
+    graph.emplace_shared<test1Factor>(key, 0, model);
+    VectorDynamic initialEstimate = GenerateVectorDynamic(1);
+    initialEstimate << 10;
+    Values initialEstimateFG;
+    initialEstimateFG.insert(key, initialEstimate);
+
+    Values result;
+    if (optimizerType == 1)
+    {
+        DoglegParams params;
+        if (debugMode >= 1)
+            params.setVerbosityDL("VERBOSE");
+        params.setDeltaInitial(deltaInitialDogleg);
+        params.setRelativeErrorTol(relativeErrorTolerance);
+        params.setMaxIterations(maxIterations);
+        DoglegOptimizer optimizer(graph, initialEstimateFG, params);
+        result = optimizer.optimize();
+    }
+    else if (optimizerType == 2)
+    {
+        LevenbergMarquardtParams params;
+        params.setlambdaInitial(initialLambda);
+        if (debugMode >= 1)
+            params.setVerbosityLM("SUMMARY");
+        params.setlambdaLowerBound(lowerLambda);
+        params.setlambdaUpperBound(upperLambda);
+        params.setRelativeErrorTol(relativeErrorTolerance);
+        params.setMaxIterations(maxIterations);
+        params.setUseFixedLambdaFactor(setUseFixedLambdaFactor);
+        LevenbergMarquardtOptimizer optimizer(graph, initialEstimateFG, params);
+        result = optimizer.optimize();
+    }
+
+    VectorDynamic optComp = result.at<VectorDynamic>(key);
+    cout << "Test dummy: " << optComp << endl;
+}
+TEST(sensorFusion, v3)
+{
+    using namespace DAG_SPACE;
+    using namespace RegularTaskSystem;
+
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v38.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    Symbol key('a', 0);
+    LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
+
+    MAP_Index2Data mapIndex;
+    for (LLint i = 0; i < variableDimension; i++)
+    {
+        MappingDataStruct m{i, 0};
+        mapIndex[i] = m;
+    }
+    bool whetherEliminate = false;
+    vector<bool> maskForEliminate(variableDimension, false);
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
+    SensorFusion_ConstraintFactor factor(key, dagTasks, sizeOfVariables,
+                                         errorDimensionSF, sensorFusionTolerance,
+                                         mapIndex, maskForEliminate,
+                                         model);
+    VectorDynamic initial;
+    initial.resize(6, 1);
+    initial << 50.097, 39.065, 14.026, 26.054, 0.0137, 100;
+    sensorFusionTolerance = 39;
+    auto sth = factor.evaluateError(initial);
+    double defaultSF = sensorFusionTolerance;
+
+    AssertEqualScalar(0, sth(0, 0));
+
+    sensorFusionTolerance = defaultSF;
+}
+
 int main()
 {
     TestResult tr;

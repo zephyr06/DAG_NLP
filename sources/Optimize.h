@@ -131,10 +131,10 @@ namespace DAG_SPACE
             - event chain RTA
      * @return all the instances' start time
      */
-    pair<VectorDynamic, NonlinearFactorGraph> UnitOptimization(DAG_Model &dagTasks, VectorDynamic &initialEstimate,
-                                                               MAP_Index2Data mapIndex, vector<bool> &maskForEliminate,
-                                                               vector<LLint> &sizeOfVariables, int variableDimension,
-                                                               LLint hyperPeriod)
+    VectorDynamic UnitOptimization(DAG_Model &dagTasks, VectorDynamic &initialEstimate,
+                                   MAP_Index2Data mapIndex, vector<bool> &maskForEliminate,
+                                   vector<LLint> &sizeOfVariables, int variableDimension,
+                                   LLint hyperPeriod)
     {
         using namespace RegularTaskSystem;
 
@@ -217,7 +217,7 @@ namespace DAG_SPACE
         VectorDynamic optComp = result.at<VectorDynamic>(key);
         if (debugMode)
             cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
-        return make_pair(optComp, graph);
+        return optComp;
     }
 
     struct OptimizeResult
@@ -267,7 +267,7 @@ namespace DAG_SPACE
      * @param tasks 
      * @return VectorDynamic all the task instances' start time
      */
-    OptimizeResult OptimizeScheduling(DAG_Model &dagTasks)
+    OptimizeResult OptimizeScheduling(DAG_Model &dagTasks, VectorDynamic initialUser = GenerateVectorDynamic(1))
     {
         TaskSet tasks = dagTasks.tasks;
         int N = tasks.size();
@@ -283,8 +283,7 @@ namespace DAG_SPACE
             variableDimension += size;
         }
 
-        VectorDynamic initialEstimate = GenerateInitial(dagTasks,
-                                                        sizeOfVariables, variableDimension);
+        VectorDynamic initialEstimate = GenerateInitial(dagTasks, sizeOfVariables, variableDimension, initialUser);
 
         MAP_Index2Data mapIndex;
         for (LLint i = 0; i < variableDimension; i++)
@@ -305,14 +304,12 @@ namespace DAG_SPACE
         while (1)
         {
             whetherEliminate = false;
-            // TODO: modify interface later
-            auto sth = UnitOptimization(dagTasks, initialEstimate,
-                                        mapIndex, maskForEliminate,
-                                        sizeOfVariables, variableDimension,
-                                        hyperPeriod);
-
-            resTemp = sth.first;
-            // graph = sth.second;
+            BeginTimer("UnitOptimization");
+            resTemp = UnitOptimization(dagTasks, initialEstimate,
+                                       mapIndex, maskForEliminate,
+                                       sizeOfVariables, variableDimension,
+                                       hyperPeriod);
+            EndTimer("UnitOptimization");
             VectorDynamic startTimeComplete = RecoverStartTimeVector(resTemp, maskForEliminate, mapIndex);
 
             // factors that require elimination analysis are: DBF
@@ -361,7 +358,7 @@ namespace DAG_SPACE
             }
         }
 
-        initialEstimate = GenerateInitial(dagTasks, sizeOfVariables, variableDimension);
+        initialEstimate = GenerateInitial(dagTasks, sizeOfVariables, variableDimension, initialUser);
         double errorInitial = GraphErrorEvaluation(dagTasks, initialEstimate);
 
         cout << Color::blue << "The error before optimization is "
