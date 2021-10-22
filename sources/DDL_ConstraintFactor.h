@@ -139,7 +139,7 @@ namespace DAG_SPACE
         Vector evaluateError(const VectorDynamic &startTimeVector,
                              boost::optional<Matrix &> H = boost::none) const override
         {
-
+            BeginTimer("DDL_All");
             if (H)
             {
 
@@ -160,7 +160,7 @@ namespace DAG_SPACE
                     cout << "The error vector of DDL is " << Color::blue << f(startTimeVector) << Color::def << endl;
                 }
             }
-
+            EndTimer("DDL_All");
             return f(startTimeVector);
         }
     };

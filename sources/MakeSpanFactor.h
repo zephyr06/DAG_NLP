@@ -56,13 +56,30 @@ namespace DAG_SPACE
 
             return res;
         };
+        MatrixDynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
+        {
+            LLint n0 = 0;
+            for (size_t i = 0; i < length; i++)
+                if (maskForEliminate.at(i) == false)
+                    n0++;
+            if (makespanWeight == 0)
+                return GenerateMatrixDynamic(errorDimension, n0);
+            else
+            {
+                CoutError("no JacobianAnalytic is provided for makespanWeight=0");
+                return GenerateMatrixDynamic(errorDimension, n0);
+            }
+        }
         Vector evaluateError(const VectorDynamic &startTimeVector,
                              boost::optional<Matrix &> H = boost::none) const override
         {
-
+            BeginTimer("MakeSpan");
             if (H)
             {
-                *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
+                if (numericalJaobian)
+                    *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
+                else
+                    *H = JacobianAnalytic(startTimeVector);
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {
@@ -75,7 +92,7 @@ namespace DAG_SPACE
                     cout << "The error vector of MakeSpanFactor is " << Color::blue << f(startTimeVector) << Color::def << endl;
                 }
             }
-
+            EndTimer("MakeSpan");
             return f(startTimeVector);
         }
     };
