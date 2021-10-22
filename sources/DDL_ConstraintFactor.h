@@ -75,7 +75,7 @@ namespace DAG_SPACE
             int m = errorDimension;
             LLint n = length;
             // y -> x
-            MatrixDynamic j_yx = GenerateMatrixDynamic(m, n);
+            SM_Dynamic j_yx(m, n);
             j_yx.resize(m, n);
             // go through m
             LLint index_m = 0;
@@ -95,41 +95,41 @@ namespace DAG_SPACE
 
                     if (err1 <= 0 - deltaOptimizer)
                     {
-                        j_yx(index_m * 2, index_m) = 1 * weightDDL_factor;
+                        j_yx.insert(index_m * 2, index_m) = 1 * weightDDL_factor;
                     }
                     else if (err1 <= deltaOptimizer)
                     {
 
                         double errP1 = Barrier(err1 - deltaOptimizer);
                         double errM1 = Barrier(err1 + deltaOptimizer);
-                        j_yx(index_m * 2, index_m) = (errP1 - errM1) / 2 / deltaOptimizer * weightDDL_factor;
+                        j_yx.insert(index_m * 2, index_m) = (errP1 - errM1) / 2 / deltaOptimizer * weightDDL_factor;
                     }
                     else
-                        j_yx(index_m * 2, index_m) = 0;
+                        j_yx.insert(index_m * 2, index_m) = 0;
 
                     // start time is larger than start of period
                     double err2 = ExtractVariable(startTimeVector, sizeOfVariables, i, j) -
                                   (j * tasks[i].period);
                     if (err2 <= 0 - deltaOptimizer)
                     {
-                        j_yx(index_m * 2 + 1, index_m) = -1 * weightDDL_factor;
+                        j_yx.insert(index_m * 2 + 1, index_m) = -1 * weightDDL_factor;
                     }
                     else if (err2 <= deltaOptimizer)
                     {
                         double errP1 = Barrier(err2 + deltaOptimizer);
                         double errM1 = Barrier(err2 - deltaOptimizer);
-                        j_yx(index_m * 2 + 1, index_m) = (errP1 - errM1) / 2 / deltaOptimizer * weightDDL_factor;
+                        j_yx.insert(index_m * 2 + 1, index_m) = (errP1 - errM1) / 2 / deltaOptimizer * weightDDL_factor;
                     }
                     else
-                        j_yx(index_m * 2 + 1, index_m) = 0;
+                        j_yx.insert(index_m * 2 + 1, index_m) = 0;
 
                     index_m++;
                 }
             }
 
             // x -> x0
-            MatrixDynamic j_map = JacobianElimination(length, maskForEliminate, n, N,
-                                                      sizeOfVariables, mapIndex, mapIndex_True2Compress);
+            SM_Dynamic j_map = JacobianElimination(length, maskForEliminate, n, N,
+                                                   sizeOfVariables, mapIndex, mapIndex_True2Compress);
             // cout << j_map << endl
             //      << endl;
             EndTimer("DDL_H");

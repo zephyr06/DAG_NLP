@@ -114,7 +114,7 @@ namespace DAG_SPACE
             }
 
             // x -> x0
-            MatrixDynamic j_map = JacobianElimination(length, maskForEliminate, n, N,
+            SM_Dynamic j_map = JacobianElimination(length, maskForEliminate, n, N,
                                                       sizeOfVariables, mapIndex, mapIndex_True2Compress);
 
             return j_yx * j_map;

@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include <Eigen/Dense>
+#include <Eigen/SparseCore>
 #include <dirent.h>
 #include <gtsam/base/numericalDerivative.h>
 #include <gtsam/geometry/Point3.h>
@@ -29,6 +30,7 @@ using namespace gtsam;
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixDynamic;
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> VectorDynamic;
+typedef Eigen::SparseMatrix<double, Eigen::ColMajor> SM_Dynamic;
 
 typedef long long int LLint;
 typedef std::map<int, vector<int>> ProcessorTaskSet;
@@ -342,16 +344,16 @@ namespace DAG_SPACE
      * @param mapIndex_True2Compress 
      * @return MatrixDynamic 
      */
-    MatrixDynamic JacobianElimination(LLint length, const vector<bool> &maskForEliminate,
-                                      LLint n, LLint N, const vector<LLint> &sizeOfVariables,
-                                      const MAP_Index2Data &mapIndex,
-                                      const std::unordered_map<LLint, LLint> &mapIndex_True2Compress)
+    SM_Dynamic JacobianElimination(LLint length, const vector<bool> &maskForEliminate,
+                                   LLint n, LLint N, const vector<LLint> &sizeOfVariables,
+                                   const MAP_Index2Data &mapIndex,
+                                   const std::unordered_map<LLint, LLint> &mapIndex_True2Compress)
     {
         LLint n0 = 0;
         for (size_t i = 0; i < length; i++)
             if (maskForEliminate.at(i) == false)
                 n0++;
-        MatrixDynamic j_map = GenerateMatrixDynamic(n, n0);
+        SM_Dynamic j_map(n, n0);
         // go through all the variables
         for (int i = 0; i < N; i++)
         {
@@ -360,7 +362,7 @@ namespace DAG_SPACE
                 LLint bigIndex = IndexTran_Instance2Overall(i, j, sizeOfVariables);
                 // find its final dependency variable
                 LLint finalIndex = FindLeaf(bigIndex, mapIndex);
-                j_map(bigIndex, mapIndex_True2Compress.at(finalIndex)) = 1;
+                j_map.insert(bigIndex, mapIndex_True2Compress.at(finalIndex)) = 1;
             }
         }
         return j_map;
