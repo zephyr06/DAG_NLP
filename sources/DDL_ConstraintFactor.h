@@ -14,6 +14,7 @@ namespace DAG_SPACE
         LLint length;
         MAP_Index2Data mapIndex;
         vector<bool> maskForEliminate;
+        LLint lengthCompressed;
         std::unordered_map<LLint, LLint> mapIndex_True2Compress;
 
         DDL_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables, LLint errorDimension,
@@ -28,6 +29,12 @@ namespace DAG_SPACE
             for (int i = 0; i < N; i++)
             {
                 length += sizeOfVariables[i];
+            }
+            lengthCompressed = 0;
+            for (LLint i = 0; i < length; i++)
+            {
+                if (maskForEliminate[i] == false)
+                    lengthCompressed++;
             }
             mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
         }
@@ -128,7 +135,7 @@ namespace DAG_SPACE
             }
 
             // x -> x0
-            SM_Dynamic j_map = JacobianElimination(length, maskForEliminate, n, N,
+            SM_Dynamic j_map = JacobianElimination(length, lengthCompressed,
                                                    sizeOfVariables, mapIndex, mapIndex_True2Compress);
             // cout << j_map << endl
             //      << endl;

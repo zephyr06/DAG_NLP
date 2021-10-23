@@ -332,30 +332,35 @@ namespace DAG_SPACE
         }
         return m;
     }
+
+    inline void UpdateSM(double val, LLint i, LLint j, SM_Dynamic &sm)
+    {
+        // if (sm.coeffRef(i, j))
+        sm.coeffRef(i, j) = val;
+        // else
+        // {
+        //     sm.insert(i, j) = val;
+        // }
+    }
+
     /**
      * @brief generate analytic Jacobian for elimination part
      * 
-     * @param length 
-     * @param maskForEliminate 
-     * @param n 
-     * @param N 
+     * @param length the number of all the variables
      * @param sizeOfVariables 
-     * @param mapIndex 
+     * @param mapIndex encode elimination relationship
      * @param mapIndex_True2Compress 
-     * @return MatrixDynamic 
+     * @return j_map: (length, lengthCompressed)
+     * a sparse matrix that represents Jacobian matrix of compreseed variables w.r.t. original variables 
      */
-    SM_Dynamic JacobianElimination(LLint length, const vector<bool> &maskForEliminate,
-                                   LLint n, LLint N, const vector<LLint> &sizeOfVariables,
+    SM_Dynamic JacobianElimination(LLint length, LLint lengthCompressed,
+                                   const vector<LLint> &sizeOfVariables,
                                    const MAP_Index2Data &mapIndex,
                                    const std::unordered_map<LLint, LLint> &mapIndex_True2Compress)
     {
-        LLint n0 = 0;
-        for (size_t i = 0; i < length; i++)
-            if (maskForEliminate.at(i) == false)
-                n0++;
-        SM_Dynamic j_map(n, n0);
+        SM_Dynamic j_map(length, lengthCompressed);
         // go through all the variables
-        for (int i = 0; i < N; i++)
+        for (int i = 0; i < int(sizeOfVariables.size()); i++)
         {
             for (int j = 0; j < int(sizeOfVariables.at(i)); j++)
             {

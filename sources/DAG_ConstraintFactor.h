@@ -14,6 +14,7 @@ namespace DAG_SPACE
         LLint errorDimension;
         LLint length;
         vector<bool> maskForEliminate;
+        LLint lengthCompressed;
         MAP_Index2Data mapIndex;
         std::unordered_map<LLint, LLint> mapIndex_True2Compress;
 
@@ -32,7 +33,12 @@ namespace DAG_SPACE
             {
                 length += sizeOfVariables[i];
             }
-
+            lengthCompressed = 0;
+            for (LLint i = 0; i < length; i++)
+            {
+                if (maskForEliminate[i] == false)
+                    lengthCompressed++;
+            }
             mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
         }
         boost::function<Matrix(const VectorDynamic &)> f =
@@ -114,8 +120,8 @@ namespace DAG_SPACE
             }
 
             // x -> x0
-            SM_Dynamic j_map = JacobianElimination(length, maskForEliminate, n, N,
-                                                      sizeOfVariables, mapIndex, mapIndex_True2Compress);
+            SM_Dynamic j_map = JacobianElimination(length, lengthCompressed,
+                                                   sizeOfVariables, mapIndex, mapIndex_True2Compress);
 
             return j_yx * j_map;
         }

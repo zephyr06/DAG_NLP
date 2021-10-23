@@ -38,6 +38,7 @@ namespace DAG_SPACE
         LLint length;
         vector<bool> maskForEliminate;
         MAP_Index2Data mapIndex;
+        LLint lengthCompressed;
         // each element contains tasks belonging to the same processor
 
         ProcessorTaskSet processorTasks;
@@ -58,6 +59,12 @@ namespace DAG_SPACE
             for (int i = 0; i < N; i++)
             {
                 length += sizeOfVariables[i];
+            }
+            lengthCompressed = 0;
+            for (LLint i = 0; i < length; i++)
+            {
+                if (maskForEliminate[i]== false)
+                    lengthCompressed++;
             }
             mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
         }
@@ -135,8 +142,8 @@ namespace DAG_SPACE
                 }
                 processorIndex++;
             }
-            SM_Dynamic j_map = JacobianElimination(length, maskForEliminate, n, N,
-                                                      sizeOfVariables, mapIndex, mapIndex_True2Compress);
+            SM_Dynamic j_map = JacobianElimination(length, lengthCompressed,
+                                                   sizeOfVariables, mapIndex, mapIndex_True2Compress);
             return j_yx * j_map;
         }
 
