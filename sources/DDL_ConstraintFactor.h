@@ -73,7 +73,7 @@ namespace DAG_SPACE
             EndTimer("DDL_f");
             return res;
         };
-        MatrixDynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
+        SM_Dynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
         {
             BeginTimer("DDL_H");
             VectorDynamic startTimeVector = RecoverStartTimeVector(

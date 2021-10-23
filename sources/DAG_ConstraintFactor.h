@@ -74,7 +74,7 @@ namespace DAG_SPACE
             int m = errorDimension;
             LLint n = length;
             // y -> x
-            MatrixDynamic j_yx = GenerateMatrixDynamic(m, n);
+            SM_Dynamic j_yx(m, n);
             // go through m
             LLint index_m = 0;
 
@@ -99,8 +99,11 @@ namespace DAG_SPACE
                     {
                         LLint index_N_overall = IndexTran_Instance2Overall(indexNext, 0, sizeOfVariables);
                         LLint index_P_overall = IndexTran_Instance2Overall(tasksPrev[i].id, 0, sizeOfVariables);
-                        j_yx(index_m, index_N_overall) = -1;
-                        j_yx(index_m++, index_P_overall) = 1;
+                        // j_yx(index_m, index_N_overall) = -1;
+                        UpdateSM(-1, index_m, index_N_overall, j_yx);
+                        UpdateSM(1, index_m++, index_P_overall, j_yx);
+
+                        // j_yx(index_m++, index_P_overall) = 1;
                     }
                     else if (err > -deltaOptimizer && err < deltaOptimizer)
                     {
@@ -113,8 +116,10 @@ namespace DAG_SPACE
                         double errMinus2 = Barrier(x1 + deltaOptimizer - x2 - c);
                         LLint index_N_overall = IndexTran_Instance2Overall(indexNext, 0, sizeOfVariables);
                         LLint index_P_overall = IndexTran_Instance2Overall(tasksPrev[i].id, 0, sizeOfVariables);
-                        j_yx(index_m, index_N_overall) = (errPlus1 - errMinus1) / 2 / deltaOptimizer;
-                        j_yx(index_m++, index_P_overall) = (errPlus2 - errMinus2) / 2 / deltaOptimizer;
+                        // j_yx(index_m, index_N_overall) = (errPlus1 - errMinus1) / 2 / deltaOptimizer;
+                        UpdateSM((errPlus1 - errMinus1) / 2 / deltaOptimizer, index_m, index_N_overall, j_yx);
+                        // j_yx(index_m++, index_P_overall) = (errPlus2 - errMinus2) / 2 / deltaOptimizer;
+                        UpdateSM((errPlus2 - errMinus2) / 2 / deltaOptimizer, index_m++, index_P_overall, j_yx);
                     }
                 }
             }

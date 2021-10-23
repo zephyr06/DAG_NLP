@@ -63,7 +63,7 @@ namespace DAG_SPACE
             lengthCompressed = 0;
             for (LLint i = 0; i < length; i++)
             {
-                if (maskForEliminate[i]== false)
+                if (maskForEliminate[i] == false)
                     lengthCompressed++;
             }
             mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
@@ -71,16 +71,17 @@ namespace DAG_SPACE
 
         Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
         {
-            BeginTimer("DBF");
+            // BeginTimer("DBF");
             if (H)
             {
+                BeginTimer("DBF_H");
                 if (numericalJaobian)
                 {
                     *H = NumericalDerivativeDynamicUpperDBF(f, startTimeVector, deltaOptimizer, errorDimension);
                 }
                 else
                     *H = DBFJacobian(f, startTimeVector, deltaOptimizer, errorDimension);
-
+                EndTimer("DBF_H");
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {
@@ -104,7 +105,7 @@ namespace DAG_SPACE
                     cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << endl;
                 }
             }
-            EndTimer("DBF");
+            // EndTimer("DBF");
             return f(startTimeVector);
         }
 

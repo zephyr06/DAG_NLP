@@ -61,16 +61,20 @@ namespace DAG_SPACE
         Symbol key('a', 0);
         NonlinearFactorGraph graph;
         LLint errorDimensionMS = 1;
-        auto model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
-        graph.emplace_shared<MakeSpanFactor>(key, dagTasks, sizeOfVariables,
-                                             errorDimensionMS, mapIndex,
-                                             maskForEliminate, model);
 
         LLint errorDimensionDAG = dagTasks.edgeNumber();
-        model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
+        auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
         graph.emplace_shared<DAG_ConstraintFactor>(key, dagTasks, sizeOfVariables,
                                                    errorDimensionDAG, mapIndex,
                                                    maskForEliminate, model);
+        if (makespanWeight > 0)
+        {
+            LLint errorDimensionMS = 1;
+            model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
+            graph.emplace_shared<MakeSpanFactor>(key, dagTasks, sizeOfVariables,
+                                                 errorDimensionMS, mapIndex,
+                                                 maskForEliminate, model);
+        }
 
         ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
         LLint errorDimensionDBF = processorTaskSet.size();
@@ -85,12 +89,16 @@ namespace DAG_SPACE
         graph.emplace_shared<DDL_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
                                                    errorDimensionDDL, mapIndex,
                                                    maskForEliminate, model);
-        LLint errorDimensionPrior = 1;
-        vector<int> order = FindDependencyOrder(dagTasks);
-        model = noiseModel::Isotropic::Sigma(errorDimensionPrior, noiseModelSigma);
-        graph.emplace_shared<Prior_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
-                                                     errorDimensionPrior, mapIndex,
-                                                     maskForEliminate, 0.0, order[0], model);
+
+        if (weightPrior_factor > 0)
+        {
+            LLint errorDimensionPrior = 1;
+            vector<int> order = FindDependencyOrder(dagTasks);
+            model = noiseModel::Isotropic::Sigma(errorDimensionPrior, noiseModelSigma);
+            graph.emplace_shared<Prior_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
+                                                         errorDimensionPrior, mapIndex,
+                                                         maskForEliminate, 0.0, order[0], model);
+        }
 
         LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
         model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
@@ -144,17 +152,19 @@ namespace DAG_SPACE
         NonlinearFactorGraph graph;
         Symbol key('a', 0);
 
-        LLint errorDimensionMS = 1;
-        auto model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
-        graph.emplace_shared<MakeSpanFactor>(key, dagTasks, sizeOfVariables,
-                                             errorDimensionMS, mapIndex,
-                                             maskForEliminate, model);
-
         LLint errorDimensionDAG = dagTasks.edgeNumber();
-        model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
+        auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
         graph.emplace_shared<DAG_ConstraintFactor>(key, dagTasks, sizeOfVariables,
                                                    errorDimensionDAG, mapIndex,
                                                    maskForEliminate, model);
+        if (makespanWeight > 0)
+        {
+            LLint errorDimensionMS = 1;
+            model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
+            graph.emplace_shared<MakeSpanFactor>(key, dagTasks, sizeOfVariables,
+                                                 errorDimensionMS, mapIndex,
+                                                 maskForEliminate, model);
+        }
 
         ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
         LLint errorDimensionDBF = processorTaskSet.size();
@@ -170,12 +180,15 @@ namespace DAG_SPACE
                                                    errorDimensionDDL, mapIndex,
                                                    maskForEliminate, model);
 
-        LLint errorDimensionPrior = 1;
-        vector<int> order = FindDependencyOrder(dagTasks);
-        model = noiseModel::Isotropic::Sigma(errorDimensionPrior, noiseModelSigma);
-        graph.emplace_shared<Prior_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
-                                                     errorDimensionPrior, mapIndex,
-                                                     maskForEliminate, 0.0, order[0], model);
+        if (weightPrior_factor > 0)
+        {
+            LLint errorDimensionPrior = 1;
+            vector<int> order = FindDependencyOrder(dagTasks);
+            model = noiseModel::Isotropic::Sigma(errorDimensionPrior, noiseModelSigma);
+            graph.emplace_shared<Prior_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
+                                                         errorDimensionPrior, mapIndex,
+                                                         maskForEliminate, 0.0, order[0], model);
+        }
 
         LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
         model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
