@@ -23,7 +23,7 @@ readTaskMode: orig
 withAddedSensorFusionError: 1
 ElimnateLoop_Max: 50
 zeroJacobianDetectTol: 1e-7
-maxIterations: 1000
+maxIterations: 100
 moreElimination: 0
 weightPrior_factor: 0
 initializeMethod: 3

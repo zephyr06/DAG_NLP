@@ -217,7 +217,7 @@ namespace DAG_SPACE
             LevenbergMarquardtParams params;
             params.setlambdaInitial(initialLambda);
             if (debugMode >= 1)
-                params.setVerbosityLM("TRYDELTA");
+                params.setVerbosityLM("SUMMARY");
             params.setlambdaLowerBound(lowerLambda);
             params.setlambdaUpperBound(upperLambda);
             params.setRelativeErrorTol(relativeErrorTolerance);

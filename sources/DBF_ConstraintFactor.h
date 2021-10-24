@@ -104,6 +104,10 @@ namespace DAG_SPACE
                     cout << Color::green << "The input startTimeVector of DBF is " << startTimeVector << Color::def << endl;
                     cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << endl;
                 }
+                if (debugMode == 3)
+                {
+                    cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << endl;
+                }
             }
             // EndTimer("DBF");
             return f(startTimeVector);
@@ -148,40 +152,6 @@ namespace DAG_SPACE
             return j_yx * j_map;
         }
 
-        // /**
-        //  * @brief this function performs in-place modification; return results are stored at
-        //  * whetherEliminate and mapIndex!
-        //  *
-        //  * @param index_i_overall
-        //  * @param maskForEliminate
-        //  * @param whetherEliminate
-        //  * @param mapIndex
-        //  */
-        // void Eliminate_j_based_i(LLint index_j_overall, LLint index_i_overall,
-        //                          vector<bool> &maskForEliminate, bool &whetherEliminate,
-        //                          MAP_Index2Data &mapIndex, VectorDynamic &startTimeVector,
-        //                          double sumIJK, TaskSet &tasks, int j)
-        // {
-        //     maskForEliminate[index_j_overall] = true;
-        //     whetherEliminate = true;
-        //     // this should respect original relationship
-        //     if (tightEliminate == 1)
-        //     {
-        //         MappingDataStruct m{index_i_overall, sumIJK - tasks[j].executionTime};
-        //         mapIndex[index_j_overall] = m;
-        //     }
-        //     else if (tightEliminate == 0)
-        //     {
-        //         MappingDataStruct m{index_i_overall,
-        //                             startTimeVector(index_j_overall, 0) -
-        //                                 startTimeVector(index_i_overall, 0)};
-        //         mapIndex[index_j_overall] = m;
-        //     }
-        //     else
-        //     {
-        //         CoutError("Eliminate option error, not recognized!");
-        //     }
-        // }
         /**
          * @brief detecting elimination and update elimination records for both mapIndex and eliminationTrees_Update
          * 

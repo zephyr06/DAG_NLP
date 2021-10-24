@@ -1,3 +1,10 @@
+# Dependencies:
+- GTSAM
+- boost
+- Python
+    - Graphviz
+    - pydot (conda install -c rmg pydot)
+
 # TODO:
 1. Gradient vanish problem
 3. Event chain analysis
