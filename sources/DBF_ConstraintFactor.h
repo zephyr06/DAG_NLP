@@ -606,6 +606,7 @@ namespace DAG_SPACE
                 }
                 else
                 {
+                    BeginTimer("DBF_H_adjust");
                     int iteration = 0;
                     double deltaInIteration = deltaOptimizer;
                     while (iteration < maxJacobianIteration)
@@ -634,6 +635,7 @@ namespace DAG_SPACE
                             break;
                         }
                     }
+                    EndTimer("DBF_H_adjust");
                 }
             }
 

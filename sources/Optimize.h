@@ -274,6 +274,12 @@ namespace DAG_SPACE
         double errorInitial = GraphErrorEvaluation(dagTasks, initialEstimate);
         return {errorInitial, errorInitial, initialEstimate, initialEstimate};
     }
+
+    VectorDynamic RandomWalk(VectorDynamic &startTimeVector, DAG_Model &dagTasks,
+                             Graph &eliminationTrees, indexVertexMap &indexesBGL)
+    {
+        return startTimeVector;
+    }
     /**
      * @brief Perform scheduling based on optimization
      * 
@@ -325,6 +331,7 @@ namespace DAG_SPACE
             EndTimer("UnitOptimization");
             VectorDynamic startTimeComplete = RecoverStartTimeVector(resTemp, maskForEliminate, mapIndex);
 
+            startTimeComplete = RandomWalk(startTimeComplete, dagTasks, eliminationTrees, indexesBGL);
             // factors that require elimination analysis are: DBF
             ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
             LLint errorDimensionDBF = processorTaskSet.size();
