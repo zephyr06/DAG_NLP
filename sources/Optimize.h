@@ -278,6 +278,9 @@ namespace DAG_SPACE
     VectorDynamic RandomWalk(VectorDynamic &startTimeVector, DAG_Model &dagTasks,
                              Graph &eliminationTrees, indexVertexMap &indexesBGL)
     {
+        // IntervalTree={}
+        // for each interval intV:
+        //     if interval
         return startTimeVector;
     }
     /**

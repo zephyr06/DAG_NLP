@@ -27,6 +27,25 @@ namespace DAG_SPACE
         else
             return 0;
     }
+    inline double ComputationTime_IJK(double startTime_i, double startTime_j,
+                                      double length_j, double startTime_k, double length_k)
+    {
+        if (startTime_i <= startTime_k && startTime_k + length_k <= startTime_j + length_j)
+        {
+            return length_k;
+        }
+        else
+            return 0;
+    }
+    inline double ComputationTime_IJK(Interval &i_i, Interval &i_j, Interval &i_k)
+    {
+        if (i_i.start <= i_k.start && i_k.start + i_k.length <= i_j.start + i_j.length)
+        {
+            return i_k.length;
+        }
+        else
+            return 0;
+    }
 
     class DBF_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
     {
@@ -162,11 +181,11 @@ namespace DAG_SPACE
          * @param eliminationTrees_Update 
          * @param indexesBGL_Update properties access for eliminationTrees_Update
          */
-        void addMappingFunction(VectorDynamic &resTemp,
-                                MAP_Index2Data &mapIndex, bool &whetherEliminate,
-                                vector<bool> &maskForEliminate_addMap,
-                                Graph &eliminationTrees_Update,
-                                indexVertexMap &indexesBGL_Update)
+        void addMappingFunctionOld(VectorDynamic &resTemp,
+                                   MAP_Index2Data &mapIndex, bool &whetherEliminate,
+                                   vector<bool> &maskForEliminate_addMap,
+                                   Graph &eliminationTrees_Update,
+                                   indexVertexMap &indexesBGL_Update)
         {
             BeginTimer("addMap");
 
@@ -201,104 +220,190 @@ namespace DAG_SPACE
 
                             double sumIJK = 0;
                             double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
-                            // if (startTime_i <= startTime_j &&
-                            //     startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
-                            if (1)
+
+                            for (int k = 0; k < N; k++)
                             {
-                                for (int k = 0; k < N; k++)
+                                if (processorCurr != tasks[k].processorId)
+                                    continue;
+                                for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
                                 {
-                                    if (processorCurr != tasks[k].processorId)
-                                        continue;
-                                    for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
-                                    {
-                                        double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
-                                        sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
-                                    }
+                                    double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
+                                    sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
                                 }
-                                // computation speed can be improved by 1 times there
-                                double distanceToBound_j_i = startTime_j + tasks[j].executionTime - startTime_i - sumIJK;
-                                double distanceToBound_j_i_loose = startTime_j + tasks[j].executionTime - startTime_i;
+                            }
+                            // computation speed can be improved by 1 times there
+                            double distanceToBound_j_i = startTime_j + tasks[j].executionTime - startTime_i - sumIJK;
 
-                                // this condition cannot be added, because that will further add potential gradient vanish problem
-                                // ((0 <= distanceToBound_j_i_loose && distanceToBound_j_i_loose <= toleranceEliminator / 2.0) &&
-                                //  moreElimination)
-                                if ((distanceToBound_j_i < toleranceEliminator && distanceToBound_j_i >= 0))
+                            if ((distanceToBound_j_i < toleranceEliminator && distanceToBound_j_i >= 0))
+                            {
+                                LLint index_i_overall = IndexTran_Instance2Overall(i, instance_i, sizeOfVariables);
+
+                                // since we go over all the pairs, we only need to check j in each pair (i, j)
+                                if (not maskForEliminate_addMap[index_j_overall])
+                                // this if condition is posed to avoid repeated elimination, and avoid conflicting elimination
+                                // because one variable j can only depend on one single variable i;
                                 {
-                                    LLint index_i_overall = IndexTran_Instance2Overall(i, instance_i, sizeOfVariables);
+                                    // Eliminate_j_based_i(index_j_overall, index_i_overall,
+                                    //                     maskForEliminate, whetherEliminate,
+                                    //                     mapIndex, startTimeVector, sumIJK, tasks, j);
 
-                                    // since we go over all the pairs, we only need to check j in each pair (i, j)
-                                    if (not maskForEliminate_addMap[index_j_overall])
-                                    // this if condition is posed to avoid repeated elimination, and avoid conflicting elimination
-                                    // because one variable j can only depend on one single variable i;
+                                    // check eliminationTrees_Update confliction; only preceed if no confliction exists
+                                    vector<LLint> tree_i, tree_j;
+                                    Vertex u1 = indexesBGL_Update[index_i_overall];
+                                    Vertex v1 = indexesBGL_Update[index_j_overall];
+                                    FindSubTree(eliminationTrees_Update, tree_i, u1);
+                                    FindSubTree(eliminationTrees_Update, tree_j, v1);
+                                    if (CheckNoConflictionTree(tree_i, tree_j, startTimeVector))
+                                    // if (true)
                                     {
-                                        // Eliminate_j_based_i(index_j_overall, index_i_overall,
-                                        //                     maskForEliminate, whetherEliminate,
-                                        //                     mapIndex, startTimeVector, sumIJK, tasks, j);
-
-                                        // check eliminationTrees_Update confliction; only preceed if no confliction exists
-                                        vector<LLint> tree_i, tree_j;
-                                        Vertex u1 = indexesBGL_Update[index_i_overall];
-                                        Vertex v1 = indexesBGL_Update[index_j_overall];
-                                        FindSubTree(eliminationTrees_Update, tree_i, u1);
-                                        FindSubTree(eliminationTrees_Update, tree_j, v1);
-                                        if (CheckNoConflictionTree(tree_i, tree_j, startTimeVector))
-                                        // if (true)
+                                        maskForEliminate_addMap[index_j_overall] = true;
+                                        whetherEliminate = true;
+                                        // this should respect original relationship
+                                        if (tightEliminate == 1)
                                         {
-                                            maskForEliminate_addMap[index_j_overall] = true;
-                                            whetherEliminate = true;
-                                            // this should respect original relationship
-                                            if (tightEliminate == 1)
-                                            {
-                                                MappingDataStruct m{index_i_overall, sumIJK - tasks[j].executionTime};
-                                                mapIndex[index_j_overall] = m;
-                                            }
-                                            else if (tightEliminate == 0)
-                                            {
-                                                double distt = startTimeVector(index_j_overall, 0) -
-                                                               startTimeVector(index_i_overall, 0);
+                                            MappingDataStruct m{index_i_overall, sumIJK - tasks[j].executionTime};
+                                            mapIndex[index_j_overall] = m;
+                                        }
+                                        else if (tightEliminate == 0)
+                                        {
+                                            double distt = startTimeVector(index_j_overall, 0) -
+                                                           startTimeVector(index_i_overall, 0);
 
-                                                MappingDataStruct m{index_i_overall,
-                                                                    distt};
-                                                mapIndex[index_j_overall] = m;
-                                            }
-                                            else
-                                            {
-                                                CoutError("Eliminate option error, not recognized!");
-                                            }
-                                            // add edge to eliminationTrees_Update
-                                            graph_traits<Graph>::edge_descriptor e;
-                                            bool inserted;
-                                            boost::tie(e, inserted) = add_edge(indexesBGL_Update[index_j_overall],
-                                                                               indexesBGL_Update[index_i_overall],
-                                                                               eliminationTrees_Update);
-                                            if (inserted)
-                                            {
-                                                edge_name_map_t edgeMapCurr = get(edge_name, eliminationTrees_Update);
-                                                edgeMapCurr[e] = mapIndex[index_j_overall].getDistance();
-                                            }
+                                            MappingDataStruct m{index_i_overall,
+                                                                distt};
+                                            mapIndex[index_j_overall] = m;
                                         }
                                         else
                                         {
-                                            continue;
+                                            CoutError("Eliminate option error, not recognized!");
+                                        }
+                                        // add edge to eliminationTrees_Update
+                                        graph_traits<Graph>::edge_descriptor e;
+                                        bool inserted;
+                                        boost::tie(e, inserted) = add_edge(indexesBGL_Update[index_j_overall],
+                                                                           indexesBGL_Update[index_i_overall],
+                                                                           eliminationTrees_Update);
+                                        if (inserted)
+                                        {
+                                            edge_name_map_t edgeMapCurr = get(edge_name, eliminationTrees_Update);
+                                            edgeMapCurr[e] = mapIndex[index_j_overall].getDistance();
                                         }
                                     }
                                     else
+                                    {
                                         continue;
+                                    }
                                 }
                                 else
                                     continue;
                             }
                             else
-                            {
-
-                                // res(indexRes++, 0) = 0;
                                 continue;
-                            }
                         }
                     }
                 }
             }
             EndTimer("addMap");
+        }
+
+        void addMappingFunction(VectorDynamic &resTemp,
+                                MAP_Index2Data &mapIndex, bool &whetherEliminate,
+                                vector<bool> &maskForEliminate_addMap,
+                                Graph &eliminationTrees_Update,
+                                indexVertexMap &indexesBGL_Update)
+        {
+            BeginTimer("addMap2");
+
+            VectorDynamic startTimeVector = RecoverStartTimeVector(resTemp, maskForEliminate_addMap, mapIndex);
+
+            for (auto itr = processorTasks.begin(); itr != processorTasks.end(); itr++)
+            {
+                int processorCurr = itr->first;
+                vector<int> tasksCurr = itr->second;
+                vector<Interval> intervalVec = DbfInterval(startTimeVector, processorCurr);
+                sort(intervalVec.begin(), intervalVec.end(), compare);
+
+                // find DBF error that need elimination
+                for (LLint i = 0; i < LLint(intervalVec.size()); i++)
+                {
+                    for (LLint j = i + 1; j < LLint(intervalVec.size()); j++)
+                    {
+                        // this if condition is posed to avoid repeated elimination, and avoid conflicting elimination
+                        // because one variable j can only depend on one single variable i;
+                        if (maskForEliminate_addMap[intervalVec[j].indexInSTV])
+                        {
+                            continue;
+                        }
+                        double sumIJK = 0;
+                        double endTime = intervalVec[j].start + intervalVec[j].length;
+                        for (LLint k = 0; k < LLint(intervalVec.size()); k++)
+                        {
+                            if (intervalVec[k].start >= endTime)
+                                break;
+                            sumIJK += ComputationTime_IJK(intervalVec[i],
+                                                          intervalVec[j],
+                                                          intervalVec[k]);
+                        }
+                        double distanceToBound_j_i = intervalVec[j].start + intervalVec[j].length - intervalVec[i].start - sumIJK;
+
+                        if ((distanceToBound_j_i < toleranceEliminator && distanceToBound_j_i >= 0))
+                        {
+                            LLint index_i_overall = intervalVec[i].indexInSTV;
+                            LLint index_j_overall = intervalVec[j].indexInSTV;
+
+                            // since we go over all the pairs, we only need to check j in each pair (i, j)
+
+                            vector<LLint> tree_i, tree_j;
+                            Vertex u1 = indexesBGL_Update[index_i_overall];
+                            Vertex v1 = indexesBGL_Update[index_j_overall];
+                            FindSubTree(eliminationTrees_Update, tree_i, u1);
+                            FindSubTree(eliminationTrees_Update, tree_j, v1);
+                            if (CheckNoConflictionTree(tree_i, tree_j, startTimeVector))
+                            {
+                                maskForEliminate_addMap[index_j_overall] = true;
+                                whetherEliminate = true;
+                                // this should respect original relationship
+                                if (tightEliminate == 1)
+                                {
+                                    MappingDataStruct m{index_i_overall, sumIJK - tasks[j].executionTime};
+                                    mapIndex[index_j_overall] = m;
+                                }
+                                else if (tightEliminate == 0)
+                                {
+                                    double distt = startTimeVector(index_j_overall, 0) -
+                                                   startTimeVector(index_i_overall, 0);
+
+                                    MappingDataStruct m{index_i_overall,
+                                                        distt};
+                                    mapIndex[index_j_overall] = m;
+                                }
+                                else
+                                {
+                                    CoutError("Eliminate option error, not recognized!");
+                                }
+                                // add edge to eliminationTrees_Update
+                                graph_traits<Graph>::edge_descriptor e;
+                                bool inserted;
+                                boost::tie(e, inserted) = add_edge(indexesBGL_Update[index_j_overall],
+                                                                   indexesBGL_Update[index_i_overall],
+                                                                   eliminationTrees_Update);
+                                // if (inserted)
+                                // {
+                                //     edge_name_map_t edgeMapCurr = get(edge_name, eliminationTrees_Update);
+                                //     edgeMapCurr[e] = mapIndex[index_j_overall].getDistance();
+                                // }
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                        }
+                        else
+                            continue;
+                    }
+                }
+            }
+            EndTimer("addMap2");
         }
         /**
          * @brief for error evaluation; this returns a VectorDynamic, 
@@ -326,7 +431,7 @@ namespace DAG_SPACE
          * @brief Create a Interval vector for indexes specified by the tree1 parameter;
          * the return interval follows the same order given by tree1!
          * 
-         * @param tree1 
+         * @param tree1 index in startTimeVector
          * @param startTimeVector 
          * @return vector<Interval> 
          */
@@ -367,21 +472,6 @@ namespace DAG_SPACE
             vector<Interval> intervalVec = DbfInterval(startTimeVector, processorId);
             return IntervalOverlapError(intervalVec);
         }
-
-        // VectorDynamic DbfIntervalOverlapError(const VectorDynamic &startTimeVector)
-        // {
-        //     // vector<LLint> indexes = Eigen2Vector<LLint>(startTimeVector);
-        //     vector<LLint> indexes;
-        //     indexes.reserve(startTimeVector.size());
-        //     for (size_t i = 0; i < startTimeVector.size(); i++)
-        //         indexes.push_back(i);
-        //     vector<Interval> intervalVec = CreateIntervalFromSTVSameOrder(indexes, startTimeVector);
-
-        //     VectorDynamic res;
-        //     res.resize(1, 1);
-        //     res(0, 0) = IntervalOverlapError(intervalVec);
-        //     return res;
-        // }
 
         bool CheckNoConflictionTree(const vector<LLint> &tree1, const vector<LLint> &tree2,
                                     const VectorDynamic &startTimeVector)

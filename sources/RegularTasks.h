@@ -303,7 +303,12 @@ namespace RegularTaskSystem
         for (int i = lastTaskDoNotNeedOptimize + 1; i < N; i++)
             taskSet[i].executionTime = executionTimeVec(i - lastTaskDoNotNeedOptimize - 1, 0);
     }
-
+    /**
+     * @brief 
+     * 
+     * @param tasks 
+     * @return ProcessorTaskSet map type! processorId to vector<task ID>
+     */
     ProcessorTaskSet ExtractProcessorTaskSet(TaskSet &tasks)
     {
         int N = tasks.size();
