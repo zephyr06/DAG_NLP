@@ -82,7 +82,7 @@ namespace DAG_SPACE
         // TODO: design some tests for SensorFusion
         Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
         {
-            BeginTimer("Sensor_evaluateError");
+            BeginTimer("Sensor_all");
 
             if (H)
             {
@@ -102,7 +102,7 @@ namespace DAG_SPACE
                     cout << "The error vector of SensorFusion is " << Color::blue << f(startTimeVector) << Color::def << endl;
                 }
             }
-            EndTimer("Sensor_evaluateError");
+            EndTimer("Sensor_all");
             return f(startTimeVector);
         }
 
@@ -185,11 +185,10 @@ namespace DAG_SPACE
                                 }
                             }
                             // this error is not well tested yet
-                            // double sensorFreshError = Barrier(FreshTol - (startTimeCurr +
-                            //                                               tasks[indexCurr].executionTime -
-                            //                                               *min_element(sourceFinishTime.begin(),
-                            //                                                            sourceFinishTime.end())));
-                            double sensorFreshError = 0;
+                            double sensorFreshError = Barrier(FreshTol - (startTimeCurr -
+                                                                          *min_element(sourceFinishTime.begin(),
+                                                                                       sourceFinishTime.end())));
+                            // double sensorFreshError = 0;
 
                             return addedErrorDDL + addedErrorDAG +
                                    Barrier(sensorFusionTolerance - ExtractMaxDistance(sourceFinishTime)) +
@@ -286,11 +285,12 @@ namespace DAG_SPACE
                                 }
                             }
                             // this error is not well tested yet
-                            // double sensorFreshError = Barrier(FreshTol - (startTimeCurr +
-                            //                                               tasks[indexCurr].executionTime -
-                            //                                               *min_element(sourceFinishTime.begin(),
-                            //                                                            sourceFinishTime.end())));
-                            double sensorFreshError = 0;
+                            double sensorFreshError = Barrier(FreshTol - (startTimeCurr +
+                                                                          tasks[indexCurr].executionTime -
+                                                                          *min_element(sourceFinishTime.begin(),
+                                                                                       sourceFinishTime.end())));
+
+                            // double sensorFreshError = 0;
 
                             return addedErrorDDL + addedErrorDAG +
                                    Barrier(sensorFusionTolerance - ExtractMaxDistance(sourceFinishTime)) +

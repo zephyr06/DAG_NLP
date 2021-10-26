@@ -90,17 +90,17 @@ namespace DAG_SPACE
 
         Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
         {
-            // BeginTimer("DBF");
+            BeginTimer("DBF_All");
             if (H)
             {
-                BeginTimer("DBF_H");
+                // BeginTimer("DBF_H");
                 if (numericalJaobian)
                 {
                     *H = NumericalDerivativeDynamicUpperDBF(f, startTimeVector, deltaOptimizer, errorDimension);
                 }
                 else
                     *H = DBFJacobian(f, startTimeVector, deltaOptimizer, errorDimension);
-                EndTimer("DBF_H");
+                // EndTimer("DBF_H");
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {
@@ -128,7 +128,7 @@ namespace DAG_SPACE
                     cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << endl;
                 }
             }
-            // EndTimer("DBF");
+            EndTimer("DBF_All");
             return f(startTimeVector);
         }
 

@@ -75,7 +75,7 @@ namespace DAG_SPACE
         };
         SM_Dynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
         {
-            BeginTimer("DDL_H");
+            // BeginTimer("DDL_H");
             VectorDynamic startTimeVector = RecoverStartTimeVector(
                 startTimeVectorOrig, maskForEliminate, mapIndex);
 
@@ -139,7 +139,7 @@ namespace DAG_SPACE
                                                    sizeOfVariables, mapIndex, mapIndex_True2Compress);
             // cout << j_map << endl
             //      << endl;
-            EndTimer("DDL_H");
+            // EndTimer("DDL_H");
             return j_yx * j_map;
         }
 
