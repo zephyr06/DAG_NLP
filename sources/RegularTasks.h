@@ -68,7 +68,7 @@ namespace RegularTaskSystem
         /**
  * only used in ReadTaskSet because the input parameter's type is int
  **/
-        Task(vector<int> dataInLine)
+        Task(vector<double> dataInLine)
         {
             if (dataInLine.size() != 7)
             {
@@ -248,7 +248,7 @@ namespace RegularTaskSystem
         }
         return tasks;
     }
-    TaskSet ReadTaskSet(string path, string priorityType = "RM")
+    TaskSet ReadTaskSet(string path, string priorityType = "RM", int taskSetType = 1)
     {
         // some default parameters in this function
         string delimiter = ",";
@@ -267,11 +267,11 @@ namespace RegularTaskSystem
             {
                 if (!(line[0] >= '0' && line[0] <= '9'))
                     continue;
-                vector<int> dataInLine;
+                vector<double> dataInLine;
                 while ((pos = line.find(delimiter)) != string::npos)
                 {
                     token = line.substr(0, pos);
-                    int temp = atoi(token.c_str());
+                    double temp = atof(token.c_str());
                     dataInLine.push_back(temp);
                     line.erase(0, pos + delimiter.length());
                 }

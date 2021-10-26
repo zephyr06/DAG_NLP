@@ -41,7 +41,6 @@ namespace DAG_SPACE
         boost::function<Matrix(const VectorDynamic &)> f =
             [this](const VectorDynamic &startTimeVectorOrig)
         {
-            BeginTimer("DDL_f");
             VectorDynamic startTimeVector = RecoverStartTimeVector(
                 startTimeVectorOrig, maskForEliminate, mapIndex);
             VectorDynamic res;
@@ -70,7 +69,6 @@ namespace DAG_SPACE
                 cout << Color::red << "The errorDimension is set wrong!" << Color::def << endl;
                 throw;
             }
-            EndTimer("DDL_f");
             return res;
         };
         SM_Dynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const

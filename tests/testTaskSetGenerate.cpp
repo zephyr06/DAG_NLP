@@ -21,6 +21,15 @@ TEST(ReadDAG_Tasks, V1)
     AssertBool(true, dm.mapPrev[4][0].id == 3);
 }
 
+TEST(ReadDAG_Tasks, v3)
+{
+    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v41.csv";
+    DAG_Model dm = ReadDAG_Tasks(path);
+    dm.print();
+    AssertEqualScalar(14.38, dm.tasks[0].executionTime);
+    AssertEqualScalar(0.223, dm.tasks[2].executionTime);
+}
+
 TEST(ReadDAG_Tasks, v2)
 {
     string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v15.csv";

@@ -10,6 +10,9 @@
 using namespace RegularTaskSystem;
 namespace po = boost::program_options;
 
+// vector<int> PeriodSetAM = {1, 2, 5, 10, 20, 50, 100, 200, 1000};
+vector<int> PeriodSetAM = {1, 2, 5, 10, 20, 50, 100};
+
 vector<double> Uunifast(int N, double utilAll)
 {
     double sumU = utilAll;
@@ -29,7 +32,7 @@ vector<double> Uunifast(int N, double utilAll)
 
 TaskSet GenerateTaskSet(int N, double totalUtilization,
                         int numberOfProcessor, int periodMin,
-                        int periodMax)
+                        int periodMax, int taskSetType = 1)
 {
     vector<double> utilVec = Uunifast(N, totalUtilization);
     TaskSet tasks;
@@ -38,12 +41,28 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
     for (int i = 0; i < N; i++)
     {
 
-        int periodCurr = (1 + rand() % periodMaxRatio) * periodMin;
-        Task task(0, periodCurr,
-                  0, ceil(periodCurr * utilVec[i]),
-                  periodCurr, i,
-                  rand() % numberOfProcessor);
-        tasks.push_back(task);
+        int periodCurr = 0;
+        if (taskSetType == 1)
+        {
+            periodCurr = (1 + rand() % periodMaxRatio) * periodMin;
+            Task task(0, periodCurr,
+                      0, ceil(periodCurr * utilVec[i]),
+                      periodCurr, i,
+                      rand() % numberOfProcessor);
+            tasks.push_back(task);
+        }
+
+        else if (taskSetType == 2)
+        {
+            periodCurr = PeriodSetAM[rand() % PeriodSetAM.size()];
+            Task task(0, periodCurr,
+                      0, periodCurr * utilVec[i],
+                      periodCurr, i,
+                      rand() % numberOfProcessor);
+            tasks.push_back(task);
+        }
+        else
+            CoutError("Not recognized taskSetType!");
     }
     return tasks;
 }
@@ -63,11 +82,11 @@ void WriteTaskSets(ofstream &file, TaskSet &tasks)
 using namespace DAG_SPACE;
 DAG_Model GenerateDAG(int N, double totalUtilization,
                       int numberOfProcessor, int periodMin,
-                      int periodMax)
+                      int periodMax, int taskSetType = 1)
 {
 
     TaskSet tasks = GenerateTaskSet(N, totalUtilization,
-                                    numberOfProcessor, periodMin, periodMax);
+                                    numberOfProcessor, periodMin, periodMax, taskSetType);
     MAP_Prev mapPrev;
     DAG_Model dagModel(tasks, mapPrev);
     // add edges randomly
