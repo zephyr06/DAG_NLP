@@ -40,8 +40,8 @@ int main(int argc, char *argv[])
         .help("type of tasksets, 0 means normal, 1 means DAG")
         .scan<'i', int>();
     program.add_argument("--taskSetType")
-        .default_value(1)
-        .help("type of taskset period generation method, 0 means normal, 1 means automobile method")
+        .default_value(2)
+        .help("type of taskset period generation method, 1 means normal, 2 means automobile method")
         .scan<'i', int>();
 
     // program.add_argument("--parallelismFactor")
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
                                           numberOfProcessor,
                                           periodMin,
                                           periodMax, taskSetType);
-            string fileName = "dag-set-" + to_string(i) + "-syntheticJobs" + ".csv";
+            string fileName = "dag-set-" + string(3 - to_string(i).size(), '0') + to_string(i) + "-syntheticJobs" + ".csv";
             ofstream myfile;
             myfile.open(outDirectory + fileName);
             WriteDAG(myfile, tasks);

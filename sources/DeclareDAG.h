@@ -105,6 +105,10 @@ double ExtractVariable(const VectorDynamic &startTimeVector,
  */
 LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const vector<LLint> &sizeOfVariables)
 {
+    if (instance_i < 0 || instance_i > sizeOfVariables[i])
+        CoutWarning("Instance Index out of boundary in IndexTran_Instance2Overall");
+    if (i < 0 || i > sizeOfVariables.size())
+        CoutWarning("Task Index out of boundary in IndexTran_Instance2Overall");
     LLint index = 0;
     for (size_t k = 0; k < i; k++)
         index += sizeOfVariables[k];
