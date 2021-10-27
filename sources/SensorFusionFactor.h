@@ -300,7 +300,7 @@ namespace DAG_SPACE
                         boost::function<void(LLint index_source_overall)> jacobianLocal =
                             [&](LLint index_source_overall)
                         {
-                            if(index_source_overall <=0 || index_source_overall >startTimeVector.size())
+                            if (index_source_overall < 0 || index_source_overall > startTimeVector.size())
                                 return;
                             startTimeVector(index_source_overall, 0) += deltaOptimizer;
                             double errorPlus = funcLocal();

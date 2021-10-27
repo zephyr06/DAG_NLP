@@ -2285,7 +2285,32 @@ TEST(sensorFusion_AnalyticJacobian, v3)
     sensorFusionTolerance = defaultSF;
     withAddedSensorFusionError = sthh;
 }
+TEST(GenerateInitialForDAG_RM_DAG, v4)
+{
+    using namespace DAG_SPACE;
+    using namespace RegularTaskSystem;
+    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v1.csv";
+    DAG_Model dagTasks = ReadDAG_Tasks(path, "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
 
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    vector<int> order = FindDependencyOrder(dagTasks);
+    VectorDynamic initial = GenerateVectorDynamic(variableDimension);
+    VectorDynamic initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,
+                                                                 sizeOfVariables,
+                                                                 variableDimension);
+    AssertEqualScalar(1, dagTasks.tasks[0].period);
+}
 // TEST(RandomWalk, v1)
 // {
 //     using namespace DAG_SPACE;

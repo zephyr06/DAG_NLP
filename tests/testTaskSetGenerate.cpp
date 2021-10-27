@@ -39,6 +39,17 @@ TEST(ReadDAG_Tasks, v2)
     AssertBool(true, dm.mapPrev[2][0].id == 4);
     AssertBool(true, dm.mapPrev[0][0].id == 4);
 }
+TEST(ReadDAG_Tasks, v4)
+{
+    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v1.csv";
+    DAG_Model dm = ReadDAG_Tasks(path, "orig");
+    dm.print();
+    AssertEqualScalar(1, dm.tasks[0].period);
+    for (int i = 0; i < 3; i++)
+        AssertEqualScalar(i, dm.tasks[i].id);
+    AssertEqualScalar(53.7653, dm.tasks[2].executionTime);
+    AssertEqualScalar(200, dm.tasks[2].deadline);
+}
 
 int main()
 {

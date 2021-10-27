@@ -39,6 +39,10 @@ namespace DAG_SPACE
                     cout << "Edge: " << ((itr->second)[i].id) << "-->" << (itr->first) << endl;
             }
         }
+        TaskSet GetTasks() const
+        {
+            return tasks;
+        }
 
         int edgeNumber()
         {

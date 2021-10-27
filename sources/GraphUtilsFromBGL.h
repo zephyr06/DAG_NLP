@@ -161,7 +161,7 @@ void FindSubTree(Graph &g, vector<LLint> &subTreeIndex, Vertex v)
  * @param dagTasks 
  * @return vector<int> execution order of task index, first task first
  */
-vector<int> FindDependencyOrder(DAG_SPACE::DAG_Model dagTasks)
+vector<int> FindDependencyOrder(const DAG_SPACE::DAG_Model &dagTasks)
 {
 
     using namespace RegularTaskSystem;
@@ -186,7 +186,7 @@ vector<int> FindDependencyOrder(DAG_SPACE::DAG_Model dagTasks)
     }
     boost::property_map<Graph, first_name_t>::type
         name = get(first_name_t(), g);
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < int(dagTasks.tasks.size()); i++)
         boost::put(name, i, dagTasks.tasks[i]);
     // who_owes_who(edges(g).first, edges(g).second, g);
 

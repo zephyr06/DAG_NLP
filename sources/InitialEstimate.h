@@ -284,15 +284,15 @@ namespace DAG_SPACE
      * @param variableDimension 
      * @return VectorDynamic 
      */
-    VectorDynamic GenerateInitialForDAG_RM_DAG(DAG_Model &dagTasks,
+    VectorDynamic GenerateInitialForDAG_RM_DAG(const DAG_Model &dagTasks,
                                                vector<LLint> &sizeOfVariables,
                                                int variableDimension)
     {
         int N = dagTasks.tasks.size();
-        TaskSet &tasks = dagTasks.tasks;
+        TaskSet tasks = dagTasks.GetTasks();
         vector<int> order = FindDependencyOrder(dagTasks);
-        VectorDynamic initial = GenerateVectorDynamic(variableDimension);
         LLint hyperPeriod = HyperPeriod(tasks);
+        VectorDynamic initial = GenerateVectorDynamic(variableDimension);
 
         LLint index = 0;
         LLint currTime = 0;
@@ -322,7 +322,7 @@ namespace DAG_SPACE
             }
         }
 
-        ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+        ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(tasks);
         int processorNum = processorTaskSet.size();
         // it maps from tasks[i].processorId to index in runQueues&busy&nextFree
 
