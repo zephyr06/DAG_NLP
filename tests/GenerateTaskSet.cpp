@@ -23,6 +23,10 @@ int main(int argc, char *argv[])
         .default_value(0.4)
         .help("the total utilization of tasks in each DAG")
         .scan<'f', double>();
+    program.add_argument("--aveUtilization")
+        .default_value(0)
+        .help("the average utilization of tasks in each core")
+        .scan<'f', double>();
     program.add_argument("--NumberOfProcessor")
         .default_value(2)
         .help("the NumberOfProcessor of tasks in DAG")
@@ -62,8 +66,16 @@ int main(int argc, char *argv[])
 
     int N = program.get<int>("--N");
     int DAG_taskSetNumber = program.get<int>("--taskSetNumber");
-    double totalUtilization = program.get<double>("--totalUtilization");
     int numberOfProcessor = program.get<int>("--NumberOfProcessor");
+    double totalUtilization;
+    double aveUtilization = program.get<double>("--aveUtilization");
+    if (aveUtilization != 0)
+    {
+        totalUtilization = aveUtilization * numberOfProcessor;
+    }
+    else
+        totalUtilization = program.get<double>("--totalUtilization");
+
     int periodMin = program.get<int>("--periodMin");
     int periodMax = program.get<int>("--periodMax");
     int taskType = program.get<int>("--taskType");

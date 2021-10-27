@@ -312,6 +312,8 @@ namespace DAG_SPACE
         // and so prevents generating appropriate initialization value for it.
         for (int i = 0; i < N; i++)
         {
+            if (currTime >= hyperPeriod)
+                continue;
             if (currTime > tasks[i].period)
             {
                 for (int j = 1; j <= currTime / tasks[i].period; j++)
