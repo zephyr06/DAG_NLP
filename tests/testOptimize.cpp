@@ -1545,7 +1545,7 @@ TEST(GenerateInitialForDAG, Multi_v3_processorMap)
         31, 200,
         28, 100, 200, 300,
         0, 200;
-    assert_equal(expected, actual);
+    assert_equal(expected, actual, 1e-2);
 }
 TEST(GenerateInitial_RM, Multi_v1)
 {
@@ -2289,7 +2289,7 @@ TEST(GenerateInitialForDAG_RM_DAG, v4)
 {
     using namespace DAG_SPACE;
     using namespace RegularTaskSystem;
-    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v1.csv";
+    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v2.csv";
     DAG_Model dagTasks = ReadDAG_Tasks(path, "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
@@ -2304,12 +2304,13 @@ TEST(GenerateInitialForDAG_RM_DAG, v4)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    vector<int> order = FindDependencyOrder(dagTasks);
-    VectorDynamic initial = GenerateVectorDynamic(variableDimension);
     VectorDynamic initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,
                                                                  sizeOfVariables,
                                                                  variableDimension);
-    AssertEqualScalar(1, dagTasks.tasks[0].period);
+    // cout << initialEstimate << endl;
+    VectorDynamic expect = initialEstimate;
+    expect << 2.008, 1, 2, 3, 4, 5, 6.78, 7, 8, 9, 1.765, 2, 4.01, 6.78, 8.01, 0, 5.01;
+    assert_equal(expect, initialEstimate, 0.01);
 }
 // TEST(RandomWalk, v1)
 // {

@@ -170,7 +170,11 @@ VectorDynamic Vector2Eigen(const vector<T> &input)
         res(i, 0) = input.at(i);
     return res;
 }
-
+double QuotientDouble(double a, int b)
+{
+    double left=a-int(a);
+    return left+int(a)%b;
+}
 namespace DAG_SPACE
 {
     /**

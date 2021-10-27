@@ -295,7 +295,7 @@ namespace DAG_SPACE
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
 
         LLint index = 0;
-        LLint currTime = 0;
+        double currTime = 0;
         vector<int> relativeStart;
         relativeStart.reserve(N);
 
@@ -350,14 +350,17 @@ namespace DAG_SPACE
         // RunQueue runQueue(tasks);
         // bool busy = false;
         vector<bool> busy(processorNum, false);
-        vector<LLint> nextFree(processorNum, -1);
+        vector<double> nextFree(processorNum, -1);
         // LLint nextFree;
-        for (LLint timeNow = currTime; timeNow < hyperPeriod; timeNow++)
+        double timeGranularity = 1e-3;
+        for (double timeNow = currTime; timeNow < hyperPeriod; timeNow += timeGranularity)
         {
+            if (timeNow >= 299.99 && timeNow <= 300.1)
+                int a = 1;
             // check whether to add new instances
             for (int i = 0; i < N; i++)
             {
-                if (timeNow % tasks[i].period == 0)
+                if (QuotientDouble(timeNow, tasks[i].period) <= timeGranularity)
                 {
                     int currId = tasks[i].processorId;
                     runQueues[processorId2Index[currId]].insert({i, timeNow / tasks[i].period});
@@ -365,7 +368,7 @@ namespace DAG_SPACE
             }
             for (int i = 0; i < processorNum; i++)
             {
-                if (timeNow == nextFree[i])
+                if (timeNow >= nextFree[i])
                 {
                     busy[i] = false;
                 }
@@ -376,7 +379,7 @@ namespace DAG_SPACE
                     LLint instance_id = sth.second;
                     LLint index_overall = IndexTran_Instance2Overall(id, instance_id, sizeOfVariables);
                     initial(index_overall, 0) = timeNow;
-                    nextFree[i] = timeNow + tasks[id].executionTime;
+                    nextFree[i] = timeNow + ceil(tasks[id].executionTime / timeGranularity) * timeGranularity;
                     busy[i] = true;
                 }
             }
