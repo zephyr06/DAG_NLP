@@ -46,6 +46,7 @@ void BatchOptimize()
     vector<double> errorAfterOpt;
     vector<double> runTimeAccept;
     vector<double> runTimeAll;
+    int N;
 
     vector<string> errorFiles;
     ofstream outfileWrite;
@@ -62,6 +63,7 @@ void BatchOptimize()
         {
             string path = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks/" + file;
             DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(path, readTaskMode);
+            N = dagTasks.tasks.size();
             auto start = chrono::high_resolution_clock::now();
             DAG_SPACE::OptimizeResult res;
             if (batchTestMethod == 1)
@@ -120,11 +122,11 @@ void BatchOptimize()
     }
 
     ofstream outfile1, outfile2;
-    outfile1.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/data_buffer_energy_task_number.txt", std::ios_base::app);
-    outfile1 << avEnergy << endl;
+    outfile1.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/ResultFiles/utilization.txt", std::ios_base::app);
+    outfile1 << double(averageErrorAccept1.size()) / TotalTestCases << endl;
 
-    outfile2.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/time_task_number.txt", std::ios_base::app);
-    outfile2 << aveTime << endl;
+    // outfile2.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/time_task_number.txt", std::ios_base::app);
+    // outfile2 << aveTime << endl;
     if (debugMode == 1)
         std::cout << endl;
     std::cout << "Files that failed during optimization:\n";
