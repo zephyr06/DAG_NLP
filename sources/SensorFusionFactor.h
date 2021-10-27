@@ -215,7 +215,7 @@ namespace DAG_SPACE
             // y -> x
             SM_Dynamic j_yx(errorDimension, length);
             LLint indexRes = 0;
-            // go through all the instances of task, 3 in the example DAG
+            // go through all the tasks that needs sensor fusion, 3 in the example DAG
             for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
             {
                 const TaskSet &tasksPrev = itr->second;
@@ -291,7 +291,6 @@ namespace DAG_SPACE
                                                                                        sourceFinishTime.end())));
 
                             // double sensorFreshError = 0;
-
                             return addedErrorDDL + addedErrorDAG +
                                    Barrier(sensorFusionTolerance - ExtractMaxDistance(sourceFinishTime)) +
                                    sensorFreshError;
@@ -315,7 +314,10 @@ namespace DAG_SPACE
                         {
                             int sourceIndex = tasksPrev.at(ii).id;
                             LLint instanceSource = floor(startTimeCurr / tasks[sourceIndex].period);
-
+                            if (instanceSource < 0)
+                                instanceSource = 0;
+                            else if (instanceSource > sizeOfVariables[sourceIndex] - 1)
+                                instanceSource = sizeOfVariables[sourceIndex] - 1;
                             LLint index_source_overall = IndexTran_Instance2Overall(sourceIndex, instanceSource, sizeOfVariables);
                             jacobianLocal(index_source_overall);
                             index_source_overall = IndexTran_Instance2Overall(sourceIndex, max(instanceSource - 1, LLint(0)), sizeOfVariables);
