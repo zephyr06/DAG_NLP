@@ -86,22 +86,22 @@ void BatchOptimize()
             errorInitial.push_back(sqrt(res.initialError * 2));
             errorAfterOpt.push_back(sqrt(res.optimizeError * 2));
 
-            if (res.optimizeError >= 0 && res.optimizeError <= 1.0)
+            if (res.optimizeError >= 0 && res.optimizeError <= AcceptSchedulError * timeScaleFactor)
             {
                 averageErrorAccept1.push_back(res.optimizeError);
             }
-            if (res.optimizeError >= 0 && res.optimizeError <= 0.1)
+            if (res.optimizeError >= 0 && res.optimizeError <= 0.1 * AcceptSchedulError * timeScaleFactor)
             {
                 averageErrorAccept2.push_back(res.optimizeError);
             }
 
-            if (res.optimizeError >= 0 && res.optimizeError <= AcceptSchedulError)
+            if (res.optimizeError >= 0 && res.optimizeError <= AcceptSchedulError * timeScaleFactor)
             {
                 averageErrorAccept.push_back(res.optimizeError);
                 runTimeAccept.push_back(timeTaken);
                 outfileWrite << averageErrorAccept.back() << endl;
             }
-            else if (res.optimizeError == -1 || res.optimizeError > AcceptSchedulError)
+            else if (res.optimizeError == -1 || res.optimizeError > AcceptSchedulError * timeScaleFactor)
             {
                 errorFiles.push_back(file);
             }

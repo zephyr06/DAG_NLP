@@ -625,7 +625,7 @@ namespace DAG_SPACE
                         resMinus = h(xDelta);
                         if (resPlus == resMinus && resPlus.norm() != 0)
                         {
-                            deltaInIteration = deltaInIteration * 1.5;
+                            deltaInIteration = deltaInIteration * stepJacobianIteration;
                             iteration++;
                         }
                         else
@@ -683,7 +683,7 @@ namespace DAG_SPACE
                         resMinus = h(xDelta);
                         if (resPlus == resMinus && resPlus.norm() != 0)
                         {
-                            deltaInIteration = deltaInIteration * 1.5;
+                            deltaInIteration = deltaInIteration * stepJacobianIteration;
                             iteration++;
                         }
                         else
