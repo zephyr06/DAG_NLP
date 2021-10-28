@@ -27,7 +27,7 @@ parser.add_argument('--maxTaskNumber', type=int, default=20,
                     help='Nmax')
 parser.add_argument('--taskSetNumber', type=int, default=100,
                     help='taskSetNumber')
-parser.add_argument('--baseline', type=str, default="RM_DAG",
+parser.add_argument('--baseline', type=str, default="RM",
                     help='baseline')
 parser.add_argument('--ylim', type=float, default=1e2,
                     help='ylim')
@@ -75,9 +75,9 @@ for i, method in enumerate(["NLP", baseline]):
 # plt.legend()
 # splot.set(yscale="log")
 plt.grid(linestyle="--")
-splot.set(xlabel="Core Number", ylabel="Accept rate")
+splot.set(xlabel="Core Number", ylabel="Accept rate(%)")
 # splot.set_xlim(4, None)
-# splot.set_ylim(1e-3, ylim)
+splot.set_ylim(0, 40)
 plt.savefig("Core_util" +baseline+ ".pdf", format='pdf')
 plt.savefig("Core_util" +baseline+ ".png", format='png')
 plt.show(block=False)

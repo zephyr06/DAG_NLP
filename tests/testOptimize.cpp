@@ -2285,33 +2285,34 @@ TEST(sensorFusion_AnalyticJacobian, v3)
     sensorFusionTolerance = defaultSF;
     withAddedSensorFusionError = sthh;
 }
-TEST(GenerateInitialForDAG_RM_DAG, v4)
-{
-    using namespace DAG_SPACE;
-    using namespace RegularTaskSystem;
-    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v2.csv";
-    DAG_Model dagTasks = ReadDAG_Tasks(path, "orig");
-    TaskSet tasks = dagTasks.tasks;
-    int N = tasks.size();
-    LLint hyperPeriod = HyperPeriod(tasks);
+// this test is removed because float-point data file is no longer supported
+// TEST(GenerateInitialForDAG_RM_DAG, v4)
+// {
+//     using namespace DAG_SPACE;
+//     using namespace RegularTaskSystem;
+//     string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v2.csv";
+//     DAG_Model dagTasks = ReadDAG_Tasks(path, "orig");
+//     TaskSet tasks = dagTasks.tasks;
+//     int N = tasks.size();
+//     LLint hyperPeriod = HyperPeriod(tasks);
 
-    // declare variables
-    vector<LLint> sizeOfVariables;
-    int variableDimension = 0;
-    for (int i = 0; i < N; i++)
-    {
-        LLint size = hyperPeriod / tasks[i].period;
-        sizeOfVariables.push_back(size);
-        variableDimension += size;
-    }
-    VectorDynamic initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,
-                                                                 sizeOfVariables,
-                                                                 variableDimension);
-    // cout << initialEstimate << endl;
-    VectorDynamic expect = initialEstimate;
-    expect << 2.008, 1, 2, 3, 4, 5, 6.78, 7, 8, 9, 1.765, 2, 4.01, 6.78, 8.01, 0, 5.01;
-    assert_equal(expect, initialEstimate, 0.01);
-}
+//     // declare variables
+//     vector<LLint> sizeOfVariables;
+//     int variableDimension = 0;
+//     for (int i = 0; i < N; i++)
+//     {
+//         LLint size = hyperPeriod / tasks[i].period;
+//         sizeOfVariables.push_back(size);
+//         variableDimension += size;
+//     }
+//     VectorDynamic initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,
+//                                                                  sizeOfVariables,
+//                                                                  variableDimension);
+//     // cout << initialEstimate << endl;
+//     VectorDynamic expect = initialEstimate;
+//     expect << 2.008, 1, 2, 3, 4, 5, 6.78, 7, 8, 9, 1.765, 2, 4.01, 6.78, 8.01, 0, 5.01;
+//     assert_equal(expect, initialEstimate, 0.01);
+// }
 
 TEST(GenerateInitial_RM, v3)
 {

@@ -3,19 +3,15 @@
 title="utilization"
 
 # clear buffer file content
-data_buffer_energy="data_buffer_energy_$title.txt"
-> $data_buffer_energy
-time_file="time_$title.txt"
-> $time_file
-dataset="../TaskData/$title"
+> ResultFiles/utilization.txt
 
 cd ../release
 make -j8
 cd ../CompareWithBaseline
 for i in $(seq 0.1 0.1 0.9) 
 do
-	echo "$title iteration is: $jobNumber"
-	> ResultFiles/utilization.txt
+	echo "$title iteration is: $i"
+	
 	cd ../release
 	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization $i --taskSetNumber 500 --NumberOfProcessor 1 --N 5 --taskType 1
 	cd ../CompareWithBaseline
@@ -30,6 +26,6 @@ do
 done
 
 cd ../CompareWithBaseline
-cp ResultFiles/utilization.txt ResultFiles/single_util.txt
+cp ResultFiles/utilization.txt ResultFiles/util_core.txt
 # visualize the result
 python Visualize_util.py --baseline "RM"

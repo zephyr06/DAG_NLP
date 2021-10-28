@@ -2,13 +2,6 @@
 
 title="utilization"
 
-# clear buffer file content
-data_buffer_energy="data_buffer_energy_$title.txt"
-> $data_buffer_energy
-time_file="time_$title.txt"
-> $time_file
-dataset="../TaskData/$title"
-
 cd ../release
 make -j8
 cd ../CompareWithBaseline
@@ -32,5 +25,6 @@ do
 	done
 done
 cd ../CompareWithBaseline
+cp ResultFiles/utilization.txt ResultFiles/util_core.txt
 # visualize the result
 python Visualize_util_core.py 
