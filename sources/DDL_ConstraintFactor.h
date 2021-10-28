@@ -38,7 +38,7 @@ namespace DAG_SPACE
             }
             mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
         }
-        boost::function<Matrix(const VectorDynamic &)> f =
+        boost::function<MatrixRowMajor(const VectorDynamic &)> f =
             [this](const VectorDynamic &startTimeVectorOrig)
         {
             VectorDynamic startTimeVector = RecoverStartTimeVector(

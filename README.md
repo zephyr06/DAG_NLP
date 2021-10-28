@@ -23,6 +23,7 @@
 - find out why does UnitOptimization take so much time
 - different results when using debug vs release built option
 - better support for float-point execution time, especially how to generate initial solution
+- I doubt the inner iterations are using dense Hessian, but I'm not sure
 
 # IDEA
 - DIVIDE the solution space appropriately, like cliques in bayes tree

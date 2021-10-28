@@ -30,9 +30,24 @@ vector<double> Uunifast(int N, double utilAll)
     return utilVec;
 }
 
+/**
+ * @brief generate a random number within the range [a,b];
+ * a must be smaller than b
+ * 
+ * @param a 
+ * @param b 
+ * @return double 
+ */
+double RandRange(double a, double b)
+{
+    if (b < a)
+        CoutError("Range Error in RandRange");
+    return a + (b - a) * double(rand()) / RAND_MAX;
+}
+
 TaskSet GenerateTaskSet(int N, double totalUtilization,
                         int numberOfProcessor, int periodMin,
-                        int periodMax, int taskSetType = 1)
+                        int periodMax, int taskSetType = 1, int deadlineType = 0)
 {
     vector<double> utilVec = Uunifast(N, totalUtilization);
     TaskSet tasks;
@@ -45,19 +60,25 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
         if (taskSetType == 1)
         {
             periodCurr = (1 + rand() % periodMaxRatio) * periodMin;
+            double deadline = periodCurr;
+            if (deadlineType == 1)
+                deadline = RandRange(ceil(periodCurr * utilVec[i]), periodCurr);
             Task task(0, periodCurr,
                       0, ceil(periodCurr * utilVec[i]),
-                      periodCurr, i,
+                      deadline, i,
                       rand() % numberOfProcessor);
             tasks.push_back(task);
         }
 
         else if (taskSetType == 2)
         {
-            periodCurr = PeriodSetAM[rand() % PeriodSetAM.size()];
+            periodCurr = int(PeriodSetAM[rand() % PeriodSetAM.size()] * timeScaleFactor);
+            double deadline = periodCurr;
+            if (deadlineType == 1)
+                deadline = round(RandRange(ceil(periodCurr * utilVec[i]), periodCurr));
             Task task(0, periodCurr,
-                      0, periodCurr * utilVec[i],
-                      periodCurr, i,
+                      0, int(periodCurr * utilVec[i]),
+                      deadline, i,
                       rand() % numberOfProcessor);
             tasks.push_back(task);
         }
@@ -82,11 +103,11 @@ void WriteTaskSets(ofstream &file, TaskSet &tasks)
 using namespace DAG_SPACE;
 DAG_Model GenerateDAG(int N, double totalUtilization,
                       int numberOfProcessor, int periodMin,
-                      int periodMax, int taskSetType = 1)
+                      int periodMax, int taskSetType = 1, int deadlineType = 0)
 {
 
     TaskSet tasks = GenerateTaskSet(N, totalUtilization,
-                                    numberOfProcessor, periodMin, periodMax, taskSetType);
+                                    numberOfProcessor, periodMin, periodMax, taskSetType, deadlineType);
     MAP_Prev mapPrev;
     DAG_Model dagModel(tasks, mapPrev);
     // add edges randomly

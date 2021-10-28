@@ -6,7 +6,7 @@ title="utilization"
 > ResultFiles/utilization.txt
 cd ../release
 make -j8
-
+cd ../CompareWithBaseline
 for i in $(seq 0.1 0.1 0.9) 
 do
 	echo "$title iteration is: $jobNumber"
@@ -26,4 +26,4 @@ done
 cd ../CompareWithBaseline
 cp ResultFiles/utilization.txt ResultFiles/single_util.txt
 # visualize the result
-python Visualize_util.py --baseline "DAG_RM"
+python Visualize_util.py --baseline "RM"

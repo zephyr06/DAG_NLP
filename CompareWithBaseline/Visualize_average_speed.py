@@ -7,7 +7,7 @@ import seaborn as sns
 # from utils_visualize import *
 
 
-def Read_txt_file_2d(path, func, delimiter=','):
+def Read_txt_file_2d(path):
     """ read txt files, and return a 2D list, each element contains MORE THAN one number"""
     file = open(path, 'r')
     lines = file.readlines()
@@ -21,28 +21,25 @@ def Read_txt_file_2d(path, func, delimiter=','):
     return np.array(res)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--minTaskNumber', type=int, default=5,
+parser.add_argument('--minTaskNumber', type=int, default=3,
                     help='Nmin')
-parser.add_argument('--maxTaskNumber', type=int, default=20,
+parser.add_argument('--maxTaskNumber', type=int, default=10,
                     help='Nmax')
-parser.add_argument('--taskSetNumber', type=int, default=100,
-                    help='taskSetNumber')
-parser.add_argument('--baseline', type=str, default="MUA",
+parser.add_argument('--baseline', type=str, default="SA",
                     help='baseline')
 parser.add_argument('--ylim', type=float, default=1e2,
                     help='ylim')
 args = parser.parse_args()
 minTaskNumber = args.minTaskNumber
 maxTaskNumber = args.maxTaskNumber
-taskSetNumber = args.taskSetNumber
 baseline = args.baseline
 ylim=args.ylim
 
 
 
-path = "ResultFiles/utilization.txt"
-data_2d = Read_txt_file_2d(path, lambda x: x)
-task_number_seq = np.arange(0.1, 1.0, 0.1)
+path = "ResultFiles/time_task_number.txt"
+data_2d = Read_txt_file_2d(path)
+task_number_seq = range(minTaskNumber, maxTaskNumber + 1)
 df=pd.DataFrame({"index":task_number_seq,"NLP":data_2d[1,:], baseline: data_2d[0,:]})
 # df=pd.DataFrame({"NLP":data_2d[0,:], baseline: data_2d[1,:]})
 # df = pd.DataFrame(data=data_2d.T, columns={"NLP", baseline}, index=range(minTaskNumber, maxTaskNumber+1))

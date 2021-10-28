@@ -2312,6 +2312,54 @@ TEST(GenerateInitialForDAG_RM_DAG, v4)
     expect << 2.008, 1, 2, 3, 4, 5, 6.78, 7, 8, 9, 1.765, 2, 4.01, 6.78, 8.01, 0, 5.01;
     assert_equal(expect, initialEstimate, 0.01);
 }
+
+TEST(GenerateInitial_RM, v3)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n3_v3.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto actual = GenerateInitial_RM(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic expected;
+    expected.resize(17, 1);
+    expected << 0, 195, 200, 300, 400, 500, 671, 700, 800, 900, 1, 201, 401, 672, 801, 25, 501;
+    assert_equal(expected, actual);
+}
+
+TEST(GenerateInitial_RMDAG, v6)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n3_v3.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+    auto actual = GenerateInitialForDAG_RM_DAG(dagTasks, sizeOfVariables, variableDimension);
+    VectorDynamic expected;
+    expected.resize(17, 1);
+    expected << 194, 100, 200, 300, 400, 500, 671, 700, 800, 900, 170, 201, 401, 672, 801, 0, 501;
+    assert_equal(expected, actual);
+}
 // TEST(RandomWalk, v1)
 // {
 //     using namespace DAG_SPACE;

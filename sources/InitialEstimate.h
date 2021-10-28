@@ -6,7 +6,7 @@
 #include "DAG_Model.h"
 #include "GraphUtilsFromBGL.h"
 #include "colormod.h"
-typedef std::unordered_map<int, int> ProcessorId2Index;
+typedef std::map<int, int> ProcessorId2Index;
 using namespace RegularTaskSystem;
 namespace DAG_SPACE
 {
@@ -198,7 +198,28 @@ namespace DAG_SPACE
         }
     };
     /**
-     * @brief Warning! All the tasks's processorId must begin with 0, otherwise it reports Segmentation error.
+     * @brief Create a ProcessorId2Index object, only used in initialization estimation
+     * 
+     * @return ProcessorId2Index: map, processorID to processorIdIndex
+     */
+    ProcessorId2Index CreateProcessorId2Index(TaskSet &tasks)
+    {
+        ProcessorId2Index processorId2Index;
+
+        int indexP = 0;
+        int N = tasks.size();
+        for (int i = 0; i < N; i++)
+        {
+            if (processorId2Index.find(tasks[i].processorId) == processorId2Index.end())
+            {
+                processorId2Index[tasks[i].processorId] = indexP++;
+            }
+        }
+        return processorId2Index;
+    }
+    /**
+     * @brief Warning! All the task sets must have int type values, otherwise it may generate inappropriate initialization method; 
+     * If you need to use double type, please use timeScaleFactor to transform it into int type with some acceptable accuracy.
      * 
      * @param dagTasks 
      * @param sizeOfVariables 
@@ -211,27 +232,14 @@ namespace DAG_SPACE
     {
         int N = dagTasks.tasks.size();
         TaskSet &tasks = dagTasks.tasks;
-        vector<int> order = FindDependencyOrder(dagTasks);
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
         LLint hyperPeriod = HyperPeriod(tasks);
-
-        LLint index = 0;
-        vector<int> relativeStart;
-        relativeStart.reserve(N);
 
         ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
         int processorNum = processorTaskSet.size();
         // it maps from tasks[i].processorId to index in runQueues&busy&nextFree
 
-        ProcessorId2Index processorId2Index;
-        int indexP = 0;
-        for (int i = 0; i < N; i++)
-        {
-            if (processorId2Index.find(tasks[i].processorId) == processorId2Index.end())
-            {
-                processorId2Index[tasks[i].processorId] = indexP++;
-            }
-        }
+        ProcessorId2Index processorId2Index = CreateProcessorId2Index(tasks);
         // contains the index of tasks to run
         vector<RunQueue> runQueues;
         runQueues.reserve(processorNum);
@@ -239,13 +247,14 @@ namespace DAG_SPACE
         {
             runQueues.push_back(RunQueue(tasks));
         }
-        // RunQueue runQueue(tasks);
-        // bool busy = false;
+
         vector<bool> busy(processorNum, false);
         vector<LLint> nextFree(processorNum, -1);
         // LLint nextFree;
+
         for (LLint timeNow = currTime; timeNow < hyperPeriod; timeNow++)
         {
+
             // check whether to add new instances
             for (int i = 0; i < N; i++)
             {
@@ -257,7 +266,7 @@ namespace DAG_SPACE
             }
             for (int i = 0; i < processorNum; i++)
             {
-                if (timeNow == nextFree[i])
+                if (timeNow >= nextFree[i])
                 {
                     busy[i] = false;
                 }
@@ -276,6 +285,7 @@ namespace DAG_SPACE
 
         return initial;
     }
+
     /**
      * @brief Warning! All the tasks's processorId must begin with 0, otherwise it reports Segmentation error.
      * 
@@ -295,9 +305,7 @@ namespace DAG_SPACE
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
 
         LLint index = 0;
-        double currTime = 0;
-        vector<int> relativeStart;
-        relativeStart.reserve(N);
+        LLint currTime = 0;
 
         for (int i = 0; i < N; i++)
         {
@@ -310,6 +318,7 @@ namespace DAG_SPACE
         // TODO: if tasks' cumulative execution time is long,
         // it's possible to be larger than one task's period,
         // and so prevents generating appropriate initialization value for it.
+
         for (int i = 0; i < N; i++)
         {
             if (currTime >= hyperPeriod)
@@ -328,15 +337,8 @@ namespace DAG_SPACE
         int processorNum = processorTaskSet.size();
         // it maps from tasks[i].processorId to index in runQueues&busy&nextFree
 
-        ProcessorId2Index processorId2Index;
-        int indexP = 0;
-        for (int i = 0; i < N; i++)
-        {
-            if (processorId2Index.find(tasks[i].processorId) == processorId2Index.end())
-            {
-                processorId2Index[tasks[i].processorId] = indexP++;
-            }
-        }
+        ProcessorId2Index processorId2Index = CreateProcessorId2Index(tasks);
+
         // contains the index of tasks to run
         vector<RunQueue> runQueues;
         runQueues.reserve(processorNum);
@@ -352,17 +354,14 @@ namespace DAG_SPACE
         // RunQueue runQueue(tasks);
         // bool busy = false;
         vector<bool> busy(processorNum, false);
-        vector<double> nextFree(processorNum, -1);
-        // LLint nextFree;
-        double timeGranularity = 1e-3;
-        for (double timeNow = currTime; timeNow < hyperPeriod; timeNow += timeGranularity)
+        vector<LLint> nextFree(processorNum, -1);
+
+        for (LLint timeNow = currTime; timeNow < hyperPeriod; timeNow++)
         {
-            if (timeNow >= 299.99 && timeNow <= 300.1)
-                int a = 1;
             // check whether to add new instances
             for (int i = 0; i < N; i++)
             {
-                if (QuotientDouble(timeNow, tasks[i].period) <= timeGranularity)
+                if (timeNow % tasks[i].period == 0)
                 {
                     int currId = tasks[i].processorId;
                     runQueues[processorId2Index[currId]].insert({i, timeNow / tasks[i].period});
@@ -381,7 +380,7 @@ namespace DAG_SPACE
                     LLint instance_id = sth.second;
                     LLint index_overall = IndexTran_Instance2Overall(id, instance_id, sizeOfVariables);
                     initial(index_overall, 0) = timeNow;
-                    nextFree[i] = timeNow + ceil(tasks[id].executionTime / timeGranularity) * timeGranularity;
+                    nextFree[i] = timeNow + tasks[id].executionTime;
                     busy[i] = true;
                 }
             }

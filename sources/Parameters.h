@@ -33,6 +33,8 @@ const double barrierBase = (double)ConfigParameters["barrierBase"];
 const double coolingRateSA = (double)ConfigParameters["coolingRateSA"];
 const double deltaInitialDogleg = (double)ConfigParameters["deltaInitialDogleg"];
 const double deltaOptimizer = (double)ConfigParameters["deltaOptimizer"];
+const int timeScaleFactor = (int)ConfigParameters["timeScaleFactor"];
+
 const double initialLambda = (double)ConfigParameters["initialLambda"];
 const double lowerLambda = (double)ConfigParameters["lowerLambda"];
 double makespanWeight = (double)ConfigParameters["makespanWeight"];
@@ -40,12 +42,13 @@ const double noiseModelSigma = (double)ConfigParameters["noiseModelSigma"];
 const double AcceptSchedulError = (double)ConfigParameters["AcceptSchedulError"];
 const double parallelFactor = (double)ConfigParameters["parallelFactor"];
 const double relativeErrorTolerance = (double)ConfigParameters["relativeErrorTolerance"];
-double sensorFusionTolerance = (double)ConfigParameters["sensorFusionTolerance"];
+double sensorFusionTolerance = (double)ConfigParameters["sensorFusionTolerance"] * timeScaleFactor;
 const double toleranceEliminator = (double)ConfigParameters["toleranceEliminator"];
 const double upperLambda = (double)ConfigParameters["upperLambda"];
 const double weightLogBarrier = (double)ConfigParameters["weightLogBarrier"];
 const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetectTol"];
 const double FreshTol = (double)ConfigParameters["FreshTol"];
+const double stepJacobianIteration = (double)ConfigParameters["stepJacobianIteration"];
 
 const int moreElimination = (int)ConfigParameters["moreElimination"];
 const int ElimnateLoop_Max = (int)ConfigParameters["ElimnateLoop_Max"];

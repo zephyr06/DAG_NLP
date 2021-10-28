@@ -42,7 +42,7 @@ ylim=args.ylim
 
 path = "ResultFiles/single_util.txt"
 data_2d = Read_txt_file_2d(path, lambda x: x)
-task_number_seq = np.arange(0.1, 1.0, 0.1)
+task_number_seq = np.arange(0.1, 1.0, 0.1)*100
 df=pd.DataFrame({"index":task_number_seq,"NLP":data_2d[1,:], baseline: data_2d[0,:]})
 # df=pd.DataFrame({"NLP":data_2d[0,:], baseline: data_2d[1,:]})
 # df = pd.DataFrame(data=data_2d.T, columns={"NLP", baseline}, index=range(minTaskNumber, maxTaskNumber+1))
@@ -55,7 +55,7 @@ splot = sns.lineplot(data=df, x="index", y=baseline, marker="o", markersize=8)
 plt.legend(labels=["NLP",baseline])
 #splot.set(yscale="log")
 plt.grid(linestyle="--")
-splot.set(xlabel="Task Number", ylabel="Accept rate (%)")
+splot.set(xlabel="Overall utilization (%)", ylabel="Accept rate (%)")
 # splot.set_xlim(4, None)
 # splot.set_ylim(1e-3, ylim)
 plt.savefig("Compare_util_single" +baseline+ ".pdf", format='pdf')

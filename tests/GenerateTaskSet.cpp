@@ -23,6 +23,10 @@ int main(int argc, char *argv[])
         .default_value(0.4)
         .help("the total utilization of tasks in each DAG")
         .scan<'f', double>();
+    program.add_argument("--aveUtilization")
+        .default_value(0.0)
+        .help("the average utilization of tasks in each core")
+        .scan<'f', double>();
     program.add_argument("--NumberOfProcessor")
         .default_value(2)
         .help("the NumberOfProcessor of tasks in DAG")
@@ -38,6 +42,10 @@ int main(int argc, char *argv[])
     program.add_argument("--taskType")
         .default_value(1)
         .help("type of tasksets, 0 means normal, 1 means DAG")
+        .scan<'i', int>();
+    program.add_argument("--deadlineType")
+        .default_value(0)
+        .help("type of tasksets, 0 means implicit, 1 means random")
         .scan<'i', int>();
     program.add_argument("--taskSetType")
         .default_value(2)
@@ -62,11 +70,21 @@ int main(int argc, char *argv[])
 
     int N = program.get<int>("--N");
     int DAG_taskSetNumber = program.get<int>("--taskSetNumber");
-    double totalUtilization = program.get<double>("--totalUtilization");
     int numberOfProcessor = program.get<int>("--NumberOfProcessor");
+    double totalUtilization;
+    double aveUtilization = program.get<double>("--aveUtilization");
+    if (aveUtilization != 0)
+    {
+        totalUtilization = aveUtilization * numberOfProcessor;
+    }
+    else
+        totalUtilization = program.get<double>("--totalUtilization");
+
     int periodMin = program.get<int>("--periodMin");
     int periodMax = program.get<int>("--periodMax");
     int taskType = program.get<int>("--taskType");
+    int deadlineType = program.get<int>("--deadlineType");
+
     int taskSetType = program.get<int>("--taskSetType");
     cout << "Task configuration: " << endl
          << "the number of tasks in DAG(--N): " << N << endl
@@ -90,7 +108,7 @@ int main(int argc, char *argv[])
             TaskSet tasks = GenerateTaskSet(N, totalUtilization,
                                             numberOfProcessor,
                                             periodMin,
-                                            periodMax, taskSetType);
+                                            periodMax, taskSetType, deadlineType);
             string fileName = "periodic-set-" + string(3 - to_string(i).size(), '0') + to_string(i) + "-syntheticJobs" + ".csv";
             ofstream myfile;
             myfile.open(outDirectory + fileName);
@@ -101,7 +119,7 @@ int main(int argc, char *argv[])
             DAG_Model tasks = GenerateDAG(N, totalUtilization,
                                           numberOfProcessor,
                                           periodMin,
-                                          periodMax, taskSetType);
+                                          periodMax, taskSetType, deadlineType);
             string fileName = "dag-set-" + string(3 - to_string(i).size(), '0') + to_string(i) + "-syntheticJobs" + ".csv";
             ofstream myfile;
             myfile.open(outDirectory + fileName);
