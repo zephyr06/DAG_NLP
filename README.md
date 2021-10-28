@@ -4,6 +4,7 @@
 - Python
     - Graphviz
     - pydot (conda install -c rmg pydot)
+- GCC V8.1+
 
 # TODO:
 1. Gradient vanish problem
