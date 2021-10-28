@@ -9,7 +9,7 @@ deltaInitialDogleg: 1e5
 weightDDL_factor: 1.0
 deltaOptimizer: 1e-1
 exactJacobian: 0
-initialLambda: 1e-2
+initialLambda: 1e0
 lowerLambda: 1e-15
 makespanWeight: 0
 noiseModelSigma: 1
@@ -26,13 +26,14 @@ zeroJacobianDetectTol: 1e-7
 maxIterations: 100
 moreElimination: 0
 weightPrior_factor: 0
-initializeMethod: 3
+initializeMethod: 2
+timeScaleFactor: 1e2
 maxJacobianIteration: 15
 priorityMode: RM
-relativeErrorTolerance: 1e-5
+relativeErrorTolerance: 1e-4
 runMode: compare
 SA_iteration: 100000
-sensorFusionTolerance: 500
+sensorFusionTolerance: 50
 FreshTol: 1000000000
 temperatureSA: 100000000
 testDataSetName: test_n5_v44

@@ -125,13 +125,15 @@ void BatchOptimize()
     outfile1.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/ResultFiles/utilization.txt", std::ios_base::app);
     outfile1 << double(averageErrorAccept1.size()) / TotalTestCases << endl;
 
-    // outfile2.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/time_task_number.txt", std::ios_base::app);
-    // outfile2 << aveTime << endl;
+    outfile2.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/ResultFiles/time_task_number.txt", std::ios_base::app);
+    outfile2 << Average(runTimeAll) << endl;
     if (debugMode == 1)
+    {
         std::cout << endl;
-    std::cout << "Files that failed during optimization:\n";
-    for (auto &file : errorFiles)
-        std::cout << file << endl;
+        std::cout << "Files that failed during optimization:\n";
+        for (auto &file : errorFiles)
+            std::cout << file << endl;
+    }
 
     std::cout << Color::green << "Average error after optimization (accepted) is " << avEnergy << Color::def << endl;
     std::cout << Color::green << "Average time consumed (accepted) is " << aveTime << Color::def << endl;

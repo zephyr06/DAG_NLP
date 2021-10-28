@@ -13,7 +13,7 @@ def Read_txt_file_3d(path, func, delimiter=','):
     lines = file.readlines()
     res = np.zeros((4,4,2))
     for i, line in enumerate(lines):
-        value=float(line[:-1])
+        value=float(line[:-1])*100
         core_index=int(i/8)
         util_index=int(i%8/2)
         method_index=i%2
@@ -27,12 +27,12 @@ parser.add_argument('--maxTaskNumber', type=int, default=20,
                     help='Nmax')
 parser.add_argument('--taskSetNumber', type=int, default=100,
                     help='taskSetNumber')
-parser.add_argument('--baseline', type=str, default="MUA",
+parser.add_argument('--baseline', type=str, default="RM_DAG",
                     help='baseline')
 parser.add_argument('--ylim', type=float, default=1e2,
                     help='ylim')
 args = parser.parse_args()
-minTaskNumber = args.minTaskNumber
+coreNumber = args.coreNumber
 maxTaskNumber = args.maxTaskNumber
 taskSetNumber = args.taskSetNumber
 baseline = args.baseline
@@ -44,20 +44,30 @@ path = "ResultFiles/utilization.txt"
 data_3d = Read_txt_file_3d(path, lambda x: x)
 core_seq = np.arange(1,5)
 data_dict={"index":core_seq}
+name_aft=": "
 for i, method in enumerate([baseline, "NLP"]):
     for util in range(4):
-        data_dict[method + "_Util: 0."+str(util+1)]=data_3d[:, util, i]
+        data_dict[method + name_aft+"0."+str(util+1)]=data_3d[:, util, i]
 df=pd.DataFrame(data_dict)
 # df=pd.DataFrame({"NLP":data_2d[0,:], baseline: data_2d[1,:]})
 # df = pd.DataFrame(data=data_2d.T, columns={"NLP", baseline}, index=range(minTaskNumber, maxTaskNumber+1))
 
 # line, ax=plt.subplots()
 # ax=sns.lineplot(x="index", y="NLP", data=df)
-for i, method in enumerate([baseline, "NLP"]):
+markers=["o","v","^","s","|","_","+","x"]
+color_per_util=["b","limegreen","r","gold"]
+marker_index=0
+for i, method in enumerate(["NLP", baseline]):
     for util in range(4):
+        # if(method==baseline):
+        #     continue
         if(method==baseline):
-            continue
-        splot=sns.lineplot(data=df, x="index", y=method + "_Util: 0."+str(util+1),dashes=True, marker=True, label=method + "_Util: 0."+str(util+1))
+            splot=sns.lineplot(data=df, x="index", y=method + name_aft+"0."+str(util+1),dashes=True,linestyle="dashed",color=color_per_util[util], marker=markers[marker_index], label=method + name_aft+"0."+str(util+1))
+        else:
+            splot = sns.lineplot(data=df, x="index", y=method + name_aft+"0." + str(util + 1), dashes=True,color=color_per_util[util],
+                                 linestyle="solid", marker=markers[marker_index],
+                                 label=method + name_aft+"0." + str(util + 1))
+        marker_index=marker_index+1
 
 # splot = sns.lineplot(data=df, x="index", y="NLP",  marker="*", markersize=12)
 # splot = sns.lineplot(data=df, x="index", y=baseline, marker="o", markersize=8)

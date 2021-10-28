@@ -33,6 +33,8 @@ const double barrierBase = (double)ConfigParameters["barrierBase"];
 const double coolingRateSA = (double)ConfigParameters["coolingRateSA"];
 const double deltaInitialDogleg = (double)ConfigParameters["deltaInitialDogleg"];
 const double deltaOptimizer = (double)ConfigParameters["deltaOptimizer"];
+const int timeScaleFactor = (int)ConfigParameters["timeScaleFactor"];
+
 const double initialLambda = (double)ConfigParameters["initialLambda"];
 const double lowerLambda = (double)ConfigParameters["lowerLambda"];
 double makespanWeight = (double)ConfigParameters["makespanWeight"];

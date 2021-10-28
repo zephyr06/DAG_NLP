@@ -30,5 +30,6 @@ do
 done
 
 cd ../CompareWithBaseline
+cp ResultFiles/utilization.txt ResultFiles/single_util.txt
 # visualize the result
 python Visualize_util.py --baseline "DAG_RM"
