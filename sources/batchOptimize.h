@@ -128,11 +128,12 @@ void BatchOptimize()
     // outfile2.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/time_task_number.txt", std::ios_base::app);
     // outfile2 << aveTime << endl;
     if (debugMode == 1)
+    {
         std::cout << endl;
-    std::cout << "Files that failed during optimization:\n";
-    for (auto &file : errorFiles)
-        std::cout << file << endl;
-
+        std::cout << "Files that failed during optimization:\n";
+        for (auto &file : errorFiles)
+            std::cout << file << endl;
+    }
     std::cout << Color::green << "Average error after optimization (accepted) is " << avEnergy << Color::def << endl;
     std::cout << Color::green << "Average time consumed (accepted) is " << aveTime << Color::def << endl;
     std::cout << Color::green << "The number of tasksets under analyzation is " << averageErrorAccept.size() << Color::def << endl;
