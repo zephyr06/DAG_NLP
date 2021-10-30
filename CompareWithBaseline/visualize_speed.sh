@@ -30,5 +30,6 @@ do
 done
 
 cd ../CompareWithBaseline
+cp ResultFiles/time_task_number.txt ResultFiles/time_task_number_result_copy.txt
 # visualize the result
-python Visualize_average_speed.py --baseline "DAG_RM" --minTaskNumber 3 --maxTaskNumber $MaxTaskNumber
+python Visualize_average_speed.py --baseline "RM" --minTaskNumber 3 --maxTaskNumber $MaxTaskNumber

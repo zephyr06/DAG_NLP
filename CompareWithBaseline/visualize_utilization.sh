@@ -10,6 +10,7 @@ cd ../CompareWithBaseline
 for i in $(seq 0.1 0.1 0.9) 
 do
 	echo "$title iteration is: $i"
+	
 	cd ../release
 	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization $i --taskSetNumber 500 --NumberOfProcessor 1 --N 5 --taskType 1 --deadlineType 1
 	cd ../CompareWithBaseline
@@ -24,6 +25,6 @@ do
 done
 
 cd ../CompareWithBaseline
-cp ResultFiles/utilization.txt ResultFiles/single_util.txt
+cp ResultFiles/utilization.txt ResultFiles/util_core.txt
 # visualize the result
 python Visualize_util.py --baseline "RM"
