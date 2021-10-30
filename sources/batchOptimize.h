@@ -135,7 +135,6 @@ void BatchOptimize()
         for (auto &file : errorFiles)
             std::cout << file << endl;
     }
-
     std::cout << Color::green << "Average error after optimization (accepted) is " << avEnergy << Color::def << endl;
     std::cout << Color::green << "Average time consumed (accepted) is " << aveTime << Color::def << endl;
     std::cout << Color::green << "The number of tasksets under analyzation is " << averageErrorAccept.size() << Color::def << endl;
