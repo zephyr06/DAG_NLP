@@ -27,9 +27,9 @@ parser.add_argument('--maxTaskNumber', type=int, default=20,
                     help='Nmax')
 parser.add_argument('--taskSetNumber', type=int, default=100,
                     help='taskSetNumber')
-parser.add_argument('--baseline', type=str, default="DAG_RM",
+parser.add_argument('--baseline', type=str, default="RM",
                     help='baseline')
-parser.add_argument('--ylim', type=float, default=1e2,
+parser.add_argument('--ylim', type=float, default=65,
                     help='ylim')
 args = parser.parse_args()
 minTaskNumber = args.minTaskNumber
@@ -40,7 +40,7 @@ ylim=args.ylim
 
 
 
-path = "ResultFiles/single_util.txt"
+path = "ResultFiles/exp1_record_single_util.txt"
 data_2d = Read_txt_file_2d(path, lambda x: x)
 task_number_seq = np.arange(0.1, 1.0, 0.1)*100
 df=pd.DataFrame({"index":task_number_seq,"NLP":data_2d[1,:], baseline: data_2d[0,:]})
@@ -51,13 +51,13 @@ df=pd.DataFrame({"index":task_number_seq,"NLP":data_2d[1,:], baseline: data_2d[0
 # ax=sns.lineplot(x="index", y="NLP", data=df)
 
 splot = sns.lineplot(data=df, x="index", y="NLP",  marker="*", markersize=12, color="#0084DB")
-splot = sns.lineplot(data=df, x="index", y=baseline, marker="o", markersize=8)
+splot = sns.lineplot(data=df, x="index", y=baseline, marker="o", markersize=8, color="orange")
 plt.legend(labels=["NLP",baseline])
 #splot.set(yscale="log")
 plt.grid(linestyle="--")
 splot.set(xlabel="Overall utilization (%)", ylabel="Accept rate (%)")
 # splot.set_xlim(4, None)
-# splot.set_ylim(1e-3, ylim)
+splot.set_ylim(None, ylim)
 plt.savefig("Compare_util_single" +baseline+ ".pdf", format='pdf')
 plt.savefig("Compare_util_single" +baseline+ ".png", format='png')
 plt.show(block=False)
