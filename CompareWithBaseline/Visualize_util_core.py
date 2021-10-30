@@ -6,6 +6,25 @@ import pandas as pd
 import seaborn as sns
 # from utils_visualize import *
 
+def Read_txt_file_2d(path):
+    """ read txt files, and return a 2D list, each element contains MORE THAN one number"""
+    file = open(path, 'r')
+    lines = file.readlines()
+    res = [[],[]]
+    i=0
+    for i, line in enumerate(lines):
+        if(i%2==0):
+            res[0].append(float(line[:-1]))
+        else:
+            res[1].append(float(line[:-1]))
+    return np.array(res)
+
+def improve_ratio(data_2d):
+    ave=[]
+    for i in range(len(data_2d[0,:])):
+        ave.append(data_2d[1,i]/data_2d[0,i])
+    print("Average ratio: ", np.average(np.array(ave)))
+
 
 def Read_txt_file_3d(path, func, delimiter=','):
     """ read txt files, and return a 2D list, each element contains MORE THAN one number"""
@@ -41,6 +60,7 @@ ylim=args.ylim
 
 
 path = "ResultFiles/utilization.txt"
+improve_ratio(Read_txt_file_2d(path))
 data_3d = Read_txt_file_3d(path, lambda x: x)
 core_seq = np.arange(1,5)
 data_dict={"index":core_seq}

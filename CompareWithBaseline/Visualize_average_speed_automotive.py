@@ -24,7 +24,7 @@ def Read_txt_file_2d(path):
 parser = argparse.ArgumentParser()
 parser.add_argument('--minTaskNumber', type=int, default=3,
                     help='Nmin')
-parser.add_argument('--maxTaskNumber', type=int, default=7,
+parser.add_argument('--maxTaskNumber', type=int, default=8,
                     help='Nmax')
 parser.add_argument('--baseline', type=str, default="SA",
                     help='baseline')
@@ -64,7 +64,7 @@ if withFit:
     splot = sns.lineplot(data=df, x="index", y="simu", linestyle="--", color="r", label="Quadratic fitting")
 
 plt.grid(linestyle="--")
-splot.set_ylim(0, ylim)
+splot.set_ylim(None, ylim)
 if(path=="ResultFiles/"+"time_record.txt"):
     splot.set(xlabel="Task Number", ylabel="Runt-Time (seconds)")
     plt.savefig("Compare_run_time" +baseline+ ".pdf", format='pdf')
