@@ -47,7 +47,7 @@ namespace DAG_SPACE
         std::chrono::duration<float> diff = end - start;
 
         auto best_moe = moether.getBestMoe();
-
+        if(debugMode==1)
         std::cout
             << "fitness: " << best_moe.fitness * -1 << "\n"
             << "time spent: " << diff.count() << " seconds" << std::endl;

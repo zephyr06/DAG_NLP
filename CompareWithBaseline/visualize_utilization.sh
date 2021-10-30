@@ -9,9 +9,9 @@ make -j8
 cd ../CompareWithBaseline
 for i in $(seq 0.1 0.1 0.9) 
 do
-	echo "$title iteration is: $jobNumber"
+	echo "$title iteration is: $i"
 	cd ../release
-	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization $i --taskSetNumber 500 --NumberOfProcessor 1 --N 5 --taskType 1
+	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization $i --taskSetNumber 500 --NumberOfProcessor 1 --N 5 --taskType 1 --deadlineType 1
 	cd ../CompareWithBaseline
 	python edit_yaml.py --entry "batchTestMethod" --value 0
 	cd ../release

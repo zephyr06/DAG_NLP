@@ -11,12 +11,13 @@ time_file="ResultFiles/time_$title.txt"
 cd ../release
 make -j8
 cd ../CompareWithBaseline
-for taskNumber in {3..10}
+for taskNumber in {6..10}
 do
 	echo "$title iteration is: $taskNumber"
 	
 	cd ../release
-	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization 0.4 --taskSetNumber 5 --NumberOfProcessor 1 --N $taskNumber --taskType 1
+	make -j12
+	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization 0.4 --taskSetNumber 1000 --NumberOfProcessor 2 --N $taskNumber --taskType 1
 	cd ../CompareWithBaseline
 	python edit_yaml.py --entry "batchTestMethod" --value 2
 	cd ../release
