@@ -12,7 +12,7 @@ do
 	do
 		echo "$title iteration is: $core"
 		cd ../release
-		./tests/GenerateTaskSet --taskSetType 2 --aveUtilization $i --taskSetNumber 500 --NumberOfProcessor $core --N 10 --taskType 1
+		./tests/GenerateTaskSet --taskSetType 2 --aveUtilization $i --taskSetNumber 1000 --NumberOfProcessor $core --N 5 --taskType 1
 		cd ../CompareWithBaseline
 		python edit_yaml.py --entry "batchTestMethod" --value 0
 		cd ../release

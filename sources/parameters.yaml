@@ -9,14 +9,14 @@ deltaInitialDogleg: 1e5
 weightDDL_factor: 1.0
 deltaOptimizer: 1e-1
 exactJacobian: 0
-initialLambda: 1e-4
+initialLambda: 1e0
 lowerLambda: 1e-15
 makespanWeight: 0
 noiseModelSigma: 1
-AcceptSchedulError: 1e1
+AcceptSchedulError: 1e0
 optimizerType: 2 # 1 means dogleg, 2 means LM
 overlapMode: 1
-parallelFactor: 0.2
+parallelFactor: 0.4
 punishmentInBarrier: 1e2
 randomInitialize: 0
 readTaskMode: orig
@@ -35,7 +35,7 @@ relativeErrorTolerance: 1e-5
 runMode: compare
 SA_iteration: 100000
 sensorFusionTolerance: 50
-FreshTol: 1000000000
+FreshTol: 50
 temperatureSA: 100000000
 testDataSetName: test_n5_v44
 tightEliminate: 0

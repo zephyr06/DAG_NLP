@@ -50,7 +50,7 @@ df=pd.DataFrame({"index":task_number_seq,"NLP":data_2d[1,:], baseline: data_2d[0
 # line, ax=plt.subplots()
 # ax=sns.lineplot(x="index", y="NLP", data=df)
 
-splot = sns.lineplot(data=df, x="index", y="NLP",  marker="*", markersize=12)
+splot = sns.lineplot(data=df, x="index", y="NLP",  marker="*", markersize=12, color="#0084DB")
 splot = sns.lineplot(data=df, x="index", y=baseline, marker="o", markersize=8)
 plt.legend(labels=["NLP",baseline])
 #splot.set(yscale="log")

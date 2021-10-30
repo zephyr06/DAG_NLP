@@ -4,6 +4,7 @@ title="utilization"
 
 # clear buffer file content
 > ResultFiles/utilization.txt
+> ResultFiles/time_task_number.txt
 
 cd ../release
 make -j8
@@ -13,7 +14,7 @@ do
 	echo "$title iteration is: $i"
 	
 	cd ../release
-	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization $i --taskSetNumber 500 --NumberOfProcessor 1 --N 5 --taskType 1
+	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization $i --taskSetNumber 1000 --NumberOfProcessor 2 --N 5 --taskType 1 --deadlineType 1
 	cd ../CompareWithBaseline
 	python edit_yaml.py --entry "batchTestMethod" --value 0
 	cd ../release

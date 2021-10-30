@@ -16,7 +16,7 @@ do
 	echo "$title iteration is: $taskNumber"
 	
 	cd ../release
-	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization 0.4 --taskSetNumber 500 --NumberOfProcessor 1 --N $taskNumber --taskType 1
+	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization 0.4 --taskSetNumber 1000 --NumberOfProcessor 2 --taskType 1 --N $taskNumber
 	cd ../CompareWithBaseline
 	python edit_yaml.py --entry "batchTestMethod" --value 2
 	cd ../release
@@ -32,3 +32,9 @@ cd ../CompareWithBaseline
 cp ResultFiles/time_task_number.txt ResultFiles/time_task_number_result_copy.txt
 # visualize the result
 python Visualize_average_speed.py --baseline "RM" --minTaskNumber 3 --maxTaskNumber $MaxTaskNumber
+
+python Visualize_average_speed_automotive.py --path "time_record.txt" --ylim 25  --withFit 1
+python Visualize_average_speed_automotive.py --path "accept_rate_record.txt" --ylim 60  --withFit 0
+python Visualize_average_speed.py #speed
+python Visualize_average_speed_automotive.py --path "accept_rate_record2.txt" --ylim 60  --withFit 0 --maxTaskNumber 8 --ylim 100
+

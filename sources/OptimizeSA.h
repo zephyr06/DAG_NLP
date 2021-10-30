@@ -47,10 +47,10 @@ namespace DAG_SPACE
         std::chrono::duration<float> diff = end - start;
 
         auto best_moe = moether.getBestMoe();
-
-        std::cout
-            << "fitness: " << best_moe.fitness * -1 << "\n"
-            << "time spent: " << diff.count() << " seconds" << std::endl;
+        if (debugMode == 1)
+            std::cout
+                << "fitness: " << best_moe.fitness * -1 << "\n"
+                << "time spent: " << diff.count() << " seconds" << std::endl;
 
         return {GraphErrorEvaluation(dagTasks, initialEstimate), best_moe.fitness * -1,
                 initialEstimate, Vector2Eigen<double>(best_moe.genotype)};

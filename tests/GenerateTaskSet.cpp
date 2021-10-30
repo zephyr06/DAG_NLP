@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
          << "periodMax(--periodMax): " << periodMax << endl
          << "taskType(--taskType), 0 means normal, 1 means DAG: " << taskType << endl
          << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile: " << taskSetType << endl
-
+         << "deadlineType(--deadlineType), 1 means random, 0 means implicit: " << deadlineType << endl
          << endl;
 
     string outDirectory = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks/";

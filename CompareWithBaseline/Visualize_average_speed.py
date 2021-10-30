@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 # from utils_visualize import *
+from scipy.optimize import curve_fit
 
 
 def Read_txt_file_2d(path):
@@ -23,9 +24,9 @@ def Read_txt_file_2d(path):
 parser = argparse.ArgumentParser()
 parser.add_argument('--minTaskNumber', type=int, default=3,
                     help='Nmin')
-parser.add_argument('--maxTaskNumber', type=int, default=10,
+parser.add_argument('--maxTaskNumber', type=int, default=8,
                     help='Nmax')
-parser.add_argument('--baseline', type=str, default="SA",
+parser.add_argument('--baseline', type=str, default="SA2",
                     help='baseline')
 parser.add_argument('--ylim', type=float, default=1e2,
                     help='ylim')
@@ -36,25 +37,29 @@ baseline = args.baseline
 ylim=args.ylim
 
 
-
+# path = "ResultFiles/time_record.txt"
 path = "ResultFiles/time_task_number.txt"
 data_2d = Read_txt_file_2d(path)
 task_number_seq = range(minTaskNumber, maxTaskNumber + 1)
-df=pd.DataFrame({"index":task_number_seq,"NLP":data_2d[1,:], baseline: data_2d[0,:]})
-# df=pd.DataFrame({"NLP":data_2d[0,:], baseline: data_2d[1,:]})
-# df = pd.DataFrame(data=data_2d.T, columns={"NLP", baseline}, index=range(minTaskNumber, maxTaskNumber+1))
+coeff=np.polyfit(task_number_seq, data_2d[1,:],2)
+data_simu=[]
+for n in task_number_seq:
+    data_simu.append(np.polyval(coeff, n))
 
-# line, ax=plt.subplots()
-# ax=sns.lineplot(x="index", y="NLP", data=df)
+df=pd.DataFrame({"index":task_number_seq,"NLP":data_2d[1,:], baseline: data_2d[0,:], "simu": data_simu})
 
-splot = sns.lineplot(data=df, x="index", y="NLP",  marker="*", markersize=12)
-splot = sns.lineplot(data=df, x="index", y=baseline, marker="o", markersize=8)
-plt.legend(labels=["NLP",baseline])
-splot.set(yscale="log")
+
+
+splot = sns.lineplot(data=df, x="index", y="NLP",label="NLP",  marker="*", markersize=12, color="#0084DB")
+splot = sns.lineplot(data=df, x="index", y=baseline, label=baseline, marker="o", markersize=8, color="limegreen")
+# splot = sns.lineplot(data=df, x="index", y="simu", linestyle="--", color="r", label="Quadratic fitting")
+# plt.legend(labels=["NLP",baseline])
 plt.grid(linestyle="--")
+# splot.set(yscale="log")
+# plt.grid(linestyle="--")
 splot.set(xlabel="Task Number", ylabel="Runt-Time (seconds)")
 # splot.set_xlim(4, None)
-# splot.set_ylim(1e-3, ylim)
+splot.set_ylim(None, 6)
 plt.savefig("Compare_run_time" +baseline+ ".pdf", format='pdf')
 plt.savefig("Compare_run_time" +baseline+ ".png", format='png')
 plt.show(block=False)
