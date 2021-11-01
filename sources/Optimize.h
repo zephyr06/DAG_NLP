@@ -100,11 +100,11 @@ namespace DAG_SPACE
                                                          maskForEliminate, 0.0, order[0], model);
         }
 
-        LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
-        model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-        graph.emplace_shared<SensorFusion_ConstraintFactor>(key, dagTasks, sizeOfVariables,
-                                                            errorDimensionSF, sensorFusionTolerance,
-                                                            mapIndex, maskForEliminate, model);
+        // LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
+        // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
+        // graph.emplace_shared<SensorFusion_ConstraintFactor>(key, dagTasks, sizeOfVariables,
+        //                                                     errorDimensionSF, sensorFusionTolerance,
+        //                                                     mapIndex, maskForEliminate, model);
         Values initialEstimateFG;
         // Symbol key('a', 0);
         initialEstimateFG.insert(key, startTimeVector);
@@ -190,11 +190,11 @@ namespace DAG_SPACE
                                                          maskForEliminate, 0.0, order[0], model);
         }
 
-        LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
-        model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-        graph.emplace_shared<SensorFusion_ConstraintFactor>(key, dagTasks, sizeOfVariables,
-                                                            errorDimensionSF, sensorFusionTolerance,
-                                                            mapIndex, maskForEliminate, model);
+        // LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
+        // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
+        // graph.emplace_shared<SensorFusion_ConstraintFactor>(key, dagTasks, sizeOfVariables,
+        //                                                     errorDimensionSF, sensorFusionTolerance,
+        //                                                     mapIndex, maskForEliminate, model);
         // return graph;
 
         Values initialEstimateFG;

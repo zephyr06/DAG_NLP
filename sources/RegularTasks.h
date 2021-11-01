@@ -31,12 +31,13 @@ namespace RegularTaskSystem
         int deadline;
         int id;
         int processorId;
+        int coreRequire;
 
         // initializer
 
         Task() : offset(0), period(0),
                  overhead(0), executionTime(0.0),
-                 deadline(0) {}
+                 deadline(0), coreRequire(1) {}
         Task(int offset, int period, int overhead, double executionTime,
              int deadline) : offset(offset), period(period),
                              overhead(overhead), executionTime(executionTime),
@@ -44,12 +45,19 @@ namespace RegularTaskSystem
         {
             id = -1;
             processorId = -1;
+            coreRequire = 1;
         }
         Task(int offset, int period, int overhead, double executionTime,
              int deadline, int id, int processorId) : offset(offset), period(period),
                                                       overhead(overhead), executionTime(executionTime),
                                                       deadline(deadline), id(id),
-                                                      processorId(processorId) {}
+                                                      processorId(processorId) { coreRequire = 1; }
+        Task(int offset, int period, int overhead, double executionTime,
+             int deadline, int id, int processorId, int coreRequire) : offset(offset), period(period),
+                                                                       overhead(overhead), executionTime(executionTime),
+                                                                       deadline(deadline), id(id),
+                                                                       processorId(processorId),
+                                                                       coreRequire(coreRequire) {}
         double priority()
         {
             if (priorityMode == "RM")
@@ -70,9 +78,9 @@ namespace RegularTaskSystem
  **/
         Task(vector<double> dataInLine)
         {
-            if (dataInLine.size() != 7)
+            if (dataInLine.size() != 8)
             {
-                cout << Color::red << "The length of dataInLine in Task constructor is wrong! Must be 7!\n"
+                cout << Color::red << "The length of dataInLine in Task constructor is wrong! Must be 8!\n"
                      << Color::def << endl;
                 throw;
             }
@@ -83,12 +91,14 @@ namespace RegularTaskSystem
             executionTime = dataInLine[4];
             deadline = dataInLine[5];
             processorId = dataInLine[6];
+            coreRequire = dataInLine[7];
         }
 
         void print()
         {
             cout << "The period is: " << period << " The executionTime is " << executionTime << " The deadline is "
-                 << deadline << " The overhead is " << overhead << " The offset is " << offset << endl;
+                 << deadline << " The overhead is " << overhead << " The offset is " << offset
+                 << " The coreRequire is " << coreRequire << endl;
         }
 
         double utilization() const

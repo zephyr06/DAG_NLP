@@ -51,6 +51,10 @@ int main(int argc, char *argv[])
         .default_value(2)
         .help("type of taskset period generation method, 1 means normal, 2 means automobile method")
         .scan<'i', int>();
+    program.add_argument("--coreRequireMax")
+        .default_value(1)
+        .help("maximum number of cores that each task could require, default 1")
+        .scan<'i', int>();
 
     // program.add_argument("--parallelismFactor")
     //     .default_value(1000)
@@ -84,7 +88,7 @@ int main(int argc, char *argv[])
     int periodMax = program.get<int>("--periodMax");
     int taskType = program.get<int>("--taskType");
     int deadlineType = program.get<int>("--deadlineType");
-
+    int coreRequireMax = program.get<int>("--coreRequireMax");
     int taskSetType = program.get<int>("--taskSetType");
     cout << "Task configuration: " << endl
          << "the number of tasks in DAG(--N): " << N << endl
@@ -96,6 +100,7 @@ int main(int argc, char *argv[])
          << "taskType(--taskType), 0 means normal, 1 means DAG: " << taskType << endl
          << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile: " << taskSetType << endl
          << "deadlineType(--deadlineType), 1 means random, 0 means implicit: " << deadlineType << endl
+         << "coreRequireMax(--coreRequireMax): " << coreRequireMax << endl
          << endl;
 
     string outDirectory = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks/";
@@ -108,7 +113,7 @@ int main(int argc, char *argv[])
             TaskSet tasks = GenerateTaskSet(N, totalUtilization,
                                             numberOfProcessor,
                                             periodMin,
-                                            periodMax, taskSetType, deadlineType);
+                                            periodMax, coreRequireMax, taskSetType, deadlineType);
             string fileName = "periodic-set-" + string(3 - to_string(i).size(), '0') + to_string(i) + "-syntheticJobs" + ".csv";
             ofstream myfile;
             myfile.open(outDirectory + fileName);
@@ -119,7 +124,7 @@ int main(int argc, char *argv[])
             DAG_Model tasks = GenerateDAG(N, totalUtilization,
                                           numberOfProcessor,
                                           periodMin,
-                                          periodMax, taskSetType, deadlineType);
+                                          periodMax, coreRequireMax, taskSetType, deadlineType);
             string fileName = "dag-set-" + string(3 - to_string(i).size(), '0') + to_string(i) + "-syntheticJobs" + ".csv";
             ofstream myfile;
             myfile.open(outDirectory + fileName);

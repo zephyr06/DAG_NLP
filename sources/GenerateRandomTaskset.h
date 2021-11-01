@@ -48,7 +48,8 @@ double RandRange(double a, double b)
 
 TaskSet GenerateTaskSet(int N, double totalUtilization,
                         int numberOfProcessor, int periodMin,
-                        int periodMax, int taskSetType = 1, int deadlineType = 0)
+                        int periodMax, int coreRequireMax,
+                        int taskSetType = 1, int deadlineType = 0)
 {
     vector<double> utilVec = Uunifast(N, totalUtilization);
     TaskSet tasks;
@@ -58,6 +59,8 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
     {
 
         int periodCurr = 0;
+        int processorId = rand() % numberOfProcessor;
+        int coreRequire = 1 + rand() % (coreRequireMax);
         if (taskSetType == 1)
         {
             periodCurr = (1 + rand() % periodMaxRatio) * periodMin;
@@ -67,7 +70,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
             Task task(0, periodCurr,
                       0, ceil(periodCurr * utilVec[i]),
                       deadline, i,
-                      rand() % numberOfProcessor);
+                      processorId, coreRequire);
             tasks.push_back(task);
         }
 
@@ -80,7 +83,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
             Task task(0, periodCurr,
                       0, int(periodCurr * utilVec[i]),
                       deadline, i,
-                      rand() % numberOfProcessor);
+                      processorId, coreRequire);
             tasks.push_back(task);
         }
         else
@@ -91,24 +94,26 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
 void WriteTaskSets(ofstream &file, TaskSet &tasks)
 {
     int N = tasks.size();
-    file << "JobID,Offset,Period,Overhead,ExecutionTime,DeadLine,processorId\n";
+    file << "JobID,Offset,Period,Overhead,ExecutionTime,DeadLine,processorId,coreRequireMax\n";
     for (int i = 0; i < N; i++)
     {
         file << tasks[i].id << "," << tasks[i].offset << ","
              << tasks[i].period << "," << tasks[i].overhead << ","
              << tasks[i].executionTime << "," << tasks[i].deadline
-             << "," << tasks[i].processorId << "\n";
+             << "," << tasks[i].processorId
+             << "," << tasks[i].coreRequire << "\n";
     }
 }
 
 using namespace DAG_SPACE;
 DAG_Model GenerateDAG(int N, double totalUtilization,
                       int numberOfProcessor, int periodMin,
-                      int periodMax, int taskSetType = 1, int deadlineType = 0)
+                      int periodMax, int coreRequireMax,
+                      int taskSetType = 1, int deadlineType = 0)
 {
 
     TaskSet tasks = GenerateTaskSet(N, totalUtilization,
-                                    numberOfProcessor, periodMin, periodMax, taskSetType, deadlineType);
+                                    numberOfProcessor, periodMin, periodMax, coreRequireMax, taskSetType, deadlineType);
     MAP_Prev mapPrev;
     DAG_Model dagModel(tasks, mapPrev);
     // add edges randomly
