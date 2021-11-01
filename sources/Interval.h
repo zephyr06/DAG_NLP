@@ -4,10 +4,21 @@ struct Interval
 {
     double start;
     double length;
+    int coreRequire;
     LLint indexInSTV;
 
-    Interval(double s1, double l1) : start(s1), length(l1) { indexInSTV = 0; }
-    Interval(double s1, double l1, LLint i) : start(s1), length(l1), indexInSTV(i) {}
+    Interval(double s1, double l1) : start(s1), length(l1)
+    {
+        indexInSTV = 0;
+        coreRequire = 1;
+    }
+    Interval(double s1, double l1, LLint i) : start(s1),
+                                              length(l1), \
+                                              indexInSTV(i) { coreRequire = 1; }
+    Interval(double s1, double l1, LLint i, int coreRequire) : start(s1),
+                                                               length(l1),
+                                                               indexInSTV(i),\
+                                                                coreRequire(coreRequire) {}
 };
 bool compare(Interval &i1, Interval &i2)
 {
@@ -24,23 +35,30 @@ double Overlap(Interval &v1, Interval &v2)
 {
     double f1 = v1.start + v1.length;
     double f2 = v2.start + v2.length;
+    int coreRequireDiff = coreNumberAva - v1.coreRequire - v2.coreRequire;
+    int coreError = 0;
+    if (coreRequireDiff >= 0)
+        return 0;
+    else
+        coreError = -1 * coreRequireDiff;
+
     if (v1.start >= f2 || v2.start >= f1)
         return 0;
     else if (v2.start <= v1.start && f2 >= v1.start && f1 >= f2)
     {
-        return (f2 - v1.start);
+        return (f2 - v1.start) * coreError;
     }
     else if (v2.start > v1.start && f2 < f1)
     {
-        return v2.length;
+        return v2.length * coreError;
     }
     else if (v1.start > v2.start && f1 < f2)
     {
-        return v1.length;
+        return v1.length * coreError;
     }
     else if (f1 >= v2.start && f2 >= f1 && v1.start <= v2.start)
     {
-        return f1 - v2.start;
+        return f1 - v2.start * coreError;
     }
     else
     {

@@ -444,8 +444,10 @@ namespace DAG_SPACE
             {
                 LLint index = tree1[i];
                 double start = startTimeVector.coeff(index, 0);
-                double length = tasks[BigIndex2TaskIndex(index, sizeOfVariables)].executionTime;
-                intervalVec.push_back(Interval{start, length, index});
+                int taskId = BigIndex2TaskIndex(index, sizeOfVariables);
+                double length = tasks[taskId].executionTime;
+                int coreRequire = tasks[taskId].coreRequire;
+                intervalVec.push_back(Interval{start, length, index, coreRequire});
             }
             return intervalVec;
         }

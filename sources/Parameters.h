@@ -52,7 +52,7 @@ const double stepJacobianIteration = (double)ConfigParameters["stepJacobianItera
 
 const int moreElimination = (int)ConfigParameters["moreElimination"];
 const int ElimnateLoop_Max = (int)ConfigParameters["ElimnateLoop_Max"];
-const int coreNumberAva = (int)ConfigParameters["coreNumberAva"];
+int coreNumberAva = (int)ConfigParameters["coreNumberAva"];
 int numericalJaobian = (int)ConfigParameters["numericalJaobian"];
 const int setUseFixedLambdaFactor = (int)ConfigParameters["setUseFixedLambdaFactor"];
 InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initializeMethod"]);

@@ -4,8 +4,8 @@
 
 barrierBase: 100
 coolingRateSA: 0.1
-coreNumberAva: 4
-debugMode: 0
+coreNumberAva: 1
+debugMode: 1
 deltaInitialDogleg: 1e5
 weightDDL_factor: 1.0
 deltaOptimizer: 1e-1
