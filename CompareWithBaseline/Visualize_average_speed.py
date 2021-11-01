@@ -59,14 +59,8 @@ plt.grid(linestyle="--")
 # plt.grid(linestyle="--")
 splot.set(xlabel="Task Number", ylabel="Runt-Time (seconds)")
 # splot.set_xlim(4, None)
-<<<<<<< HEAD
 splot.set_ylim(None, 6)
 plt.savefig("Compare_run_time" +baseline+ ".pdf", format='pdf')
 plt.savefig("Compare_run_time" +baseline+ ".png", format='png')
-=======
-# splot.set_ylim(1e-3, ylim)
-plt.savefig("Compare_run_time" + ".pdf", format='pdf')
-plt.savefig("Compare_run_time" + ".png", format='png')
->>>>>>> c22eb3e4cc22a0a2959a6b691642fe15d52ef0ac
 plt.show(block=False)
 plt.pause(3)

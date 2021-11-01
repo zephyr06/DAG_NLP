@@ -30,7 +30,7 @@ parser.add_argument('--baseline', type=str, default="SA",
                     help='baseline')
 parser.add_argument('--ylim', type=float, default=25,
                     help='ylim')
-parser.add_argument('--path', type=str, default="time_record.txt",
+parser.add_argument('--path', type=str, default="time_record",
                     help='path in ResultFiles')
 parser.add_argument('--withFit', type=int, default=1,
                     help='withFit or not')
@@ -39,14 +39,14 @@ minTaskNumber = args.minTaskNumber
 maxTaskNumber = args.maxTaskNumber
 baseline = args.baseline
 ylim=args.ylim
-pathN=args.path
+path=args.path
 withFit=args.withFit
 
 
-path = "ResultFiles/"+pathN
+path_file = "ResultFiles/"+path+".txt"
 # path = "ResultFiles/time_task_number.txt"
-data_2d = Read_txt_file_2d(path)
-if (path.split("/")[1][:18] == "accept_rate_record"):
+data_2d = Read_txt_file_2d(path_file)
+if (path == "accept_rate_record"):
     data_2d=data_2d*100.0
 task_number_seq = range(minTaskNumber, maxTaskNumber + 1)
 coeff=np.polyfit(task_number_seq, data_2d[1,:],2)
@@ -65,19 +65,19 @@ if withFit:
 
 plt.grid(linestyle="--")
 splot.set_ylim(None, ylim)
-if(path=="ResultFiles/"+"time_record.txt"):
+if(path=="time_record"):
     splot.set(xlabel="Task Number", ylabel="Runt-Time (seconds)")
     plt.savefig("Compare_run_time" +baseline+ ".pdf", format='pdf')
     plt.savefig("Compare_run_time" +baseline+ ".png", format='png')
     plt.show(block=False)
     plt.pause(3)
-elif (path == "ResultFiles/" + "accept_rate_record.txt"):
+elif (path == "accept_rate_record"):
     splot.set(xlabel="Task Number", ylabel="Accept rate (%)")
     plt.savefig("Compare_accept_rate" + baseline + ".pdf", format='pdf')
     plt.savefig("Compare_accept_rate" + baseline + ".png", format='png')
     plt.show(block=False)
     plt.pause(3)
-elif (path == "ResultFiles/" + "accept_rate_record2.txt"):
+elif (path == + "accept_rate_record2"):
     splot.set(xlabel="Task Number", ylabel="Accept rate (%)")
     plt.savefig("Compare_accept_rate2" + baseline + ".pdf", format='pdf')
     plt.savefig("Compare_accept_rate2" + baseline + ".png", format='png')

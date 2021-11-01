@@ -99,11 +99,6 @@ for i, method in enumerate(["NLP", baseline]):
             a=1
         marker_index = marker_index + 1
 
-# splot = sns.lineplot(data=df, x="index", y="NLP",  marker="*", markersize=12)
-# splot = sns.lineplot(data=df, x="index", y=baseline, marker="o", markersize=8)
-# plt.legend(labels=["NLP",baseline])
-# plt.legend()
-# splot.set(yscale="log")
 plt.grid(linestyle="--")
 splot.set(xlabel="Core Number", ylabel="Accept rate(%)")
 # splot.set_xlim(4, None)

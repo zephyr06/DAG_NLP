@@ -44,11 +44,6 @@ path = "ResultFiles/exp1_record_single_util.txt"
 data_2d = Read_txt_file_2d(path, lambda x: x)
 task_number_seq = np.arange(0.1, 1.0, 0.1)*100
 df=pd.DataFrame({"index":task_number_seq,"NLP":data_2d[1,:], baseline: data_2d[0,:]})
-# df=pd.DataFrame({"NLP":data_2d[0,:], baseline: data_2d[1,:]})
-# df = pd.DataFrame(data=data_2d.T, columns={"NLP", baseline}, index=range(minTaskNumber, maxTaskNumber+1))
-
-# line, ax=plt.subplots()
-# ax=sns.lineplot(x="index", y="NLP", data=df)
 
 splot = sns.lineplot(data=df, x="index", y="NLP",  marker="*", markersize=12, color="#0084DB")
 splot = sns.lineplot(data=df, x="index", y=baseline, marker="o", markersize=8, color="orange")
