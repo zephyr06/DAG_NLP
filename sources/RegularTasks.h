@@ -80,9 +80,9 @@ namespace RegularTaskSystem
         {
             if (dataInLine.size() != 8)
             {
-                cout << Color::red << "The length of dataInLine in Task constructor is wrong! Must be 8!\n"
-                     << Color::def << endl;
-                throw;
+                // cout << Color::red << "The length of dataInLine in Task constructor is wrong! Must be 8!\n"
+                //      << Color::def << endl;
+                // throw;
             }
             id = dataInLine[0];
             offset = dataInLine[1];

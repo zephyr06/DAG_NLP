@@ -94,7 +94,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
 void WriteTaskSets(ofstream &file, TaskSet &tasks)
 {
     int N = tasks.size();
-    file << "JobID,Offset,Period,Overhead,ExecutionTime,DeadLine,processorId,coreRequireMax\n";
+    file << "JobID,Offset,Period,Overhead,ExecutionTime,DeadLine,processorId,coreRequire\n";
     for (int i = 0; i < N; i++)
     {
         file << tasks[i].id << "," << tasks[i].offset << ","
