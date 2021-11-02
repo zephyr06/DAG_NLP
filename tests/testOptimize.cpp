@@ -4,8 +4,6 @@
 /*
 
 */
-// common settings:
-
 TEST(RecoverStartTimeVector, v1)
 {
     VectorDynamic compressed;
@@ -233,6 +231,8 @@ TEST(sensorFusion, v2)
     withAddedSensorFusionError = 1;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
+    double freshtolCurr = FreshTol;
+
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -272,6 +272,7 @@ TEST(sensorFusion, v2)
 
     double defaultSF = sensorFusionTolerance;
     sensorFusionTolerance = 2;
+    FreshTol = 10000;
     auto sth = factor.evaluateError(initial);
 
     AssertEqualScalar(27, sth(0, 0)); // Node 0-1
@@ -292,6 +293,7 @@ TEST(sensorFusion, v2)
     AssertEqualScalar(2, sth(1, 0));  // Node 0
     AssertEqualScalar(30, sth(2, 0)); // Node 1
     sensorFusionTolerance = defaultSF;
+    FreshTol = freshtolCurr;
     withAddedSensorFusionError = sthh;
 }
 

@@ -92,6 +92,8 @@ namespace RegularTaskSystem
             deadline = dataInLine[5];
             processorId = dataInLine[6];
             coreRequire = dataInLine[7];
+            if (coreRequire < 1)
+                coreRequire = 1;
         }
 
         void print()

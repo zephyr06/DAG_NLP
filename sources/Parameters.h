@@ -47,7 +47,7 @@ const double toleranceEliminator = (double)ConfigParameters["toleranceEliminator
 const double upperLambda = (double)ConfigParameters["upperLambda"];
 const double weightLogBarrier = (double)ConfigParameters["weightLogBarrier"];
 const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetectTol"];
-const double FreshTol = (double)ConfigParameters["FreshTol"];
+double FreshTol = (double)ConfigParameters["FreshTol"];
 const double stepJacobianIteration = (double)ConfigParameters["stepJacobianIteration"];
 
 const int moreElimination = (int)ConfigParameters["moreElimination"];
