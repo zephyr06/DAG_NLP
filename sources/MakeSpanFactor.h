@@ -164,7 +164,7 @@ namespace DAG_SPACE
                 if (debugMode == 1)
                 {
                     // cout << "The input startTimeVector is " << startTimeVector << endl;
-                    cout << "The error vector of MakeSpanFactor is " << Color::blue << f(startTimeVector) << Color::def << endl;
+                    cout << Color::green << "The error vector of MakeSpanFactor is " << f(startTimeVector) << Color::def << endl;
                 }
             }
             EndTimer("MakeSpan");

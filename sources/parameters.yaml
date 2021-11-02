@@ -12,7 +12,7 @@ deltaOptimizer: 1e-1
 exactJacobian: 0
 initialLambda: 1e0
 lowerLambda: 1e-15
-makespanWeight: 1e0
+makespanWeight: 1e-2
 noiseModelSigma: 1
 AcceptSchedulError: 1e0
 optimizerType: 2 # 1 means dogleg, 2 means LM
