@@ -2365,6 +2365,52 @@ TEST(GenerateInitial_RMDAG, v6)
     expected << 194, 100, 200, 300, 400, 500, 671, 700, 800, 900, 170, 201, 401, 672, 801, 0, 501;
     assert_equal(expected, actual);
 }
+TEST(testDBF, coreNumv1)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v45.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int coreCurr = coreNumberAva;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+
+    Symbol key('a', 0);
+    ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+    LLint errorDimensionDBF = processorTaskSet.size();
+
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
+                                mapIndex, maskForEliminate, processorTaskSet, model);
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(8, 1);
+    startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
+    VectorDynamic dbfExpect;
+    dbfExpect.resize(1, 1);
+    coreNumberAva = 2;
+    dbfExpect << 347;
+    double dbfActual = factor.DbfIntervalOverlapError(startTimeVector, 0);
+    VectorDynamic dbfActual2 = factor.f(startTimeVector);
+    AssertEqualScalar(347, dbfActual);
+    assert_equal(dbfExpect, dbfActual2);
+    coreNumberAva = coreCurr;
+}
 // TEST(RandomWalk, v1)
 // {
 //     using namespace DAG_SPACE;

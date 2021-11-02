@@ -13,12 +13,12 @@ struct Interval
         coreRequire = 1;
     }
     Interval(double s1, double l1, LLint i) : start(s1),
-                                              length(l1), \
+                                              length(l1),
                                               indexInSTV(i) { coreRequire = 1; }
     Interval(double s1, double l1, LLint i, int coreRequire) : start(s1),
                                                                length(l1),
-                                                               indexInSTV(i),\
-                                                                coreRequire(coreRequire) {}
+                                                               indexInSTV(i),
+                                                               coreRequire(coreRequire) {}
 };
 bool compare(Interval &i1, Interval &i2)
 {
@@ -58,7 +58,7 @@ double Overlap(Interval &v1, Interval &v2)
     }
     else if (f1 >= v2.start && f2 >= f1 && v1.start <= v2.start)
     {
-        return f1 - v2.start * coreError;
+        return (f1 - v2.start) * coreError;
     }
     else
     {
