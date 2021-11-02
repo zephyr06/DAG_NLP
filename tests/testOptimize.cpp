@@ -2411,6 +2411,74 @@ TEST(testDBF, coreNumv1)
     assert_equal(dbfExpect, dbfActual2);
     coreNumberAva = coreCurr;
 }
+TEST(FindLargeSmall, v1)
+{
+    VectorDynamic x;
+    x.resize(10, 1);
+    x << 2.01, 5.6, 6, 4, 8,
+        1.5, 3, 4, 8, 6;
+    LLint le, ls, se, ss;
+    FindLargeSmall(x, se, ss, le, ls);
+    AssertEqualScalar(5, se);
+    AssertEqualScalar(0, ss);
+    AssertEqualScalar(8, le);
+    AssertEqualScalar(4, ls);
+}
+TEST(FindLargeSmall, v2)
+{
+    VectorDynamic x;
+    x.resize(10, 1);
+    x << 2, 5, 6, 4, 10,
+        1, 3, 4, 8, 6;
+    LLint le, ls, se, ss;
+    FindLargeSmall(x, se, ss, le, ls);
+    AssertEqualScalar(5, se);
+    AssertEqualScalar(0, ss);
+    AssertEqualScalar(4, le);
+    AssertEqualScalar(8, ls);
+}
+TEST(MakeSpanFactor_analytic, v1)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+    double makeSpanDef = makespanWeight;
+    Symbol key('a', 0);
+    LLint errorDimensionMS = 1;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
+    MakeSpanFactor factor(key, dagTasks, sizeOfVariables, errorDimensionMS,
+                          mapIndex, maskForEliminate, model);
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(8, 1);
+    startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
+    SM_Dynamic actual = factor.JacobianAnalytic(startTimeVector);
+    MatrixDynamic expect = NumericalDerivativeDynamicUpper(factor.f, startTimeVector, deltaOptimizer, errorDimensionMS);
+    assert_equal(expect, actual);
+
+    startTimeVector << 6, 107, 5, 3, 104, 2, 0, 201;
+    actual = factor.JacobianAnalytic(startTimeVector);
+    expect = NumericalDerivativeDynamicUpper(factor.f, startTimeVector, deltaOptimizer, errorDimensionMS);
+    assert_equal(expect, actual);
+    makespanWeight = makeSpanDef;
+}
 // TEST(RandomWalk, v1)
 // {
 //     using namespace DAG_SPACE;

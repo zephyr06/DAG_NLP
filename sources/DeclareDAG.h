@@ -216,11 +216,6 @@ namespace DAG_SPACE
         MatrixDynamic jacobian;
         jacobian.resize(mOfJacobian, n);
         VectorDynamic currErr = h(x);
-        // if (debugMode == 1)
-        // {
-        //     cout << "currErr" << currErr << endl
-        //          << endl;
-        // }
 
         for (int i = 0; i < n; i++)
         {
@@ -233,10 +228,6 @@ namespace DAG_SPACE
             VectorDynamic resMinus;
             resMinus.resize(mOfJacobian, 1);
             resMinus = h(xDelta);
-            // if (debugMode == 1)
-            // {
-            //     cout << "resPlus" << resPlus << endl;
-            // }
 
             for (int j = 0; j < mOfJacobian; j++)
             {

@@ -2,6 +2,49 @@
 #include "RegularTasks.h"
 #include "GraphUtilsFromBGL.h"
 
+void FindLargeSmall(const VectorDynamic &x, LLint &smallest, LLint &smallSecond,
+                    LLint &largest, LLint &largeSecond)
+{
+    LLint length = x.rows();
+    if (length < 4)
+    {
+        CoutError("Input to FindLargeSmall must have at least four elements!");
+    }
+    double v_se = INT_MAX;
+    double v_ss = INT_MAX;
+    double v_le = INT_MIN;
+    double v_ls = INT_MIN;
+    for (int i = 0; i < length; i++)
+    {
+        if (x.coeffRef(i, 0) >= v_le)
+        {
+            largeSecond = largest;
+            largest = i;
+            v_ls = v_le;
+            v_le = x.coeff(i, 0);
+        }
+        else if (x.coeffRef(i, 0) > v_ls)
+        {
+            largeSecond = i;
+            v_ls = x.coeff(i, 0);
+        }
+
+        if (x.coeffRef(i, 0) <= v_se)
+        {
+            smallSecond = smallest;
+            smallest = i;
+            v_ss = v_se;
+            v_se = x.coeff(i, 0);
+        }
+        else if (x.coeffRef(i, 0) < v_ss)
+        {
+            smallSecond = i;
+            v_ss = x.coeff(i, 0);
+        }
+    }
+    return;
+}
+
 namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
@@ -16,7 +59,9 @@ namespace DAG_SPACE
         LLint length;
         vector<bool> maskForEliminate;
         MAP_Index2Data mapIndex;
+        LLint lengthCompressed;
         int sinkNode;
+        std::unordered_map<LLint, LLint> mapIndex_True2Compress;
 
         MakeSpanFactor(Key key, DAG_Model &dagTasks, vector<LLint> sizeOfVariables, LLint errorDimension,
                        MAP_Index2Data &mapIndex, const vector<bool> &maskForEliminate,
@@ -33,46 +78,76 @@ namespace DAG_SPACE
             {
                 length += sizeOfVariables[i];
             }
-            sinkNode = FindSinkNode(dagTasks);
+            lengthCompressed = 0;
+            for (LLint i = 0; i < length; i++)
+            {
+                if (maskForEliminate[i] == false)
+                    lengthCompressed++;
+            }
+            mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
         }
         boost::function<Matrix(const VectorDynamic &)> f =
-            [this](const VectorDynamic &startTimeVectorOrig)
+            [this](const VectorDynamic &startTimeVector)
         {
-            VectorDynamic startTimeVector = RecoverStartTimeVector(
-                startTimeVectorOrig, maskForEliminate, mapIndex);
             VectorDynamic res;
             res.resize(errorDimension, 1);
             LLint indexRes = 0;
-
+            LLint smallest = 0;
+            LLint smallSecond = 0;
+            LLint largest = 0;
+            LLint largeSecond = 0;
             // minimize makespan
-            double finishTimeDAG = ExtractVariable(startTimeVector, sizeOfVariables, sinkNode,
-                                                   sizeOfVariables[sinkNode] - 1) +
-                                   tasks[sinkNode].executionTime;
+            FindLargeSmall(startTimeVector, smallest, smallSecond, largest, largeSecond);
             double startTimeDAG = startTimeVector.minCoeff();
-            // res(indexRes++, 0) = BarrierLog(finishTimeDAG - startTimeDAG) *
-            //                      makespanWeight;
-            res(indexRes++, 0) = (finishTimeDAG - startTimeDAG) *
+            res(indexRes++, 0) = (startTimeVector(largest, 0) - startTimeVector(smallest, 0)) *
                                  makespanWeight;
 
             return res;
         };
-        MatrixDynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
+        /**
+         * @brief This function assumes errorDimension=1!
+         * 
+         * @param startTimeVectorOrig 
+         * @return SM_Dynamic 
+         */
+        SM_Dynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
         {
-            LLint n0 = 0;
-            for (size_t i = 0; i < length; i++)
-                if (maskForEliminate.at(i) == false)
-                    n0++;
-            if (makespanWeight == 0)
-                return GenerateMatrixDynamic(errorDimension, n0);
-            else
+            VectorDynamic startTimeVector = RecoverStartTimeVector(
+                startTimeVectorOrig, maskForEliminate, mapIndex);
+            // y -> x
+            SM_Dynamic j_yx(errorDimension, length);
+
+            LLint indexRes = 0;
+            LLint smallest = 0;
+            LLint smallSecond = 0;
+            LLint largest = 0;
+            LLint largeSecond = 0;
+            // minimize makespan
+            FindLargeSmall(startTimeVector, smallest, smallSecond, largest, largeSecond);
+            // numerical method for jacobian
+            auto NumericalFunc = [&](LLint index)
             {
-                CoutError("no JacobianAnalytic is provided for makespanWeight=0");
-                return GenerateMatrixDynamic(errorDimension, n0);
-            }
+                startTimeVector(index, 0) += deltaOptimizer;
+                double resPlus = f(startTimeVector)(0, 0);
+                startTimeVector(index, 0) -= 2 * deltaOptimizer;
+                double resMinus = f(startTimeVector)(0, 0);
+                startTimeVector(index, 0) += deltaOptimizer;
+                j_yx.coeffRef(0, index) = (resPlus - resMinus) / 2 / deltaOptimizer;
+            };
+            NumericalFunc(smallest);
+            NumericalFunc(smallSecond);
+            NumericalFunc(largest);
+            NumericalFunc(largeSecond);
+
+            SM_Dynamic j_map = JacobianElimination(length, lengthCompressed,
+                                                   sizeOfVariables, mapIndex, mapIndex_True2Compress);
+            return j_yx * j_map;
         }
-        Vector evaluateError(const VectorDynamic &startTimeVector,
+        Vector evaluateError(const VectorDynamic &startTimeVectorOrig,
                              boost::optional<Matrix &> H = boost::none) const override
         {
+            VectorDynamic startTimeVector = RecoverStartTimeVector(
+                startTimeVectorOrig, maskForEliminate, mapIndex);
             BeginTimer("MakeSpan");
             if (H)
             {
