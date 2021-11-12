@@ -5,7 +5,7 @@
     - Graphviz
     - pydot (conda install -c rmg pydot)
 - GCC V8.1+
-- [https://github.com/Zephyr06/CppUnitLite](CppUnitLite) (If you want to run test files)
+- [CppUnitLite](https://github.com/Zephyr06/CppUnitLite) (If you want to run test files)
 
 # TODO:
 1. Gradient vanish problem
