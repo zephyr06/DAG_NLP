@@ -1,6 +1,7 @@
 # Dependencies:
 - GTSAM
 - boost
+- OpenCV
 - Python
     - Graphviz
     - pydot (conda install -c rmg pydot)
