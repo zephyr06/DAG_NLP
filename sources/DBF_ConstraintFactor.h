@@ -489,10 +489,7 @@ namespace DAG_SPACE
                                                          int mOfJacobian) const
         {
 
-            int n = x.rows();
-            MatrixDynamic jacobian;
-            jacobian.resize(mOfJacobian, n);
-            jacobian.setZero();
+            return NumericalDerivativeDynamicUpper(h, x, deltaOptimizer, mOfJacobian);
 
             // vector<LLint> vanishGradientIndex = FindVanishIndex(x);
             // std::unordered_set<LLint> ss;
@@ -552,8 +549,6 @@ namespace DAG_SPACE
             //         }
             //     }
             // }
-
-            return jacobian;
         }
         MatrixDynamic DBFJacobian(boost::function<VectorDynamic(const VectorDynamic &)> h,
                                   const VectorDynamic &x, double deltaOptimizer,
