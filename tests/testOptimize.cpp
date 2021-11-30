@@ -2479,6 +2479,58 @@ TEST(MakeSpanFactor_analytic, v1)
     assert_equal(expect, actual);
     makespanWeight = makeSpanDef;
 }
+TEST(testDBF, multi_core)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v46.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    VectorDynamic compressed;
+    compressed.resize(5, 1);
+    compressed << 43, 31, 19, 18, 17;
+    vector<bool> maskForEliminate{false, false, 0, 0, false};
+    MAP_Index2Data mapIndex;
+    mapIndex[0] = MappingDataStruct{0, 0};
+    mapIndex[1] = MappingDataStruct{1, 0};
+    mapIndex[2] = MappingDataStruct{2, 0};
+    mapIndex[3] = MappingDataStruct{3, 0};
+    mapIndex[4] = MappingDataStruct{4, 0};
+    Symbol key('a', 0);
+    ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+    LLint errorDimensionDBF = processorTaskSet.size();
+
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
+                                mapIndex, maskForEliminate, processorTaskSet, model);
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(5, 1);
+    startTimeVector << 43, 31, 19, 18, 17;
+    VectorDynamic dbfExpect;
+    dbfExpect.resize(1, 1);
+    dbfExpect << 90;
+    VectorDynamic dbfExpect1 = factor.f(startTimeVector);
+    auto dbfActual = factor.DbfIntervalOverlapError(startTimeVector, 0);
+
+    AssertEqualScalar(dbfExpect1(0, 0), dbfActual);
+    assert_equal(dbfExpect, dbfExpect1);
+
+    // startTimeVector << 1, 2, 3, 4, 19;
+    // dbfActual = factor.DbfIntervalOverlapError(startTimeVector, 0);
+    // AssertEqualScalar(54, dbfActual);
+}
 // TEST(RandomWalk, v1)
 // {
 //     using namespace DAG_SPACE;

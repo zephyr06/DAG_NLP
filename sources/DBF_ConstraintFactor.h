@@ -94,12 +94,12 @@ namespace DAG_SPACE
             if (H)
             {
                 // BeginTimer("DBF_H");
-                if (numericalJaobian)
-                {
-                    *H = NumericalDerivativeDynamicUpperDBF(f, startTimeVector, deltaOptimizer, errorDimension);
-                }
-                else
-                    *H = DBFJacobian(f, startTimeVector, deltaOptimizer, errorDimension);
+                // if (numericalJaobian)
+                // {
+                *H = NumericalDerivativeDynamicUpperDBF(f, startTimeVector, deltaOptimizer, errorDimension);
+                // }
+                // else
+                //     *H = DBFJacobian(f, startTimeVector, deltaOptimizer, errorDimension);
                 // EndTimer("DBF_H");
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
@@ -130,180 +130,6 @@ namespace DAG_SPACE
             }
             EndTimer("DBF_All");
             return f(startTimeVector);
-        }
-
-        MatrixDynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
-        {
-            VectorDynamic startTimeVector = RecoverStartTimeVector(
-                startTimeVectorOrig, maskForEliminate, mapIndex);
-
-            int m = errorDimension;
-            LLint n = length;
-            // y -> x
-            MatrixDynamic j_yx = GenerateMatrixDynamic(m, n);
-            j_yx.resize(m, n);
-
-            int processorIndex = 0;
-            for (auto proPtr = processorTasks.begin(); proPtr != processorTasks.end(); proPtr++)
-            {
-                vector<Interval> intervalVec = DbfInterval(startTimeVector, proPtr->first);
-                sort(intervalVec.begin(), intervalVec.end(), compare);
-
-                for (LLint i = 0; i < LLint(intervalVec.size()); i++)
-                {
-                    double endTime = intervalVec[i].start + intervalVec[i].length;
-                    for (LLint j = i + 1; j < LLint(intervalVec.size()); j++)
-                    {
-                        if (intervalVec[j].start > endTime + deltaOptimizer)
-                            break;
-                        else
-                        {
-                            auto gPair = OverlapGradient(intervalVec[i], intervalVec[j]);
-                            j_yx(processorIndex, intervalVec[i].indexInSTV) += gPair.first;
-                            j_yx(processorIndex, intervalVec[j].indexInSTV) += gPair.second;
-                        }
-                    }
-                }
-                processorIndex++;
-            }
-            SM_Dynamic j_map = JacobianElimination(length, lengthCompressed,
-                                                   sizeOfVariables, mapIndex, mapIndex_True2Compress);
-            return j_yx * j_map;
-        }
-
-        /**
-         * @brief detecting elimination and update elimination records for both mapIndex and eliminationTrees_Update
-         * 
-         * @param resTemp 
-         * @param mapIndex 
-         * @param whetherEliminate 
-         * @param maskForEliminate_addMap 
-         * @param eliminationTrees_Update 
-         * @param indexesBGL_Update properties access for eliminationTrees_Update
-         */
-        void addMappingFunctionOld(VectorDynamic &resTemp,
-                                   MAP_Index2Data &mapIndex, bool &whetherEliminate,
-                                   vector<bool> &maskForEliminate_addMap,
-                                   Graph &eliminationTrees_Update,
-                                   indexVertexMap &indexesBGL_Update)
-        {
-            BeginTimer("addMap");
-
-            VectorDynamic startTimeVector = RecoverStartTimeVector(resTemp, maskForEliminate_addMap, mapIndex);
-            VectorDynamic res;
-            res.resize(errorDimension, 1);
-            LLint indexRes = 0;
-
-            res(indexRes, 0) = 0;
-            //demand bound function
-
-            for (int i = 0; i < N; i++)
-            {
-                int processorCurr = tasks[i].processorId;
-                for (LLint instance_i = 0; instance_i < sizeOfVariables[i]; instance_i++)
-                {
-                    double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, instance_i);
-                    for (int j = 0; j < N; j++)
-                    {
-                        // only check elimination for the same processor
-                        if (processorCurr != tasks[j].processorId)
-                            continue;
-                        for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
-                        {
-                            LLint index_j_overall = IndexTran_Instance2Overall(j, instance_j, sizeOfVariables);
-                            // this is a self interval, no need to replace one task with itself
-                            // OR, the variable has already been eliminated, cannot eliminate it twice
-                            if (i == j && instance_i == instance_j || maskForEliminate_addMap[index_j_overall])
-                            {
-                                continue;
-                            }
-
-                            double sumIJK = 0;
-                            double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
-
-                            for (int k = 0; k < N; k++)
-                            {
-                                if (processorCurr != tasks[k].processorId)
-                                    continue;
-                                for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
-                                {
-                                    double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
-                                    sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
-                                }
-                            }
-                            // computation speed can be improved by 1 times there
-                            double distanceToBound_j_i = startTime_j + tasks[j].executionTime - startTime_i - sumIJK;
-
-                            if ((distanceToBound_j_i < toleranceEliminator && distanceToBound_j_i >= 0))
-                            {
-                                LLint index_i_overall = IndexTran_Instance2Overall(i, instance_i, sizeOfVariables);
-
-                                // since we go over all the pairs, we only need to check j in each pair (i, j)
-                                if (not maskForEliminate_addMap[index_j_overall])
-                                // this if condition is posed to avoid repeated elimination, and avoid conflicting elimination
-                                // because one variable j can only depend on one single variable i;
-                                {
-                                    // Eliminate_j_based_i(index_j_overall, index_i_overall,
-                                    //                     maskForEliminate, whetherEliminate,
-                                    //                     mapIndex, startTimeVector, sumIJK, tasks, j);
-
-                                    // check eliminationTrees_Update confliction; only preceed if no confliction exists
-                                    vector<LLint> tree_i, tree_j;
-                                    Vertex u1 = indexesBGL_Update[index_i_overall];
-                                    Vertex v1 = indexesBGL_Update[index_j_overall];
-                                    FindSubTree(eliminationTrees_Update, tree_i, u1);
-                                    FindSubTree(eliminationTrees_Update, tree_j, v1);
-                                    if (CheckNoConflictionTree(tree_i, tree_j, startTimeVector))
-                                    // if (true)
-                                    {
-                                        maskForEliminate_addMap[index_j_overall] = true;
-                                        whetherEliminate = true;
-                                        // this should respect original relationship
-                                        if (tightEliminate == 1)
-                                        {
-                                            MappingDataStruct m{index_i_overall, sumIJK - tasks[j].executionTime};
-                                            mapIndex[index_j_overall] = m;
-                                        }
-                                        else if (tightEliminate == 0)
-                                        {
-                                            double distt = startTimeVector(index_j_overall, 0) -
-                                                           startTimeVector(index_i_overall, 0);
-
-                                            MappingDataStruct m{index_i_overall,
-                                                                distt};
-                                            mapIndex[index_j_overall] = m;
-                                        }
-                                        else
-                                        {
-                                            CoutError("Eliminate option error, not recognized!");
-                                        }
-                                        // add edge to eliminationTrees_Update
-                                        graph_traits<Graph>::edge_descriptor e;
-                                        bool inserted;
-                                        boost::tie(e, inserted) = add_edge(indexesBGL_Update[index_j_overall],
-                                                                           indexesBGL_Update[index_i_overall],
-                                                                           eliminationTrees_Update);
-                                        if (inserted)
-                                        {
-                                            edge_name_map_t edgeMapCurr = get(edge_name, eliminationTrees_Update);
-                                            edgeMapCurr[e] = mapIndex[index_j_overall].getDistance();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        continue;
-                                    }
-                                }
-                                else
-                                    continue;
-                            }
-                            else
-                                continue;
-                        }
-                    }
-                }
-            }
-            EndTimer("addMap");
         }
 
         void addMappingFunction(VectorDynamic &resTemp,
@@ -422,11 +248,51 @@ namespace DAG_SPACE
             int indexPro = 0;
             for (auto itr = processorTasks.begin(); itr != processorTasks.end(); itr++)
             {
-                res(indexPro++, 0) = DbfIntervalOverlapError(startTimeVector, itr->first);
+                double errorCurrProcessor = 0;
+                vector<int> taskSetCurr = processorTasks.at(itr->first);
+                // //demand bound function
+                for (int index_i = 0; index_i < static_cast<int>(taskSetCurr.size()); index_i++)
+                {
+                    int i = taskSetCurr[index_i];
+                    for (LLint instance_i = 0; instance_i < sizeOfVariables[i]; instance_i++)
+                    {
+                        double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, instance_i);
+                        for (int index_j = index_i; index_j < static_cast<int>(taskSetCurr.size()); index_j++)
+                        {
+                            int j = taskSetCurr[index_j];
+                            for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
+                            {
+                                double sumIJK = 0;
+                                double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
+                                if (startTime_i <= startTime_j &&
+                                    startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
+                                {
+                                    for (int index_k = 0; index_k < static_cast<int>(taskSetCurr.size()); index_k++)
+                                    {
+                                        int k = taskSetCurr[index_k];
+                                        for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
+                                        {
+                                            double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
+                                            sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]) * tasks[k].coreRequire;
+                                        }
+                                    }
+                                    double valueT = Barrier((startTime_j + tasks[j].executionTime - startTime_i) * coreNumberAva - sumIJK + 0);
+                                    errorCurrProcessor += valueT;
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
+                res(indexPro++, 0) = errorCurrProcessor;
             }
 
             return res;
         };
+
         /**
          * @brief Create a Interval vector for indexes specified by the tree1 parameter;
          * the return interval follows the same order given by tree1!
@@ -578,73 +444,73 @@ namespace DAG_SPACE
                                                          const VectorDynamic &x, double deltaOptimizer,
                                                          int mOfJacobian) const
         {
+
             int n = x.rows();
             MatrixDynamic jacobian;
             jacobian.resize(mOfJacobian, n);
             jacobian.setZero();
 
-            vector<LLint> vanishGradientIndex = FindVanishIndex(x);
-            std::unordered_set<LLint> ss;
-            for (size_t i = 0; i < vanishGradientIndex.size(); i++)
-            {
-                ss.insert(vanishGradientIndex[i]);
-            }
-            for (int i = 0; i < n; i++)
-            {
-                // check whether this variable is directly
-                if (ss.find(i) == ss.end())
-                {
-                    VectorDynamic xDelta = x;
-                    xDelta(i, 0) = xDelta(i, 0) + deltaOptimizer;
-                    VectorDynamic resPlus;
-                    resPlus.resize(mOfJacobian, 1);
-                    resPlus = h(xDelta);
-                    xDelta(i, 0) = xDelta(i, 0) - 2 * deltaOptimizer;
-                    VectorDynamic resMinus;
-                    resMinus.resize(mOfJacobian, 1);
-                    resMinus = h(xDelta);
+            // vector<LLint> vanishGradientIndex = FindVanishIndex(x);
+            // std::unordered_set<LLint> ss;
+            // for (size_t i = 0; i < vanishGradientIndex.size(); i++)
+            // {
+            //     ss.insert(vanishGradientIndex[i]);
+            // }
+            // for (int i = 0; i < n; i++)
+            // {
+            //     // check whether this variable is directly
+            //     if (ss.find(i) == ss.end())
+            //     {
+            //         VectorDynamic xDelta = x;
+            //         xDelta(i, 0) = xDelta(i, 0) + deltaOptimizer;
+            //         VectorDynamic resPlus;
+            //         resPlus.resize(mOfJacobian, 1);
+            //         resPlus = h(xDelta);
+            //         xDelta(i, 0) = xDelta(i, 0) - 2 * deltaOptimizer;
+            //         VectorDynamic resMinus;
+            //         resMinus.resize(mOfJacobian, 1);
+            //         resMinus = h(xDelta);
 
-                    for (int j = 0; j < mOfJacobian; j++)
-                    {
-                        jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaOptimizer;
-                    }
-                }
-                else
-                {
-                    int iteration = 0;
-                    double deltaInIteration = deltaOptimizer;
-                    while (iteration < maxJacobianIteration)
-                    {
+            //         for (int j = 0; j < mOfJacobian; j++)
+            //         {
+            //             jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaOptimizer;
+            //         }
+            //     }
+            //     else
+            //     {
+            //         int iteration = 0;
+            //         double deltaInIteration = deltaOptimizer;
+            //         while (iteration < maxJacobianIteration)
+            //         {
 
-                        VectorDynamic xDelta = x;
-                        xDelta(i, 0) = xDelta(i, 0) + deltaInIteration;
-                        VectorDynamic resPlus;
-                        resPlus.resize(mOfJacobian, 1);
-                        resPlus = h(xDelta);
-                        xDelta(i, 0) = xDelta(i, 0) - 2 * deltaInIteration;
-                        VectorDynamic resMinus;
-                        resMinus.resize(mOfJacobian, 1);
-                        resMinus = h(xDelta);
-                        if (resPlus == resMinus && resPlus.norm() != 0)
-                        {
-                            deltaInIteration = deltaInIteration * stepJacobianIteration;
-                            iteration++;
-                        }
-                        else
-                        {
-                            for (int j = 0; j < mOfJacobian; j++)
-                            {
-                                jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaInIteration;
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
+            //             VectorDynamic xDelta = x;
+            //             xDelta(i, 0) = xDelta(i, 0) + deltaInIteration;
+            //             VectorDynamic resPlus;
+            //             resPlus.resize(mOfJacobian, 1);
+            //             resPlus = h(xDelta);
+            //             xDelta(i, 0) = xDelta(i, 0) - 2 * deltaInIteration;
+            //             VectorDynamic resMinus;
+            //             resMinus.resize(mOfJacobian, 1);
+            //             resMinus = h(xDelta);
+            //             if (resPlus == resMinus && resPlus.norm() != 0)
+            //             {
+            //                 deltaInIteration = deltaInIteration * stepJacobianIteration;
+            //                 iteration++;
+            //             }
+            //             else
+            //             {
+            //                 for (int j = 0; j < mOfJacobian; j++)
+            //                 {
+            //                     jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaInIteration;
+            //                 }
+            //                 break;
+            //             }
+            //         }
+            //     }
+            // }
 
             return jacobian;
         }
-
         MatrixDynamic DBFJacobian(boost::function<VectorDynamic(const VectorDynamic &)> h,
                                   const VectorDynamic &x, double deltaOptimizer,
                                   int mOfJacobian) const
@@ -703,50 +569,43 @@ namespace DAG_SPACE
 
             return jacobian;
         }
-
-        void textOld()
+        MatrixDynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
         {
-            // LLint indexRes = 0;
+            VectorDynamic startTimeVector = RecoverStartTimeVector(
+                startTimeVectorOrig, maskForEliminate, mapIndex);
 
-            // res(indexRes, 0) = 0;
-            // //demand bound function
-            // for (int i = 0; i < N; i++)
-            // {
-            //     for (LLint instance_i = 0; instance_i < sizeOfVariables[i]; instance_i++)
-            //     {
-            //         double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, instance_i);
-            //         for (int j = 0; j < N; j++)
-            //         {
-            //             for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
-            //             {
+            int m = errorDimension;
+            LLint n = length;
+            // y -> x
+            MatrixDynamic j_yx = GenerateMatrixDynamic(m, n);
+            j_yx.resize(m, n);
 
-            //                 double sumIJK = 0;
-            //                 double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
-            //                 if (startTime_i <= startTime_j &&
-            //                     startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
-            //                 {
-            //                     for (int k = 0; k < N; k++)
-            //                     {
-            //                         for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
-            //                         {
-            //                             double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
-            //                             sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]);
-            //                         }
-            //                     }
-            //                     double valueT = Barrier(startTime_j + tasks[j].executionTime - startTime_i - sumIJK + 0);
-            //                     res(indexRes, 0) += valueT;
-            //                 }
-            //                 else
-            //                 {
+            int processorIndex = 0;
+            for (auto proPtr = processorTasks.begin(); proPtr != processorTasks.end(); proPtr++)
+            {
+                vector<Interval> intervalVec = DbfInterval(startTimeVector, proPtr->first);
+                sort(intervalVec.begin(), intervalVec.end(), compare);
 
-            //                     // res(indexRes++, 0) = 0;
-            //                     continue;
-            //                 }
-            //             }
-            //         }
-            //     }
-            // }
-            ;
+                for (LLint i = 0; i < LLint(intervalVec.size()); i++)
+                {
+                    double endTime = intervalVec[i].start + intervalVec[i].length;
+                    for (LLint j = i + 1; j < LLint(intervalVec.size()); j++)
+                    {
+                        if (intervalVec[j].start > endTime + deltaOptimizer)
+                            break;
+                        else
+                        {
+                            auto gPair = OverlapGradient(intervalVec[i], intervalVec[j]);
+                            j_yx(processorIndex, intervalVec[i].indexInSTV) += gPair.first;
+                            j_yx(processorIndex, intervalVec[j].indexInSTV) += gPair.second;
+                        }
+                    }
+                }
+                processorIndex++;
+            }
+            SM_Dynamic j_map = JacobianElimination(length, lengthCompressed,
+                                                   sizeOfVariables, mapIndex, mapIndex_True2Compress);
+            return j_yx * j_map;
         }
     };
 }

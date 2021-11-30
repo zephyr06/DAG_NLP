@@ -1,0 +1,53 @@
+#include "../sources/Optimize.h"
+#include "../sources/testMy.h"
+#include "../sources/GraphUtilsFromBGL.h"
+
+TEST(testDBF, v1)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v46.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate{false, false, 0, 0, false};
+    MAP_Index2Data mapIndex;
+    mapIndex[0] = MappingDataStruct{0, 0};
+    mapIndex[1] = MappingDataStruct{1, 0};
+    mapIndex[2] = MappingDataStruct{2, 0};
+    mapIndex[3] = MappingDataStruct{3, 0};
+    mapIndex[4] = MappingDataStruct{4, 0};
+    Symbol key('a', 0);
+    ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+    LLint errorDimensionDBF = processorTaskSet.size();
+
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
+                                mapIndex, maskForEliminate, processorTaskSet, model);
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(5, 1);
+    startTimeVector << 70, 50, 19, 18, 17;
+    coreNumberAva = 5;
+    VectorDynamic dbfExpect;
+    dbfExpect.resize(1, 1);
+    dbfExpect << 12;
+    VectorDynamic dbfActual = factor.f(startTimeVector);
+    AssertEqualScalar(dbfExpect(0, 0), dbfActual(0, 0));
+}
+
+int main()
+{
+    TestResult tr;
+    return TestRegistry::runAllTests(tr);
+}

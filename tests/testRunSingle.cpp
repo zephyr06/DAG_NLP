@@ -13,7 +13,7 @@ TEST(DAG_Optimize_schedule, v1)
     VectorDynamic res = sth.optimizeVariable;
 
     cout << "The result after optimization is " << Color::green << sth.optimizeError
-         //  << Color::blue << res
+         << Color::blue << res
          << Color::def << endl;
     EndTimer("main");
     PrintTimer();
