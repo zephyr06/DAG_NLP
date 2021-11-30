@@ -236,6 +236,12 @@ namespace DAG_SPACE
          * which is the merged version of all DBF error for each processor
          * 
          */
+        struct SF_Time_Instance
+        {
+            char type;
+            double time;
+            int coreRequire;
+        };
         boost::function<Matrix(const VectorDynamic &)> f =
             [this](const VectorDynamic &startTimeVectorOrig)
         {
@@ -246,48 +252,86 @@ namespace DAG_SPACE
                                                                    maskForEliminate, mapIndex);
 
             int indexPro = 0;
+
             for (auto itr = processorTasks.begin(); itr != processorTasks.end(); itr++)
             {
-                double errorCurrProcessor = 0;
-                vector<int> taskSetCurr = processorTasks.at(itr->first);
-                // //demand bound function
-                for (int index_i = 0; index_i < static_cast<int>(taskSetCurr.size()); index_i++)
+                double errorCurrProc = 0;
+                vector<SF_Time_Instance> SF_Seq;
+                SF_Seq.reserve(startTimeVector.size() * 2);
+                for (int taskId : processorTasks.at(itr->first))
                 {
-                    int i = taskSetCurr[index_i];
-                    for (LLint instance_i = 0; instance_i < sizeOfVariables[i]; instance_i++)
+                    for (int j = 0; j < sizeOfVariables[taskId]; j++)
                     {
-                        double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, instance_i);
-                        for (int index_j = index_i; index_j < static_cast<int>(taskSetCurr.size()); index_j++)
-                        {
-                            int j = taskSetCurr[index_j];
-                            for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
-                            {
-                                double sumIJK = 0;
-                                double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
-                                if (startTime_i <= startTime_j &&
-                                    startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
-                                {
-                                    for (int index_k = 0; index_k < static_cast<int>(taskSetCurr.size()); index_k++)
-                                    {
-                                        int k = taskSetCurr[index_k];
-                                        for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
-                                        {
-                                            double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
-                                            sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]) * tasks[k].coreRequire;
-                                        }
-                                    }
-                                    double valueT = Barrier((startTime_j + tasks[j].executionTime - startTime_i) * coreNumberAva - sumIJK + 0);
-                                    errorCurrProcessor += valueT;
-                                }
-                                else
-                                {
-                                    continue;
-                                }
-                            }
-                        }
+                        SF_Time_Instance inst{'s', startTimeVector(IndexTran_Instance2Overall(taskId, j, sizeOfVariables), 0), tasks[taskId].coreRequire};
+                        SF_Seq.push_back(inst);
+                        inst = {'f', inst.time + tasks[taskId].executionTime, tasks[taskId].coreRequire};
+                        SF_Seq.push_back(inst);
                     }
                 }
-                res(indexPro++, 0) = errorCurrProcessor;
+                std::sort(SF_Seq.begin(), SF_Seq.end(),
+                          [](SF_Time_Instance &a, SF_Time_Instance &b) -> bool
+                          {
+                              return a.time < b.time;
+                          });
+                double loadCurr = SF_Seq[0].coreRequire;
+                double timePrev = SF_Seq[0].time;
+                for (LLint i = 1; i < LLint(SF_Seq.size()); i++)
+                {
+                    if (loadCurr > coreNumberAva)
+                    {
+                        errorCurrProc += (SF_Seq[i].time - timePrev) * (loadCurr - coreNumberAva);
+                    }
+                    if (SF_Seq[i].type == 's')
+                    {
+                        loadCurr += SF_Seq[i].coreRequire;
+                    }
+                    else if (SF_Seq[i].type == 'f')
+                    {
+                        loadCurr -= SF_Seq[i].coreRequire;
+                    }
+                    else
+                        CoutError("Not recognized type in SF_Seq");
+                    timePrev = SF_Seq[i].time;
+                }
+                res(indexPro++, 0) = errorCurrProc;
+                //     double errorCurrProcessor = 0;
+                //     vector<int> taskSetCurr = processorTasks.at(itr->first);
+                //     // //demand bound function
+                //     for (int index_i = 0; index_i < static_cast<int>(taskSetCurr.size()); index_i++)
+                //     {
+                //         int i = taskSetCurr[index_i];
+                //         for (LLint instance_i = 0; instance_i < sizeOfVariables[i]; instance_i++)
+                //         {
+                //             double startTime_i = ExtractVariable(startTimeVector, sizeOfVariables, i, instance_i);
+                //             for (int index_j = index_i; index_j < static_cast<int>(taskSetCurr.size()); index_j++)
+                //             {
+                //                 int j = taskSetCurr[index_j];
+                //                 for (LLint instance_j = 0; instance_j < sizeOfVariables[j]; instance_j++)
+                //                 {
+                //                     double sumIJK = 0;
+                //                     double startTime_j = ExtractVariable(startTimeVector, sizeOfVariables, j, instance_j);
+                //                     if (startTime_i <= startTime_j &&
+                //                         startTime_i + tasks[i].executionTime <= startTime_j + tasks[j].executionTime)
+                //                     {
+                //                         for (int index_k = 0; index_k < static_cast<int>(taskSetCurr.size()); index_k++)
+                //                         {
+                //                             int k = taskSetCurr[index_k];
+                //                             for (LLint instance_k = 0; instance_k < sizeOfVariables[k]; instance_k++)
+                //                             {
+                //                                 double startTime_k = ExtractVariable(startTimeVector, sizeOfVariables, k, instance_k);
+                //                                 sumIJK += ComputationTime_IJK(startTime_i, tasks[i], startTime_j, tasks[j], startTime_k, tasks[k]) * tasks[k].coreRequire;
+                //                             }
+                //                         }
+                //                         double valueT = Barrier((startTime_j + tasks[j].executionTime - startTime_i) * coreNumberAva - sumIJK + 0);
+                //                         errorCurrProcessor += valueT;
+                //                     }
+                //                     else
+                //                     {
+                //                         continue;
+                //                     }
+                //                 }
+                //             }
+                //         }
             }
 
             return res;
