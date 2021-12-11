@@ -1,7 +1,11 @@
 %YAML:1.0
 # something not used
 
-
+T: !!opencv-matrix
+   rows: 3
+   cols: 1
+   dt: d
+   data: [ 3., 1., 5. ]
 barrierBase: 100
 coolingRateSA: 0.1
 coreNumberAva: 5

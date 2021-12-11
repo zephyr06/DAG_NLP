@@ -1,11 +1,15 @@
 #pragma once
 #include <vector>
+#include <iostream>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <opencv2/core/core.hpp>
+#include <opencv2/core.hpp>
 #include "testMy.h"
-cv::FileStorage ConfigParameters("/home/zephyr/Programming/DAG_NLP/sources/parameters.yaml", cv::FileStorage::READ);
 using namespace std;
+string path = "/home/zephyr/Programming/DAG_NLP/sources/parameters.yaml";
+cv::FileStorage ConfigParameters(path, cv::FileStorage::READ);
+
 enum InitializeMethod
 {
     IndexMode,
@@ -76,3 +80,24 @@ const string readTaskMode = (string)ConfigParameters["readTaskMode"];
 const string runMode = (string)ConfigParameters["runMode"];
 const string testDataSetName = (string)ConfigParameters["testDataSetName"];
 double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
+
+vector<double> readVector(string filename)
+{
+    cv::FileStorage fs;
+    fs.open(filename, cv::FileStorage::READ);
+    cv::Mat Tt;
+    fs["T"] >> Tt;
+    int rows = Tt.rows;
+
+    vector<double> vec;
+    vec.reserve(rows);
+    for (int i = 0; i < rows; i++)
+    {
+        vec.push_back(Tt.at<double>(i, 0));
+    }
+    return vec;
+}
+vector<double> aaa = readVector(path);
+
+// cv::Mat Tt;
+// ConfigParameters["T"] >> Tt;

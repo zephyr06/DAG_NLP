@@ -60,7 +60,11 @@ TEST(ReadDAG_Tasks, v5)
     AssertEqualScalar(2, dm.tasks[2].coreRequire);
     AssertEqualScalar(20000, dm.tasks[2].deadline);
 }
-
+TEST(aaa, v1)
+{
+    for (int i = 0; i < aaa.size(); i++)
+        cout << aaa[i] << endl;
+}
 int main()
 {
     TestResult tr;

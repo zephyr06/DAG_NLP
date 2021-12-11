@@ -1,128 +1,204 @@
-//=======================================================================
-// Copyright 2001 Jeremy G. Siek, Andrew Lumsdaine, Lie-Quan Lee,
-//
-// Distributed under the Boost Software License, Version 1.0. (See
-// accompanying file LICENSE_1_0.txt or copy at
-// http://www.boost.org/LICENSE_1_0.txt)
-//=======================================================================
-#include <boost/config.hpp>
+#include <opencv2/core.hpp>
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <boost/tokenizer.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/visitors.hpp>
-#include <boost/graph/breadth_first_search.hpp>
-#include <map>
 
-using namespace boost;
+using namespace cv;
+using namespace std;
 
-template <typename DistanceMap>
-class bacon_number_recorder : public default_bfs_visitor
+static void help(char **av)
 {
-public:
-    bacon_number_recorder(DistanceMap dist) : d(dist) {}
-
-    template <typename Edge, typename Graph>
-    void tree_edge(Edge e, const Graph &g) const
-    {
-        typename graph_traits<Graph>::vertex_descriptor u = source(e, g),
-                                                        v = target(e, g);
-        d[v] = d[u] + 1;
-    }
-
-private:
-    DistanceMap d;
-};
-
-// Convenience function
-template <typename DistanceMap>
-bacon_number_recorder<DistanceMap> record_bacon_number(DistanceMap d)
-{
-    return bacon_number_recorder<DistanceMap>(d);
+    cout << endl
+         << av[0] << " shows the usage of the OpenCV serialization functionality." << endl
+         << "usage: " << endl
+         << av[0] << " outputfile.yml.gz" << endl
+         << "The output file may be either XML (xml) or YAML (yml/yaml). You can even compress it by "
+         << "specifying this in its extension like xml.gz yaml.gz etc... " << endl
+         << "With FileStorage you can serialize objects in OpenCV by using the << and >> operators" << endl
+         << "For example: - create a class and have it serialized" << endl
+         << "             - use it to read and write matrices." << endl;
 }
 
-int main(int argc, const char **argv)
+class MyData
 {
-    std::ifstream datafile(argc >= 2 ? argv[1] : "./kevin-bacon.dat");
-    if (!datafile)
+public:
+    MyData() : A(0), X(0), id()
     {
-        std::cerr << "No ./kevin-bacon.dat file" << std::endl;
-        return EXIT_FAILURE;
+    }
+    explicit MyData(int) : A(97), X(CV_PI), id("mydata1234") // explicit to avoid implicit conversion
+    {
+    }
+    //! [inside]
+    void write(FileStorage &fs) const //Write serialization for this class
+    {
+        fs << "{"
+           << "A" << A << "X" << X << "id" << id << "}";
+    }
+    void read(const FileNode &node) //Read serialization for this class
+    {
+        A = (int)node["A"];
+        X = (double)node["X"];
+        id = (string)node["id"];
+    }
+    //! [inside]
+public: // Data Members
+    int A;
+    double X;
+    string id;
+};
+
+//These write and read functions must be defined for the serialization in FileStorage to work
+//! [outside]
+static void write(FileStorage &fs, const std::string &, const MyData &x)
+{
+    x.write(fs);
+}
+static void read(const FileNode &node, MyData &x, const MyData &default_value = MyData())
+{
+    if (node.empty())
+        x = default_value;
+    else
+        x.read(node);
+}
+//! [outside]
+
+// This function will print our custom class to the console
+static ostream &operator<<(ostream &out, const MyData &m)
+{
+    out << "{ id = " << m.id << ", ";
+    out << "X = " << m.X << ", ";
+    out << "A = " << m.A << "}";
+    return out;
+}
+
+int main(int ac, char **av)
+{
+    if (ac != 2)
+    {
+        help(av);
+        return 1;
     }
 
-    typedef adjacency_list<vecS, vecS, undirectedS,
-                           property<vertex_name_t, std::string>,
-                           property<edge_name_t, std::string>>
-        Graph;
-    Graph g;
+    string filename = av[1];
+    { //write
+        //! [iomati]
+        Mat R = Mat_<uchar>::eye(3, 3),
+            T = Mat_<double>::zeros(3, 1);
+        //! [iomati]
+        //! [customIOi]
+        MyData m(1);
+        //! [customIOi]
 
-    // To access the properties, we will need to obtain property map objects from the graph
-    typedef property_map<Graph, vertex_name_t>::type actor_name_map_t;
-    // actor_name takes a Vertex object, and return its property
-    actor_name_map_t actor_name = get(vertex_name, g);
-    typedef property_map<Graph, edge_name_t>::type movie_name_map_t;
-    movie_name_map_t connecting_movie = get(edge_name, g);
+        //! [open]
+        FileStorage fs(filename, FileStorage::WRITE);
+        // or:
+        // FileStorage fs;
+        // fs.open(filename, FileStorage::WRITE);
+        //! [open]
 
-    typedef graph_traits<Graph>::vertex_descriptor Vertex;
-    // we'll need to create a map from actor names to their
-    // vertices so that later appearances of the same actor
-    // (on a different edge) can be linked with the correct vertex in the graph
-    typedef std::map<std::string, Vertex> NameVertexMap;
-    NameVertexMap actors;
+        //! [writeNum]
+        fs << "iterationNr" << 100;
+        //! [writeNum]
+        //! [writeStr]
+        fs << "strings"
+           << "["; // text - string sequence
+        fs << "image1.jpg"
+           << "Awesomeness"
+           << "../data/baboon.jpg";
+        fs << "]"; // close sequence
+        //! [writeStr]
 
-    for (std::string line; std::getline(datafile, line);)
-    {
-        char_delimiters_separator<char> sep(false, "", ";");
-        tokenizer<> line_toks(line, sep);
-        tokenizer<>::iterator i = line_toks.begin();
-        std::string actors_name = *i++;
-        NameVertexMap::iterator pos;
-        bool inserted;
-        Vertex u, v;
-        boost::tie(pos, inserted) = actors.insert(std::make_pair(actors_name, Vertex()));
-        if (inserted)
+        //! [writeMap]
+        fs << "Mapping"; // text - mapping
+        fs << "{"
+           << "One" << 1;
+        fs << "Two" << 2 << "}";
+        //! [writeMap]
+
+        //! [iomatw]
+        fs << "R" << R; // cv::Mat
+        fs << "T" << T;
+        //! [iomatw]
+
+        //! [customIOw]
+        fs << "MyData" << m; // your own data structures
+        //! [customIOw]
+
+        //! [close]
+        fs.release(); // explicit close
+        //! [close]
+        cout << "Write Done." << endl;
+    }
+
+    { //read
+        cout << endl
+             << "Reading: " << endl;
+        FileStorage fs;
+        fs.open(filename, FileStorage::READ);
+
+        //! [readNum]
+        int itNr;
+        //fs["iterationNr"] >> itNr;
+        itNr = (int)fs["iterationNr"];
+        //! [readNum]
+        cout << itNr;
+        if (!fs.isOpened())
         {
-            u = add_vertex(g);
-            actor_name[u] = actors_name;
-            pos->second = u;
+            cerr << "Failed to open " << filename << endl;
+            help(av);
+            return 1;
         }
-        else
-            u = pos->second;
 
-        std::string movie_name = *i++;
-
-        boost::tie(pos, inserted) = actors.insert(std::make_pair(*i, Vertex()));
-        if (inserted)
+        //! [readStr]
+        FileNode n = fs["strings"]; // Read string sequence - Get node
+        if (n.type() != FileNode::SEQ)
         {
-            v = add_vertex(g);
-            actor_name[v] = *i;
-            pos->second = v;
+            cerr << "strings is not a sequence! FAIL" << endl;
+            return 1;
         }
-        else
-            v = pos->second;
 
-        graph_traits<Graph>::edge_descriptor e;
-        boost::tie(e, inserted) = add_edge(u, v, g);
-        if (inserted)
-            connecting_movie[e] = movie_name;
+        FileNodeIterator it = n.begin(), it_end = n.end(); // Go through the node
+        for (; it != it_end; ++it)
+            cout << (string)*it << endl;
+        //! [readStr]
+
+        //! [readMap]
+        n = fs["Mapping"]; // Read mappings from a sequence
+        cout << "Two  " << (int)(n["Two"]) << "; ";
+        cout << "One  " << (int)(n["One"]) << endl
+             << endl;
+        //! [readMap]
+
+        MyData m;
+        Mat R, T;
+
+        //! [iomat]
+        fs["R"] >> R; // Read cv::Mat
+        fs["T"] >> T;
+        //! [iomat]
+        //! [customIO]
+        fs["MyData"] >> m; // Read your own structure_
+        //! [customIO]
+
+        cout << endl
+             << "R = " << R << endl;
+        cout << "T = " << T << endl
+             << endl;
+        cout << "MyData = " << endl
+             << m << endl
+             << endl;
+
+        //Show default behavior for non existing nodes
+        //! [nonexist]
+        cout << "Attempt to read NonExisting (should initialize the data structure with its default).";
+        fs["NonExisting"] >> m;
+        cout << endl
+             << "NonExisting = " << endl
+             << m << endl;
+        //! [nonexist]
     }
 
-    std::vector<int> bacon_number(num_vertices(g));
-
-    Vertex src = actors["Kevin Bacon"];
-    bacon_number[src] = 0;
-
-    breadth_first_search(
-        g, src, visitor(record_bacon_number(&bacon_number[0])));
-
-    graph_traits<Graph>::vertex_iterator i, end;
-    for (boost::tie(i, end) = vertices(g); i != end; ++i)
-    {
-        std::cout << actor_name[*i] << " has a Bacon number of "
-                  << bacon_number[*i] << std::endl;
-    }
+    cout << endl
+         << "Tip: Open up " << filename << " with a text editor to see the serialized data." << endl;
 
     return 0;
 }
