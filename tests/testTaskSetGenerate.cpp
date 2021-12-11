@@ -79,11 +79,7 @@ TEST(ReadDAG_Tasks, v7)
     for (int i = 0; i < 3; i++)
         AssertEqualScalar(0, dm.tasks[i].taskType);
 }
-TEST(aaa, v1)
-{
-    for (int i = 0; i < aaa.size(); i++)
-        cout << aaa[i] << endl;
-}
+
 int main()
 {
     TestResult tr;
