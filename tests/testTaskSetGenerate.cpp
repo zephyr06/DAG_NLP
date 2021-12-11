@@ -57,8 +57,27 @@ TEST(ReadDAG_Tasks, v5)
     dm.print();
     for (int i = 0; i < 3; i++)
         AssertEqualScalar(i, dm.tasks[i].id);
-    AssertEqualScalar(2, dm.tasks[2].coreRequire);
-    AssertEqualScalar(20000, dm.tasks[2].deadline);
+    AssertEqualScalar(4, dm.tasks[2].coreRequire);
+    AssertEqualScalar(100, dm.tasks[2].deadline);
+}
+TEST(ReadDAG_Tasks, v6)
+{
+    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v49.csv";
+    DAG_Model dm = ReadDAG_Tasks(path, "orig");
+    dm.print();
+    for (int i = 0; i < 3; i++)
+        AssertEqualScalar(i, dm.tasks[i].id);
+    AssertEqualScalar(1, dm.tasks[0].taskType);
+    AssertEqualScalar(1, dm.tasks[1].taskType);
+    AssertEqualScalar(0, dm.tasks[2].taskType);
+}
+TEST(ReadDAG_Tasks, v7)
+{
+    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v45.csv";
+    DAG_Model dm = ReadDAG_Tasks(path, "orig");
+    dm.print();
+    for (int i = 0; i < 3; i++)
+        AssertEqualScalar(0, dm.tasks[i].taskType);
 }
 TEST(aaa, v1)
 {
