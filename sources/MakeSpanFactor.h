@@ -2,7 +2,18 @@
 #include "RegularTasks.h"
 #include "GraphUtilsFromBGL.h"
 
-void FindLargeSmall(const VectorDynamic &x, LLint &smallest, LLint &smallSecond,
+/**
+ * @brief 
+ * 
+ * @param x for smallest, smallSecond
+ * @param y for largest, largeSecond
+ * @param smallest 
+ * @param smallSecond 
+ * @param largest 
+ * @param largeSecond 
+ */
+void FindLargeSmall(const VectorDynamic &x, const VectorDynamic &y,
+                    LLint &smallest, LLint &smallSecond,
                     LLint &largest, LLint &largeSecond)
 {
     LLint length = x.rows();
@@ -16,17 +27,17 @@ void FindLargeSmall(const VectorDynamic &x, LLint &smallest, LLint &smallSecond,
     double v_ls = INT_MIN;
     for (int i = 0; i < length; i++)
     {
-        if (x.coeffRef(i, 0) >= v_le)
+        if (y.coeffRef(i, 0) >= v_le)
         {
             largeSecond = largest;
             largest = i;
             v_ls = v_le;
-            v_le = x.coeff(i, 0);
+            v_le = y.coeff(i, 0);
         }
-        else if (x.coeffRef(i, 0) > v_ls)
+        else if (y.coeffRef(i, 0) > v_ls)
         {
             largeSecond = i;
-            v_ls = x.coeff(i, 0);
+            v_ls = y.coeff(i, 0);
         }
 
         if (x.coeffRef(i, 0) <= v_se)
@@ -86,6 +97,7 @@ namespace DAG_SPACE
             }
             mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
         }
+
         boost::function<Matrix(const VectorDynamic &)> f =
             [this](const VectorDynamic &startTimeVector)
         {
@@ -97,13 +109,34 @@ namespace DAG_SPACE
             LLint largest = 0;
             LLint largeSecond = 0;
             // minimize makespan
-            FindLargeSmall(startTimeVector, smallest, smallSecond, largest, largeSecond);
+            VectorDynamic finishTimeVector = FindFinishTime(startTimeVector);
+            FindLargeSmall(startTimeVector, finishTimeVector, smallest, smallSecond, largest, largeSecond);
             double startTimeDAG = startTimeVector.minCoeff();
-            res(indexRes++, 0) = (startTimeVector(largest, 0) - startTimeVector(smallest, 0)) *
+            res(indexRes++, 0) = (finishTimeVector(largest, 0) - startTimeVector(smallest, 0)) *
                                  makespanWeight;
 
             return res;
         };
+        /**
+         * @brief 
+         * 
+         * @param startTimeVectorOrig compressed startTimeVector!!!
+         * @return VectorDynamic finish time vector after compression
+         */
+        VectorDynamic FindFinishTime(const VectorDynamic &startTimeVectorOrig) const
+        {
+            VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
+                                                                   maskForEliminate, mapIndex);
+            VectorDynamic finishTimeVector = startTimeVector;
+            int m = startTimeVector.rows();
+            for (int i = 0; i < m; i++)
+            {
+                LLint taskId = BigIndex2TaskIndex(i, sizeOfVariables);
+                finishTimeVector(i, 0) += tasks[taskId].executionTime;
+            }
+            VectorDynamic finishTimeVectorOrig = startTimeVectorOrig;
+            return CompresStartTimeVector(finishTimeVector, maskForEliminate.size(), maskForEliminate);
+        }
         /**
          * @brief This function assumes errorDimension=1!
          * 
@@ -123,7 +156,8 @@ namespace DAG_SPACE
             LLint largest = 0;
             LLint largeSecond = 0;
             // minimize makespan
-            FindLargeSmall(startTimeVector, smallest, smallSecond, largest, largeSecond);
+            VectorDynamic finishTimeVector = FindFinishTime(startTimeVectorOrig);
+            FindLargeSmall(startTimeVector, finishTimeVector, smallest, smallSecond, largest, largeSecond);
             // numerical method for jacobian
             auto NumericalFunc = [&](LLint index)
             {

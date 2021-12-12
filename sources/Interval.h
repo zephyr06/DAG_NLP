@@ -1,3 +1,4 @@
+#pragma once
 #include "DeclareDAG.h"
 
 struct Interval

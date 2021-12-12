@@ -7,6 +7,7 @@
 #include "MakeSpanFactor.h"
 #include "DAG_ConstraintFactor.h"
 #include "DBF_ConstraintFactor.h"
+#include "DBF_ConstraintFactor_Multi.h"
 #include "DDL_ConstraintFactor.h"
 #include "SensorFusionFactor.h"
 #include "PriorFactor.h"
