@@ -31,25 +31,48 @@ namespace RegularTaskSystem
         int deadline;
         int id;
         int processorId;
+        int coreRequire;
+        int taskType;
 
         // initializer
 
         Task() : offset(0), period(0),
                  overhead(0), executionTime(0.0),
-                 deadline(0) {}
+                 deadline(0), coreRequire(1), taskType(0) {}
         Task(int offset, int period, int overhead, double executionTime,
              int deadline) : offset(offset), period(period),
                              overhead(overhead), executionTime(executionTime),
-                             deadline(deadline)
+                             deadline(deadline), taskType(0)
         {
             id = -1;
             processorId = -1;
+            coreRequire = 1;
         }
         Task(int offset, int period, int overhead, double executionTime,
              int deadline, int id, int processorId) : offset(offset), period(period),
-                                                      overhead(overhead), executionTime(executionTime),
+                                                      overhead(overhead),
+                                                      executionTime(executionTime),
                                                       deadline(deadline), id(id),
-                                                      processorId(processorId) {}
+                                                      processorId(processorId), taskType(0)
+        {
+            coreRequire = 1;
+        }
+        Task(int offset, int period, int overhead, double executionTime,
+             int deadline, int id, int processorId,
+             int coreRequire) : offset(offset), period(period),
+                                overhead(overhead), executionTime(executionTime),
+                                deadline(deadline), id(id),
+                                processorId(processorId),
+                                coreRequire(coreRequire), taskType(0) {}
+        Task(int offset, int period, int overhead, double executionTime,
+             int deadline, int id, int processorId,
+             int coreRequire, int taskType) : offset(offset), period(period),
+                                              overhead(overhead), executionTime(executionTime),
+                                              deadline(deadline), id(id),
+                                              processorId(processorId),
+                                              coreRequire(coreRequire),
+                                              taskType(taskType) {}
+
         double priority()
         {
             if (priorityMode == "RM")
@@ -70,11 +93,11 @@ namespace RegularTaskSystem
  **/
         Task(vector<double> dataInLine)
         {
-            if (dataInLine.size() != 7)
+            if (dataInLine.size() != 8)
             {
-                cout << Color::red << "The length of dataInLine in Task constructor is wrong! Must be 7!\n"
-                     << Color::def << endl;
-                throw;
+                // cout << Color::red << "The length of dataInLine in Task constructor is wrong! Must be 8!\n"
+                //      << Color::def << endl;
+                // throw;
             }
             id = dataInLine[0];
             offset = dataInLine[1];
@@ -83,12 +106,20 @@ namespace RegularTaskSystem
             executionTime = dataInLine[4];
             deadline = dataInLine[5];
             processorId = dataInLine[6];
+            coreRequire = dataInLine[7];
+            taskType = 0;
+            if (dataInLine.size() > 8)
+                taskType = dataInLine[8];
+            if (coreRequire < 1)
+                coreRequire = 1;
         }
 
         void print()
         {
             cout << "The period is: " << period << " The executionTime is " << executionTime << " The deadline is "
-                 << deadline << " The overhead is " << overhead << " The offset is " << offset << endl;
+                 << deadline << " The overhead is " << overhead << " The offset is " << offset
+                 << " The coreRequire is " << coreRequire
+                 << " The taskType is " << taskType << endl;
         }
 
         double utilization() const
@@ -284,7 +315,7 @@ namespace RegularTaskSystem
             TaskSet ttt(taskSet);
             ttt = Reorder(ttt, priorityType);
             if (debugMode == 1)
-                cout << "Finish reading the data file succesfully!\n";
+                cout << "Finish reading the data file " + path + " succesfully!\n";
             return ttt;
         }
         else

@@ -134,6 +134,28 @@ int BigIndex2TaskIndex(LLint index, const vector<LLint> &sizeOfVariables)
     return taskIndex - 1;
 }
 
+VectorDynamic CompresStartTimeVector(const VectorDynamic &startTimeComplete,
+                                     int variableDimension,
+                                     const vector<bool> &maskForEliminate)
+{
+    vector<double> initialUpdateVec;
+    initialUpdateVec.reserve(variableDimension - 1);
+    LLint indexUpdate = 0;
+    for (size_t i = 0; i < variableDimension; i++)
+    {
+        if (not maskForEliminate[i])
+        {
+            initialUpdateVec.push_back(startTimeComplete(i, 0));
+        }
+    }
+    VectorDynamic initialUpdate;
+    initialUpdate.resize(initialUpdateVec.size(), 1);
+    for (size_t i = 0; i < initialUpdateVec.size(); i++)
+    {
+        initialUpdate(i, 0) = initialUpdateVec[i];
+    }
+    return initialUpdate;
+}
 inline VectorDynamic GenerateVectorDynamic(LLint N)
 {
     VectorDynamic v;
@@ -216,11 +238,6 @@ namespace DAG_SPACE
         MatrixDynamic jacobian;
         jacobian.resize(mOfJacobian, n);
         VectorDynamic currErr = h(x);
-        // if (debugMode == 1)
-        // {
-        //     cout << "currErr" << currErr << endl
-        //          << endl;
-        // }
 
         for (int i = 0; i < n; i++)
         {
@@ -233,10 +250,6 @@ namespace DAG_SPACE
             VectorDynamic resMinus;
             resMinus.resize(mOfJacobian, 1);
             resMinus = h(xDelta);
-            // if (debugMode == 1)
-            // {
-            //     cout << "resPlus" << resPlus << endl;
-            // }
 
             for (int j = 0; j < mOfJacobian; j++)
             {
