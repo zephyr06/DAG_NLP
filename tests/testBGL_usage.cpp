@@ -52,7 +52,7 @@ int main()
     using namespace RegularTaskSystem;
     using namespace DAG_SPACE;
     cout << "Hello" << endl;
-    DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v15.csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v15.csv", "orig");
     int N = dagTasks.tasks.size();
 
     typedef property<first_name_t, Task> FirstNameProperty;

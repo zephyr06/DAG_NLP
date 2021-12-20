@@ -107,10 +107,10 @@ LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const vector<LLint> 
 {
     if (instance_i < 0 || instance_i > sizeOfVariables[i])
         CoutError("Instance Index out of boundary in IndexTran_Instance2Overall");
-    if (i < 0 || i > sizeOfVariables.size())
+    if (i < 0 || i > (LLint)sizeOfVariables.size())
         CoutError("Task Index out of boundary in IndexTran_Instance2Overall");
     LLint index = 0;
-    for (size_t k = 0; k < i; k++)
+    for (size_t k = 0; k < (size_t)i; k++)
         index += sizeOfVariables[k];
     return index + instance_i;
 }
@@ -140,8 +140,8 @@ VectorDynamic CompresStartTimeVector(const VectorDynamic &startTimeComplete,
 {
     vector<double> initialUpdateVec;
     initialUpdateVec.reserve(variableDimension - 1);
-    LLint indexUpdate = 0;
-    for (size_t i = 0; i < variableDimension; i++)
+
+    for (int i = 0; i < variableDimension; i++)
     {
         if (not maskForEliminate[i])
         {
@@ -301,7 +301,7 @@ namespace DAG_SPACE
 
         VectorDynamic actual = GenerateVectorDynamic(variableDimension);
         LLint index = 0;
-        for (size_t i = 0; i < variableDimension; i++)
+        for (size_t i = 0; i < (size_t)variableDimension; i++)
         {
             if (not maskEliminate[i])
             {
@@ -309,7 +309,7 @@ namespace DAG_SPACE
                 actual[i] = compressed(index++, 0);
             }
         }
-        for (size_t i = 0; i < variableDimension; i++)
+        for (size_t i = 0; i < (size_t)variableDimension; i++)
         {
             if (not filledTable[i])
             {

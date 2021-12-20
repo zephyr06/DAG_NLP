@@ -18,8 +18,8 @@ struct Interval
                                               indexInSTV(i) { coreRequire = 1; }
     Interval(double s1, double l1, LLint i, int coreRequire) : start(s1),
                                                                length(l1),
-                                                               indexInSTV(i),
-                                                               coreRequire(coreRequire) {}
+                                                               coreRequire(coreRequire),
+                                                               indexInSTV(i) {}
 };
 bool compare(Interval &i1, Interval &i2)
 {
@@ -144,7 +144,7 @@ double IntervalOverlapError(vector<Interval> &intervalVec)
     sort(intervalVec.begin(), intervalVec.end(), compare);
 
     double overlapAll = 0;
-    int n = intervalVec.size();
+    size_t n = intervalVec.size();
     for (size_t i = 0; i < n; i++)
     {
         double endTime = intervalVec[i].start + intervalVec[i].length;

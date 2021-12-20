@@ -12,11 +12,11 @@ namespace DAG_SPACE
         vector<LLint> sizeOfVariables;
         int N;
         LLint errorDimension;
-        LLint length;
         MAP_Index2Data mapIndex;
         vector<bool> maskForEliminate;
         double priorValue;
         LLint firstTaskIndex;
+        LLint length;
 
         Prior_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables, LLint errorDimension,
                                MAP_Index2Data &mapIndex, vector<bool> &maskForEliminate, double priorValue,
@@ -24,7 +24,7 @@ namespace DAG_SPACE
                                SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
                                                          tasks(tasks), sizeOfVariables(sizeOfVariables),
                                                          N(tasks.size()), errorDimension(errorDimension),
-                                                         maskForEliminate(maskForEliminate), mapIndex(mapIndex),
+                                                         mapIndex(mapIndex), maskForEliminate(maskForEliminate),
                                                          priorValue(priorValue), firstTaskIndex(firstTaskIndex)
         {
             length = 0;
@@ -58,7 +58,7 @@ namespace DAG_SPACE
         MatrixDynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
         {
             LLint n0 = 0;
-            for (size_t i = 0; i < length; i++)
+            for (LLint i = 0; i < length; i++)
                 if (maskForEliminate.at(i) == false)
                     n0++;
             if (weightPrior_factor == 0)

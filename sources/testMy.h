@@ -70,7 +70,7 @@ void AssertEqualVectorNoRepeat(const vector<T> &expected, const vector<T> &actua
         AssertUnEqual(expected.size(), actual.size());
         return;
     }
-    size_t N = expected.size();
+    // size_t N = expected.size();
     unordered_set<T> s;
     for (size_t i = 0; i < expected.size(); i++)
         s.insert(expected.at(i));

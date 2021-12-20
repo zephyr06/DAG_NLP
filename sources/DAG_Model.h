@@ -35,7 +35,7 @@ namespace DAG_SPACE
                 task.print();
             for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
             {
-                for (int i = 0; i < (itr->second).size(); i++)
+                for (uint i = 0; i < (itr->second).size(); i++)
                     cout << "Edge: " << ((itr->second)[i].id) << "-->" << (itr->first) << endl;
             }
         }

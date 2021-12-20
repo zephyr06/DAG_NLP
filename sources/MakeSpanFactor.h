@@ -111,7 +111,7 @@ namespace DAG_SPACE
             // minimize makespan
             VectorDynamic finishTimeVector = FindFinishTime(startTimeVector);
             FindLargeSmall(startTimeVector, finishTimeVector, smallest, smallSecond, largest, largeSecond);
-            double startTimeDAG = startTimeVector.minCoeff();
+            // double startTimeDAG = startTimeVector.minCoeff();
             res(indexRes++, 0) = (finishTimeVector(largest, 0) - startTimeVector(smallest, 0)) *
                                  makespanWeight;
 
@@ -150,7 +150,7 @@ namespace DAG_SPACE
             // y -> x
             SM_Dynamic j_yx(errorDimension, length);
 
-            LLint indexRes = 0;
+            // LLint indexRes = 0;
             LLint smallest = 0;
             LLint smallSecond = 0;
             LLint largest = 0;

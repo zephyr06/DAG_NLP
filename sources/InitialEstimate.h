@@ -35,7 +35,7 @@ namespace DAG_SPACE
         }
 
         LLint index = 0;
-        LLint currTime = 0;
+        // LLint currTime = 0;
 
         for (int i = 0; i < N; i++)
         {
@@ -56,7 +56,7 @@ namespace DAG_SPACE
         vector<int> order = FindDependencyOrder(dagTasks);
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
 
-        LLint index = 0;
+        // LLint index = 0;
         LLint currTime = 0;
         vector<int> relativeStart;
         relativeStart.reserve(N);
@@ -110,7 +110,7 @@ namespace DAG_SPACE
             else
             {
                 LLint id = id_instance.first;
-                LLint instance = id_instance.second;
+                // LLint instance = id_instance.second;
                 LLint prev = FindPrev(id);
                 taskQueue.insert(taskQueue.begin() + prev, id_instance);
             }
@@ -304,7 +304,7 @@ namespace DAG_SPACE
         LLint hyperPeriod = HyperPeriod(tasks);
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
 
-        LLint index = 0;
+        // LLint index = 0;
         LLint currTime = 0;
 
         for (int i = 0; i < N; i++)

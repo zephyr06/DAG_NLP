@@ -5,7 +5,7 @@
 TEST(testDBF, multi_core)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v46.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v46.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -52,7 +52,7 @@ TEST(testDBF, multi_core)
 TEST(testDBF, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v46.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v46.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -96,7 +96,7 @@ TEST(testDBF, v1)
 TEST(testDBF, v2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v46.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v46.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -139,7 +139,7 @@ TEST(testDBF, v2)
 TEST(testDBF, v3)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v47.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v47.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();

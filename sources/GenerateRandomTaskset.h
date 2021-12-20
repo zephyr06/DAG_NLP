@@ -21,7 +21,7 @@ vector<double> Uunifast(int N, double utilAll)
     vector<double> utilVec(N, 0);
 
     double nextU;
-    for (size_t i = 1; i < N; i++)
+    for (size_t i = 1; i < (size_t)N; i++)
     {
 
         nextU = sumU * pow(double(rand()) / RAND_MAX, 1.0 / (N - 1));
@@ -136,7 +136,7 @@ void WriteDAG(ofstream &file, DAG_Model &tasksDAG)
     WriteTaskSets(file, tasksDAG.tasks);
     for (auto itr = tasksDAG.mapPrev.begin(); itr != tasksDAG.mapPrev.end(); itr++)
     {
-        for (int i = 0; i < itr->second.size(); i++)
+        for (uint i = 0; i < itr->second.size(); i++)
             file << "*" << (itr->first) << "," << ((itr->second)[i].id) << "\n";
     }
 }

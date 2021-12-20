@@ -11,9 +11,9 @@ namespace DAG_SPACE
         vector<LLint> sizeOfVariables;
         int N;
         LLint errorDimension;
-        LLint length;
-        MAP_Index2Data mapIndex;
         vector<bool> maskForEliminate;
+        MAP_Index2Data mapIndex;
+        LLint length;
         LLint lengthCompressed;
         std::unordered_map<LLint, LLint> mapIndex_True2Compress;
 
@@ -89,10 +89,10 @@ namespace DAG_SPACE
             {
                 for (int j = 0; j < int(sizeOfVariables[i]); j++)
                 {
-                    if (index_m == 99)
-                    {
-                        int a = 1;
-                    }
+                    // if (index_m == 99)
+                    // {
+                    //     int a = 1;
+                    // }
                     // finish time is smaller than deadline
                     double err1 = tasks[i].deadline + j * tasks[i].period -
                                   ExtractVariable(startTimeVector, sizeOfVariables, i, j) -

@@ -46,7 +46,7 @@ void BatchOptimize()
     vector<double> errorAfterOpt;
     vector<double> runTimeAccept;
     vector<double> runTimeAll;
-    int N;
+    // int N;
 
     vector<string> errorFiles;
     ofstream outfileWrite;
@@ -64,7 +64,7 @@ void BatchOptimize()
         {
             string path = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks/" + file;
             DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(path, readTaskMode);
-            N = dagTasks.tasks.size();
+            // int N = dagTasks.tasks.size();
             auto start = chrono::high_resolution_clock::now();
             DAG_SPACE::OptimizeResult res;
             if (batchTestMethod == 1)

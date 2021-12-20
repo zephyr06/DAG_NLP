@@ -56,12 +56,12 @@ namespace DAG_SPACE
             MappingDataStruct m{i, 0};
             mapIndex[i] = m;
         }
-        bool whetherEliminate = false;
+        // bool whetherEliminate = false;
         vector<bool> maskForEliminate(variableDimension, false);
 
         Symbol key('a', 0);
         NonlinearFactorGraph graph;
-        LLint errorDimensionMS = 1;
+        // LLint errorDimensionMS = 1;
 
         LLint errorDimensionDAG = dagTasks.edgeNumber();
         auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
@@ -147,7 +147,7 @@ namespace DAG_SPACE
     {
         using namespace RegularTaskSystem;
 
-        int N = dagTasks.tasks.size();
+        // int N = dagTasks.tasks.size();
 
         // build the factor graph
         NonlinearFactorGraph graph;
@@ -351,8 +351,8 @@ namespace DAG_SPACE
             // update initial estimate
             vector<double> initialUpdateVec;
             initialUpdateVec.reserve(variableDimension - 1);
-            LLint indexUpdate = 0;
-            for (size_t i = 0; i < variableDimension; i++)
+            // LLint indexUpdate = 0;
+            for (size_t i = 0; i < (size_t)variableDimension; i++)
             {
                 if (not maskForEliminate[i])
                 {

@@ -423,7 +423,7 @@ namespace DAG_SPACE
                                                                    maskForEliminate, mapIndex);
             vector<LLint> indexes;
             indexes.reserve(startTimeVector.size());
-            for (size_t i = 0; i < startTimeVector.size(); i++)
+            for (uint i = 0; i < startTimeVector.size(); i++)
                 indexes.push_back(i);
             vector<Interval> intervalVec = CreateIntervalFromSTVSameOrder(indexes, startTimeVector);
 
@@ -432,9 +432,9 @@ namespace DAG_SPACE
             coverIntervalIndex.reserve(variableDimension);
             std::unordered_set<LLint> indexSetBig;
 
-            for (size_t i = 0; i < variableDimension; i++)
+            for (size_t i = 0; i < (size_t)variableDimension; i++)
             {
-                for (size_t j = i + 1; j < variableDimension; j++)
+                for (size_t j = i + 1; j < (size_t)variableDimension; j++)
                 {
                     double s1 = intervalVec[i].start;
                     double f1 = s1 + intervalVec[i].length;

@@ -171,7 +171,7 @@ vector<int> FindDependencyOrder(const DAG_SPACE::DAG_Model &dagTasks)
     typedef boost::property<first_name_t, Task> FirstNameProperty;
     typedef boost::adjacency_list<vecS, vecS, bidirectionalS, FirstNameProperty> Graph;
     typedef boost::graph_traits<Graph>::vertex_descriptor vertex_t;
-    typedef boost::graph_traits<Graph>::edge_descriptor edge_t;
+    // typedef boost::graph_traits<Graph>::edge_descriptor edge_t;
 
     Graph g(N);
 
@@ -222,7 +222,7 @@ int FindSinkNode(DAG_SPACE::DAG_Model dagTasks)
     typedef boost::property<first_name_t, Task> FirstNameProperty;
     typedef boost::adjacency_list<vecS, vecS, bidirectionalS, FirstNameProperty> Graph;
     typedef boost::graph_traits<Graph>::vertex_descriptor vertex_t;
-    typedef boost::graph_traits<Graph>::edge_descriptor edge_t;
+    // typedef boost::graph_traits<Graph>::edge_descriptor edge_t;
 
     Graph g(N);
 

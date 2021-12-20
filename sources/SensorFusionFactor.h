@@ -49,11 +49,11 @@ namespace DAG_SPACE
         vector<LLint> sizeOfVariables;
         int N;
         LLint errorDimension;
-        LLint length;
         LLint lengthCompressed;
         double sensorFusionTol; // not used, actually
         MAP_Index2Data mapIndex;
         vector<bool> maskForEliminate;
+        LLint length;
         std::unordered_map<LLint, LLint> mapIndex_True2Compress;
 
         SensorFusion_ConstraintFactor(Key key, DAG_Model &dagTasks, vector<LLint> sizeOfVariables, LLint errorDimension,
@@ -61,8 +61,9 @@ namespace DAG_SPACE
                                       SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
                                                                 dagTasks(dagTasks),
                                                                 tasks(dagTasks.tasks), sizeOfVariables(sizeOfVariables),
-                                                                N(tasks.size()), sensorFusionTol(sensorFusionTol),
-                                                                errorDimension(errorDimension), mapIndex(mapIndex),
+                                                                N(tasks.size()), errorDimension(errorDimension),
+                                                                sensorFusionTol(sensorFusionTol),
+                                                                mapIndex(mapIndex),
                                                                 maskForEliminate(maskForEliminate)
         {
             length = 0;
@@ -211,7 +212,7 @@ namespace DAG_SPACE
             VectorDynamic startTimeVector = RecoverStartTimeVector(
                 startTimeVectorOrig, maskForEliminate, mapIndex);
 
-            int m = errorDimension;
+            // int m = errorDimension;
             // y -> x
             SM_Dynamic j_yx(errorDimension, length);
             LLint indexRes = 0;

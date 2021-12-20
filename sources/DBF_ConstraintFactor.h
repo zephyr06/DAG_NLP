@@ -213,7 +213,7 @@ namespace DAG_SPACE
                             LLint index_j_overall = IndexTran_Instance2Overall(j, instance_j, sizeOfVariables);
                             // this is a self interval, no need to replace one task with itself
                             // OR, the variable has already been eliminated, cannot eliminate it twice
-                            if (i == j && instance_i == instance_j || maskForEliminate_addMap[index_j_overall])
+                            if ((i == j && instance_i == instance_j) || maskForEliminate_addMap[index_j_overall])
                             {
                                 continue;
                             }
@@ -513,7 +513,7 @@ namespace DAG_SPACE
                                                                    maskForEliminate, mapIndex);
             vector<LLint> indexes;
             indexes.reserve(startTimeVector.size());
-            for (size_t i = 0; i < startTimeVector.size(); i++)
+            for (uint i = 0; i < startTimeVector.size(); i++)
                 indexes.push_back(i);
             vector<Interval> intervalVec = CreateIntervalFromSTVSameOrder(indexes, startTimeVector);
 
@@ -522,9 +522,9 @@ namespace DAG_SPACE
             coverIntervalIndex.reserve(variableDimension);
             std::unordered_set<LLint> indexSetBig;
 
-            for (size_t i = 0; i < variableDimension; i++)
+            for (LLint i = 0; i < variableDimension; i++)
             {
-                for (size_t j = i + 1; j < variableDimension; j++)
+                for (LLint j = i + 1; j < variableDimension; j++)
                 {
                     double s1 = intervalVec[i].start;
                     double f1 = s1 + intervalVec[i].length;
