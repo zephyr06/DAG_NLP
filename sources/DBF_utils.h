@@ -1,0 +1,104 @@
+#pragma once
+#include "Interval.h"
+
+namespace DAG_SPACE
+{
+    using namespace RegularTaskSystem;
+    /**
+     * @brief get c_{ijk} according to ILP paper
+     * 
+     * @param startTime_i 
+     * @param task_i 
+     * @param startTime_j 
+     * @param task_j 
+     * @param startTime_k 
+     * @param task_k 
+     * @return double 
+     */
+    inline double ComputationTime_IJK(double startTime_i, const Task &task_i, double startTime_j,
+                                      const Task &task_j, double startTime_k, const Task &task_k)
+    {
+        if (startTime_i <= startTime_k && startTime_k + task_k.executionTime <= startTime_j + task_j.executionTime)
+        {
+            return task_k.executionTime;
+        }
+        else
+            return 0;
+    }
+    inline double ComputationTime_IJK(double startTime_i, double startTime_j,
+                                      double length_j, double startTime_k, double length_k)
+    {
+        if (startTime_i <= startTime_k && startTime_k + length_k <= startTime_j + length_j)
+        {
+            return length_k;
+        }
+        else
+            return 0;
+    }
+    inline double ComputationTime_IJK(Interval &i_i, Interval &i_j, Interval &i_k)
+    {
+        if (i_i.start <= i_k.start && i_k.start + i_k.length <= i_j.start + i_j.length)
+        {
+            return i_k.length;
+        }
+        else
+            return 0;
+    }
+
+    /**
+     * @brief Create a Interval vector for indexes specified by the tree1 parameter;
+     * the return interval follows the same order given by tree1!
+     * 
+     * @param tree1 index in startTimeVector
+     * @param startTimeVector 
+     * @return vector<Interval> 
+     */
+    vector<Interval> CreateIntervalFromSTVSameOrder(vector<LLint> &tree1, const VectorDynamic &startTimeVector,
+                                                    const TaskSet &tasks,
+                                                    const vector<LLint> &sizeOfVariables)
+    {
+        LLint n = tree1.size();
+        vector<Interval> intervalVec;
+        intervalVec.reserve(n);
+        for (LLint i = 0; i < n; i++)
+        {
+            LLint index = tree1[i];
+            double start = startTimeVector.coeff(index, 0);
+            int taskId = BigIndex2TaskIndex(index, sizeOfVariables);
+            double length = tasks[taskId].executionTime;
+            int coreRequire = tasks[taskId].coreRequire;
+            intervalVec.push_back(Interval{start, length, index, coreRequire});
+        }
+        return intervalVec;
+    }
+
+    vector<Interval> DbfInterval(const VectorDynamic &startTimeVector, int processorId,
+                                 const ProcessorTaskSet &processorTasks,
+                                 const TaskSet &tasks,
+                                 const vector<LLint> &sizeOfVariables)
+    {
+        vector<LLint> indexes;
+        indexes.reserve(startTimeVector.size());
+        for (int taskId : processorTasks.at(processorId))
+        {
+            for (int j = 0; j < sizeOfVariables[taskId]; j++)
+            {
+                indexes.push_back(IndexTran_Instance2Overall(taskId, j, sizeOfVariables));
+            }
+        }
+        vector<Interval> intervalVec = CreateIntervalFromSTVSameOrder(indexes,
+                                                                      startTimeVector, tasks, sizeOfVariables);
+
+        return intervalVec;
+    }
+
+    double DbfIntervalOverlapError(const VectorDynamic &startTimeVector, int processorId,
+                                   const ProcessorTaskSet &processorTasks,
+                                   const TaskSet &tasks,
+                                   const vector<LLint> &sizeOfVariables)
+    {
+        vector<Interval> intervalVec = DbfInterval(startTimeVector, processorId,
+                                                   processorTasks, tasks, sizeOfVariables);
+        return IntervalOverlapError(intervalVec);
+    }
+}

@@ -341,13 +341,15 @@ TEST(testDBF, v1)
     dbfExpect.resize(1, 1);
     dbfExpect << 90;
     VectorDynamic dbfExpect1 = factor.f(startTimeVector);
-    auto dbfActual = factor.DbfIntervalOverlapError(startTimeVector, 0);
+    auto dbfActual = DbfIntervalOverlapError(startTimeVector, 0,
+                                             processorTaskSet, tasks, sizeOfVariables);
     // VectorDynamic actual = DAG_SPACE::RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
     AssertEqualScalar(dbfExpect1(0, 0), dbfActual);
     assert_equal(dbfExpect, dbfExpect1);
 
     startTimeVector << 1, 2, 3, 4, 19;
-    dbfActual = factor.DbfIntervalOverlapError(startTimeVector, 0);
+    dbfActual = DbfIntervalOverlapError(startTimeVector, 0,
+                                        processorTaskSet, tasks, sizeOfVariables);
     AssertEqualScalar(54, dbfActual);
 }
 TEST(testDBF, v2)
@@ -388,7 +390,8 @@ TEST(testDBF, v2)
     dbfExpect.resize(1, 1);
     dbfExpect << 128;
 
-    double dbfActual = factor.DbfIntervalOverlapError(startTimeVector, 0);
+    double dbfActual = DbfIntervalOverlapError(startTimeVector, 0,
+                                               processorTaskSet, tasks, sizeOfVariables);
     VectorDynamic dbfActual2 = factor.f(startTimeVector);
     AssertEqualScalar(128, dbfActual);
     assert_equal(dbfExpect, dbfActual2);
@@ -1192,8 +1195,11 @@ TEST(testDBF, v3MultiProcess)
     VectorDynamic dbfExpect;
     dbfExpect.resize(2, 1);
     dbfExpect << 68, 32;
-    double dbfActual0 = factor.DbfIntervalOverlapError(startTimeVector, 0);
-    double dbfActual1 = factor.DbfIntervalOverlapError(startTimeVector, 1);
+    double dbfActual0 = DbfIntervalOverlapError(startTimeVector, 0,
+                                                processorTaskSet, tasks, sizeOfVariables);
+    double dbfActual1 = DbfIntervalOverlapError(startTimeVector, 1,
+                                                processorTaskSet, tasks, sizeOfVariables);
+
     VectorDynamic dbfActual2 = factor.f(startTimeVector);
     AssertEqualScalar(dbfExpect(0, 0), dbfActual0);
     AssertEqualScalar(dbfExpect(1, 0), dbfActual1);
@@ -2359,7 +2365,8 @@ TEST(testDBF, coreNumv1)
     dbfExpect.resize(1, 1);
     coreNumberAva = 2;
     dbfExpect << 347;
-    double dbfActual = factor.DbfIntervalOverlapError(startTimeVector, 0);
+    double dbfActual = DbfIntervalOverlapError(startTimeVector, 0,
+                                               processorTaskSet, tasks, sizeOfVariables);
     VectorDynamic dbfActual2 = factor.f(startTimeVector);
     AssertEqualScalar(347, dbfActual);
     assert_equal(dbfExpect, dbfActual2);
