@@ -36,7 +36,7 @@ void AssertUnEqual(T expect, T actual)
     cout << Color::red << "EXpect is " << expect << ", while the actual is " << actual << Color::def << endl;
     throw;
 }
-void AssertEqualScalar(double expected, double actual, double tolerance = 1e-6)
+void AssertEqualScalar(double expected, double actual, double tolerance = 1e-6, string lineNumber = "")
 {
     if (expected != 0)
     {
@@ -44,6 +44,8 @@ void AssertEqualScalar(double expected, double actual, double tolerance = 1e-6)
             return;
         else
         {
+            if (lineNumber != "")
+                cout << Color::red << "Line Number: " << lineNumber << Color::def << endl;
             AssertUnEqual<double>(expected, actual);
         }
     }
@@ -62,7 +64,7 @@ void AssertBool(bool expected, bool actual)
 
 template <typename T>
 void AssertEqualVectorNoRepeat(const vector<T> &expected, const vector<T> &actual,
-                               double tolerance = 1e-6)
+                               double tolerance = 1e-6, string lineNumber = "")
 {
     if (expected.size() != actual.size())
     {
@@ -90,7 +92,7 @@ void AssertEqualVectorNoRepeat(const vector<T> &expected, const vector<T> &actua
 }
 
 void AssertEigenEqualVector(Eigen::Matrix<double, Eigen::Dynamic, 1> &expected,
-                            Eigen::Matrix<double, Eigen::Dynamic, 1> &actual)
+                            Eigen::Matrix<double, Eigen::Dynamic, 1> &actual, string lineNumber = "")
 {
     int m = expected.rows();
     int n = expected.cols();
@@ -98,7 +100,7 @@ void AssertEigenEqualVector(Eigen::Matrix<double, Eigen::Dynamic, 1> &expected,
     {
         for (int j = 0; j < n; j++)
         {
-            AssertEqualScalar(expected(i, j), actual(i, j));
+            AssertEqualScalar(expected(i, j), actual(i, j), 1e-6, lineNumber);
         }
     }
 }

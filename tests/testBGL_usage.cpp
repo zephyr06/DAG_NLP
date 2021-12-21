@@ -53,12 +53,11 @@ int main()
     using namespace DAG_SPACE;
     cout << "Hello" << endl;
     DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v15.csv", "orig");
-    int N = dagTasks.tasks.size();
 
     typedef property<first_name_t, Task> FirstNameProperty;
     typedef adjacency_list<vecS, vecS, bidirectionalS, FirstNameProperty> Graph;
     typedef boost::graph_traits<Graph>::vertex_descriptor vertex_t;
-    typedef boost::graph_traits<Graph>::edge_descriptor edge_t;
+    // typedef boost::graph_traits<Graph>::edge_descriptor edge_t;
 
     // typedef std::pair<Task, Task> Edge;
     Graph g(dagTasks.tasks.size());
