@@ -4,7 +4,7 @@
 
 #include "RegularTasks.h"
 #include "DAG_Model.h"
-#include "GraphUtilsFromBGL.h"
+#include "EliminationForest_utils.h"
 #include "colormod.h"
 typedef std::map<int, int> ProcessorId2Index;
 using namespace RegularTaskSystem;

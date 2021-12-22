@@ -1,6 +1,6 @@
 #include "DeclareDAG.h"
 #include "RegularTasks.h"
-#include "GraphUtilsFromBGL.h"
+#include "EliminationForest_utils.h"
 
 /**
  * @brief 

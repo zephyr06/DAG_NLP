@@ -1,6 +1,6 @@
 #include "../sources/Optimize.h"
 #include "../sources/testMy.h"
-#include "../sources/GraphUtilsFromBGL.h"
+#include "../sources/EliminationForest_utils.h"
 /*
 
 */
@@ -744,7 +744,7 @@ TEST(FindVanishIndex, v1)
     DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
                                 mapIndex, maskForEliminate, processorTaskSet, model);
 
-    vector<LLint> actual = factor.FindVanishIndex(initialSTV);
+    vector<LLint> actual = FindVanishIndex(initialSTV, tasks, sizeOfVariables, maskForEliminate, mapIndex);
     vector<LLint> expected = {0, 5, 6};
     AssertEqualVectorNoRepeat(expected, actual);
 }
@@ -782,7 +782,7 @@ TEST(FindVanishIndex, v2)
     DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
                                 mapIndex, maskForEliminate, processorTaskSet, model);
 
-    vector<LLint> actual = factor.FindVanishIndex(initialSTV);
+    vector<LLint> actual = FindVanishIndex(initialSTV, tasks, sizeOfVariables, maskForEliminate, mapIndex);
     vector<LLint> expected = {0, 2, 5};
     AssertEqualVectorNoRepeat(expected, actual);
 }

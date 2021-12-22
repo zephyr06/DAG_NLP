@@ -9,6 +9,7 @@
 - [CppUnitLite](https://github.com/Zephyr06/CppUnitLite) (If you want to run test files)
 
 # TODO:
+0. managing elimination forest for multiple factors together
 1. Gradient vanish problem
 3. Event chain analysis
 - ErrorDimension = final job's instances

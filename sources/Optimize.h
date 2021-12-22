@@ -11,7 +11,7 @@
 #include "DDL_ConstraintFactor.h"
 #include "SensorFusionFactor.h"
 #include "PriorFactor.h"
-#include "GraphUtilsFromBGL.h"
+#include "EliminationForest_utils.h"
 #include "InitialEstimate.h"
 #include "colormod.h"
 

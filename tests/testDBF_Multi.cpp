@@ -1,6 +1,6 @@
 #include "../sources/Optimize.h"
 #include "../sources/testMy.h"
-#include "../sources/GraphUtilsFromBGL.h"
+#include "../sources/EliminationForest_utils.h"
 
 TEST(testDBF, multi_core)
 {

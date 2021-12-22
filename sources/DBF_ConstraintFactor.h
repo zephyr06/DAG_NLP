@@ -206,11 +206,6 @@ namespace DAG_SPACE
                                 boost::tie(e, inserted) = add_edge(indexesBGL_Update[index_j_overall],
                                                                    indexesBGL_Update[index_i_overall],
                                                                    eliminationTrees_Update);
-                                // if (inserted)
-                                // {
-                                //     edge_name_map_t edgeMapCurr = get(edge_name, eliminationTrees_Update);
-                                //     edgeMapCurr[e] = mapIndex[index_j_overall].getDistance();
-                                // }
                             }
                             else
                             {
@@ -253,62 +248,6 @@ namespace DAG_SPACE
         // Following parts are used for numerical Jacobian **********************************************
 
         /**
-         * @brief FindVanishIndex; given a startTimeVector, some of their intervals may be fully overlapped
-         * by another, and this function finds all the indexes that is related.
-         * 
-         * @param startTimeVectorOrig 
-         * @return vector<LLint> 
-         */
-        vector<LLint> FindVanishIndex(const VectorDynamic &startTimeVectorOrig) const
-        {
-            VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
-                                                                   maskForEliminate, mapIndex);
-            vector<LLint> indexes;
-            indexes.reserve(startTimeVector.size());
-            for (uint i = 0; i < startTimeVector.size(); i++)
-                indexes.push_back(i);
-            vector<Interval> intervalVec = CreateIntervalFromSTVSameOrder(indexes, startTimeVector, tasks, sizeOfVariables);
-
-            LLint variableDimension = intervalVec.size();
-            vector<LLint> coverIntervalIndex;
-            coverIntervalIndex.reserve(variableDimension);
-            std::unordered_set<LLint> indexSetBig;
-
-            for (LLint i = 0; i < variableDimension; i++)
-            {
-                for (LLint j = i + 1; j < variableDimension; j++)
-                {
-                    double s1 = intervalVec[i].start;
-                    double f1 = s1 + intervalVec[i].length;
-                    double s2 = intervalVec[j].start;
-                    double f2 = s2 + intervalVec[j].length;
-                    if ((s2 > s1 && f2 < f1) || (s2 < s1 && f2 > f1))
-                    {
-                        LLint leafIndex = FindLeaf(i, mapIndex);
-                        if (indexSetBig.find(leafIndex) == indexSetBig.end())
-                        {
-                            indexSetBig.insert(leafIndex);
-                        }
-                        leafIndex = FindLeaf(j, mapIndex);
-                        if (indexSetBig.find(leafIndex) == indexSetBig.end())
-                        {
-                            indexSetBig.insert(leafIndex);
-                        }
-                    }
-                }
-            }
-
-            auto m = MapIndex_True2Compress(maskForEliminate);
-            vector<LLint> coverIndexInCompressed;
-            coverIndexInCompressed.reserve(startTimeVectorOrig.rows());
-            for (auto itr = indexSetBig.begin(); itr != indexSetBig.end(); itr++)
-            {
-                coverIndexInCompressed.push_back(m[(*itr)]);
-            }
-            return coverIndexInCompressed;
-        }
-
-        /**
          * @brief this version of Jacobian estimation fix the Vanishing gradient problem;
          * 
          * this program will identify indexes that have vanishing gradient issues, 
@@ -335,7 +274,7 @@ namespace DAG_SPACE
             jacobian.resize(mOfJacobian, n);
             jacobian.setZero();
 
-            vector<LLint> vanishGradientIndex = FindVanishIndex(x);
+            vector<LLint> vanishGradientIndex = FindVanishIndex(x, tasks, sizeOfVariables, maskForEliminate, mapIndex);
             std::unordered_set<LLint> ss;
             for (size_t i = 0; i < vanishGradientIndex.size(); i++)
             {
@@ -460,7 +399,7 @@ namespace DAG_SPACE
             int n = x.rows();
             MatrixDynamic jacobian = JacobianAnalytic(x);
 
-            vector<LLint> vanishGradientIndex = FindVanishIndex(x);
+            vector<LLint> vanishGradientIndex = FindVanishIndex(x, tasks, sizeOfVariables, maskForEliminate, mapIndex);
             std::unordered_set<LLint> ss;
             for (size_t i = 0; i < vanishGradientIndex.size(); i++)
             {
