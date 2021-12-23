@@ -9,11 +9,6 @@ namespace DAG_SPACE
     class DBF_ConstraintFactor_Multi : public BaseSchedulingFactor
     {
     public:
-        // each element contains tasks belonging to the same processor
-
-        ProcessorTaskSet processorTasks;
-        std::unordered_map<LLint, LLint> mapIndex_True2Compress;
-
         DBF_ConstraintFactor_Multi(Key key, TaskSetInfoDerived &tasksInfo,
                                    EliminationForest &forestInfo, LLint errorDimension,
                                    SharedNoiseModel model)
@@ -87,12 +82,12 @@ namespace DAG_SPACE
 
             int indexPro = 0;
 
-            for (auto itr = processorTasks.begin(); itr != processorTasks.end(); itr++)
+            for (auto itr = processorTaskSet.begin(); itr != processorTaskSet.end(); itr++)
             {
                 double errorCurrProc = 0;
                 vector<SF_Time_Instance> SF_Seq;
                 SF_Seq.reserve(startTimeVector.size() * 2);
-                for (int taskId : processorTasks.at(itr->first))
+                for (int taskId : processorTaskSet.at(itr->first))
                 {
                     for (int j = 0; j < sizeOfVariables[taskId]; j++)
                     {
@@ -129,7 +124,7 @@ namespace DAG_SPACE
                 }
                 res(indexPro++, 0) = errorCurrProc;
                 //     double errorCurrProcessor = 0;
-                //     vector<int> taskSetCurr = processorTasks.at(itr->first);
+                //     vector<int> taskSetCurr = processorTaskSet.at(itr->first);
                 //     // //demand bound function
                 //     for (int index_i = 0; index_i < static_cast<int>(taskSetCurr.size()); index_i++)
                 //     {

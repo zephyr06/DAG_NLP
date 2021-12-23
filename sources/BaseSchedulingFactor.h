@@ -14,6 +14,7 @@ public:
     LLint errorDimension;
     LLint length;
     EliminationForest forestInfo;
+    // each element contains tasks belonging to the same processor
     ProcessorTaskSet processorTaskSet;
 
     // std::unordered_map<LLint, LLint> mapIndex_True2Compress;

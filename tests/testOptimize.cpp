@@ -31,7 +31,7 @@ TEST(RecoverStartTimeVector, v1)
 TEST(BigIndex2TaskIndex, v1)
 {
     using namespace DAG_SPACE;
-    TaskSet tasks = ReadTaskSet("../TaskData/test_n5_v3.csv", "orig");
+    TaskSet tasks = ReadTaskSet("../../TaskData/test_n5_v3.csv", "orig");
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -116,7 +116,7 @@ TEST(RecoverStartTime, v2)
 TEST(FindDependencyOrder, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v16.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v16.csv", "orig");
     auto actual = FindDependencyOrder(dagTasks);
     vector<int> expected = {4, 3, 2, 1, 0};
     AssertEqualVectorNoRepeat(expected, actual);
@@ -125,7 +125,7 @@ TEST(FindDependencyOrder, v1)
 TEST(GenerateInitialForDAG, V2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -148,7 +148,7 @@ TEST(GenerateInitialForDAG, V2)
 TEST(GenerateInitialForDAG, V3)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v22.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v22.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -174,7 +174,7 @@ TEST(sensorFusion, v1)
     using namespace DAG_SPACE;
     using namespace RegularTaskSystem;
 
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v9.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -218,7 +218,7 @@ TEST(sensorFusion, v2)
     using namespace RegularTaskSystem;
     auto sthh = withAddedSensorFusionError;
     withAddedSensorFusionError = 1;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -290,7 +290,7 @@ TEST(testDBF, v1)
 {
     coreNumberAva = 1;
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v1.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v1.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -333,7 +333,7 @@ TEST(testDBF, v1)
 TEST(testDBF, v2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -367,7 +367,7 @@ TEST(testDBF, v2)
 TEST(testDDL, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -410,7 +410,7 @@ TEST(testDDL, v1)
 TEST(testDAG, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -485,7 +485,7 @@ TEST(EliminationTree, build_maintain_tree)
     //    if no, then add an edge, and perform eliminate
 
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     auto sth = EstablishGraphStartTimeVector(tasksInfo);
     Graph g = sth.first;
@@ -516,7 +516,7 @@ TEST(EliminationTree, find_sub_tree)
     //    if no, then add an edge, and perform eliminate
 
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     auto sth = EstablishGraphStartTimeVector(tasksInfo);
     Graph g = sth.first;
@@ -551,7 +551,7 @@ TEST(EliminationTree, find_sub_tree)
 TEST(CheckEliminationTreeConflict, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -603,7 +603,7 @@ TEST(find_sub_tree, v2)
 {
 
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v18.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v18.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     auto sth = EstablishGraphStartTimeVector(tasksInfo);
     Graph g = sth.first;
@@ -629,7 +629,7 @@ TEST(find_sub_tree, v3)
 {
 
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v18.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v18.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     auto sth = EstablishGraphStartTimeVector(tasksInfo);
     Graph g = sth.first;
@@ -659,7 +659,7 @@ TEST(find_sub_tree, v3)
 TEST(FindLeaf, V1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -691,7 +691,7 @@ TEST(FindLeaf, V1)
 TEST(FindVanishIndex, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     TaskSetInfoDerived tasksInfo(tasks);
@@ -729,7 +729,7 @@ TEST(FindVanishIndex, v1)
 TEST(FindVanishIndex, v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -753,6 +753,7 @@ TEST(FindVanishIndex, v2)
     for (int i = 0; i < variableDimension; i++)
         mapIndex[i] = MappingDataStruct{i, 0};
     mapIndex[5] = MappingDataStruct{2, -3};
+    forestInfo.AddLinearEliminate(5, 2, -3);
 
     Symbol key('a', 0);
     ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
@@ -769,7 +770,7 @@ TEST(FindVanishIndex, v2)
 TEST(NumericalDerivativeDynamicUpperDBF, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -811,7 +812,7 @@ TEST(NumericalDerivativeDynamicUpperDBF, v1)
 TEST(ExtractVariable, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -840,7 +841,7 @@ TEST(ExtractVariable, v1)
 TEST(ExtractVariable, v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v20.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v20.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -865,7 +866,7 @@ TEST(ExtractVariable, v2)
 TEST(Prior_factor, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -906,7 +907,7 @@ TEST(Prior_factor, v1)
 TEST(NumericalDerivativeDynamicUpperDBF, v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v22.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v22.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -941,7 +942,7 @@ TEST(NumericalDerivativeDynamicUpperDBF, v2)
 TEST(GenerateInitialForDAG_RelativeStart, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -965,7 +966,7 @@ TEST(GenerateInitialForDAG_RelativeStart, v1)
 TEST(RunQueue, V1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v10.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v10.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     Task tasknew = tasks[4];
@@ -995,7 +996,7 @@ TEST(RunQueue, V1)
 TEST(GenerateInitialForDAG_RM_DAG, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v14.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v14.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1018,7 +1019,7 @@ TEST(GenerateInitialForDAG_RM_DAG, v1)
 TEST(GenerateInitialForDAG_RM_DAG, v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v23.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v23.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1041,7 +1042,7 @@ TEST(GenerateInitialForDAG_RM_DAG, v2)
 TEST(GenerateInitialForDAG_RM_DAG, v3)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1066,7 +1067,7 @@ TEST(GenerateInitialForDAG_RM_DAG, vDDL)
 {
     using namespace DAG_SPACE;
     // this task is not schedulable even if only DAG and schedulability constraints are considered
-    DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v16.csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v16.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -1104,7 +1105,7 @@ TEST(GenerateInitialForDAG_RM_DAG, vDDL)
 TEST(ProcessorTaskSet, add)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v28.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v28.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -1139,7 +1140,7 @@ TEST(ProcessorTaskSet, add)
 TEST(testDBF, v3MultiProcess)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v29.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1189,7 +1190,7 @@ TEST(testDBF, v3MultiProcess)
 TEST(testDBF, v4MultiProcess)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v30.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v30.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1231,7 +1232,7 @@ TEST(testDBF, v4MultiProcess)
 TEST(testDBF, v5MultiProcess)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v31.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v31.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1274,7 +1275,7 @@ TEST(testDBF, v5MultiProcess)
 TEST(addMappingFunction, singleProcess)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     int N = tasks.size();
@@ -1317,19 +1318,21 @@ TEST(addMappingFunction, singleProcess)
     factor.addMappingFunction(startTimeVector, whetherEliminate, forestInfo);
     mapIndexExpect[5] = {6, 14};
     mapIndexExpect[2] = {3, 12.1};
-    AssertEqualMap(mapIndexExpect, mapIndex);
+    AssertEqualMap(mapIndexExpect, forestInfo.mapIndex);
     VectorDynamic compressed = GenerateVectorDynamic(6);
     compressed << 80, 160, 50, 105, 0, 100;
     maskForEliminate[5] = true;
     maskForEliminate[2] = true;
-    assert_equal(startTimeVector, RecoverStartTimeVector(compressed, maskForEliminate, mapIndex));
+    assert_equal(startTimeVector, RecoverStartTimeVector(compressed,
+                                                         forestInfo.maskForEliminate,
+                                                         forestInfo.mapIndex));
     tightEliminate = sss;
 }
 
 TEST(addMappingFunction, MultiProcess)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v29.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1374,14 +1377,14 @@ TEST(addMappingFunction, MultiProcess)
     mapIndexExpect[0] = {2, 11.1};
     mapIndexExpect[3] = {5, 13.1};
     // mapIndexExpect[2] = {3, 12.1};
-    AssertEqualMap(mapIndexExpect, mapIndex);
+    AssertEqualMap(mapIndexExpect, forestInfo.mapIndex);
     tightEliminate = sss;
 }
 
 TEST(addMappingFunction, MultiProcessV2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v29.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1425,13 +1428,13 @@ TEST(addMappingFunction, MultiProcessV2)
     factor.addMappingFunction(startTimeVector, whetherEliminate, forestInfo);
     // mapIndexExpect[6] = {6, -14};
     // mapIndexExpect[2] = {3, 12.1};
-    AssertEqualMap(mapIndexExpect, mapIndex);
+    AssertEqualMap(mapIndexExpect, forestInfo.mapIndex);
     tightEliminate = sss;
 }
 TEST(GenerateInitialForDAG_RM_DAG, MultiProcessor_v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v29.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1455,7 +1458,7 @@ TEST(GenerateInitialForDAG_RM_DAG, MultiProcessor_v1)
 TEST(GenerateInitialForDAG, Multi_v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v33.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v33.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1478,7 +1481,7 @@ TEST(GenerateInitialForDAG, Multi_v2)
 TEST(GenerateInitialForDAG, Multi_v3_processorMap)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v34.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v34.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1505,7 +1508,7 @@ TEST(GenerateInitialForDAG, Multi_v3_processorMap)
 TEST(GenerateInitial_RM, Multi_v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v34.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v34.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1532,7 +1535,7 @@ TEST(GenerateInitial_RM, Multi_v1)
 TEST(GenerateInitial_RM, Multi_v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v29.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1562,7 +1565,7 @@ TEST(AnalyticJaocbian_DDL, v4)
 {
     // cout << "AnalyticJaocbian_DDL, v4" << endl;
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1601,6 +1604,7 @@ TEST(AnalyticJaocbian_DDL, v4)
 
     // add mapping
     mapIndex[1] = MappingDataStruct{3, 5};
+    forestInfo.AddLinearEliminate(1, 3, 5);
 
     expect = NumericalDerivativeDynamicUpper(factor.f, startTimeVector, deltaOptimizer, errorDimensionDDL);
     actual = factor.JacobianAnalytic(startTimeVector);
@@ -1610,7 +1614,7 @@ TEST(AnalyticJaocbian_DDL, v4)
 TEST(AnalyticJaocbian_DDL, v2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1643,6 +1647,9 @@ TEST(AnalyticJaocbian_DDL, v2)
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
+    forestInfo.AddLinearEliminate(1, 3, 5);
+    forestInfo.AddLinearEliminate(3, 5, 5);
+    forestInfo.AddLinearEliminate(2, 4, 5);
     DDL_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDDL,
                                 model);
 
@@ -1659,7 +1666,7 @@ TEST(AnalyticJaocbian_DDL, v3)
 {
     // cout << "AnalyticJaocbian_DDL, v3" << endl;
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v36.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v36.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1697,7 +1704,7 @@ TEST(AnalyticJaocbian_DDL, v3)
 TEST(AnalyticJaocbian_DAG, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1738,7 +1745,7 @@ TEST(AnalyticJaocbian_DAG, v1)
 TEST(AnalyticJaocbian_DAG, v2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1771,6 +1778,10 @@ TEST(AnalyticJaocbian_DAG, v2)
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
+    forestInfo.AddLinearEliminate(1, 3, 5);
+    forestInfo.AddLinearEliminate(3, 5, 5);
+    forestInfo.AddLinearEliminate(2, 4, 5);
+
     DAG_ConstraintFactor factor(key, dagTasks, tasksInfo, forestInfo, errorDimensionDAG,
                                 model);
 
@@ -1785,7 +1796,7 @@ TEST(AnalyticJaocbian_DAG, v2)
 TEST(AnalyticJaocbian_DAG, v3)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v36.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v36.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1824,7 +1835,7 @@ TEST(AnalyticJaocbian_DAG, v3)
 TEST(AnalyticJaocbian_DBF, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1860,6 +1871,10 @@ TEST(AnalyticJaocbian_DBF, v1)
     model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
+    forestInfo.AddLinearEliminate(1, 3, 5);
+    forestInfo.AddLinearEliminate(3, 5, 5);
+    forestInfo.AddLinearEliminate(2, 4, 5);
+
     DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
                                 model);
 
@@ -1876,7 +1891,7 @@ TEST(AnalyticJaocbian_DBF, v1)
 TEST(AnalyticJaocbian_DBF, v2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1912,6 +1927,10 @@ TEST(AnalyticJaocbian_DBF, v2)
     model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
+    forestInfo.AddLinearEliminate(1, 3, 5);
+    forestInfo.AddLinearEliminate(3, 5, 5);
+    forestInfo.AddLinearEliminate(2, 4, 5);
+
     DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
                                 model);
 
@@ -1929,7 +1948,7 @@ TEST(AnalyticJaocbian_DBF, v2)
 TEST(AnalyticJaocbian_DBF, v3)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v36.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v36.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -2040,7 +2059,7 @@ TEST(sensorFusion, v3)
     using namespace DAG_SPACE;
     using namespace RegularTaskSystem;
 
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v38.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v38.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -2091,7 +2110,7 @@ TEST(sensorFusion_AnalyticJacobian, v1)
     using namespace RegularTaskSystem;
     auto sthh = withAddedSensorFusionError;
     withAddedSensorFusionError = 1;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -2155,7 +2174,7 @@ TEST(sensorFusion_AnalyticJacobian, v2)
     using namespace DAG_SPACE;
     using namespace RegularTaskSystem;
     double defaultSF = sensorFusionTolerance;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v38.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v38.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -2203,7 +2222,7 @@ TEST(sensorFusion_AnalyticJacobian, v3)
     using namespace DAG_SPACE;
     using namespace RegularTaskSystem;
     double defaultSF = sensorFusionTolerance;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v9.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -2287,7 +2306,7 @@ TEST(sensorFusion_AnalyticJacobian, v3)
 TEST(GenerateInitial_RM, v3)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n3_v3.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n3_v3.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -2311,7 +2330,7 @@ TEST(GenerateInitial_RM, v3)
 TEST(GenerateInitial_RMDAG, v6)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n3_v3.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n3_v3.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -2334,7 +2353,7 @@ TEST(GenerateInitial_RMDAG, v6)
 TEST(testDBF, coreNumv1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v45.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v45.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int coreCurr = coreNumberAva;
@@ -2384,7 +2403,7 @@ TEST(testDBF, coreNumv1)
 TEST(MakeSpanFactor_analytic, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -2429,7 +2448,7 @@ TEST(MakeSpanFactor_analytic, v1)
 TEST(CompresStartTimeVector, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -2469,7 +2488,7 @@ TEST(CompresStartTimeVector, v1)
 TEST(FindFinishTime, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -2508,7 +2527,7 @@ TEST(FindFinishTime, v1)
 TEST(FindFinishTime, v2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -2540,6 +2559,10 @@ TEST(FindFinishTime, v2)
     auto model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
+    forestInfo.AddLinearEliminate(1, 3, 5);
+    forestInfo.AddLinearEliminate(3, 5, 5);
+    forestInfo.AddLinearEliminate(2, 4, 5);
+
     MakeSpanFactor factor(key, dagTasks, tasksInfo, forestInfo, errorDimensionMS,
                           model);
 
@@ -2581,7 +2604,7 @@ TEST(FindLargeSmall, v2)
 TEST(testMakeSpan, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -2631,7 +2654,7 @@ TEST(testMakeSpan, v1)
 //     using namespace DAG_SPACE;
 //     using namespace RegularTaskSystem;
 
-//     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v9.csv", "orig");
+//     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v9.csv", "orig");
 //     TaskSet tasks = dagTasks.tasks;
 //     int N = tasks.size();
 //     LLint hyperPeriod = HyperPeriod(tasks);

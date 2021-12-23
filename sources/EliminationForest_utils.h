@@ -274,6 +274,30 @@ struct EliminationForest
                 lengthCompressed++;
         }
     }
+
+    /**
+     * @brief add a dependency relationship to mapIndex, 
+     * after elimination, we have:
+     * dependent = x + distance
+     * 
+     * @param dependent 
+     * @param x 
+     * @param distance 
+     */
+    void AddLinearEliminate(LLint dependent, LLint x, double distance)
+    {
+        maskForEliminate[dependent] = true;
+        mapIndex[dependent] = MappingDataStruct{x, distance};
+        mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
+        lengthCompressed--;
+
+        // add edge to eliminationTrees
+        graph_traits<Graph>::edge_descriptor e;
+        bool inserted;
+        boost::tie(e, inserted) = add_edge(indexesBGL[dependent],
+                                           indexesBGL[x],
+                                           eliminationTrees);
+    }
 };
 VectorDynamic RecoverStartTimeVector(const VectorDynamic &compressed,
                                      const vector<bool> &maskForEliminate,

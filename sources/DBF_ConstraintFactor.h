@@ -10,10 +10,10 @@ namespace DAG_SPACE
         DBF_ConstraintFactor(Key key, TaskSetInfoDerived &tasksInfo,
                              EliminationForest &forestInfo, LLint errorDimension,
                              SharedNoiseModel model) : BaseSchedulingFactor(key,
-                                                                            tasksInfo,\
-                                                                             forestInfo,\
-                                                                              errorDimension, \
-                                                                              model)
+                                                                            tasksInfo,
+                                                                            forestInfo,
+                                                                            errorDimension,
+                                                                            model)
         {
         }
         /**
@@ -150,33 +150,47 @@ namespace DAG_SPACE
                             FindSubTree(forestInfo.eliminationTrees, tree_j, v1);
                             if (CheckNoConflictionTree(tree_i, tree_j, startTimeVector))
                             {
-                                forestInfo.maskForEliminate[index_j_overall] = true;
-                                whetherEliminate = true;
-                                // this should respect original relationship
+                                // forestInfo.maskForEliminate[index_j_overall] = true;
+                                // whetherEliminate = true;
+                                // // this should respect original relationship
+                                // if (tightEliminate == 1)
+                                // {
+                                //     MappingDataStruct m{index_i_overall, sumIJK - tasks[j].executionTime};
+                                //     forestInfo.mapIndex[index_j_overall] = m;
+                                // }
+                                // else if (tightEliminate == 0)
+                                // {
+                                // double distt = startTimeVector(index_j_overall, 0) -
+                                //                startTimeVector(index_i_overall, 0);
+
+                                //     MappingDataStruct m{index_i_overall,
+                                //                         distt};
+                                //     forestInfo.mapIndex[index_j_overall] = m;
+                                // }
+                                // else
+                                // {
+                                //     CoutError("Eliminate option error, not recognized!");
+                                // }
+                                // // add edge to eliminationTrees
+                                // graph_traits<Graph>::edge_descriptor e;
+                                // bool inserted;
+                                // boost::tie(e, inserted) = add_edge(forestInfo.indexesBGL[index_j_overall],
+                                //                                    forestInfo.indexesBGL[index_i_overall],
+                                //                                    forestInfo.eliminationTrees);
                                 if (tightEliminate == 1)
                                 {
-                                    MappingDataStruct m{index_i_overall, sumIJK - tasks[j].executionTime};
-                                    forestInfo.mapIndex[index_j_overall] = m;
+                                    forestInfo.AddLinearEliminate(index_j_overall, index_i_overall, sumIJK - tasks[j].executionTime);
                                 }
                                 else if (tightEliminate == 0)
                                 {
                                     double distt = startTimeVector(index_j_overall, 0) -
                                                    startTimeVector(index_i_overall, 0);
-
-                                    MappingDataStruct m{index_i_overall,
-                                                        distt};
-                                    forestInfo.mapIndex[index_j_overall] = m;
+                                    forestInfo.AddLinearEliminate(index_j_overall, index_i_overall, distt);
                                 }
                                 else
                                 {
                                     CoutError("Eliminate option error, not recognized!");
                                 }
-                                // add edge to eliminationTrees
-                                graph_traits<Graph>::edge_descriptor e;
-                                bool inserted;
-                                boost::tie(e, inserted) = add_edge(forestInfo.indexesBGL[index_j_overall],
-                                                                   forestInfo.indexesBGL[index_i_overall],
-                                                                   forestInfo.eliminationTrees);
                             }
                             else
                             {

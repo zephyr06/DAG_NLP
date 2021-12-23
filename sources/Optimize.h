@@ -296,6 +296,7 @@ namespace DAG_SPACE
             // this function performs in-place modification for all the variables!
             // TODO: should we add eliminate function for sensorFusion?
             factor.addMappingFunction(resTemp, whetherEliminate, forestInfo);
+            // TODO: fix these code
             // update initial estimate
             vector<double> initialUpdateVec;
             initialUpdateVec.reserve(tasksInfo.variableDimension - 1);
