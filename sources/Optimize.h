@@ -255,6 +255,26 @@ namespace DAG_SPACE
         //     if interval
         return startTimeVector;
     }
+
+    VectorDynamic UpdateInitialVector(VectorDynamic &startTimeComplete,
+                                      TaskSetInfoDerived &tasksInfo,
+                                      EliminationForest &forestInfo)
+    {
+        VectorDynamic initialUpdate;
+        initialUpdate.resize(forestInfo.lengthCompressed, 1);
+
+        LLint index = 0;
+        for (size_t i = 0; i < (size_t)tasksInfo.variableDimension; i++)
+        {
+            if (not forestInfo.maskForEliminate[i])
+            {
+                initialUpdate(index++, 0) = startTimeComplete(i, 0);
+            }
+        }
+
+        return initialUpdate;
+    }
+
     /**
      * @brief Perform scheduling based on optimization
      * 
@@ -296,25 +316,10 @@ namespace DAG_SPACE
             // this function performs in-place modification for all the variables!
             // TODO: should we add eliminate function for sensorFusion?
             factor.addMappingFunction(resTemp, whetherEliminate, forestInfo);
-            // TODO: fix these code
+
             // update initial estimate
-            vector<double> initialUpdateVec;
-            initialUpdateVec.reserve(tasksInfo.variableDimension - 1);
-            // LLint indexUpdate = 0;
-            for (size_t i = 0; i < (size_t)tasksInfo.variableDimension; i++)
-            {
-                if (not forestInfo.maskForEliminate[i])
-                {
-                    initialUpdateVec.push_back(startTimeComplete(i, 0));
-                }
-            }
-            VectorDynamic initialUpdate;
-            initialUpdate.resize(initialUpdateVec.size(), 1);
-            for (size_t i = 0; i < initialUpdateVec.size(); i++)
-            {
-                initialUpdate(i, 0) = initialUpdateVec[i];
-            }
-            initialEstimate = initialUpdate;
+
+            initialEstimate = UpdateInitialVector(startTimeComplete, tasksInfo, forestInfo);
 
             if (not whetherEliminate)
             {

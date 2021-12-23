@@ -33,7 +33,7 @@ TEST(a, b)
     VectorDynamic expect = initial;
     expect << 3, 0, 1, 2, 5;
     assert_equal(expect, actual);
-    AssertEigenEqualVector(expect, actual, to_string(__LINE__));
+    AssertEigenEqualVector(expect, actual, __LINE__);
 }
 int main(int argc, char **argv)
 {
