@@ -135,9 +135,9 @@ int BigIndex2TaskIndex(LLint index, const vector<LLint> &sizeOfVariables)
 }
 
 VectorDynamic CompresStartTimeVector(const VectorDynamic &startTimeComplete,
-                                     int variableDimension,
                                      const vector<bool> &maskForEliminate)
 {
+    int variableDimension=maskForEliminate.size();
     vector<double> initialUpdateVec;
     initialUpdateVec.reserve(variableDimension - 1);
 
@@ -197,70 +197,71 @@ double QuotientDouble(double a, int b)
     double left = a - int(a);
     return left + int(a) % b;
 }
-namespace DAG_SPACE
-{
-    /**
+
+/**
  * barrier function for the optimization
  **/
-    double Barrier(double x)
-    {
-        if (x >= 0)
-            // return pow(x, 2);
-            return 0;
-        else if (x < 0)
-        {
-            return -1 * x;
-        }
-        // else // it basically means x=0
-        //     return weightLogBarrier *
-        //            log(x + toleranceBarrier);
+double
+Barrier(double x)
+{
+    if (x >= 0)
+        // return pow(x, 2);
         return 0;
-    }
-
-    double BarrierLog(double x)
+    else if (x < 0)
     {
-        if (x >= 0)
-            // return pow(x, 2);
-            return weightLogBarrier * log(x + 1) + barrierBase;
-        else if (x < 0)
-        {
-            return punishmentInBarrier * pow(1 - x, 2);
-        }
-        // else // it basically means x=0
-        //     return weightLogBarrier *
-        //            log(x + toleranceBarrier);
-        return 0;
+        return -1 * x;
     }
-    MatrixDynamic NumericalDerivativeDynamicUpper(boost::function<VectorDynamic(const VectorDynamic &)> h,
-                                                  VectorDynamic x, double deltaOptimizer, int mOfJacobian)
+    // else // it basically means x=0
+    //     return weightLogBarrier *
+    //            log(x + toleranceBarrier);
+    return 0;
+}
+
+double BarrierLog(double x)
+{
+    if (x >= 0)
+        // return pow(x, 2);
+        return weightLogBarrier * log(x + 1) + barrierBase;
+    else if (x < 0)
     {
-        int n = x.rows();
-        MatrixDynamic jacobian;
-        jacobian.resize(mOfJacobian, n);
-        VectorDynamic currErr = h(x);
-
-        for (int i = 0; i < n; i++)
-        {
-            VectorDynamic xDelta = x;
-            xDelta(i, 0) = xDelta(i, 0) + deltaOptimizer;
-            VectorDynamic resPlus;
-            resPlus.resize(mOfJacobian, 1);
-            resPlus = h(xDelta);
-            xDelta(i, 0) = xDelta(i, 0) - 2 * deltaOptimizer;
-            VectorDynamic resMinus;
-            resMinus.resize(mOfJacobian, 1);
-            resMinus = h(xDelta);
-
-            for (int j = 0; j < mOfJacobian; j++)
-            {
-                jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaOptimizer;
-                // jacobian(j, i) = (resMinus(j, 0) - currErr(j, 0)) / deltaOptimizer * -1;
-                // jacobian(j, i) = (resPlus(j, 0) - currErr(j, 0)) / deltaOptimizer;
-            }
-        }
-        return jacobian;
+        return punishmentInBarrier * pow(1 - x, 2);
     }
-    /**
+    // else // it basically means x=0
+    //     return weightLogBarrier *
+    //            log(x + toleranceBarrier);
+    return 0;
+}
+MatrixDynamic NumericalDerivativeDynamicUpper(boost::function<VectorDynamic(const VectorDynamic &)> h,
+                                              VectorDynamic x, double deltaOptimizer, int mOfJacobian)
+{
+    int n = x.rows();
+    MatrixDynamic jacobian;
+    jacobian.resize(mOfJacobian, n);
+    VectorDynamic currErr = h(x);
+
+    for (int i = 0; i < n; i++)
+    {
+        VectorDynamic xDelta = x;
+        xDelta(i, 0) = xDelta(i, 0) + deltaOptimizer;
+        VectorDynamic resPlus;
+        resPlus.resize(mOfJacobian, 1);
+        resPlus = h(xDelta);
+        xDelta(i, 0) = xDelta(i, 0) - 2 * deltaOptimizer;
+        VectorDynamic resMinus;
+        resMinus.resize(mOfJacobian, 1);
+        resMinus = h(xDelta);
+
+        for (int j = 0; j < mOfJacobian; j++)
+        {
+            jacobian(j, i) = (resPlus(j, 0) - resMinus(j, 0)) / 2 / deltaOptimizer;
+            // jacobian(j, i) = (resMinus(j, 0) - currErr(j, 0)) / deltaOptimizer * -1;
+            // jacobian(j, i) = (resPlus(j, 0) - currErr(j, 0)) / deltaOptimizer;
+        }
+    }
+    return jacobian;
+}
+
+/**
      * @brief helper function for RecoverStartTimeVector
      * 
      * @param index 
@@ -269,128 +270,35 @@ namespace DAG_SPACE
      * @param filledTable 
      * @return double 
      */
-    double GetSingleElement(LLint index, VectorDynamic &actual,
-                            const MAP_Index2Data &mapIndex,
-                            vector<bool> &filledTable)
-    {
-        if (filledTable[index])
-            return actual(index, 0);
-        auto it = mapIndex.find(index);
-
-        if (it != mapIndex.end())
-        {
-            MappingDataStruct curr = it->second;
-            actual(index, 0) = GetSingleElement(curr.getIndex(), actual,
-                                                mapIndex, filledTable) +
-                               curr.getDistance();
-            filledTable[index] = true;
-        }
-        else
-        {
-            CoutError("Out of boundary in GetSingleElement, RecoverStartTimeVector!");
-        }
+double GetSingleElement(LLint index, VectorDynamic &actual,
+                        const MAP_Index2Data &mapIndex,
+                        vector<bool> &filledTable)
+{
+    if (filledTable[index])
         return actual(index, 0);
-    }
+    auto it = mapIndex.find(index);
 
-    VectorDynamic RecoverStartTimeVector(const VectorDynamic &compressed,
-                                         const vector<bool> &maskEliminate,
-                                         const MAP_Index2Data &mapIndex)
+    if (it != mapIndex.end())
     {
-        LLint variableDimension = maskEliminate.size();
-        vector<bool> filledTable(variableDimension, 0);
-
-        VectorDynamic actual = GenerateVectorDynamic(variableDimension);
-        LLint index = 0;
-        for (size_t i = 0; i < (size_t)variableDimension; i++)
-        {
-            if (not maskEliminate[i])
-            {
-                filledTable[i] = 1;
-                actual[i] = compressed(index++, 0);
-            }
-        }
-        for (size_t i = 0; i < (size_t)variableDimension; i++)
-        {
-            if (not filledTable[i])
-            {
-                actual(i, 0) = GetSingleElement(i, actual, mapIndex, filledTable);
-            }
-        }
-        return actual;
+        MappingDataStruct curr = it->second;
+        actual(index, 0) = GetSingleElement(curr.getIndex(), actual,
+                                            mapIndex, filledTable) +
+                           curr.getDistance();
+        filledTable[index] = true;
     }
-    /**
-     * @brief Given an index, find the final index that it depends on;
-     * 
-     * @param index 
-     * @param mapIndex 
-     * @return LLint 
-     */
-    LLint FindLeaf(LLint index, const MAP_Index2Data &mapIndex)
+    else
     {
-        if (index == mapIndex.at(index).getIndex())
-            return index;
-        else
-            return FindLeaf(mapIndex.at(index).getIndex(), mapIndex);
-        return -1;
+        CoutError("Out of boundary in GetSingleElement, RecoverStartTimeVector!");
     }
+    return actual(index, 0);
+}
 
-    /**
-     * @brief m maps from index in original startTimeVector to index in compressed startTimeVector
-     * 
-     * @param maskForEliminate 
-     * @return std::unordered_map<LLint, LLint> 
-     */
-    std::unordered_map<LLint, LLint> MapIndex_True2Compress(const vector<bool> &maskForEliminate)
-    {
-
-        std::unordered_map<LLint, LLint> m;
-        // count is the index in compressed startTimeVector
-        int count = 0;
-        for (size_t i = 0; i < maskForEliminate.size(); i++)
-        {
-            if (maskForEliminate.at(i) == false)
-                m[i] = count++;
-        }
-        return m;
-    }
-
-    inline void UpdateSM(double val, LLint i, LLint j, SM_Dynamic &sm)
-    {
-        // if (sm.coeffRef(i, j))
-        sm.coeffRef(i, j) = val;
-        // else
-        // {
-        //     sm.insert(i, j) = val;
-        // }
-    }
-
-    /**
-     * @brief generate analytic Jacobian for elimination part
-     * 
-     * @param length the number of all the variables
-     * @param sizeOfVariables 
-     * @param mapIndex encode elimination relationship
-     * @param mapIndex_True2Compress 
-     * @return j_map: (length, lengthCompressed)
-     * a sparse matrix that represents Jacobian matrix of compreseed variables w.r.t. original variables 
-     */
-    SM_Dynamic JacobianElimination(LLint length, LLint lengthCompressed,
-                                   const vector<LLint> &sizeOfVariables,
-                                   const MAP_Index2Data &mapIndex,
-                                   const std::unordered_map<LLint, LLint> &mapIndex_True2Compress)
-    {
-        SM_Dynamic j_map(length, lengthCompressed);
-        // go through all the variables
-        for (int i = 0; i < int(sizeOfVariables.size()); i++)
-        {
-            for (int j = 0; j < int(sizeOfVariables.at(i)); j++)
-            {
-                LLint bigIndex = IndexTran_Instance2Overall(i, j, sizeOfVariables);
-                // find its final dependency variable
-                LLint finalIndex = FindLeaf(bigIndex, mapIndex);
-                j_map.insert(bigIndex, mapIndex_True2Compress.at(finalIndex)) = 1;
-            }
-        }
-        return j_map;
-    }
+inline void UpdateSM(double val, LLint i, LLint j, SM_Dynamic &sm)
+{
+    // if (sm.coeffRef(i, j))
+    sm.coeffRef(i, j) = val;
+    // else
+    // {
+    //     sm.insert(i, j) = val;
+    // }
 }

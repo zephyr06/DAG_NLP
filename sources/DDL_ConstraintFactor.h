@@ -1,48 +1,21 @@
-#include "DeclareDAG.h"
-#include "RegularTasks.h"
-
+#include "BaseSchedulingFactor.h"
 namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
-    class DDL_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
+    class DDL_ConstraintFactor : public BaseSchedulingFactor
     {
     public:
-        TaskSet tasks;
-        vector<LLint> sizeOfVariables;
-        int N;
-        LLint errorDimension;
-        vector<bool> maskForEliminate;
-        MAP_Index2Data mapIndex;
-        LLint length;
-        LLint lengthCompressed;
-        std::unordered_map<LLint, LLint> mapIndex_True2Compress;
-
-        DDL_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables, LLint errorDimension,
-                             MAP_Index2Data &mapIndex, vector<bool> &maskForEliminate,
-                             SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
-                                                       tasks(tasks), sizeOfVariables(sizeOfVariables),
-                                                       N(tasks.size()), errorDimension(errorDimension),
-                                                       maskForEliminate(maskForEliminate), mapIndex(mapIndex)
+        DDL_ConstraintFactor(Key key, TaskSetInfoDerived &tasksInfo,
+                             EliminationForest &forestInfo,
+                             LLint errorDimension,
+                             SharedNoiseModel model) : BaseSchedulingFactor(key, tasksInfo, forestInfo, errorDimension, model)
         {
-            length = 0;
-
-            for (int i = 0; i < N; i++)
-            {
-                length += sizeOfVariables[i];
-            }
-            lengthCompressed = 0;
-            for (LLint i = 0; i < length; i++)
-            {
-                if (maskForEliminate[i] == false)
-                    lengthCompressed++;
-            }
-            mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
         }
         boost::function<MatrixRowMajor(const VectorDynamic &)> f =
             [this](const VectorDynamic &startTimeVectorOrig)
         {
             VectorDynamic startTimeVector = RecoverStartTimeVector(
-                startTimeVectorOrig, maskForEliminate, mapIndex);
+                startTimeVectorOrig, forestInfo);
             VectorDynamic res;
             res.resize(errorDimension, 1);
             LLint indexRes = 0;
@@ -75,7 +48,7 @@ namespace DAG_SPACE
         {
             // BeginTimer("DDL_H");
             VectorDynamic startTimeVector = RecoverStartTimeVector(
-                startTimeVectorOrig, maskForEliminate, mapIndex);
+                startTimeVectorOrig, forestInfo);
 
             int m = errorDimension;
             LLint n = length;
@@ -133,8 +106,7 @@ namespace DAG_SPACE
             }
 
             // x -> x0
-            SM_Dynamic j_map = JacobianElimination(length, lengthCompressed,
-                                                   sizeOfVariables, mapIndex, mapIndex_True2Compress);
+            SM_Dynamic j_map = JacobianElimination(tasksInfo, forestInfo);
             // cout << j_map << endl
             //      << endl;
             // EndTimer("DDL_H");

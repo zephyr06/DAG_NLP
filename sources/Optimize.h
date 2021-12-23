@@ -37,68 +37,43 @@ namespace DAG_SPACE
     double GraphErrorEvaluation(DAG_Model &dagTasks, VectorDynamic startTimeVector)
     {
         TaskSet tasks = dagTasks.tasks;
-        int N = tasks.size();
-        LLint hyperPeriod = HyperPeriod(tasks);
-
-        // declare variables
-        vector<LLint> sizeOfVariables;
-        int variableDimension = 0;
-        for (int i = 0; i < N; i++)
-        {
-            LLint size = hyperPeriod / tasks[i].period;
-            sizeOfVariables.push_back(size);
-            variableDimension += size;
-        }
-
-        MAP_Index2Data mapIndex;
-        for (LLint i = 0; i < variableDimension; i++)
-        {
-            MappingDataStruct m{i, 0};
-            mapIndex[i] = m;
-        }
-        // bool whetherEliminate = false;
-        vector<bool> maskForEliminate(variableDimension, false);
-
+        TaskSetInfoDerived tasksInfo(tasks);
+        EliminationForest forestInfo(tasksInfo);
         Symbol key('a', 0);
         NonlinearFactorGraph graph;
         // LLint errorDimensionMS = 1;
 
         LLint errorDimensionDAG = dagTasks.edgeNumber();
         auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
-        graph.emplace_shared<DAG_ConstraintFactor>(key, dagTasks, sizeOfVariables,
-                                                   errorDimensionDAG, mapIndex,
-                                                   maskForEliminate, model);
+        graph.emplace_shared<DAG_ConstraintFactor>(key, dagTasks, tasksInfo, forestInfo,
+                                                   errorDimensionDAG, model);
         if (makespanWeight > 0)
         {
             LLint errorDimensionMS = 1;
             model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
-            graph.emplace_shared<MakeSpanFactor>(key, dagTasks, sizeOfVariables,
-                                                 errorDimensionMS, mapIndex,
-                                                 maskForEliminate, model);
+            graph.emplace_shared<MakeSpanFactor>(key, dagTasks, tasksInfo, forestInfo,
+                                                 errorDimensionMS, model);
         }
 
         ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
         LLint errorDimensionDBF = processorTaskSet.size();
         model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-        graph.emplace_shared<DBF_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
-                                                   errorDimensionDBF, mapIndex,
-                                                   maskForEliminate, processorTaskSet,
+        graph.emplace_shared<DBF_ConstraintFactor>(key, tasksInfo, forestInfo,
+                                                   errorDimensionDBF,
                                                    model);
 
-        LLint errorDimensionDDL = 2 * variableDimension;
+        LLint errorDimensionDDL = 2 * tasksInfo.variableDimension;
         model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
-        graph.emplace_shared<DDL_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
-                                                   errorDimensionDDL, mapIndex,
-                                                   maskForEliminate, model);
+        graph.emplace_shared<DDL_ConstraintFactor>(key, tasksInfo, forestInfo,
+                                                   errorDimensionDDL, model);
 
         if (weightPrior_factor > 0)
         {
             LLint errorDimensionPrior = 1;
             vector<int> order = FindDependencyOrder(dagTasks);
             model = noiseModel::Isotropic::Sigma(errorDimensionPrior, noiseModelSigma);
-            graph.emplace_shared<Prior_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
-                                                         errorDimensionPrior, mapIndex,
-                                                         maskForEliminate, 0.0, order[0], model);
+            graph.emplace_shared<Prior_ConstraintFactor>(key, tasksInfo, forestInfo,
+                                                         errorDimensionPrior, 0.0, order[0], model);
         }
 
         // LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
@@ -141,9 +116,10 @@ namespace DAG_SPACE
      * @return all the instances' start time
      */
     VectorDynamic UnitOptimization(DAG_Model &dagTasks, VectorDynamic &initialEstimate,
-                                   MAP_Index2Data mapIndex, vector<bool> &maskForEliminate,
-                                   vector<LLint> &sizeOfVariables, int variableDimension,
-                                   LLint hyperPeriod)
+                                   EliminationForest &forestInfo,
+                                   TaskSetInfoDerived &tasksInfo)
+    //    vector<LLint> &sizeOfVariables, int variableDimension,
+    //    LLint hyperPeriod)
     {
         using namespace RegularTaskSystem;
 
@@ -155,40 +131,35 @@ namespace DAG_SPACE
 
         LLint errorDimensionDAG = dagTasks.edgeNumber();
         auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
-        graph.emplace_shared<DAG_ConstraintFactor>(key, dagTasks, sizeOfVariables,
-                                                   errorDimensionDAG, mapIndex,
-                                                   maskForEliminate, model);
+        graph.emplace_shared<DAG_ConstraintFactor>(key, dagTasks, tasksInfo, forestInfo,
+                                                   errorDimensionDAG, model);
         if (makespanWeight > 0)
         {
             LLint errorDimensionMS = 1;
             model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
-            graph.emplace_shared<MakeSpanFactor>(key, dagTasks, sizeOfVariables,
-                                                 errorDimensionMS, mapIndex,
-                                                 maskForEliminate, model);
+            graph.emplace_shared<MakeSpanFactor>(key, dagTasks, tasksInfo, forestInfo,
+                                                 errorDimensionMS, model);
         }
 
         ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
         LLint errorDimensionDBF = processorTaskSet.size();
         model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-        graph.emplace_shared<DBF_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
-                                                   errorDimensionDBF, mapIndex,
-                                                   maskForEliminate, processorTaskSet,
+        graph.emplace_shared<DBF_ConstraintFactor>(key, tasksInfo, forestInfo,
+                                                   errorDimensionDBF,
                                                    model);
 
-        LLint errorDimensionDDL = 2 * variableDimension;
+        LLint errorDimensionDDL = 2 * tasksInfo.variableDimension;
         model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
-        graph.emplace_shared<DDL_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
-                                                   errorDimensionDDL, mapIndex,
-                                                   maskForEliminate, model);
+        graph.emplace_shared<DDL_ConstraintFactor>(key, tasksInfo, forestInfo,
+                                                   errorDimensionDDL, model);
 
         if (weightPrior_factor > 0)
         {
             LLint errorDimensionPrior = 1;
             vector<int> order = FindDependencyOrder(dagTasks);
             model = noiseModel::Isotropic::Sigma(errorDimensionPrior, noiseModelSigma);
-            graph.emplace_shared<Prior_ConstraintFactor>(key, dagTasks.tasks, sizeOfVariables,
-                                                         errorDimensionPrior, mapIndex,
-                                                         maskForEliminate, 0.0, order[0], model);
+            graph.emplace_shared<Prior_ConstraintFactor>(key, tasksInfo, forestInfo,
+                                                         errorDimensionPrior, 0.0, order[0], model);
         }
 
         // LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
@@ -277,7 +248,7 @@ namespace DAG_SPACE
     }
 
     VectorDynamic RandomWalk(VectorDynamic &startTimeVector, DAG_Model &dagTasks,
-                             Graph &eliminationTrees, indexVertexMap &indexesBGL)
+                             EliminationForest &forestInfo)
     {
         // IntervalTree={}
         // for each interval intV:
@@ -293,68 +264,45 @@ namespace DAG_SPACE
     OptimizeResult OptimizeScheduling(DAG_Model &dagTasks, VectorDynamic initialUser = GenerateVectorDynamic(1))
     {
         TaskSet tasks = dagTasks.tasks;
-        int N = tasks.size();
-        LLint hyperPeriod = HyperPeriod(tasks);
+        TaskSetInfoDerived tasksInfo(tasks);
+        EliminationForest forestInfo(tasksInfo);
 
-        // declare variables
-        vector<LLint> sizeOfVariables;
-        int variableDimension = 0;
-        for (int i = 0; i < N; i++)
-        {
-            LLint size = hyperPeriod / tasks[i].period;
-            sizeOfVariables.push_back(size);
-            variableDimension += size;
-        }
+        VectorDynamic initialEstimate = GenerateInitial(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, initialUser);
 
-        VectorDynamic initialEstimate = GenerateInitial(dagTasks, sizeOfVariables, variableDimension, initialUser);
-
-        MAP_Index2Data mapIndex;
-        for (LLint i = 0; i < variableDimension; i++)
-        {
-            MappingDataStruct m{i, 0};
-            mapIndex[i] = m;
-        };
-
-        bool whetherEliminate = false;
-        int loopNumber = 0;
-        vector<bool> maskForEliminate(variableDimension, false);
-        VectorDynamic resTemp = GenerateVectorDynamic(variableDimension);
         // build elimination eliminationTrees
-        pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(dagTasks);
-        Graph eliminationTrees = sth.first;
-        indexVertexMap indexesBGL = sth.second;
+        bool whetherEliminate = false;
+
+        int loopNumber = 0;
+        VectorDynamic resTemp = GenerateVectorDynamic(tasksInfo.variableDimension);
         VectorDynamic trueResult;
         while (1)
         {
             whetherEliminate = false;
             BeginTimer("UnitOptimization");
             resTemp = UnitOptimization(dagTasks, initialEstimate,
-                                       mapIndex, maskForEliminate,
-                                       sizeOfVariables, variableDimension,
-                                       hyperPeriod);
+                                       forestInfo,
+                                       tasksInfo);
             EndTimer("UnitOptimization");
-            VectorDynamic startTimeComplete = RecoverStartTimeVector(resTemp, maskForEliminate, mapIndex);
+            VectorDynamic startTimeComplete = RecoverStartTimeVector(resTemp, forestInfo);
 
-            startTimeComplete = RandomWalk(startTimeComplete, dagTasks, eliminationTrees, indexesBGL);
+            startTimeComplete = RandomWalk(startTimeComplete, dagTasks, forestInfo);
             // factors that require elimination analysis are: DBF
-            ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
-            LLint errorDimensionDBF = processorTaskSet.size();
+            // ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+            LLint errorDimensionDBF = tasksInfo.processorTaskSet.size();
 
             auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
             Symbol key('b', 0);
-            DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                        mapIndex, maskForEliminate, processorTaskSet, model);
+            DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF, model);
             // this function performs in-place modification for all the variables!
             // TODO: should we add eliminate function for sensorFusion?
-            factor.addMappingFunction(resTemp, mapIndex, whetherEliminate, maskForEliminate,
-                                      eliminationTrees, indexesBGL);
+            factor.addMappingFunction(resTemp, whetherEliminate, forestInfo);
             // update initial estimate
             vector<double> initialUpdateVec;
-            initialUpdateVec.reserve(variableDimension - 1);
+            initialUpdateVec.reserve(tasksInfo.variableDimension - 1);
             // LLint indexUpdate = 0;
-            for (size_t i = 0; i < (size_t)variableDimension; i++)
+            for (size_t i = 0; i < (size_t)tasksInfo.variableDimension; i++)
             {
-                if (not maskForEliminate[i])
+                if (not forestInfo.maskForEliminate[i])
                 {
                     initialUpdateVec.push_back(startTimeComplete(i, 0));
                 }
@@ -369,7 +317,7 @@ namespace DAG_SPACE
 
             if (not whetherEliminate)
             {
-                trueResult = RecoverStartTimeVector(resTemp, maskForEliminate, mapIndex);
+                trueResult = RecoverStartTimeVector(resTemp, forestInfo);
                 break;
             }
             loopNumber++;
@@ -382,7 +330,7 @@ namespace DAG_SPACE
             }
         }
 
-        initialEstimate = GenerateInitial(dagTasks, sizeOfVariables, variableDimension, initialUser);
+        initialEstimate = GenerateInitial(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, initialUser);
         double errorInitial = GraphErrorEvaluation(dagTasks, initialEstimate);
 
         cout << Color::blue << "The error before optimization is "

@@ -9,6 +9,8 @@ TEST(a, b)
 
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -22,16 +24,16 @@ TEST(a, b)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(dagTasks);
+    pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(tasksInfo);
     Graph eliminationTrees = sth.first;
     indexVertexMap indexesBGL = sth.second;
     VectorDynamic initial = GenerateInitial(dagTasks, sizeOfVariables, variableDimension);
     initial << 6, 0, 1, 2, 5;
-    VectorDynamic actual = RandomWalk(initial, dagTasks, eliminationTrees, indexesBGL);
+    VectorDynamic actual = RandomWalk(initial, dagTasks, forestInfo);
     VectorDynamic expect = initial;
     expect << 3, 0, 1, 2, 5;
     assert_equal(expect, actual);
-    AssertEigenEqualVector(expect, actual, __LINE__);
+    AssertEigenEqualVector(expect, actual, to_string(__LINE__));
 }
 int main(int argc, char **argv)
 {

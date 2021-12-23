@@ -1,7 +1,7 @@
 #include "DeclareDAG.h"
 #include "RegularTasks.h"
 #include "EliminationForest_utils.h"
-
+#include "BaseSchedulingFactor.h"
 /**
  * @brief 
  * 
@@ -59,43 +59,20 @@ void FindLargeSmall(const VectorDynamic &x, const VectorDynamic &y,
 namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
-    class MakeSpanFactor : public NoiseModelFactor1<VectorDynamic>
+    class MakeSpanFactor : public BaseSchedulingFactor
     {
     public:
         DAG_Model dagTasks;
-        TaskSet tasks;
-        vector<LLint> sizeOfVariables;
-        int N;
-        LLint errorDimension;
-        LLint length;
-        vector<bool> maskForEliminate;
-        MAP_Index2Data mapIndex;
-        LLint lengthCompressed;
         int sinkNode;
-        std::unordered_map<LLint, LLint> mapIndex_True2Compress;
 
-        MakeSpanFactor(Key key, DAG_Model &dagTasks, vector<LLint> sizeOfVariables, LLint errorDimension,
-                       MAP_Index2Data &mapIndex, const vector<bool> &maskForEliminate,
-                       SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
-                                                 dagTasks(dagTasks),
-                                                 tasks(dagTasks.tasks), sizeOfVariables(sizeOfVariables),
-                                                 N(tasks.size()), errorDimension(errorDimension),
-                                                 maskForEliminate(maskForEliminate),
-                                                 mapIndex(mapIndex)
+        MakeSpanFactor(Key key, DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo,
+                       EliminationForest &forestInfo,
+                       LLint errorDimension,
+                       SharedNoiseModel model) : BaseSchedulingFactor(key, tasksInfo, forestInfo,
+                                                                      errorDimension, model),
+                                                 dagTasks(dagTasks)
+
         {
-            length = 0;
-
-            for (int i = 0; i < N; i++)
-            {
-                length += sizeOfVariables[i];
-            }
-            lengthCompressed = 0;
-            for (LLint i = 0; i < length; i++)
-            {
-                if (maskForEliminate[i] == false)
-                    lengthCompressed++;
-            }
-            mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
         }
 
         boost::function<Matrix(const VectorDynamic &)> f =
@@ -126,7 +103,7 @@ namespace DAG_SPACE
         VectorDynamic FindFinishTime(const VectorDynamic &startTimeVectorOrig) const
         {
             VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
-                                                                   maskForEliminate, mapIndex);
+                                                                   forestInfo);
             VectorDynamic finishTimeVector = startTimeVector;
             int m = startTimeVector.rows();
             for (int i = 0; i < m; i++)
@@ -135,7 +112,7 @@ namespace DAG_SPACE
                 finishTimeVector(i, 0) += tasks[taskId].executionTime;
             }
             VectorDynamic finishTimeVectorOrig = startTimeVectorOrig;
-            return CompresStartTimeVector(finishTimeVector, maskForEliminate.size(), maskForEliminate);
+            return CompresStartTimeVector(finishTimeVector, forestInfo.maskForEliminate);
         }
         /**
          * @brief This function assumes errorDimension=1!
@@ -146,7 +123,7 @@ namespace DAG_SPACE
         SM_Dynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
         {
             VectorDynamic startTimeVector = RecoverStartTimeVector(
-                startTimeVectorOrig, maskForEliminate, mapIndex);
+                startTimeVectorOrig, forestInfo);
             // y -> x
             SM_Dynamic j_yx(errorDimension, length);
 
@@ -173,15 +150,14 @@ namespace DAG_SPACE
             NumericalFunc(largest);
             NumericalFunc(largeSecond);
 
-            SM_Dynamic j_map = JacobianElimination(length, lengthCompressed,
-                                                   sizeOfVariables, mapIndex, mapIndex_True2Compress);
+            SM_Dynamic j_map = JacobianElimination(tasksInfo, forestInfo);
             return j_yx * j_map;
         }
         Vector evaluateError(const VectorDynamic &startTimeVectorOrig,
                              boost::optional<Matrix &> H = boost::none) const override
         {
             VectorDynamic startTimeVector = RecoverStartTimeVector(
-                startTimeVectorOrig, maskForEliminate, mapIndex);
+                startTimeVectorOrig, forestInfo);
             BeginTimer("MakeSpan");
             if (H)
             {

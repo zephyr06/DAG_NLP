@@ -358,4 +358,33 @@ namespace RegularTaskSystem
         }
         return processorTasks;
     }
+
+    class TaskSetInfoDerived
+    {
+    public:
+        TaskSet tasks;
+        int N;
+        LLint hyperPeriod;
+        LLint variableDimension;
+        vector<LLint> sizeOfVariables;
+        LLint length;
+        ProcessorTaskSet processorTaskSet;
+
+        TaskSetInfoDerived(TaskSet &tasksInput)
+        {
+            tasks = tasksInput;
+            N = tasks.size();
+            hyperPeriod = HyperPeriod(tasks);
+            variableDimension = 0;
+            length = 0;
+            for (int i = 0; i < N; i++)
+            {
+                LLint size = hyperPeriod / tasks[i].period;
+                sizeOfVariables.push_back(size);
+                variableDimension += size;
+                length += sizeOfVariables[i];
+            }
+            processorTaskSet = ExtractProcessorTaskSet(tasks);
+        }
+    };
 }

@@ -20,7 +20,7 @@ TEST(RecoverStartTimeVector, v1)
     VectorDynamic expected;
     expected.resize(5, 1);
     expected << 0, 10, 20, 30, 180;
-    VectorDynamic actual = DAG_SPACE::RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
+    VectorDynamic actual = RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
     if (expected != actual)
     {
         cout << Color::red << "RecoverStartTimeVector failed!" << Color::def << endl;
@@ -31,7 +31,7 @@ TEST(RecoverStartTimeVector, v1)
 TEST(BigIndex2TaskIndex, v1)
 {
     using namespace DAG_SPACE;
-    TaskSet tasks = ReadTaskSet("../../TaskData/test_n5_v3.csv", "orig");
+    TaskSet tasks = ReadTaskSet("../TaskData/test_n5_v3.csv", "orig");
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -105,7 +105,7 @@ TEST(RecoverStartTime, v2)
     mapIndex[4] = t4;
     mapIndex[5] = t5;
     mapIndex[6] = t6;
-    VectorDynamic actual = DAG_SPACE::RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
+    VectorDynamic actual = RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
     VectorDynamic expect;
     expect.resize(7, 1);
     expect << 11, 0, 115, 21, 100, 33, 46;
@@ -116,7 +116,7 @@ TEST(RecoverStartTime, v2)
 TEST(FindDependencyOrder, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v16.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v16.csv", "orig");
     auto actual = FindDependencyOrder(dagTasks);
     vector<int> expected = {4, 3, 2, 1, 0};
     AssertEqualVectorNoRepeat(expected, actual);
@@ -125,7 +125,7 @@ TEST(FindDependencyOrder, v1)
 TEST(GenerateInitialForDAG, V2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -148,7 +148,7 @@ TEST(GenerateInitialForDAG, V2)
 TEST(GenerateInitialForDAG, V3)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v22.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v22.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -174,36 +174,24 @@ TEST(sensorFusion, v1)
     using namespace DAG_SPACE;
     using namespace RegularTaskSystem;
 
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v9.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
-    int N = tasks.size();
-    LLint hyperPeriod = HyperPeriod(tasks);
-
-    // declare variables
-    vector<LLint> sizeOfVariables;
-    int variableDimension = 0;
-    for (int i = 0; i < N; i++)
-    {
-
-        LLint size = hyperPeriod / tasks[i].period;
-        sizeOfVariables.push_back(size);
-        variableDimension += size;
-    }
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
 
     Symbol key('a', 0);
-    LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
+    LLint errorDimensionSF = CountSFError(dagTasks, tasksInfo.sizeOfVariables);
     AssertEqualScalar(1, errorDimensionSF);
     MAP_Index2Data mapIndex;
-    for (LLint i = 0; i < variableDimension; i++)
+    for (LLint i = 0; i < tasksInfo.variableDimension; i++)
     {
         MappingDataStruct m{i, 0};
         mapIndex[i] = m;
     }
-    vector<bool> maskForEliminate(variableDimension, false);
+    vector<bool> maskForEliminate(tasksInfo.variableDimension, false);
     auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-    SensorFusion_ConstraintFactor factor(key, dagTasks, sizeOfVariables,
+    SensorFusion_ConstraintFactor factor(key, dagTasks, tasksInfo, forestInfo,
                                          errorDimensionSF, sensorFusionTolerance,
-                                         mapIndex, maskForEliminate,
                                          model);
     VectorDynamic initial;
     initial.resize(5, 1);
@@ -230,8 +218,10 @@ TEST(sensorFusion, v2)
     using namespace RegularTaskSystem;
     auto sthh = withAddedSensorFusionError;
     withAddedSensorFusionError = 1;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
     double freshtolCurr = FreshTol;
 
     int N = tasks.size();
@@ -259,9 +249,8 @@ TEST(sensorFusion, v2)
     }
     vector<bool> maskForEliminate(variableDimension, false);
     auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-    SensorFusion_ConstraintFactor factor(key, dagTasks, sizeOfVariables,
+    SensorFusion_ConstraintFactor factor(key, dagTasks, tasksInfo, forestInfo,
                                          errorDimensionSF, sensorFusionTolerance,
-                                         mapIndex, maskForEliminate,
                                          model);
     VectorDynamic initialEstimate = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
     // cout << initialEstimate << endl;
@@ -301,21 +290,10 @@ TEST(testDBF, v1)
 {
     coreNumberAva = 1;
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v1.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v1.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
-
-    int N = tasks.size();
-    LLint hyperPeriod = HyperPeriod(tasks);
-
-    // declare variables
-    vector<LLint> sizeOfVariables;
-    int variableDimension = 0;
-    for (int i = 0; i < N; i++)
-    {
-        LLint size = hyperPeriod / tasks[i].period;
-        sizeOfVariables.push_back(size);
-        variableDimension += size;
-    }
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
 
     VectorDynamic compressed;
     compressed.resize(2, 1);
@@ -332,8 +310,8 @@ TEST(testDBF, v1)
     LLint errorDimensionDBF = processorTaskSet.size();
 
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                mapIndex, maskForEliminate, processorTaskSet, model);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(5, 1);
     startTimeVector << 1, 2, 3, 4, 5;
@@ -342,38 +320,27 @@ TEST(testDBF, v1)
     dbfExpect << 90;
     VectorDynamic dbfExpect1 = factor.f(startTimeVector);
     auto dbfActual = DbfIntervalOverlapError(startTimeVector, 0,
-                                             processorTaskSet, tasks, sizeOfVariables);
+                                             processorTaskSet, tasks, tasksInfo.sizeOfVariables);
     // VectorDynamic actual = DAG_SPACE::RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
     AssertEqualScalar(dbfExpect1(0, 0), dbfActual);
     assert_equal(dbfExpect, dbfExpect1);
 
     startTimeVector << 1, 2, 3, 4, 19;
     dbfActual = DbfIntervalOverlapError(startTimeVector, 0,
-                                        processorTaskSet, tasks, sizeOfVariables);
+                                        processorTaskSet, tasks, tasksInfo.sizeOfVariables);
     AssertEqualScalar(54, dbfActual);
 }
 TEST(testDBF, v2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
 
-    int N = tasks.size();
-    LLint hyperPeriod = HyperPeriod(tasks);
-
-    // declare variables
-    vector<LLint> sizeOfVariables;
-    int variableDimension = 0;
-    for (int i = 0; i < N; i++)
-    {
-        LLint size = hyperPeriod / tasks[i].period;
-        sizeOfVariables.push_back(size);
-        variableDimension += size;
-    }
-
-    vector<bool> maskForEliminate(variableDimension, false);
+    vector<bool> maskForEliminate(tasksInfo.variableDimension, false);
     MAP_Index2Data mapIndex;
-    for (int i = 0; i < variableDimension; i++)
+    for (int i = 0; i < tasksInfo.variableDimension; i++)
         mapIndex[i] = MappingDataStruct{i, 0};
 
     Symbol key('a', 0);
@@ -381,8 +348,8 @@ TEST(testDBF, v2)
     LLint errorDimensionDBF = processorTaskSet.size();
 
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                mapIndex, maskForEliminate, processorTaskSet, model);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
@@ -391,7 +358,7 @@ TEST(testDBF, v2)
     dbfExpect << 128;
 
     double dbfActual = DbfIntervalOverlapError(startTimeVector, 0,
-                                               processorTaskSet, tasks, sizeOfVariables);
+                                               processorTaskSet, tasks, tasksInfo.sizeOfVariables);
     VectorDynamic dbfActual2 = factor.f(startTimeVector);
     AssertEqualScalar(128, dbfActual);
     assert_equal(dbfExpect, dbfActual2);
@@ -400,9 +367,10 @@ TEST(testDBF, v2)
 TEST(testDDL, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
-
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -424,8 +392,8 @@ TEST(testDDL, v1)
     Symbol key('a', 0);
     LLint errorDimensionDDL = 2 * variableDimension;
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
-    DDL_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDDL,
-                                mapIndex, maskForEliminate, model);
+    DDL_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDDL,
+                                model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
@@ -442,9 +410,10 @@ TEST(testDDL, v1)
 TEST(testDAG, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
-
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -466,8 +435,8 @@ TEST(testDAG, v1)
     Symbol key('a', 0);
     LLint errorDimensionDAG = dagTasks.edgeNumber();
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
-    DAG_ConstraintFactor factor(key, dagTasks, sizeOfVariables, errorDimensionDAG,
-                                mapIndex, maskForEliminate, model);
+    DAG_ConstraintFactor factor(key, dagTasks, tasksInfo, forestInfo, errorDimensionDAG,
+                                model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
@@ -496,7 +465,7 @@ TEST(RecoverStartTimeVector, v3)
     VectorDynamic expected;
     expected.resize(5, 1);
     expected << 0, 210, 200, 190, 180;
-    VectorDynamic actual = DAG_SPACE::RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
+    VectorDynamic actual = RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
     assert_equal(expected, actual);
 }
 
@@ -516,8 +485,9 @@ TEST(EliminationTree, build_maintain_tree)
     //    if no, then add an edge, and perform eliminate
 
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
-    auto sth = EstablishGraphStartTimeVector(dagTasks);
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    auto sth = EstablishGraphStartTimeVector(tasksInfo);
     Graph g = sth.first;
 
     vertex_name_map_t vertex2indexBig = get(vertex_name, g);
@@ -546,8 +516,9 @@ TEST(EliminationTree, find_sub_tree)
     //    if no, then add an edge, and perform eliminate
 
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
-    auto sth = EstablishGraphStartTimeVector(dagTasks);
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
+    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    auto sth = EstablishGraphStartTimeVector(tasksInfo);
     Graph g = sth.first;
     indexVertexMap indexesBGL = sth.second;
 
@@ -580,8 +551,10 @@ TEST(EliminationTree, find_sub_tree)
 TEST(CheckEliminationTreeConflict, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -608,8 +581,8 @@ TEST(CheckEliminationTreeConflict, v1)
     LLint errorDimensionDBF = processorTaskSet.size();
 
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                mapIndex, maskForEliminate, processorTaskSet, model);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
     AssertBool(false, factor.CheckNoConflictionTree(tree1, tree2, initialSTV));
     tree1 = {2, 4, 5, 6};
     tree2 = {3, 1, 0, 7};
@@ -630,8 +603,9 @@ TEST(find_sub_tree, v2)
 {
 
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v18.csv", "orig");
-    auto sth = EstablishGraphStartTimeVector(dagTasks);
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v18.csv", "orig");
+    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    auto sth = EstablishGraphStartTimeVector(tasksInfo);
     Graph g = sth.first;
     indexVertexMap indexesBGL = sth.second;
 
@@ -655,8 +629,9 @@ TEST(find_sub_tree, v3)
 {
 
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v18.csv", "orig");
-    auto sth = EstablishGraphStartTimeVector(dagTasks);
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v18.csv", "orig");
+    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    auto sth = EstablishGraphStartTimeVector(tasksInfo);
     Graph g = sth.first;
     indexVertexMap indexesBGL = sth.second;
 
@@ -684,7 +659,7 @@ TEST(find_sub_tree, v3)
 TEST(FindLeaf, V1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -716,9 +691,11 @@ TEST(FindLeaf, V1)
 TEST(FindVanishIndex, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
@@ -741,19 +718,21 @@ TEST(FindVanishIndex, v1)
     ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
     LLint errorDimensionDBF = processorTaskSet.size();
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                mapIndex, maskForEliminate, processorTaskSet, model);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
 
-    vector<LLint> actual = FindVanishIndex(initialSTV, tasks, sizeOfVariables, maskForEliminate, mapIndex);
+    vector<LLint> actual = FindVanishIndex(initialSTV, tasks, sizeOfVariables, forestInfo);
     vector<LLint> expected = {0, 5, 6};
     AssertEqualVectorNoRepeat(expected, actual);
 }
-
+// TODO: add interfaces to forestInfo
 TEST(FindVanishIndex, v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -779,10 +758,10 @@ TEST(FindVanishIndex, v2)
     ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
     LLint errorDimensionDBF = processorTaskSet.size();
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                mapIndex, maskForEliminate, processorTaskSet, model);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
 
-    vector<LLint> actual = FindVanishIndex(initialSTV, tasks, sizeOfVariables, maskForEliminate, mapIndex);
+    vector<LLint> actual = FindVanishIndex(initialSTV, tasks, sizeOfVariables, forestInfo);
     vector<LLint> expected = {0, 2, 5};
     AssertEqualVectorNoRepeat(expected, actual);
 }
@@ -790,8 +769,10 @@ TEST(FindVanishIndex, v2)
 TEST(NumericalDerivativeDynamicUpperDBF, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -815,8 +796,8 @@ TEST(NumericalDerivativeDynamicUpperDBF, v1)
     ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
     LLint errorDimensionDBF = processorTaskSet.size();
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                mapIndex, maskForEliminate, processorTaskSet, model);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
 
     MatrixDynamic jacob_actual = factor.NumericalDerivativeDynamicUpperDBF(factor.f, initialSTV, deltaOptimizer, errorDimensionDBF);
     MatrixDynamic jacob_expect;
@@ -830,7 +811,7 @@ TEST(NumericalDerivativeDynamicUpperDBF, v1)
 TEST(ExtractVariable, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -859,7 +840,7 @@ TEST(ExtractVariable, v1)
 TEST(ExtractVariable, v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v20.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v20.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -884,9 +865,10 @@ TEST(ExtractVariable, v2)
 TEST(Prior_factor, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
-
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -910,9 +892,8 @@ TEST(Prior_factor, v1)
     vector<int> order = FindDependencyOrder(dagTasks);
     auto model = noiseModel::Isotropic::Sigma(errorDimensionPrior, noiseModelSigma);
 
-    Prior_ConstraintFactor factor(key, dagTasks.tasks, sizeOfVariables,
-                                  errorDimensionPrior, mapIndex,
-                                  maskForEliminate, 0.0, order[0], model);
+    Prior_ConstraintFactor factor(key, tasksInfo, forestInfo,
+                                  errorDimensionPrior, 0.0, order[0], model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
@@ -925,10 +906,12 @@ TEST(Prior_factor, v1)
 TEST(NumericalDerivativeDynamicUpperDBF, v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v22.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v22.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
 
     // declare variables
     vector<LLint> sizeOfVariables;
@@ -950,22 +933,15 @@ TEST(NumericalDerivativeDynamicUpperDBF, v2)
     ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
     LLint errorDimensionDBF = processorTaskSet.size();
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                mapIndex, maskForEliminate, processorTaskSet, model);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
 
     MatrixDynamic jacob_actual = factor.NumericalDerivativeDynamicUpperDBF(factor.f, initialSTV, deltaOptimizer, errorDimensionDBF);
-    // cout << jacob_actual << endl;
-    // MatrixDynamic jacob_expect;
-    // jacob_expect.resize(1, 8);
-    // // if all the vanishing gradient is considered:
-    // //  jacob_expect << 1.5, -2, -4, -1, 0.5, 0, 3.5, 1.5;
-    // jacob_expect << 1.5, -2, -4, -1, 0.5, 0.5, 3, 1.5;
-    // AssertEigenEqualMatrix(jacob_expect, jacob_actual);
 }
 TEST(GenerateInitialForDAG_RelativeStart, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -989,7 +965,7 @@ TEST(GenerateInitialForDAG_RelativeStart, v1)
 TEST(RunQueue, V1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v10.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v10.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     Task tasknew = tasks[4];
@@ -1019,7 +995,7 @@ TEST(RunQueue, V1)
 TEST(GenerateInitialForDAG_RM_DAG, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v14.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v14.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1042,7 +1018,7 @@ TEST(GenerateInitialForDAG_RM_DAG, v1)
 TEST(GenerateInitialForDAG_RM_DAG, v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v23.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v23.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1065,7 +1041,7 @@ TEST(GenerateInitialForDAG_RM_DAG, v2)
 TEST(GenerateInitialForDAG_RM_DAG, v3)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1090,9 +1066,10 @@ TEST(GenerateInitialForDAG_RM_DAG, vDDL)
 {
     using namespace DAG_SPACE;
     // this task is not schedulable even if only DAG and schedulability constraints are considered
-    DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v16.csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v16.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
-
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -1114,8 +1091,8 @@ TEST(GenerateInitialForDAG_RM_DAG, vDDL)
     Symbol key('a', 0);
     LLint errorDimensionDDL = 2 * variableDimension;
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
-    DDL_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDDL,
-                                mapIndex, maskForEliminate, model);
+    DDL_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDDL,
+                                model);
     InitializeMethod sth = initializeMethod;
     initializeMethod = RM;
     VectorDynamic startTimeVector = GenerateInitial(dagTasks, sizeOfVariables, variableDimension);
@@ -1127,9 +1104,10 @@ TEST(GenerateInitialForDAG_RM_DAG, vDDL)
 TEST(ProcessorTaskSet, add)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v28.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v28.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
-
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -1152,16 +1130,16 @@ TEST(ProcessorTaskSet, add)
     ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
     LLint errorDimensionDBF = processorTaskSet.size();
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                mapIndex, maskForEliminate, processorTaskSet, model);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
 
-    AssertEqualVectorNoRepeat<int>({0, 2, 3}, factor.processorTasks[0]);
-    AssertEqualVectorNoRepeat<int>({1, 4}, factor.processorTasks[1]);
+    AssertEqualVectorNoRepeat<int>({0, 2, 3}, factor.processorTaskSet[0]);
+    AssertEqualVectorNoRepeat<int>({1, 4}, factor.processorTaskSet[1]);
 }
 TEST(testDBF, v3MultiProcess)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v29.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1187,8 +1165,11 @@ TEST(testDBF, v3MultiProcess)
     LLint errorDimensionDBF = processorTaskSet.size();
 
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                mapIndex, maskForEliminate, processorTaskSet, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 1, 2, 3, 4, 5, 6, 7, 8;
@@ -1208,7 +1189,7 @@ TEST(testDBF, v3MultiProcess)
 TEST(testDBF, v4MultiProcess)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v30.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v30.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1234,8 +1215,10 @@ TEST(testDBF, v4MultiProcess)
     LLint errorDimensionDBF = processorTaskSet.size();
 
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                mapIndex, maskForEliminate, processorTaskSet, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 1, 2, 3, 4, 5, 6, 7, 8;
@@ -1248,7 +1231,7 @@ TEST(testDBF, v4MultiProcess)
 TEST(testDBF, v5MultiProcess)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v31.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v31.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1274,8 +1257,10 @@ TEST(testDBF, v5MultiProcess)
     LLint errorDimensionDBF = processorTaskSet.size();
 
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                mapIndex, maskForEliminate, processorTaskSet, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 1, 2, 3, 4, 5, 6, 7, 8;
@@ -1289,9 +1274,9 @@ TEST(testDBF, v5MultiProcess)
 TEST(addMappingFunction, singleProcess)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
-
+    TaskSetInfoDerived tasksInfo(tasks);
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -1311,7 +1296,7 @@ TEST(addMappingFunction, singleProcess)
         mapIndex[i] = MappingDataStruct{i, 0};
     mapIndexExpect = mapIndex;
     bool whetherEliminate;
-    pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(dagTasks);
+    pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(tasksInfo);
     Graph eliminationTrees = sth.first;
     indexVertexMap indexesBGL = sth.second;
 
@@ -1320,15 +1305,16 @@ TEST(addMappingFunction, singleProcess)
     LLint errorDimensionDBF = processorTaskSet.size();
 
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                mapIndex, maskForEliminate, processorTaskSet, model);
+
+    EliminationForest forestInfo(tasksInfo);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 80, 160, 62.1, 50, 105, 14, 0, 100;
     auto sss = tightEliminate;
     tightEliminate = 0;
-    factor.addMappingFunction(startTimeVector, mapIndex, whetherEliminate, maskForEliminate,
-                              eliminationTrees, indexesBGL);
+    factor.addMappingFunction(startTimeVector, whetherEliminate, forestInfo);
     mapIndexExpect[5] = {6, 14};
     mapIndexExpect[2] = {3, 12.1};
     AssertEqualMap(mapIndexExpect, mapIndex);
@@ -1343,7 +1329,7 @@ TEST(addMappingFunction, singleProcess)
 TEST(addMappingFunction, MultiProcess)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v29.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1365,7 +1351,8 @@ TEST(addMappingFunction, MultiProcess)
         mapIndex[i] = MappingDataStruct{i, 0};
     mapIndexExpect = mapIndex;
     bool whetherEliminate;
-    pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(dagTasks);
+    TaskSetInfoDerived tasksInfo(tasks);
+    pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(tasksInfo);
     Graph eliminationTrees = sth.first;
     indexVertexMap indexesBGL = sth.second;
 
@@ -1374,15 +1361,16 @@ TEST(addMappingFunction, MultiProcess)
     LLint errorDimensionDBF = processorTaskSet.size();
 
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                mapIndex, maskForEliminate, processorTaskSet, model);
+
+    EliminationForest forestInfo(tasksInfo);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 81.1, 160, 70, 27.1, 105, 14, 0, 100;
     auto sss = tightEliminate;
     tightEliminate = 0;
-    factor.addMappingFunction(startTimeVector, mapIndex, whetherEliminate, maskForEliminate,
-                              eliminationTrees, indexesBGL);
+    factor.addMappingFunction(startTimeVector, whetherEliminate, forestInfo);
     mapIndexExpect[0] = {2, 11.1};
     mapIndexExpect[3] = {5, 13.1};
     // mapIndexExpect[2] = {3, 12.1};
@@ -1393,7 +1381,7 @@ TEST(addMappingFunction, MultiProcess)
 TEST(addMappingFunction, MultiProcessV2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v29.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1415,7 +1403,8 @@ TEST(addMappingFunction, MultiProcessV2)
         mapIndex[i] = MappingDataStruct{i, 0};
     mapIndexExpect = mapIndex;
     bool whetherEliminate;
-    pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(dagTasks);
+    TaskSetInfoDerived tasksInfo(tasks);
+    pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(tasksInfo);
     Graph eliminationTrees = sth.first;
     indexVertexMap indexesBGL = sth.second;
 
@@ -1424,15 +1413,16 @@ TEST(addMappingFunction, MultiProcessV2)
     LLint errorDimensionDBF = processorTaskSet.size();
 
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                mapIndex, maskForEliminate, processorTaskSet, model);
+
+    EliminationForest forestInfo(tasksInfo);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 80, 160, 62.1, 50, 105, 14, 0, 100;
     auto sss = tightEliminate;
     tightEliminate = 0;
-    factor.addMappingFunction(startTimeVector, mapIndex, whetherEliminate, maskForEliminate,
-                              eliminationTrees, indexesBGL);
+    factor.addMappingFunction(startTimeVector, whetherEliminate, forestInfo);
     // mapIndexExpect[6] = {6, -14};
     // mapIndexExpect[2] = {3, 12.1};
     AssertEqualMap(mapIndexExpect, mapIndex);
@@ -1441,7 +1431,7 @@ TEST(addMappingFunction, MultiProcessV2)
 TEST(GenerateInitialForDAG_RM_DAG, MultiProcessor_v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v29.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1465,7 +1455,7 @@ TEST(GenerateInitialForDAG_RM_DAG, MultiProcessor_v1)
 TEST(GenerateInitialForDAG, Multi_v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v33.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v33.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1488,7 +1478,7 @@ TEST(GenerateInitialForDAG, Multi_v2)
 TEST(GenerateInitialForDAG, Multi_v3_processorMap)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v34.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v34.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1515,7 +1505,7 @@ TEST(GenerateInitialForDAG, Multi_v3_processorMap)
 TEST(GenerateInitial_RM, Multi_v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v34.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v34.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1542,7 +1532,7 @@ TEST(GenerateInitial_RM, Multi_v1)
 TEST(GenerateInitial_RM, Multi_v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v29.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -1572,7 +1562,7 @@ TEST(AnalyticJaocbian_DDL, v4)
 {
     // cout << "AnalyticJaocbian_DDL, v4" << endl;
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1596,8 +1586,10 @@ TEST(AnalyticJaocbian_DDL, v4)
     Symbol key('a', 0);
     LLint errorDimensionDDL = 2 * variableDimension;
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
-    DDL_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDDL,
-                                mapIndex, maskForEliminate, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DDL_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDDL,
+                                model);
 
     // VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
     VectorDynamic startTimeVector;
@@ -1618,7 +1610,7 @@ TEST(AnalyticJaocbian_DDL, v4)
 TEST(AnalyticJaocbian_DDL, v2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1649,8 +1641,10 @@ TEST(AnalyticJaocbian_DDL, v2)
     Symbol key('a', 0);
     LLint errorDimensionDDL = 2 * variableDimension;
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
-    DDL_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDDL,
-                                mapIndex, maskForEliminate, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DDL_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDDL,
+                                model);
 
     // VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
     VectorDynamic startTimeVector;
@@ -1665,7 +1659,7 @@ TEST(AnalyticJaocbian_DDL, v3)
 {
     // cout << "AnalyticJaocbian_DDL, v3" << endl;
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v36.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v36.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1689,8 +1683,10 @@ TEST(AnalyticJaocbian_DDL, v3)
     Symbol key('a', 0);
     LLint errorDimensionDDL = 2 * variableDimension;
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
-    DDL_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDDL,
-                                mapIndex, maskForEliminate, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DDL_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDDL,
+                                model);
 
     VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
     MatrixDynamic expect = NumericalDerivativeDynamicUpper(factor.f, startTimeVector, deltaOptimizer, errorDimensionDDL);
@@ -1701,7 +1697,7 @@ TEST(AnalyticJaocbian_DDL, v3)
 TEST(AnalyticJaocbian_DAG, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1725,8 +1721,10 @@ TEST(AnalyticJaocbian_DAG, v1)
     Symbol key('a', 0);
     LLint errorDimensionDAG = dagTasks.edgeNumber();
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
-    DAG_ConstraintFactor factor(key, dagTasks, sizeOfVariables, errorDimensionDAG,
-                                mapIndex, maskForEliminate, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DAG_ConstraintFactor factor(key, dagTasks, tasksInfo, forestInfo, errorDimensionDAG,
+                                model);
 
     // VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
     VectorDynamic startTimeVector;
@@ -1740,7 +1738,7 @@ TEST(AnalyticJaocbian_DAG, v1)
 TEST(AnalyticJaocbian_DAG, v2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1771,8 +1769,10 @@ TEST(AnalyticJaocbian_DAG, v2)
     Symbol key('a', 0);
     LLint errorDimensionDAG = dagTasks.edgeNumber();
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
-    DAG_ConstraintFactor factor(key, dagTasks, sizeOfVariables, errorDimensionDAG,
-                                mapIndex, maskForEliminate, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DAG_ConstraintFactor factor(key, dagTasks, tasksInfo, forestInfo, errorDimensionDAG,
+                                model);
 
     // VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
     VectorDynamic startTimeVector;
@@ -1785,7 +1785,7 @@ TEST(AnalyticJaocbian_DAG, v2)
 TEST(AnalyticJaocbian_DAG, v3)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v36.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v36.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1809,8 +1809,10 @@ TEST(AnalyticJaocbian_DAG, v3)
     Symbol key('a', 0);
     LLint errorDimensionDAG = dagTasks.edgeNumber();
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
-    DAG_ConstraintFactor factor(key, dagTasks, sizeOfVariables, errorDimensionDAG,
-                                mapIndex, maskForEliminate, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DAG_ConstraintFactor factor(key, dagTasks, tasksInfo, forestInfo, errorDimensionDAG,
+                                model);
 
     VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
 
@@ -1822,7 +1824,7 @@ TEST(AnalyticJaocbian_DAG, v3)
 TEST(AnalyticJaocbian_DBF, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1856,9 +1858,9 @@ TEST(AnalyticJaocbian_DBF, v1)
     ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
     LLint errorDimensionDBF = processorTaskSet.size();
     model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, dagTasks.tasks, sizeOfVariables,
-                                errorDimensionDBF, mapIndex,
-                                maskForEliminate, processorTaskSet,
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
                                 model);
 
     // VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
@@ -1874,7 +1876,7 @@ TEST(AnalyticJaocbian_DBF, v1)
 TEST(AnalyticJaocbian_DBF, v2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1908,9 +1910,9 @@ TEST(AnalyticJaocbian_DBF, v2)
     ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
     LLint errorDimensionDBF = processorTaskSet.size();
     model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, dagTasks.tasks, sizeOfVariables,
-                                errorDimensionDBF, mapIndex,
-                                maskForEliminate, processorTaskSet,
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
                                 model);
 
     // VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
@@ -1927,7 +1929,7 @@ TEST(AnalyticJaocbian_DBF, v2)
 TEST(AnalyticJaocbian_DBF, v3)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v36.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v36.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -1954,9 +1956,9 @@ TEST(AnalyticJaocbian_DBF, v3)
     ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
     LLint errorDimensionDBF = processorTaskSet.size();
     model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, dagTasks.tasks, sizeOfVariables,
-                                errorDimensionDBF, mapIndex,
-                                maskForEliminate, processorTaskSet,
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
                                 model);
 
     VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
@@ -2038,7 +2040,7 @@ TEST(sensorFusion, v3)
     using namespace DAG_SPACE;
     using namespace RegularTaskSystem;
 
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v38.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v38.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -2066,9 +2068,10 @@ TEST(sensorFusion, v3)
     // bool whetherEliminate = false;
     vector<bool> maskForEliminate(variableDimension, false);
     auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-    SensorFusion_ConstraintFactor factor(key, dagTasks, sizeOfVariables,
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    SensorFusion_ConstraintFactor factor(key, dagTasks, tasksInfo, forestInfo,
                                          errorDimensionSF, sensorFusionTolerance,
-                                         mapIndex, maskForEliminate,
                                          model);
     VectorDynamic initial;
     initial.resize(6, 1);
@@ -2088,7 +2091,7 @@ TEST(sensorFusion_AnalyticJacobian, v1)
     using namespace RegularTaskSystem;
     auto sthh = withAddedSensorFusionError;
     withAddedSensorFusionError = 1;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -2115,9 +2118,10 @@ TEST(sensorFusion_AnalyticJacobian, v1)
     }
     vector<bool> maskForEliminate(variableDimension, false);
     auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-    SensorFusion_ConstraintFactor factor(key, dagTasks, sizeOfVariables,
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    SensorFusion_ConstraintFactor factor(key, dagTasks, tasksInfo, forestInfo,
                                          errorDimensionSF, sensorFusionTolerance,
-                                         mapIndex, maskForEliminate,
                                          model);
     VectorDynamic initialEstimate = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
 
@@ -2151,7 +2155,7 @@ TEST(sensorFusion_AnalyticJacobian, v2)
     using namespace DAG_SPACE;
     using namespace RegularTaskSystem;
     double defaultSF = sensorFusionTolerance;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v38.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v38.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -2179,9 +2183,10 @@ TEST(sensorFusion_AnalyticJacobian, v2)
     // bool whetherEliminate = false;
     vector<bool> maskForEliminate(variableDimension, false);
     auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-    SensorFusion_ConstraintFactor factor(key, dagTasks, sizeOfVariables,
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    SensorFusion_ConstraintFactor factor(key, dagTasks, tasksInfo, forestInfo,
                                          errorDimensionSF, sensorFusionTolerance,
-                                         mapIndex, maskForEliminate,
                                          model);
     VectorDynamic initial;
     initial.resize(6, 1);
@@ -2198,7 +2203,7 @@ TEST(sensorFusion_AnalyticJacobian, v3)
     using namespace DAG_SPACE;
     using namespace RegularTaskSystem;
     double defaultSF = sensorFusionTolerance;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v9.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -2226,9 +2231,10 @@ TEST(sensorFusion_AnalyticJacobian, v3)
     // bool whetherEliminate = false;
     vector<bool> maskForEliminate(variableDimension, false);
     auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-    SensorFusion_ConstraintFactor factor(key, dagTasks, sizeOfVariables,
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    SensorFusion_ConstraintFactor factor(key, dagTasks, tasksInfo, forestInfo,
                                          errorDimensionSF, sensorFusionTolerance,
-                                         mapIndex, maskForEliminate,
                                          model);
     VectorDynamic initial;
     initial.resize(5, 1);
@@ -2281,7 +2287,7 @@ TEST(sensorFusion_AnalyticJacobian, v3)
 TEST(GenerateInitial_RM, v3)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n3_v3.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n3_v3.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -2305,7 +2311,7 @@ TEST(GenerateInitial_RM, v3)
 TEST(GenerateInitial_RMDAG, v6)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n3_v3.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n3_v3.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -2328,7 +2334,7 @@ TEST(GenerateInitial_RMDAG, v6)
 TEST(testDBF, coreNumv1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v45.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v45.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int coreCurr = coreNumberAva;
@@ -2356,8 +2362,10 @@ TEST(testDBF, coreNumv1)
     LLint errorDimensionDBF = processorTaskSet.size();
 
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                mapIndex, maskForEliminate, processorTaskSet, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
@@ -2376,7 +2384,7 @@ TEST(testDBF, coreNumv1)
 TEST(MakeSpanFactor_analytic, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -2400,8 +2408,10 @@ TEST(MakeSpanFactor_analytic, v1)
     Symbol key('a', 0);
     LLint errorDimensionMS = 1;
     auto model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
-    MakeSpanFactor factor(key, dagTasks, sizeOfVariables, errorDimensionMS,
-                          mapIndex, maskForEliminate, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    MakeSpanFactor factor(key, dagTasks, tasksInfo, forestInfo, errorDimensionMS,
+                          model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
@@ -2419,7 +2429,7 @@ TEST(MakeSpanFactor_analytic, v1)
 TEST(CompresStartTimeVector, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -2449,7 +2459,7 @@ TEST(CompresStartTimeVector, v1)
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 1, 2, 3, 4, 5, 6, 7, 8;
-    VectorDynamic actual = CompresStartTimeVector(startTimeVector, variableDimension, maskForEliminate);
+    VectorDynamic actual = CompresStartTimeVector(startTimeVector, maskForEliminate);
     VectorDynamic expect;
     expect.resize(5, 1);
     expect << 1, 5, 6, 7, 8;
@@ -2459,7 +2469,7 @@ TEST(CompresStartTimeVector, v1)
 TEST(FindFinishTime, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -2483,8 +2493,10 @@ TEST(FindFinishTime, v1)
     Symbol key('a', 0);
     LLint errorDimensionMS = 1;
     auto model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
-    MakeSpanFactor factor(key, dagTasks, sizeOfVariables, errorDimensionMS,
-                          mapIndex, maskForEliminate, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    MakeSpanFactor factor(key, dagTasks, tasksInfo, forestInfo, errorDimensionMS,
+                          model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
@@ -2496,7 +2508,7 @@ TEST(FindFinishTime, v1)
 TEST(FindFinishTime, v2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -2526,8 +2538,10 @@ TEST(FindFinishTime, v2)
     Symbol key('a', 0);
     LLint errorDimensionMS = 1;
     auto model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
-    MakeSpanFactor factor(key, dagTasks, sizeOfVariables, errorDimensionMS,
-                          mapIndex, maskForEliminate, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    MakeSpanFactor factor(key, dagTasks, tasksInfo, forestInfo, errorDimensionMS,
+                          model);
 
     VectorDynamic startTimeVector;
     startTimeVector.resize(5, 1);
@@ -2567,7 +2581,7 @@ TEST(FindLargeSmall, v2)
 TEST(testMakeSpan, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -2591,8 +2605,10 @@ TEST(testMakeSpan, v1)
     Symbol key('a', 0);
     LLint errorDimensionMS = 1;
     auto model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
-    MakeSpanFactor factor(key, dagTasks, sizeOfVariables, errorDimensionMS,
-                          mapIndex, maskForEliminate, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    MakeSpanFactor factor(key, dagTasks, tasksInfo, forestInfo, errorDimensionMS,
+                          model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);
     startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
@@ -2615,7 +2631,7 @@ TEST(testMakeSpan, v1)
 //     using namespace DAG_SPACE;
 //     using namespace RegularTaskSystem;
 
-//     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v9.csv", "orig");
+//     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v9.csv", "orig");
 //     TaskSet tasks = dagTasks.tasks;
 //     int N = tasks.size();
 //     LLint hyperPeriod = HyperPeriod(tasks);

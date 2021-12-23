@@ -1,51 +1,20 @@
 #include "unordered_map"
-#include "DeclareDAG.h"
-#include "RegularTasks.h"
-#include "DBF_utils.h"
-// coreNumberAva = 1;
+#include "BaseSchedulingFactor.h"
 namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
 
-    class DBF_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
+    class DBF_ConstraintFactor : public BaseSchedulingFactor
     {
     public:
-        TaskSet tasks;
-        vector<LLint> sizeOfVariables;
-        int N;
-        LLint errorDimension;
-        LLint length;
-        vector<bool> maskForEliminate;
-        MAP_Index2Data mapIndex;
-        LLint lengthCompressed;
-        // each element contains tasks belonging to the same processor
-
-        ProcessorTaskSet processorTasks;
-        std::unordered_map<LLint, LLint> mapIndex_True2Compress;
-
-        DBF_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables,
-                             LLint errorDimension, MAP_Index2Data &mapIndex,
-                             vector<bool> &maskForEliminate, ProcessorTaskSet &processorTasks,
-                             SharedNoiseModel model)
-            : NoiseModelFactor1<VectorDynamic>(model, key),
-              tasks(tasks), sizeOfVariables(sizeOfVariables),
-              N(tasks.size()), errorDimension(errorDimension),
-              maskForEliminate(maskForEliminate), mapIndex(mapIndex),
-              processorTasks(processorTasks)
+        DBF_ConstraintFactor(Key key, TaskSetInfoDerived &tasksInfo,
+                             EliminationForest &forestInfo, LLint errorDimension,
+                             SharedNoiseModel model) : BaseSchedulingFactor(key,
+                                                                            tasksInfo,\
+                                                                             forestInfo,\
+                                                                              errorDimension, \
+                                                                              model)
         {
-            length = 0;
-
-            for (int i = 0; i < N; i++)
-            {
-                length += sizeOfVariables[i];
-            }
-            lengthCompressed = 0;
-            for (LLint i = 0; i < length; i++)
-            {
-                if (maskForEliminate[i] == false)
-                    lengthCompressed++;
-            }
-            mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
         }
         /**
          * @brief for error evaluation; this returns a VectorDynamic, 
@@ -59,13 +28,13 @@ namespace DAG_SPACE
             res.resize(errorDimension, 1);
 
             VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
-                                                                   maskForEliminate, mapIndex);
+                                                                   forestInfo);
 
             int indexPro = 0;
-            for (auto itr = processorTasks.begin(); itr != processorTasks.end(); itr++)
+            for (auto itr = processorTaskSet.begin(); itr != processorTaskSet.end(); itr++)
             {
                 res(indexPro++, 0) = DbfIntervalOverlapError(startTimeVector, itr->first,
-                                                             processorTasks, tasks, sizeOfVariables);
+                                                             processorTaskSet, tasks, sizeOfVariables);
             }
 
             return res;
@@ -124,22 +93,24 @@ namespace DAG_SPACE
          * @param eliminationTrees_Update 
          * @param indexesBGL_Update properties access for eliminationTrees_Update
          */
-        void addMappingFunction(VectorDynamic &resTemp,
-                                MAP_Index2Data &mapIndex, bool &whetherEliminate,
-                                vector<bool> &maskForEliminate_addMap,
-                                Graph &eliminationTrees_Update,
-                                indexVertexMap &indexesBGL_Update)
+        // void addMappingFunction(VectorDynamic &resTemp,
+        //                         MAP_Index2Data &mapIndex, bool &whetherEliminate,
+        //                         vector<bool> &maskForEliminate_addMap,
+        //                         Graph &eliminationTrees_Update,
+        //                         indexVertexMap &indexesBGL_Update)
+        void addMappingFunction(VectorDynamic &resTemp, bool &whetherEliminate,
+                                EliminationForest &forestInfo)
         {
             BeginTimer("addMap2");
 
-            VectorDynamic startTimeVector = RecoverStartTimeVector(resTemp, maskForEliminate_addMap, mapIndex);
+            VectorDynamic startTimeVector = RecoverStartTimeVector(resTemp, forestInfo);
 
-            for (auto itr = processorTasks.begin(); itr != processorTasks.end(); itr++)
+            for (auto itr = processorTaskSet.begin(); itr != processorTaskSet.end(); itr++)
             {
                 int processorCurr = itr->first;
                 vector<int> tasksCurr = itr->second;
                 vector<Interval> intervalVec = DbfInterval(startTimeVector, processorCurr,
-                                                           processorTasks, tasks, sizeOfVariables);
+                                                           processorTaskSet, tasks, sizeOfVariables);
                 sort(intervalVec.begin(), intervalVec.end(), compare);
 
                 // find DBF error that need elimination
@@ -149,7 +120,7 @@ namespace DAG_SPACE
                     {
                         // this if condition is posed to avoid repeated elimination, and avoid conflicting elimination
                         // because one variable j can only depend on one single variable i;
-                        if (maskForEliminate_addMap[intervalVec[j].indexInSTV])
+                        if (forestInfo.maskForEliminate[intervalVec[j].indexInSTV])
                         {
                             continue;
                         }
@@ -173,19 +144,19 @@ namespace DAG_SPACE
                             // since we go over all the pairs, we only need to check j in each pair (i, j)
 
                             vector<LLint> tree_i, tree_j;
-                            Vertex u1 = indexesBGL_Update[index_i_overall];
-                            Vertex v1 = indexesBGL_Update[index_j_overall];
-                            FindSubTree(eliminationTrees_Update, tree_i, u1);
-                            FindSubTree(eliminationTrees_Update, tree_j, v1);
+                            Vertex u1 = forestInfo.indexesBGL[index_i_overall];
+                            Vertex v1 = forestInfo.indexesBGL[index_j_overall];
+                            FindSubTree(forestInfo.eliminationTrees, tree_i, u1);
+                            FindSubTree(forestInfo.eliminationTrees, tree_j, v1);
                             if (CheckNoConflictionTree(tree_i, tree_j, startTimeVector))
                             {
-                                maskForEliminate_addMap[index_j_overall] = true;
+                                forestInfo.maskForEliminate[index_j_overall] = true;
                                 whetherEliminate = true;
                                 // this should respect original relationship
                                 if (tightEliminate == 1)
                                 {
                                     MappingDataStruct m{index_i_overall, sumIJK - tasks[j].executionTime};
-                                    mapIndex[index_j_overall] = m;
+                                    forestInfo.mapIndex[index_j_overall] = m;
                                 }
                                 else if (tightEliminate == 0)
                                 {
@@ -194,18 +165,18 @@ namespace DAG_SPACE
 
                                     MappingDataStruct m{index_i_overall,
                                                         distt};
-                                    mapIndex[index_j_overall] = m;
+                                    forestInfo.mapIndex[index_j_overall] = m;
                                 }
                                 else
                                 {
                                     CoutError("Eliminate option error, not recognized!");
                                 }
-                                // add edge to eliminationTrees_Update
+                                // add edge to eliminationTrees
                                 graph_traits<Graph>::edge_descriptor e;
                                 bool inserted;
-                                boost::tie(e, inserted) = add_edge(indexesBGL_Update[index_j_overall],
-                                                                   indexesBGL_Update[index_i_overall],
-                                                                   eliminationTrees_Update);
+                                boost::tie(e, inserted) = add_edge(forestInfo.indexesBGL[index_j_overall],
+                                                                   forestInfo.indexesBGL[index_i_overall],
+                                                                   forestInfo.eliminationTrees);
                             }
                             else
                             {
@@ -274,7 +245,7 @@ namespace DAG_SPACE
             jacobian.resize(mOfJacobian, n);
             jacobian.setZero();
 
-            vector<LLint> vanishGradientIndex = FindVanishIndex(x, tasks, sizeOfVariables, maskForEliminate, mapIndex);
+            vector<LLint> vanishGradientIndex = FindVanishIndex(x, tasks, sizeOfVariables, forestInfo);
             std::unordered_set<LLint> ss;
             for (size_t i = 0; i < vanishGradientIndex.size(); i++)
             {
@@ -345,7 +316,7 @@ namespace DAG_SPACE
         MatrixDynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
         {
             VectorDynamic startTimeVector = RecoverStartTimeVector(
-                startTimeVectorOrig, maskForEliminate, mapIndex);
+                startTimeVectorOrig, forestInfo);
 
             int m = errorDimension;
             LLint n = length;
@@ -354,10 +325,10 @@ namespace DAG_SPACE
             j_yx.resize(m, n);
 
             int processorIndex = 0;
-            for (auto proPtr = processorTasks.begin(); proPtr != processorTasks.end(); proPtr++)
+            for (auto proPtr = processorTaskSet.begin(); proPtr != processorTaskSet.end(); proPtr++)
             {
                 vector<Interval> intervalVec = DbfInterval(startTimeVector, proPtr->first,
-                                                           processorTasks, tasks, sizeOfVariables);
+                                                           processorTaskSet, tasks, sizeOfVariables);
                 sort(intervalVec.begin(), intervalVec.end(), compare);
 
                 for (LLint i = 0; i < LLint(intervalVec.size()); i++)
@@ -377,8 +348,7 @@ namespace DAG_SPACE
                 }
                 processorIndex++;
             }
-            SM_Dynamic j_map = JacobianElimination(length, lengthCompressed,
-                                                   sizeOfVariables, mapIndex, mapIndex_True2Compress);
+            SM_Dynamic j_map = JacobianElimination(tasksInfo, forestInfo);
             return j_yx * j_map;
         }
 
@@ -399,7 +369,7 @@ namespace DAG_SPACE
             int n = x.rows();
             MatrixDynamic jacobian = JacobianAnalytic(x);
 
-            vector<LLint> vanishGradientIndex = FindVanishIndex(x, tasks, sizeOfVariables, maskForEliminate, mapIndex);
+            vector<LLint> vanishGradientIndex = FindVanishIndex(x, tasks, sizeOfVariables, forestInfo);
             std::unordered_set<LLint> ss;
             for (size_t i = 0; i < vanishGradientIndex.size(); i++)
             {

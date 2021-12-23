@@ -1,4 +1,5 @@
 #pragma once
+#include <utility>
 #include <boost/config.hpp>
 #include <iostream>  // for std::cout
 #include <utility>   // for std::pair
@@ -16,6 +17,7 @@
 
 using namespace std;
 using namespace boost;
+using namespace RegularTaskSystem;
 
 typedef adjacency_list<vecS, vecS, bidirectionalS,
                        property<vertex_name_t, LLint>,
@@ -32,33 +34,18 @@ struct first_name_t
     typedef boost::vertex_property_tag kind;
 };
 
-pair<Graph, indexVertexMap> EstablishGraphStartTimeVector(DAG_SPACE::DAG_Model &dagTasks)
+pair<Graph, indexVertexMap> EstablishGraphStartTimeVector(RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
 {
     using namespace DAG_SPACE;
-    TaskSet tasks = dagTasks.tasks;
-    int N = tasks.size();
-    LLint hyperPeriod = HyperPeriod(tasks);
-
-    // declare variables
-    vector<LLint> sizeOfVariables;
-    int variableDimension = 0;
-    for (int i = 0; i < N; i++)
-    {
-        LLint size = hyperPeriod / tasks[i].period;
-        sizeOfVariables.push_back(size);
-        variableDimension += size;
-    }
-    // auto actual = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
 
     Graph g;
-
     // map to access properties of vertex from the graph
     vertex_name_map_t vertex2indexBig = get(vertex_name, g);
 
     // map to access vertex from its global index
 
     indexVertexMap indexesBGL;
-    for (LLint i = 0; i < variableDimension; i++)
+    for (LLint i = 0; i < tasksInfo.variableDimension; i++)
     {
         indexVertexMap::iterator pos;
         bool inserted;
@@ -83,7 +70,7 @@ pair<Graph, indexVertexMap> EstablishGraphStartTimeVector(DAG_SPACE::DAG_Model &
     // {
     //     std::cout << vertex2indexBig[*i] << std::endl;
     // }
-    return make_pair(g, indexesBGL);
+    return std::make_pair(g, indexesBGL);
 }
 
 void FindSubTree(Graph &g, vector<LLint> &subTreeIndex, std::unordered_set<int> &indexSet, Vertex v)
@@ -132,28 +119,25 @@ void FindSubTree(Graph &g, vector<LLint> &subTreeIndex, Vertex v)
     FindSubTree(g, subTreeIndex, indexSet, v);
 }
 
-// template <class EdgeIter, class Graph>
-// void who_owes_who(EdgeIter first, EdgeIter last, const Graph &G)
-// {
-//     // Access the propety acessor type for this graph
-//     typedef typename property_map<Graph,
-//                                   first_name_t>::const_type NameMap;
-//     NameMap name = get(first_name_t(), G);
+/**
+     * @brief m maps from index in original startTimeVector to index in compressed startTimeVector
+     * 
+     * @param maskForEliminate 
+     * @return std::unordered_map<LLint, LLint> 
+     */
+std::unordered_map<LLint, LLint> MapIndex_True2Compress(const vector<bool> &maskForEliminate)
+{
 
-//     typedef typename boost::property_traits<NameMap>::value_type NameType;
-
-//     NameType src_name, targ_name;
-
-//     while (first != last)
-//     {
-//         src_name = boost::get(name, source(*first, G));
-//         targ_name = boost::get(name, target(*first, G));
-//         // cout << src_name << " owes "
-//         //      << targ_name << " some money" << endl;
-//         cout << src_name.id << ", " << targ_name.id << endl;
-//         ++first;
-//     }
-// }
+    std::unordered_map<LLint, LLint> m;
+    // count is the index in compressed startTimeVector
+    int count = 0;
+    for (size_t i = 0; i < maskForEliminate.size(); i++)
+    {
+        if (maskForEliminate.at(i) == false)
+            m[i] = count++;
+    }
+    return m;
+}
 
 /**
  * @brief 
@@ -250,4 +234,112 @@ int FindSinkNode(DAG_SPACE::DAG_Model dagTasks)
     i--;
 
     return *i;
+}
+
+struct EliminationForest
+{
+    MAP_Index2Data mapIndex;
+    vector<bool> maskForEliminate;
+    Graph eliminationTrees;
+    indexVertexMap indexesBGL;
+    std::unordered_map<LLint, LLint> mapIndex_True2Compress;
+    LLint lengthCompressed;
+
+    /**
+     * @brief Construct a new Elimination Forest object:
+     *  all the elements are initialized with no dependency relationship
+     * 
+     * @param tasksInfo 
+     */
+    EliminationForest(RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
+    {
+        maskForEliminate = vector<bool>(tasksInfo.variableDimension, false);
+
+        for (LLint i = 0; i < tasksInfo.variableDimension; i++)
+        {
+            MappingDataStruct m{i, 0};
+            mapIndex[i] = m;
+        };
+
+        pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(tasksInfo);
+        eliminationTrees = sth.first;
+        indexesBGL = sth.second;
+
+        mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
+
+        lengthCompressed = 0;
+        for (LLint i = 0; i < tasksInfo.length; i++)
+        {
+            if (maskForEliminate[i] == false)
+                lengthCompressed++;
+        }
+    }
+};
+VectorDynamic RecoverStartTimeVector(const VectorDynamic &compressed,
+                                     const vector<bool> &maskForEliminate,
+                                     const MAP_Index2Data &mapIndex)
+{
+    LLint variableDimension = maskForEliminate.size();
+    vector<bool> filledTable(variableDimension, 0);
+
+    VectorDynamic actual = GenerateVectorDynamic(variableDimension);
+    LLint index = 0;
+    for (size_t i = 0; i < (size_t)variableDimension; i++)
+    {
+        if (not maskForEliminate.at(i))
+        {
+            filledTable[i] = 1;
+            actual[i] = compressed(index++, 0);
+        }
+    }
+    for (size_t i = 0; i < (size_t)variableDimension; i++)
+    {
+        if (not filledTable[i])
+        {
+            actual(i, 0) = GetSingleElement(i, actual, mapIndex, filledTable);
+        }
+    }
+    return actual;
+}
+VectorDynamic RecoverStartTimeVector(const VectorDynamic &compressed,
+                                     const EliminationForest &forestInfo)
+{
+    return RecoverStartTimeVector(compressed, forestInfo.maskForEliminate, forestInfo.mapIndex);
+}
+/**
+     * @brief Given an index, find the final index that it depends on;
+     * 
+     * @param index 
+     * @param mapIndex 
+     * @return LLint 
+     */
+LLint FindLeaf(LLint index, const MAP_Index2Data &mapIndex)
+{
+    if (index == mapIndex.at(index).getIndex())
+        return index;
+    else
+        return FindLeaf(mapIndex.at(index).getIndex(), mapIndex);
+    return -1;
+}
+
+/**
+     * @brief generate analytic Jacobian for elimination part
+     * 
+     * a sparse matrix that represents Jacobian matrix of compreseed variables w.r.t. original variables 
+     */
+SM_Dynamic JacobianElimination(const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const EliminationForest &forestInfo)
+{
+    SM_Dynamic j_map(tasksInfo.length, forestInfo.lengthCompressed);
+    // go through all the variables
+    for (int i = 0; i < int(tasksInfo.sizeOfVariables.size()); i++)
+    {
+        for (int j = 0; j < int(tasksInfo.sizeOfVariables.at(i)); j++)
+        {
+            LLint bigIndex = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
+            // find its final dependency variable
+            LLint finalIndex = FindLeaf(bigIndex, forestInfo.mapIndex);
+            j_map.insert(bigIndex, forestInfo.mapIndex_True2Compress.at(finalIndex)) = 1;
+        }
+    }
+    return j_map;
 }

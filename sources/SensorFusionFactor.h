@@ -1,6 +1,7 @@
 #include "DeclareDAG.h"
 #include "RegularTasks.h"
-
+#include "EliminationForest_utils.h"
+#include "BaseSchedulingFactor.h"
 namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
@@ -41,44 +42,21 @@ namespace DAG_SPACE
         return *max_element(sourceFinishTime.begin(), sourceFinishTime.end()) -
                *min_element(sourceFinishTime.begin(), sourceFinishTime.end());
     }
-    class SensorFusion_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
+    class SensorFusion_ConstraintFactor : public BaseSchedulingFactor
     {
     public:
         DAG_Model dagTasks;
-        TaskSet tasks;
-        vector<LLint> sizeOfVariables;
-        int N;
-        LLint errorDimension;
-        LLint lengthCompressed;
         double sensorFusionTol; // not used, actually
-        MAP_Index2Data mapIndex;
-        vector<bool> maskForEliminate;
-        LLint length;
-        std::unordered_map<LLint, LLint> mapIndex_True2Compress;
 
-        SensorFusion_ConstraintFactor(Key key, DAG_Model &dagTasks, vector<LLint> sizeOfVariables, LLint errorDimension,
-                                      double sensorFusionTol, MAP_Index2Data &mapIndex, vector<bool> &maskForEliminate,
-                                      SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
+        SensorFusion_ConstraintFactor(Key key, DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo,
+                                      EliminationForest &forestInfo,
+                                      LLint errorDimension,
+                                      double sensorFusionTol,
+                                      SharedNoiseModel model) : BaseSchedulingFactor(key, tasksInfo, forestInfo, errorDimension, model),
                                                                 dagTasks(dagTasks),
-                                                                tasks(dagTasks.tasks), sizeOfVariables(sizeOfVariables),
-                                                                N(tasks.size()), errorDimension(errorDimension),
-                                                                sensorFusionTol(sensorFusionTol),
-                                                                mapIndex(mapIndex),
-                                                                maskForEliminate(maskForEliminate)
-        {
-            length = 0;
+                                                                sensorFusionTol(sensorFusionTol)
 
-            for (int i = 0; i < N; i++)
-            {
-                length += sizeOfVariables[i];
-            }
-            lengthCompressed = 0;
-            for (LLint i = 0; i < length; i++)
-            {
-                if (maskForEliminate[i] == false)
-                    lengthCompressed++;
-            }
-            mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
+        {
         }
         // TODO: design some tests for SensorFusion
         Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
@@ -111,7 +89,7 @@ namespace DAG_SPACE
             [this](const VectorDynamic &startTimeVectorOrig)
         {
             VectorDynamic startTimeVector = RecoverStartTimeVector(
-                startTimeVectorOrig, maskForEliminate, mapIndex);
+                startTimeVectorOrig, forestInfo);
             VectorDynamic res;
             res.resize(errorDimension, 1);
             LLint indexRes = 0;
@@ -210,7 +188,7 @@ namespace DAG_SPACE
         {
             BeginTimer("SF_H");
             VectorDynamic startTimeVector = RecoverStartTimeVector(
-                startTimeVectorOrig, maskForEliminate, mapIndex);
+                startTimeVectorOrig, forestInfo);
 
             // int m = errorDimension;
             // y -> x
@@ -333,8 +311,7 @@ namespace DAG_SPACE
             }
 
             // x -> x0
-            SM_Dynamic j_map = JacobianElimination(length, lengthCompressed,
-                                                   sizeOfVariables, mapIndex, mapIndex_True2Compress);
+            SM_Dynamic j_map = JacobianElimination(tasksInfo, forestInfo);
             EndTimer("SF_H");
             return j_yx * j_map;
         }

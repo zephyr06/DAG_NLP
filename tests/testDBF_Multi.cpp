@@ -36,8 +36,10 @@ TEST(testDBF, multi_core)
     LLint errorDimensionDBF = processorTaskSet.size();
 
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor_Multi factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                      mapIndex, maskForEliminate, processorTaskSet, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DBF_ConstraintFactor_Multi factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                      model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(5, 1);
     startTimeVector << 43, 31, 19, 18, 17;
@@ -80,8 +82,10 @@ TEST(testDBF, v1)
     LLint errorDimensionDBF = processorTaskSet.size();
 
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor_Multi factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                      mapIndex, maskForEliminate, processorTaskSet, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DBF_ConstraintFactor_Multi factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                      model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(5, 1);
     startTimeVector << 70, 50, 19, 18, 17;
@@ -124,8 +128,10 @@ TEST(testDBF, v2)
     LLint errorDimensionDBF = processorTaskSet.size();
 
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor_Multi factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                      mapIndex, maskForEliminate, processorTaskSet, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DBF_ConstraintFactor_Multi factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                      model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(5, 1);
     startTimeVector << 70, 50, 19, 18, 17;
@@ -167,8 +173,10 @@ TEST(testDBF, v3)
     LLint errorDimensionDBF = processorTaskSet.size();
 
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor_Multi factor(key, tasks, sizeOfVariables, errorDimensionDBF,
-                                      mapIndex, maskForEliminate, processorTaskSet, model);
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    DBF_ConstraintFactor_Multi factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                      model);
     VectorDynamic startTimeVector;
     startTimeVector.resize(5, 1);
     startTimeVector << 1, 3, 5, 6, 9;

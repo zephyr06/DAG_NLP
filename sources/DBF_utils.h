@@ -112,11 +112,10 @@ namespace DAG_SPACE
     vector<LLint> FindVanishIndex(const VectorDynamic &startTimeVectorOrig,
                                   const TaskSet &tasks,
                                   const vector<LLint> &sizeOfVariables,
-                                  const vector<bool> &maskForEliminate,
-                                  const MAP_Index2Data &mapIndex)
+                                  const EliminationForest &forestInfo)
     {
         VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
-                                                               maskForEliminate, mapIndex);
+                                                               forestInfo);
         vector<LLint> indexes;
         indexes.reserve(startTimeVector.size());
         for (uint i = 0; i < startTimeVector.size(); i++)
@@ -138,12 +137,12 @@ namespace DAG_SPACE
                 double f2 = s2 + intervalVec[j].length;
                 if ((s2 > s1 && f2 < f1) || (s2 < s1 && f2 > f1))
                 {
-                    LLint leafIndex = FindLeaf(i, mapIndex);
+                    LLint leafIndex = FindLeaf(i, forestInfo.mapIndex);
                     if (indexSetBig.find(leafIndex) == indexSetBig.end())
                     {
                         indexSetBig.insert(leafIndex);
                     }
-                    leafIndex = FindLeaf(j, mapIndex);
+                    leafIndex = FindLeaf(j, forestInfo.mapIndex);
                     if (indexSetBig.find(leafIndex) == indexSetBig.end())
                     {
                         indexSetBig.insert(leafIndex);
@@ -152,7 +151,7 @@ namespace DAG_SPACE
             }
         }
 
-        auto m = MapIndex_True2Compress(maskForEliminate);
+        auto m = MapIndex_True2Compress(forestInfo.maskForEliminate);
         vector<LLint> coverIndexInCompressed;
         coverIndexInCompressed.reserve(startTimeVectorOrig.rows());
         for (auto itr = indexSetBig.begin(); itr != indexSetBig.end(); itr++)

@@ -79,7 +79,14 @@ TEST(ReadDAG_Tasks, v7)
     for (int i = 0; i < 3; i++)
         AssertEqualScalar(0, dm.tasks[i].taskType);
 }
-
+TEST(TaskSetInfoDerived, v1)
+{
+    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v45.csv";
+    DAG_Model dm = ReadDAG_Tasks(path, "orig");
+    TaskSet tasks = dm.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    AssertEqualScalar(10, tasksInfo.tasks[0].executionTime);
+}
 int main()
 {
     TestResult tr;

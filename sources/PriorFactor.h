@@ -1,44 +1,29 @@
 #include "DeclareDAG.h"
 #include "RegularTasks.h"
 #include "Parameters.h"
+#include "BaseSchedulingFactor.h"
 
 namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
-    class Prior_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
+    class Prior_ConstraintFactor : public BaseSchedulingFactor
     {
     public:
-        TaskSet tasks;
-        vector<LLint> sizeOfVariables;
-        int N;
-        LLint errorDimension;
-        MAP_Index2Data mapIndex;
-        vector<bool> maskForEliminate;
         double priorValue;
         LLint firstTaskIndex;
-        LLint length;
 
-        Prior_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables, LLint errorDimension,
-                               MAP_Index2Data &mapIndex, vector<bool> &maskForEliminate, double priorValue,
+        Prior_ConstraintFactor(Key key, TaskSetInfoDerived &tasksInfo, EliminationForest &forestInfo,
+                               LLint errorDimension, double priorValue,
                                LLint firstTaskIndex,
-                               SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
-                                                         tasks(tasks), sizeOfVariables(sizeOfVariables),
-                                                         N(tasks.size()), errorDimension(errorDimension),
-                                                         mapIndex(mapIndex), maskForEliminate(maskForEliminate),
+                               SharedNoiseModel model) : BaseSchedulingFactor(key, tasksInfo, forestInfo, errorDimension, model),
                                                          priorValue(priorValue), firstTaskIndex(firstTaskIndex)
         {
-            length = 0;
-
-            for (int i = 0; i < N; i++)
-            {
-                length += sizeOfVariables[i];
-            }
         }
         boost::function<Matrix(const VectorDynamic &)> f =
             [this](const VectorDynamic &startTimeVectorOrig)
         {
             VectorDynamic startTimeVector = RecoverStartTimeVector(
-                startTimeVectorOrig, maskForEliminate, mapIndex);
+                startTimeVectorOrig, forestInfo);
             VectorDynamic res;
             res.resize(errorDimension, 1);
             LLint indexRes = 0;
@@ -59,7 +44,7 @@ namespace DAG_SPACE
         {
             LLint n0 = 0;
             for (LLint i = 0; i < length; i++)
-                if (maskForEliminate.at(i) == false)
+                if (forestInfo.maskForEliminate.at(i) == false)
                     n0++;
             if (weightPrior_factor == 0)
                 return GenerateMatrixDynamic(errorDimension, n0);
