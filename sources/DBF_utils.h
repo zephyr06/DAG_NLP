@@ -114,6 +114,7 @@ namespace DAG_SPACE
                                   const vector<LLint> &sizeOfVariables,
                                   const EliminationForest &forestInfo)
     {
+        BeginTimer("FindVanishIndex");
         VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
                                                                forestInfo);
         vector<LLint> indexes;
@@ -129,12 +130,13 @@ namespace DAG_SPACE
 
         for (LLint i = 0; i < variableDimension; i++)
         {
+            double s1 = intervalVec[i].start;
+            double f1 = s1 + intervalVec[i].length;
             for (LLint j = i + 1; j < variableDimension; j++)
             {
-                double s1 = intervalVec[i].start;
-                double f1 = s1 + intervalVec[i].length;
                 double s2 = intervalVec[j].start;
                 double f2 = s2 + intervalVec[j].length;
+
                 if ((s2 > s1 && f2 < f1) || (s2 < s1 && f2 > f1))
                 {
                     LLint leafIndex = FindLeaf(i, forestInfo.mapIndex);
@@ -158,6 +160,8 @@ namespace DAG_SPACE
         {
             coverIndexInCompressed.push_back(m[(*itr)]);
         }
+        EndTimer("FindVanishIndex");
         return coverIndexInCompressed;
     }
+
 }

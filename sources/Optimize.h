@@ -247,15 +247,6 @@ namespace DAG_SPACE
         return {errorInitial, errorInitial, initialEstimate, initialEstimate};
     }
 
-    VectorDynamic RandomWalk(VectorDynamic &startTimeVector, DAG_Model &dagTasks,
-                             EliminationForest &forestInfo)
-    {
-        // IntervalTree={}
-        // for each interval intV:
-        //     if interval
-        return startTimeVector;
-    }
-
     VectorDynamic UpdateInitialVector(VectorDynamic &startTimeComplete,
                                       TaskSetInfoDerived &tasksInfo,
                                       EliminationForest &forestInfo)
@@ -305,7 +296,7 @@ namespace DAG_SPACE
             EndTimer("UnitOptimization");
             VectorDynamic startTimeComplete = RecoverStartTimeVector(resTemp, forestInfo);
 
-            startTimeComplete = RandomWalk(startTimeComplete, dagTasks, forestInfo);
+            // startTimeComplete = RandomWalk(startTimeComplete, tasksInfo, forestInfo);
             // factors that require elimination analysis are: DBF
             // ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
             LLint errorDimensionDBF = tasksInfo.processorTaskSet.size();
