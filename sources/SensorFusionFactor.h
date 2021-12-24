@@ -104,7 +104,7 @@ namespace DAG_SPACE
                     sourceFinishTime.reserve(tasksPrev.size());
                     size_t indexCurr = itr->first;
 
-                    for (int instanceCurr = 0; instanceCurr < sizeOfVariables[indexCurr]; instanceCurr++)
+                    for (int instanceCurr = 0; instanceCurr < tasksInfo.sizeOfVariables[indexCurr]; instanceCurr++)
                     {
                         boost::function<double()> funcLocal =
                             [&]()
@@ -114,35 +114,35 @@ namespace DAG_SPACE
                             // if DAG constraints are violated, addedErrorDAG will count the violated part
                             double addedErrorDAG = 0;
                             double addedErrorDDL = 0;
-                            double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, indexCurr, instanceCurr);
+                            double startTimeCurr = ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, indexCurr, instanceCurr);
 
                             // go through three source sensor tasks in the example
                             for (size_t ii = 0; ii < tasksPrev.size(); ii++)
                             {
                                 int sourceIndex = tasksPrev.at(ii).id;
-                                LLint instanceSource = floor(startTimeCurr / tasks[sourceIndex].period);
+                                LLint instanceSource = floor(startTimeCurr / tasksInfo.tasks[sourceIndex].period);
                                 // if instanceSource<0, that means startTimeCurr <0, we'll use the first sourceInstance in a period instead
                                 // instanceSource = (instanceSource < 0) ? 0 : instanceSource;
                                 if (instanceSource < 0)
                                     instanceSource = 0;
-                                else if (instanceSource > sizeOfVariables[sourceIndex] - 1)
-                                    instanceSource = sizeOfVariables[sourceIndex] - 1;
+                                else if (instanceSource > tasksInfo.sizeOfVariables[sourceIndex] - 1)
+                                    instanceSource = tasksInfo.sizeOfVariables[sourceIndex] - 1;
 
-                                double startTimeSourceInstance = ExtractVariable(startTimeVector, sizeOfVariables,
+                                double startTimeSourceInstance = ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables,
                                                                                  sourceIndex, instanceSource);
-                                double finishTimeSourceInstance = startTimeSourceInstance + tasks[sourceIndex].executionTime;
+                                double finishTimeSourceInstance = startTimeSourceInstance + tasksInfo.tasks[sourceIndex].executionTime;
                                 if (finishTimeSourceInstance <= startTimeCurr)
                                     sourceFinishTime.push_back(finishTimeSourceInstance);
                                 else if (instanceSource - 1 >= 0)
                                 {
-                                    double startTime_k_l_prev = ExtractVariable(startTimeVector, sizeOfVariables,
+                                    double startTime_k_l_prev = ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables,
                                                                                 sourceIndex, instanceSource - 1);
-                                    if (startTime_k_l_prev + tasks[sourceIndex].executionTime >= startTimeCurr)
+                                    if (startTime_k_l_prev + tasksInfo.tasks[sourceIndex].executionTime >= startTimeCurr)
                                     {
                                         //in this case, self deadline constraint is violated, and so we'll just add addedErrorDDL
-                                        addedErrorDDL += startTime_k_l_prev + tasks[sourceIndex].executionTime - startTimeCurr;
+                                        addedErrorDDL += startTime_k_l_prev + tasksInfo.tasks[sourceIndex].executionTime - startTimeCurr;
                                     }
-                                    sourceFinishTime.push_back(startTime_k_l_prev + tasks[sourceIndex].executionTime);
+                                    sourceFinishTime.push_back(startTime_k_l_prev + tasksInfo.tasks[sourceIndex].executionTime);
                                 }
                                 // there is no previous instance, i.e., DAG constraints are violated,
                                 // instanceSource = 0
@@ -151,12 +151,12 @@ namespace DAG_SPACE
                                 {
                                     double startTime_k_l_next = startTimeSourceInstance;
 
-                                    sourceFinishTime.push_back(startTime_k_l_next + tasks[sourceIndex].executionTime);
+                                    sourceFinishTime.push_back(startTime_k_l_next + tasksInfo.tasks[sourceIndex].executionTime);
                                     // if all the sources violate DAG constraints, this error will drag them back
                                     if (withAddedSensorFusionError)
                                     {
                                         // if (addedErrorDAG == 0)
-                                        addedErrorDAG += startTime_k_l_next + tasks[sourceIndex].executionTime - startTimeCurr;
+                                        addedErrorDAG += startTime_k_l_next + tasksInfo.tasks[sourceIndex].executionTime - startTimeCurr;
                                         // else
                                         //     addedErrorDAG = min(addedErrorDAG, startTime_k_l_next +
                                         //                                            tasks[sourceIndex].executionTime - startTimeCurr);
@@ -192,7 +192,7 @@ namespace DAG_SPACE
 
             // int m = errorDimension;
             // y -> x
-            SM_Dynamic j_yx(errorDimension, length);
+            SM_Dynamic j_yx(errorDimension, tasksInfo.length);
             LLint indexRes = 0;
             // go through all the tasks that needs sensor fusion, 3 in the example DAG
             for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
@@ -203,7 +203,7 @@ namespace DAG_SPACE
                     vector<double> sourceFinishTime;
                     sourceFinishTime.reserve(tasksPrev.size());
                     size_t indexCurr = itr->first;
-                    for (int instanceCurr = 0; instanceCurr < sizeOfVariables[indexCurr]; instanceCurr++)
+                    for (int instanceCurr = 0; instanceCurr < tasksInfo.sizeOfVariables[indexCurr]; instanceCurr++)
                     {
 
                         boost::function<double()> funcLocal =
@@ -214,35 +214,35 @@ namespace DAG_SPACE
                             // if DAG constraints are violated, addedErrorDAG will count the violated part
                             double addedErrorDAG = 0;
                             double addedErrorDDL = 0;
-                            double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, indexCurr, instanceCurr);
+                            double startTimeCurr = ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, indexCurr, instanceCurr);
 
                             // go through three source sensor tasks in the example
                             for (size_t ii = 0; ii < tasksPrev.size(); ii++)
                             {
                                 int sourceIndex = tasksPrev.at(ii).id;
-                                LLint instanceSource = floor(startTimeCurr / tasks[sourceIndex].period);
+                                LLint instanceSource = floor(startTimeCurr / tasksInfo.tasks[sourceIndex].period);
                                 // if instanceSource<0, that means startTimeCurr <0, we'll use the first sourceInstance in a period instead
                                 // instanceSource = (instanceSource < 0) ? 0 : instanceSource;
                                 if (instanceSource < 0)
                                     instanceSource = 0;
-                                else if (instanceSource > sizeOfVariables[sourceIndex] - 1)
-                                    instanceSource = sizeOfVariables[sourceIndex] - 1;
+                                else if (instanceSource > tasksInfo.sizeOfVariables[sourceIndex] - 1)
+                                    instanceSource = tasksInfo.sizeOfVariables[sourceIndex] - 1;
 
-                                double startTimeSourceInstance = ExtractVariable(startTimeVector, sizeOfVariables,
+                                double startTimeSourceInstance = ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables,
                                                                                  sourceIndex, instanceSource);
-                                double finishTimeSourceInstance = startTimeSourceInstance + tasks[sourceIndex].executionTime;
+                                double finishTimeSourceInstance = startTimeSourceInstance + tasksInfo.tasks[sourceIndex].executionTime;
                                 if (finishTimeSourceInstance <= startTimeCurr)
                                     sourceFinishTime.push_back(finishTimeSourceInstance);
                                 else if (instanceSource - 1 >= 0)
                                 {
-                                    double startTime_k_l_prev = ExtractVariable(startTimeVector, sizeOfVariables,
+                                    double startTime_k_l_prev = ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables,
                                                                                 sourceIndex, instanceSource - 1);
-                                    if (startTime_k_l_prev + tasks[sourceIndex].executionTime >= startTimeCurr)
+                                    if (startTime_k_l_prev + tasksInfo.tasks[sourceIndex].executionTime >= startTimeCurr)
                                     {
                                         //in this case, self deadline constraint is violated, and so we'll just add addedErrorDDL
-                                        addedErrorDDL += startTime_k_l_prev + tasks[sourceIndex].executionTime - startTimeCurr;
+                                        addedErrorDDL += startTime_k_l_prev + tasksInfo.tasks[sourceIndex].executionTime - startTimeCurr;
                                     }
-                                    sourceFinishTime.push_back(startTime_k_l_prev + tasks[sourceIndex].executionTime);
+                                    sourceFinishTime.push_back(startTime_k_l_prev + tasksInfo.tasks[sourceIndex].executionTime);
                                 }
                                 // there is no previous instance, i.e., DAG constraints are violated,
                                 // instanceSource = 0
@@ -251,12 +251,12 @@ namespace DAG_SPACE
                                 {
                                     double startTime_k_l_next = startTimeSourceInstance;
 
-                                    sourceFinishTime.push_back(startTime_k_l_next + tasks[sourceIndex].executionTime);
+                                    sourceFinishTime.push_back(startTime_k_l_next + tasksInfo.tasks[sourceIndex].executionTime);
                                     // if all the sources violate DAG constraints, this error will drag them back
                                     if (withAddedSensorFusionError)
                                     {
                                         // if (addedErrorDAG == 0)
-                                        addedErrorDAG += startTime_k_l_next + tasks[sourceIndex].executionTime - startTimeCurr;
+                                        addedErrorDAG += startTime_k_l_next + tasksInfo.tasks[sourceIndex].executionTime - startTimeCurr;
                                         // else
                                         //     addedErrorDAG = min(addedErrorDAG, startTime_k_l_next +
                                         //                                            tasks[sourceIndex].executionTime - startTimeCurr);
@@ -265,7 +265,7 @@ namespace DAG_SPACE
                             }
                             // this error is not well tested yet
                             double sensorFreshError = Barrier(FreshTol - (startTimeCurr +
-                                                                          tasks[indexCurr].executionTime -
+                                                                          tasksInfo.tasks[indexCurr].executionTime -
                                                                           *min_element(sourceFinishTime.begin(),
                                                                                        sourceFinishTime.end())));
 
@@ -288,21 +288,22 @@ namespace DAG_SPACE
                             startTimeVector(index_source_overall, 0) += deltaOptimizer;
                         };
 
-                        double startTimeCurr = ExtractVariable(startTimeVector, sizeOfVariables, indexCurr, instanceCurr);
+                        double startTimeCurr = ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, indexCurr, instanceCurr);
                         for (size_t ii = 0; ii < tasksPrev.size(); ii++)
                         {
                             int sourceIndex = tasksPrev.at(ii).id;
-                            LLint instanceSource = floor(startTimeCurr / tasks[sourceIndex].period);
+                            LLint instanceSource = floor(startTimeCurr / tasksInfo.tasks[sourceIndex].period);
                             if (instanceSource < 0)
                                 instanceSource = 0;
-                            else if (instanceSource > sizeOfVariables[sourceIndex] - 1)
-                                instanceSource = sizeOfVariables[sourceIndex] - 1;
-                            LLint index_source_overall = IndexTran_Instance2Overall(sourceIndex, instanceSource, sizeOfVariables);
+                            else if (instanceSource > tasksInfo.sizeOfVariables[sourceIndex] - 1)
+                                instanceSource = tasksInfo.sizeOfVariables[sourceIndex] - 1;
+                            LLint index_source_overall = IndexTran_Instance2Overall(sourceIndex,
+                                                                                    instanceSource, tasksInfo.sizeOfVariables);
                             jacobianLocal(index_source_overall);
-                            index_source_overall = IndexTran_Instance2Overall(sourceIndex, max(instanceSource - 1, LLint(0)), sizeOfVariables);
+                            index_source_overall = IndexTran_Instance2Overall(sourceIndex, max(instanceSource - 1, LLint(0)), tasksInfo.sizeOfVariables);
                             jacobianLocal(index_source_overall);
                         }
-                        LLint index_Curr_overall = IndexTran_Instance2Overall(indexCurr, instanceCurr, sizeOfVariables);
+                        LLint index_Curr_overall = IndexTran_Instance2Overall(indexCurr, instanceCurr, tasksInfo.sizeOfVariables);
                         jacobianLocal(index_Curr_overall);
 
                         indexRes++;

@@ -1134,8 +1134,8 @@ TEST(ProcessorTaskSet, add)
     DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
                                 model);
 
-    AssertEqualVectorNoRepeat<int>({0, 2, 3}, factor.processorTaskSet[0]);
-    AssertEqualVectorNoRepeat<int>({1, 4}, factor.processorTaskSet[1]);
+    AssertEqualVectorNoRepeat<int>({0, 2, 3}, factor.tasksInfo.processorTaskSet[0]);
+    AssertEqualVectorNoRepeat<int>({1, 4}, factor.tasksInfo.processorTaskSet[1]);
 }
 TEST(testDBF, v3MultiProcess)
 {

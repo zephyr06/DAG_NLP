@@ -82,18 +82,23 @@ namespace DAG_SPACE
 
             int indexPro = 0;
 
-            for (auto itr = processorTaskSet.begin(); itr != processorTaskSet.end(); itr++)
+            for (auto itr = tasksInfo.processorTaskSet.begin(); itr != tasksInfo.processorTaskSet.end(); itr++)
             {
                 double errorCurrProc = 0;
                 vector<SF_Time_Instance> SF_Seq;
                 SF_Seq.reserve(startTimeVector.size() * 2);
-                for (int taskId : processorTaskSet.at(itr->first))
+                for (int taskId : tasksInfo.processorTaskSet.at(itr->first))
                 {
-                    for (int j = 0; j < sizeOfVariables[taskId]; j++)
+                    for (int j = 0; j < tasksInfo.sizeOfVariables[taskId]; j++)
                     {
-                        SF_Time_Instance inst{'s', startTimeVector(IndexTran_Instance2Overall(taskId, j, sizeOfVariables), 0), tasks[taskId].coreRequire};
+                        SF_Time_Instance inst{'s',
+                                              startTimeVector(IndexTran_Instance2Overall(taskId,
+                                                                                         j,
+                                                                                         tasksInfo.sizeOfVariables),
+                                                              0),
+                                              tasksInfo.tasks[taskId].coreRequire};
                         SF_Seq.push_back(inst);
-                        inst = {'f', inst.time + tasks[taskId].executionTime, tasks[taskId].coreRequire};
+                        inst = {'f', inst.time + tasksInfo.tasks[taskId].executionTime, tasksInfo.tasks[taskId].coreRequire};
                         SF_Seq.push_back(inst);
                     }
                 }

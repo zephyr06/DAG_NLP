@@ -31,10 +31,10 @@ namespace DAG_SPACE
                                                                    forestInfo);
 
             int indexPro = 0;
-            for (auto itr = processorTaskSet.begin(); itr != processorTaskSet.end(); itr++)
+            for (auto itr = tasksInfo.processorTaskSet.begin(); itr != tasksInfo.processorTaskSet.end(); itr++)
             {
                 res(indexPro++, 0) = DbfIntervalOverlapError(startTimeVector, itr->first,
-                                                             processorTaskSet, tasks, sizeOfVariables);
+                                                             tasksInfo.processorTaskSet, tasksInfo.tasks, tasksInfo.sizeOfVariables);
             }
 
             return res;
@@ -105,12 +105,12 @@ namespace DAG_SPACE
 
             VectorDynamic startTimeVector = RecoverStartTimeVector(resTemp, forestInfo);
 
-            for (auto itr = processorTaskSet.begin(); itr != processorTaskSet.end(); itr++)
+            for (auto itr = tasksInfo.processorTaskSet.begin(); itr != tasksInfo.processorTaskSet.end(); itr++)
             {
                 int processorCurr = itr->first;
                 vector<int> tasksCurr = itr->second;
                 vector<Interval> intervalVec = DbfInterval(startTimeVector, processorCurr,
-                                                           processorTaskSet, tasks, sizeOfVariables);
+                                                           tasksInfo.processorTaskSet, tasksInfo.tasks, tasksInfo.sizeOfVariables);
                 sort(intervalVec.begin(), intervalVec.end(), compare);
 
                 // find DBF error that need elimination
@@ -179,7 +179,7 @@ namespace DAG_SPACE
                                 //                                    forestInfo.eliminationTrees);
                                 if (tightEliminate == 1)
                                 {
-                                    forestInfo.AddLinearEliminate(index_j_overall, index_i_overall, sumIJK - tasks[j].executionTime);
+                                    forestInfo.AddLinearEliminate(index_j_overall, index_i_overall, sumIJK - tasksInfo.tasks[j].executionTime);
                                 }
                                 else if (tightEliminate == 0)
                                 {
@@ -217,7 +217,7 @@ namespace DAG_SPACE
             for (size_t i = 0; i < tree2.size(); i++)
                 trees.push_back(tree2[i]);
 
-            vector<Interval> vv = CreateIntervalFromSTVSameOrder(trees, startTimeVector, tasks, sizeOfVariables);
+            vector<Interval> vv = CreateIntervalFromSTVSameOrder(trees, startTimeVector, tasksInfo.tasks, tasksInfo.sizeOfVariables);
             double error_I_O = IntervalOverlapError(vv);
             if (error_I_O == 0)
                 return true;
@@ -259,7 +259,7 @@ namespace DAG_SPACE
             jacobian.resize(mOfJacobian, n);
             jacobian.setZero();
 
-            vector<LLint> vanishGradientIndex = FindVanishIndex(x, tasks, sizeOfVariables, forestInfo);
+            vector<LLint> vanishGradientIndex = FindVanishIndex(x, tasksInfo.tasks, tasksInfo.sizeOfVariables, forestInfo);
             std::unordered_set<LLint> ss;
             for (size_t i = 0; i < vanishGradientIndex.size(); i++)
             {
@@ -333,16 +333,16 @@ namespace DAG_SPACE
                 startTimeVectorOrig, forestInfo);
 
             int m = errorDimension;
-            LLint n = length;
+            LLint n = tasksInfo.length;
             // y -> x
             MatrixDynamic j_yx = GenerateMatrixDynamic(m, n);
             j_yx.resize(m, n);
 
             int processorIndex = 0;
-            for (auto proPtr = processorTaskSet.begin(); proPtr != processorTaskSet.end(); proPtr++)
+            for (auto proPtr = tasksInfo.processorTaskSet.begin(); proPtr != tasksInfo.processorTaskSet.end(); proPtr++)
             {
                 vector<Interval> intervalVec = DbfInterval(startTimeVector, proPtr->first,
-                                                           processorTaskSet, tasks, sizeOfVariables);
+                                                           tasksInfo.processorTaskSet, tasksInfo.tasks, tasksInfo.sizeOfVariables);
                 sort(intervalVec.begin(), intervalVec.end(), compare);
 
                 for (LLint i = 0; i < LLint(intervalVec.size()); i++)
@@ -383,7 +383,7 @@ namespace DAG_SPACE
             int n = x.rows();
             MatrixDynamic jacobian = JacobianAnalytic(x);
 
-            vector<LLint> vanishGradientIndex = FindVanishIndex(x, tasks, sizeOfVariables, forestInfo);
+            vector<LLint> vanishGradientIndex = FindVanishIndex(x, tasksInfo.tasks, tasksInfo.sizeOfVariables, forestInfo);
             std::unordered_set<LLint> ss;
             for (size_t i = 0; i < vanishGradientIndex.size(); i++)
             {

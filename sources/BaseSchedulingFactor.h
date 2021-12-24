@@ -8,27 +8,27 @@ class BaseSchedulingFactor : public NoiseModelFactor1<VectorDynamic>
 {
 public:
     TaskSetInfoDerived tasksInfo;
-    TaskSet tasks;
-    vector<LLint> sizeOfVariables;
-    int N;
+    // TaskSet tasks;
+    // vector<LLint> sizeOfVariables;
+    // int N;
     LLint errorDimension;
-    LLint length;
-    EliminationForest forestInfo;
+    // LLint length;
     // each element contains tasks belonging to the same processor
-    ProcessorTaskSet processorTaskSet;
-
+    // ProcessorTaskSet processorTaskSet;
+    EliminationForest forestInfo;
     // std::unordered_map<LLint, LLint> mapIndex_True2Compress;
 
     BaseSchedulingFactor(Key key, TaskSetInfoDerived &tasksInfo,
                          EliminationForest &forestInfo, LLint errorDimension,
                          SharedNoiseModel model)
         : NoiseModelFactor1<VectorDynamic>(model, key), tasksInfo(tasksInfo),
-          tasks(tasksInfo.tasks), sizeOfVariables(tasksInfo.sizeOfVariables),
-          N(tasks.size()), errorDimension(errorDimension),
-          forestInfo(forestInfo),
-          processorTaskSet(tasksInfo.processorTaskSet)
+          //   tasks(tasksInfo.tasks), sizeOfVariables(tasksInfo.sizeOfVariables),
+          //   N(tasks.size()),
+          errorDimension(errorDimension),
+          //   processorTaskSet(tasksInfo.processorTaskSet),
+          forestInfo(forestInfo)
     {
-        length = tasksInfo.length;
+        // length = tasksInfo.length;
     }
 
     virtual Vector evaluateError(const VectorDynamic &startTimeVector,

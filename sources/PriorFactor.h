@@ -29,7 +29,9 @@ namespace DAG_SPACE
             LLint indexRes = 0;
 
             // self DDL
-            res(indexRes++, 0) = (ExtractVariable(startTimeVector, sizeOfVariables, firstTaskIndex, 0) - priorValue) *
+            res(indexRes++, 0) = (ExtractVariable(startTimeVector,
+                                                  tasksInfo.sizeOfVariables, firstTaskIndex, 0) -
+                                  priorValue) *
                                  weightPrior_factor;
 
             if (indexRes != errorDimension)
@@ -43,7 +45,7 @@ namespace DAG_SPACE
         MatrixDynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
         {
             LLint n0 = 0;
-            for (LLint i = 0; i < length; i++)
+            for (LLint i = 0; i < tasksInfo.length; i++)
                 if (forestInfo.maskForEliminate.at(i) == false)
                     n0++;
             if (weightPrior_factor == 0)

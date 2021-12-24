@@ -8,7 +8,8 @@ namespace DAG_SPACE
         DDL_ConstraintFactor(Key key, TaskSetInfoDerived &tasksInfo,
                              EliminationForest &forestInfo,
                              LLint errorDimension,
-                             SharedNoiseModel model) : BaseSchedulingFactor(key, tasksInfo, forestInfo, errorDimension, model)
+                             SharedNoiseModel model) : BaseSchedulingFactor(key, tasksInfo,
+                                                                            forestInfo, errorDimension, model)
         {
         }
         boost::function<MatrixRowMajor(const VectorDynamic &)> f =
@@ -21,18 +22,18 @@ namespace DAG_SPACE
             LLint indexRes = 0;
 
             // self DDL
-            for (int i = 0; i < N; i++)
+            for (int i = 0; i < tasksInfo.N; i++)
             {
-                for (int j = 0; j < int(sizeOfVariables[i]); j++)
+                for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
                 {
                     // this factor is explained as: variable * 1 < tasks[i].deadline + i * tasks[i].period
-                    res(indexRes++, 0) = Barrier(tasks[i].deadline + j * tasks[i].period -
-                                                 ExtractVariable(startTimeVector, sizeOfVariables, i, j) -
-                                                 tasks[i].executionTime + 0) *
+                    res(indexRes++, 0) = Barrier(tasksInfo.tasks[i].deadline + j * tasksInfo.tasks[i].period -
+                                                 ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j) -
+                                                 tasksInfo.tasks[i].executionTime + 0) *
                                          weightDDL_factor;
                     // this factor is explained as: variable * -1 < -1 *(i * tasks[i].period)
-                    res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, sizeOfVariables, i, j) -
-                                                 (j * tasks[i].period) + 0) *
+                    res(indexRes++, 0) = Barrier(ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j) -
+                                                 (j * tasksInfo.tasks[i].period) + 0) *
                                          weightDDL_factor;
                 }
             }
@@ -51,25 +52,25 @@ namespace DAG_SPACE
                 startTimeVectorOrig, forestInfo);
 
             int m = errorDimension;
-            LLint n = length;
+            LLint n = tasksInfo.length;
             // y -> x
             SM_Dynamic j_yx(m, n);
             j_yx.resize(m, n);
             // go through m
             LLint index_m = 0;
             // Barrier function transforms all the negative error into positive error
-            for (int i = 0; i < N; i++)
+            for (int i = 0; i < tasksInfo.N; i++)
             {
-                for (int j = 0; j < int(sizeOfVariables[i]); j++)
+                for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
                 {
                     // if (index_m == 99)
                     // {
                     //     int a = 1;
                     // }
                     // finish time is smaller than deadline
-                    double err1 = tasks[i].deadline + j * tasks[i].period -
-                                  ExtractVariable(startTimeVector, sizeOfVariables, i, j) -
-                                  tasks[i].executionTime;
+                    double err1 = tasksInfo.tasks[i].deadline + j * tasksInfo.tasks[i].period -
+                                  ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j) -
+                                  tasksInfo.tasks[i].executionTime;
 
                     if (err1 <= 0 - deltaOptimizer)
                     {
@@ -86,8 +87,8 @@ namespace DAG_SPACE
                         j_yx.insert(index_m * 2, index_m) = 0;
 
                     // start time is larger than start of period
-                    double err2 = ExtractVariable(startTimeVector, sizeOfVariables, i, j) -
-                                  (j * tasks[i].period);
+                    double err2 = ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j) -
+                                  (j * tasksInfo.tasks[i].period);
                     if (err2 <= 0 - deltaOptimizer)
                     {
                         j_yx.insert(index_m * 2 + 1, index_m) = -1 * weightDDL_factor;

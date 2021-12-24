@@ -108,8 +108,8 @@ namespace DAG_SPACE
             int m = startTimeVector.rows();
             for (int i = 0; i < m; i++)
             {
-                LLint taskId = BigIndex2TaskIndex(i, sizeOfVariables);
-                finishTimeVector(i, 0) += tasks[taskId].executionTime;
+                LLint taskId = BigIndex2TaskIndex(i, tasksInfo.sizeOfVariables);
+                finishTimeVector(i, 0) += tasksInfo.tasks[taskId].executionTime;
             }
             VectorDynamic finishTimeVectorOrig = startTimeVectorOrig;
             return CompresStartTimeVector(finishTimeVector, forestInfo.maskForEliminate);
@@ -125,7 +125,7 @@ namespace DAG_SPACE
             VectorDynamic startTimeVector = RecoverStartTimeVector(
                 startTimeVectorOrig, forestInfo);
             // y -> x
-            SM_Dynamic j_yx(errorDimension, length);
+            SM_Dynamic j_yx(errorDimension, tasksInfo.length);
 
             // LLint indexRes = 0;
             LLint smallest = 0;

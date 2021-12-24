@@ -33,8 +33,8 @@ namespace DAG_SPACE
                 size_t indexNext = itr->first;
                 for (size_t i = 0; i < tasksPrev.size(); i++)
                 {
-                    double err = ExtractVariable(startTimeVector, sizeOfVariables, indexNext, 0) -
-                                 ExtractVariable(startTimeVector, sizeOfVariables, tasksPrev[i].id, 0) -
+                    double err = ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, indexNext, 0) -
+                                 ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, tasksPrev[i].id, 0) -
                                  tasksPrev[i].executionTime;
                     res(indexRes++, 0) = Barrier(err);
                 }
@@ -48,7 +48,7 @@ namespace DAG_SPACE
                 startTimeVectorOrig, forestInfo);
 
             int m = errorDimension;
-            LLint n = length;
+            LLint n = tasksInfo.length;
             // y -> x
             SM_Dynamic j_yx(m, n);
             // go through m
@@ -62,8 +62,8 @@ namespace DAG_SPACE
                 size_t indexNext = itr->first;
                 for (size_t i = 0; i < tasksPrev.size(); i++)
                 {
-                    double err = ExtractVariable(startTimeVector, sizeOfVariables, indexNext, 0) -
-                                 ExtractVariable(startTimeVector, sizeOfVariables, tasksPrev[i].id, 0) -
+                    double err = ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, indexNext, 0) -
+                                 ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, tasksPrev[i].id, 0) -
                                  tasksPrev[i].executionTime;
                     // err = Barrier(err);
                     if (err >= deltaOptimizer)
@@ -73,8 +73,8 @@ namespace DAG_SPACE
                     }
                     else if (err <= -deltaOptimizer)
                     {
-                        LLint index_N_overall = IndexTran_Instance2Overall(indexNext, 0, sizeOfVariables);
-                        LLint index_P_overall = IndexTran_Instance2Overall(tasksPrev[i].id, 0, sizeOfVariables);
+                        LLint index_N_overall = IndexTran_Instance2Overall(indexNext, 0, tasksInfo.sizeOfVariables);
+                        LLint index_P_overall = IndexTran_Instance2Overall(tasksPrev[i].id, 0, tasksInfo.sizeOfVariables);
                         // j_yx(index_m, index_N_overall) = -1;
                         UpdateSM(-1, index_m, index_N_overall, j_yx);
                         UpdateSM(1, index_m++, index_P_overall, j_yx);
@@ -83,15 +83,15 @@ namespace DAG_SPACE
                     }
                     else if (err > -deltaOptimizer && err < deltaOptimizer)
                     {
-                        double x1 = ExtractVariable(startTimeVector, sizeOfVariables, indexNext, 0);
-                        double x2 = ExtractVariable(startTimeVector, sizeOfVariables, tasksPrev[i].id, 0);
+                        double x1 = ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, indexNext, 0);
+                        double x2 = ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, tasksPrev[i].id, 0);
                         double c = tasksPrev[i].executionTime;
                         double errPlus1 = Barrier(x1 + deltaOptimizer - x2 - c);
                         double errMinus1 = Barrier(x1 - deltaOptimizer - x2 - c);
                         double errPlus2 = Barrier(x1 - deltaOptimizer - x2 - c);
                         double errMinus2 = Barrier(x1 + deltaOptimizer - x2 - c);
-                        LLint index_N_overall = IndexTran_Instance2Overall(indexNext, 0, sizeOfVariables);
-                        LLint index_P_overall = IndexTran_Instance2Overall(tasksPrev[i].id, 0, sizeOfVariables);
+                        LLint index_N_overall = IndexTran_Instance2Overall(indexNext, 0, tasksInfo.sizeOfVariables);
+                        LLint index_P_overall = IndexTran_Instance2Overall(tasksPrev[i].id, 0, tasksInfo.sizeOfVariables);
                         // j_yx(index_m, index_N_overall) = (errPlus1 - errMinus1) / 2 / deltaOptimizer;
                         UpdateSM((errPlus1 - errMinus1) / 2 / deltaOptimizer, index_m, index_N_overall, j_yx);
                         // j_yx(index_m++, index_P_overall) = (errPlus2 - errMinus2) / 2 / deltaOptimizer;
@@ -112,7 +112,8 @@ namespace DAG_SPACE
             if (H)
             {
                 if (numericalJaobian)
-                    *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
+                    *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer,
+                                                         errorDimension);
                 else
                     *H = JacobianAnalytic(startTimeVector);
                 if (debugMode == 1)
