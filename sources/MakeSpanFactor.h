@@ -156,9 +156,10 @@ namespace DAG_SPACE
         Vector evaluateError(const VectorDynamic &startTimeVectorOrig,
                              boost::optional<Matrix &> H = boost::none) const override
         {
+            BeginTimer("MakeSpan");
             VectorDynamic startTimeVector = RecoverStartTimeVector(
                 startTimeVectorOrig, forestInfo);
-            BeginTimer("MakeSpan");
+
             if (H)
             {
                 if (numericalJaobian)

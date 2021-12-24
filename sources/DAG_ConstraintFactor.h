@@ -108,7 +108,7 @@ namespace DAG_SPACE
         Vector evaluateError(const VectorDynamic &startTimeVector,
                              boost::optional<Matrix &> H = boost::none) const override
         {
-            BeginTimer("DAG");
+            BeginTimer("DAG_All");
             if (H)
             {
                 if (numericalJaobian)
@@ -127,7 +127,7 @@ namespace DAG_SPACE
                     cout << "The error vector of DAG is " << Color::blue << f(startTimeVector) << Color::def << endl;
                 }
             }
-            EndTimer("DAG");
+            EndTimer("DAG_All");
             return f(startTimeVector);
         }
     };
