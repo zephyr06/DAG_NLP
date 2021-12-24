@@ -36,7 +36,7 @@ double Overlap(Interval &v1, Interval &v2)
 {
     double f1 = v1.start + v1.length;
     double f2 = v2.start + v2.length;
-    int coreRequireDiff = coreNumberAva - v1.coreRequire - v2.coreRequire;
+    int coreRequireDiff = 1 - v1.coreRequire - v2.coreRequire;
     int coreError = 0;
     if (coreRequireDiff >= 0)
         return 0;
