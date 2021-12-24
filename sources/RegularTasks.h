@@ -17,7 +17,7 @@
 using namespace std;
 
 #define TaskSet vector<RegularTaskSystem::Task>
-
+typedef std::map<int, vector<int>> ProcessorTaskSet;
 namespace RegularTaskSystem
 {
     class Task

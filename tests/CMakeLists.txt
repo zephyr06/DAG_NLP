@@ -1,4 +1,10 @@
 gtsamAddTestsGlob(EnergyOptNLP "test*.cpp" "" "${CONVENIENCE_LIB_NAME}")
+
+# file(GLOB files "test*.cpp")
+# foreach(file ${files})
+#     ADD_EXECUTABLE(tBatch1 ${file})
+#     TARGET_LINK_LIBRARIES(tBatch1 ${CONVENIENCE_LIB_NAME})
+# endforeach()
 # ADD_EXECUTABLE(testOpt testOptimize.cpp)
 # TARGET_LINK_LIBRARIES(testOpt ${CONVENIENCE_LIB_NAME})
 # ADD_EXECUTABLE(testTask1 testTaskSetGenerate.cpp)

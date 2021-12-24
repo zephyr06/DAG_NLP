@@ -1,5 +1,7 @@
 #include "../sources/GenerateRandomTaskset.h"
 #include "../sources/testMy.h"
+#include "../sources/EliminationForest_utils.h"
+#include "../sources/Optimize.h"
 
 TEST(ExtractVariable, v1)
 {
@@ -79,6 +81,43 @@ TEST(ReadDAG_Tasks, v7)
     for (int i = 0; i < 3; i++)
         AssertEqualScalar(0, dm.tasks[i].taskType);
 }
+
+TEST(ProcessorTaskSet, add)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v28.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    int N = tasks.size();
+    LLint hyperPeriod = HyperPeriod(tasks);
+
+    // declare variables
+    vector<LLint> sizeOfVariables;
+    int variableDimension = 0;
+    for (int i = 0; i < N; i++)
+    {
+        LLint size = hyperPeriod / tasks[i].period;
+        sizeOfVariables.push_back(size);
+        variableDimension += size;
+    }
+
+    vector<bool> maskForEliminate(variableDimension, false);
+    MAP_Index2Data mapIndex;
+    for (int i = 0; i < variableDimension; i++)
+        mapIndex[i] = MappingDataStruct{i, 0};
+
+    Symbol key('a', 0);
+    ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+    LLint errorDimensionDBF = processorTaskSet.size();
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
+
+    AssertEqualVectorNoRepeat<int>({0, 2, 3}, factor.tasksInfo.processorTaskSet[0]);
+    AssertEqualVectorNoRepeat<int>({1, 4}, factor.tasksInfo.processorTaskSet[1]);
+}
+
 TEST(TaskSetInfoDerived, v1)
 {
     string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v45.csv";

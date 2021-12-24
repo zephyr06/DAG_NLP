@@ -205,6 +205,15 @@ namespace DAG_SPACE
             EndTimer("addMap2");
         }
 
+        /**
+         * @brief true means no conflict, false means exist conflictions
+         * 
+         * @param tree1 
+         * @param tree2 
+         * @param startTimeVector 
+         * @return true 
+         * @return false 
+         */
         bool CheckNoConflictionTree(const vector<LLint> &tree1, const vector<LLint> &tree2,
                                     const VectorDynamic &startTimeVector)
         {

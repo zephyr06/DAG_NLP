@@ -33,7 +33,7 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, 1> VectorDynamic;
 typedef Eigen::SparseMatrix<double, Eigen::ColMajor> SM_Dynamic;
 
 typedef long long int LLint;
-typedef std::map<int, vector<int>> ProcessorTaskSet;
+
 struct MappingDataStruct
 {
     LLint index;
@@ -137,7 +137,7 @@ int BigIndex2TaskIndex(LLint index, const vector<LLint> &sizeOfVariables)
 VectorDynamic CompresStartTimeVector(const VectorDynamic &startTimeComplete,
                                      const vector<bool> &maskForEliminate)
 {
-    int variableDimension=maskForEliminate.size();
+    int variableDimension = maskForEliminate.size();
     vector<double> initialUpdateVec;
     initialUpdateVec.reserve(variableDimension - 1);
 
