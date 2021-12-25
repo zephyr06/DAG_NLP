@@ -1,5 +1,6 @@
 
 #pragma once
+#include "map"
 #include "unordered_map"
 
 #include "RegularTasks.h"
@@ -14,6 +15,15 @@
 #include "EliminationForest_utils.h"
 #include "InitialEstimate.h"
 #include "colormod.h"
+
+std::map<string, char> FACTOR2KEY = {
+    {"DAG", 'a'},
+    {"DBF", 'b'},
+    {"DBF_Multi", 'c'},
+    {"DDL", 'd'},
+    {"MakeSpan", 'e'},
+    {"Prior", 'f'},
+    {"SF", 'g'}};
 
 using namespace RegularTaskSystem;
 // -------------------------------------------------------- from previous optimization begins
@@ -34,11 +44,10 @@ namespace DAG_SPACE
         return errorDimensionSF;
     }
 
-    void BuildFactorGraph(DAG_Model &dagTasks, NonlinearFactorGraph &graph)
+    void BuildFactorGraph(DAG_Model &dagTasks, NonlinearFactorGraph &graph,
+                          TaskSetInfoDerived &tasksInfo, EliminationForest &forestInfo)
     {
         TaskSet tasks = dagTasks.tasks;
-        TaskSetInfoDerived tasksInfo(tasks);
-        EliminationForest forestInfo(tasksInfo);
         Symbol key('a', 0);
         // LLint errorDimensionMS = 1;
 
@@ -84,7 +93,9 @@ namespace DAG_SPACE
     double GraphErrorEvaluation(DAG_Model &dagTasks, VectorDynamic startTimeVector)
     {
         NonlinearFactorGraph graph;
-        BuildFactorGraph(dagTasks, graph);
+        TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+        EliminationForest forestInfo(tasksInfo);
+        BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
         Values initialEstimateFG;
         Symbol key('a', 0);
         initialEstimateFG.insert(key, startTimeVector);
@@ -131,8 +142,12 @@ namespace DAG_SPACE
 
         // build the factor graph
         NonlinearFactorGraph graph;
-        BuildFactorGraph(dagTasks, graph);
+        BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
+        // TaskSet tasks = dagTasks.tasks;
+        // TaskSetInfoDerived tasksInfo(tasks);
+        // EliminationForest forestInfo(tasksInfo);
         Symbol key('a', 0);
+        // LLint errorDimensionMS = 1;
 
         // LLint errorDimensionDAG = dagTasks.edgeNumber();
         // auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
@@ -166,13 +181,7 @@ namespace DAG_SPACE
         //     graph.emplace_shared<Prior_ConstraintFactor>(key, tasksInfo, forestInfo,
         //                                                  errorDimensionPrior, 0.0, order[0], model);
         // }
-
-        // LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
-        // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-        // graph.emplace_shared<SensorFusion_ConstraintFactor>(key, dagTasks, sizeOfVariables,
-        //                                                     errorDimensionSF, sensorFusionTolerance,
-        //                                                     mapIndex, maskForEliminate, model);
-        // return graph;
+        // Symbol key('a', 0);
 
         Values initialEstimateFG;
         initialEstimateFG.insert(key, initialEstimate);
@@ -320,7 +329,8 @@ namespace DAG_SPACE
 
             if (not whetherEliminate)
             {
-                trueResult = RecoverStartTimeVector(resTemp, forestInfo);
+                // trueResult = RecoverStartTimeVector(resTemp, forestInfo);
+                trueResult = startTimeComplete;
                 break;
             }
             loopNumber++;

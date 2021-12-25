@@ -151,7 +151,7 @@ namespace DAG_SPACE
                             if (CheckNoConflictionTree(tree_i, tree_j, startTimeVector))
                             {
                                 // forestInfo.maskForEliminate[index_j_overall] = true;
-                                // whetherEliminate = true;
+                                
                                 // // this should respect original relationship
                                 // if (tightEliminate == 1)
                                 // {
@@ -177,6 +177,7 @@ namespace DAG_SPACE
                                 // boost::tie(e, inserted) = add_edge(forestInfo.indexesBGL[index_j_overall],
                                 //                                    forestInfo.indexesBGL[index_i_overall],
                                 //                                    forestInfo.eliminationTrees);
+                                whetherEliminate = true;
                                 if (tightEliminate == 1)
                                 {
                                     forestInfo.AddLinearEliminate(index_j_overall, index_i_overall, sumIJK - tasksInfo.tasks[j].executionTime);

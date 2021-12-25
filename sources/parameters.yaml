@@ -8,15 +8,15 @@ T: !!opencv-matrix
    data: [ 3., 1., 5. ]
 barrierBase: 100
 coolingRateSA: 0.1
-coreNumberAva: 5
-debugMode: 0 # 1 means NLP, 2 means SA, 0 means initial
+coreNumberAva: 6
+debugMode: 2 # 1 means NLP, 2 means SA, 0 means initial
 deltaInitialDogleg: 1e5
 weightDDL_factor: 1.0
-deltaOptimizer: 1e-1
+deltaOptimizer: 1e0
 exactJacobian: 0
-initialLambda: 1e0
+initialLambda: 1e-1
 lowerLambda: 1e-15
-makespanWeight: 1e-5
+makespanWeight: 0
 noiseModelSigma: 1
 AcceptSchedulError: 1e0
 optimizerType: 2 # 1 means dogleg, 2 means LM
@@ -31,7 +31,7 @@ zeroJacobianDetectTol: 1e-7
 maxIterations: 100
 moreElimination: 0
 weightPrior_factor: 0
-initializeMethod: 2
+initializeMethod: 3
 timeScaleFactor: 1e2
 stepJacobianIteration: 1.5
 maxJacobianIteration: 25
@@ -42,7 +42,7 @@ SA_iteration: 100000
 sensorFusionTolerance: 50
 FreshTol: 50
 temperatureSA: 100000000
-testDataSetName: test_n5_v48
+testDataSetName: test_n5_v51
 tightEliminate: 0
 toleranceEliminator: 1
 upperLambda: 1e60
