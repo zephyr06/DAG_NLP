@@ -133,55 +133,12 @@ namespace DAG_SPACE
     VectorDynamic UnitOptimization(DAG_Model &dagTasks, VectorDynamic &initialEstimate,
                                    EliminationForest &forestInfo,
                                    TaskSetInfoDerived &tasksInfo)
-    //    vector<LLint> &sizeOfVariables, int variableDimension,
-    //    LLint hyperPeriod)
     {
         using namespace RegularTaskSystem;
 
-        // int N = dagTasks.tasks.size();
-
-        // build the factor graph
         NonlinearFactorGraph graph;
         BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
-        // TaskSet tasks = dagTasks.tasks;
-        // TaskSetInfoDerived tasksInfo(tasks);
-        // EliminationForest forestInfo(tasksInfo);
         Symbol key('a', 0);
-        // LLint errorDimensionMS = 1;
-
-        // LLint errorDimensionDAG = dagTasks.edgeNumber();
-        // auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
-        // graph.emplace_shared<DAG_ConstraintFactor>(key, dagTasks, tasksInfo, forestInfo,
-        //                                            errorDimensionDAG, model);
-        // if (makespanWeight > 0)
-        // {
-        //     LLint errorDimensionMS = 1;
-        //     model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
-        //     graph.emplace_shared<MakeSpanFactor>(key, dagTasks, tasksInfo, forestInfo,
-        //                                          errorDimensionMS, model);
-        // }
-
-        // ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
-        // LLint errorDimensionDBF = processorTaskSet.size();
-        // model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-        // graph.emplace_shared<DBF_ConstraintFactor>(key, tasksInfo, forestInfo,
-        //                                            errorDimensionDBF,
-        //                                            model);
-
-        // LLint errorDimensionDDL = 2 * tasksInfo.variableDimension;
-        // model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
-        // graph.emplace_shared<DDL_ConstraintFactor>(key, tasksInfo, forestInfo,
-        //                                            errorDimensionDDL, model);
-
-        // if (weightPrior_factor > 0)
-        // {
-        //     LLint errorDimensionPrior = 1;
-        //     vector<int> order = FindDependencyOrder(dagTasks);
-        //     model = noiseModel::Isotropic::Sigma(errorDimensionPrior, noiseModelSigma);
-        //     graph.emplace_shared<Prior_ConstraintFactor>(key, tasksInfo, forestInfo,
-        //                                                  errorDimensionPrior, 0.0, order[0], model);
-        // }
-        // Symbol key('a', 0);
 
         Values initialEstimateFG;
         initialEstimateFG.insert(key, initialEstimate);
@@ -313,7 +270,6 @@ namespace DAG_SPACE
 
             // startTimeComplete = RandomWalk(startTimeComplete, tasksInfo, forestInfo);
             // factors that require elimination analysis are: DBF
-            // ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
             LLint errorDimensionDBF = tasksInfo.processorTaskSet.size();
 
             auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
@@ -323,15 +279,14 @@ namespace DAG_SPACE
             // TODO: should we add eliminate function for sensorFusion?
             factor.addMappingFunction(resTemp, whetherEliminate, forestInfo);
 
-            // update initial estimate
-
-            initialEstimate = UpdateInitialVector(startTimeComplete, tasksInfo, forestInfo);
-
             if (not whetherEliminate)
             {
-                // trueResult = RecoverStartTimeVector(resTemp, forestInfo);
                 trueResult = startTimeComplete;
                 break;
+            }
+            else
+            {
+                initialEstimate = UpdateInitialVector(startTimeComplete, tasksInfo, forestInfo);
             }
             loopNumber++;
             if (loopNumber > ElimnateLoop_Max)
