@@ -24,19 +24,102 @@ public:
         return err;
     }
 };
-TEST(somefactor, v1)
+TEST(compareSparsity, v1)
 {
+    int N = 1000;
+    BeginTimer("test1");
+    VectorDynamic expectedB = GenerateVectorDynamic(N);
+    for (int i = 0; i < N; i++)
+        expectedB(i, 0) = sin(i);
 
-    // build the factor graph
     NonlinearFactorGraph graph;
-    Symbol key('a', 0);
 
     LLint errorDimensionMS = 1;
     auto model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
-    graph.emplace_shared<test1Factor>(key, 0, model);
-    VectorDynamic initialEstimate = GenerateVectorDynamic(1);
-    initialEstimate << 10;
     Values initialEstimateFG;
+    for (int i = 0; i < N; i++)
+    {
+        Symbol key('a', i);
+        graph.emplace_shared<test1Factor>(key, expectedB(i, 0), model);
+        VectorDynamic initialEstimate = GenerateVectorDynamic(1);
+        initialEstimateFG.insert(key, initialEstimate);
+    }
+
+    Values result;
+    if (optimizerType == 1)
+    {
+        DoglegParams params;
+        if (debugMode >= 1)
+            params.setVerbosityDL("VERBOSE");
+        params.setDeltaInitial(deltaInitialDogleg);
+        params.setRelativeErrorTol(relativeErrorTolerance);
+        params.setMaxIterations(maxIterations);
+        DoglegOptimizer optimizer(graph, initialEstimateFG, params);
+        result = optimizer.optimize();
+    }
+    else if (optimizerType == 2)
+    {
+        LevenbergMarquardtParams params;
+        params.setlambdaInitial(initialLambda);
+        if (debugMode >= 1)
+            params.setVerbosityLM("SUMMARY");
+        params.setlambdaLowerBound(lowerLambda);
+        params.setlambdaUpperBound(upperLambda);
+        params.setRelativeErrorTol(relativeErrorTolerance);
+        params.setMaxIterations(maxIterations);
+        params.setUseFixedLambdaFactor(setUseFixedLambdaFactor);
+        LevenbergMarquardtOptimizer optimizer(graph, initialEstimateFG, params);
+        result = optimizer.optimize();
+    }
+    Symbol key('a', 0);
+    VectorDynamic optComp = result.at<VectorDynamic>(key);
+    cout << "Test dummy: " << optComp << endl;
+    EndTimer("test1");
+}
+class test2Factor : public NoiseModelFactor1<VectorDynamic>
+{
+public:
+    VectorDynamic c;
+    LLint length;
+
+    test2Factor(Key key, VectorDynamic &c, SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key), c(c)
+    {
+        length = c.rows();
+    }
+    Vector evaluateError(const VectorDynamic &startTimeVector,
+                         boost::optional<Matrix &> H = boost::none) const override
+    {
+        VectorDynamic err = GenerateVectorDynamic(length);
+        for (int i = 0; i < length; i++)
+            err(i, 0) = pow(c(i, 0) - startTimeVector(i, 0), 2);
+        if (H)
+        {
+            SM_Dynamic hh(length, length);
+            hh.resize(length, length);
+            for (int i = 0; i < length; i++)
+                hh.insert(i, i) = 2 * (c(i, 0) - startTimeVector(i, 0)) * -1;
+            *H = hh;
+        }
+        return err;
+    }
+};
+TEST(compareSparsity, v2)
+{
+    int N = 1000;
+    BeginTimer("test2");
+    VectorDynamic expectedB = GenerateVectorDynamic(N);
+    for (int i = 0; i < N; i++)
+        expectedB(i, 0) = sin(i);
+
+    NonlinearFactorGraph graph;
+
+    LLint errorDimensionMS = N;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
+    Values initialEstimateFG;
+
+    Symbol key('a', 0);
+    graph.emplace_shared<test2Factor>(key, expectedB, model);
+    VectorDynamic initialEstimate = GenerateVectorDynamic(N);
     initialEstimateFG.insert(key, initialEstimate);
 
     Values result;
@@ -65,9 +148,10 @@ TEST(somefactor, v1)
         LevenbergMarquardtOptimizer optimizer(graph, initialEstimateFG, params);
         result = optimizer.optimize();
     }
-
     VectorDynamic optComp = result.at<VectorDynamic>(key);
-    cout << "Test dummy: " << optComp << endl;
+    cout << "Test dummy: " << optComp(0, 0) << endl;
+    EndTimer("test2");
+    PrintTimer();
 }
 
 // **********************************************************
@@ -104,6 +188,10 @@ TEST(somefactor, v1)
 // }
 int main()
 {
+    BeginTimer("main");
     TestResult tr;
-    return TestRegistry::runAllTests(tr);
+
+    auto a = TestRegistry::runAllTests(tr);
+    EndTimer("main");
+    return a;
 }

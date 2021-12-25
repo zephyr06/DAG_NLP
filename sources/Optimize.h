@@ -195,6 +195,7 @@ namespace DAG_SPACE
             params.setRelativeErrorTol(relativeErrorTolerance);
             params.setMaxIterations(maxIterations);
             params.setUseFixedLambdaFactor(setUseFixedLambdaFactor);
+            // cout << "Log file " << params.getLogFile() << endl;
             LevenbergMarquardtOptimizer optimizer(graph, initialEstimateFG, params);
             result = optimizer.optimize();
         }
