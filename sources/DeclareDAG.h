@@ -20,6 +20,8 @@
 #include <gtsam/nonlinear/NonlinearFactorGraph.h>
 #include <gtsam/nonlinear/Values.h>
 
+#include <boost/function.hpp>
+
 #include "Parameters.h"
 #include "colormod.h"
 #include "testMy.h"

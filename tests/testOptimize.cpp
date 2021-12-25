@@ -26,7 +26,7 @@ public:
 };
 TEST(compareSparsity, v1)
 {
-    int N = 1000;
+    int N = 10;
     BeginTimer("test1");
     VectorDynamic expectedB = GenerateVectorDynamic(N);
     for (int i = 0; i < N; i++)
@@ -105,7 +105,7 @@ public:
 };
 TEST(compareSparsity, v2)
 {
-    int N = 1000;
+    int N = 10;
     BeginTimer("test2");
     VectorDynamic expectedB = GenerateVectorDynamic(N);
     for (int i = 0; i < N; i++)
@@ -154,6 +154,35 @@ TEST(compareSparsity, v2)
     PrintTimer();
 }
 
+void addFactors_test(NonlinearFactorGraph &graph, VectorDynamic &expectedB, int N, char s = 'a')
+{
+    LLint errorDimensionMS = 1;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
+    Values initialEstimateFG;
+    for (int i = 0; i < N; i++)
+    {
+        Symbol key(s, i);
+        graph.emplace_shared<test1Factor>(key, expectedB(i, 0), model);
+        VectorDynamic initialEstimate = GenerateVectorDynamic(1);
+        initialEstimateFG.insert(key, initialEstimate);
+    }
+}
+
+TEST(graph_as_parameter, v1)
+{
+    int N = 10;
+    VectorDynamic expectedB = GenerateVectorDynamic(N);
+    for (int i = 0; i < N; i++)
+        expectedB(i, 0) = sin(i);
+
+    NonlinearFactorGraph graph;
+    addFactors_test(graph, expectedB, N, 'a');
+    AssertEqualScalar(10, graph.keys().size());
+    addFactors_test(graph, expectedB, N, 'b');
+    AssertEqualScalar(20, graph.keys().size());
+    addFactors_test(graph, expectedB, N, 'c');
+    AssertEqualScalar(30, graph.keys().size());
+}
 // **********************************************************
 // TEST(RandomWalk, v1)
 // {
