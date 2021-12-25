@@ -183,38 +183,78 @@ TEST(graph_as_parameter, v1)
     addFactors_test(graph, expectedB, N, 'c');
     AssertEqualScalar(30, graph.keys().size());
 }
-// **********************************************************
-// TEST(RandomWalk, v1)
-// {
-//     using namespace DAG_SPACE;
-//     using namespace RegularTaskSystem;
+using namespace DAG_SPACE;
+double GraphErrorEvaluation(DAG_Model &dagTasks, VectorDynamic startTimeVector,
+                            NonlinearFactorGraph &graph)
+{
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    Symbol key('a', 0);
+    ;
+    // LLint errorDimensionMS = 1;
 
-//     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v9.csv", "orig");
-//     TaskSet tasks = dagTasks.tasks;
-//     int N = tasks.size();
-//     LLint hyperPeriod = HyperPeriod(tasks);
+    LLint errorDimensionDAG = dagTasks.edgeNumber();
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
+    graph.emplace_shared<DAG_ConstraintFactor>(key, dagTasks, tasksInfo, forestInfo,
+                                               errorDimensionDAG, model);
+    if (makespanWeight > 0)
+    {
+        LLint errorDimensionMS = 1;
+        model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
+        graph.emplace_shared<MakeSpanFactor>(key, dagTasks, tasksInfo, forestInfo,
+                                             errorDimensionMS, model);
+    }
 
-//     // declare variables
-//     vector<LLint> sizeOfVariables;
-//     int variableDimension = 0;
-//     for (int i = 0; i < N; i++)
-//     {
+    ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+    LLint errorDimensionDBF = processorTaskSet.size();
+    model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    graph.emplace_shared<DBF_ConstraintFactor>(key, tasksInfo, forestInfo,
+                                               errorDimensionDBF,
+                                               model);
 
-//         LLint size = hyperPeriod / tasks[i].period;
-//         sizeOfVariables.push_back(size);
-//         variableDimension += size;
-//     }
-//     pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(dagTasks);
-//     Graph eliminationTrees = sth.first;
-//     indexVertexMap indexesBGL = sth.second;
-//     VectorDynamic initial = GenerateInitial(dagTasks, sizeOfVariables, variableDimension);
-//     initial << 6, 0, 1, 2, 5;
-//     VectorDynamic actual = RandomWalk(initial, dagTasks, eliminationTrees, indexesBGL);
-//     VectorDynamic expect = initial;
-//     expect << 3, 0, 1, 2, 5;
-//     assert_equal(expect, actual);
-//     AssertEigenEqualVector(expect, actual);
-// }
+    LLint errorDimensionDDL = 2 * tasksInfo.variableDimension;
+    model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
+    graph.emplace_shared<DDL_ConstraintFactor>(key, tasksInfo, forestInfo,
+                                               errorDimensionDDL, model);
+
+    if (weightPrior_factor > 0)
+    {
+        LLint errorDimensionPrior = 1;
+        vector<int> order = FindDependencyOrder(dagTasks);
+        model = noiseModel::Isotropic::Sigma(errorDimensionPrior, noiseModelSigma);
+        graph.emplace_shared<Prior_ConstraintFactor>(key, tasksInfo, forestInfo,
+                                                     errorDimensionPrior, 0.0, order[0], model);
+    }
+
+    // LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
+    // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
+    // graph.emplace_shared<SensorFusion_ConstraintFactor>(key, dagTasks, sizeOfVariables,
+    //                                                     errorDimensionSF, sensorFusionTolerance,
+    //                                                     mapIndex, maskForEliminate, model);
+    Values initialEstimateFG;
+    // Symbol key('a', 0);
+    initialEstimateFG.insert(key, startTimeVector);
+    return graph.error(initialEstimateFG);
+}
+TEST(pass_graph_as_parameter, v1)
+{
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    EliminationForest forestInfo(tasksInfo);
+
+    VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks,
+                                                                    tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
+    NonlinearFactorGraph graph;
+    double expected = GraphErrorEvaluation(dagTasks, startTimeVector, graph);
+    Symbol key('a', 0);
+    Values initialEstimateFG;
+    initialEstimateFG.insert(key, startTimeVector);
+    double actual = graph.error(initialEstimateFG);
+
+    AssertEqualScalar(expected, actual);
+}
+
 int main()
 {
     BeginTimer("main");
