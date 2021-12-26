@@ -16,6 +16,7 @@ deltaOptimizer: 1e0
 exactJacobian: 0
 initialLambda: 1e-1
 lowerLambda: 1e-15
+PrintOutput: 0
 makespanWeight: 0
 noiseModelSigma: 1
 AcceptSchedulError: 1e0
@@ -42,7 +43,7 @@ SA_iteration: 100000
 sensorFusionTolerance: 50
 FreshTol: 50
 temperatureSA: 100000000
-testDataSetName: test_n5_v51
+testDataSetName: test_n5_v43
 tightEliminate: 0
 toleranceEliminator: 1
 upperLambda: 1e60

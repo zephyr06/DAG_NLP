@@ -4,6 +4,49 @@ namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
 
+    void AddDBF_Factor(NonlinearFactorGraph &graph, TaskSetInfoDerived &tasksInfo)
+    {
+
+        LLint errorDimensionDBF = 1;
+        auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+
+        for (int i = 0; i < tasksInfo.N; i++)
+        {
+            for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
+            {
+                LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
+                Symbol key = GenerateKey(index_overall);
+
+                for (int ii = i + 1; ii < tasksInfo.N; ii++)
+                {
+                    for (int jj = 0; jj < int(tasksInfo.sizeOfVariables[ii]); jj++)
+                    {
+                        LLint index_overall_inner = IndexTran_Instance2Overall(ii, jj, tasksInfo.sizeOfVariables);
+                        Symbol key_inner = GenerateKey(index_overall_inner);
+                        Interval v1 = CreateSingleInterval(index_overall, 0.0,
+                                                           tasksInfo.tasks, tasksInfo.sizeOfVariables);
+                        Interval v2 = CreateSingleInterval(index_overall_inner, 0.0,
+                                                           tasksInfo.tasks, tasksInfo.sizeOfVariables);
+                        NormalErrorFunction2D DBF2D =
+                            [v1, v2](VectorDynamic x1, VectorDynamic x2)
+                        {
+                            VectorDynamic res = x1;
+                            Interval v11 = v1;
+                            Interval v22 = v2;
+                            v11.start = x1(0, 0);
+                            v22.start = x2(0, 0);
+
+                            res << Overlap(v11, v22);
+                            return res;
+                        };
+                        // this factor is explained as: variable * 1 <= tasks[i].deadline + i * tasks[i].period
+                        graph.emplace_shared<InequalityFactor2D>(key, key_inner, 1, DBF2D, model);
+                    }
+                }
+            }
+        }
+    }
+
     class DBF_ConstraintFactor : public BaseSchedulingFactor
     {
     public:
@@ -151,7 +194,7 @@ namespace DAG_SPACE
                             if (CheckNoConflictionTree(tree_i, tree_j, startTimeVector))
                             {
                                 // forestInfo.maskForEliminate[index_j_overall] = true;
-                                
+
                                 // // this should respect original relationship
                                 // if (tightEliminate == 1)
                                 // {

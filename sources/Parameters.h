@@ -54,6 +54,7 @@ const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetec
 double FreshTol = (double)ConfigParameters["FreshTol"];
 const double stepJacobianIteration = (double)ConfigParameters["stepJacobianIteration"];
 
+const int PrintOutput = (int)ConfigParameters["PrintOutput"];
 const int moreElimination = (int)ConfigParameters["moreElimination"];
 const int ElimnateLoop_Max = (int)ConfigParameters["ElimnateLoop_Max"];
 int coreNumberAva = (int)ConfigParameters["coreNumberAva"];

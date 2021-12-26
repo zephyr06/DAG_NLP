@@ -44,7 +44,7 @@ namespace DAG_SPACE
         else
             return 0;
     }
-    inline Interval CreateSingleInterval(LLint index, double &start,
+    inline Interval CreateSingleInterval(LLint index, double start,
                                          const TaskSet &tasks,
                                          const vector<LLint> &sizeOfVariables)
     {

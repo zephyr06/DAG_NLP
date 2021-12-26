@@ -38,6 +38,12 @@ typedef boost::function<VectorDynamic(const VectorDynamic &, const VectorDynamic
 
 typedef long long int LLint;
 
+inline gtsam::Symbol GenerateKey(LLint index_overall)
+{
+    gtsam::Symbol key('a', index_overall);
+    return key;
+}
+
 struct MappingDataStruct
 {
     LLint index;
