@@ -33,6 +33,8 @@ using namespace gtsam;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixDynamic;
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> VectorDynamic;
 typedef Eigen::SparseMatrix<double, Eigen::ColMajor> SM_Dynamic;
+typedef boost::function<VectorDynamic(const VectorDynamic &)> NormalErrorFunction1D;
+typedef boost::function<VectorDynamic(const VectorDynamic &, const VectorDynamic &)> NormalErrorFunction2D;
 
 typedef long long int LLint;
 
@@ -261,6 +263,39 @@ MatrixDynamic NumericalDerivativeDynamicUpper(boost::function<VectorDynamic(cons
         }
     }
     return jacobian;
+}
+
+MatrixDynamic NumericalDerivativeDynamic2D1(NormalErrorFunction2D h,
+                                            const VectorDynamic &x1,
+                                            const VectorDynamic &x2,
+                                            double deltaOptimizer,
+                                            int mOfJacobian)
+{
+    int n = x1.rows();
+    MatrixDynamic jacobian;
+    jacobian.resize(mOfJacobian, n);
+    NormalErrorFunction1D f = [h, x2](const VectorDynamic &x1)
+    {
+        return h(x1, x2);
+    };
+
+    return NumericalDerivativeDynamicUpper(f, x1, deltaOptimizer, mOfJacobian);
+}
+MatrixDynamic NumericalDerivativeDynamic2D2(NormalErrorFunction2D h,
+                                            const VectorDynamic &x1,
+                                            const VectorDynamic &x2,
+                                            double deltaOptimizer,
+                                            int mOfJacobian)
+{
+    int n = x2.rows();
+    MatrixDynamic jacobian;
+    jacobian.resize(mOfJacobian, n);
+    NormalErrorFunction1D f = [h, x1](const VectorDynamic &x2)
+    {
+        return h(x1, x2);
+    };
+
+    return NumericalDerivativeDynamicUpper(f, x2, deltaOptimizer, mOfJacobian);
 }
 
 /**

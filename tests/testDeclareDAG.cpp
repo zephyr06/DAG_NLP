@@ -196,6 +196,54 @@ TEST(CompresStartTimeVector, v1)
     AssertEigenEqualVector(expect, actual);
 }
 
+TEST(NumericalDerivativeDynamic2D1, v1)
+{
+    NormalErrorFunction2D f = [](VectorDynamic x1, VectorDynamic x2)
+    {
+        return x1 + x2;
+    };
+    VectorDynamic x1 = GenerateVectorDynamic(3);
+    x1 << 1, 2, 3;
+    VectorDynamic x2 = GenerateVectorDynamic(3);
+    x2 << 4, 5, 6;
+    MatrixDynamic actual1 = NumericalDerivativeDynamic2D1(f, x1, x2, deltaOptimizer, 3);
+    MatrixDynamic expect1 = GenerateMatrixDynamic(3, 3);
+    expect1 << 1, 0, 0,
+        0, 1, 0,
+        0, 0, 1;
+    MatrixDynamic actual2 = NumericalDerivativeDynamic2D2(f, x1, x2, deltaOptimizer, 3);
+    assert_equal(expect1, actual1);
+    assert_equal(expect1, actual2);
+}
+
+TEST(NumericalDerivativeDynamic2D1, v2)
+{
+    NormalErrorFunction2D f = [](VectorDynamic x1, VectorDynamic x2)
+    {
+        VectorDynamic res = x1;
+        res(0, 0) = x1(0, 0) * x2(0, 0);
+        res(1, 0) = x1(1, 0) + x2(0, 0);
+        res(2, 0) = x1(2, 0) + x2(0, 0) * x2(0, 0);
+        return res;
+    };
+    VectorDynamic x1 = GenerateVectorDynamic(3);
+    x1 << 1, 2, 3;
+    VectorDynamic x2 = GenerateVectorDynamic(3);
+    x2 << 4, 5, 6;
+    MatrixDynamic actual1 = NumericalDerivativeDynamic2D1(f, x1, x2, deltaOptimizer, 3);
+    MatrixDynamic expect1 = GenerateMatrixDynamic(3, 3);
+    expect1 << 4, 0, 0,
+        0, 1, 0,
+        0, 0, 1;
+    MatrixDynamic expect2 = GenerateMatrixDynamic(3, 3);
+    expect2 << 1, 0, 0,
+        1, 0, 0,
+        8, 0, 0;
+    MatrixDynamic actual2 = NumericalDerivativeDynamic2D2(f, x1, x2, deltaOptimizer, 3);
+    assert_equal(expect1, actual1);
+    assert_equal(expect2, actual2);
+}
+
 int main()
 {
     TestResult tr;

@@ -44,7 +44,15 @@ namespace DAG_SPACE
         else
             return 0;
     }
-
+    inline Interval CreateSingleInterval(LLint index, double &start,
+                                         const TaskSet &tasks,
+                                         const vector<LLint> &sizeOfVariables)
+    {
+        int taskId = BigIndex2TaskIndex(index, sizeOfVariables);
+        double length = tasks[taskId].executionTime;
+        int coreRequire = tasks[taskId].coreRequire;
+        return Interval{start, length, index, coreRequire};
+    }
     /**
      * @brief Create a Interval vector for indexes specified by the tree1 parameter;
      * the return interval follows the same order given by tree1!
@@ -64,10 +72,8 @@ namespace DAG_SPACE
         {
             LLint index = tree1[i];
             double start = startTimeVector.coeff(index, 0);
-            int taskId = BigIndex2TaskIndex(index, sizeOfVariables);
-            double length = tasks[taskId].executionTime;
-            int coreRequire = tasks[taskId].coreRequire;
-            intervalVec.push_back(Interval{start, length, index, coreRequire});
+            Interval inv = CreateSingleInterval(index, start, tasks, sizeOfVariables);
+            intervalVec.push_back(inv);
         }
         return intervalVec;
     }
