@@ -271,7 +271,6 @@ namespace DAG_SPACE
             // startTimeComplete = RandomWalk(startTimeComplete, tasksInfo, forestInfo);
             // factors that require elimination analysis are: DBF
             LLint errorDimensionDBF = tasksInfo.processorTaskSet.size();
-
             auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
             Symbol key('b', 0);
             DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF, model);
