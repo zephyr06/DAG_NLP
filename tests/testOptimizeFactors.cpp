@@ -151,7 +151,7 @@ TEST(compareSparsity, v2)
     VectorDynamic optComp = result.at<VectorDynamic>(key);
     cout << "Test dummy: " << optComp(0, 0) << endl;
     EndTimer("test2");
-    PrintTimer();
+    // PrintTimer();
 }
 
 void addFactors_test(NonlinearFactorGraph &graph, VectorDynamic &expectedB, int N, char s = 'a')
@@ -254,13 +254,96 @@ TEST(pass_graph_as_parameter, v1)
 
     AssertEqualScalar(expected, actual);
 }
+template <class VALUE>
+class NoiseModelFactorN : public NoiseModelFactor
+{
 
+public:
+    // typedefs for value types pulled from keys
+    typedef VALUE X;
+
+protected:
+    typedef NoiseModelFactor Base;
+    typedef NoiseModelFactorN<VALUE> This;
+
+public:
+    /// @name Constructors
+    /// @{
+
+    /** Default constructor for I/O only */
+    NoiseModelFactorN() {}
+
+    ~NoiseModelFactorN() override {}
+
+    inline Key key() const { return keys_[0]; }
+
+    /**
+   *  Constructor
+   *  @param noiseModel shared pointer to noise model
+   *  @param key1 by which to look up X value in Values
+   */
+
+    NoiseModelFactorN(const SharedNoiseModel &noiseModel, const std::vector<Symbol> &keys)
+        : Base(noiseModel, keys) {}
+
+    /// @}
+    /// @name NoiseModelFactor methods
+    /// @{
+
+    /**
+   * Calls the 1-key specific version of evaluateError below, which is pure
+   * virtual so must be implemented in the derived class.
+   */
+    Vector unwhitenedError(
+        const Values &x,
+        boost::optional<std::vector<Matrix> &> H = boost::none) const override
+    {
+        if (this->active(x))
+        {
+            const X &x1 = x.at<X>(keys_[0]);
+            if (H)
+            {
+                return evaluateError(x1, (*H)[0]);
+            }
+            else
+            {
+                return evaluateError(x1);
+            }
+        }
+        else
+        {
+            return Vector::Zero(this->dim());
+        }
+    }
+
+    /// @}
+    /// @name Virtual methods
+    /// @{
+
+    /**
+   *  Override this method to finish implementing a unary factor.
+   *  If the optional Matrix reference argument is specified, it should compute
+   *  both the function evaluation and its derivative in X.
+   */
+    virtual Vector
+    evaluateError(const X &x,
+                  boost::optional<Matrix &> H = boost::none) const = 0;
+
+    /// @}
+
+private:
+    /** Serialization function */
+    friend class boost::serialization::access;
+    template <class ARCHIVE>
+    void serialize(ARCHIVE &ar, const unsigned int /*version*/)
+    {
+        ar &boost::serialization::make_nvp("NoiseModelFactor",
+                                           boost::serialization::base_object<Base>(*this));
+    }
+}; // \class NoiseModelFactorN
 int main()
 {
-    BeginTimer("main");
     TestResult tr;
 
-    auto a = TestRegistry::runAllTests(tr);
-    EndTimer("main");
-    return a;
+    return TestRegistry::runAllTests(tr);
 }

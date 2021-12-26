@@ -3,6 +3,7 @@
 #include "RegularTasks.h"
 #include "DBF_utils.h"
 #include "EliminationForest_utils.h"
+#include "InequalifyFactor.h"
 
 class BaseSchedulingFactor : public NoiseModelFactor1<VectorDynamic>
 {

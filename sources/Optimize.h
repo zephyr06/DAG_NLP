@@ -16,15 +16,29 @@
 #include "InitialEstimate.h"
 #include "colormod.h"
 
-std::map<string, char> FACTOR2KEY = {
-    {"DAG", 'a'},
-    {"DBF", 'b'},
-    {"DBF_Multi", 'c'},
-    {"DDL", 'd'},
-    {"MakeSpan", 'e'},
-    {"Prior", 'f'},
-    {"SF", 'g'}};
+inline gtsam::Symbol GenerateKey(LLint index_overall)
+{
+    gtsam::Symbol key('a', index_overall);
+    return key;
+}
+Values GenerateInitialFG(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo)
+{
+    Values initialEstimateFG;
+    Symbol key('a', 0);
 
+    for (int i = 0; i < tasksInfo.N; i++)
+    {
+        for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
+        {
+            LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
+            Symbol key = GenerateKey(index_overall);
+            VectorDynamic v = GenerateVectorDynamic(1);
+            v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j);
+            initialEstimateFG.insert(key, v);
+        }
+    }
+    return initialEstimateFG;
+}
 using namespace RegularTaskSystem;
 // -------------------------------------------------------- from previous optimization begins
 

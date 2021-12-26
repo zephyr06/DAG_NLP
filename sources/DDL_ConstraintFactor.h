@@ -2,6 +2,7 @@
 namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
+
     class DDL_ConstraintFactor : public BaseSchedulingFactor
     {
     public:
