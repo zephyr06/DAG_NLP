@@ -44,7 +44,7 @@ SA_iteration: 100000
 sensorFusionTolerance: 50
 FreshTol: 50
 temperatureSA: 100000000
-testDataSetName: test_n5_v43
+testDataSetName: test_n5_v17
 tightEliminate: 0
 toleranceEliminator: 1
 upperLambda: 1e60

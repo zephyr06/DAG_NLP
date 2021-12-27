@@ -1,42 +1,44 @@
 #pragma once
 #include "DeclareDAG.h"
+
 /**
  * @brief Constraint of x <= b
  * 
  */
-class SmallerThanFactor1D : public NoiseModelFactor1<VectorDynamic>
+class InequalityFactor1D : public NoiseModelFactor1<VectorDynamic>
 {
 public:
-    double b;
+    NormalErrorFunction1D f;
     double weight;
-    SmallerThanFactor1D(Key key, double b,
-                        double weight,
-                        SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
-                                                  b(b), weight(weight) {}
+    int dimension;
+    /**
+     * @brief Construct a new Inequality Factor 1 D object,
+     *  mainly used in derived class because f is not defined
+     */
+    InequalityFactor1D(Key key,
+                       double weight,
+                       SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
+                                                 weight(weight)
+    {
+        dimension = 1;
+    }
+
+    InequalityFactor1D(Key key,
+                       double weight, NormalErrorFunction1D f,
+                       SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
+                                                 f(f), weight(weight)
+    {
+        dimension = 1;
+    }
 
     Vector evaluateError(const VectorDynamic &x,
                          boost::optional<Matrix &> H = boost::none) const override
     {
-        AssertEqualScalar(1, x.rows(), 1e-6, __LINE__);
-        VectorDynamic err = GenerateVectorDynamic(1);
-        double err1 = b - x(0, 0);
-        err(0, 0) = Barrier(err1);
+        // AssertEqualScalar(1, x.rows(), 1e-6, __LINE__);
+        VectorDynamic err = f(x);
         if (H)
         {
-            MatrixDynamic hh = GenerateMatrixDynamic(1, 1);
-            if (err1 <= -deltaOptimizer)
-            {
-                hh(0, 0) = 1 * weight;
-            }
-            else if (err1 <= deltaOptimizer)
-            {
-                double errP1 = Barrier(err1 - deltaOptimizer);
-                double errM1 = Barrier(err1 + deltaOptimizer);
-                hh(0, 0) = (errP1 - errM1) / 2 / deltaOptimizer * weight;
-            }
-            // else, hh(0,0)=0
-
-            *H = hh;
+            *H = NumericalDerivativeDynamicUpper(f, x, deltaOptimizer, dimension);
         }
         return err;
     }
@@ -46,43 +48,85 @@ public:
  * @brief Constraint of x >= b
  * 
  */
-class LargerThanFactor1D : public NoiseModelFactor1<VectorDynamic>
+class SmallerThanFactor1D : public InequalityFactor1D
 {
 public:
     double b;
-    double weight;
-    LargerThanFactor1D(Key key, double b,
-                       double weight,
-                       SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
-                                                 b(b), weight(weight) {}
-
-    Vector evaluateError(const VectorDynamic &x,
-                         boost::optional<Matrix &> H = boost::none) const override
+    SmallerThanFactor1D(Key key, double b,
+                        double weight,
+                        SharedNoiseModel model) : InequalityFactor1D(key, weight, model)
     {
-        AssertEqualScalar(1, x.rows(), 1e-6, __LINE__);
-        VectorDynamic err = GenerateVectorDynamic(1);
-        double err1 = x(0, 0) - b;
-        err(0, 0) = Barrier(err1) * weight;
-        if (H)
+        f = [b, weight](const VectorDynamic &x)
         {
-            MatrixDynamic hh = GenerateMatrixDynamic(1, 1);
-            if (err1 <= -deltaOptimizer)
-            {
-                hh(0, 0) = -1 * weight;
-            }
-            else if (err1 <= deltaOptimizer)
-            {
-                double errP1 = Barrier(err1 + deltaOptimizer);
-                double errM1 = Barrier(err1 - deltaOptimizer);
-                hh(0, 0) = (errP1 - errM1) / 2 / deltaOptimizer * weight;
-            }
-            // else, hh(0,0)=0
-
-            *H = hh;
-        }
-        return err;
+            VectorDynamic res = x;
+            res << Barrier(b - x(0, 0)) * weight;
+            return res;
+        };
     }
 };
+
+/**
+ * @brief Constraint of x >= b
+ * 
+ */
+class LargerThanFactor1D : public InequalityFactor1D
+{
+public:
+    double b;
+    LargerThanFactor1D(Key key, double b,
+                       double weight,
+                       SharedNoiseModel model) : InequalityFactor1D(key, weight, model)
+    {
+        f = [b, weight](const VectorDynamic &x)
+        {
+            VectorDynamic res = x;
+            res << Barrier(x(0, 0) - b) * weight;
+            return res;
+        };
+    }
+};
+
+// /**
+//  * @brief Constraint of x >= b
+//  *
+//  */
+// class LargerThanFactor1D : public NoiseModelFactor1<VectorDynamic>
+// {
+// public:
+//     double b;
+//     double weight;
+//     LargerThanFactor1D(Key key, double b,
+//                        double weight,
+//                        SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
+//                                                  b(b), weight(weight) {}
+
+//     Vector evaluateError(const VectorDynamic &x,
+//                          boost::optional<Matrix &> H = boost::none) const override
+//     {
+//         AssertEqualScalar(1, x.rows(), 1e-6, __LINE__);
+//         VectorDynamic err = GenerateVectorDynamic(1);
+//         double err1 = x(0, 0) - b;
+//         err(0, 0) = Barrier(err1) * weight;
+//         if (H)
+//         {
+//             MatrixDynamic hh = GenerateMatrixDynamic(1, 1);
+//             if (err1 <= -deltaOptimizer)
+//             {
+//                 hh(0, 0) = -1 * weight;
+//             }
+//             else if (err1 <= deltaOptimizer)
+//             {
+//                 double errP1 = Barrier(err1 + deltaOptimizer);
+//                 double errM1 = Barrier(err1 - deltaOptimizer);
+//                 hh(0, 0) = (errP1 - errM1) / 2 / deltaOptimizer * weight;
+//             }
+//             // else, hh(0,0)=0
+
+//             *H = hh;
+//         }
+//         return err;
+//     }
+// };
 
 /**
  * @brief Constraint of f(x1, x2) <= 0;
