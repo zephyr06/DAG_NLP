@@ -39,9 +39,14 @@ typedef boost::function<Vector(const Values &x)> LambdaMultiKey;
 
 typedef long long int LLint;
 
-inline gtsam::Symbol GenerateKey(LLint index_overall)
+inline gtsam::Symbol GenerateKey(int idtask, LLint index_overall)
 {
-    gtsam::Symbol key('a', index_overall);
+    if (idtask == -1)
+    {
+        gtsam::Symbol key('z', index_overall);
+        return key;
+    }
+    gtsam::Symbol key('a' + idtask, index_overall);
     return key;
 }
 

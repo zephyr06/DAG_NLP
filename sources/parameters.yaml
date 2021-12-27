@@ -9,6 +9,7 @@ T: !!opencv-matrix
 barrierBase: 100
 coolingRateSA: 0.1
 coreNumberAva: 6
+saveGraph: 0
 debugMode: 2 # 1 means NLP, 2 means SA, 0 means initial
 deltaInitialDogleg: 1e5
 weightDDL_factor: 1.0

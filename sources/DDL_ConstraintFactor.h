@@ -15,7 +15,7 @@ namespace DAG_SPACE
             for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
             {
                 LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
-                Symbol key = GenerateKey(index_overall);
+                Symbol key = GenerateKey(i, index_overall);
 
                 // this factor is explained as: variable * 1 <= tasks[i].deadline + i * tasks[i].period
                 graph.emplace_shared<SmallerThanFactor1D>(key, tasks[i].deadline + j * tasks[i].period, weightDDL_factor, model);

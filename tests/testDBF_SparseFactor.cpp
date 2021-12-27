@@ -29,6 +29,8 @@ TEST(testDBF, v1)
     startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
     Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
     double actual = graph.error(initialEstimateFG);
+    std::ofstream os("graph.dot");
+    graph.saveGraph(os, initialEstimateFG);
     double expect = 641;
     AssertEqualScalar(expect, actual, 1e-6, __LINE__);
 }

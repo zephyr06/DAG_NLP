@@ -18,9 +18,9 @@ namespace DAG_SPACE
             for (size_t i = 0; i < tasksPrev.size(); i++)
             {
                 LLint indexNext = IndexTran_Instance2Overall(idNextTask, 0, tasksInfo.sizeOfVariables);
-                Symbol keyNext = GenerateKey(indexNext);
+                Symbol keyNext = GenerateKey(idNextTask, indexNext);
                 LLint indexPrev = IndexTran_Instance2Overall(tasksPrev[i].id, 0, tasksInfo.sizeOfVariables);
-                Symbol keyPrev = GenerateKey(indexPrev);
+                Symbol keyPrev = GenerateKey(tasksPrev[i].id, indexPrev);
                 double execTime = tasksPrev[i].executionTime;
                 NormalErrorFunction2D DAG2D =
                     [execTime](VectorDynamic x1, VectorDynamic x2)

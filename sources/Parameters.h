@@ -75,6 +75,8 @@ const int temperatureSA = (int)ConfigParameters["temperatureSA"];
 int tightEliminate = (int)ConfigParameters["tightEliminate"];
 int withAddedSensorFusionError = (int)ConfigParameters["withAddedSensorFusionError"];
 const int maxIterations = (int)ConfigParameters["maxIterations"];
+const int saveGraph = (int)ConfigParameters["saveGraph"];
+
 const int maxJacobianIteration = (int)ConfigParameters["maxJacobianIteration"];
 string priorityMode = (string)ConfigParameters["priorityMode"];
 const string readTaskMode = (string)ConfigParameters["readTaskMode"];

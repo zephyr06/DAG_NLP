@@ -26,7 +26,7 @@ Values GenerateInitialFG(VectorDynamic &startTimeVector, TaskSetInfoDerived &tas
         for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
         {
             LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
-            Symbol key = GenerateKey(index_overall);
+            Symbol key = GenerateKey(i, index_overall);
             VectorDynamic v = GenerateVectorDynamic(1);
             v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j);
             initialEstimateFG.insert(key, v);
@@ -42,7 +42,7 @@ VectorDynamic CollectUnitOptResult(Values &result, TaskSetInfoDerived &tasksInfo
         for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
         {
             LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
-            Symbol key = GenerateKey(index_overall);
+            Symbol key = GenerateKey(i, index_overall);
             VectorDynamic aaa = result.at<VectorDynamic>(key);
             stvAfter(index_overall, 0) = result.at<VectorDynamic>(key)(0, 0);
         }
@@ -204,6 +204,13 @@ namespace DAG_SPACE
         }
 
         VectorDynamic optComp = CollectUnitOptResult(result, tasksInfo);
+        if (saveGraph == 1)
+        {
+            std::ofstream os("graph.dot");
+            graph.saveGraph(os, result);
+            // graph.print();
+        }
+
         if (debugMode)
             cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
         return optComp;
