@@ -8,16 +8,16 @@ T: !!opencv-matrix
    data: [ 3., 1., 5. ]
 barrierBase: 100
 coolingRateSA: 0.1
-coreNumberAva: 6
-saveGraph: 0
+coreNumberAva: 5
+saveGraph: 1
 debugMode: 2 # 1 means NLP, 2 means SA, 0 means initial
 deltaInitialDogleg: 1e5
 weightDDL_factor: 1.0
-deltaOptimizer: 1e0
+deltaOptimizer: 1e-1
 exactJacobian: 0
-initialLambda: 1e-1
+initialLambda: 1e0
 lowerLambda: 1e-15
-PrintOutput: 0
+PrintGraph: 0
 makespanWeight: 0
 noiseModelSigma: 1
 AcceptSchedulError: 1e0
@@ -33,7 +33,7 @@ zeroJacobianDetectTol: 1e-7
 maxIterations: 100
 moreElimination: 0
 weightPrior_factor: 0
-initializeMethod: 3
+initializeMethod: 2
 timeScaleFactor: 1e2
 stepJacobianIteration: 1.5
 maxJacobianIteration: 25

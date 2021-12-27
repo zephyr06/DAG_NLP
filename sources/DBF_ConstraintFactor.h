@@ -16,11 +16,20 @@ namespace DAG_SPACE
             {
                 LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
                 Symbol key = GenerateKey(i, index_overall);
+                double start = tasksInfo.tasks[i].period * j;
+                double end = tasksInfo.tasks[i].period * (j + 1);
 
                 for (int ii = i + 1; ii < tasksInfo.N; ii++)
                 {
                     for (int jj = 0; jj < int(tasksInfo.sizeOfVariables[ii]); jj++)
                     {
+                        double startInner = tasksInfo.tasks[ii].period * jj;
+                        double endInner = tasksInfo.tasks[ii].period * (jj + 1);
+                        if (startInner > end || start > endInner)
+                        {
+                            continue;
+                        }
+
                         LLint index_overall_inner = IndexTran_Instance2Overall(ii, jj, tasksInfo.sizeOfVariables);
                         Symbol key_inner = GenerateKey(ii, index_overall_inner);
                         Interval v1 = CreateSingleInterval(index_overall, 0.0,
