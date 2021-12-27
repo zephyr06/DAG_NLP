@@ -117,7 +117,7 @@ namespace DAG_SPACE
                           TaskSetInfoDerived &tasksInfo, EliminationForest &forestInfo)
     {
         AddDAG_Factor(graph, dagTasks, tasksInfo);
-        // AddDBF_Factor(graph, tasksInfo);
+        AddDBF_Factor(graph, tasksInfo);
         AddDDL_Factor(graph, tasksInfo);
         // LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
         // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);

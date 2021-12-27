@@ -35,6 +35,7 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, 1> VectorDynamic;
 typedef Eigen::SparseMatrix<double, Eigen::ColMajor> SM_Dynamic;
 typedef boost::function<VectorDynamic(const VectorDynamic &)> NormalErrorFunction1D;
 typedef boost::function<VectorDynamic(const VectorDynamic &, const VectorDynamic &)> NormalErrorFunction2D;
+typedef boost::function<Vector(const Values &x)> LambdaMultiKey;
 
 typedef long long int LLint;
 
@@ -242,12 +243,12 @@ double BarrierLog(double x)
     return 0;
 }
 MatrixDynamic NumericalDerivativeDynamicUpper(boost::function<VectorDynamic(const VectorDynamic &)> h,
-                                              VectorDynamic x, double deltaOptimizer, int mOfJacobian)
+                                              const VectorDynamic &x, double deltaOptimizer, int mOfJacobian)
 {
     int n = x.rows();
     MatrixDynamic jacobian;
     jacobian.resize(mOfJacobian, n);
-    VectorDynamic currErr = h(x);
+    // VectorDynamic currErr = h(x);
 
     for (int i = 0; i < n; i++)
     {
