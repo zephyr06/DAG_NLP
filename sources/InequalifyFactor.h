@@ -34,12 +34,14 @@ public:
     Vector evaluateError(const VectorDynamic &x,
                          boost::optional<Matrix &> H = boost::none) const override
     {
+        BeginTimer("InequalityFactor1D");
         // AssertEqualScalar(1, x.rows(), 1e-6, __LINE__);
         VectorDynamic err = f(x);
         if (H)
         {
             *H = NumericalDerivativeDynamicUpper(f, x, deltaOptimizer, dimension);
         }
+        EndTimer("InequalityFactor1D");
         return err;
     }
 };
@@ -118,6 +120,7 @@ public:
     Vector evaluateError(const VectorDynamic &x1, const VectorDynamic &x2,
                          boost::optional<Matrix &> H1 = boost::none, boost::optional<Matrix &> H2 = boost::none) const override
     {
+        BeginTimer("InequalityFactor2D");
         // AssertEqualScalar(1, x.rows(), 1e-6, __LINE__);
         VectorDynamic err = f(x1, x2);
         if (H1)
@@ -128,6 +131,7 @@ public:
         {
             *H2 = NumericalDerivativeDynamic2D2(f, x1, x2, deltaOptimizer, 1);
         }
+        EndTimer("InequalityFactor2D");
         return err;
     }
 };

@@ -39,6 +39,7 @@ namespace DAG_SPACE
                         NormalErrorFunction2D DBF2D =
                             [v1, v2](VectorDynamic x1, VectorDynamic x2)
                         {
+                            BeginTimer("DBF_Lambda");
                             VectorDynamic res = x1;
                             Interval v11 = v1;
                             Interval v22 = v2;
@@ -46,6 +47,7 @@ namespace DAG_SPACE
                             v22.start = x2(0, 0);
 
                             res << Overlap(v11, v22);
+                            EndTimer("DBF_Lambda");
                             return res;
                         };
                         // this factor is explained as: variable * 1 <= tasks[i].deadline + i * tasks[i].period
