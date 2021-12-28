@@ -68,51 +68,6 @@ namespace DAG_SPACE
         return errorDimensionSF;
     }
 
-    // void BuildFactorGraph(DAG_Model &dagTasks, NonlinearFactorGraph &graph,
-    //                       TaskSetInfoDerived &tasksInfo, EliminationForest &forestInfo)
-    // {
-    //     TaskSet tasks = dagTasks.tasks;
-    //     Symbol key('a', 0);
-    //     // LLint errorDimensionMS = 1;
-
-    //     LLint errorDimensionDAG = dagTasks.edgeNumber();
-    //     auto model = noiseModel::Isotropic::Sigma(errorDimensionDAG, noiseModelSigma);
-    //     graph.emplace_shared<DAG_ConstraintFactor>(key, dagTasks, tasksInfo, forestInfo,
-    //                                                errorDimensionDAG, model);
-    //     if (makespanWeight > 0)
-    //     {
-    //         LLint errorDimensionMS = 1;
-    //         model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma);
-    //         graph.emplace_shared<MakeSpanFactor>(key, dagTasks, tasksInfo, forestInfo,
-    //                                              errorDimensionMS, model);
-    //     }
-
-    //     ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
-    //     LLint errorDimensionDBF = processorTaskSet.size();
-    //     model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    //     graph.emplace_shared<DBF_ConstraintFactor>(key, tasksInfo, forestInfo,
-    //                                                errorDimensionDBF,
-    //                                                model);
-
-    //     LLint errorDimensionDDL = 2 * tasksInfo.variableDimension;
-    //     model = noiseModel::Isotropic::Sigma(errorDimensionDDL, noiseModelSigma);
-    //     graph.emplace_shared<DDL_ConstraintFactor>(key, tasksInfo, forestInfo,
-    //                                                errorDimensionDDL, model);
-
-    //     if (weightPrior_factor > 0)
-    //     {
-    //         LLint errorDimensionPrior = 1;
-    //         vector<int> order = FindDependencyOrder(dagTasks);
-    //         model = noiseModel::Isotropic::Sigma(errorDimensionPrior, noiseModelSigma);
-    //         graph.emplace_shared<Prior_ConstraintFactor>(key, tasksInfo, forestInfo,
-    //                                                      errorDimensionPrior, 0.0, order[0], model);
-    //     }
-    //     // LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
-    //     // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-    //     // graph.emplace_shared<SensorFusion_ConstraintFactor>(key, dagTasks, sizeOfVariables,
-    //     //                                                     errorDimensionSF, sensorFusionTolerance,
-    //     //                                                     mapIndex, maskForEliminate, model);
-    // }
     void BuildFactorGraph(DAG_Model &dagTasks, NonlinearFactorGraph &graph,
                           TaskSetInfoDerived &tasksInfo, EliminationForest &forestInfo)
     {
