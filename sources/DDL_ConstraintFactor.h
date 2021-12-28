@@ -18,7 +18,7 @@ namespace DAG_SPACE
                 Symbol key = GenerateKey(i, index_overall);
 
                 // this factor is explained as: variable * 1 <= tasks[i].deadline + i * tasks[i].period
-                graph.emplace_shared<SmallerThanFactor1D>(key, tasks[i].deadline + j * tasks[i].period, weightDDL_factor, model);
+                graph.emplace_shared<SmallerThanFactor1D>(key, tasks[i].deadline - tasks[i].executionTime + (j)*tasks[i].period, weightDDL_factor, model);
                 // this factor is explained as: variable * -1 < -1 *(i * tasks[i].period)
                 graph.emplace_shared<LargerThanFactor1D>(key, j * tasks[i].period, weightDDL_factor, model);
             }

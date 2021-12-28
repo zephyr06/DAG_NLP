@@ -254,93 +254,40 @@ TEST(pass_graph_as_parameter, v1)
 
     AssertEqualScalar(expected, actual);
 }
-template <class VALUE>
-class NoiseModelFactorN : public NoiseModelFactor
+
+TEST(elimination, v1)
 {
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v52.csv", "orig");
+    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    EliminationForest forestInfo(tasksInfo);
 
-public:
-    // typedefs for value types pulled from keys
-    typedef VALUE X;
+    VectorDynamic initialEstimate = GenerateInitialForDAG_IndexMode(dagTasks,
+                                                                    tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
+    initialEstimate << 0, 13, 30, 80, 93;
+    NonlinearFactorGraph graph;
+    // AddDAG_Factor(graph, dagTasks, tasksInfo);
+    AddDBF_Factor(graph, tasksInfo);
+    AddDDL_Factor(graph, tasksInfo);
+    Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
+    LevenbergMarquardtParams params;
+    params.setlambdaInitial(initialLambda);
+    // if (debugMode >= 1)
+    params.setVerbosityLM("SUMMARY");
+    params.setlambdaLowerBound(lowerLambda);
+    params.setlambdaUpperBound(upperLambda);
+    params.setRelativeErrorTol(relativeErrorTolerance);
+    params.setMaxIterations(maxIterations);
+    params.setUseFixedLambdaFactor(setUseFixedLambdaFactor);
+    // cout << "Log file " << params.getLogFile() << endl;
+    LevenbergMarquardtOptimizer optimizer(graph, initialEstimateFG, params);
+    cout << "Optimization process in elimination-v1 test: " << endl;
+    auto result = optimizer.optimize();
+    VectorDynamic optComp = CollectUnitOptResult(result, tasksInfo);
+    cout << "Results in elimination-v1 test: " << optComp << endl;
+    cout << "Error before optimization: " << graph.error(initialEstimateFG) << endl;
+    cout << "Error after optimization: " << graph.error(result) << endl;
+}
 
-protected:
-    typedef NoiseModelFactor Base;
-    typedef NoiseModelFactorN<VALUE> This;
-
-public:
-    /// @name Constructors
-    /// @{
-
-    /** Default constructor for I/O only */
-    NoiseModelFactorN() {}
-
-    ~NoiseModelFactorN() override {}
-
-    inline Key key() const { return keys_[0]; }
-
-    /**
-   *  Constructor
-   *  @param noiseModel shared pointer to noise model
-   *  @param key1 by which to look up X value in Values
-   */
-
-    NoiseModelFactorN(const SharedNoiseModel &noiseModel, const std::vector<Symbol> &keys)
-        : Base(noiseModel, keys) {}
-
-    /// @}
-    /// @name NoiseModelFactor methods
-    /// @{
-
-    /**
-   * Calls the 1-key specific version of evaluateError below, which is pure
-   * virtual so must be implemented in the derived class.
-   */
-    Vector unwhitenedError(
-        const Values &x,
-        boost::optional<std::vector<Matrix> &> H = boost::none) const override
-    {
-        if (this->active(x))
-        {
-            const X &x1 = x.at<X>(keys_[0]);
-            if (H)
-            {
-                return evaluateError(x1, (*H)[0]);
-            }
-            else
-            {
-                return evaluateError(x1);
-            }
-        }
-        else
-        {
-            return Vector::Zero(this->dim());
-        }
-    }
-
-    /// @}
-    /// @name Virtual methods
-    /// @{
-
-    /**
-   *  Override this method to finish implementing a unary factor.
-   *  If the optional Matrix reference argument is specified, it should compute
-   *  both the function evaluation and its derivative in X.
-   */
-    virtual Vector
-    evaluateError(const X &x,
-                  boost::optional<Matrix &> H = boost::none) const = 0;
-
-    /// @}
-
-private:
-    /** Serialization function */
-    friend class boost::serialization::access;
-    template <class ARCHIVE>
-    void serialize(ARCHIVE &ar, const unsigned int /*version*/)
-    {
-        ar &boost::serialization::make_nvp("NoiseModelFactor",
-                                           boost::serialization::base_object<Base>(*this));
-    }
-}; // \class NoiseModelFactorN
 int main()
 {
     TestResult tr;
