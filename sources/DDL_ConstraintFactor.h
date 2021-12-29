@@ -156,13 +156,14 @@ namespace DAG_SPACE
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {
-                    // cout << "The Jacobian matrix of DDL_ConstraintFactor is " << endl
-                    //      << *H << endl;
-                }
-                if (debugMode == 1)
-                {
+                    cout << std::flush;
+                    cout << cout_lock;
+                    cout << "The Jacobian matrix of DDL_ConstraintFactor is " << endl
+                         << *H << endl;
+
                     // cout << "The input startTimeVector is " << startTimeVector << endl;
                     cout << "The error vector of DDL is " << Color::blue << f(startTimeVector) << Color::def << endl;
+                    cout << cout_unlock;
                 }
             }
             EndTimer("DDL_All");

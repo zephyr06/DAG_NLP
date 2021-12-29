@@ -142,13 +142,14 @@ namespace DAG_SPACE
                     *H = JacobianAnalytic(startTimeVector);
                 if (debugMode == 1)
                 {
+                    cout << cout_lock;
+                    cout << std::flush;
                     cout << "The Jacobian matrix of DAG_ConstraintFactor (including makespac) is " << endl
                          << *H << endl;
-                }
-                if (debugMode == 1)
-                {
+
                     // cout << "The input startTimeVector is " << startTimeVector << endl;
                     cout << "The error vector of DAG is " << Color::blue << f(startTimeVector) << Color::def << endl;
+                    cout << cout_unlock;
                 }
             }
             EndTimer("DAG");

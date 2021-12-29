@@ -6,7 +6,7 @@ TEST(DAG_Optimize_schedule, v1)
 {
     BeginTimer("main");
     using namespace DAG_SPACE;
-    DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
+    DAG_Model tasks = ReadDAG_Tasks("../../TaskData/" + testDataSetName + ".csv", "orig");
 
     auto sth = OptimizeScheduling(tasks);
 

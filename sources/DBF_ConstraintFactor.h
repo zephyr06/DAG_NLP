@@ -104,10 +104,13 @@ namespace DAG_SPACE
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                 if (debugMode == 1)
                 {
+                    cout << std::flush;
+                    cout << cout_lock;
                     cout << "The Jacobian matrix of DBF_ConstraintFactor is " << endl
                          << *H << endl;
                     cout << Color::green << "The input startTimeVector of DBF is " << startTimeVector << Color::def << endl;
                     cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << endl;
+                    cout << cout_unlock;
                 }
                 if ((*H).norm() <= zeroJacobianDetectTol && f(startTimeVector).norm() != 0)
                 {
@@ -115,14 +118,14 @@ namespace DAG_SPACE
                 }
 
                 // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
-                if (debugMode == 1)
-                {
-                    auto sth = NumericalDerivativeDynamicUpperDBF(f, startTimeVector, deltaOptimizer, errorDimension);
-                    cout << "The Jacobian matrix of DBF_ConstraintFactor is " << endl
-                         << sth << endl;
-                    cout << Color::green << "The input startTimeVector of DBF is " << startTimeVector << Color::def << endl;
-                    cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << endl;
-                }
+                // if (debugMode == 1)
+                // {
+                //     auto sth = NumericalDerivativeDynamicUpperDBF(f, startTimeVector, deltaOptimizer, errorDimension);
+                //     cout << "The Jacobian matrix of DBF_ConstraintFactor is " << endl
+                //          << sth << endl;
+                //     cout << Color::green << "The input startTimeVector of DBF is " << startTimeVector << Color::def << endl;
+                //     cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << endl;
+                // }
                 if (debugMode == 3)
                 {
                     cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << endl;

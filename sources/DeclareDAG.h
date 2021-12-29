@@ -34,6 +34,22 @@ typedef Eigen::SparseMatrix<double, Eigen::ColMajor> SM_Dynamic;
 
 typedef long long int LLint;
 typedef std::map<int, vector<int>> ProcessorTaskSet;
+
+using namespace std;
+
+mutex ostream_mutex{};
+
+ios_base &cout_lock(ios_base &strm)
+{
+    ostream_mutex.lock();
+    return strm;
+}
+
+ios_base &cout_unlock(ios_base &strm)
+{
+    ostream_mutex.unlock();
+    return strm;
+}
 struct MappingDataStruct
 {
     LLint index;
