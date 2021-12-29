@@ -76,3 +76,4 @@ const string readTaskMode = (string)ConfigParameters["readTaskMode"];
 const string runMode = (string)ConfigParameters["runMode"];
 const string testDataSetName = (string)ConfigParameters["testDataSetName"];
 double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
+const int PrintOutput = (int)ConfigParameters["PrintOutput"];

@@ -1,10 +1,10 @@
 %YAML:1.0
 # something not used
 
-
+PrintOutput: 1
 barrierBase: 100
 coolingRateSA: 0.1
-debugMode: 0
+debugMode: 1
 deltaInitialDogleg: 1e5
 weightDDL_factor: 1.0
 deltaOptimizer: 1e-1
@@ -23,7 +23,7 @@ readTaskMode: orig
 withAddedSensorFusionError: 1
 ElimnateLoop_Max: 50
 zeroJacobianDetectTol: 1e-7
-maxIterations: 100
+maxIterations: 99
 moreElimination: 0
 weightPrior_factor: 0
 initializeMethod: 2
@@ -37,7 +37,7 @@ SA_iteration: 100000
 sensorFusionTolerance: 50
 FreshTol: 50
 temperatureSA: 100000000
-testDataSetName: test_n5_v44
+testDataSetName: test_n5_v53
 tightEliminate: 0
 toleranceEliminator: 1
 upperLambda: 1e60

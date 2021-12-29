@@ -2361,6 +2361,7 @@ TEST(GenerateInitial_RMDAG, v6)
     expected << 194, 100, 200, 300, 400, 500, 671, 700, 800, 900, 170, 201, 401, 672, 801, 0, 501;
     assert_equal(expected, actual);
 }
+
 // TEST(RandomWalk, v1)
 // {
 //     using namespace DAG_SPACE;
