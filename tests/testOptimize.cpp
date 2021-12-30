@@ -270,6 +270,7 @@ TEST(sensorFusion, v2)
 
     double defaultSF = sensorFusionTolerance;
     sensorFusionTolerance = 2;
+    FreshTol = 100000000;
     auto sth = factor.evaluateError(initial);
 
     AssertEqualScalar(27, sth(0, 0)); // Node 0-1

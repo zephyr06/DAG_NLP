@@ -402,6 +402,10 @@ namespace DAG_SPACE
                     j_map2.insert(bigIndex, finalIndex - countEliminatedVariable) = 1;
             }
         }
+        // cout << "print j_map" << endl
+        //      << j_map << endl;
+        // cout << "print j_map2" << endl
+        //      << j_map2 << endl;
         return j_map * j_map2;
     }
 }

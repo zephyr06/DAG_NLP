@@ -171,6 +171,8 @@ namespace DAG_SPACE
             }
             SM_Dynamic j_map = JacobianElimination(length, lengthCompressed,
                                                    sizeOfVariables, mapIndex, mapIndex_True2Compress);
+            // cout << "print j_yx: " << endl
+            //      << j_yx << endl;
             return j_yx * j_map;
         }
 
