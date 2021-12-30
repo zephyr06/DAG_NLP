@@ -382,18 +382,26 @@ namespace DAG_SPACE
                                    const MAP_Index2Data &mapIndex,
                                    const std::unordered_map<LLint, LLint> &mapIndex_True2Compress)
     {
-        SM_Dynamic j_map(length, lengthCompressed);
+        SM_Dynamic j_map2(length, lengthCompressed);
+        SM_Dynamic j_map(length, length);
+        int countEliminatedVariable = 0;
         // go through all the variables
         for (int i = 0; i < int(sizeOfVariables.size()); i++)
         {
             for (int j = 0; j < int(sizeOfVariables.at(i)); j++)
             {
+                // if()
                 LLint bigIndex = IndexTran_Instance2Overall(i, j, sizeOfVariables);
                 // find its final dependency variable
                 LLint finalIndex = FindLeaf(bigIndex, mapIndex);
-                j_map.insert(bigIndex, mapIndex_True2Compress.at(finalIndex)) = 1;
+                // j_map.insert(mapIndex_True2Compress.at(finalIndex), bigIndex - countEliminatedVariable) = 1;
+                j_map.insert(bigIndex, finalIndex) = 1;
+                if (mapIndex.at(bigIndex).getIndex() != bigIndex)
+                    countEliminatedVariable++;
+                else
+                    j_map2.insert(bigIndex, finalIndex - countEliminatedVariable) = 1;
             }
         }
-        return j_map;
+        return j_map * j_map2;
     }
 }
