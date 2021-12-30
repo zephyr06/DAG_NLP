@@ -3,6 +3,7 @@
 title="utilization"
 cp compare_util_core/parameters.yaml ../sources/
 cp compare_util_core/GenerateRandomTaskset.h ../sources/
+mkdir ../TaskData/dagTasks
 
 cd ../release
 cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -15,7 +16,7 @@ do
 	do
 		echo "$title iteration is: $core $i"
 		cd ../release
-		./tests/GenerateTaskSet --taskSetType 2 --aveUtilization $i --taskSetNumber 1000 --NumberOfProcessor $core --N 5 --taskType 2
+		./tests/GenerateTaskSet --taskSetType 2 --aveUtilization $i --taskSetNumber 1000 --NumberOfProcessor $core --N 5 --taskType 1
 		cd ../CompareWithBaseline
 		python edit_yaml.py --entry "batchTestMethod" --value 0
 		cd ../release
