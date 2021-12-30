@@ -351,19 +351,32 @@ LLint FindLeaf(LLint index, const MAP_Index2Data &mapIndex)
      * 
      * a sparse matrix that represents Jacobian matrix of compreseed variables w.r.t. original variables 
      */
-SM_Dynamic JacobianElimination(const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const EliminationForest &forestInfo)
+// SM_Dynamic JacobianElimination(LLint length, LLint lengthCompressed,
+//                                const vector<LLint> &sizeOfVariables,
+//                                const MAP_Index2Data &mapIndex,
+//                                const std::unordered_map<LLint, LLint> &mapIndex_True2Compress)
+SM_Dynamic JacobianElimination(const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                               const EliminationForest &forestInfo)
 {
-    SM_Dynamic j_map(tasksInfo.length, forestInfo.lengthCompressed);
+    SM_Dynamic j_map2(tasksInfo.variableDimension, forestInfo.lengthCompressed);
+    SM_Dynamic j_map(tasksInfo.variableDimension, tasksInfo.variableDimension);
+    int countEliminatedVariable = 0;
     // go through all the variables
     for (int i = 0; i < int(tasksInfo.sizeOfVariables.size()); i++)
     {
         for (int j = 0; j < int(tasksInfo.sizeOfVariables.at(i)); j++)
         {
+            // if()
             LLint bigIndex = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
             // find its final dependency variable
             LLint finalIndex = FindLeaf(bigIndex, forestInfo.mapIndex);
-            j_map.insert(bigIndex, forestInfo.mapIndex_True2Compress.at(finalIndex)) = 1;
+            // j_map.insert(mapIndex_True2Compress.at(finalIndex), bigIndex - countEliminatedVariable) = 1;
+            j_map.insert(bigIndex, finalIndex) = 1;
+            if (forestInfo.mapIndex.at(bigIndex).getIndex() != bigIndex)
+                countEliminatedVariable++;
+            else
+                j_map2.insert(bigIndex, finalIndex - countEliminatedVariable) = 1;
         }
     }
-    return j_map;
+    return j_map * j_map2;
 }

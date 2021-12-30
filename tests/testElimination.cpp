@@ -451,7 +451,35 @@ TEST(FindVanishIndex, v2)
     vector<LLint> expected = {0, 2, 5};
     AssertEqualVectorNoRepeat(expected, actual);
 }
+TEST(Jacobianelimination, v1)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v53.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
 
+    auto initial = GenerateInitialForDAG_RM_DAG(dagTasks,
+                                                tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
+    initial << 174.454, 309.782, 716.536, 1132.16, 1698.74, 153.668, 399.858, 799.917, 1199.83, 1599.66, 120.021, 548.711, 1014.5, 1503.89, 4.07109, 200, 407.673, 600.044, 807.673, 1002.69, 1208.21, 1400, 1608.21, 1800, 77.5402, 503.698, 937.437, 1199.92, 1598.73;
+    ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+    LLint errorDimensionDBF = processorTaskSet.size();
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    Symbol key('b', 0);
+    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                model);
+    bool whetherEliminate = false;
+
+    factor.addMappingFunction(initial, whetherEliminate, forestInfo);
+    DBF_ConstraintFactor factorAfter(key, tasksInfo, forestInfo, errorDimensionDBF,
+                                     model);
+    VectorDynamic initialUpdate = UpdateInitialVector(initial, tasksInfo, forestInfo);
+
+    MatrixDynamic expect = factorAfter.NumericalDerivativeDynamicUpperDBF(factorAfter.f, initialUpdate, deltaOptimizer, errorDimensionDBF);
+
+    MatrixDynamic actual = factorAfter.DBFJacobian(factorAfter.f, initialUpdate, deltaOptimizer, errorDimensionDBF);
+    assert_equal(expect, actual);
+}
 int main()
 {
     TestResult tr;
