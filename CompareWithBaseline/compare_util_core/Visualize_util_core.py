@@ -73,7 +73,7 @@ for i, method in enumerate(["NLP", baseline]):
 
 plt.grid(linestyle="--")
 splot.set(xlabel="Core Number", ylabel="Accept rate(%)")
-splot.set_ylim(None, 40)
+splot.set_ylim(None, None)
 plt.savefig("Core_util" + baseline + ".pdf", format='pdf')
 plt.savefig("Core_util" + baseline + ".png", format='png')
 plt.show(block=False)

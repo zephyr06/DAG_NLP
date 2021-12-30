@@ -339,6 +339,12 @@ namespace DAG_SPACE
                         {
                             continue;
                         }
+                        // check if two vertices belong to the same tree, if so, cannot add an edge anymore
+                        LLint index_i_overall = intervalVec[i].indexInSTV;
+                        LLint index_j_overall = intervalVec[j].indexInSTV;
+                        if (FindLeaf(index_i_overall, mapIndex) == FindLeaf(index_j_overall, mapIndex))
+                            continue;
+
                         double sumIJK = 0;
                         double endTime = intervalVec[j].start + intervalVec[j].length;
                         for (LLint k = 0; k < LLint(intervalVec.size()); k++)
@@ -353,8 +359,6 @@ namespace DAG_SPACE
 
                         if ((distanceToBound_j_i < toleranceEliminator && distanceToBound_j_i >= 0))
                         {
-                            LLint index_i_overall = intervalVec[i].indexInSTV;
-                            LLint index_j_overall = intervalVec[j].indexInSTV;
 
                             // since we go over all the pairs, we only need to check j in each pair (i, j)
 
