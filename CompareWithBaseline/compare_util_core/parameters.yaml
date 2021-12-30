@@ -34,8 +34,8 @@ priorityMode: RM
 relativeErrorTolerance: 1e-7
 runMode: compare
 SA_iteration: 100000
-sensorFusionTolerance: 500
-FreshTol: 500
+sensorFusionTolerance: 50
+FreshTol: 50
 temperatureSA: 100000000
 testDataSetName: test_n5_v53
 tightEliminate: 0
