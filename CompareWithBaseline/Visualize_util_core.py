@@ -38,7 +38,7 @@ taskSetNumber = args.taskSetNumber
 baseline = args.baseline
 ylim = args.ylim
 
-path = "ResultFiles/util_core.txt"
+path = "compare_util_core/util_core.txt"
 data_3d = Read_txt_file_3d(path, lambda x: x)
 core_seq = np.arange(1, 5)
 data_dict = {"index": core_seq}
