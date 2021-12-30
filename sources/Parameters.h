@@ -47,7 +47,7 @@ const double toleranceEliminator = (double)ConfigParameters["toleranceEliminator
 const double upperLambda = (double)ConfigParameters["upperLambda"];
 const double weightLogBarrier = (double)ConfigParameters["weightLogBarrier"];
 const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetectTol"];
- double FreshTol = (double)ConfigParameters["FreshTol"];
+double FreshTol = (double)ConfigParameters["FreshTol"];
 const double stepJacobianIteration = (double)ConfigParameters["stepJacobianIteration"];
 
 const int moreElimination = (int)ConfigParameters["moreElimination"];
@@ -65,7 +65,6 @@ const int optimizerType = (int)ConfigParameters["optimizerType"];
 const int overlapMode = (int)ConfigParameters["overlapMode"];
 const int randomInitialize = (int)ConfigParameters["randomInitialize"];
 const int SA_iteration = (int)ConfigParameters["SA_iteration"];
-const int TaskSetType = (int)ConfigParameters["TaskSetType"];
 const int temperatureSA = (int)ConfigParameters["temperatureSA"];
 int tightEliminate = (int)ConfigParameters["tightEliminate"];
 int withAddedSensorFusionError = (int)ConfigParameters["withAddedSensorFusionError"];

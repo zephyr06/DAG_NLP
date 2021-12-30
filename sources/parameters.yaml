@@ -45,4 +45,3 @@ weightLogBarrier: -1.0
 setUseFixedLambdaFactor: 1
 batchTestMethod: 1 # 1 means NLP, 2 means SA, 0 means initial
 numericalJaobian: 0
-TaskSetType: 2 # 1 means total random, 2 means automobile tasksets

@@ -14,7 +14,7 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 make -j12
 cd ../CompareWithBaseline
 > ResultFiles/utilization.txt
-for i in $(seq 0.4 0.1 0.4) 
+for i in $(seq 0.1 0.1 0.4) 
 do
 	for core in {1..4}
 	do
