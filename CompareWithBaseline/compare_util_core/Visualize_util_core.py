@@ -38,7 +38,7 @@ taskSetNumber = args.taskSetNumber
 baseline = args.baseline
 ylim = args.ylim
 
-path = "compare_util_core/util_core.txt"
+path = "util_core.txt"
 data_3d = Read_txt_file_3d(path, lambda x: x)
 core_seq = np.arange(1, 5)
 data_dict = {"index": core_seq}
@@ -74,7 +74,7 @@ for i, method in enumerate(["NLP", baseline]):
 plt.grid(linestyle="--")
 splot.set(xlabel="Core Number", ylabel="Accept rate(%)")
 splot.set_ylim(None, 40)
-plt.savefig("compare_util_core/Core_util" + baseline + ".pdf", format='pdf')
-plt.savefig("compare_util_core/Core_util" + baseline + ".png", format='png')
+plt.savefig("Core_util" + baseline + ".pdf", format='pdf')
+plt.savefig("Core_util" + baseline + ".png", format='png')
 plt.show(block=False)
 plt.pause(3)
