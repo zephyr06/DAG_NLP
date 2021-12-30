@@ -49,9 +49,9 @@ void BatchOptimize()
     int N;
 
     vector<string> errorFiles;
-    ofstream outfileWrite;
-    outfileWrite.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/data_buffer_energy_task_number.txt",
-                      std::ios_base::app);
+    // ofstream outfileWrite;
+    // outfileWrite.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/data_buffer_energy_task_number.txt",
+    //                   std::ios_base::app);
     vector<string> files = ReadFilesInDirectory(pathDataset);
     int TotalTestCases = files.size() - 2;
     for (const auto &file : files)
@@ -100,7 +100,7 @@ void BatchOptimize()
             {
                 averageErrorAccept.push_back(res.optimizeError);
                 runTimeAccept.push_back(timeTaken);
-                outfileWrite << averageErrorAccept.back() << endl;
+                // outfileWrite << averageErrorAccept.back() << endl;
             }
             else if (res.optimizeError == -1 || res.optimizeError > AcceptSchedulError * timeScaleFactor)
             {
