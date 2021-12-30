@@ -94,12 +94,12 @@ namespace DAG_SPACE
                     *H = JacobianAnalytic(startTimeVector);
                 if (debugMode == 1)
                 {
+                    cout << cout_lock;
                     cout << "The Jacobian matrix of SensorFusion_ConstraintFactor is " << endl;
                     cout << *H << endl;
-                }
-                if (debugMode == 1)
-                {
+
                     cout << "The error vector of SensorFusion is " << Color::blue << f(startTimeVector) << Color::def << endl;
+                    cout << cout_unlock;
                 }
             }
             EndTimer("Sensor_all");
