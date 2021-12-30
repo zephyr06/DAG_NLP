@@ -30,15 +30,21 @@ parser.add_argument('--baseline', type=str, default="SA2",
                     help='baseline')
 parser.add_argument('--ylim', type=float, default=1e2,
                     help='ylim')
+parser.add_argument('--path', type=str, default="ResultFiles/time_record_AM.txt",
+                    help='path for file to plot')
+parser.add_argument('--withfit', type=int, default=0,
+                    help='with quadratic fitting or not')
 args = parser.parse_args()
 minTaskNumber = args.minTaskNumber
 maxTaskNumber = args.maxTaskNumber
 baseline = args.baseline
+path=args.path
 ylim=args.ylim
+withfit=args.withfit
 
 
-# path = "ResultFiles/time_record.txt"
-path = "ResultFiles/time_task_number.txt"
+# path = "ResultFiles/time_record_AM.txt"
+# path = "ResultFiles/time_task_number.txt"
 data_2d = Read_txt_file_2d(path)
 task_number_seq = range(minTaskNumber, maxTaskNumber + 1)
 coeff=np.polyfit(task_number_seq, data_2d[1,:],2)
@@ -52,21 +58,16 @@ df=pd.DataFrame({"index":task_number_seq,"NLP":data_2d[1,:], baseline: data_2d[0
 
 splot = sns.lineplot(data=df, x="index", y="NLP",label="NLP",  marker="*", markersize=12, color="#0084DB")
 splot = sns.lineplot(data=df, x="index", y=baseline, label=baseline, marker="o", markersize=8, color="limegreen")
-# splot = sns.lineplot(data=df, x="index", y="simu", linestyle="--", color="r", label="Quadratic fitting")
+if(withfit):
+    splot = sns.lineplot(data=df, x="index", y="simu", linestyle="--", color="r", label="Quadratic fitting")
 # plt.legend(labels=["NLP",baseline])
 plt.grid(linestyle="--")
 # splot.set(yscale="log")
 # plt.grid(linestyle="--")
 splot.set(xlabel="Task Number", ylabel="Runt-Time (seconds)")
 # splot.set_xlim(4, None)
-<<<<<<< HEAD
-splot.set_ylim(None, 6)
-plt.savefig("Compare_run_time" +baseline+ ".pdf", format='pdf')
-plt.savefig("Compare_run_time" +baseline+ ".png", format='png')
-=======
 # splot.set_ylim(1e-3, ylim)
 plt.savefig("Compare_run_time" + ".pdf", format='pdf')
-plt.savefig("Compare_run_time" + ".png", format='png')
->>>>>>> c22eb3e4cc22a0a2959a6b691642fe15d52ef0ac
+# plt.savefig("Compare_run_time" + ".png", format='png')
 plt.show(block=False)
 plt.pause(3)
