@@ -54,7 +54,7 @@ double RandRange(double a, double b)
  * @param periodMin 
  * @param periodMax 
  * @param taskSetType 1 is normal, 2 is selecting periods from a given range
- * @param deadlineType  1 means random, 0 means implicit
+ * @param deadlineType 
  * @return TaskSet 
  */
 TaskSet GenerateTaskSet(int N, double totalUtilization,
