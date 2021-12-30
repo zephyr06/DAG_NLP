@@ -1,9 +1,13 @@
 #!/usr/bin/bash
 
-title="utilization"
-cp compare_util_core/parameters.yaml ../sources/
-cp compare_util_core/GenerateRandomTaskset.h ../sources/
+folder="compare_util_core"
+cp $folder/parameters.yaml ../sources/
+cp $folder/GenerateRandomTaskset.h ../sources/
 mkdir ../TaskData/dagTasks
+
+# clear buffer file content
+> ResultFiles/utilization.txt
+> ResultFiles/time_task_number.txt
 
 cd ../release
 cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -14,9 +18,9 @@ for i in $(seq 0.4 0.1 0.4)
 do
 	for core in {1..4}
 	do
-		echo "$title iteration is: $core $i"
+		echo "$folder iteration is: $core $i"
 		cd ../release
-		./tests/GenerateTaskSet --taskSetType 2 --aveUtilization $i --taskSetNumber 1000 --NumberOfProcessor $core --N 5 --taskType 1
+		./tests/GenerateTaskSet --taskSetType 2 --aveUtilization $i --taskSetNumber 1000 --NumberOfProcessor $core --N 5 --taskType 1 --deadlineType 0
 		cd ../CompareWithBaseline
 		python edit_yaml.py --entry "batchTestMethod" --value 0
 		cd ../release
@@ -29,7 +33,7 @@ do
 	done
 done
 cd ../CompareWithBaseline
-cp ResultFiles/utilization.txt compare_util_core/util_core.txt
+cp ResultFiles/utilization.txt $folder/util_core.txt
 # visualize the result
-cd compare_util_core
+cd $folder
 python Visualize_util_core.py 
