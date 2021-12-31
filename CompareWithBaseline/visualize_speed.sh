@@ -31,10 +31,10 @@ done
 cd ../CompareWithBaseline
 cp ResultFiles/time_task_number.txt ResultFiles/time_task_number_result_copy.txt
 # visualize the result
-python Visualize_average_speed.py --baseline "RM" --minTaskNumber 3 --maxTaskNumber $MaxTaskNumber
+python Visualize2Dplot.py --baseline "RM" --minTaskNumber 3 --maxTaskNumber $MaxTaskNumber
 
 python Visualize_average_speed_automotive.py --path "time_record.txt" --ylim 40  --withFit 1 --maxTaskNumber 8
 python Visualize_average_speed_automotive.py --path "accept_rate_record.txt" --ylim 60  --withFit 0 --maxTaskNumber 8
-python Visualize_average_speed.py #speed
+python Visualize2Dplot.py #speed
 python Visualize_average_speed_automotive.py --path "accept_rate_record2.txt" --ylim 60  --withFit 0 --maxTaskNumber 8 --ylim 100
 

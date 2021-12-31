@@ -8,7 +8,7 @@ mkdir ../../TaskData/dagTasks
 cd ..
 # clear buffer file content
 > ResultFiles/utilization.txt
-> .ResultFiles/time_task_number.txt
+> ResultFiles/time_task_number.txt
 
 cd ../release
 cmake -DCMAKE_BUILD_TYPE=Release ..

@@ -37,4 +37,5 @@ cp ResultFiles/time_task_number.txt $folder/time_task_number.txt
 cp ResultFiles/utilization.txt $folder/utilization_sa.txt
 
 # visualize the result
-python Visualize_average_speed.py --path "$folder/time_task_number.txt" --minTaskNumber 3 --maxTaskNumber 8
+python Visualize2Dplot.py --path "time_task_number.txt" --minTaskNumber 3 --maxTaskNumber 8 --ylabel "Runt-Time (seconds)"
+python Visualize2Dplot.py --path "utilization_sa.txt" --minTaskNumber 3 --maxTaskNumber 8 --ylabel "Accept rate(%)"

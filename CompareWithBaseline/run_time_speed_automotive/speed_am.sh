@@ -22,7 +22,7 @@ do
 	cd ../release
 	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization 0.4 --taskSetNumber 10 --NumberOfProcessor 2 --taskType 1 --N $taskNumber
 	cd ../CompareWithBaseline
-	python edit_yaml.py --entry "batchTestMethod" --value 2
+	python edit_yaml.py --entry "batchTestMethod" --value 0
 	cd ../release
 	./tests/testBatch1
 	cd ../CompareWithBaseline
@@ -36,4 +36,4 @@ cd ../CompareWithBaseline
 cp ResultFiles/time_task_number.txt $folder/time_task_number.txt
 
 # visualize the result
-python Visualize_average_speed.py --path "$folder/time_task_number.txt" --minTaskNumber 3 --maxTaskNumber 8
+python $folder/Visualize2Dplot.py --path "$folder/time_task_number.txt" --minTaskNumber 3 --maxTaskNumber 8 --baseline RM --ylabel "Runt-Time (seconds)" --ylim 100
