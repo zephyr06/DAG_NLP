@@ -2,7 +2,7 @@
 
 title="utilization"
 
-folder="compare_constrained_deadline"
+folder="compare_utilization"
 cp $folder/parameters.yaml ../sources/
 cp $folder/GenerateRandomTaskset.h ../sources/
 mkdir ../TaskData/dagTasks
