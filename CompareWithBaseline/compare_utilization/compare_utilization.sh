@@ -1,15 +1,14 @@
 #!/usr/bin/bash
 
-title="utilization"
-
 folder="compare_utilization"
-cp $folder/parameters.yaml ../sources/
-cp $folder/GenerateRandomTaskset.h ../sources/
-mkdir ../TaskData/dagTasks
+cp parameters.yaml ../../sources/
+cp GenerateRandomTaskset.h ../../sources/
+mkdir ../../TaskData/dagTasks
 
+cd ..
 # clear buffer file content
 > ResultFiles/utilization.txt
-> ResultFiles/time_task_number.txt
+> .ResultFiles/time_task_number.txt
 
 cd ../release
 cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -17,7 +16,7 @@ make -j12
 cd ../CompareWithBaseline
 for i in $(seq 0.1 0.1 0.9) 
 do
-	echo "$title iteration is: $i"
+	echo "utilization iteration is: $i"
 	
 	cd ../release
 	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization $i --taskSetNumber 10 --NumberOfProcessor 2 --N 5 --taskType 1 --deadlineType 1

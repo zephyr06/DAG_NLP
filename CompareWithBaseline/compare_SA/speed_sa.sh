@@ -1,11 +1,12 @@
 #!/usr/bin/bash
 
-folder="run_time_speed_automotive"
+folder="compare_SA"
 
-cp $folder/parameters.yaml ../sources/
-cp $folder/GenerateRandomTaskset.h ../sources/
+cp parameters.yaml ../../sources/
+cp GenerateRandomTaskset.h ../../sources/
 mkdir ../TaskData/dagTasks
 
+cd ..
 # clear buffer file content
 > ResultFiles/utilization.txt
 > ResultFiles/time_task_number.txt
@@ -33,6 +34,7 @@ done
 
 cd ../CompareWithBaseline
 cp ResultFiles/time_task_number.txt $folder/time_task_number.txt
+cp ResultFiles/utilization.txt $folder/utilization_sa.txt
 
 # visualize the result
 python Visualize_average_speed.py --path "$folder/time_task_number.txt" --minTaskNumber 3 --maxTaskNumber 8
