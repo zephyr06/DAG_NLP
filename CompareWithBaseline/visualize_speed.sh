@@ -11,7 +11,7 @@ time_file="ResultFiles/time_$title.txt"
 cd ../release
 make -j8
 cd ../CompareWithBaseline
-for taskNumber in {6..10}
+for taskNumber in {3..8}
 do
 	echo "$title iteration is: $taskNumber"
 	
