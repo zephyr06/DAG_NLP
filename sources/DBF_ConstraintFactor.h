@@ -51,7 +51,7 @@ namespace DAG_SPACE
                             return res;
                         };
                         // this factor is explained as: variable * 1 <= tasks[i].deadline + i * tasks[i].period
-                        graph.emplace_shared<InequalityFactor2D>(key, key_inner, 1, DBF2D, model);
+                        graph.emplace_shared<InequalityFactor2D>(key, key_inner, DBF2D, model);
                     }
                 }
             }
@@ -180,7 +180,7 @@ namespace DAG_SPACE
                         }
                         LLint index_i_overall = intervalVec[i].indexInSTV;
                         LLint index_j_overall = intervalVec[j].indexInSTV;
-                        if (FindLeaf(index_i_overall, mapIndex) == FindLeaf(index_j_overall, mapIndex))
+                        if (FindLeaf(index_i_overall, forestInfo.mapIndex) == FindLeaf(index_j_overall, forestInfo.mapIndex))
                             continue;
                         double sumIJK = 0;
                         double endTime = intervalVec[j].start + intervalVec[j].length;
@@ -196,7 +196,6 @@ namespace DAG_SPACE
 
                         if ((distanceToBound_j_i < toleranceEliminator && distanceToBound_j_i >= 0))
                         {
-       
 
                             // since we go over all the pairs, we only need to check j in each pair (i, j)
 

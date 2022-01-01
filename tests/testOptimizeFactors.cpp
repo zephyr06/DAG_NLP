@@ -287,6 +287,29 @@ TEST(elimination, v1)
     cout << "Error before optimization: " << graph.error(initialEstimateFG) << endl;
     cout << "Error after optimization: " << graph.error(result) << endl;
 }
+TEST(sigma, v1)
+{
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    EliminationForest forestInfo(tasksInfo);
+
+    VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks,
+                                                                    tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
+    startTimeVector << 6, 97, 5, 3, 104, 2, 0, 201;
+    NonlinearFactorGraph graph;
+    noiseModelSigma = 1;
+    AddDDL_Factor(graph, tasksInfo);
+    Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
+    double err1 = graph.error(initialEstimateFG);
+
+    NonlinearFactorGraph graph2;
+    noiseModelSigma = 2;
+    AddDDL_Factor(graph2, tasksInfo);
+    Values initialEstimateFG2 = GenerateInitialFG(startTimeVector, tasksInfo);
+    double err2 = graph2.error(initialEstimateFG2);
+
+    AssertEqualScalar(err1, err2 * 4, 1e-6, __LINE__);
+}
 
 int main()
 {

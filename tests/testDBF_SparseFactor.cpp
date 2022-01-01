@@ -4,15 +4,6 @@
 
 using namespace DAG_SPACE;
 
-// class DBF_Factor : public InequalityFactor2D
-// {
-// public:
-//     TaskSetInfoDerived tasksInfo;
-//     LLint index1;
-//     LLint index2;
-
-// };
-
 TEST(testDBF, v1)
 {
     using namespace DAG_SPACE;

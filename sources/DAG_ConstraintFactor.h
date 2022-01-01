@@ -29,7 +29,7 @@ namespace DAG_SPACE
                     res(0, 0) = Barrier(x1(0, 0) - x2(0, 0) - execTime);
                     return res;
                 };
-                graph.emplace_shared<InequalityFactor2D>(keyNext, keyPrev, 1, DAG2D, model);
+                graph.emplace_shared<InequalityFactor2D>(keyNext, keyPrev, DAG2D, model);
             }
         }
     }

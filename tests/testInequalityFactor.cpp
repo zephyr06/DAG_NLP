@@ -5,7 +5,7 @@ TEST(SmallerThanFactor1D, evaluateError)
     Symbol key('a', 0);
 
     auto model = noiseModel::Isotropic::Sigma(1, noiseModelSigma);
-    SmallerThanFactor1D factor(key, 10, 1, model);
+    SmallerThanFactor1D factor(key, 10, model);
     VectorDynamic a = GenerateVectorDynamic(1);
     AssertEqualScalar(factor.evaluateError(a)(0, 0), 0);
     a << 10;
@@ -18,7 +18,7 @@ TEST(LargerThanFactor1D, evaluateError)
     Symbol key('a', 0);
 
     auto model = noiseModel::Isotropic::Sigma(1, noiseModelSigma);
-    LargerThanFactor1D factor(key, 10, 1, model);
+    LargerThanFactor1D factor(key, 10, model);
     VectorDynamic a = GenerateVectorDynamic(1);
     AssertEqualScalar(10, factor.evaluateError(a)(0, 0), 1e-3, __LINE__);
     a << 10;
@@ -34,13 +34,13 @@ TEST(SmallerThanFactor1D, Hessian)
         Symbol key('a', 0);
 
         auto model = noiseModel::Isotropic::Sigma(1, noiseModelSigma);
-        SmallerThanFactor1D factor(key, 10, 1, model);
+        SmallerThanFactor1D factor(key, 10, model);
         return factor.evaluateError(x);
     };
     Symbol key('a', 0);
 
     auto model = noiseModel::Isotropic::Sigma(1, noiseModelSigma);
-    SmallerThanFactor1D factor(key, 10, 1, model);
+    SmallerThanFactor1D factor(key, 10, model);
 
     VectorDynamic a = GenerateVectorDynamic(1);
     MatrixDynamic actual = GenerateMatrixDynamic(1, 1);
@@ -72,13 +72,13 @@ TEST(LargerThanFactor1D, Hessian)
         Symbol key('a', 0);
 
         auto model = noiseModel::Isotropic::Sigma(1, noiseModelSigma);
-        LargerThanFactor1D factor(key, 10, 1, model);
+        LargerThanFactor1D factor(key, 10, model);
         return factor.evaluateError(x);
     };
     Symbol key('a', 0);
 
     auto model = noiseModel::Isotropic::Sigma(1, noiseModelSigma);
-    LargerThanFactor1D factor(key, 10, 1, model);
+    LargerThanFactor1D factor(key, 10, model);
 
     VectorDynamic a = GenerateVectorDynamic(1);
     MatrixDynamic actual = GenerateMatrixDynamic(1, 1);
