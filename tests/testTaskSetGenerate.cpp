@@ -111,11 +111,9 @@ TEST(ProcessorTaskSet, add)
     ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
     LLint errorDimensionDBF = processorTaskSet.size();
     auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-    DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF,
-                                model);
 
-    AssertEqualVectorNoRepeat<int>({0, 2, 3}, factor.tasksInfo.processorTaskSet[0]);
-    AssertEqualVectorNoRepeat<int>({1, 4}, factor.tasksInfo.processorTaskSet[1]);
+    AssertEqualVectorNoRepeat<int>({0, 2, 3}, tasksInfo.processorTaskSet[0]);
+    AssertEqualVectorNoRepeat<int>({1, 4}, tasksInfo.processorTaskSet[1]);
 }
 
 TEST(TaskSetInfoDerived, v1)
