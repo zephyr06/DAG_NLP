@@ -8,7 +8,7 @@ mkdir ../../TaskData/dagTasks
 cd ..
 # clear buffer file content
 > ResultFiles/utilization.txt
-> .ResultFiles/time_task_number.txt
+> ResultFiles/time_task_number.txt
 
 cd ../release
 cmake -DCMAKE_BUILD_TYPE=Release ..
@@ -19,7 +19,7 @@ do
 	echo "utilization iteration is: $i"
 	
 	cd ../release
-	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization $i --taskSetNumber 10 --NumberOfProcessor 2 --N 5 --taskType 1 --deadlineType 1
+	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization $i --taskSetNumber 1000 --NumberOfProcessor 2 --N 5 --taskType 1 --deadlineType 1
 	cd ../CompareWithBaseline
 	python edit_yaml.py --entry "batchTestMethod" --value 0
 	cd ../release

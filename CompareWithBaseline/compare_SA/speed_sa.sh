@@ -20,7 +20,7 @@ do
 	echo "$title iteration is: $taskNumber"
 	
 	cd ../release
-	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization 0.4 --taskSetNumber 10 --NumberOfProcessor 2 --taskType 1 --N $taskNumber
+	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization 0.4 --taskSetNumber 1000 --NumberOfProcessor 2 --taskType 1 --N $taskNumber
 	cd ../CompareWithBaseline
 	python edit_yaml.py --entry "batchTestMethod" --value 2
 	cd ../release

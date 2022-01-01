@@ -29,7 +29,7 @@ parser.add_argument('--taskSetNumber', type=int, default=100,
                     help='taskSetNumber')
 parser.add_argument('--baseline', type=str, default="RM",
                     help='baseline')
-parser.add_argument('--ylim', type=float, default=65,
+parser.add_argument('--ylim', type=float, default=100,
                     help='ylim')
 args = parser.parse_args()
 minTaskNumber = args.minTaskNumber

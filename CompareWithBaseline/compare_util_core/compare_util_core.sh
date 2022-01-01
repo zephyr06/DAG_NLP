@@ -19,7 +19,7 @@ do
 	do
 		echo "$folder iteration is: $core $i"
 		cd ../release
-		./tests/GenerateTaskSet --taskSetType 2 --aveUtilization $i --taskSetNumber 10 --NumberOfProcessor $core --N 5 --taskType 1 --deadlineType 0
+		./tests/GenerateTaskSet --taskSetType 2 --aveUtilization $i --taskSetNumber 1000 --NumberOfProcessor $core --N 5 --taskType 1 --deadlineType 0
 		cd ../CompareWithBaseline
 		python edit_yaml.py --entry "batchTestMethod" --value 0
 		cd ../release
