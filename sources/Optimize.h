@@ -11,7 +11,6 @@
 #include "DBF_ConstraintFactor_Multi.h"
 #include "DDL_ConstraintFactor.h"
 #include "SensorFusionFactor.h"
-#include "PriorFactor.h"
 #include "EliminationForest_utils.h"
 #include "InitialEstimate.h"
 #include "colormod.h"
