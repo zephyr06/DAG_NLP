@@ -30,6 +30,8 @@ parser.add_argument('--baseline', type=str, default="SA2",
                     help='baseline')
 parser.add_argument('--ylim', type=float, default=1e2,
                     help='ylim')
+parser.add_argument('--ylabel', type=str, default=1e2,
+                    help='Runt-Time (seconds)')
 parser.add_argument('--path', type=str, default="ResultFiles/time_record_AM.txt",
                     help='path for file to plot')
 parser.add_argument('--withfit', type=int, default=0,
@@ -40,6 +42,7 @@ maxTaskNumber = args.maxTaskNumber
 baseline = args.baseline
 path=args.path
 ylim=args.ylim
+ylabel=args.ylabel
 withfit=args.withfit
 
 
@@ -64,7 +67,7 @@ if(withfit):
 plt.grid(linestyle="--")
 # splot.set(yscale="log")
 # plt.grid(linestyle="--")
-splot.set(xlabel="Task Number", ylabel="Runt-Time (seconds)")
+splot.set(xlabel="Task Number", ylabel=ylabel)
 # splot.set_xlim(4, None)
 # splot.set_ylim(1e-3, ylim)
 plt.savefig("Compare_run_time" + ".pdf", format='pdf')

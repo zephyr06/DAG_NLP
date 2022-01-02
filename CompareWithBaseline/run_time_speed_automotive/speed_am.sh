@@ -4,7 +4,7 @@ folder="run_time_speed_automotive"
 
 cp parameters.yaml ../../sources/
 cp GenerateRandomTaskset.h ../../sources/
-mkdir ../TaskData/dagTasks
+mkdir ../../TaskData/dagTasks
 
 cd ..
 # clear buffer file content
@@ -20,7 +20,7 @@ do
 	echo "$title iteration is: $taskNumber"
 	
 	cd ../release
-	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization 0.4 --taskSetNumber 10 --NumberOfProcessor 2 --taskType 1 --N $taskNumber
+	./tests/GenerateTaskSet --taskSetType 2 --totalUtilization 0.4 --taskSetNumber 1000 --NumberOfProcessor 2 --taskType 1 --N $taskNumber
 	cd ../CompareWithBaseline
 	python edit_yaml.py --entry "batchTestMethod" --value 0
 	cd ../release
