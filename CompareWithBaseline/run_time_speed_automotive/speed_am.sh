@@ -36,4 +36,4 @@ cd ../CompareWithBaseline
 cp ResultFiles/time_task_number.txt $folder/time_task_number.txt
 
 # visualize the result
-python Visualize2Dplot.py --path "$folder/time_task_number.txt" --minTaskNumber 3 --maxTaskNumber 8 --baseline RM --ylabel "Runt-Time (seconds)" --ylim 100 --save_path "$folder"
+python Visualize2Dplot.py --path "$folder/time_task_number.txt" --minTaskNumber 3 --maxTaskNumber 8 --baseline RM --ylabel "Runt-Time (seconds)" --ylim 100 --save_path "$folder" --withfit 1
