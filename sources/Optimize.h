@@ -24,8 +24,8 @@ Values GenerateInitialFG(VectorDynamic &startTimeVector, TaskSetInfoDerived &tas
     {
         for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
         {
-            LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
-            Symbol key = GenerateKey(i, index_overall);
+            // LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
+            Symbol key = GenerateKey(i, j);
             VectorDynamic v = GenerateVectorDynamic(1);
             v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j);
             initialEstimateFG.insert(key, v);
@@ -41,7 +41,7 @@ VectorDynamic CollectUnitOptResult(Values &result, TaskSetInfoDerived &tasksInfo
         for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
         {
             LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
-            Symbol key = GenerateKey(i, index_overall);
+            Symbol key = GenerateKey(i, j);
             VectorDynamic aaa = result.at<VectorDynamic>(key);
             stvAfter(index_overall, 0) = result.at<VectorDynamic>(key)(0, 0);
         }

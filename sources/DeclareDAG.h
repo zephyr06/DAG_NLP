@@ -41,13 +41,19 @@ typedef long long int LLint;
 
 inline gtsam::Symbol GenerateKey(int idtask, LLint index_overall)
 {
-    if (idtask == -1)
-    {
-        gtsam::Symbol key('z', index_overall);
-        return key;
-    }
+    // if (idtask == -1)
+    // {
+    //     gtsam::Symbol key('z', index_overall);
+    //     return key;
+    // }
     gtsam::Symbol key('a' + idtask, index_overall);
     return key;
+}
+inline pair<int, LLint> AnalyzeKey(gtsam::Symbol key)
+{
+    int id = key.chr() - 'a';
+    LLint index = key.index();
+    return make_pair(id, index);
 }
 inline std::vector<gtsam::Symbol> GenerateKey(std::vector<int> &idtask,
                                               std::vector<LLint> &index_overall)
@@ -58,7 +64,7 @@ inline std::vector<gtsam::Symbol> GenerateKey(std::vector<int> &idtask,
     res.reserve(idtask.size());
     for (uint i = 0; i < idtask.size(); i++)
     {
-        res.push_back(GenerateKey(idtask[i], index_overall[0]));
+        res.push_back(GenerateKey(idtask[i], index_overall[i]));
     }
     return res;
 }

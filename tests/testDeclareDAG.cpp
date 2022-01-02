@@ -243,7 +243,20 @@ TEST(NumericalDerivativeDynamic2D1, v2)
     assert_equal(expect1, actual1);
     assert_equal(expect2, actual2);
 }
-
+TEST(AnalyzeKey, v1)
+{
+    auto key1 = GenerateKey(0, 0);
+    auto p1 = AnalyzeKey(key1);
+    AssertEqualScalar(0, p1.first);
+    AssertEqualScalar(0, p1.second);
+}
+TEST(AnalyzeKey, v2)
+{
+    auto key1 = GenerateKey(9, 9);
+    auto p1 = AnalyzeKey(key1);
+    AssertEqualScalar(9, p1.first);
+    AssertEqualScalar(9, p1.second);
+}
 int main()
 {
     TestResult tr;

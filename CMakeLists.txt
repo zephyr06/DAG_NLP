@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 project(EnergyOptNLP CXX C)
 set (CMAKE_CXX_STANDARD 17)
 set(CMAKE_BUILD_TYPE Debug)
-
 # Find GTSAM components
 find_package(GTSAM REQUIRED) # Uses installed package
 

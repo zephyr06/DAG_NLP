@@ -23,6 +23,7 @@ TEST(MultiKeyFactor, v1)
         VectorDynamic res = GenerateVectorDynamic(dimension);
         for (uint i = 0; i < dimension; i++)
         {
+
             res(i, 0) = bv[i] - x.at<VectorDynamic>(keyVec[i])(0, 0);
         }
         return res;

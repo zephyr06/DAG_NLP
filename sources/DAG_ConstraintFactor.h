@@ -15,10 +15,10 @@ void AddDAG_Factor(NonlinearFactorGraph &graph, DAG_Model &dagTasks, TaskSetInfo
         size_t idNextTask = itr->first;
         for (size_t i = 0; i < tasksPrev.size(); i++)
         {
-            LLint indexNext = IndexTran_Instance2Overall(idNextTask, 0, tasksInfo.sizeOfVariables);
-            Symbol keyNext = GenerateKey(idNextTask, indexNext);
-            LLint indexPrev = IndexTran_Instance2Overall(tasksPrev[i].id, 0, tasksInfo.sizeOfVariables);
-            Symbol keyPrev = GenerateKey(tasksPrev[i].id, indexPrev);
+            // LLint indexNext = IndexTran_Instance2Overall(idNextTask, 0, tasksInfo.sizeOfVariables);
+            Symbol keyNext = GenerateKey(idNextTask, 0);
+            // LLint indexPrev = IndexTran_Instance2Overall(tasksPrev[i].id, 0, tasksInfo.sizeOfVariables);
+            Symbol keyPrev = GenerateKey(tasksPrev[i].id, 0);
             double execTime = tasksPrev[i].executionTime;
             NormalErrorFunction2D DAG2D =
                 [execTime](VectorDynamic x1, VectorDynamic x2)
