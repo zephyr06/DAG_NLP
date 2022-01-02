@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+#include <unordered_set>
 #include <unordered_map>
 #include <iostream>
 #include <bits/stdc++.h>
@@ -30,8 +31,10 @@ void CoutError(string message)
  * @param actual 
  */
 template <typename T>
-void AssertUnEqual(T expect, T actual)
+void AssertUnEqual(T expect, T actual, int lineNumber = 0)
 {
+    if (lineNumber != 0)
+        cout << Color::red << "Line Number: " << to_string(lineNumber) << Color::def << endl;
     std::cout << "Assertion failed!" << std::endl;
     cout << Color::red << "EXpect is " << expect << ", while the actual is " << actual << Color::def << endl;
     throw;
@@ -56,10 +59,10 @@ void AssertEqualScalar(double expected, double actual, double tolerance = 1e-6, 
     }
 }
 
-void AssertBool(bool expected, bool actual)
+void AssertBool(bool expected, bool actual, int lineNumber = 0)
 {
     if (expected != actual)
-        return AssertUnEqual<bool>(expected, actual);
+        return AssertUnEqual<bool>(expected, actual, lineNumber);
 }
 
 template <typename T>
@@ -73,7 +76,7 @@ void AssertEqualVectorNoRepeat(const vector<T> &expected, const vector<T> &actua
         return;
     }
     // size_t N = expected.size();
-    unordered_set<T> s;
+    std::unordered_set<T> s;
     for (size_t i = 0; i < expected.size(); i++)
         s.insert(expected.at(i));
     for (size_t i = 0; i < expected.size(); i++)

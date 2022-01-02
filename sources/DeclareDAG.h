@@ -49,6 +49,19 @@ inline gtsam::Symbol GenerateKey(int idtask, LLint index_overall)
     gtsam::Symbol key('a' + idtask, index_overall);
     return key;
 }
+inline std::vector<gtsam::Symbol> GenerateKey(std::vector<int> &idtask,
+                                              std::vector<LLint> &index_overall)
+{
+
+    AssertEqualScalar(idtask.size(), index_overall.size(), 1e-6, __LINE__);
+    std::vector<gtsam::Symbol> res;
+    res.reserve(idtask.size());
+    for (uint i = 0; i < idtask.size(); i++)
+    {
+        res.push_back(GenerateKey(idtask[i], index_overall[0]));
+    }
+    return res;
+}
 
 struct MappingDataStruct
 {

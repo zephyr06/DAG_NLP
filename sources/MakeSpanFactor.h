@@ -1,3 +1,5 @@
+#pragma once
+
 #include "DeclareDAG.h"
 #include "RegularTasks.h"
 #include "EliminationForest_utils.h"
