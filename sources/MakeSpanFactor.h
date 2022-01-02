@@ -4,185 +4,82 @@
 #include "RegularTasks.h"
 #include "EliminationForest_utils.h"
 #include "BaseSchedulingFactor.h"
+#include "../sources/MultiKeyFactor.h"
+
 /**
  * @brief 
  * 
- * @param x for smallest, smallSecond
- * @param y for largest, largeSecond
- * @param smallest 
- * @param smallSecond 
- * @param largest 
- * @param largeSecond 
+ * @param tasksInfo 
+ * @param mapPrev 
+ * @param type 's' means start, 'e' means end, other types are not reconized!
+ * @return vector<gtsam::Symbol> 
  */
-void FindLargeSmall(const VectorDynamic &x, const VectorDynamic &y,
-                    LLint &smallest, LLint &smallSecond,
-                    LLint &largest, LLint &largeSecond)
+std::vector<gtsam::Symbol> GenerateKeysMS(TaskSetInfoDerived &tasksInfo,
+                                          MAP_Prev &mapPrev, char type)
 {
-    LLint length = x.rows();
-    if (length < 4)
+    std::unordered_set<int> keySetToExclude;
+    for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
     {
-        CoutError("Input to FindLargeSmall must have at least four elements!");
-    }
-    double v_se = INT_MAX;
-    double v_ss = INT_MAX;
-    double v_le = INT_MIN;
-    double v_ls = INT_MIN;
-    for (int i = 0; i < length; i++)
-    {
-        if (y.coeffRef(i, 0) >= v_le)
+        if (type == 's')
+            keySetToExclude.insert(itr->first);
+        else if (type == 'e')
         {
-            largeSecond = largest;
-            largest = i;
-            v_ls = v_le;
-            v_le = y.coeff(i, 0);
+            for (auto itrr = itr->second.begin(); itrr != itr->second.end(); itrr++)
+                keySetToExclude.insert(itrr->id);
         }
-        else if (y.coeffRef(i, 0) > v_ls)
+        else
         {
-            largeSecond = i;
-            v_ls = y.coeff(i, 0);
-        }
-
-        if (x.coeffRef(i, 0) <= v_se)
-        {
-            smallSecond = smallest;
-            smallest = i;
-            v_ss = v_se;
-            v_se = x.coeff(i, 0);
-        }
-        else if (x.coeffRef(i, 0) < v_ss)
-        {
-            smallSecond = i;
-            v_ss = x.coeff(i, 0);
+            CoutError("Input parameter type is not recognized in GenerateKeysMS!");
         }
     }
-    return;
+    std::vector<gtsam::Symbol> keyVec;
+    keyVec.reserve(tasksInfo.N);
+    for (int i = 0; i < tasksInfo.N; i++)
+    {
+        if (keySetToExclude.find(i) == keySetToExclude.end())
+        {
+            if (type == 's')
+                keyVec.push_back(GenerateKey(i, 0));
+            else if (type == 'e')
+                keyVec.push_back(GenerateKey(i, tasksInfo.sizeOfVariables[i] - 1));
+        }
+    }
+    return keyVec;
 }
 
-namespace DAG_SPACE
+void AddMakeSpanFactor(NonlinearFactorGraph &graph,
+                       TaskSetInfoDerived &tasksInfo, MAP_Prev &mapPrev)
 {
-    using namespace RegularTaskSystem;
-    class MakeSpanFactor : public BaseSchedulingFactor
+    LLint errorDimensionMS = 1;
+    if (makespanWeight == 0)
+        return;
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionMS, noiseModelSigma / makespanWeight);
+    vector<gtsam::Symbol> keysBegin = GenerateKeysMS(tasksInfo, mapPrev, 's');
+    uint beginSize = keysBegin.size();
+    vector<gtsam::Symbol> keysAll = GenerateKeysMS(tasksInfo, mapPrev, 'e');
+    keysAll.insert(keysAll.begin(), keysBegin.begin(), keysBegin.end());
+
+    TaskSet &tasks = tasksInfo.tasks;
+    LambdaMultiKey f = [beginSize, keysAll, tasks](const Values &x)
     {
-    public:
-        DAG_Model dagTasks;
-        int sinkNode;
+        // const VectorDynamic &x0 = x.at<VectorDynamic>(keyVec[0]);
+        // const VectorDynamic &x1 = x.at<VectorDynamic>(keyVec[1]);
 
-        MakeSpanFactor(Key key, DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo,
-                       EliminationForest &forestInfo,
-                       LLint errorDimension,
-                       SharedNoiseModel model) : BaseSchedulingFactor(key, tasksInfo, forestInfo,
-                                                                      errorDimension, model),
-                                                 dagTasks(dagTasks)
-
+        VectorDynamic res = GenerateVectorDynamic(1);
+        double minStart = INT_MAX;
+        double maxEnd = -1;
+        for (uint i = 0; i < beginSize; i++)
         {
+            minStart = min(minStart, x.at<VectorDynamic>(keysAll[i])(0, 0));
         }
-
-        boost::function<Matrix(const VectorDynamic &)> f =
-            [this](const VectorDynamic &startTimeVector)
+        for (uint i = beginSize; i < keysAll.size(); i++)
         {
-            VectorDynamic res;
-            res.resize(errorDimension, 1);
-            LLint indexRes = 0;
-            LLint smallest = 0;
-            LLint smallSecond = 0;
-            LLint largest = 0;
-            LLint largeSecond = 0;
-            // minimize makespan
-            VectorDynamic finishTimeVector = FindFinishTime(startTimeVector);
-            FindLargeSmall(startTimeVector, finishTimeVector, smallest, smallSecond, largest, largeSecond);
-            // double startTimeDAG = startTimeVector.minCoeff();
-            res(indexRes++, 0) = (finishTimeVector(largest, 0) - startTimeVector(smallest, 0)) *
-                                 makespanWeight;
-
-            return res;
-        };
-        /**
-         * @brief 
-         * 
-         * @param startTimeVectorOrig compressed startTimeVector!!!
-         * @return VectorDynamic finish time vector after compression
-         */
-        VectorDynamic FindFinishTime(const VectorDynamic &startTimeVectorOrig) const
-        {
-            VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
-                                                                   forestInfo);
-            VectorDynamic finishTimeVector = startTimeVector;
-            int m = startTimeVector.rows();
-            for (int i = 0; i < m; i++)
-            {
-                LLint taskId = BigIndex2TaskIndex(i, tasksInfo.sizeOfVariables);
-                finishTimeVector(i, 0) += tasksInfo.tasks[taskId].executionTime;
-            }
-            VectorDynamic finishTimeVectorOrig = startTimeVectorOrig;
-            return CompresStartTimeVector(finishTimeVector, forestInfo.maskForEliminate);
+            auto p = AnalyzeKey(keysAll[i]);
+            maxEnd = max(maxEnd, x.at<VectorDynamic>(keysAll[i])(0, 0) + tasks[p.first].executionTime);
         }
-        /**
-         * @brief This function assumes errorDimension=1!
-         * 
-         * @param startTimeVectorOrig 
-         * @return SM_Dynamic 
-         */
-        SM_Dynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
-        {
-            VectorDynamic startTimeVector = RecoverStartTimeVector(
-                startTimeVectorOrig, forestInfo);
-            // y -> x
-            SM_Dynamic j_yx(errorDimension, tasksInfo.length);
-
-            // LLint indexRes = 0;
-            LLint smallest = 0;
-            LLint smallSecond = 0;
-            LLint largest = 0;
-            LLint largeSecond = 0;
-            // minimize makespan
-            VectorDynamic finishTimeVector = FindFinishTime(startTimeVectorOrig);
-            FindLargeSmall(startTimeVector, finishTimeVector, smallest, smallSecond, largest, largeSecond);
-            // numerical method for jacobian
-            auto NumericalFunc = [&](LLint index)
-            {
-                startTimeVector(index, 0) += deltaOptimizer;
-                double resPlus = f(startTimeVector)(0, 0);
-                startTimeVector(index, 0) -= 2 * deltaOptimizer;
-                double resMinus = f(startTimeVector)(0, 0);
-                startTimeVector(index, 0) += deltaOptimizer;
-                j_yx.coeffRef(0, index) = (resPlus - resMinus) / 2 / deltaOptimizer;
-            };
-            NumericalFunc(smallest);
-            NumericalFunc(smallSecond);
-            NumericalFunc(largest);
-            NumericalFunc(largeSecond);
-
-            SM_Dynamic j_map = JacobianElimination(tasksInfo, forestInfo);
-            return j_yx * j_map;
-        }
-        Vector evaluateError(const VectorDynamic &startTimeVectorOrig,
-                             boost::optional<Matrix &> H = boost::none) const override
-        {
-            BeginTimer("MakeSpan");
-            VectorDynamic startTimeVector = RecoverStartTimeVector(
-                startTimeVectorOrig, forestInfo);
-
-            if (H)
-            {
-                if (numericalJaobian)
-                    *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
-                else
-                    *H = JacobianAnalytic(startTimeVector);
-                // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
-                if (debugMode == 1)
-                {
-                    cout << "The Jacobian matrix of MakeSpanFactor is " << endl
-                         << *H << endl;
-                }
-                if (debugMode == 1)
-                {
-                    // cout << "The input startTimeVector is " << startTimeVector << endl;
-                    cout << Color::green << "The error vector of MakeSpanFactor is " << f(startTimeVector) << Color::def << endl;
-                }
-            }
-            EndTimer("MakeSpan");
-            return f(startTimeVector);
-        }
+        res << maxEnd - minStart;
+        return res;
     };
-
+    graph.emplace_shared<MultiKeyFactor>(keysAll, f, model);
+    return;
 }
