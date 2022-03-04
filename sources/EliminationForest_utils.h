@@ -23,6 +23,7 @@ typedef adjacency_list<vecS, vecS, bidirectionalS,
                        property<vertex_name_t, LLint>,
                        property<edge_name_t, LLint>>
     Graph;
+// map to access properties of vertex from the graph
 typedef property_map<Graph, vertex_name_t>::type vertex_name_map_t;
 typedef graph_traits<Graph>::vertex_descriptor Vertex;
 typedef property_map<Graph, edge_name_t>::type edge_name_map_t;
