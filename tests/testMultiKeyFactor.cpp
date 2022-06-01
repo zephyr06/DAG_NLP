@@ -1,8 +1,8 @@
-#include "../sources/Optimize.h"
-#include "../sources/testMy.h"
-#include "../sources/EliminationForest_utils.h"
+#include "sources/Optimization/Optimize.h"
+#include "sources/Tools/testMy.h"
+#include "sources/Optimization/EliminationForest_utils.h"
 
-#include "../sources/MultiKeyFactor.h"
+#include "sources/Factors/MultiKeyFactor.h"
 
 TEST(MultiKeyFactor, v1)
 {

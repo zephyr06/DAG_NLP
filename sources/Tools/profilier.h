@@ -6,12 +6,14 @@
 #include <chrono>
 #include <vector>
 #include <unordered_map>
-#include "colormod.h"
-#include "testMy.h"
-// using namespace std::;
-#define CurrentTime std::chrono::high_resolution_clock::now()
-#define BeginTimerApp BeginTimer(__FUNCTION__);
-#define EndTimerApp EndTimer(__FUNCTION__);
+
+#include "sources/Tools/colormod.h"
+#include "sources/Tools/testMy.h"
+
+#define CurrentTimeInProfiler std::chrono::high_resolution_clock::now()
+#define BeginTimerAppInProfiler BeginTimer(__FUNCTION__);
+#define EndTimerAppInProfiler EndTimer(__FUNCTION__);
+std::mutex mtx_profiler;
 struct ProfilerData
 {
     typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimerType;
@@ -31,6 +33,7 @@ std::unordered_map<std::string, ProfilerData> profilerMap;
 
 void BeginTimer(std::string funcName)
 {
+    std::lock_guard<std::mutex> lock(mtx_profiler);
     auto itr = profilerMap.find(funcName);
     if (itr == profilerMap.end())
     {
@@ -38,18 +41,19 @@ void BeginTimer(std::string funcName)
     }
     else
     {
-        profilerMap[funcName].begin = CurrentTime;
+        profilerMap[funcName].begin = CurrentTimeInProfiler;
     }
 }
 
 void EndTimer(std::string funcName)
 {
+    std::lock_guard<std::mutex> lock(mtx_profiler);
     auto itr = profilerMap.find(funcName);
     if (itr == profilerMap.end())
     {
         CoutError("Timer cannot find entry!");
     }
-    profilerMap[funcName].end = CurrentTime;
+    profilerMap[funcName].end = CurrentTimeInProfiler;
     profilerMap[funcName].UpdateAccum();
 }
 
@@ -64,6 +68,7 @@ bool compareProfiler(TimerDataProfiler a, TimerDataProfiler b)
 }
 void PrintTimer()
 {
+    using namespace std;
     std::cout.precision(4);
     vector<TimerDataProfiler> vec;
     double totalProfile = 0;

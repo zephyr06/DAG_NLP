@@ -1,6 +1,6 @@
-#include "DeclareDAG.h"
-#include "RegularTasks.h"
-#include "EliminationForest_utils.h"
+#include "sources/Utils/DeclareDAG.h"
+#include "sources/TaskModel/RegularTasks.h"
+#include "sources/Optimization/EliminationForest_utils.h"
 
 using namespace RegularTaskSystem;
 using namespace DAG_SPACE;

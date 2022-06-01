@@ -1,9 +1,9 @@
 #pragma once
-#include "DeclareDAG.h"
+#include "sources/Utils/DeclareDAG.h"
 
 /**
  * @brief Constraint of x <= b
- * 
+ *
  */
 class InequalityFactor1D : public NoiseModelFactor1<VectorDynamic>
 {
@@ -44,7 +44,7 @@ public:
 
 /**
  * @brief Constraint of x >= b
- * 
+ *
  */
 class SmallerThanFactor1D : public InequalityFactor1D
 {
@@ -64,7 +64,7 @@ public:
 
 /**
  * @brief Constraint of x >= b
- * 
+ *
  */
 class LargerThanFactor1D : public InequalityFactor1D
 {
@@ -85,7 +85,7 @@ public:
 /**
  * @brief Constraint of f(x1, x2) <= 0;
  * x1 and x2 are vectors of size (1,1)
- * 
+ *
  */
 class InequalityFactor2D : public NoiseModelFactor2<VectorDynamic, VectorDynamic>
 {

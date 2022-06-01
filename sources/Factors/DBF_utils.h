@@ -1,19 +1,20 @@
 #pragma once
 #include "Interval.h"
+#include "sources/Optimization/EliminationForest_utils.h"
 
 namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
     /**
      * @brief get c_{ijk} according to ILP paper
-     * 
-     * @param startTime_i 
-     * @param task_i 
-     * @param startTime_j 
-     * @param task_j 
-     * @param startTime_k 
-     * @param task_k 
-     * @return double 
+     *
+     * @param startTime_i
+     * @param task_i
+     * @param startTime_j
+     * @param task_j
+     * @param startTime_k
+     * @param task_k
+     * @return double
      */
     inline double ComputationTime_IJK(double startTime_i, const Task &task_i, double startTime_j,
                                       const Task &task_j, double startTime_k, const Task &task_k)
@@ -56,10 +57,10 @@ namespace DAG_SPACE
     /**
      * @brief Create a Interval vector for indexes specified by the tree1 parameter;
      * the return interval follows the same order given by tree1!
-     * 
+     *
      * @param tree1 index in startTimeVector
-     * @param startTimeVector 
-     * @return vector<Interval> 
+     * @param startTimeVector
+     * @return vector<Interval>
      */
     vector<Interval> CreateIntervalFromSTVSameOrder(vector<LLint> &tree1, const VectorDynamic &startTimeVector,
                                                     const TaskSet &tasks,
@@ -109,12 +110,12 @@ namespace DAG_SPACE
     }
 
     /**
-         * @brief FindVanishIndex; given a startTimeVector, some of their intervals may be fully overlapped
-         * by another, and this function finds all the indexes that is related.
-         * 
-         * @param startTimeVectorOrig 
-         * @return vector<LLint> 
-         */
+     * @brief FindVanishIndex; given a startTimeVector, some of their intervals may be fully overlapped
+     * by another, and this function finds all the indexes that is related.
+     *
+     * @param startTimeVectorOrig
+     * @return vector<LLint>
+     */
     vector<LLint> FindVanishIndex(const VectorDynamic &startTimeVectorOrig,
                                   const TaskSet &tasks,
                                   const vector<LLint> &sizeOfVariables,

@@ -1,5 +1,5 @@
 #pragma once
-#include "DeclareDAG.h"
+#include "sources/Utils/DeclareDAG.h"
 
 struct Interval
 {
@@ -27,9 +27,9 @@ bool compare(Interval &i1, Interval &i2)
 }
 /**
  * @brief always return v1 - v2;
- * 
- * @param v1 
- * @param v2 
+ *
+ * @param v1
+ * @param v2
  * @return first double, overlap error
  */
 double Overlap(Interval &v1, Interval &v2)
@@ -71,9 +71,9 @@ double Overlap(Interval &v1, Interval &v2)
 
 /**
  * @brief gradient w.r.t. start time of interval
- * 
- * @param v1 
- * @param v2 
+ *
+ * @param v1
+ * @param v2
  * @return first double, gradient w.r.t. v1.start
  *         second double, gradient w.r.t. v2.start
  */

@@ -1,18 +1,18 @@
 #pragma once
 
-#include "DeclareDAG.h"
-#include "RegularTasks.h"
-#include "EliminationForest_utils.h"
-#include "BaseSchedulingFactor.h"
-#include "../sources/MultiKeyFactor.h"
+#include "sources/Utils/DeclareDAG.h"
+#include "sources/TaskModel/RegularTasks.h"
+#include "sources/Optimization/EliminationForest_utils.h"
+#include "sources/Factors/BaseSchedulingFactor.h"
+#include "sources/Factors/MultiKeyFactor.h"
 
 /**
- * @brief 
- * 
- * @param tasksInfo 
- * @param mapPrev 
+ * @brief
+ *
+ * @param tasksInfo
+ * @param mapPrev
  * @param type 's' means start, 'e' means end, other types are not reconized!
- * @return vector<gtsam::Symbol> 
+ * @return vector<gtsam::Symbol>
  */
 std::vector<gtsam::Symbol> GenerateKeysMS(TaskSetInfoDerived &tasksInfo,
                                           MAP_Prev &mapPrev, char type)

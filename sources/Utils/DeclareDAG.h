@@ -22,10 +22,10 @@
 
 #include <boost/function.hpp>
 
-#include "Parameters.h"
-#include "colormod.h"
-#include "testMy.h"
-#include "profilier.h"
+#include "sources/Utils/Parameters.h"
+#include "sources/Tools/colormod.h"
+#include "sources/Tools/testMy.h"
+#include "sources/Tools/profilier.h"
 
 using namespace std;
 using namespace gtsam;
@@ -104,13 +104,13 @@ typedef boost::function<VectorDynamic(const VectorDynamic &)> FuncV2V;
 
 // ************************************************************ SOME FUNCTIONS
 /**
-     * @brief Given a task index and instance index, return its start time in startTimeVector
-     * 
-     * @param startTimeVector large, combined vector of start time for all instances
-     * @param taskIndex task-index
-     * @param instanceIndex instance-index
-     * @return double start time of the extracted instance
-     */
+ * @brief Given a task index and instance index, return its start time in startTimeVector
+ *
+ * @param startTimeVector large, combined vector of start time for all instances
+ * @param taskIndex task-index
+ * @param instanceIndex instance-index
+ * @return double start time of the extracted instance
+ */
 double ExtractVariable(const VectorDynamic &startTimeVector,
                        const vector<LLint> &sizeOfVariables,
                        int taskIndex, int instanceIndex)
@@ -132,11 +132,11 @@ double ExtractVariable(const VectorDynamic &startTimeVector,
 
 /**
  * @brief given task index and instance index, return variable's index in StartTimeVector
- * 
- * @param i 
- * @param instance_i 
- * @param sizeOfVariables 
- * @return LLint 
+ *
+ * @param i
+ * @param instance_i
+ * @param sizeOfVariables
+ * @return LLint
  */
 LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const vector<LLint> &sizeOfVariables)
 {
@@ -152,9 +152,9 @@ LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const vector<LLint> 
 
 /**
  * @brief Given index in startTimeVector, decode its task index
- * 
- * @param index 
- * @param sizeOfVariables 
+ *
+ * @param index
+ * @param sizeOfVariables
  * @return int: task index
  */
 int BigIndex2TaskIndex(LLint index, const vector<LLint> &sizeOfVariables)
@@ -330,14 +330,14 @@ MatrixDynamic NumericalDerivativeDynamic2D2(NormalErrorFunction2D h,
 }
 
 /**
-     * @brief helper function for RecoverStartTimeVector
-     * 
-     * @param index 
-     * @param actual 
-     * @param mapIndex 
-     * @param filledTable 
-     * @return double 
-     */
+ * @brief helper function for RecoverStartTimeVector
+ *
+ * @param index
+ * @param actual
+ * @param mapIndex
+ * @param filledTable
+ * @return double
+ */
 double GetSingleElement(LLint index, VectorDynamic &actual,
                         const MAP_Index2Data &mapIndex,
                         vector<bool> &filledTable)

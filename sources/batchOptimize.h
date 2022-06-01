@@ -6,8 +6,8 @@
 #include <sys/types.h>
 #include <chrono>
 
-#include "Optimize.h"
-#include "OptimizeSA.h"
+#include "sources/Optimization/Optimize.h"
+#include "sources/Baseline/OptimizeSA.h"
 using namespace std::chrono;
 
 double Average(vector<double> &data)
@@ -28,9 +28,9 @@ vector<string> ReadFilesInDirectory(const char *path)
     {
         while ((en = readdir(dr)) != NULL)
         {
-            files.push_back(en->d_name); //print all directory name
+            files.push_back(en->d_name); // print all directory name
         }
-        closedir(dr); //close all directory
+        closedir(dr); // close all directory
     }
     sort(files.begin(), files.end());
     return files;

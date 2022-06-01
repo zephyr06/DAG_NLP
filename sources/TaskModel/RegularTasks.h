@@ -9,11 +9,11 @@
 #include <boost/function.hpp>
 #include <CppUnitLite/TestHarness.h>
 
-#include "colormod.h"
+#include "sources/Tools/colormod.h"
 
-#include "Parameters.h"
-#include "DeclareDAG.h"
-#include "testMy.h"
+#include "sources/Utils/Parameters.h"
+#include "sources/Utils/DeclareDAG.h"
+#include "sources/Tools/testMy.h"
 using namespace std;
 
 #define TaskSet vector<RegularTaskSystem::Task>
@@ -89,8 +89,8 @@ namespace RegularTaskSystem
             return -1;
         }
         /**
- * only used in ReadTaskSet because the input parameter's type is int
- **/
+         * only used in ReadTaskSet because the input parameter's type is int
+         **/
         Task(vector<double> dataInLine)
         {
             if (dataInLine.size() != 8)
@@ -335,9 +335,9 @@ namespace RegularTaskSystem
             taskSet[i].executionTime = executionTimeVec(i - lastTaskDoNotNeedOptimize - 1, 0);
     }
     /**
-     * @brief 
-     * 
-     * @param tasks 
+     * @brief
+     *
+     * @param tasks
      * @return ProcessorTaskSet map type! processorId to vector<task ID>
      */
     ProcessorTaskSet ExtractProcessorTaskSet(TaskSet &tasks)

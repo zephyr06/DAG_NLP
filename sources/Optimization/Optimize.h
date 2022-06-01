@@ -3,17 +3,17 @@
 #include "map"
 #include "unordered_map"
 
-#include "RegularTasks.h"
-#include "DAG_Model.h"
-#include "MakeSpanFactor.h"
-#include "DAG_ConstraintFactor.h"
-#include "DBF_ConstraintFactor.h"
-#include "DBF_ConstraintFactor_Multi.h"
-#include "DDL_ConstraintFactor.h"
-#include "SensorFusionFactor.h"
-#include "EliminationForest_utils.h"
+#include "sources/TaskModel/RegularTasks.h"
+#include "sources/TaskModel/DAG_Model.h"
+#include "sources/Factors/DBF_ConstraintFactor_Multi.h"
+#include "sources/Factors/DBF_ConstraintFactor.h"
+#include "sources/Factors/MakeSpanFactor.h"
+#include "sources/Factors/DAG_ConstraintFactor.h"
+#include "sources/Factors/DDL_ConstraintFactor.h"
+#include "sources/Factors/SensorFusionFactor.h"
+#include "sources/Optimization/EliminationForest_utils.h"
 #include "InitialEstimate.h"
-#include "colormod.h"
+#include "sources/Tools/colormod.h"
 
 Values GenerateInitialFG(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo)
 {
@@ -93,14 +93,14 @@ namespace DAG_SPACE
 
     /**
      * @brief Given a example regular task sets, perform instance-level optimization
-     * 
+     *
      * Example DAG system structure:
         s1 -------- Task0 -------- |
                                    |
         s2 -------- Task1 -------- | -------- Task3 -------- Task4
                                    |
         s3 -------- Task2 -------- |
-        
+
         Event chain: s3 - Task3 - Task4
         Sensor chain: s1 - Task0 - Task3 - Task4
 
@@ -162,7 +162,10 @@ namespace DAG_SPACE
         if (saveGraph == 1)
         {
             std::ofstream os("graph.dot");
+            #pragma GCC diagnostic push
+            #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
             graph.saveGraph(os, result);
+            #pragma GCC diagnostic pop
             // graph.print();
         }
 
@@ -185,11 +188,11 @@ namespace DAG_SPACE
     };
 
     /**
-     * @brief this function schedules task sets based on initial estimate, 
+     * @brief this function schedules task sets based on initial estimate,
      * as a baseline evaluation
-     * 
-     * @param dagTasks 
-     * @return OptimizeResult 
+     *
+     * @param dagTasks
+     * @return OptimizeResult
      */
     OptimizeResult InitialScheduling(DAG_Model &dagTasks)
     {
@@ -234,8 +237,8 @@ namespace DAG_SPACE
 
     /**
      * @brief Perform scheduling based on optimization
-     * 
-     * @param tasks 
+     *
+     * @param tasks
      * @return VectorDynamic all the task instances' start time
      */
     OptimizeResult OptimizeScheduling(DAG_Model &dagTasks, VectorDynamic initialUser = GenerateVectorDynamic(1))

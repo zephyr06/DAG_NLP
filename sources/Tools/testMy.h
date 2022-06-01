@@ -9,15 +9,13 @@
 #include <bits/stdc++.h>
 #include <Eigen/Dense>
 
-#include "colormod.h"
+#include "sources/Tools/colormod.h"
 
-using namespace std;
-
-void CoutWarning(string message)
+void CoutWarning(std::string message)
 {
-    cout << Color::red << message << Color::def << endl;
+    std::cout << Color::red << message << Color::def << std::endl;
 }
-void CoutError(string message)
+void CoutError(std::string message)
 {
     CoutWarning(message);
     throw;
@@ -34,9 +32,9 @@ template <typename T>
 void AssertUnEqual(T expect, T actual, int lineNumber = 0)
 {
     if (lineNumber != 0)
-        cout << Color::red << "Line Number: " << to_string(lineNumber) << Color::def << endl;
+        std::cout << Color::red << "Line Number: " << std::to_string(lineNumber) << Color::def << std::endl;
     std::cout << "Assertion failed!" << std::endl;
-    cout << Color::red << "EXpect is " << expect << ", while the actual is " << actual << Color::def << endl;
+    std::cout << Color::red << "EXpect is " << expect << ", while the actual is " << actual << Color::def << std::endl;
     throw;
 }
 void AssertEqualScalar(double expected, double actual, double tolerance = 1e-6, int lineNumber = 0)
@@ -48,14 +46,18 @@ void AssertEqualScalar(double expected, double actual, double tolerance = 1e-6, 
         else
         {
             if (lineNumber != 0)
-                cout << Color::red << "Line Number: " << to_string(lineNumber) << Color::def << endl;
+                std::cout << Color::red << "Line Number: " << std::to_string(lineNumber) << Color::def << std::endl;
             AssertUnEqual<double>(expected, actual);
         }
     }
     else
     {
         if (actual != 0)
+        {
+            if (lineNumber != 0)
+                std::cout << Color::red << "Line Number: " << std::to_string(lineNumber) << Color::def << std::endl;
             AssertUnEqual<double>(expected, actual);
+        }
     }
 }
 
@@ -66,12 +68,12 @@ void AssertBool(bool expected, bool actual, int lineNumber = 0)
 }
 
 template <typename T>
-void AssertEqualVectorNoRepeat(const vector<T> &expected, const vector<T> &actual,
+void AssertEqualVectorNoRepeat(const std::vector<T> &expected, const std::vector<T> &actual,
                                double tolerance = 1e-6, int lineNumber = 0)
 {
     if (expected.size() != actual.size())
     {
-        cout << Color::red << "Length error! " << Color::def;
+        std::cout << Color::red << "Length error! " << Color::def;
         AssertUnEqual(expected.size(), actual.size());
         return;
     }
@@ -83,7 +85,7 @@ void AssertEqualVectorNoRepeat(const vector<T> &expected, const vector<T> &actua
     {
         if (s.find(actual.at(i)) == s.end())
         {
-            CoutError("Actual element " + to_string(actual.at(i)) + " is not found in expected vector");
+            CoutError("Actual element " + std::to_string(actual.at(i)) + " is not found in expected vector");
         }
         else
         {
@@ -94,8 +96,31 @@ void AssertEqualVectorNoRepeat(const vector<T> &expected, const vector<T> &actua
     return;
 }
 
-void AssertEigenEqualVector(Eigen::Matrix<double, Eigen::Dynamic, 1> &expected,
-                            Eigen::Matrix<double, Eigen::Dynamic, 1> &actual, int lineNumber = 0)
+template <typename T>
+void AssertEqualVectorExact(const std::vector<T> &expected, const std::vector<T> &actual,
+                            double tolerance = 1e-6, int lineNumber = 0)
+{
+    if (expected.size() != actual.size())
+    {
+        std::cout << Color::red << "Length error! " << Color::def;
+        AssertUnEqual(expected.size(), actual.size());
+        return;
+    }
+
+    for (size_t i = 0; i < expected.size(); i++)
+    {
+        if (expected[i] != actual[i])
+        {
+            CoutError("Expected element: " + std::to_string(expected.at(i)) +
+                      " while actual element: " + std::to_string(actual.at(i)));
+        }
+    }
+
+    return;
+}
+
+void AssertEigenEqualVector(Eigen::Matrix<double, Eigen::Dynamic, 1> expected,
+                            Eigen::Matrix<double, Eigen::Dynamic, 1> actual, int lineNumber = 0)
 {
     int m = expected.rows();
     int n = expected.cols();
@@ -108,18 +133,18 @@ void AssertEigenEqualVector(Eigen::Matrix<double, Eigen::Dynamic, 1> &expected,
     }
 }
 
-void AssertEigenEqualMatrix(Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> &expected,
-                            Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> &actual)
+void AssertEigenEqualMatrix(Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> expected,
+                            Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> actual, int lineNumber = 0)
 {
     int m = expected.rows();
     int n = expected.cols();
-    AssertEqualScalar(m, actual.rows());
-    AssertEqualScalar(n, actual.cols());
+    AssertEqualScalar(m, actual.rows(), 1e-6, lineNumber);
+    AssertEqualScalar(n, actual.cols(), 1e-6, lineNumber);
     for (int i = 0; i < m; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            AssertEqualScalar(expected(i, j), actual(i, j));
+            AssertEqualScalar(expected(i, j), actual(i, j), 1e-6, lineNumber);
         }
     }
 }
@@ -127,6 +152,7 @@ void AssertEigenEqualMatrix(Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic
 template <class T1, class T2>
 void AssertEqualMap(std::unordered_map<T1, T2> &mExpect, std::unordered_map<T1, T2> &mActual)
 {
+    using namespace std;
     if (mExpect.size() != mActual.size())
     {
         CoutWarning("Size error!");
@@ -140,12 +166,12 @@ void AssertEqualMap(std::unordered_map<T1, T2> &mExpect, std::unordered_map<T1, 
 
             try
             {
-                cout << "Expect is " << itr->first << ", " << itr->second << endl;
-                cout << "Actual is " << itrActual->first << ", " << itrActual->second << endl;
+                std::cout << "Expect is " << itr->first << ", " << itr->second << endl;
+                std::cout << "Actual is " << itrActual->first << ", " << itrActual->second << endl;
             }
             catch (const std::exception &e)
             {
-                cout << "Cannot print the key to show mismatch element\n";
+                std::cout << "Cannot print the key to show mismatch element\n";
             }
             CoutError("Element in mExpect is not found in or not equal to mActual!");
         }

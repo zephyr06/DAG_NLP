@@ -11,9 +11,9 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/topological_sort.hpp>
 
-#include "../sources/RegularTasks.h"
-#include "../sources/DeclareDAG.h"
-#include "../sources/DAG_Model.h"
+#include "sources/TaskModel/RegularTasks.h"
+#include "sources/Utils/DeclareDAG.h"
+#include "sources/TaskModel/DAG_Model.h"
 
 using namespace std;
 using namespace boost;
@@ -121,11 +121,11 @@ void FindSubTree(Graph &g, vector<LLint> &subTreeIndex, Vertex v)
 }
 
 /**
-     * @brief m maps from index in original startTimeVector to index in compressed startTimeVector
-     * 
-     * @param maskForEliminate 
-     * @return std::unordered_map<LLint, LLint> 
-     */
+ * @brief m maps from index in original startTimeVector to index in compressed startTimeVector
+ *
+ * @param maskForEliminate
+ * @return std::unordered_map<LLint, LLint>
+ */
 std::unordered_map<LLint, LLint> MapIndex_True2Compress(const vector<bool> &maskForEliminate)
 {
 
@@ -141,9 +141,9 @@ std::unordered_map<LLint, LLint> MapIndex_True2Compress(const vector<bool> &mask
 }
 
 /**
- * @brief 
- * 
- * @param dagTasks 
+ * @brief
+ *
+ * @param dagTasks
  * @return vector<int> execution order of task index, first task first
  */
 vector<int> FindDependencyOrder(const DAG_SPACE::DAG_Model &dagTasks)
@@ -193,9 +193,9 @@ vector<int> FindDependencyOrder(const DAG_SPACE::DAG_Model &dagTasks)
 
 /**
  * @brief return the index of sink node
- * 
- * @param dagTasks 
- * @return int 
+ *
+ * @param dagTasks
+ * @return int
  */
 int FindSinkNode(DAG_SPACE::DAG_Model dagTasks)
 {
@@ -249,8 +249,8 @@ struct EliminationForest
     /**
      * @brief Construct a new Elimination Forest object:
      *  all the elements are initialized with no dependency relationship
-     * 
-     * @param tasksInfo 
+     *
+     * @param tasksInfo
      */
     EliminationForest(RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
@@ -277,13 +277,13 @@ struct EliminationForest
     }
 
     /**
-     * @brief add a dependency relationship to mapIndex, 
+     * @brief add a dependency relationship to mapIndex,
      * after elimination, we have:
      * dependent = x + distance
-     * 
-     * @param dependent 
-     * @param x 
-     * @param distance 
+     *
+     * @param dependent
+     * @param x
+     * @param distance
      */
     void AddLinearEliminate(LLint dependent, LLint x, double distance)
     {
@@ -332,12 +332,12 @@ VectorDynamic RecoverStartTimeVector(const VectorDynamic &compressed,
     return RecoverStartTimeVector(compressed, forestInfo.maskForEliminate, forestInfo.mapIndex);
 }
 /**
-     * @brief Given an index, find the final index that it depends on;
-     * 
-     * @param index 
-     * @param mapIndex 
-     * @return LLint 
-     */
+ * @brief Given an index, find the final index that it depends on;
+ *
+ * @param index
+ * @param mapIndex
+ * @return LLint
+ */
 LLint FindLeaf(LLint index, const MAP_Index2Data &mapIndex)
 {
     if (index == mapIndex.at(index).getIndex())
@@ -348,10 +348,10 @@ LLint FindLeaf(LLint index, const MAP_Index2Data &mapIndex)
 }
 
 /**
-     * @brief generate analytic Jacobian for elimination part
-     * 
-     * a sparse matrix that represents Jacobian matrix of compreseed variables w.r.t. original variables 
-     */
+ * @brief generate analytic Jacobian for elimination part
+ *
+ * a sparse matrix that represents Jacobian matrix of compreseed variables w.r.t. original variables
+ */
 // SM_Dynamic JacobianElimination(LLint length, LLint lengthCompressed,
 //                                const vector<LLint> &sizeOfVariables,
 //                                const MAP_Index2Data &mapIndex,

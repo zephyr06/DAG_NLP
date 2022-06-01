@@ -1,7 +1,7 @@
-#include "DeclareDAG.h"
-#include "RegularTasks.h"
-#include "EliminationForest_utils.h"
-#include "BaseSchedulingFactor.h"
+#include "sources/Utils/DeclareDAG.h"
+#include "sources/TaskModel/RegularTasks.h"
+#include "sources/Optimization/EliminationForest_utils.h"
+#include "sources/Factors/BaseSchedulingFactor.h"
 namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
@@ -139,7 +139,7 @@ namespace DAG_SPACE
                                                                                 sourceIndex, instanceSource - 1);
                                     if (startTime_k_l_prev + tasksInfo.tasks[sourceIndex].executionTime >= startTimeCurr)
                                     {
-                                        //in this case, self deadline constraint is violated, and so we'll just add addedErrorDDL
+                                        // in this case, self deadline constraint is violated, and so we'll just add addedErrorDDL
                                         addedErrorDDL += startTime_k_l_prev + tasksInfo.tasks[sourceIndex].executionTime - startTimeCurr;
                                     }
                                     sourceFinishTime.push_back(startTime_k_l_prev + tasksInfo.tasks[sourceIndex].executionTime);
@@ -239,7 +239,7 @@ namespace DAG_SPACE
                                                                                 sourceIndex, instanceSource - 1);
                                     if (startTime_k_l_prev + tasksInfo.tasks[sourceIndex].executionTime >= startTimeCurr)
                                     {
-                                        //in this case, self deadline constraint is violated, and so we'll just add addedErrorDDL
+                                        // in this case, self deadline constraint is violated, and so we'll just add addedErrorDDL
                                         addedErrorDDL += startTime_k_l_prev + tasksInfo.tasks[sourceIndex].executionTime - startTimeCurr;
                                     }
                                     sourceFinishTime.push_back(startTime_k_l_prev + tasksInfo.tasks[sourceIndex].executionTime);

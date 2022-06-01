@@ -34,7 +34,7 @@ maxIterations: 100
 moreElimination: 0
 weightPrior_factor: 0
 initializeMethod: 2
-timeScaleFactor: 1e2
+timeScaleFactor: 1e0
 stepJacobianIteration: 1.5
 maxJacobianIteration: 25
 priorityMode: RM

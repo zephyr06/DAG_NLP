@@ -1,7 +1,7 @@
-#include "../sources/GenerateRandomTaskset.h"
-#include "../sources/testMy.h"
-#include "../sources/EliminationForest_utils.h"
-#include "../sources/Optimize.h"
+#include "sources/TaskModel/GenerateRandomTaskset.h"
+#include "sources/Tools/testMy.h"
+#include "sources/Optimization/EliminationForest_utils.h"
+#include "sources/Optimization/Optimize.h"
 
 TEST(ExtractVariable, v1)
 {

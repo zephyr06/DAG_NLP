@@ -2,10 +2,10 @@
 #pragma once
 #include "unordered_map"
 
-#include "RegularTasks.h"
-#include "DAG_Model.h"
-#include "EliminationForest_utils.h"
-#include "colormod.h"
+#include "sources/TaskModel/RegularTasks.h"
+#include "sources/TaskModel/DAG_Model.h"
+#include "sources/Optimization/EliminationForest_utils.h"
+#include "sources/Tools/colormod.h"
 typedef std::map<int, int> ProcessorId2Index;
 using namespace RegularTaskSystem;
 namespace DAG_SPACE
@@ -13,9 +13,9 @@ namespace DAG_SPACE
 
     /**
      * @brief Generate initial solution for the whole optimization
-     * 
-     * @param tasks 
-     * @param sizeOfVariables 
+     *
+     * @param tasks
+     * @param sizeOfVariables
      * @return VectorDynamic size (N+1), first N is start time for nodes, the last one is r.h.s.
      */
     VectorDynamic GenerateInitialForDAG_IndexMode(DAG_Model &dagTasks, vector<LLint> &sizeOfVariables, int variableDimension)
@@ -86,7 +86,7 @@ namespace DAG_SPACE
         //                    ProcessorId2Index &processorId2Index                                             processorId2Index(processorId2Index)
         /**
          * @brief Construct a new Run Queue object
-         * 
+         *
          * @param tasks : all the tasks in the DAG model rather than all the tasks assigned to a single processor
          */
         RunQueue(TaskSet tasks) : tasks(tasks)
@@ -95,10 +95,10 @@ namespace DAG_SPACE
             taskQueue.reserve(N);
         }
         /**
-         * @brief 
+         * @brief
          *  always maintain taskQueue's inverse priority order, i.e. first task has highest priority,
          * highest priority means highest priority value by number
-         * 
+         *
          * @param id_instance : pair:
          * first: task index (task id)
          * second: instance number
@@ -118,9 +118,9 @@ namespace DAG_SPACE
         /**
          * @brief Given a new task's id, find its position in the queue
          * such that the queue is order from highest priority to lowest priority
-         * 
-         * @param id: new task's id 
-         * @return LLint 
+         *
+         * @param id: new task's id
+         * @return LLint
          */
         LLint FindPrev(LLint id)
         {
@@ -151,8 +151,8 @@ namespace DAG_SPACE
 
         /**
          * @brief Given a task's id, remove this task from the runQueue
-         * 
-         * @param id 
+         *
+         * @param id
          */
         void erase(LLint id)
         {
@@ -168,8 +168,8 @@ namespace DAG_SPACE
         }
         /**
          * @brief return the front task's id in the taskQueue
-         * 
-         * @return LLint 
+         *
+         * @return LLint
          */
         LLint front()
         {
@@ -181,8 +181,8 @@ namespace DAG_SPACE
         /**
          * @brief return the front task's id in the taskQueue,
          * and remove it from taskQueue
-         * 
-         * @return LLint 
+         *
+         * @return LLint
          */
         ID_INSTANCE_PAIR pop()
         {
@@ -199,7 +199,7 @@ namespace DAG_SPACE
     };
     /**
      * @brief Create a ProcessorId2Index object, only used in initialization estimation
-     * 
+     *
      * @return ProcessorId2Index: map, processorID to processorIdIndex
      */
     ProcessorId2Index CreateProcessorId2Index(TaskSet &tasks)
@@ -218,13 +218,13 @@ namespace DAG_SPACE
         return processorId2Index;
     }
     /**
-     * @brief Warning! All the task sets must have int type values, otherwise it may generate inappropriate initialization method; 
+     * @brief Warning! All the task sets must have int type values, otherwise it may generate inappropriate initialization method;
      * If you need to use double type, please use timeScaleFactor to transform it into int type with some acceptable accuracy.
-     * 
-     * @param dagTasks 
-     * @param sizeOfVariables 
-     * @param variableDimension 
-     * @return VectorDynamic 
+     *
+     * @param dagTasks
+     * @param sizeOfVariables
+     * @param variableDimension
+     * @return VectorDynamic
      */
     VectorDynamic GenerateInitial_RM(DAG_Model &dagTasks,
                                      vector<LLint> &sizeOfVariables,
@@ -288,11 +288,11 @@ namespace DAG_SPACE
 
     /**
      * @brief Warning! All the tasks's processorId must begin with 0, otherwise it reports Segmentation error.
-     * 
-     * @param dagTasks 
-     * @param sizeOfVariables 
-     * @param variableDimension 
-     * @return VectorDynamic 
+     *
+     * @param dagTasks
+     * @param sizeOfVariables
+     * @param variableDimension
+     * @return VectorDynamic
      */
     VectorDynamic GenerateInitialForDAG_RM_DAG(const DAG_Model &dagTasks,
                                                vector<LLint> &sizeOfVariables,
@@ -392,11 +392,11 @@ namespace DAG_SPACE
     /**
      * @brief Generate initial estimate based on provided options'
      * param: initializeMethod: global parameter passed implicitly
-     * 
-     * @param dagTasks 
-     * @param sizeOfVariables 
-     * @param variableDimension 
-     * @return VectorDynamic 
+     *
+     * @param dagTasks
+     * @param sizeOfVariables
+     * @param variableDimension
+     * @return VectorDynamic
      */
     VectorDynamic GenerateInitial(DAG_Model &dagTasks,
                                   vector<LLint> &sizeOfVariables,

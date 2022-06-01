@@ -2,7 +2,7 @@
 #include <chrono>
 #include <cmath>
 #include <time.h>
-#include "Optimize.h"
+#include "sources/Optimization/Optimize.h"
 #include "../includeMoe/moe/moe.hpp"
 
 namespace DAG_SPACE
@@ -32,8 +32,7 @@ namespace DAG_SPACE
                                    {
                                        VectorDynamic startTimeVector = Vector2Eigen<double>(startTimeVec.genotype);
 
-                                       return GraphErrorEvaluation(dagTasks, startTimeVector) * -1;
-                                   });
+                                       return GraphErrorEvaluation(dagTasks, startTimeVector) * -1; });
 
         auto start = std::chrono::high_resolution_clock::now();
         // choose an initialization method there!

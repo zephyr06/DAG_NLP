@@ -24,10 +24,10 @@
 
 #include <boost/function.hpp>
 
-#include "Parameters.h"
-#include "colormod.h"
-#include "testMy.h"
-#include "profilier.h"
+#include "sources/Utils/Parameters.h"
+#include "sources/Tools/colormod.h"
+#include "sources/Tools/testMy.h"
+#include "sources/Tools/profilier.h"
 
 using namespace std;
 using namespace gtsam;

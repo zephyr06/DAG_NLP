@@ -1,5 +1,5 @@
 #pragma once
-#include "BaseSchedulingFactor.h"
+#include "sources/Factors/BaseSchedulingFactor.h"
 #include "Interval.h"
 
 namespace DAG_SPACE
@@ -61,9 +61,9 @@ namespace DAG_SPACE
         }
 
         /**
-         * @brief for error evaluation; this returns a VectorDynamic, 
+         * @brief for error evaluation; this returns a VectorDynamic,
          * which is the merged version of all DBF error for each processor
-         * 
+         *
          */
         struct SF_Time_Instance
         {
@@ -173,21 +173,21 @@ namespace DAG_SPACE
 
         /**
          * @brief this version of Jacobian estimation fix the Vanishing gradient problem;
-         * 
-         * this program will identify indexes that have vanishing gradient issues, 
+         *
+         * this program will identify indexes that have vanishing gradient issues,
          * i.e., an interval is fullly covered by another interval without bound overlap,
-         * then apply a bigger, but tight deltaOptimizer for these special indexes to avoid vanishing gradient; 
+         * then apply a bigger, but tight deltaOptimizer for these special indexes to avoid vanishing gradient;
          * (probably use binary search to find it)
          * other indexes are handled normally by provided deltaOptimizer;
-         * 
+         *
          * As for identified as overlap index, increasing deltaOptimizer is only applied when it has a real zero
          *  gradient at this point; this is a necessary condition
-         * 
-         * @param h 
-         * @param x 
-         * @param deltaOptimizer 
-         * @param mOfJacobian 
-         * @return MatrixDynamic 
+         *
+         * @param h
+         * @param x
+         * @param deltaOptimizer
+         * @param mOfJacobian
+         * @return MatrixDynamic
          */
         MatrixDynamic NumericalDerivativeDynamicUpperDBF(boost::function<VectorDynamic(const VectorDynamic &)> h,
                                                          const VectorDynamic &x, double deltaOptimizer,

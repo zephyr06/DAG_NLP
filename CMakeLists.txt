@@ -10,14 +10,20 @@ include(GtsamMakeConfigFile)
 include(GtsamBuildTypes)
 include(GtsamTesting)
 
+include_directories(${CMAKE_SOURCE_DIR})
+
 # for unittest scripts
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${GTSAM_DIR}/../GTSAMCMakeTools")
-
+set(CMAKE_WARN_DEPRECATED OFF)
+set(CMAKE_ERROR_DEPRECATED OFF)
+add_compile_options(-Wdeprecated-declarations)
+unset(CMAKE_WARN_DEPRECATED)
 
 # Boost - same requirement as gtsam
 find_package(Boost 1.50 REQUIRED)
 find_package(CppUnitLite REQUIRED)
 find_package( OpenCV REQUIRED )
+find_package(yaml-cpp)
 include_directories(${Boost_INCLUDE_DIR})
 include_directories(includeMoe)
 include_directories(/usr/local/lib)
@@ -31,6 +37,7 @@ target_link_libraries(${CONVENIENCE_LIB_NAME} gtsam)
 target_link_libraries(${CONVENIENCE_LIB_NAME} ${Boost_LIBRARIES})
 target_link_libraries(${CONVENIENCE_LIB_NAME} CppUnitLite)
 target_link_libraries(${CONVENIENCE_LIB_NAME} ${OpenCV_LIBS} )
+target_link_libraries(${CONVENIENCE_LIB_NAME} yaml-cpp)
 # target_link_libraries(${CONVENIENCE_LIB_NAME} gtest_main )
 
 

@@ -1,5 +1,4 @@
-#include "../sources/GenerateRandomTaskset.h"
-#include "../sources/argparse.hpp"
+#include "sources/TaskModel/GenerateRandomTaskset.h" #include "../sources/#include " sources / Utils / argparse.hpp ""
 
 void deleteDirectoryContents(const std::string &dir_path)
 {
@@ -103,7 +102,8 @@ int main(int argc, char *argv[])
          << "coreRequireMax(--coreRequireMax): " << coreRequireMax << endl
          << endl;
 
-    string outDirectory = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks/";
+    // string outDirectory = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks/";
+    string outDirectory = "/home/zephyr/Programming/Energy_Opt_NLP/TaskData/task_number/";
     deleteDirectoryContents(outDirectory);
     srand(time(0));
     for (size_t i = 0; i < DAG_taskSetNumber; i++)

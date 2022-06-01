@@ -1,9 +1,9 @@
 #pragma once
-#include "DeclareDAG.h"
-#include "RegularTasks.h"
-#include "DBF_utils.h"
-#include "EliminationForest_utils.h"
-#include "InequalifyFactor.h"
+#include "sources/Utils/DeclareDAG.h"
+#include "sources/TaskModel/RegularTasks.h"
+#include "sources/Factors/DBF_utils.h"
+#include "sources/Optimization/EliminationForest_utils.h"
+#include "sources/Factors/InequalifyFactor.h"
 
 class BaseSchedulingFactor : public NoiseModelFactor1<VectorDynamic>
 {

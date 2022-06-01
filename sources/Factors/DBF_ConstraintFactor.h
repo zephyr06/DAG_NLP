@@ -1,5 +1,5 @@
 #include "unordered_map"
-#include "BaseSchedulingFactor.h"
+#include "sources/Factors/BaseSchedulingFactor.h"
 namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
@@ -71,9 +71,9 @@ namespace DAG_SPACE
         {
         }
         /**
-         * @brief for error evaluation; this returns a VectorDynamic, 
+         * @brief for error evaluation; this returns a VectorDynamic,
          * which is the merged version of all DBF error for each processor
-         * 
+         *
          */
         boost::function<Matrix(const VectorDynamic &)> f =
             [this](const VectorDynamic &startTimeVectorOrig)
@@ -139,12 +139,12 @@ namespace DAG_SPACE
 
         /**
          * @brief detecting elimination and update elimination records for both mapIndex and eliminationTrees_Update
-         * 
-         * @param resTemp 
-         * @param mapIndex 
-         * @param whetherEliminate 
-         * @param maskForEliminate_addMap 
-         * @param eliminationTrees_Update 
+         *
+         * @param resTemp
+         * @param mapIndex
+         * @param whetherEliminate
+         * @param maskForEliminate_addMap
+         * @param eliminationTrees_Update
          * @param indexesBGL_Update properties access for eliminationTrees_Update
          */
         // void addMappingFunction(VectorDynamic &resTemp,
@@ -264,12 +264,12 @@ namespace DAG_SPACE
 
         /**
          * @brief true means no conflict, false means exist conflictions
-         * 
-         * @param tree1 
-         * @param tree2 
-         * @param startTimeVector 
-         * @return true 
-         * @return false 
+         *
+         * @param tree1
+         * @param tree2
+         * @param startTimeVector
+         * @return true
+         * @return false
          */
         bool CheckNoConflictionTree(const vector<LLint> &tree1, const vector<LLint> &tree2,
                                     const VectorDynamic &startTimeVector)
@@ -300,21 +300,21 @@ namespace DAG_SPACE
 
         /**
          * @brief this version of Jacobian estimation fix the Vanishing gradient problem;
-         * 
-         * this program will identify indexes that have vanishing gradient issues, 
+         *
+         * this program will identify indexes that have vanishing gradient issues,
          * i.e., an interval is fullly covered by another interval without bound overlap,
-         * then apply a bigger, but tight deltaOptimizer for these special indexes to avoid vanishing gradient; 
+         * then apply a bigger, but tight deltaOptimizer for these special indexes to avoid vanishing gradient;
          * (probably use binary search to find it)
          * other indexes are handled normally by provided deltaOptimizer;
-         * 
+         *
          * As for identified as overlap index, increasing deltaOptimizer is only applied when it has a real zero
          *  gradient at this point; this is a necessary condition
-         * 
-         * @param h 
-         * @param x 
-         * @param deltaOptimizer 
-         * @param mOfJacobian 
-         * @return MatrixDynamic 
+         *
+         * @param h
+         * @param x
+         * @param deltaOptimizer
+         * @param mOfJacobian
+         * @return MatrixDynamic
          */
         MatrixDynamic NumericalDerivativeDynamicUpperDBF(boost::function<VectorDynamic(const VectorDynamic &)> h,
                                                          const VectorDynamic &x, double deltaOptimizer,
@@ -389,9 +389,9 @@ namespace DAG_SPACE
 
         /**
          * @brief pure analytic Jacobian estimation
-         * 
-         * @param startTimeVectorOrig 
-         * @return MatrixDynamic 
+         *
+         * @param startTimeVectorOrig
+         * @return MatrixDynamic
          */
         MatrixDynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const
         {
@@ -433,14 +433,14 @@ namespace DAG_SPACE
         }
 
         /**
-         * @brief estimate analytic Jacobian. To avoid gradient vanish issue, 
+         * @brief estimate analytic Jacobian. To avoid gradient vanish issue,
          * it also changes step size if necessary
-         * 
-         * @param h 
-         * @param x 
-         * @param deltaOptimizer 
-         * @param mOfJacobian 
-         * @return MatrixDynamic 
+         *
+         * @param h
+         * @param x
+         * @param deltaOptimizer
+         * @param mOfJacobian
+         * @return MatrixDynamic
          */
         MatrixDynamic DBFJacobian(boost::function<VectorDynamic(const VectorDynamic &)> h,
                                   const VectorDynamic &x, double deltaOptimizer,

@@ -1,5 +1,5 @@
 #include <CppUnitLite/TestHarness.h>
-#include "../sources/InequalifyFactor.h"
+#include "sources/Factors/InequalifyFactor.h"
 TEST(SmallerThanFactor1D, evaluateError)
 {
     Symbol key('a', 0);

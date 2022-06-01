@@ -1,6 +1,6 @@
-#include "../sources/Optimize.h"
-#include "../sources/testMy.h"
-#include "../sources/EliminationForest_utils.h"
+#include "sources/Optimization/Optimize.h"
+#include "sources/Tools/testMy.h"
+#include "sources/Optimization/EliminationForest_utils.h"
 
 using namespace DAG_SPACE;
 
@@ -21,7 +21,11 @@ TEST(testDBF, v1)
     Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
     double actual = graph.error(initialEstimateFG);
     std::ofstream os("graph.dot");
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     graph.saveGraph(os, initialEstimateFG);
+#pragma GCC diagnostic pop
+
     double expect = 641;
     AssertEqualScalar(expect, actual, 1e-6, __LINE__);
 }
