@@ -12,7 +12,7 @@
 #include "sources/Factors/DDL_ConstraintFactor.h"
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Optimization/EliminationForest_utils.h"
-#include "InitialEstimate.h"
+#include "sources/Optimization/InitialEstimate.h"
 #include "sources/Tools/colormod.h"
 
 Values GenerateInitialFG(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo, bool ifPreemptive = false)
