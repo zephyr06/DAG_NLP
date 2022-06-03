@@ -4,7 +4,7 @@
 
 using namespace RegularTaskSystem;
 using namespace DAG_SPACE;
-void AddDAG_Factor(NonlinearFactorGraph &graph, DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo)
+void AddDAG_Factor(NonlinearFactorGraph &graph, DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, bool ifPreemptive = false)
 {
 
     LLint errorDimensionDBF = 1;
@@ -21,10 +21,17 @@ void AddDAG_Factor(NonlinearFactorGraph &graph, DAG_Model &dagTasks, TaskSetInfo
             Symbol keyPrev = GenerateKey(tasksPrev[i].id, 0);
             double execTime = tasksPrev[i].executionTime;
             NormalErrorFunction2D DAG2D =
-                [execTime](VectorDynamic x1, VectorDynamic x2)
+                [execTime, ifPreemptive](VectorDynamic x1, VectorDynamic x2)
             {
-                VectorDynamic res = x1;
-                res(0, 0) = Barrier(x1(0, 0) - x2(0, 0) - execTime);
+                VectorDynamic res = GenerateVectorDynamic(1);
+                if (ifPreemptive)
+                {
+                    res(0, 0) = Barrier(x1(0, 0) - x2(1));
+                }
+                else
+                {
+                    res(0, 0) = Barrier(x1(0, 0) - x2(0, 0) - execTime);
+                }
                 return res;
             };
             graph.emplace_shared<InequalityFactor2D>(keyNext, keyPrev, DAG2D, model);
