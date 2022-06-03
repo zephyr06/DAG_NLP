@@ -15,10 +15,10 @@
 #include "InitialEstimate.h"
 #include "sources/Tools/colormod.h"
 
-Values GenerateInitialFG(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo)
+Values GenerateInitialFG(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo, bool ifPreemptive = false)
 {
     Values initialEstimateFG;
-    Symbol key('a', 0);
+    Symbol key('a', 0); // just declare the variable
 
     for (int i = 0; i < tasksInfo.N; i++)
     {
@@ -26,8 +26,19 @@ Values GenerateInitialFG(VectorDynamic &startTimeVector, TaskSetInfoDerived &tas
         {
             // LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
             Symbol key = GenerateKey(i, j);
-            VectorDynamic v = GenerateVectorDynamic(1);
-            v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j);
+            VectorDynamic v;
+            if (ifPreemptive)
+            {
+                v = GenerateVectorDynamic(2);
+                v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j),
+                    ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j) + tasksInfo.tasks[i].executionTime;
+            }
+            else
+            {
+                v = GenerateVectorDynamic(1);
+                v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j);
+            }
+
             initialEstimateFG.insert(key, v);
         }
     }
@@ -162,10 +173,10 @@ namespace DAG_SPACE
         if (saveGraph == 1)
         {
             std::ofstream os("graph.dot");
-            #pragma GCC diagnostic push
-            #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
             graph.saveGraph(os, result);
-            #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
             // graph.print();
         }
 
