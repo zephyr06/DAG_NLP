@@ -45,23 +45,23 @@ TEST(SmallerThanFactor1D, Hessian)
     VectorDynamic a = GenerateVectorDynamic(1);
     MatrixDynamic actual = GenerateMatrixDynamic(1, 1);
     auto sth = factor.evaluateError(a, actual);
-    MatrixDynamic expect = NumericalDerivativeDynamicUpper(f, a, deltaOptimizer, 1);
+    MatrixDynamic expect = NumericalDerivativeDynamic(f, a, deltaOptimizer, 1);
     assert_equal(expect, actual);
 
     a << 10;
     sth = factor.evaluateError(a, actual);
-    expect = NumericalDerivativeDynamicUpper(f, a, deltaOptimizer, 1);
+    expect = NumericalDerivativeDynamic(f, a, deltaOptimizer, 1);
     assert_equal(expect, actual);
 
     a << 10.01;
     sth = factor.evaluateError(a, actual);
-    expect = NumericalDerivativeDynamicUpper(f, a, deltaOptimizer, 1);
+    expect = NumericalDerivativeDynamic(f, a, deltaOptimizer, 1);
     assert_equal(expect, actual);
 
     a << 11;
     actual = GenerateMatrixDynamic(1, 1);
     sth = factor.evaluateError(a, actual);
-    expect = NumericalDerivativeDynamicUpper(f, a, deltaOptimizer, 1);
+    expect = NumericalDerivativeDynamic(f, a, deltaOptimizer, 1);
     assert_equal(expect, actual);
 }
 TEST(LargerThanFactor1D, Hessian)
@@ -83,22 +83,22 @@ TEST(LargerThanFactor1D, Hessian)
     VectorDynamic a = GenerateVectorDynamic(1);
     MatrixDynamic actual = GenerateMatrixDynamic(1, 1);
     auto sth = factor.evaluateError(a, actual);
-    MatrixDynamic expect = NumericalDerivativeDynamicUpper(f, a, deltaOptimizer, 1);
+    MatrixDynamic expect = NumericalDerivativeDynamic(f, a, deltaOptimizer, 1);
     assert_equal(expect, actual);
 
     a << 10;
     sth = factor.evaluateError(a, actual);
-    expect = NumericalDerivativeDynamicUpper(f, a, deltaOptimizer, 1);
+    expect = NumericalDerivativeDynamic(f, a, deltaOptimizer, 1);
     assert_equal(expect, actual);
     a << 10.01;
     sth = factor.evaluateError(a, actual);
-    expect = NumericalDerivativeDynamicUpper(f, a, deltaOptimizer, 1);
+    expect = NumericalDerivativeDynamic(f, a, deltaOptimizer, 1);
     assert_equal(expect, actual);
 
     a << 11;
     actual = GenerateMatrixDynamic(1, 1);
     sth = factor.evaluateError(a, actual);
-    expect = NumericalDerivativeDynamicUpper(f, a, deltaOptimizer, 1);
+    expect = NumericalDerivativeDynamic(f, a, deltaOptimizer, 1);
     assert_equal(expect, actual);
 }
 int main()

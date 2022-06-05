@@ -25,6 +25,7 @@
 #include <boost/function.hpp>
 
 #include "sources/Utils/Parameters.h"
+#include "sources/Utils/DeclareDAG.h"
 #include "sources/Tools/colormod.h"
 #include "sources/Tools/testMy.h"
 #include "sources/Tools/profilier.h"
@@ -41,7 +42,7 @@ typedef boost::function<Vector(const Values &x)> LambdaMultiKey;
 
 typedef long long int LLint;
 
-using namespace DAG_SPACE;
+// using namespace DAG_SPACE;
 typedef std::vector<VectorDynamic> VVec;
 
 class MultiKeyFactor : public NoiseModelFactor
@@ -82,7 +83,7 @@ public:
                     xx.update(a, xi);
                     return lambdaMK(xx);
                 };
-                (*H)[i] = NumericalDerivativeDynamicUpper(f, x.at<VectorDynamic>(keyVec[i]), deltaOptimizer, 2);
+                (*H)[i] = NumericalDerivativeDynamic(f, x.at<VectorDynamic>(keyVec[i]), deltaOptimizer, 2);
             }
         }
         return lambdaMK(x);

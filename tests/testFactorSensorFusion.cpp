@@ -215,20 +215,20 @@ TEST(sensorFusion_AnalyticJacobian, v1)
 
     double defaultSF = sensorFusionTolerance;
     sensorFusionTolerance = 2;
-    auto expect = NumericalDerivativeDynamicUpper(factor.f, initial, deltaOptimizer, errorDimensionSF);
+    auto expect = NumericalDerivativeDynamic(factor.f, initial, deltaOptimizer, errorDimensionSF);
     auto actual = factor.JacobianAnalytic(initial);
     assert_equal(expect, actual);
     sensorFusionTolerance = 0;
-    expect = NumericalDerivativeDynamicUpper(factor.f, initial, deltaOptimizer, errorDimensionSF);
+    expect = NumericalDerivativeDynamic(factor.f, initial, deltaOptimizer, errorDimensionSF);
     actual = factor.JacobianAnalytic(initial);
     assert_equal(expect, actual);
 
     initial << 6, 107, 5, 3, 104, 2, 0, 101;
-    expect = NumericalDerivativeDynamicUpper(factor.f, initial, deltaOptimizer, errorDimensionSF);
+    expect = NumericalDerivativeDynamic(factor.f, initial, deltaOptimizer, errorDimensionSF);
     actual = factor.JacobianAnalytic(initial);
     assert_equal(expect, actual);
     initial << 16, 107, 5, 3, 104, 2, 0, 101;
-    expect = NumericalDerivativeDynamicUpper(factor.f, initial, deltaOptimizer, errorDimensionSF);
+    expect = NumericalDerivativeDynamic(factor.f, initial, deltaOptimizer, errorDimensionSF);
     actual = factor.JacobianAnalytic(initial);
     assert_equal(expect, actual);
     sensorFusionTolerance = defaultSF;
@@ -276,7 +276,7 @@ TEST(sensorFusion_AnalyticJacobian, v2)
     initial.resize(6, 1);
     initial << 50.097, 39.065, 14.026, 26.054, 0.0137, 100;
     sensorFusionTolerance = 39;
-    auto expect = NumericalDerivativeDynamicUpper(factor.f, initial, deltaOptimizer, errorDimensionSF);
+    auto expect = NumericalDerivativeDynamic(factor.f, initial, deltaOptimizer, errorDimensionSF);
     auto actual = factor.JacobianAnalytic(initial);
     assert_equal(expect, actual);
 
@@ -326,13 +326,13 @@ TEST(sensorFusion_AnalyticJacobian, v3)
     auto sthh = withAddedSensorFusionError;
     withAddedSensorFusionError = 1;
     sensorFusionTolerance = 2;
-    auto expect = NumericalDerivativeDynamicUpper(factor.f, initial, deltaOptimizer, errorDimensionSF);
+    auto expect = NumericalDerivativeDynamic(factor.f, initial, deltaOptimizer, errorDimensionSF);
     auto actual = factor.JacobianAnalytic(initial);
     assert_equal(expect, actual);
 
     // cout << sth << endl;
     initial << 3, 5, 1, 6, 7;
-    expect = NumericalDerivativeDynamicUpper(factor.f, initial, deltaOptimizer, errorDimensionSF);
+    expect = NumericalDerivativeDynamic(factor.f, initial, deltaOptimizer, errorDimensionSF);
     actual = factor.JacobianAnalytic(initial);
     assert_equal(expect, actual);
 

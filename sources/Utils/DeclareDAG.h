@@ -266,8 +266,8 @@ double BarrierLog(double x)
     //            log(x + toleranceBarrier);
     return 0;
 }
-MatrixDynamic NumericalDerivativeDynamicUpper(boost::function<VectorDynamic(const VectorDynamic &)> h,
-                                              const VectorDynamic &x, double deltaOptimizer, int mOfJacobian)
+MatrixDynamic NumericalDerivativeDynamic(boost::function<VectorDynamic(const VectorDynamic &)> h,
+                                         const VectorDynamic &x, double deltaOptimizer, int mOfJacobian)
 {
     int n = x.rows();
     MatrixDynamic jacobian;
@@ -310,7 +310,7 @@ MatrixDynamic NumericalDerivativeDynamic2D1(NormalErrorFunction2D h,
         return h(x1, x2);
     };
 
-    return NumericalDerivativeDynamicUpper(f, x1, deltaOptimizer, mOfJacobian);
+    return NumericalDerivativeDynamic(f, x1, deltaOptimizer, mOfJacobian);
 }
 MatrixDynamic NumericalDerivativeDynamic2D2(NormalErrorFunction2D h,
                                             const VectorDynamic &x1,
@@ -326,7 +326,7 @@ MatrixDynamic NumericalDerivativeDynamic2D2(NormalErrorFunction2D h,
         return h(x1, x2);
     };
 
-    return NumericalDerivativeDynamicUpper(f, x2, deltaOptimizer, mOfJacobian);
+    return NumericalDerivativeDynamic(f, x2, deltaOptimizer, mOfJacobian);
 }
 
 /**

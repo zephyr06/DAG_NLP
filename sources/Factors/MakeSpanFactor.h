@@ -2,6 +2,7 @@
 
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/TaskModel/RegularTasks.h"
+#include "sources/TaskModel/DAG_Model.h"
 #include "sources/Optimization/EliminationForest_utils.h"
 #include "sources/Factors/BaseSchedulingFactor.h"
 #include "sources/Factors/MultiKeyFactor.h"
@@ -15,7 +16,7 @@
  * @return vector<gtsam::Symbol>
  */
 std::vector<gtsam::Symbol> GenerateKeysMS(TaskSetInfoDerived &tasksInfo,
-                                          MAP_Prev &mapPrev, char type)
+                                          DAG_SPACE::MAP_Prev &mapPrev, char type)
 {
     std::unordered_set<int> keySetToExclude;
     for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
@@ -48,7 +49,7 @@ std::vector<gtsam::Symbol> GenerateKeysMS(TaskSetInfoDerived &tasksInfo,
 }
 
 void AddMakeSpanFactor(NonlinearFactorGraph &graph,
-                       TaskSetInfoDerived &tasksInfo, MAP_Prev &mapPrev)
+                       TaskSetInfoDerived &tasksInfo, DAG_SPACE::MAP_Prev &mapPrev)
 {
     LLint errorDimensionMS = 1;
     if (makespanWeight == 0)

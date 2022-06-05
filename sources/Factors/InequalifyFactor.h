@@ -35,7 +35,7 @@ public:
         VectorDynamic err = f(x);
         if (H)
         {
-            *H = NumericalDerivativeDynamicUpper(f, x, deltaOptimizer, err.rows());
+            *H = NumericalDerivativeDynamic(f, x, deltaOptimizer, err.rows());
         }
         EndTimer("InequalityFactor1D");
         return err;

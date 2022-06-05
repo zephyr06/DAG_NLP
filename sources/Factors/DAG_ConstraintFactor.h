@@ -1,6 +1,7 @@
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/TaskModel/RegularTasks.h"
 #include "sources/Optimization/EliminationForest_utils.h"
+#include "sources/Factors/InequalifyFactor.h"
 
 using namespace RegularTaskSystem;
 using namespace DAG_SPACE;

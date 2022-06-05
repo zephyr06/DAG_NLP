@@ -67,7 +67,7 @@ namespace DAG_SPACE
             {
                 if (numericalJaobian)
                 {
-                    *H = NumericalDerivativeDynamicUpper(f, startTimeVector, deltaOptimizer, errorDimension);
+                    *H = NumericalDerivativeDynamic(f, startTimeVector, deltaOptimizer, errorDimension);
                 }
                 else
                     *H = JacobianAnalytic(startTimeVector);
