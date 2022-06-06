@@ -23,10 +23,10 @@ void CoutError(std::string message)
 
 /**
  * @brief This function always trigger throw, it just prints information
- * 
- * @tparam T 
- * @param expect 
- * @param actual 
+ *
+ * @tparam T
+ * @param expect
+ * @param actual
  */
 template <typename T>
 void AssertUnEqual(T expect, T actual, int lineNumber = 0)
@@ -176,4 +176,14 @@ void AssertEqualMap(std::unordered_map<T1, T2> &mExpect, std::unordered_map<T1, 
             CoutError("Element in mExpect is not found in or not equal to mActual!");
         }
     }
+}
+
+double SquareError(std::vector<double> &seq)
+{
+    double res = 0;
+    for (double x : seq)
+    {
+        res += x * x / 2.0;
+    }
+    return res;
 }

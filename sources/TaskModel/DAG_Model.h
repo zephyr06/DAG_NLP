@@ -81,9 +81,6 @@ namespace DAG_SPACE
             }
 
             DAG_Model ttt(tasks, mapPrev);
-
-            if (debugMode == 1)
-                cout << "Finish reading the data file succesfully!\n";
             return ttt;
         }
         else

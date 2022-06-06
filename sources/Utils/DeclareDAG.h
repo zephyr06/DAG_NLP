@@ -26,13 +26,11 @@
 #include "sources/Tools/colormod.h"
 #include "sources/Tools/testMy.h"
 #include "sources/Tools/profilier.h"
+#include "sources/Tools/MatirxConvenient.h"
 
 using namespace std;
 using namespace gtsam;
 
-typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixDynamic;
-typedef Eigen::Matrix<double, Eigen::Dynamic, 1> VectorDynamic;
-typedef Eigen::SparseMatrix<double, Eigen::ColMajor> SM_Dynamic;
 typedef boost::function<VectorDynamic(const VectorDynamic &)> NormalErrorFunction1D;
 typedef boost::function<VectorDynamic(const VectorDynamic &, const VectorDynamic &)> NormalErrorFunction2D;
 typedef boost::function<Vector(const Values &x)> LambdaMultiKey;
@@ -49,6 +47,7 @@ inline gtsam::Symbol GenerateKey(int idtask, LLint index_overall)
     gtsam::Symbol key('a' + idtask, index_overall);
     return key;
 }
+// return (taskId, jobId)
 inline pair<int, LLint> AnalyzeKey(gtsam::Symbol key)
 {
     int id = key.chr() - 'a';
@@ -191,42 +190,7 @@ VectorDynamic CompresStartTimeVector(const VectorDynamic &startTimeComplete,
     }
     return initialUpdate;
 }
-inline VectorDynamic GenerateVectorDynamic(LLint N)
-{
-    VectorDynamic v;
-    v.resize(N, 1);
-    v.setZero();
-    return v;
-}
-inline MatrixDynamic GenerateMatrixDynamic(LLint m, LLint n)
-{
-    MatrixDynamic mm;
-    mm.resize(m, n);
-    mm.setZero();
-    return mm;
-}
 
-template <class T>
-vector<T> Eigen2Vector(const VectorDynamic &input)
-{
-    vector<T> res;
-    LLint len = input.rows();
-    res.reserve(len);
-    for (LLint i = 0; i < len; i++)
-        res.push_back(input.coeff(i, 0));
-    return res;
-}
-template <class T>
-VectorDynamic Vector2Eigen(const vector<T> &input)
-{
-
-    LLint len = input.size();
-    VectorDynamic res;
-    res.resize(len, 1);
-    for (LLint i = 0; i < len; i++)
-        res(i, 0) = input.at(i);
-    return res;
-}
 double QuotientDouble(double a, int b)
 {
     double left = a - int(a);

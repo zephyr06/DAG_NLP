@@ -314,8 +314,6 @@ namespace RegularTaskSystem
 
             TaskSet ttt(taskSet);
             ttt = Reorder(ttt, priorityType);
-            if (debugMode == 1)
-                cout << "Finish reading the data file " + path + " succesfully!\n";
             return ttt;
         }
         else
