@@ -75,6 +75,31 @@ TEST(FindPossibleOverlapKeys, v1)
     EXPECT_LONGS_EQUAL(8, actual.size());
 }
 
+TEST(dbf_preempt, graph_jacobian)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(8, 1);
+    startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
+    Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo, true);
+
+    NonlinearFactorGraph graph;
+    AddDBFPreempt_Factor(graph, tasksInfo);
+
+    std::cout << Color::green;
+    auto sth = graph.linearize(initialEstimateFG)->jacobian();
+    MatrixDynamic jacobianCurr = sth.first;
+    std::cout << "Current Jacobian matrix:" << std::endl;
+    std::cout << jacobianCurr << std::endl;
+    std::cout << "Current b vector: " << std::endl;
+    std::cout << sth.second << std::endl;
+    std::cout << Color::def << std::endl;
+}
+
 TEST(dbf_preempt, graph_error)
 {
     using namespace DAG_SPACE;

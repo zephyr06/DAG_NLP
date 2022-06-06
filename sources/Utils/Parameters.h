@@ -55,7 +55,6 @@ double FreshTol = (double)ConfigParameters["FreshTol"];
 const double stepJacobianIteration = (double)ConfigParameters["stepJacobianIteration"];
 
 const int PrintOutput = (int)ConfigParameters["PrintOutput"];
-const int moreElimination = (int)ConfigParameters["moreElimination"];
 const int ElimnateLoop_Max = (int)ConfigParameters["ElimnateLoop_Max"];
 int coreNumberAva = (int)ConfigParameters["coreNumberAva"];
 int numericalJaobian = (int)ConfigParameters["numericalJaobian"];
@@ -67,7 +66,6 @@ int debugMode = (int)ConfigParameters["debugMode"];
 const int exactJacobian = (int)ConfigParameters["exactJacobian"];
 const int batchTestMethod = (int)ConfigParameters["batchTestMethod"];
 const int optimizerType = (int)ConfigParameters["optimizerType"];
-const int overlapMode = (int)ConfigParameters["overlapMode"];
 const int randomInitialize = (int)ConfigParameters["randomInitialize"];
 const int SA_iteration = (int)ConfigParameters["SA_iteration"];
 const int TaskSetType = (int)ConfigParameters["TaskSetType"];
@@ -77,13 +75,14 @@ int withAddedSensorFusionError = (int)ConfigParameters["withAddedSensorFusionErr
 const int maxIterations = (int)ConfigParameters["maxIterations"];
 const int saveGraph = (int)ConfigParameters["saveGraph"];
 
-const int maxJacobianIteration = (int)ConfigParameters["maxJacobianIteration"];
+const int MaxEliminateDetectIterations = (int)ConfigParameters["MaxEliminateDetectIterations"];
 string priorityMode = (string)ConfigParameters["priorityMode"];
 const string readTaskMode = (string)ConfigParameters["readTaskMode"];
 const string runMode = (string)ConfigParameters["runMode"];
 const string testDataSetName = (string)ConfigParameters["testDataSetName"];
 double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
 
+// code below is only used to show how to read vectors, but is not actually used in this project
 vector<double> readVector(string filename)
 {
     cv::FileStorage fs;
@@ -101,6 +100,3 @@ vector<double> readVector(string filename)
     return vec;
 }
 vector<double> aaa = readVector(path);
-
-// cv::Mat Tt;
-// ConfigParameters["T"] >> Tt;

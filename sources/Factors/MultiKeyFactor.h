@@ -49,13 +49,15 @@ class MultiKeyFactor : public NoiseModelFactor
 {
 public:
     vector<Symbol> keyVec;
-    uint dimension;
+    uint keySize;
+    uint mOfJacobian;
     LambdaMultiKey lambdaMK;
 
-    MultiKeyFactor(vector<Symbol> keyVec, LambdaMultiKey lambdaMK,
+    MultiKeyFactor(vector<Symbol> keyVec, LambdaMultiKey lambdaMK, uint mOfJacobian,
                    SharedNoiseModel model) : NoiseModelFactor(model, keyVec),
                                              keyVec(keyVec),
-                                             dimension(keyVec.size()), lambdaMK(lambdaMK)
+                                             keySize(keyVec.size()), mOfJacobian(mOfJacobian),
+                                             lambdaMK(lambdaMK)
     {
     }
 
@@ -73,7 +75,7 @@ public:
         // cout << "Res: " << res << endl;
         if (H)
         {
-            for (uint i = 0; i < dimension; i++)
+            for (uint i = 0; i < keySize; i++)
             {
                 NormalErrorFunction1D f =
                     [x, i, this](const VectorDynamic xi)
@@ -83,7 +85,7 @@ public:
                     xx.update(a, xi);
                     return lambdaMK(xx);
                 };
-                (*H)[i] = NumericalDerivativeDynamic(f, x.at<VectorDynamic>(keyVec[i]), deltaOptimizer, 2);
+                (*H)[i] = NumericalDerivativeDynamic(f, x.at<VectorDynamic>(keyVec[i]), deltaOptimizer, mOfJacobian);
             }
         }
         return lambdaMK(x);

@@ -28,7 +28,7 @@ TEST(MultiKeyFactor, v1)
         }
         return res;
     };
-    MultiKeyFactor factor(keyVec, f, model);
+    MultiKeyFactor factor(keyVec, f, 1, model);
 
     Values initialEstimateFG;
     VectorDynamic x0 = GenerateVectorDynamic(1);

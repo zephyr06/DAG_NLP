@@ -81,6 +81,6 @@ void AddMakeSpanFactor(NonlinearFactorGraph &graph,
         res << maxEnd - minStart;
         return res;
     };
-    graph.emplace_shared<MultiKeyFactor>(keysAll, f, model);
+    graph.emplace_shared<MultiKeyFactor>(keysAll, f, 1, model);
     return;
 }

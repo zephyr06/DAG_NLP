@@ -355,7 +355,7 @@ namespace DAG_SPACE
                 {
                     int iteration = 0;
                     double deltaInIteration = deltaOptimizer;
-                    while (iteration < maxJacobianIteration)
+                    while (iteration < MaxEliminateDetectIterations)
                     {
 
                         VectorDynamic xDelta = x;
@@ -468,7 +468,7 @@ namespace DAG_SPACE
                     BeginTimer("DBF_H_adjust");
                     int iteration = 0;
                     double deltaInIteration = deltaOptimizer;
-                    while (iteration < maxJacobianIteration)
+                    while (iteration < MaxEliminateDetectIterations)
                     {
 
                         VectorDynamic xDelta = x;

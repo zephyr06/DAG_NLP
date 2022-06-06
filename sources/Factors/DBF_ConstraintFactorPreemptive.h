@@ -111,7 +111,7 @@ namespace DAG_SPACE
                         {
                             return DBF_PreemptError(x, keys, tasksInfo);
                         };
-                        graph.emplace_shared<MultiKeyFactor>(keys, f, model1);
+                        graph.emplace_shared<MultiKeyFactor>(keys, f, 1, model1);
                     }
                 }
             }

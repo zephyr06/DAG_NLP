@@ -46,7 +46,6 @@ python Visualize_util.py --baseline "RM"
 # noiseModelSigma: 1
 # AcceptSchedulError: 1e1
 # optimizerType: 2 # 1 means dogleg, 2 means LM
-# overlapMode: 1
 # parallelFactor: 0.2
 # punishmentInBarrier: 1e2
 # randomInitialize: 0
@@ -55,12 +54,11 @@ python Visualize_util.py --baseline "RM"
 # ElimnateLoop_Max: 50
 # zeroJacobianDetectTol: 1e-7
 # maxIterations: 1000
-# moreElimination: 0
 # weightPrior_factor: 0
 # initializeMethod: 2
 # timeScaleFactor: 1e2
 # stepJacobianIteration: 1.5
-# maxJacobianIteration: 30
+# MaxEliminateDetectIterations: 30
 # priorityMode: RM
 # relativeErrorTolerance: 1e-5
 # runMode: compare
