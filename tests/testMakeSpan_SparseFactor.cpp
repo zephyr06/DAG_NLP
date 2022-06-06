@@ -44,6 +44,7 @@ TEST(GenerateKeysMS, start2)
     std::vector<gtsam::Symbol> exp2 = GenerateKey(a, d);
     AssertBool(true, exp2 == keyE, __LINE__);
 }
+
 TEST(TESTms, v1)
 {
     using namespace DAG_SPACE;
@@ -106,6 +107,27 @@ TEST(TESTms, v3)
     startTimeVector.resize(10, 1);
     startTimeVector << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10;
     Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
+    // initialEstimateFG.print();
+    double actual = graph.error(initialEstimateFG);
+    double expect = 264.5;
+    AssertEqualScalar(expect, actual, 1e-6, __LINE__);
+}
+
+TEST(TESTms, v_Preempt)
+{
+    using namespace DAG_SPACE;
+    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v3.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+    makespanWeight = 1;
+    NonlinearFactorGraph graph;
+    AddMakeSpanFactor(graph, tasksInfo, dagTasks.mapPrev, true);
+
+    VectorDynamic startTimeVector;
+    startTimeVector.resize(10, 1);
+    startTimeVector << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10;
+    Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo, true);
     // initialEstimateFG.print();
     double actual = graph.error(initialEstimateFG);
     double expect = 264.5;

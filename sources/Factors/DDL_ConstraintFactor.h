@@ -47,7 +47,6 @@ void AddDDL_Factor(NonlinearFactorGraph &graph, TaskSetInfoDerived &tasksInfo, b
             }
             else
             {
-
                 // this factor is explained as: variable * 1 <= tasks[i].deadline + i * tasks[i].period
                 graph.emplace_shared<SmallerThanFactor1D>(key,
                                                           tasks[i].deadline - tasks[i].executionTime + (j)*tasks[i].period, model1);
