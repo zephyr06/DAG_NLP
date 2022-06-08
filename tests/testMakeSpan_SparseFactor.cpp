@@ -7,7 +7,7 @@
 TEST(GenerateKeysMS, start)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -27,7 +27,7 @@ TEST(GenerateKeysMS, start)
 TEST(GenerateKeysMS, start2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v3.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v3.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -48,7 +48,7 @@ TEST(GenerateKeysMS, start2)
 TEST(TESTms, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -68,7 +68,7 @@ TEST(TESTms, v1)
 TEST(TESTms, v2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -95,7 +95,7 @@ TEST(TESTms, v2)
 TEST(TESTms, v3)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v3.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v3.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -116,7 +116,7 @@ TEST(TESTms, v3)
 TEST(TESTms, v_Preempt)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v3.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v3.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);

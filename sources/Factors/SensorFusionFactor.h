@@ -1,3 +1,13 @@
+/**
+ * @file SensorFusionFactor.h
+ * @author Sen Wang
+ * @brief This file implements sensor fusion factor for non-preemptive case;
+ * @version 0.1
+ * @date 2022-06-06
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/TaskModel/RegularTasks.h"
 #include "sources/Optimization/EliminationForest_utils.h"

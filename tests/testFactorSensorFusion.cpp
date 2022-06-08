@@ -7,7 +7,7 @@ TEST(sensorFusion, v1)
     using namespace DAG_SPACE;
     using namespace RegularTaskSystem;
 
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v9.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -51,7 +51,7 @@ TEST(sensorFusion, v2)
     using namespace RegularTaskSystem;
     auto sthh = withAddedSensorFusionError;
     withAddedSensorFusionError = 1;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -124,7 +124,7 @@ TEST(sensorFusion, v3)
     using namespace DAG_SPACE;
     using namespace RegularTaskSystem;
 
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v38.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v38.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -175,7 +175,7 @@ TEST(sensorFusion_AnalyticJacobian, v1)
     using namespace RegularTaskSystem;
     auto sthh = withAddedSensorFusionError;
     withAddedSensorFusionError = 1;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -239,7 +239,7 @@ TEST(sensorFusion_AnalyticJacobian, v2)
     using namespace DAG_SPACE;
     using namespace RegularTaskSystem;
     double defaultSF = sensorFusionTolerance;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v38.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v38.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -287,7 +287,7 @@ TEST(sensorFusion_AnalyticJacobian, v3)
     using namespace DAG_SPACE;
     using namespace RegularTaskSystem;
     double defaultSF = sensorFusionTolerance;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v9.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);

@@ -9,7 +9,7 @@ void AddDAG_Factor(NonlinearFactorGraph &graph, DAG_Model &dagTasks, TaskSetInfo
 {
 
     LLint errorDimensionDBF = 1;
-    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma / weightDAG_factor);
     for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
     {
         const TaskSet &tasksPrev = itr->second;

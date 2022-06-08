@@ -84,7 +84,7 @@ namespace DAG_SPACE
         AddDAG_Factor(graph, dagTasks, tasksInfo);
         AddDBF_Factor(graph, tasksInfo);
         AddDDL_Factor(graph, tasksInfo);
-        AddMakeSpanFactor(graph, tasksInfo, dagTasks.mapPrev);
+        // AddMakeSpanFactor(graph, tasksInfo, dagTasks.mapPrev);
         // LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
         // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
         // graph.emplace_shared<SensorFusion_ConstraintFactor>(key, dagTasks, sizeOfVariables,
@@ -92,13 +92,25 @@ namespace DAG_SPACE
         //                                                     mapIndex, maskForEliminate, model);
     }
 
-    double GraphErrorEvaluation(DAG_Model &dagTasks, VectorDynamic startTimeVector)
+    double GraphErrorEvaluation(DAG_Model &dagTasks, VectorDynamic startTimeVector, bool printDetail = false)
     {
         NonlinearFactorGraph graph;
         TaskSetInfoDerived tasksInfo(dagTasks.tasks);
         EliminationForest forestInfo(tasksInfo);
         BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
         Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
+        if (printDetail)
+        {
+
+            std::cout << Color::green;
+            auto sth = graph.linearize(initialEstimateFG)->jacobian();
+            MatrixDynamic jacobianCurr = sth.first;
+            std::cout << "Current Jacobian matrix:" << std::endl;
+            std::cout << jacobianCurr << std::endl;
+            std::cout << "Current b vector: " << std::endl;
+            std::cout << sth.second << std::endl;
+            std::cout << Color::def << std::endl;
+        }
         return graph.error(initialEstimateFG);
     }
 
@@ -157,12 +169,13 @@ namespace DAG_SPACE
         {
             LevenbergMarquardtParams params;
             params.setlambdaInitial(initialLambda);
-            if (debugMode >= 1)
-                params.setVerbosityLM("SUMMARY");
+            // if (debugMode >= 1)
+            params.setVerbosityLM(verbosityLM);
             params.setlambdaLowerBound(lowerLambda);
             params.setlambdaUpperBound(upperLambda);
             params.setRelativeErrorTol(relativeErrorTolerance);
             params.setMaxIterations(maxIterations);
+            params.setDiagonalDamping(setDiagonalDamping);
             params.setUseFixedLambdaFactor(setUseFixedLambdaFactor);
             // cout << "Log file " << params.getLogFile() << endl;
             LevenbergMarquardtOptimizer optimizer(graph, initialEstimateFG, params);
@@ -246,6 +259,57 @@ namespace DAG_SPACE
         return initialUpdate;
     }
 
+    // move start time of small interval to the end of large interval
+    VectorDynamic FindEmptyPosition(TaskSetInfoDerived &tasksInfo, gtsam::Symbol smallJobKey, gtsam::Symbol largeJobKey, VectorDynamic &startTimeVector)
+    {
+        VectorDynamic stvRes = startTimeVector;
+        int smallTaskIndex, smallJobIndex, largeTaskIndex, largeJobIndex;
+        std::tie(smallTaskIndex, smallJobIndex) = AnalyzeKey(smallJobKey);
+        std::tie(largeTaskIndex, largeJobIndex) = AnalyzeKey(largeJobKey);
+        LLint indexSmallInSTV = IndexTran_Instance2Overall(smallTaskIndex, smallJobIndex, tasksInfo.sizeOfVariables);
+        LLint indexLargeInSTV = IndexTran_Instance2Overall(largeTaskIndex, largeJobIndex, tasksInfo.sizeOfVariables);
+        stvRes(indexSmallInSTV) = startTimeVector(indexLargeInSTV) + tasksInfo.tasks[largeTaskIndex].executionTime;
+        return stvRes;
+    }
+
+    // move some variables that suffer from zero gradient issue around
+    VectorDynamic RelocateIncludedInterval(NonlinearFactorGraph &graph,
+                                           TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector)
+    {
+        Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
+        for (auto ite = graph.begin(); ite != graph.end(); ite++)
+        {
+            double err = ite->get()->error(initialEstimateFG);
+            if (err == 0)
+            {
+                continue;
+            }
+            auto pp = ite->get()->linearize(initialEstimateFG)->jacobian();
+            MatrixDynamic jacobian = pp.first;
+            if (jacobian.norm() == 0)
+            {
+                std::cout << "Vanish DBF factor: " << std::endl;
+                ite->get()->printKeys();
+                auto keys = ite->get()->keys();
+                int task0Index, job0Index, task1Index, job1Index;
+                std::tie(task0Index, job0Index) = AnalyzeKey(keys[0]);
+                std::tie(task1Index, job1Index) = AnalyzeKey(keys[1]);
+                if (tasksInfo.tasks[task0Index].executionTime < tasksInfo.tasks[task1Index].executionTime)
+                {
+                    startTimeVector = FindEmptyPosition(tasksInfo, keys[0], keys[1], startTimeVector);
+
+                    initialEstimateFG.update(keys[0], GenerateVectorDynamic1D(ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, task0Index, job0Index)));
+                }
+                else
+                {
+                    startTimeVector = FindEmptyPosition(tasksInfo, keys[1], keys[0], startTimeVector);
+                    initialEstimateFG.update(keys[1], GenerateVectorDynamic1D(ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, task1Index, job1Index)));
+                }
+            }
+        }
+        return startTimeVector;
+    }
+
     /**
      * @brief Perform scheduling based on optimization
      *
@@ -259,7 +323,7 @@ namespace DAG_SPACE
         EliminationForest forestInfo(tasksInfo);
 
         VectorDynamic initialEstimate = GenerateInitial(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, initialUser);
-
+        // initialEstimate << 180, 190, 200, 210, 220;
         // build elimination eliminationTrees
         bool whetherEliminate = false;
 
@@ -276,15 +340,17 @@ namespace DAG_SPACE
             EndTimer("UnitOptimization");
             VectorDynamic startTimeComplete = RecoverStartTimeVector(resTemp, forestInfo);
 
+            /**
             // startTimeComplete = RandomWalk(startTimeComplete, tasksInfo, forestInfo);
             // factors that require elimination analysis are: DBF
-            // LLint errorDimensionDBF = tasksInfo.processorTaskSet.size();
-            // auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-            // Symbol key('b', 0);
-            // DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF, model);
+            LLint errorDimensionDBF = tasksInfo.processorTaskSet.size();
+            auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
+            Symbol key('b', 0);
+            DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF, model);
             // this function performs in-place modification for all the variables!
             // TODO: should we add eliminate function for sensorFusion?
-            // factor.addMappingFunction(resTemp, whetherEliminate, forestInfo);
+            factor.addMappingFunction(resTemp, whetherEliminate, forestInfo);
+            **/
 
             if (not whetherEliminate)
             {
@@ -310,7 +376,7 @@ namespace DAG_SPACE
 
         cout << Color::blue << "The error before optimization is "
              << errorInitial << Color::def << endl;
-        double finalError = GraphErrorEvaluation(dagTasks, trueResult);
+        double finalError = GraphErrorEvaluation(dagTasks, trueResult, debugMode > 0);
         cout << Color::blue << "The error after optimization is " << finalError << Color::def << endl;
         return {errorInitial, finalError, initialEstimate, trueResult};
     }

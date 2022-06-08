@@ -48,6 +48,10 @@ namespace DAG_SPACE
 
                             res << Overlap(v11, v22);
                             EndTimer("DBF_Lambda");
+                            if (res(0) != 0)
+                            {
+                                int a = 1;
+                            }
                             return res;
                         };
                         // this factor is explained as: variable * 1 <= tasks[i].deadline + i * tasks[i].period

@@ -8,7 +8,7 @@ using namespace DAG_SPACE;
 TEST(testDDL, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -44,7 +44,7 @@ TEST(testDDL, v1)
 }
 TEST(ddl, v2)
 {
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v52.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v52.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     EliminationForest forestInfo(tasksInfo);
 
@@ -61,7 +61,7 @@ TEST(ddl, v2)
 
 TEST(ddl, preempt_v1)
 {
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v52.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v52.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     EliminationForest forestInfo(tasksInfo);
 

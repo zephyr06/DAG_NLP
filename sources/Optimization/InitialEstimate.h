@@ -436,6 +436,7 @@ namespace DAG_SPACE
             initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,
                                                            sizeOfVariables,
                                                            variableDimension);
+            break;
         default:
             initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,
                                                            sizeOfVariables,

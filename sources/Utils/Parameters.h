@@ -59,9 +59,13 @@ const int ElimnateLoop_Max = (int)ConfigParameters["ElimnateLoop_Max"];
 int coreNumberAva = (int)ConfigParameters["coreNumberAva"];
 int numericalJaobian = (int)ConfigParameters["numericalJaobian"];
 const int setUseFixedLambdaFactor = (int)ConfigParameters["setUseFixedLambdaFactor"];
+const int setDiagonalDamping = (int)ConfigParameters["setDiagonalDamping"];
+
 InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initializeMethod"]);
 const double weightPrior_factor = (double)ConfigParameters["weightPrior_factor"];
 const double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"];
+const double weightDAG_factor = (double)ConfigParameters["weightDAG_factor"];
+
 int debugMode = (int)ConfigParameters["debugMode"];
 const int exactJacobian = (int)ConfigParameters["exactJacobian"];
 const int batchTestMethod = (int)ConfigParameters["batchTestMethod"];
@@ -81,7 +85,7 @@ const string readTaskMode = (string)ConfigParameters["readTaskMode"];
 const string runMode = (string)ConfigParameters["runMode"];
 const string testDataSetName = (string)ConfigParameters["testDataSetName"];
 double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
-
+std::string verbosityLM = (std::string)ConfigParameters["verbosityLM"];
 // code below is only used to show how to read vectors, but is not actually used in this project
 vector<double> readVector(string filename)
 {

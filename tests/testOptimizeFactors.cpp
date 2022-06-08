@@ -186,7 +186,7 @@ TEST(graph_as_parameter, v1)
 
 TEST(elimination, v1)
 {
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v52.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v52.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     EliminationForest forestInfo(tasksInfo);
 
@@ -218,7 +218,7 @@ TEST(elimination, v1)
 }
 TEST(sigma, v1)
 {
-    auto dagTasks = ReadDAG_Tasks("../../TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     EliminationForest forestInfo(tasksInfo);
 
@@ -240,9 +240,118 @@ TEST(sigma, v1)
     AssertEqualScalar(err1, err2 * 4, 1e-6, __LINE__);
 }
 
+TEST(relocateIncludedInterval, v1)
+{
+    noiseModelSigma = 1;
+    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v37.csv", "orig");
+    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    EliminationForest forestInfo(tasksInfo);
+
+    VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks,
+                                                                    tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
+    startTimeVector << 102.024, 300.012,
+        63.0085, 369.046,
+        10.4945, 202.024, 408.068,
+        8.359, 100.012, 200.019, 304.026, 406.058, 500,
+        0.008, 306.039;
+    NonlinearFactorGraph graph;
+    AddDAG_Factor(graph, dagTasks, tasksInfo);
+    AddDBF_Factor(graph, tasksInfo);
+    AddDDL_Factor(graph, tasksInfo);
+    Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
+    double err1 = graph.error(initialEstimateFG);
+    EXPECT_DOUBLES_EQUAL(14.5, err1, 1e-3);
+    std::cout << GraphErrorEvaluation(dagTasks, startTimeVector);
+
+    // first find out which DBF factor has zero gradient but non-zero error
+    startTimeVector = RelocateIncludedInterval(graph, tasksInfo, startTimeVector);
+    std::cout << startTimeVector << std::endl;
+
+    auto resTemp = UnitOptimization(dagTasks, startTimeVector,
+                                    forestInfo,
+                                    tasksInfo);
+    std::cout << resTemp << std::endl;
+}
+
 int main()
 {
     TestResult tr;
 
     return TestRegistry::runAllTests(tr);
 }
+
+// this function is currently not used because it's too complicated
+// double FindEmptyPosition(TaskSetInfoDerived &tasksInfo, int taskIndex, int jobIndex, VectorDynamic &startTimeVector)
+// {
+//     std::vector<Interval> emptyPositions;
+//     emptyPositions.push_back(Interval(tasksInfo.tasks[taskIndex].period * jobIndex, tasksInfo.tasks[taskIndex].period));
+//     double startMin = emptyPositions[0].start;
+//     double finishMax = emptyPositions[0].start + emptyPositions[0].length;
+
+//     for (int i = 0; i < tasksInfo.N; i++)
+//     {
+//         for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
+//         {
+//             // Interval curr(tasksInfo.tasks[i].period * j, tasksInfo.tasks[i].period);
+//             LLint indexInSTV = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
+//             double startCurr = startTimeVector(indexInSTV);
+//             double finishCurr = startTimeVector(indexInSTV) + tasksInfo.tasks[i].executionTime;
+//             if (startCurr > finishMax) // all the left instances happen after the interval
+//             {
+//                 break;
+//             }
+//             else if (finishCurr < startMin)
+//             {
+//                 continue;
+//             }
+//             else
+//             {
+//                 for (uint k = 0; k < emptyPositions.size(); k++)
+//                 {
+//                     double startK = emptyPositions[k].start;
+//                     double finishK = emptyPositions[k].start + emptyPositions[k].length;
+
+//                     if (startK >= finishCurr || startCurr >= finishK) // no overlap
+//                     {
+//                         continue;
+//                     }
+//                     else if (startK <= startCurr && finishK >= startCurr && finishCurr >= finishCurr)
+//                     {
+//                         emptyPositions[k].length -= finishK - startCurr;
+//                         if (emptyPositions[k].length < tasksInfo.tasks[taskIndex].executionTime)
+//                         {
+//                             emptyPositions.erase(emptyPositions.begin() + k);
+//                             k--;
+//                         }
+//                     }
+//                     else if (startK > startCurr && finishK < finishCurr)
+//                     {
+//                         emptyPositions.erase(emptyPositions.begin() + k);
+//                         k--;
+//                     }
+//                     else if (startCurr > startK && finishCurr < finishK)
+//                     {
+//                         emptyPositions.erase(emptyPositions.begin() + k);
+//                         k--;
+//                         if (startCurr - startK > tasksInfo.tasks[taskIndex].executionTime)
+//                             emptyPositions.push_back(Interval(startK, startCurr - startK));
+//                         if (finishK - finishCurr > tasksInfo.tasks[taskIndex].executionTime)
+//                             emptyPositions.push_back(Interval(finishCurr, finishK - finishCurr));
+//                     }
+//                     else // finishCurr >= startK && finishK >= finishCurr && startCurr <= startK
+//                     {
+//                         emptyPositions[k].length -= finishCurr - startK;
+//                         emptyPositions[k].start = finishCurr;
+//                         if (emptyPositions[k].length < tasksInfo.tasks[taskIndex].executionTime)
+//                         {
+//                             emptyPositions.erase(emptyPositions.begin() + k);
+//                             k--;
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
+//     // TODO: find an empty position fron emptyPositions vector
+//     return 0;
+// }

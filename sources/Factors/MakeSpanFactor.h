@@ -77,7 +77,7 @@ void AddMakeSpanFactor(NonlinearFactorGraph &graph,
             }
             for (uint i = beginSize; i < keysAll.size(); i++)
             {
-                auto p = AnalyzeKey(keysAll[i]);
+                // auto p = AnalyzeKey(keysAll[i]);
                 maxEnd = max(maxEnd, x.at<VectorDynamic>(keysAll[i])(1));
             }
             res << maxEnd - minStart;
