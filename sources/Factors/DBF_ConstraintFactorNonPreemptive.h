@@ -55,6 +55,8 @@ namespace DAG_SPACE
                             return res;
                         };
                         // this factor is explained as: variable * 1 <= tasks[i].deadline + i * tasks[i].period
+                        if (whetherRandomNoiseModelSigma)
+                            model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma / RandRange(0.5, 1.5));
                         graph.emplace_shared<InequalityFactor2D>(key, key_inner, DBF2D, model);
                     }
                 }

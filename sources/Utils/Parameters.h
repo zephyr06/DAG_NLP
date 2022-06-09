@@ -76,6 +76,8 @@ const int TaskSetType = (int)ConfigParameters["TaskSetType"];
 const int temperatureSA = (int)ConfigParameters["temperatureSA"];
 int tightEliminate = (int)ConfigParameters["tightEliminate"];
 int withAddedSensorFusionError = (int)ConfigParameters["withAddedSensorFusionError"];
+int whetherRandomNoiseModelSigma = (int)ConfigParameters["whetherRandomNoiseModelSigma"];
+
 const int maxIterations = (int)ConfigParameters["maxIterations"];
 const int saveGraph = (int)ConfigParameters["saveGraph"];
 

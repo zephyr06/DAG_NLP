@@ -273,10 +273,11 @@ namespace DAG_SPACE
     }
 
     // move some variables that suffer from zero gradient issue around
-    VectorDynamic RelocateIncludedInterval(NonlinearFactorGraph &graph,
-                                           TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector)
+    std::pair<bool, VectorDynamic> RelocateIncludedInterval(NonlinearFactorGraph &graph,
+                                                            TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector)
     {
         Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
+        bool whetherRelocate = false;
         for (auto ite = graph.begin(); ite != graph.end(); ite++)
         {
             double err = ite->get()->error(initialEstimateFG);
@@ -286,7 +287,7 @@ namespace DAG_SPACE
             }
             auto pp = ite->get()->linearize(initialEstimateFG)->jacobian();
             MatrixDynamic jacobian = pp.first;
-            if (jacobian.norm() == 0)
+            if (jacobian.norm() / err < zeroJacobianDetectTol)
             {
                 std::cout << "Vanish DBF factor: " << std::endl;
                 ite->get()->printKeys();
@@ -305,9 +306,10 @@ namespace DAG_SPACE
                     startTimeVector = FindEmptyPosition(tasksInfo, keys[1], keys[0], startTimeVector);
                     initialEstimateFG.update(keys[1], GenerateVectorDynamic1D(ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, task1Index, job1Index)));
                 }
+                whetherRelocate = true;
             }
         }
-        return startTimeVector;
+        return std::make_pair(whetherRelocate, startTimeVector);
     }
 
     /**
@@ -330,6 +332,7 @@ namespace DAG_SPACE
         int loopNumber = 0;
         VectorDynamic resTemp = GenerateVectorDynamic(tasksInfo.variableDimension);
         VectorDynamic trueResult;
+        double prevError = INT32_MAX;
         while (1)
         {
             whetherEliminate = false;
@@ -339,9 +342,41 @@ namespace DAG_SPACE
                                        tasksInfo);
             EndTimer("UnitOptimization");
             VectorDynamic startTimeComplete = RecoverStartTimeVector(resTemp, forestInfo);
+            trueResult = startTimeComplete;
+            // convergence check, prevent dead-end loops
+            double currError = GraphErrorEvaluation(dagTasks, startTimeComplete);
+            if (currError < prevError)
+            {
+                prevError = currError;
+            }
+            else if (currError >= prevError)
+            {
+                loopNumber += int(ElimnateLoop_Max * 0.4);
+            }
 
+            // relocate interval with vanish gradient
+            NonlinearFactorGraph graph;
+            BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
+            bool whetherChanged = false;
+
+            std::tie(whetherChanged, startTimeComplete) = RelocateIncludedInterval(graph, tasksInfo, startTimeComplete);
+            if (!whetherChanged)
+            {
+                trueResult = startTimeComplete;
+                // try variable elimination
+                // ...
+                if (not whetherEliminate)
+                {
+                    trueResult = startTimeComplete;
+                    break;
+                }
+            }
+            else
+            {
+                initialEstimate = UpdateInitialVector(startTimeComplete, tasksInfo, forestInfo);
+            }
             /**
-            // startTimeComplete = RandomWalk(startTimeComplete, tasksInfo, forestInfo);
+
             // factors that require elimination analysis are: DBF
             LLint errorDimensionDBF = tasksInfo.processorTaskSet.size();
             auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
@@ -352,21 +387,12 @@ namespace DAG_SPACE
             factor.addMappingFunction(resTemp, whetherEliminate, forestInfo);
             **/
 
-            if (not whetherEliminate)
-            {
-                trueResult = startTimeComplete;
-                break;
-            }
-            else
-            {
-                initialEstimate = UpdateInitialVector(startTimeComplete, tasksInfo, forestInfo);
-            }
             loopNumber++;
             if (loopNumber > ElimnateLoop_Max)
             {
                 CoutWarning("Loop number Warning in OptimizeScheduling");
                 // cannot use mapIndex to recover, because mapIndex has already been changed at this point
-                trueResult = startTimeComplete;
+                // trueResult = startTimeComplete;
                 break;
             }
         }

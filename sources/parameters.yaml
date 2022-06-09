@@ -2,14 +2,14 @@
 
 # optimization seettings
 batchTestMethod: 1 # 1 means NLP, 2 means SA, 0 means initial
-testDataSetName: test_n5_v37
+testDataSetName: test_n5_v55
 AcceptSchedulError: 1e0
-debugMode: 1
+debugMode: 0
 runMode: compare
 initializeMethod: 2
 optimizerType: 2 # 1 means dogleg, 2 means LM
 
-deltaOptimizer: 5e-1
+deltaOptimizer: 1e-1
 exactJacobian: 0
 numericalJaobian: 0
 PrintOutput: 1
@@ -21,7 +21,7 @@ stepJacobianIteration: 1.5
 ElimnateLoop_Max: 50
 toleranceEliminator: 1
 tightEliminate: 0
-zeroJacobianDetectTol: 1e-7
+zeroJacobianDetectTol: 1e-4
 #*************************************************************
 
 # optimizer settings
@@ -29,17 +29,19 @@ deltaInitialDogleg: 1e5
 initialLambda: 1e0
 lowerLambda: 1e-60
 upperLambda: 1e50
+# verbosityLM: "SILENCE"
 verbosityLM: "SUMMARY"
 # verbosityLM: "TRYDELTA"
 relativeErrorTolerance: 1e-5
 setUseFixedLambdaFactor: 0
 setDiagonalDamping: 0
 maxIterations: 10000
+whetherRandomNoiseModelSigma: 1
 #*************************************************************
 
 # factors to be included
 weightDDL_factor: 1.1
-weightDAG_factor: 1.3
+weightDAG_factor: 2.0
 makespanWeight: 0
 weightPrior_factor: 0
 sensorFusionTolerance: 500000

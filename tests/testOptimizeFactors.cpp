@@ -264,7 +264,8 @@ TEST(relocateIncludedInterval, v1)
     std::cout << GraphErrorEvaluation(dagTasks, startTimeVector);
 
     // first find out which DBF factor has zero gradient but non-zero error
-    startTimeVector = RelocateIncludedInterval(graph, tasksInfo, startTimeVector);
+    bool b;
+    std::tie(b, startTimeVector) = RelocateIncludedInterval(graph, tasksInfo, startTimeVector);
     std::cout << startTimeVector << std::endl;
 
     auto resTemp = UnitOptimization(dagTasks, startTimeVector,

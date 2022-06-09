@@ -334,3 +334,21 @@ inline void UpdateSM(double val, LLint i, LLint j, SM_Dynamic &sm)
     //     sm.insert(i, j) = val;
     // }
 }
+
+/**
+ * @brief generate a random number within the range [a,b];
+ * a must be smaller than b
+ *
+ * @param a
+ * @param b
+ * @return double
+ */
+inline double RandRange(double a, double b)
+{
+    if (b < a)
+    {
+        // CoutError("Range Error in RandRange");
+        return a + (b - a) * double(rand()) / RAND_MAX;
+    }
+    return a + (b - a) * double(rand()) / RAND_MAX;
+}

@@ -10,9 +10,9 @@
 using namespace RegularTaskSystem;
 namespace po = boost::program_options;
 
-vector<int> PeriodSetAM = {1, 2, 5, 10, 20, 50, 100, 200, 1000};
-// vector<int> PeriodSetAM = {2, 5, 10, 20, 50, 100, 200};
-// vector<int> PeriodSetAM = {100,200};
+// vector<int> PeriodSetAM = {1, 2, 5, 10, 20, 50, 100, 200, 1000};
+vector<int> PeriodSetAM = {2, 5, 10, 20, 50, 100, 200};
+// vector<int> PeriodSetAM = {100, 200, 300};
 // vector<int> PeriodSetAM = {100, 200, 300, 400, 500, 600, 800, 1000, 1200};
 
 vector<double> Uunifast(int N, double utilAll)
@@ -30,24 +30,6 @@ vector<double> Uunifast(int N, double utilAll)
     }
     utilVec[N - 1] = nextU;
     return utilVec;
-}
-
-/**
- * @brief generate a random number within the range [a,b];
- * a must be smaller than b
- *
- * @param a
- * @param b
- * @return double
- */
-double RandRange(double a, double b)
-{
-    if (b < a)
-    {
-        // CoutError("Range Error in RandRange");
-        return a + (b - a) * double(rand()) / RAND_MAX;
-    }
-    return a + (b - a) * double(rand()) / RAND_MAX;
 }
 
 TaskSet GenerateTaskSet(int N, double totalUtilization,

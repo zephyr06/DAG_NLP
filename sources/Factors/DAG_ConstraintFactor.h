@@ -35,6 +35,8 @@ void AddDAG_Factor(NonlinearFactorGraph &graph, DAG_Model &dagTasks, TaskSetInfo
                 }
                 return res;
             };
+            if (whetherRandomNoiseModelSigma)
+                model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma / weightDAG_factor / RandRange(0.5, 1.5));
             graph.emplace_shared<InequalityFactor2D>(keyNext, keyPrev, DAG2D, model);
         }
     }
