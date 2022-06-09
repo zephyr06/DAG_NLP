@@ -268,7 +268,10 @@ namespace DAG_SPACE
         std::tie(largeTaskIndex, largeJobIndex) = AnalyzeKey(largeJobKey);
         LLint indexSmallInSTV = IndexTran_Instance2Overall(smallTaskIndex, smallJobIndex, tasksInfo.sizeOfVariables);
         LLint indexLargeInSTV = IndexTran_Instance2Overall(largeTaskIndex, largeJobIndex, tasksInfo.sizeOfVariables);
+        // put it at the end of large task
         stvRes(indexSmallInSTV) = startTimeVector(indexLargeInSTV) + tasksInfo.tasks[largeTaskIndex].executionTime;
+        // put it at the begining of large task
+        // stvRes(indexSmallInSTV) = startTimeVector(indexLargeInSTV) - tasksInfo.tasks[smallTaskIndex].executionTime;
         return stvRes;
     }
 
@@ -345,7 +348,11 @@ namespace DAG_SPACE
             trueResult = startTimeComplete;
             // convergence check, prevent dead-end loops
             double currError = GraphErrorEvaluation(dagTasks, startTimeComplete);
-            if (currError < prevError)
+            if (currError < 1e-4) // already find global optimal point
+            {
+                break;
+            }
+            else if (currError < prevError)
             {
                 prevError = currError;
             }

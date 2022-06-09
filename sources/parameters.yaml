@@ -12,7 +12,7 @@ optimizerType: 2 # 1 means dogleg, 2 means LM
 deltaOptimizer: 1e-1
 exactJacobian: 0
 numericalJaobian: 0
-PrintOutput: 1
+PrintOutput: 0
 #*************************************************************
 
 # Elimination settings
@@ -36,7 +36,7 @@ relativeErrorTolerance: 1e-5
 setUseFixedLambdaFactor: 0
 setDiagonalDamping: 0
 maxIterations: 10000
-whetherRandomNoiseModelSigma: 1
+whetherRandomNoiseModelSigma: 0
 #*************************************************************
 
 # factors to be included
