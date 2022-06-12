@@ -103,7 +103,7 @@ namespace DAG_SPACE
         Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
         if (printDetail)
         {
-
+            whetherRandomNoiseModelSigma = whetherRandomNoiseModelSigmaRef;
             std::cout << Color::green;
             auto sth = graph.linearize(initialEstimateFG)->jacobian();
             MatrixDynamic jacobianCurr = sth.first;
@@ -112,6 +112,7 @@ namespace DAG_SPACE
             std::cout << "Current b vector: " << std::endl;
             std::cout << sth.second << std::endl;
             std::cout << Color::def << std::endl;
+            whetherRandomNoiseModelSigma = 0;
         }
 
         double err = graph.error(initialEstimateFG);
@@ -151,6 +152,62 @@ namespace DAG_SPACE
         }
         return result;
     }
+    bool ExistVanishGradient(MatrixDynamic &J, VectorDynamic &b)
+    {
+        LLint m = J.rows();
+        LLint n = J.cols();
+        for (size_t i = 0; i < m; i++)
+        {
+            if (b(i) != 0 && J.block(i, 0, 1, n).norm() < zeroJacobianDetectTol * n)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    bool ResetRandomWeightInFG(DAG_Model &dagTasks, NonlinearFactorGraph &graph, VectorDynamic startTimeVector, int srandRef)
+    {
+        // TODO: probably move this function to unit optimization so that it detects the reset condition using the same Jacobian as the last iteration of optmization process
+        if (!(whetherRandomNoiseModelSigma))
+            return false;
+        TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+        Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
+
+        if (graph.error(initialEstimateFG) < 1e-2)
+        {
+            return false;
+        }
+        // verify whether it contains small $J^T \cdot b$
+        // TODO: replace J with sparse matrix type
+        // TODO: move this detection outside?
+        MatrixDynamic J;
+        VectorDynamic b;
+        std::tie(J, b) = graph.linearize(initialEstimateFG)->jacobian();
+        LLint m = J.rows();
+        LLint n = J.cols();
+        if (J.norm() < zeroJacobianDetectTol * n) // stationary point
+        {
+            return false;
+        }
+        else if (ExistVanishGradient(J, b)) // gradient vanish point
+        {
+            return false;
+        }
+        else
+        {
+            VectorDynamic Jb = J.transpose() * b;
+            if (Jb.norm() > ResetRandomWeightThreshold)
+            {
+                return false;
+            }
+        }
+        srand(srandRef);
+        if (debugMode == 1)
+        {
+            std::cout << "Reset the weight files" << std::endl;
+        }
+        return true;
+    }
 
     /**
      * @brief Given a example regular task sets, perform instance-level optimization
@@ -185,25 +242,31 @@ namespace DAG_SPACE
                                    TaskSetInfoDerived &tasksInfo)
     {
         BeginTimer("UnitOptimization");
-        Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
+        int loopNumber = 0;
+        VectorDynamic optComp;
+        while (loopNumber < RandomDrawWeightMaxLoop)
+        {
+            Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
 
-        NonlinearFactorGraph graph;
-        Values result;
-        BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
-        result = SolveFactorGraph(graph, initialEstimateFG);
+            NonlinearFactorGraph graph;
+            Values result;
+            BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
+            result = SolveFactorGraph(graph, initialEstimateFG);
 
-        VectorDynamic optComp = CollectUnitOptResult(result, tasksInfo);
-        //         if (saveGraph == 1)
-        //         {
-        //             std::ofstream os("graph.dot");
-        // #pragma GCC diagnostic push
-        // #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-        //             graph.saveGraph(os, result);
-        // #pragma GCC diagnostic pop
-        //             // graph.print();
-        //         }
-        if (debugMode)
-            cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
+            optComp = CollectUnitOptResult(result, tasksInfo);
+            if (debugMode)
+                cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
+            bool whetherReset = ResetRandomWeightInFG(dagTasks, graph, optComp, ++loopNumber);
+
+            if (!whetherReset)
+            {
+                break;
+            }
+        }
+        if (loopNumber == RandomDrawWeightMaxLoop)
+        {
+            CoutWarning("After resetting the random weight parameters for " + std::to_string(RandomDrawWeightMaxLoop) + " times, the Jb norm is still very small!");
+        }
         EndTimer("UnitOptimization");
         return optComp;
     }
@@ -332,44 +395,6 @@ namespace DAG_SPACE
         return std::make_pair(whetherRelocate, startTimeVector);
     }
 
-    bool ResetRandomWeightInFG(DAG_Model &dagTasks, VectorDynamic startTimeVector, int srandRef)
-    {
-        if (!(whetherRandomNoiseModelSigma))
-            return false;
-        NonlinearFactorGraph graph;
-        TaskSetInfoDerived tasksInfo(dagTasks.tasks);
-        EliminationForest forestInfo(tasksInfo);
-        BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
-        Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
-
-        if (graph.error(initialEstimateFG) < 1e-2)
-        {
-            return false;
-        }
-        // verify whether it contains small $J^T \cdot b$
-        // TODO: replace J with sparse matrix type
-        // TODO: move this detection outside?
-        MatrixDynamic J;
-        VectorDynamic b;
-        std::tie(J, b) = graph.linearize(initialEstimateFG)->jacobian();
-        LLint m = J.rows();
-        LLint n = J.cols();
-        if (J.norm() < zeroJacobianDetectTol * n)
-        {
-            return false;
-        }
-        else
-        {
-            VectorDynamic Jb = J.transpose() * b;
-            if (Jb.norm() > ResetRandomWeightThreshold)
-            {
-                return false;
-            }
-        }
-        srand(srandRef);
-        return true;
-    }
-
     /**
      * @brief Perform scheduling based on optimization
      *
@@ -396,6 +421,7 @@ namespace DAG_SPACE
         while (loopNumber < ElimnateLoop_Max)
         {
             whetherEliminate = false;
+
             resTemp = UnitOptimization(dagTasks, initialEstimate,
                                        forestInfo,
                                        tasksInfo);
@@ -427,9 +453,7 @@ namespace DAG_SPACE
                 initialEstimate = UpdateInitialVector(startTimeComplete, tasksInfo, forestInfo);
             }
 
-            bool whetherResetSrand = ResetRandomWeightInFG(dagTasks, startTimeComplete, loopNumber);
-
-            if (!whetherChanged && !whetherResetSrand)
+            if (!whetherChanged)
             {
                 break;
             }
