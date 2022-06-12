@@ -36,7 +36,7 @@ InitializeMethod Transform_enum(int a)
 const double barrierBase = (double)ConfigParameters["barrierBase"];
 const double coolingRateSA = (double)ConfigParameters["coolingRateSA"];
 const double deltaInitialDogleg = (double)ConfigParameters["deltaInitialDogleg"];
-const double deltaOptimizer = (double)ConfigParameters["deltaOptimizer"];
+double deltaOptimizer = (double)ConfigParameters["deltaOptimizer"];
 const int timeScaleFactor = (int)ConfigParameters["timeScaleFactor"];
 
 const double initialLambda = (double)ConfigParameters["initialLambda"];
@@ -60,11 +60,13 @@ int coreNumberAva = (int)ConfigParameters["coreNumberAva"];
 int numericalJaobian = (int)ConfigParameters["numericalJaobian"];
 const int setUseFixedLambdaFactor = (int)ConfigParameters["setUseFixedLambdaFactor"];
 const int setDiagonalDamping = (int)ConfigParameters["setDiagonalDamping"];
+const int RandomDrawWeightMaxLoop = (int)ConfigParameters["RandomDrawWeightMaxLoop"];
 
 InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initializeMethod"]);
 const double weightPrior_factor = (double)ConfigParameters["weightPrior_factor"];
 const double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"];
 const double weightDAG_factor = (double)ConfigParameters["weightDAG_factor"];
+const double ResetRandomWeightThreshold = (double)ConfigParameters["ResetRandomWeightThreshold"];
 
 int debugMode = (int)ConfigParameters["debugMode"];
 const int exactJacobian = (int)ConfigParameters["exactJacobian"];

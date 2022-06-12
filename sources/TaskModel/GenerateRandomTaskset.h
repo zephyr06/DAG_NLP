@@ -11,8 +11,8 @@ using namespace RegularTaskSystem;
 namespace po = boost::program_options;
 
 // vector<int> PeriodSetAM = {1, 2, 5, 10, 20, 50, 100, 200, 1000};
-vector<int> PeriodSetAM = {2, 5, 10, 20, 50, 100, 200};
-// vector<int> PeriodSetAM = {100, 200, 300};
+// vector<int> PeriodSetAM = {2, 5, 10, 20, 50, 100, 200};
+vector<int> PeriodSetAM = {100, 200, 300};
 // vector<int> PeriodSetAM = {100, 200, 300, 400, 500, 600, 800, 1000, 1200};
 
 vector<double> Uunifast(int N, double utilAll)
@@ -54,7 +54,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
             if (deadlineType == 1)
                 deadline = RandRange(ceil(periodCurr * utilVec[i]), periodCurr);
             Task task(0, periodCurr,
-                      0, ceil(periodCurr * utilVec[i]),
+                      0, std::max(1.0, ceil(periodCurr * utilVec[i])),
                       deadline, i,
                       processorId, coreRequire);
             tasks.push_back(task);
@@ -65,7 +65,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
             periodCurr = int(PeriodSetAM[rand() % PeriodSetAM.size()] * timeScaleFactor);
             double deadline = periodCurr;
             if (deadlineType == 1)
-                deadline = round(RandRange(ceil(periodCurr * utilVec[i]), periodCurr));
+                deadline = round(RandRange(std::max(1.0, ceil(periodCurr * utilVec[i])), periodCurr));
             Task task(0, periodCurr,
                       0, int(periodCurr * utilVec[i]),
                       deadline, i,

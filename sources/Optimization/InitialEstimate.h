@@ -403,6 +403,9 @@ namespace DAG_SPACE
                                   int variableDimension, VectorDynamic initialUser = GenerateVectorDynamic(1))
     {
         VectorDynamic initialEstimate;
+        // initialEstimate = GenerateVectorDynamic(20);
+        // initialEstimate << 27, 311, 2, 102, 202, 302, 402, 502, 0, 100, 200, 300, 400, 500, 57, 236, 436, 1.99951, 211, 411;
+        // return initialEstimate;
         if (initialUser.norm() != 0)
         {
             LLint size = GenerateInitial(dagTasks, sizeOfVariables, variableDimension).rows();

@@ -94,6 +94,8 @@ namespace DAG_SPACE
 
     double GraphErrorEvaluation(DAG_Model &dagTasks, VectorDynamic startTimeVector, bool printDetail = false)
     {
+        int whetherRandomNoiseModelSigmaRef = whetherRandomNoiseModelSigma;
+        whetherRandomNoiseModelSigma = 0;
         NonlinearFactorGraph graph;
         TaskSetInfoDerived tasksInfo(dagTasks.tasks);
         EliminationForest forestInfo(tasksInfo);
@@ -111,7 +113,43 @@ namespace DAG_SPACE
             std::cout << sth.second << std::endl;
             std::cout << Color::def << std::endl;
         }
-        return graph.error(initialEstimateFG);
+
+        double err = graph.error(initialEstimateFG);
+        whetherRandomNoiseModelSigma = whetherRandomNoiseModelSigmaRef;
+        return err;
+    }
+
+    Values SolveFactorGraph(NonlinearFactorGraph &graph, Values &initialEstimateFG)
+    {
+        Values result;
+        if (optimizerType == 1)
+        {
+            DoglegParams params;
+            if (debugMode >= 1)
+                params.setVerbosityDL("VERBOSE");
+            params.setDeltaInitial(deltaInitialDogleg);
+            params.setRelativeErrorTol(relativeErrorTolerance);
+            params.setMaxIterations(maxIterations);
+            DoglegOptimizer optimizer(graph, initialEstimateFG, params);
+            result = optimizer.optimize();
+        }
+        else if (optimizerType == 2)
+        {
+            LevenbergMarquardtParams params;
+            params.setlambdaInitial(initialLambda);
+            // if (debugMode >= 1)
+            params.setVerbosityLM(verbosityLM);
+            params.setlambdaLowerBound(lowerLambda);
+            params.setlambdaUpperBound(upperLambda);
+            params.setRelativeErrorTol(relativeErrorTolerance);
+            params.setMaxIterations(maxIterations);
+            params.setDiagonalDamping(setDiagonalDamping);
+            params.setUseFixedLambdaFactor(setUseFixedLambdaFactor);
+            // cout << "Log file " << params.getLogFile() << endl;
+            LevenbergMarquardtOptimizer optimizer(graph, initialEstimateFG, params);
+            result = optimizer.optimize();
+        }
+        return result;
     }
 
     /**
@@ -146,55 +184,27 @@ namespace DAG_SPACE
                                    EliminationForest &forestInfo,
                                    TaskSetInfoDerived &tasksInfo)
     {
-        using namespace RegularTaskSystem;
-
-        NonlinearFactorGraph graph;
-        BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
-
+        BeginTimer("UnitOptimization");
         Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
 
+        NonlinearFactorGraph graph;
         Values result;
-        if (optimizerType == 1)
-        {
-            DoglegParams params;
-            if (debugMode >= 1)
-                params.setVerbosityDL("VERBOSE");
-            params.setDeltaInitial(deltaInitialDogleg);
-            params.setRelativeErrorTol(relativeErrorTolerance);
-            params.setMaxIterations(maxIterations);
-            DoglegOptimizer optimizer(graph, initialEstimateFG, params);
-            result = optimizer.optimize();
-        }
-        else if (optimizerType == 2)
-        {
-            LevenbergMarquardtParams params;
-            params.setlambdaInitial(initialLambda);
-            // if (debugMode >= 1)
-            params.setVerbosityLM(verbosityLM);
-            params.setlambdaLowerBound(lowerLambda);
-            params.setlambdaUpperBound(upperLambda);
-            params.setRelativeErrorTol(relativeErrorTolerance);
-            params.setMaxIterations(maxIterations);
-            params.setDiagonalDamping(setDiagonalDamping);
-            params.setUseFixedLambdaFactor(setUseFixedLambdaFactor);
-            // cout << "Log file " << params.getLogFile() << endl;
-            LevenbergMarquardtOptimizer optimizer(graph, initialEstimateFG, params);
-            result = optimizer.optimize();
-        }
+        BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
+        result = SolveFactorGraph(graph, initialEstimateFG);
 
         VectorDynamic optComp = CollectUnitOptResult(result, tasksInfo);
-        if (saveGraph == 1)
-        {
-            std::ofstream os("graph.dot");
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-            graph.saveGraph(os, result);
-#pragma GCC diagnostic pop
-            // graph.print();
-        }
-
+        //         if (saveGraph == 1)
+        //         {
+        //             std::ofstream os("graph.dot");
+        // #pragma GCC diagnostic push
+        // #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+        //             graph.saveGraph(os, result);
+        // #pragma GCC diagnostic pop
+        //             // graph.print();
+        //         }
         if (debugMode)
             cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
+        EndTimer("UnitOptimization");
         return optComp;
     }
 
@@ -276,9 +286,13 @@ namespace DAG_SPACE
     }
 
     // move some variables that suffer from zero gradient issue around
-    std::pair<bool, VectorDynamic> RelocateIncludedInterval(NonlinearFactorGraph &graph,
-                                                            TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector)
+    std::pair<bool, VectorDynamic> RelocateIncludedInterval(TaskSetInfoDerived &tasksInfo,
+                                                            DAG_Model &dagTasks, EliminationForest &forestInfo,
+                                                            VectorDynamic &startTimeVector)
     {
+        NonlinearFactorGraph graph;
+        BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
+
         Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
         bool whetherRelocate = false;
         for (auto ite = graph.begin(); ite != graph.end(); ite++)
@@ -288,7 +302,10 @@ namespace DAG_SPACE
             {
                 continue;
             }
+            double deltaOptimizerRef = deltaOptimizer;
+            deltaOptimizer = 1e-6;
             auto pp = ite->get()->linearize(initialEstimateFG)->jacobian();
+            deltaOptimizer = deltaOptimizerRef;
             MatrixDynamic jacobian = pp.first;
             if (jacobian.norm() / err < zeroJacobianDetectTol)
             {
@@ -315,6 +332,44 @@ namespace DAG_SPACE
         return std::make_pair(whetherRelocate, startTimeVector);
     }
 
+    bool ResetRandomWeightInFG(DAG_Model &dagTasks, VectorDynamic startTimeVector, int srandRef)
+    {
+        if (!(whetherRandomNoiseModelSigma))
+            return false;
+        NonlinearFactorGraph graph;
+        TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+        EliminationForest forestInfo(tasksInfo);
+        BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
+        Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
+
+        if (graph.error(initialEstimateFG) < 1e-2)
+        {
+            return false;
+        }
+        // verify whether it contains small $J^T \cdot b$
+        // TODO: replace J with sparse matrix type
+        // TODO: move this detection outside?
+        MatrixDynamic J;
+        VectorDynamic b;
+        std::tie(J, b) = graph.linearize(initialEstimateFG)->jacobian();
+        LLint m = J.rows();
+        LLint n = J.cols();
+        if (J.norm() < zeroJacobianDetectTol * n)
+        {
+            return false;
+        }
+        else
+        {
+            VectorDynamic Jb = J.transpose() * b;
+            if (Jb.norm() > ResetRandomWeightThreshold)
+            {
+                return false;
+            }
+        }
+        srand(srandRef);
+        return true;
+    }
+
     /**
      * @brief Perform scheduling based on optimization
      *
@@ -328,7 +383,7 @@ namespace DAG_SPACE
         EliminationForest forestInfo(tasksInfo);
 
         VectorDynamic initialEstimate = GenerateInitial(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, initialUser);
-        // initialEstimate << 180, 190, 200, 210, 220;
+
         // build elimination eliminationTrees
         bool whetherEliminate = false;
 
@@ -336,54 +391,49 @@ namespace DAG_SPACE
         VectorDynamic resTemp = GenerateVectorDynamic(tasksInfo.variableDimension);
         VectorDynamic trueResult;
         double prevError = INT32_MAX;
-        while (1)
+        // this makes sure we get the same result every time we run the program
+        srand(ElimnateLoop_Max + 1);
+        while (loopNumber < ElimnateLoop_Max)
         {
             whetherEliminate = false;
-            BeginTimer("UnitOptimization");
             resTemp = UnitOptimization(dagTasks, initialEstimate,
                                        forestInfo,
                                        tasksInfo);
-            EndTimer("UnitOptimization");
+
             VectorDynamic startTimeComplete = RecoverStartTimeVector(resTemp, forestInfo);
-            trueResult = startTimeComplete;
-            // convergence check, prevent dead-end loops
+
+            // convergence check, prevent dead-end loops, update trueResult
             double currError = GraphErrorEvaluation(dagTasks, startTimeComplete);
-            if (currError < 1e-4) // already find global optimal point
+            if (currError < 1e-4 || std::abs(currError - prevError) / prevError < relativeErrorTolerance)
             {
+                trueResult = startTimeComplete;
                 break;
             }
             else if (currError < prevError)
             {
-                prevError = currError;
-            }
-            else if (currError >= prevError)
-            {
-                loopNumber += int(ElimnateLoop_Max * 0.4);
-            }
-
-            // relocate interval with vanish gradient
-            NonlinearFactorGraph graph;
-            BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
-            bool whetherChanged = false;
-
-            std::tie(whetherChanged, startTimeComplete) = RelocateIncludedInterval(graph, tasksInfo, startTimeComplete);
-            if (!whetherChanged)
-            {
                 trueResult = startTimeComplete;
-                // try variable elimination
-                // ...
-                if (not whetherEliminate)
-                {
-                    trueResult = startTimeComplete;
-                    break;
-                }
+                prevError = currError;
             }
             else
             {
+                CoutWarning("Error increased!");
+                break;
+            }
+
+            bool whetherChanged = false;
+            std::tie(whetherChanged, startTimeComplete) = RelocateIncludedInterval(tasksInfo, dagTasks, forestInfo, startTimeComplete);
+            if (whetherChanged)
+            {
                 initialEstimate = UpdateInitialVector(startTimeComplete, tasksInfo, forestInfo);
             }
-            /**
 
+            bool whetherResetSrand = ResetRandomWeightInFG(dagTasks, startTimeComplete, loopNumber);
+
+            if (!whetherChanged && !whetherResetSrand)
+            {
+                break;
+            }
+            /**
             // factors that require elimination analysis are: DBF
             LLint errorDimensionDBF = tasksInfo.processorTaskSet.size();
             auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
@@ -395,13 +445,8 @@ namespace DAG_SPACE
             **/
 
             loopNumber++;
-            if (loopNumber > ElimnateLoop_Max)
-            {
+            if (loopNumber >= ElimnateLoop_Max)
                 CoutWarning("Loop number Warning in OptimizeScheduling");
-                // cannot use mapIndex to recover, because mapIndex has already been changed at this point
-                // trueResult = startTimeComplete;
-                break;
-            }
         }
 
         initialEstimate = GenerateInitial(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, initialUser);
