@@ -333,7 +333,23 @@ namespace DAG_SPACE
     }
 
     // move start time of small interval to the end of large interval
-    VectorDynamic FindEmptyPosition(TaskSetInfoDerived &tasksInfo, gtsam::Symbol smallJobKey, gtsam::Symbol largeJobKey, VectorDynamic &startTimeVector)
+    // TODO:  first try begin and end, if both fails, they randomly generate a start time within the feasible region, and keep excluding regions where gradient vanish is possible. Algorithm terminates if there is no such possible space to generate start time.
+    enum RelocationMethod
+    {
+        EndOfInterval,
+        BeginOfInterval,
+        RandomOfInterval
+    };
+    inline RelocationMethod IncrementRelocationMethod(RelocationMethod x)
+    {
+        if (x != RandomOfInterval)
+            return static_cast<RelocationMethod>(static_cast<int>(x) + 1);
+        else
+        {
+            return RandomOfInterval;
+        }
+    }
+    VectorDynamic FindEmptyPosition(TaskSetInfoDerived &tasksInfo, gtsam::Symbol smallJobKey, gtsam::Symbol largeJobKey, VectorDynamic &startTimeVector, RelocationMethod relocateMethod = EndOfInterval)
     {
         VectorDynamic stvRes = startTimeVector;
         int smallTaskIndex, smallJobIndex, largeTaskIndex, largeJobIndex;
@@ -341,17 +357,28 @@ namespace DAG_SPACE
         std::tie(largeTaskIndex, largeJobIndex) = AnalyzeKey(largeJobKey);
         LLint indexSmallInSTV = IndexTran_Instance2Overall(smallTaskIndex, smallJobIndex, tasksInfo.sizeOfVariables);
         LLint indexLargeInSTV = IndexTran_Instance2Overall(largeTaskIndex, largeJobIndex, tasksInfo.sizeOfVariables);
-        // put it at the end of large task
-        stvRes(indexSmallInSTV) = startTimeVector(indexLargeInSTV) + tasksInfo.tasks[largeTaskIndex].executionTime;
-        // put it at the begining of large task
-        // stvRes(indexSmallInSTV) = startTimeVector(indexLargeInSTV) - tasksInfo.tasks[smallTaskIndex].executionTime;
+        switch (relocateMethod)
+        {
+        case BeginOfInterval:
+            // put it at the begining of large task
+            stvRes(indexSmallInSTV) = startTimeVector(indexLargeInSTV) - tasksInfo.tasks[smallTaskIndex].executionTime;
+            break;
+        case EndOfInterval:
+            // put it at the end of large task
+            stvRes(indexSmallInSTV) = startTimeVector(indexLargeInSTV) + tasksInfo.tasks[largeTaskIndex].executionTime;
+            break;
+        case RandomOfInterval:
+            stvRes(indexSmallInSTV) = startTimeVector(indexLargeInSTV) - tasksInfo.tasks[smallTaskIndex].executionTime;
+            break;
+        }
+
         return stvRes;
     }
 
     // move some variables that suffer from zero gradient issue around
     std::pair<bool, VectorDynamic> RelocateIncludedInterval(TaskSetInfoDerived &tasksInfo,
                                                             DAG_Model &dagTasks, EliminationForest &forestInfo,
-                                                            VectorDynamic &startTimeVector)
+                                                            VectorDynamic &startTimeVector, RelocationMethod relocateMethod = EndOfInterval)
     {
         NonlinearFactorGraph graph;
         BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
@@ -380,13 +407,13 @@ namespace DAG_SPACE
                 std::tie(task1Index, job1Index) = AnalyzeKey(keys[1]);
                 if (tasksInfo.tasks[task0Index].executionTime < tasksInfo.tasks[task1Index].executionTime)
                 {
-                    startTimeVector = FindEmptyPosition(tasksInfo, keys[0], keys[1], startTimeVector);
+                    startTimeVector = FindEmptyPosition(tasksInfo, keys[0], keys[1], startTimeVector, relocateMethod);
 
                     initialEstimateFG.update(keys[0], GenerateVectorDynamic1D(ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, task0Index, job0Index)));
                 }
                 else
                 {
-                    startTimeVector = FindEmptyPosition(tasksInfo, keys[1], keys[0], startTimeVector);
+                    startTimeVector = FindEmptyPosition(tasksInfo, keys[1], keys[0], startTimeVector, relocateMethod);
                     initialEstimateFG.update(keys[1], GenerateVectorDynamic1D(ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, task1Index, job1Index)));
                 }
                 whetherRelocate = true;
@@ -418,6 +445,7 @@ namespace DAG_SPACE
         double prevError = INT32_MAX;
         // this makes sure we get the same result every time we run the program
         srand(ElimnateLoop_Max + 1);
+        RelocationMethod currentRelocationMethod = EndOfInterval;
         while (loopNumber < ElimnateLoop_Max)
         {
             whetherEliminate = false;
@@ -430,10 +458,14 @@ namespace DAG_SPACE
 
             // convergence check, prevent dead-end loops, update trueResult
             double currError = GraphErrorEvaluation(dagTasks, startTimeComplete);
-            if (currError < 1e-4 || std::abs(currError - prevError) / prevError < relativeErrorTolerance)
+            if (currError < 1e-3)
             {
                 trueResult = startTimeComplete;
                 break;
+            }
+            else if (std::abs(currError - prevError) / prevError < relativeErrorTolerance)
+            {
+                IncrementRelocationMethod(currentRelocationMethod);
             }
             else if (currError < prevError)
             {
