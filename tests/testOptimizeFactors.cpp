@@ -282,10 +282,12 @@ TEST(relocateIncludedInterval, v1)
     EXPECT((prevGVPair != relocateRes.gradientVanishPairs));
     prevGVPair = relocateRes.gradientVanishPairs;
     EXPECT((prevGVPair == relocateRes.gradientVanishPairs));
-    // auto resTemp = UnitOptimization(dagTasks, startTimeVector,
-    //                                 forestInfo,
-    //                                 tasksInfo);
-    // std::cout << resTemp << std::endl;
+
+    RelocationMethod currentRelocationMethod = EndOfInterval;
+    currentRelocationMethod = IncrementRelocationMethod(currentRelocationMethod);
+    relocateRes = RelocateIncludedInterval(tasksInfo, graph, startTimeVector, currentRelocationMethod);
+    EXPECT_DOUBLES_EQUAL(-5, relocateRes.startTimeVectorAfterRelocate(4), 0.1);
+    EXPECT_DOUBLES_EQUAL(-2, relocateRes.startTimeVectorAfterRelocate(7), 0.1);
 }
 
 int main()

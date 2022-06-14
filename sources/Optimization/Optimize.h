@@ -251,6 +251,25 @@ namespace DAG_SPACE
         OptimizeResult(double ie, double oe, VectorDynamic iv, VectorDynamic ov) : initialError(ie), optimizeError(oe), initialVariable(iv), optimizeVariable(ov) {}
     };
 
+    VectorDynamic UpdateInitialVector(VectorDynamic &startTimeComplete,
+                                      TaskSetInfoDerived &tasksInfo,
+                                      EliminationForest &forestInfo)
+    {
+        VectorDynamic initialUpdate;
+        initialUpdate.resize(forestInfo.lengthCompressed, 1);
+
+        LLint index = 0;
+        for (size_t i = 0; i < (size_t)tasksInfo.variableDimension; i++)
+        {
+            if (not forestInfo.maskForEliminate[i])
+            {
+                initialUpdate(index++, 0) = startTimeComplete(i, 0);
+            }
+        }
+
+        return initialUpdate;
+    }
+
     /**
      * @brief this function schedules task sets based on initial estimate,
      * as a baseline evaluation
@@ -279,26 +298,6 @@ namespace DAG_SPACE
         double errorInitial = GraphErrorEvaluation(dagTasks, initialEstimate);
         return {errorInitial, errorInitial, initialEstimate, initialEstimate};
     }
-
-    VectorDynamic UpdateInitialVector(VectorDynamic &startTimeComplete,
-                                      TaskSetInfoDerived &tasksInfo,
-                                      EliminationForest &forestInfo)
-    {
-        VectorDynamic initialUpdate;
-        initialUpdate.resize(forestInfo.lengthCompressed, 1);
-
-        LLint index = 0;
-        for (size_t i = 0; i < (size_t)tasksInfo.variableDimension; i++)
-        {
-            if (not forestInfo.maskForEliminate[i])
-            {
-                initialUpdate(index++, 0) = startTimeComplete(i, 0);
-            }
-        }
-
-        return initialUpdate;
-    }
-
     /**
      * @brief Perform scheduling based on optimization
      *
