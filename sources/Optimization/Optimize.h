@@ -165,6 +165,16 @@ namespace DAG_SPACE
         }
         return false;
     }
+
+    void ResetSRand(size_t srandRef)
+    {
+        srand(srandRef);
+        if (debugMode == 1)
+        {
+            std::cout << "Reset the weight files" << std::endl;
+        }
+    }
+
     bool ResetRandomWeightInFG(DAG_Model &dagTasks, NonlinearFactorGraph &graph, VectorDynamic startTimeVector, int srandRef)
     {
         // TODO: probably move this function to unit optimization so that it detects the reset condition using the same Jacobian as the last iteration of optmization process
@@ -196,16 +206,17 @@ namespace DAG_SPACE
         else
         {
             VectorDynamic Jb = J.transpose() * b;
-            if (Jb.norm() > ResetRandomWeightThreshold)
+            for (size_t i = 0; i < n; i++)
             {
-                return false;
+                if (Jb(i) < ResetRandomWeightThreshold && b(i) > ResetRandomWeightThreshold)
+                {
+                    ResetSRand(srandRef);
+                    return true;
+                }
             }
+            return false;
         }
-        srand(srandRef);
-        if (debugMode == 1)
-        {
-            std::cout << "Reset the weight files" << std::endl;
-        }
+        ResetSRand(srandRef);
         return true;
     }
 
@@ -375,6 +386,36 @@ namespace DAG_SPACE
         return stvRes;
     }
 
+    struct GradientVanishPairs
+    {
+        std::vector<std::pair<gtsam::Symbol, gtsam::Symbol>> vanishPairs_;
+        void add(gtsam::Symbol key1, gtsam::Symbol key2)
+        {
+            vanishPairs_.push_back(std::make_pair(key1, key2));
+        }
+        size_t size() const
+        {
+            return vanishPairs_.size();
+        }
+    };
+    bool operator==(const GradientVanishPairs &p1, const GradientVanishPairs &p2)
+    {
+        if (p1.size() != p2.size())
+        {
+            return false;
+        }
+        else
+        {
+            for (size_t i = 0; i < p1.size(); i++)
+            {
+                if (p1.vanishPairs_[i].first != p2.vanishPairs_[i].first || p1.vanishPairs_[i].second != p2.vanishPairs_[i].second)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     // move some variables that suffer from zero gradient issue around
     std::pair<bool, VectorDynamic> RelocateIncludedInterval(TaskSetInfoDerived &tasksInfo,
                                                             DAG_Model &dagTasks, EliminationForest &forestInfo,
@@ -463,10 +504,6 @@ namespace DAG_SPACE
                 trueResult = startTimeComplete;
                 break;
             }
-            else if (std::abs(currError - prevError) / prevError < relativeErrorTolerance)
-            {
-                IncrementRelocationMethod(currentRelocationMethod);
-            }
             else if (currError < prevError)
             {
                 trueResult = startTimeComplete;
@@ -475,11 +512,16 @@ namespace DAG_SPACE
             else
             {
                 CoutWarning("Error increased!");
-                break;
+                // break;
+            }
+
+            if (std::abs(currError - prevError) / prevError < relativeErrorTolerance)
+            {
+                currentRelocationMethod = IncrementRelocationMethod(currentRelocationMethod);
             }
 
             bool whetherChanged = false;
-            std::tie(whetherChanged, startTimeComplete) = RelocateIncludedInterval(tasksInfo, dagTasks, forestInfo, startTimeComplete);
+            std::tie(whetherChanged, startTimeComplete) = RelocateIncludedInterval(tasksInfo, dagTasks, forestInfo, startTimeComplete, currentRelocationMethod);
             if (whetherChanged)
             {
                 initialEstimate = UpdateInitialVector(startTimeComplete, tasksInfo, forestInfo);
