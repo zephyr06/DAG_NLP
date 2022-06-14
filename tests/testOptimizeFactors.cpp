@@ -278,6 +278,10 @@ TEST(relocateIncludedInterval, v1)
     EXPECT_DOUBLES_EQUAL(63, relocateRes.startTimeVectorAfterRelocate(4), 0.1);
     EXPECT_DOUBLES_EQUAL(63, relocateRes.startTimeVectorAfterRelocate(7), 0.1);
 
+    GradientVanishPairs prevGVPair;
+    EXPECT((prevGVPair != relocateRes.gradientVanishPairs));
+    prevGVPair = relocateRes.gradientVanishPairs;
+    EXPECT((prevGVPair == relocateRes.gradientVanishPairs));
     // auto resTemp = UnitOptimization(dagTasks, startTimeVector,
     //                                 forestInfo,
     //                                 tasksInfo);
