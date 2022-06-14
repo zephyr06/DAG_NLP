@@ -242,6 +242,7 @@ TEST(sigma, v1)
 
 TEST(relocateIncludedInterval, v1)
 {
+    whetherRandomNoiseModelSigma = 0;
     noiseModelSigma = 1;
     auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v37.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
@@ -264,14 +265,23 @@ TEST(relocateIncludedInterval, v1)
     std::cout << GraphErrorEvaluation(dagTasks, startTimeVector);
 
     // first find out which DBF factor has zero gradient but non-zero error
-    bool b;
-    std::tie(b, startTimeVector) = RelocateIncludedInterval(tasksInfo, dagTasks, forestInfo, startTimeVector);
-    std::cout << startTimeVector << std::endl;
 
-    auto resTemp = UnitOptimization(dagTasks, startTimeVector,
-                                    forestInfo,
-                                    tasksInfo);
-    std::cout << resTemp << std::endl;
+    auto relocateRes = RelocateIncludedInterval(tasksInfo, graph, startTimeVector);
+    EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[0][0] == gtsam::Symbol('c', 0));
+    EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[0][1] == gtsam::Symbol('e', 0));
+    EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[1][0] == gtsam::Symbol('d', 0));
+    EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[1][1] == gtsam::Symbol('e', 0));
+    std::cout << startTimeVector << std::endl
+              << std::endl;
+    std::cout << relocateRes.startTimeVectorAfterRelocate << std::endl;
+
+    EXPECT_DOUBLES_EQUAL(63, relocateRes.startTimeVectorAfterRelocate(4), 0.1);
+    EXPECT_DOUBLES_EQUAL(63, relocateRes.startTimeVectorAfterRelocate(7), 0.1);
+
+    // auto resTemp = UnitOptimization(dagTasks, startTimeVector,
+    //                                 forestInfo,
+    //                                 tasksInfo);
+    // std::cout << resTemp << std::endl;
 }
 
 int main()

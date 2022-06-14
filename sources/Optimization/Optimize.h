@@ -13,37 +13,9 @@
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Optimization/EliminationForest_utils.h"
 #include "sources/Optimization/InitialEstimate.h"
+#include "sources/Optimization/RelocateStartTimeVector.h"
 #include "sources/Tools/colormod.h"
 
-Values GenerateInitialFG(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo, bool ifPreemptive = false)
-{
-    Values initialEstimateFG;
-    Symbol key('a', 0); // just declare the variable
-
-    for (int i = 0; i < tasksInfo.N; i++)
-    {
-        for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
-        {
-            // LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
-            Symbol key = GenerateKey(i, j);
-            VectorDynamic v;
-            if (ifPreemptive)
-            {
-                v = GenerateVectorDynamic(2);
-                v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j),
-                    ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j) + tasksInfo.tasks[i].executionTime;
-            }
-            else
-            {
-                v = GenerateVectorDynamic(1);
-                v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j);
-            }
-
-            initialEstimateFG.insert(key, v);
-        }
-    }
-    return initialEstimateFG;
-}
 VectorDynamic CollectUnitOptResult(Values &result, TaskSetInfoDerived &tasksInfo)
 {
     VectorDynamic stvAfter = GenerateVectorDynamic(tasksInfo.variableDimension);
@@ -156,7 +128,7 @@ namespace DAG_SPACE
     {
         LLint m = J.rows();
         LLint n = J.cols();
-        for (size_t i = 0; i < m; i++)
+        for (LLint i = 0; i < m; i++)
         {
             if (b(i) != 0 && J.block(i, 0, 1, n).norm() < zeroJacobianDetectTol * n)
             {
@@ -193,7 +165,7 @@ namespace DAG_SPACE
         MatrixDynamic J;
         VectorDynamic b;
         std::tie(J, b) = graph.linearize(initialEstimateFG)->jacobian();
-        LLint m = J.rows();
+        // LLint m = J.rows();
         LLint n = J.cols();
         if (J.norm() < zeroJacobianDetectTol * n) // stationary point
         {
@@ -206,7 +178,7 @@ namespace DAG_SPACE
         else
         {
             VectorDynamic Jb = J.transpose() * b;
-            for (size_t i = 0; i < n; i++)
+            for (LLint i = 0; i < n; i++)
             {
                 if (Jb(i) < ResetRandomWeightThreshold && b(i) > ResetRandomWeightThreshold)
                 {
@@ -253,31 +225,15 @@ namespace DAG_SPACE
                                    TaskSetInfoDerived &tasksInfo)
     {
         BeginTimer("UnitOptimization");
-        int loopNumber = 0;
-        VectorDynamic optComp;
-        while (loopNumber < RandomDrawWeightMaxLoop)
-        {
-            Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
 
-            NonlinearFactorGraph graph;
-            Values result;
-            BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
-            result = SolveFactorGraph(graph, initialEstimateFG);
+        Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
 
-            optComp = CollectUnitOptResult(result, tasksInfo);
-            if (debugMode)
-                cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
-            bool whetherReset = ResetRandomWeightInFG(dagTasks, graph, optComp, ++loopNumber);
-
-            if (!whetherReset)
-            {
-                break;
-            }
-        }
-        if (loopNumber == RandomDrawWeightMaxLoop)
-        {
-            CoutWarning("After resetting the random weight parameters for " + std::to_string(RandomDrawWeightMaxLoop) + " times, the Jb norm is still very small!");
-        }
+        NonlinearFactorGraph graph;
+        BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
+        Values result = SolveFactorGraph(graph, initialEstimateFG);
+        VectorDynamic optComp = CollectUnitOptResult(result, tasksInfo);
+        if (debugMode)
+            cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
         EndTimer("UnitOptimization");
         return optComp;
     }
@@ -343,126 +299,6 @@ namespace DAG_SPACE
         return initialUpdate;
     }
 
-    // move start time of small interval to the end of large interval
-    // TODO:  first try begin and end, if both fails, they randomly generate a start time within the feasible region, and keep excluding regions where gradient vanish is possible. Algorithm terminates if there is no such possible space to generate start time.
-    enum RelocationMethod
-    {
-        EndOfInterval,
-        BeginOfInterval,
-        RandomOfInterval
-    };
-    inline RelocationMethod IncrementRelocationMethod(RelocationMethod x)
-    {
-        if (x != RandomOfInterval)
-            return static_cast<RelocationMethod>(static_cast<int>(x) + 1);
-        else
-        {
-            return RandomOfInterval;
-        }
-    }
-    VectorDynamic FindEmptyPosition(TaskSetInfoDerived &tasksInfo, gtsam::Symbol smallJobKey, gtsam::Symbol largeJobKey, VectorDynamic &startTimeVector, RelocationMethod relocateMethod = EndOfInterval)
-    {
-        VectorDynamic stvRes = startTimeVector;
-        int smallTaskIndex, smallJobIndex, largeTaskIndex, largeJobIndex;
-        std::tie(smallTaskIndex, smallJobIndex) = AnalyzeKey(smallJobKey);
-        std::tie(largeTaskIndex, largeJobIndex) = AnalyzeKey(largeJobKey);
-        LLint indexSmallInSTV = IndexTran_Instance2Overall(smallTaskIndex, smallJobIndex, tasksInfo.sizeOfVariables);
-        LLint indexLargeInSTV = IndexTran_Instance2Overall(largeTaskIndex, largeJobIndex, tasksInfo.sizeOfVariables);
-        switch (relocateMethod)
-        {
-        case BeginOfInterval:
-            // put it at the begining of large task
-            stvRes(indexSmallInSTV) = startTimeVector(indexLargeInSTV) - tasksInfo.tasks[smallTaskIndex].executionTime;
-            break;
-        case EndOfInterval:
-            // put it at the end of large task
-            stvRes(indexSmallInSTV) = startTimeVector(indexLargeInSTV) + tasksInfo.tasks[largeTaskIndex].executionTime;
-            break;
-        case RandomOfInterval:
-            stvRes(indexSmallInSTV) = startTimeVector(indexLargeInSTV) - tasksInfo.tasks[smallTaskIndex].executionTime;
-            break;
-        }
-
-        return stvRes;
-    }
-
-    struct GradientVanishPairs
-    {
-        std::vector<std::pair<gtsam::Symbol, gtsam::Symbol>> vanishPairs_;
-        void add(gtsam::Symbol key1, gtsam::Symbol key2)
-        {
-            vanishPairs_.push_back(std::make_pair(key1, key2));
-        }
-        size_t size() const
-        {
-            return vanishPairs_.size();
-        }
-    };
-    bool operator==(const GradientVanishPairs &p1, const GradientVanishPairs &p2)
-    {
-        if (p1.size() != p2.size())
-        {
-            return false;
-        }
-        else
-        {
-            for (size_t i = 0; i < p1.size(); i++)
-            {
-                if (p1.vanishPairs_[i].first != p2.vanishPairs_[i].first || p1.vanishPairs_[i].second != p2.vanishPairs_[i].second)
-                {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-    // move some variables that suffer from zero gradient issue around
-    std::pair<bool, VectorDynamic> RelocateIncludedInterval(TaskSetInfoDerived &tasksInfo,
-                                                            DAG_Model &dagTasks, EliminationForest &forestInfo,
-                                                            VectorDynamic &startTimeVector, RelocationMethod relocateMethod = EndOfInterval)
-    {
-        NonlinearFactorGraph graph;
-        BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
-
-        Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
-        bool whetherRelocate = false;
-        for (auto ite = graph.begin(); ite != graph.end(); ite++)
-        {
-            double err = ite->get()->error(initialEstimateFG);
-            if (err == 0)
-            {
-                continue;
-            }
-            double deltaOptimizerRef = deltaOptimizer;
-            deltaOptimizer = 1e-6;
-            auto pp = ite->get()->linearize(initialEstimateFG)->jacobian();
-            deltaOptimizer = deltaOptimizerRef;
-            MatrixDynamic jacobian = pp.first;
-            if (jacobian.norm() / err < zeroJacobianDetectTol)
-            {
-                std::cout << "Vanish DBF factor: " << std::endl;
-                ite->get()->printKeys();
-                auto keys = ite->get()->keys();
-                int task0Index, job0Index, task1Index, job1Index;
-                std::tie(task0Index, job0Index) = AnalyzeKey(keys[0]);
-                std::tie(task1Index, job1Index) = AnalyzeKey(keys[1]);
-                if (tasksInfo.tasks[task0Index].executionTime < tasksInfo.tasks[task1Index].executionTime)
-                {
-                    startTimeVector = FindEmptyPosition(tasksInfo, keys[0], keys[1], startTimeVector, relocateMethod);
-
-                    initialEstimateFG.update(keys[0], GenerateVectorDynamic1D(ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, task0Index, job0Index)));
-                }
-                else
-                {
-                    startTimeVector = FindEmptyPosition(tasksInfo, keys[1], keys[0], startTimeVector, relocateMethod);
-                    initialEstimateFG.update(keys[1], GenerateVectorDynamic1D(ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, task1Index, job1Index)));
-                }
-                whetherRelocate = true;
-            }
-        }
-        return std::make_pair(whetherRelocate, startTimeVector);
-    }
-
     /**
      * @brief Perform scheduling based on optimization
      *
@@ -477,70 +313,59 @@ namespace DAG_SPACE
 
         VectorDynamic initialEstimate = GenerateInitial(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, initialUser);
 
-        // build elimination eliminationTrees
-        bool whetherEliminate = false;
-
         int loopNumber = 0;
-        VectorDynamic resTemp = GenerateVectorDynamic(tasksInfo.variableDimension);
         VectorDynamic trueResult;
         double prevError = INT32_MAX;
+        GradientVanishPairs prevGVPair;
+
         // this makes sure we get the same result every time we run the program
-        srand(ElimnateLoop_Max + 1);
+        size_t prevSrandRef = ElimnateLoop_Max + 1;
+        ResetSRand(prevSrandRef);
         RelocationMethod currentRelocationMethod = EndOfInterval;
+
         while (loopNumber < ElimnateLoop_Max)
         {
-            whetherEliminate = false;
+            // perform optimization for one time
+            Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
+            NonlinearFactorGraph graph;
+            BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
+            Values result = SolveFactorGraph(graph, initialEstimateFG);
+            VectorDynamic startTimeComplete = CollectUnitOptResult(result, tasksInfo);
+            if (debugMode)
+                cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
 
-            resTemp = UnitOptimization(dagTasks, initialEstimate,
-                                       forestInfo,
-                                       tasksInfo);
-
-            VectorDynamic startTimeComplete = RecoverStartTimeVector(resTemp, forestInfo);
-
-            // convergence check, prevent dead-end loops, update trueResult
+            // convergence check,
             double currError = GraphErrorEvaluation(dagTasks, startTimeComplete);
             if (currError < 1e-3)
             {
                 trueResult = startTimeComplete;
                 break;
             }
-            else if (currError < prevError)
+            else if ((prevError - currError) / prevError > relativeErrorTolerance) // observable error decrease
             {
+                ResetSRand(prevSrandRef); // use previous weights in the next iteration
                 trueResult = startTimeComplete;
                 prevError = currError;
             }
             else
             {
                 CoutWarning("Error increased!");
-                // break;
+                ResetSRand(++prevSrandRef); // try different random weights
             }
 
-            if (std::abs(currError - prevError) / prevError < relativeErrorTolerance)
-            {
-                currentRelocationMethod = IncrementRelocationMethod(currentRelocationMethod);
-            }
+            // detect and handle gradient vanish
+            GradientVanishDetectResult gvRes = RelocateIncludedInterval(tasksInfo, graph, startTimeComplete, currentRelocationMethod);
 
-            bool whetherChanged = false;
-            std::tie(whetherChanged, startTimeComplete) = RelocateIncludedInterval(tasksInfo, dagTasks, forestInfo, startTimeComplete, currentRelocationMethod);
-            if (whetherChanged)
+            if (prevGVPair == gvRes.gradientVanishPairs)
             {
-                initialEstimate = UpdateInitialVector(startTimeComplete, tasksInfo, forestInfo);
+                IncrementRelocationMethod(currentRelocationMethod);
             }
-
-            if (!whetherChanged)
+            else
             {
-                break;
+                prevGVPair = gvRes.gradientVanishPairs;
             }
-            /**
-            // factors that require elimination analysis are: DBF
-            LLint errorDimensionDBF = tasksInfo.processorTaskSet.size();
-            auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-            Symbol key('b', 0);
-            DBF_ConstraintFactor factor(key, tasksInfo, forestInfo, errorDimensionDBF, model);
-            // this function performs in-place modification for all the variables!
-            // TODO: should we add eliminate function for sensorFusion?
-            factor.addMappingFunction(resTemp, whetherEliminate, forestInfo);
-            **/
+            // bool whetherReset = ResetRandomWeightInFG(dagTasks, graph, optComp, ++loopNumber);
+            initialEstimate = UpdateInitialVector(gvRes.startTimeVectorAfterRelocate, tasksInfo, forestInfo);
 
             loopNumber++;
             if (loopNumber >= ElimnateLoop_Max)

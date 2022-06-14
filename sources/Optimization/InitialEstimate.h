@@ -10,6 +10,35 @@ typedef std::map<int, int> ProcessorId2Index;
 using namespace RegularTaskSystem;
 namespace DAG_SPACE
 {
+    Values GenerateInitialFG(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo, bool ifPreemptive = false)
+    {
+        Values initialEstimateFG;
+        Symbol key('a', 0); // just declare the variable
+
+        for (int i = 0; i < tasksInfo.N; i++)
+        {
+            for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
+            {
+                // LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
+                Symbol key = GenerateKey(i, j);
+                VectorDynamic v;
+                if (ifPreemptive)
+                {
+                    v = GenerateVectorDynamic(2);
+                    v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j),
+                        ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j) + tasksInfo.tasks[i].executionTime;
+                }
+                else
+                {
+                    v = GenerateVectorDynamic(1);
+                    v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j);
+                }
+
+                initialEstimateFG.insert(key, v);
+            }
+        }
+        return initialEstimateFG;
+    }
 
     /**
      * @brief Generate initial solution for the whole optimization
