@@ -8,22 +8,23 @@ TEST(DAG_Optimize_schedule, v1)
     using namespace DAG_SPACE;
     DAG_Model tasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/" + testDataSetName + ".csv", "orig");
 
-    for (size_t i = 100; i < 200; i++)
-    {
-        auto sth = OptimizeScheduling(tasks, i);
+    // for (size_t i = 100; i < 200; i++)
+    // {
+    //     auto sth = OptimizeScheduling(tasks, i);
 
-        VectorDynamic res = sth.optimizeVariable;
+    //     VectorDynamic res = sth.optimizeVariable;
 
-        cout << "The result after optimization is " << Color::green << sth.optimizeError
-             << Color::def << endl;
-        if (sth.optimizeError < 1e-3)
-        {
-            std::cout << "Total re-seed times: " << i - 100 << std::endl;
-            break;
-        }
-        if (PrintOutput)
-            cout << Color::blue << res << Color::def << endl;
-    }
+    //     cout << "The result after optimization is " << Color::green << sth.optimizeError
+    //          << Color::def << endl;
+    //     if (sth.optimizeError < 1e-3)
+    //     {
+    //         std::cout << "Total re-seed times: " << i - 100 << std::endl;
+    //         break;
+    //     }
+    //     if (PrintOutput)
+    //         cout << Color::blue << res << Color::def << endl;
+    // }
+    auto sth = OptimizeSchedulingResetSeed(tasks);
     EndTimer("main");
     PrintTimer();
 }

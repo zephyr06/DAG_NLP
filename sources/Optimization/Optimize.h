@@ -385,25 +385,27 @@ namespace DAG_SPACE
 
     OptimizeResult OptimizeSchedulingResetSeed(DAG_Model &dagTasks)
     {
-        for (size_t i = 100; i < 200; i++)
+        OptimizeResult sth;
+        for (size_t i = 100; i < 100 + RandomDrawWeightMaxLoop; i++)
         {
-            auto sth = OptimizeScheduling(dagTasks, i);
+            sth = OptimizeScheduling(dagTasks, i);
 
             VectorDynamic res = sth.optimizeVariable;
-            if (debugMode > 1)
-                cout << "The result after optimization is " << Color::green << sth.optimizeError
-                     << Color::def << endl;
+            // if (debugMode > 1)
+            cout << "The result after optimization is " << Color::green << sth.optimizeError
+                 << Color::def << endl;
             if (sth.optimizeError < 1e-3)
             {
+                if (i > 101)
+                {
+                    std::cout << "Total re-seed times: " << i - 100 << std::endl;
+                }
                 break;
             }
-            if (i > 101)
-            {
 
-                std::cout << "Total re-seed times: " << i - 100 << std::endl;
-            }
             if (PrintOutput)
                 cout << Color::blue << res << Color::def << endl;
         }
+        return sth;
     }
 }
