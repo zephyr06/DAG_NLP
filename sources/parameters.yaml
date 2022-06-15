@@ -35,8 +35,8 @@ deltaInitialDogleg: 1e5
 initialLambda: 1e0
 lowerLambda: 1e-60
 upperLambda: 1e50
-verbosityLM: "SILENCE"
-# verbosityLM: "SUMMARY"
+# verbosityLM: "SILENCE"
+verbosityLM: "SUMMARY"
 # verbosityLM: "TRYDELTA"
 relativeErrorTolerance: 1e-5
 setUseFixedLambdaFactor: 1

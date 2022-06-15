@@ -117,27 +117,36 @@ namespace DAG_SPACE
             auto pp = ite->get()->linearize(initialEstimateFG)->jacobian();
             deltaOptimizer = deltaOptimizerRef;
             MatrixDynamic jacobian = pp.first;
-            if (jacobian.norm() / err < zeroJacobianDetectTol)
+            if (jacobian.norm() / pow(err * 2, 0.5) < zeroJacobianDetectTol)
             {
                 std::cout << "Vanish DBF factor: " << std::endl;
                 ite->get()->printKeys();
                 auto keys = ite->get()->keys();
-                gradientVanishPairs.add(keys);
-                int task0Index, job0Index, task1Index, job1Index;
-                std::tie(task0Index, job0Index) = AnalyzeKey(keys[0]);
-                std::tie(task1Index, job1Index) = AnalyzeKey(keys[1]);
-                if (tasksInfo.tasks[task0Index].executionTime < tasksInfo.tasks[task1Index].executionTime)
+                if (keys.size() == 2)
                 {
-                    startTimeVector = FindEmptyPosition(tasksInfo, keys[0], keys[1], startTimeVector, relocateMethod);
+                    gradientVanishPairs.add(keys);
+                    int task0Index, job0Index, task1Index, job1Index;
+                    std::tie(task0Index, job0Index) = AnalyzeKey(keys[0]);
+                    std::tie(task1Index, job1Index) = AnalyzeKey(keys[1]);
+                    if (tasksInfo.tasks[task0Index].executionTime < tasksInfo.tasks[task1Index].executionTime)
+                    {
+                        startTimeVector = FindEmptyPosition(tasksInfo, keys[0], keys[1], startTimeVector, relocateMethod);
 
-                    initialEstimateFG.update(keys[0], GenerateVectorDynamic1D(ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, task0Index, job0Index)));
+                        initialEstimateFG.update(keys[0], GenerateVectorDynamic1D(ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, task0Index, job0Index)));
+                    }
+                    else
+                    {
+                        startTimeVector = FindEmptyPosition(tasksInfo, keys[1], keys[0], startTimeVector, relocateMethod);
+                        initialEstimateFG.update(keys[1], GenerateVectorDynamic1D(ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, task1Index, job1Index)));
+                    }
+                    whetherRelocate = true;
                 }
                 else
                 {
-                    startTimeVector = FindEmptyPosition(tasksInfo, keys[1], keys[0], startTimeVector, relocateMethod);
-                    initialEstimateFG.update(keys[1], GenerateVectorDynamic1D(ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, task1Index, job1Index)));
+                    CoutWarning("Vanish gradient of non-DBF type is found, please add related relocation method!");
+                    double err = ite->get()->error(initialEstimateFG);
+                    int a = 1;
                 }
-                whetherRelocate = true;
             }
         }
         return {whetherRelocate, gradientVanishPairs, startTimeVector};
