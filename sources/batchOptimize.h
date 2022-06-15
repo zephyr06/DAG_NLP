@@ -69,7 +69,8 @@ void BatchOptimize()
             DAG_SPACE::OptimizeResult res;
             if (batchTestMethod == 1)
             {
-                res = DAG_SPACE::OptimizeScheduling(dagTasks);
+                // res = DAG_SPACE::OptimizeScheduling(dagTasks);
+                res = DAG_SPACE::OptimizeSchedulingResetSeed(dagTasks);
             }
             else if (batchTestMethod == 2)
             {

@@ -67,7 +67,7 @@ namespace DAG_SPACE
             return static_cast<RelocationMethod>(static_cast<int>(x) + 1);
         else
         {
-            return RandomOfInterval;
+            return EndOfInterval;
         }
     }
     VectorDynamic FindEmptyPosition(TaskSetInfoDerived &tasksInfo, gtsam::Symbol smallJobKey, gtsam::Symbol largeJobKey, VectorDynamic &startTimeVector, RelocationMethod relocateMethod = EndOfInterval)

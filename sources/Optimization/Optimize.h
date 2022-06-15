@@ -304,7 +304,9 @@ namespace DAG_SPACE
      * @param tasks
      * @return VectorDynamic all the task instances' start time
      */
-    OptimizeResult OptimizeScheduling(DAG_Model &dagTasks, VectorDynamic initialUser = GenerateVectorDynamic(1))
+    OptimizeResult OptimizeScheduling(DAG_Model &dagTasks,
+                                      size_t initialSeed = ElimnateLoop_Max + 1,
+                                      VectorDynamic initialUser = GenerateVectorDynamic(1))
     {
         TaskSet tasks = dagTasks.tasks;
         TaskSetInfoDerived tasksInfo(tasks);
@@ -318,7 +320,7 @@ namespace DAG_SPACE
         GradientVanishPairs prevGVPair;
 
         // this makes sure we get the same result every time we run the program
-        size_t prevSrandRef = ElimnateLoop_Max + 1;
+        size_t prevSrandRef = initialSeed;
         ResetSRand(prevSrandRef);
         RelocationMethod currentRelocationMethod = EndOfInterval;
 
@@ -357,7 +359,7 @@ namespace DAG_SPACE
 
             if (prevGVPair == gvRes.gradientVanishPairs)
             {
-                IncrementRelocationMethod(currentRelocationMethod);
+                currentRelocationMethod = IncrementRelocationMethod(currentRelocationMethod);
             }
             else
             {
@@ -379,5 +381,29 @@ namespace DAG_SPACE
         double finalError = GraphErrorEvaluation(dagTasks, trueResult, debugMode > 0);
         cout << Color::blue << "The error after optimization is " << finalError << Color::def << endl;
         return {errorInitial, finalError, initialEstimate, trueResult};
+    }
+
+    OptimizeResult OptimizeSchedulingResetSeed(DAG_Model &dagTasks)
+    {
+        for (size_t i = 100; i < 200; i++)
+        {
+            auto sth = OptimizeScheduling(dagTasks, i);
+
+            VectorDynamic res = sth.optimizeVariable;
+            if (debugMode > 1)
+                cout << "The result after optimization is " << Color::green << sth.optimizeError
+                     << Color::def << endl;
+            if (sth.optimizeError < 1e-3)
+            {
+                break;
+            }
+            if (i > 101)
+            {
+
+                std::cout << "Total re-seed times: " << i - 100 << std::endl;
+            }
+            if (PrintOutput)
+                cout << Color::blue << res << Color::def << endl;
+        }
     }
 }
