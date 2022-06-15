@@ -12,6 +12,7 @@ include(GtsamTesting)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
+
 # for unittest scripts
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${GTSAM_DIR}/../GTSAMCMakeTools")
 set(CMAKE_WARN_DEPRECATED OFF)
@@ -43,3 +44,4 @@ target_link_libraries(${CONVENIENCE_LIB_NAME} yaml-cpp)
 
 add_subdirectory(tests)
 add_subdirectory(sources)
+add_subdirectory(${CMAKE_SOURCE_DIR}/sources/Baseline/Verucchi20)
