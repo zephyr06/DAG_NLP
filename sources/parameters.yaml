@@ -2,23 +2,23 @@
 
 # optimization seettings
 batchTestMethod: 1 # 1 means NLP, 2 means SA, 0 means initial
-testDataSetName: test_n5_v65
+testDataSetName: test_n5_v66
 AcceptSchedulError: 1e-2
 debugMode: 0
 runMode: compare
 initializeMethod: 2
 optimizerType: 2 # 1 means dogleg, 2 means LM
 
-deltaOptimizer: 1e-1
+deltaOptimizer: 1e0
 exactJacobian: 0
 numericalJaobian: 0
 PrintOutput: 1
+PrintInitial: 1
 #*************************************************************
 
 # Elimination settings
 MaxEliminateDetectIterations: 25
 stepJacobianIteration: 1.5
-ElimnateLoop_Max: 10
 toleranceEliminator: 1
 tightEliminate: 0
 zeroJacobianDetectTol: 1e-4
@@ -26,7 +26,8 @@ zeroJacobianDetectTol: 1e-4
 
 # Get away from local optimal setting
 whetherRandomNoiseModelSigma: 1
-RandomDrawWeightMaxLoop: 10
+RandomDrawWeightMaxLoop: 1
+ResetInnerWeightLoopMax: 10
 ResetRandomWeightThreshold: 5e-3
 #*************************************************************
 
@@ -36,8 +37,8 @@ initialLambda: 1e0
 lowerLambda: 1e-60
 upperLambda: 1e50
 # verbosityLM: "SILENCE"
-verbosityLM: "SUMMARY"
-# verbosityLM: "TRYDELTA"
+# verbosityLM: "SUMMARY"
+verbosityLM: "TRYDELTA"
 relativeErrorTolerance: 1e-5
 setUseFixedLambdaFactor: 1
 setDiagonalDamping: 0

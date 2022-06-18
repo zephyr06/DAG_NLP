@@ -89,7 +89,7 @@ namespace DAG_SPACE
             stvRes(indexSmallInSTV) = startTimeVector(indexLargeInSTV) + tasksInfo.tasks[largeTaskIndex].executionTime;
             break;
         case RandomOfInterval:
-            stvRes(indexSmallInSTV) = startTimeVector(indexLargeInSTV) - tasksInfo.tasks[smallTaskIndex].executionTime;
+            stvRes(indexSmallInSTV) = startTimeVector(indexLargeInSTV) + tasksInfo.tasks[smallTaskIndex].executionTime;
             break;
         }
 

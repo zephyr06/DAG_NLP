@@ -51,7 +51,7 @@ python Visualize_util.py --baseline "RM"
 # randomInitialize: 0
 # readTaskMode: orig
 # withAddedSensorFusionError: 1
-# ElimnateLoop_Max: 50
+# ResetInnerWeightLoopMax: 50
 # zeroJacobianDetectTol: 1e-7
 # maxIterations: 1000
 # weightPrior_factor: 0

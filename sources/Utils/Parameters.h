@@ -55,7 +55,7 @@ double FreshTol = (double)ConfigParameters["FreshTol"];
 const double stepJacobianIteration = (double)ConfigParameters["stepJacobianIteration"];
 
 const int PrintOutput = (int)ConfigParameters["PrintOutput"];
-const int ElimnateLoop_Max = (int)ConfigParameters["ElimnateLoop_Max"];
+const int ResetInnerWeightLoopMax = (int)ConfigParameters["ResetInnerWeightLoopMax"];
 int coreNumberAva = (int)ConfigParameters["coreNumberAva"];
 int numericalJaobian = (int)ConfigParameters["numericalJaobian"];
 const int setUseFixedLambdaFactor = (int)ConfigParameters["setUseFixedLambdaFactor"];
@@ -68,6 +68,7 @@ const double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"];
 const double weightDAG_factor = (double)ConfigParameters["weightDAG_factor"];
 const double ResetRandomWeightThreshold = (double)ConfigParameters["ResetRandomWeightThreshold"];
 
+int PrintInitial = (int)ConfigParameters["PrintInitial"];
 int debugMode = (int)ConfigParameters["debugMode"];
 const int exactJacobian = (int)ConfigParameters["exactJacobian"];
 const int batchTestMethod = (int)ConfigParameters["batchTestMethod"];

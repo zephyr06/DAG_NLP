@@ -84,7 +84,6 @@ namespace DAG_SPACE
             std::cout << "Current b vector: " << std::endl;
             std::cout << sth.second << std::endl;
             std::cout << Color::def << std::endl;
-            whetherRandomNoiseModelSigma = 0;
         }
 
         double err = graph.error(initialEstimateFG);
@@ -305,7 +304,7 @@ namespace DAG_SPACE
      * @return VectorDynamic all the task instances' start time
      */
     OptimizeResult OptimizeScheduling(DAG_Model &dagTasks,
-                                      size_t initialSeed = ElimnateLoop_Max + 1,
+                                      size_t initialSeed = ResetInnerWeightLoopMax + 1,
                                       VectorDynamic initialUser = GenerateVectorDynamic(1))
     {
         TaskSet tasks = dagTasks.tasks;
@@ -315,7 +314,7 @@ namespace DAG_SPACE
         VectorDynamic initialEstimate = GenerateInitial(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, initialUser);
 
         int loopNumber = 0;
-        VectorDynamic trueResult;
+        VectorDynamic bestResultFound;
         double prevError = INT32_MAX;
         GradientVanishPairs prevGVPair;
 
@@ -324,7 +323,7 @@ namespace DAG_SPACE
         ResetSRand(prevSrandRef);
         RelocationMethod currentRelocationMethod = EndOfInterval;
 
-        while (loopNumber < ElimnateLoop_Max)
+        while (loopNumber < ResetInnerWeightLoopMax)
         {
             // perform optimization for one time
             Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
@@ -339,13 +338,13 @@ namespace DAG_SPACE
             double currError = GraphErrorEvaluation(dagTasks, startTimeComplete);
             if (currError < 1e-3)
             {
-                trueResult = startTimeComplete;
+                bestResultFound = startTimeComplete;
                 break;
             }
             else if ((prevError - currError) / prevError > relativeErrorTolerance) // observable error decrease
             {
                 ResetSRand(prevSrandRef); // use previous weights in the next iteration
-                trueResult = startTimeComplete;
+                bestResultFound = startTimeComplete;
                 prevError = currError;
             }
             else
@@ -369,24 +368,29 @@ namespace DAG_SPACE
             initialEstimate = UpdateInitialVector(gvRes.startTimeVectorAfterRelocate, tasksInfo, forestInfo);
 
             loopNumber++;
-            if (loopNumber >= ElimnateLoop_Max)
+            if (loopNumber >= ResetInnerWeightLoopMax)
                 CoutWarning("Loop number Warning in OptimizeScheduling");
         }
 
         initialEstimate = GenerateInitial(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, initialUser);
+        if (PrintInitial)
+        {
+            std::cout << "The initial solution is: " << std::endl
+                      << initialEstimate << std::endl;
+        }
         double errorInitial = GraphErrorEvaluation(dagTasks, initialEstimate);
 
         cout << Color::blue << "The error before optimization is "
              << errorInitial << Color::def << endl;
-        double finalError = GraphErrorEvaluation(dagTasks, trueResult, debugMode > 0);
+        double finalError = GraphErrorEvaluation(dagTasks, bestResultFound, debugMode > 0);
         cout << Color::blue << "The error after optimization is " << finalError << Color::def << endl;
-        return {errorInitial, finalError, initialEstimate, trueResult};
+        return {errorInitial, finalError, initialEstimate, bestResultFound};
     }
 
     OptimizeResult OptimizeSchedulingResetSeed(DAG_Model &dagTasks)
     {
         OptimizeResult sth;
-        for (size_t i = 100; i < 100 + RandomDrawWeightMaxLoop; i++)
+        for (int i = 100; i < 100 + RandomDrawWeightMaxLoop; i++)
         {
             sth = OptimizeScheduling(dagTasks, i);
 
