@@ -46,7 +46,7 @@ namespace DAG_SPACE
             return count;
         }
     };
-
+    // it seems like only 'orig' priority type is allowed
     DAG_Model ReadDAG_Tasks(string path, string priorityType = "orig")
     {
         TaskSet tasks = ReadTaskSet(path, priorityType);

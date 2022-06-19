@@ -1,6 +1,7 @@
 
 #pragma once
 #include "unordered_map"
+#include "set"
 
 #include "sources/TaskModel/RegularTasks.h"
 #include "sources/TaskModel/DAG_Model.h"
@@ -477,4 +478,82 @@ namespace DAG_SPACE
         return initialEstimate;
     }
 
+    // TaskSet FindSourceTasks(DAG_Model &dagTasks)
+    // {
+    //     std::set<int> originTasks;
+    //     for (uint i = 0; i < dagTasks.tasks.size(); i++)
+    //     {
+    //         originTasks.insert(i);
+    //     }
+
+    //     for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
+    //     {
+    //         const TaskSet &tasksPrev = itr->second;
+    //         size_t indexNext = itr->first;
+    //         originTasks.erase(indexNext);
+    //     }
+
+    //     TaskSet tasks;
+    //     for (auto itr = originTasks.begin(); itr != originTasks.end(); itr++)
+    //     {
+    //         tasks.push_back(dagTasks.tasks[*itr]);
+    //     }
+    //     return tasks;
+    // }
+
+    // void AddNodeTS(DAG_Model &dagTasks, int taskIndex, std::vector<int> &path)
+    // {
+    //     if (dagTasks.mapPrev[taskIndex].size() == 0)
+    //     {
+    //         path.push_back(taskIndex);
+    //     }
+    //     else
+    //     {
+    //         for (int i = 0; i < dagTasks.mapPrev[taskIndex].size(); i++)
+    //         {
+    //             AddNodeTS(dagTasks, dagTasks.mapPrev[taskIndex][i].id, path);
+    //         }
+    //     }
+    // }
+
+    // std::vector<int> TopologicalSortSingle(TaskSet &originTasks, DAG_Model &dagTasks, Graph &graphBoost)
+    // {
+    //     std::vector<int> path;
+    //     path.reserve(dagTasks.tasks.size());
+    //     std::vector<bool> visited(dagTasks.tasks.size(), false);
+    //     for (size_t i = 0; i < originTasks.size(); i++)
+    //     {
+    //         path.push_back(originTasks[i].id);
+    //         visited[originTasks[i].id] = true;
+    //     }
+    // }
+
+    // std::vector<std::vector<int>> TopologicalSortMulti(DAG_Model &dagTasks, int maxPath, std::string priorityType = "RM")
+    // {
+    //     std::vector<std::vector<int>> paths;
+    //     paths.reserve(maxPath);
+
+    //     for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
+    //     {
+    //         itr->second = Reorder(itr->second, priorityType);
+    //     }
+
+    //     TaskSet originTasks = FindSourceTasks(dagTasks);
+    //     Reorder(originTasks, priorityType);
+
+    //     Graph graphBoost = GenerateBoostGraph(dagTasks);
+    //     std::vector<int> topOrder;
+
+    //     // if (originTasks.size() == 0)
+    //     // {
+    //     //     CoutError("Empty task set in ToplogicalSortMulti");
+    //     // }
+
+    //     // for (auto itr = originTasks.begin(); itr != originTasks.end(); itr++)
+    //     // {
+    //     //     ;
+    //     // }
+
+    //     return paths;
+    // }
 }

@@ -6,6 +6,8 @@ using namespace DAG_SPACE;
 
 TEST(testDAG, v1)
 {
+    whetherRandomNoiseModelSigma = 0;
+    weightDAG_factor = 1;
     using namespace DAG_SPACE;
     auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;

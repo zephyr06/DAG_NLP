@@ -64,8 +64,8 @@ const int RandomDrawWeightMaxLoop = (int)ConfigParameters["RandomDrawWeightMaxLo
 
 InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initializeMethod"]);
 const double weightPrior_factor = (double)ConfigParameters["weightPrior_factor"];
-const double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"];
-const double weightDAG_factor = (double)ConfigParameters["weightDAG_factor"];
+double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"];
+double weightDAG_factor = (double)ConfigParameters["weightDAG_factor"];
 const double ResetRandomWeightThreshold = (double)ConfigParameters["ResetRandomWeightThreshold"];
 
 int PrintInitial = (int)ConfigParameters["PrintInitial"];

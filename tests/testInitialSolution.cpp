@@ -395,6 +395,20 @@ TEST(UpdateInitialVector, v1)
     expect << 3, 107, 5, 3, 104, 0, 102;
     AssertEigenEqualVector(expect, actual, __LINE__);
 }
+
+// TEST(toplogical, sort)
+// {
+//     using namespace DAG_SPACE;
+//     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+
+//     auto sth = ToplogicalSortMulti(dagTasks, 2, "RM");
+
+//     vector<int> order = FindDependencyOrder(dagTasks);
+//     for (size_t i = 0; i < order.size(); i++)
+//     {
+//         std::cout << order[i] << std::endl;
+//     }
+// }
 int main()
 {
     TestResult tr;

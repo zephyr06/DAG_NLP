@@ -190,6 +190,31 @@ vector<int> FindDependencyOrder(const DAG_SPACE::DAG_Model &dagTasks)
     }
     return executionOrder;
 }
+// typedef boost::property<first_name_t, Task> FirstNameProperty;
+// typedef boost::adjacency_list<vecS, vecS, bidirectionalS, FirstNameProperty> Graph;
+// typedef boost::graph_traits<Graph>::vertex_descriptor vertex_t;
+// // typedef boost::graph_traits<Graph>::edge_descriptor edge_t;
+// Graph GenerateBoostGraph(DAG_SPACE::DAG_Model dagTasks)
+// {
+//     int N = dagTasks.tasks.size();
+
+//     Graph g(N);
+
+//     for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
+//     {
+//         const TaskSet &tasksPrev = itr->second;
+//         size_t indexNext = itr->first;
+//         for (size_t i = 0; i < tasksPrev.size(); i++)
+//         {
+//             boost::add_edge(tasksPrev[i].id, dagTasks.tasks[indexNext].id, g);
+//         }
+//     }
+//     boost::property_map<Graph, first_name_t>::type
+//         name = get(first_name_t(), g);
+//     for (int i = 0; i < 5; i++)
+//         boost::put(name, i, dagTasks.tasks[i]);
+//     return g;
+// }
 
 /**
  * @brief return the index of sink node
@@ -228,7 +253,16 @@ int FindSinkNode(DAG_SPACE::DAG_Model dagTasks)
 
     typedef std::list<vertex_t> MakeOrder;
     MakeOrder make_order;
-    boost::topological_sort(g, std::front_inserter(make_order));
+    // boost::topological_sort(g, std::front_inserter(make_order));
+
+    typedef topo_sort_visitor<std::front_insert_iterator<MakeOrder>> TopoVisitor;
+    auto result = std::front_inserter(make_order);
+    auto indexmap = boost::get(boost::vertex_index, g);
+    auto colormap = boost::make_vector_property_map<boost::default_color_type>(indexmap);
+
+    Vertex start = 0;
+    // boost::depth_first_search(g, bgl_named_params<int, buffer_param_t>(0).visitor(TopoVisitor(result)), colormap, start);
+    boost::depth_first_search(g, bgl_named_params<int, buffer_param_t>(0).visitor(TopoVisitor(result)));
 
     // std::cout << "dependency ordering: ";
     MakeOrder::iterator i = make_order.end();
