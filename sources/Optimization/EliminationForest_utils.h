@@ -16,17 +16,17 @@
 #include "sources/TaskModel/DAG_Model.h"
 
 using namespace std;
-using namespace boost;
+// using namespace boost;
 using namespace RegularTaskSystem;
 
-typedef adjacency_list<vecS, vecS, bidirectionalS,
-                       property<vertex_name_t, LLint>,
-                       property<edge_name_t, LLint>>
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
+                              boost::property<boost::vertex_name_t, LLint>,
+                              boost::property<boost::edge_name_t, LLint>>
     Graph;
 // map to access properties of vertex from the graph
-typedef property_map<Graph, vertex_name_t>::type vertex_name_map_t;
-typedef graph_traits<Graph>::vertex_descriptor Vertex;
-typedef property_map<Graph, edge_name_t>::type edge_name_map_t;
+typedef boost::property_map<Graph, boost::vertex_name_t>::type vertex_name_map_t;
+typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
+typedef boost::property_map<Graph, boost::edge_name_t>::type edge_name_map_t;
 
 typedef std::unordered_map<LLint, Vertex> indexVertexMap;
 
@@ -41,7 +41,7 @@ pair<Graph, indexVertexMap> EstablishGraphStartTimeVector(RegularTaskSystem::Tas
 
     Graph g;
     // map to access properties of vertex from the graph
-    vertex_name_map_t vertex2indexBig = get(vertex_name, g);
+    vertex_name_map_t vertex2indexBig = get(boost::vertex_name, g);
 
     // map to access vertex from its global index
 
@@ -76,7 +76,7 @@ pair<Graph, indexVertexMap> EstablishGraphStartTimeVector(RegularTaskSystem::Tas
 
 void FindSubTree(Graph &g, vector<LLint> &subTreeIndex, std::unordered_set<int> &indexSet, Vertex v)
 {
-    vertex_name_map_t vertex2indexBig = get(vertex_name, g);
+    vertex_name_map_t vertex2indexBig = get(boost::vertex_name, g);
 
     if (indexSet.find(vertex2indexBig[v]) == indexSet.end())
     {
@@ -154,8 +154,8 @@ vector<int> FindDependencyOrder(const DAG_SPACE::DAG_Model &dagTasks)
     int N = dagTasks.tasks.size();
 
     typedef boost::property<first_name_t, Task> FirstNameProperty;
-    typedef boost::adjacency_list<vecS, vecS, bidirectionalS, FirstNameProperty> Graph;
-    typedef boost::graph_traits<Graph>::vertex_descriptor vertex_t;
+    typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, FirstNameProperty> Graph;
+    // typedef boost::graph_traits<Graph>::vertex_descriptor vertex_t;
     // typedef boost::graph_traits<Graph>::edge_descriptor edge_t;
 
     Graph g(N);
@@ -170,12 +170,12 @@ vector<int> FindDependencyOrder(const DAG_SPACE::DAG_Model &dagTasks)
         }
     }
     boost::property_map<Graph, first_name_t>::type
-        name = get(first_name_t(), g);
+        name = boost::get(first_name_t(), g);
     for (int i = 0; i < int(dagTasks.tasks.size()); i++)
         boost::put(name, i, dagTasks.tasks[i]);
     // who_owes_who(edges(g).first, edges(g).second, g);
 
-    typedef std::list<vertex_t> MakeOrder;
+    typedef std::list<Vertex> MakeOrder;
     MakeOrder make_order;
     boost::topological_sort(g, std::front_inserter(make_order));
 
@@ -230,9 +230,7 @@ int FindSinkNode(DAG_SPACE::DAG_Model dagTasks)
     int N = dagTasks.tasks.size();
 
     typedef boost::property<first_name_t, Task> FirstNameProperty;
-    typedef boost::adjacency_list<vecS, vecS, bidirectionalS, FirstNameProperty> Graph;
-    typedef boost::graph_traits<Graph>::vertex_descriptor vertex_t;
-    // typedef boost::graph_traits<Graph>::edge_descriptor edge_t;
+    typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, FirstNameProperty> Graph;
 
     Graph g(N);
 
@@ -251,18 +249,18 @@ int FindSinkNode(DAG_SPACE::DAG_Model dagTasks)
         boost::put(name, i, dagTasks.tasks[i]);
     // who_owes_who(edges(g).first, edges(g).second, g);
 
-    typedef std::list<vertex_t> MakeOrder;
+    typedef std::list<Vertex> MakeOrder;
     MakeOrder make_order;
-    // boost::topological_sort(g, std::front_inserter(make_order));
+    boost::topological_sort(g, std::front_inserter(make_order));
 
-    typedef topo_sort_visitor<std::front_insert_iterator<MakeOrder>> TopoVisitor;
-    auto result = std::front_inserter(make_order);
-    auto indexmap = boost::get(boost::vertex_index, g);
-    auto colormap = boost::make_vector_property_map<boost::default_color_type>(indexmap);
+    // typedef boost::topo_sort_visitor<std::front_insert_iterator<MakeOrder>> TopoVisitor;
+    // auto result = std::front_inserter(make_order);
+    // auto indexmap = boost::get(boost::vertex_index, g);
+    // auto colormap = boost::make_vector_property_map<boost::default_color_type>(indexmap);
 
-    Vertex start = 0;
+    // Vertex start = 0;
     // boost::depth_first_search(g, bgl_named_params<int, buffer_param_t>(0).visitor(TopoVisitor(result)), colormap, start);
-    boost::depth_first_search(g, bgl_named_params<int, buffer_param_t>(0).visitor(TopoVisitor(result)));
+    // boost::depth_first_search(g, boost::bgl_named_params<int, boost::buffer_param_t>(0).visitor(TopoVisitor(result)));
 
     // std::cout << "dependency ordering: ";
     MakeOrder::iterator i = make_order.end();
@@ -327,7 +325,7 @@ struct EliminationForest
         lengthCompressed--;
 
         // add edge to eliminationTrees
-        graph_traits<Graph>::edge_descriptor e;
+        boost::graph_traits<Graph>::edge_descriptor e;
         bool inserted;
         boost::tie(e, inserted) = add_edge(indexesBGL[dependent],
                                            indexesBGL[x],

@@ -1,7 +1,7 @@
 #include "sources/Optimization/Optimize.h"
 #include "sources/Tools/testMy.h"
 #include "sources/Optimization/EliminationForest_utils.h"
-
+using namespace boost;
 TEST(FindDependencyOrder, v1)
 {
     using namespace DAG_SPACE;
