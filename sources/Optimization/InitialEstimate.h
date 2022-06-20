@@ -478,82 +478,102 @@ namespace DAG_SPACE
         return initialEstimate;
     }
 
-    // TaskSet FindSourceTasks(DAG_Model &dagTasks)
-    // {
-    //     std::set<int> originTasks;
-    //     for (uint i = 0; i < dagTasks.tasks.size(); i++)
-    //     {
-    //         originTasks.insert(i);
-    //     }
+    TaskSet FindSourceTasks(DAG_Model &dagTasks)
+    {
+        std::set<int> originTasks;
+        for (uint i = 0; i < dagTasks.tasks.size(); i++)
+        {
+            originTasks.insert(i);
+        }
 
-    //     for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
-    //     {
-    //         const TaskSet &tasksPrev = itr->second;
-    //         size_t indexNext = itr->first;
-    //         originTasks.erase(indexNext);
-    //     }
+        for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
+        {
+            const TaskSet &tasksPrev = itr->second;
+            size_t indexNext = itr->first;
+            originTasks.erase(indexNext);
+        }
 
-    //     TaskSet tasks;
-    //     for (auto itr = originTasks.begin(); itr != originTasks.end(); itr++)
-    //     {
-    //         tasks.push_back(dagTasks.tasks[*itr]);
-    //     }
-    //     return tasks;
-    // }
+        TaskSet tasks;
+        for (auto itr = originTasks.begin(); itr != originTasks.end(); itr++)
+        {
+            tasks.push_back(dagTasks.tasks[*itr]);
+        }
+        return tasks;
+    }
 
-    // void AddNodeTS(DAG_Model &dagTasks, int taskIndex, std::vector<int> &path)
-    // {
-    //     if (dagTasks.mapPrev[taskIndex].size() == 0)
-    //     {
-    //         path.push_back(taskIndex);
-    //     }
-    //     else
-    //     {
-    //         for (int i = 0; i < dagTasks.mapPrev[taskIndex].size(); i++)
-    //         {
-    //             AddNodeTS(dagTasks, dagTasks.mapPrev[taskIndex][i].id, path);
-    //         }
-    //     }
-    // }
+    void AddNodeTS(int taskId, DAG_Model &dagTasks, std::vector<int> &path, std::vector<bool> &visited, Graph &graphBoost, indexVertexMap &indexesBGL)
+    {
+        if (visited[taskId])
+        {
+            return;
+        }
 
-    // std::vector<int> TopologicalSortSingle(TaskSet &originTasks, DAG_Model &dagTasks, Graph &graphBoost)
-    // {
-    //     std::vector<int> path;
-    //     path.reserve(dagTasks.tasks.size());
-    //     std::vector<bool> visited(dagTasks.tasks.size(), false);
-    //     for (size_t i = 0; i < originTasks.size(); i++)
-    //     {
-    //         path.push_back(originTasks[i].id);
-    //         visited[originTasks[i].id] = true;
-    //     }
-    // }
+        if (dagTasks.mapPrev[taskId].size() == 0)
+        {
+            path.push_back(taskId);
+            visited[taskId] = true;
+        }
+        else
+        {
+            // add its previous tasks
+            for (uint i = 0; i < dagTasks.mapPrev[taskId].size(); i++)
+            {
+                AddNodeTS(dagTasks.mapPrev[taskId][i].id, dagTasks, path, visited, graphBoost, indexesBGL);
+            }
+            if (!visited[taskId])
+            {
+                path.push_back(taskId);
+                visited[taskId] = true;
+            }
+        }
 
-    // std::vector<std::vector<int>> TopologicalSortMulti(DAG_Model &dagTasks, int maxPath, std::string priorityType = "RM")
-    // {
-    //     std::vector<std::vector<int>> paths;
-    //     paths.reserve(maxPath);
+        // add its following tasks
+        Vertex v = indexesBGL[taskId];
+        boost::graph_traits<Graph>::out_edge_iterator eo,
+            edge_end_o;
+        vertex_name_map_t vertex2indexBig = get(boost::vertex_name, graphBoost);
+        for (boost::tie(eo, edge_end_o) = boost::out_edges(v, graphBoost); eo != edge_end_o; ++eo)
+        {
+            Vertex vvv = target(*eo, graphBoost);
+            AddNodeTS(vertex2indexBig[vvv], dagTasks, path, visited, graphBoost, indexesBGL);
+        }
+    }
 
-    //     for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
-    //     {
-    //         itr->second = Reorder(itr->second, priorityType);
-    //     }
+    std::vector<int> TopologicalSortSingle(TaskSet &originTasks, DAG_Model &dagTasks, Graph &graphBoost, indexVertexMap &indexesBGL)
+    {
+        std::vector<int> path;
+        path.reserve(dagTasks.tasks.size());
+        std::vector<bool> visited(dagTasks.tasks.size(), false);
+        for (size_t i = 0; i < originTasks.size(); i++)
+        {
+            int sourceId = originTasks[i].id;
+            AddNodeTS(sourceId, dagTasks, path, visited, graphBoost, indexesBGL);
+        }
+        if (path.size() != dagTasks.tasks.size())
+        {
+            CoutError("TopologicalSortSingle failed!");
+        }
+        return path;
+    }
 
-    //     TaskSet originTasks = FindSourceTasks(dagTasks);
-    //     Reorder(originTasks, priorityType);
+    std::vector<std::vector<int>> TopologicalSortMulti(DAG_Model &dagTasks, int maxPath, std::string priorityType = "RM")
+    {
+        std::vector<std::vector<int>> paths;
+        paths.reserve(maxPath);
 
-    //     Graph graphBoost = GenerateBoostGraph(dagTasks);
-    //     std::vector<int> topOrder;
+        for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
+        {
+            itr->second = Reorder(itr->second, priorityType);
+        }
 
-    //     // if (originTasks.size() == 0)
-    //     // {
-    //     //     CoutError("Empty task set in ToplogicalSortMulti");
-    //     // }
+        TaskSet originTasks = FindSourceTasks(dagTasks);
+        Reorder(originTasks, priorityType);
 
-    //     // for (auto itr = originTasks.begin(); itr != originTasks.end(); itr++)
-    //     // {
-    //     //     ;
-    //     // }
-
-    //     return paths;
-    // }
+        Graph graphBoost;
+        indexVertexMap indexesBGL;
+        std::tie(graphBoost, indexesBGL) = GenerateGraphForTaskSet(dagTasks);
+        std::vector<int> topoOrder = TopologicalSortSingle(originTasks, dagTasks, graphBoost, indexesBGL);
+        paths.push_back(topoOrder);
+        return paths;
+    }
 }

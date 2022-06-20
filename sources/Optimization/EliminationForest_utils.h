@@ -74,6 +74,48 @@ pair<Graph, indexVertexMap> EstablishGraphStartTimeVector(RegularTaskSystem::Tas
     return std::make_pair(g, indexesBGL);
 }
 
+// it generates a graph where a vertex is a single task rather than a job
+pair<Graph, indexVertexMap> GenerateGraphForTaskSet(DAG_SPACE::DAG_Model dagTasks)
+{
+
+    Graph g;
+    // map to access properties of vertex from the graph
+    vertex_name_map_t vertex2indexBig = get(boost::vertex_name, g);
+
+    // map to access vertex from its global index
+    indexVertexMap indexesBGL;
+    for (uint i = 0; i < dagTasks.tasks.size(); i++)
+    {
+        indexVertexMap::iterator pos;
+        bool inserted;
+        Vertex u;
+        boost::tie(pos, inserted) = indexesBGL.insert(std::make_pair(i, Vertex()));
+        if (inserted)
+        {
+            u = add_vertex(g);
+            vertex2indexBig[u] = i;
+            pos->second = u;
+        }
+        else
+        {
+            CoutError("Error building indexVertexMap!");
+        }
+    }
+
+    // add edges
+
+    for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
+    {
+        const TaskSet &tasksPrev = itr->second;
+        size_t indexNext = itr->first;
+        for (size_t i = 0; i < tasksPrev.size(); i++)
+        {
+            boost::add_edge(tasksPrev[i].id, dagTasks.tasks[indexNext].id, g);
+        }
+    }
+    return std::make_pair(g, indexesBGL);
+}
+
 void FindSubTree(Graph &g, vector<LLint> &subTreeIndex, std::unordered_set<int> &indexSet, Vertex v)
 {
     vertex_name_map_t vertex2indexBig = get(boost::vertex_name, g);
@@ -85,7 +127,7 @@ void FindSubTree(Graph &g, vector<LLint> &subTreeIndex, std::unordered_set<int> 
     }
 
     boost::graph_traits<Graph>::out_edge_iterator eo, edge_end_o;
-    for (boost::tie(eo, edge_end_o) = out_edges(v, g); eo != edge_end_o; ++eo)
+    for (boost::tie(eo, edge_end_o) = boost::out_edges(v, g); eo != edge_end_o; ++eo)
     {
         Vertex vvv = target(*eo, g);
         if (indexSet.find(vertex2indexBig[vvv]) == indexSet.end())
@@ -155,8 +197,6 @@ vector<int> FindDependencyOrder(const DAG_SPACE::DAG_Model &dagTasks)
 
     typedef boost::property<first_name_t, Task> FirstNameProperty;
     typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS, FirstNameProperty> Graph;
-    // typedef boost::graph_traits<Graph>::vertex_descriptor vertex_t;
-    // typedef boost::graph_traits<Graph>::edge_descriptor edge_t;
 
     Graph g(N);
 
@@ -190,31 +230,6 @@ vector<int> FindDependencyOrder(const DAG_SPACE::DAG_Model &dagTasks)
     }
     return executionOrder;
 }
-// typedef boost::property<first_name_t, Task> FirstNameProperty;
-// typedef boost::adjacency_list<vecS, vecS, bidirectionalS, FirstNameProperty> Graph;
-// typedef boost::graph_traits<Graph>::vertex_descriptor vertex_t;
-// // typedef boost::graph_traits<Graph>::edge_descriptor edge_t;
-// Graph GenerateBoostGraph(DAG_SPACE::DAG_Model dagTasks)
-// {
-//     int N = dagTasks.tasks.size();
-
-//     Graph g(N);
-
-//     for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
-//     {
-//         const TaskSet &tasksPrev = itr->second;
-//         size_t indexNext = itr->first;
-//         for (size_t i = 0; i < tasksPrev.size(); i++)
-//         {
-//             boost::add_edge(tasksPrev[i].id, dagTasks.tasks[indexNext].id, g);
-//         }
-//     }
-//     boost::property_map<Graph, first_name_t>::type
-//         name = get(first_name_t(), g);
-//     for (int i = 0; i < 5; i++)
-//         boost::put(name, i, dagTasks.tasks[i]);
-//     return g;
-// }
 
 /**
  * @brief return the index of sink node
