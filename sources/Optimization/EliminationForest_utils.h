@@ -188,7 +188,7 @@ std::unordered_map<LLint, LLint> MapIndex_True2Compress(const vector<bool> &mask
  * @param dagTasks
  * @return vector<int> execution order of task index, first task first
  */
-vector<int> FindDependencyOrder(const DAG_SPACE::DAG_Model &dagTasks)
+vector<int> FindDependencyOrderDFS(const DAG_SPACE::DAG_Model &dagTasks)
 {
 
     using namespace RegularTaskSystem;

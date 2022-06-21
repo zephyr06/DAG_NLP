@@ -203,6 +203,11 @@ namespace RegularTaskSystem
     {
         return task1.period < task2.period;
     };
+    static bool compareDeadline(Task task1, Task task2)
+    {
+        return task1.deadline < task2.deadline;
+    };
+    
     bool compareUtilization(Task task1, Task task2)
     {
         return task1.utilization() < task2.utilization();
@@ -266,6 +271,10 @@ namespace RegularTaskSystem
         else if (priorityType == "utilization")
         {
             sort(tasks.begin(), tasks.end(), compareUtilization);
+        }
+        else if (priorityType == "DM")
+        {
+            sort(tasks.begin(), tasks.end(), compareDeadline);
         }
         else if (priorityType == "orig")
         {

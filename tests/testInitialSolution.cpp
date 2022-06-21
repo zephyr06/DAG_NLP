@@ -396,12 +396,13 @@ TEST(UpdateInitialVector, v1)
     AssertEigenEqualVector(expect, actual, __LINE__);
 }
 
-TEST(toplogical, sort)
+TEST(toplogical, sortv1)
 {
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v40.csv", "orig");
 
     TaskSet originTasks = FindSourceTasks(dagTasks);
+    originTasks = Reorder(originTasks, "RM");
     std::cout << "Source tasks: ";
     for (size_t i = 0; i < originTasks.size(); i++)
     {
@@ -418,6 +419,48 @@ TEST(toplogical, sort)
         std::cout << topoOrder[i] << std::endl;
     }
     EXPECT_LONGS_EQUAL(5, topoOrder.size());
+    EXPECT_LONGS_EQUAL(0, topoOrder[0]);
+    EXPECT_LONGS_EQUAL(3, topoOrder[1]);
+    EXPECT_LONGS_EQUAL(4, topoOrder[2]);
+}
+TEST(toplogical, sortv2)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v40.csv", "orig");
+
+    TaskSet originTasks = FindSourceTasks(dagTasks);
+    originTasks = Reorder(originTasks, "DM");
+    std::cout << "Source tasks: ";
+    for (size_t i = 0; i < originTasks.size(); i++)
+    {
+        std::cout << originTasks[i].id << ", ";
+    }
+    std::cout << std::endl;
+
+    Graph graphBoost;
+    indexVertexMap indexesBGL;
+    std::tie(graphBoost, indexesBGL) = GenerateGraphForTaskSet(dagTasks);
+    std::vector<int> topoOrder = TopologicalSortSingle(originTasks, dagTasks, graphBoost, indexesBGL);
+    for (size_t i = 0; i < topoOrder.size(); i++)
+    {
+        std::cout << topoOrder[i] << std::endl;
+    }
+    EXPECT_LONGS_EQUAL(5, topoOrder.size());
+    EXPECT_LONGS_EQUAL(0, topoOrder[0]);
+    EXPECT_LONGS_EQUAL(4, topoOrder[1]);
+    EXPECT_LONGS_EQUAL(2, topoOrder[2]);
+}
+TEST(toplogical, sortv3)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v40.csv", "orig");
+
+    auto res = TopologicalSortMulti(dagTasks);
+    std::vector<int> topoOrder = res[2];
+    EXPECT_LONGS_EQUAL(5, topoOrder.size());
+    EXPECT_LONGS_EQUAL(0, topoOrder[0]);
+    EXPECT_LONGS_EQUAL(4, topoOrder[1]);
+    EXPECT_LONGS_EQUAL(2, topoOrder[2]);
 }
 int main()
 {

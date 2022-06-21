@@ -2,11 +2,11 @@
 #include "sources/Tools/testMy.h"
 #include "sources/Optimization/EliminationForest_utils.h"
 using namespace boost;
-TEST(FindDependencyOrder, v1)
+TEST(FindDependencyOrderDFS, v1)
 {
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v16.csv", "orig");
-    auto actual = FindDependencyOrder(dagTasks);
+    auto actual = FindDependencyOrderDFS(dagTasks);
     vector<int> expected = {4, 3, 2, 1, 0};
     AssertEqualVectorNoRepeat(expected, actual);
 }

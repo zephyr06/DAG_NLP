@@ -1,12 +1,11 @@
 
 #pragma once
 #include "unordered_map"
-#include "set"
 
-#include "sources/TaskModel/RegularTasks.h"
 #include "sources/TaskModel/DAG_Model.h"
-#include "sources/Optimization/EliminationForest_utils.h"
+#include "sources/Optimization/TopologicalSort.h"
 #include "sources/Tools/colormod.h"
+
 typedef std::map<int, int> ProcessorId2Index;
 using namespace RegularTaskSystem;
 namespace DAG_SPACE
@@ -52,7 +51,7 @@ namespace DAG_SPACE
     {
         int N = dagTasks.tasks.size();
         TaskSet &tasks = dagTasks.tasks;
-        vector<int> order = FindDependencyOrder(dagTasks);
+        vector<int> order = FindDependencyOrderDFS(dagTasks);
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
 
         // m maps from tasks index to startTimeVector index
@@ -83,7 +82,7 @@ namespace DAG_SPACE
     {
         int N = dagTasks.tasks.size();
         TaskSet &tasks = dagTasks.tasks;
-        vector<int> order = FindDependencyOrder(dagTasks);
+        vector<int> order = FindDependencyOrderDFS(dagTasks);
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
 
         // LLint index = 0;
@@ -324,13 +323,14 @@ namespace DAG_SPACE
      * @param variableDimension
      * @return VectorDynamic
      */
-    VectorDynamic GenerateInitialForDAG_RM_DAG(const DAG_Model &dagTasks,
+    VectorDynamic GenerateInitialForDAG_RM_DAG(DAG_Model &dagTasks,
                                                vector<LLint> &sizeOfVariables,
-                                               int variableDimension)
+                                               int variableDimension, int topoSortMethod = 4)
     {
         int N = dagTasks.tasks.size();
         TaskSet tasks = dagTasks.GetTasks();
-        vector<int> order = FindDependencyOrder(dagTasks);
+        // vector<int> order = FindDependencyOrderDFS(dagTasks);
+        std::vector<int> order = TopologicalSortMulti(dagTasks)[topoSortMethod];
         LLint hyperPeriod = HyperPeriod(tasks);
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
 
@@ -478,102 +478,4 @@ namespace DAG_SPACE
         return initialEstimate;
     }
 
-    TaskSet FindSourceTasks(DAG_Model &dagTasks)
-    {
-        std::set<int> originTasks;
-        for (uint i = 0; i < dagTasks.tasks.size(); i++)
-        {
-            originTasks.insert(i);
-        }
-
-        for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
-        {
-            const TaskSet &tasksPrev = itr->second;
-            size_t indexNext = itr->first;
-            originTasks.erase(indexNext);
-        }
-
-        TaskSet tasks;
-        for (auto itr = originTasks.begin(); itr != originTasks.end(); itr++)
-        {
-            tasks.push_back(dagTasks.tasks[*itr]);
-        }
-        return tasks;
-    }
-
-    void AddNodeTS(int taskId, DAG_Model &dagTasks, std::vector<int> &path, std::vector<bool> &visited, Graph &graphBoost, indexVertexMap &indexesBGL)
-    {
-        if (visited[taskId])
-        {
-            return;
-        }
-
-        if (dagTasks.mapPrev[taskId].size() == 0)
-        {
-            path.push_back(taskId);
-            visited[taskId] = true;
-        }
-        else
-        {
-            // add its previous tasks
-            for (uint i = 0; i < dagTasks.mapPrev[taskId].size(); i++)
-            {
-                AddNodeTS(dagTasks.mapPrev[taskId][i].id, dagTasks, path, visited, graphBoost, indexesBGL);
-            }
-            if (!visited[taskId])
-            {
-                path.push_back(taskId);
-                visited[taskId] = true;
-            }
-        }
-
-        // add its following tasks
-        Vertex v = indexesBGL[taskId];
-        boost::graph_traits<Graph>::out_edge_iterator eo,
-            edge_end_o;
-        vertex_name_map_t vertex2indexBig = get(boost::vertex_name, graphBoost);
-        for (boost::tie(eo, edge_end_o) = boost::out_edges(v, graphBoost); eo != edge_end_o; ++eo)
-        {
-            Vertex vvv = target(*eo, graphBoost);
-            AddNodeTS(vertex2indexBig[vvv], dagTasks, path, visited, graphBoost, indexesBGL);
-        }
-    }
-
-    std::vector<int> TopologicalSortSingle(TaskSet &originTasks, DAG_Model &dagTasks, Graph &graphBoost, indexVertexMap &indexesBGL)
-    {
-        std::vector<int> path;
-        path.reserve(dagTasks.tasks.size());
-        std::vector<bool> visited(dagTasks.tasks.size(), false);
-        for (size_t i = 0; i < originTasks.size(); i++)
-        {
-            int sourceId = originTasks[i].id;
-            AddNodeTS(sourceId, dagTasks, path, visited, graphBoost, indexesBGL);
-        }
-        if (path.size() != dagTasks.tasks.size())
-        {
-            CoutError("TopologicalSortSingle failed!");
-        }
-        return path;
-    }
-
-    std::vector<std::vector<int>> TopologicalSortMulti(DAG_Model &dagTasks, int maxPath, std::string priorityType = "RM")
-    {
-        std::vector<std::vector<int>> paths;
-        paths.reserve(maxPath);
-
-        for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
-        {
-            itr->second = Reorder(itr->second, priorityType);
-        }
-
-        TaskSet originTasks = FindSourceTasks(dagTasks);
-        Reorder(originTasks, priorityType);
-
-        Graph graphBoost;
-        indexVertexMap indexesBGL;
-        std::tie(graphBoost, indexesBGL) = GenerateGraphForTaskSet(dagTasks);
-        std::vector<int> topoOrder = TopologicalSortSingle(originTasks, dagTasks, graphBoost, indexesBGL);
-        paths.push_back(topoOrder);
-        return paths;
-    }
 }
