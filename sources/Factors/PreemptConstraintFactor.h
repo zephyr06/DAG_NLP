@@ -26,7 +26,7 @@ public:
 void AddPreempt_Factor(NonlinearFactorGraph &graph, TaskSetInfoDerived &tasksInfo, bool ifPreemptive = false)
 {
 
-    auto model1 = noiseModel::Isotropic::Sigma(1, noiseModelSigma / weightDDL_factor);
+    auto model1 = noiseModel::Isotropic::Sigma(1, noiseModelSigma);
     TaskSet &tasks = tasksInfo.tasks;
 
     for (int i = 0; i < tasksInfo.N; i++)
