@@ -4,7 +4,7 @@
  *  Created on: Apr 9, 2019
  *      Author: mirco
  */
-#include "MultiRate/MultiNode.h"
+#include "sources/Baseline/Verucchi20/MultiRate/MultiNode.h"
 #include <iostream>
 
 std::vector<std::shared_ptr<Node>>
@@ -28,8 +28,7 @@ MultiNode::createNodes(unsigned hyperPeriod)
 	return nodes;
 }
 
-float
-MultiNode::getUtilization() const
+float MultiNode::getUtilization() const
 {
 	return wcet / period;
 }

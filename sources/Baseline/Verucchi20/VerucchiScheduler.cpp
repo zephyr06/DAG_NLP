@@ -1,9 +1,9 @@
-#include <DAG/MaxProduct.h>
-#include <Evaluation/Evaluation.h>
-#include <VariableTaskSet/VariableTaskSet.h>
+#include <sources/Baseline/Verucchi20/DAG/MaxProduct.h>
+#include <sources/Baseline/Verucchi20/Evaluation/Evaluation.h>
+#include <sources/Baseline/Verucchi20/VariableTaskSet/VariableTaskSet.h>
 #include <eigen3/Eigen/Core>
 #include <iostream>
-#include "MultiRate/MultiRateTaskset.h"
+#include "sources/Baseline/Verucchi20/MultiRate/MultiRateTaskset.h"
 
 #include <set>
 
@@ -12,7 +12,7 @@
 #include "Evaluation/Scheduling.h"
 #include <algorithm>
 
-int multiTaskset_fusion()
+int multiTaskset_fusion2()
 {
 	time_t tstart, tend;
 	tstart = time(0);

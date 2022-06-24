@@ -4,12 +4,12 @@
  *  Created on: Apr 9, 2019
  *      Author: mirco
  */
-#include <MultiRate/MultiEdge.h>
-#include <DAG/Edge.h>
+#include <sources/Baseline/Verucchi20/MultiRate/MultiEdge.h>
+#include <sources/Baseline/Verucchi20/DAG/Edge.h>
 
 #include <iostream>
 
-std::vector<std::vector<Edge> >
+std::vector<std::vector<Edge>>
 MultiEdge::translateToEdges()
 {
 	auto fromNodes = from->nodes;
@@ -48,13 +48,13 @@ MultiEdge::translateToEdges()
 		return edgeSets;
 	}
 
-	//Data dependency
+	// Data dependency
 	unsigned numPermutations = maxPeriod / minPeriod - jitter + 1;
 
 	if (numFrom < numTo)
 	{
-		//Flip direction for convenience
-		//Convert into high-rate to low-rate
+		// Flip direction for convenience
+		// Convert into high-rate to low-rate
 		fromNodes = to->nodes;
 		toNodes = from->nodes;
 		numFrom = fromNodes.size();
@@ -81,11 +81,9 @@ MultiEdge::translateToEdges()
 			{
 				edgeSet.push_back(Edge(toNodes[k], fromNodes[to]));
 			}
-
 		}
 		edgeSets.push_back(edgeSet);
 	}
 
 	return edgeSets;
-
 }

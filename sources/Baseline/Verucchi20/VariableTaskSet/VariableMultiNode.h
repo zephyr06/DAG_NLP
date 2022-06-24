@@ -7,14 +7,13 @@
 
 #ifndef VARIABLETASKSET_VARIABLEMULTINODE_H_
 #define VARIABLETASKSET_VARIABLEMULTINODE_H_
-#include <MultiRate/MultiNode.h>
+#include <sources/Baseline/Verucchi20/MultiRate/MultiNode.h>
 #include <memory>
 #include <string>
 
-
 struct VariableMultiNode
 {
-//	unsigned offset;
+	//	unsigned offset;
 	float deadline;
 	std::vector<unsigned> periods;
 	float wcet;
@@ -26,10 +25,8 @@ struct VariableMultiNode
 
 	std::vector<std::shared_ptr<MultiNode>> multiNodes;
 
-	std::vector<std::shared_ptr<MultiNode>>&
+	std::vector<std::shared_ptr<MultiNode>> &
 	createMultiNodes();
-
 };
-
 
 #endif /* VARIABLETASKSET_VARIABLEMULTINODE_H_ */

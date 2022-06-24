@@ -6,8 +6,8 @@
 
 #include <eigen3/Eigen/Core>
 
-#include <DAG/MaxProduct.h>
-#include <Evaluation/Evaluation.h>
+#include <sources/Baseline/Verucchi20/DAG/MaxProduct.h>
+#include <sources/Baseline/Verucchi20/Evaluation/Evaluation.h>
 #include <sources/Baseline/Verucchi20/MultiRate/MultiRateTaskset.h>
 #include <sources/Baseline/Verucchi20/VariableTaskSet/VariableTaskSet.h>
 #include "sources/Baseline/Verucchi20/MultiRate/DummyNodes.h"

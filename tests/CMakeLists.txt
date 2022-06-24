@@ -13,10 +13,10 @@ gtsamAddTestsGlob(EnergyOptNLP "test*.cpp" "*OptimizeSA*" "${CONVENIENCE_LIB_NAM
 # TARGET_LINK_LIBRARIES(sa1 ${CONVENIENCE_LIB_NAME})
 
 
-# ADD_EXECUTABLE(GenerateTaskSet GenerateTaskSet.cpp)
-# TARGET_LINK_LIBRARIES(GenerateTaskSet ${CONVENIENCE_LIB_NAME})
-# ADD_EXECUTABLE(tBatch1 tBatch.cpp)
-# TARGET_LINK_LIBRARIES(tBatch1 ${CONVENIENCE_LIB_NAME})
+ADD_EXECUTABLE(GenerateTaskSet GenerateTaskSet.cpp)
+TARGET_LINK_LIBRARIES(GenerateTaskSet ${CONVENIENCE_LIB_NAME})
+ADD_EXECUTABLE(tBatch1 tBatch.cpp)
+TARGET_LINK_LIBRARIES(tBatch1 ${CONVENIENCE_LIB_NAME})
 
 
 
@@ -46,11 +46,14 @@ set(EVAL_SRCS	${RootVerucchi}/Evaluation/Evaluation.cpp
 ${RootVerucchi}/Evaluation/Scheduling.cpp
 				)
 include_directories(${CMAKE_SOURCE_DIR}/sources/Baseline/Verucchi20)
-ADD_EXECUTABLE(tVerucchi tVerucchi.cpp ${VARIABLE_SRCS}
-${MULTIRATE_SRCS}
-${DAG_SRCS}
-${EVAL_SRCS})
+# ADD_EXECUTABLE(tVerucchi tVerucchi.cpp ${VARIABLE_SRCS}
+# ${MULTIRATE_SRCS}
+# ${DAG_SRCS}
+# ${EVAL_SRCS})
+ADD_EXECUTABLE(tVerucchi tVerucchi.cpp)
 TARGET_LINK_LIBRARIES(tVerucchi ${CONVENIENCE_LIB_NAME} )
+
+message(STATUS "0000000sources include: ${sources}")
 # **************************************************************
 
 

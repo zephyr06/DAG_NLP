@@ -4,9 +4,9 @@
  *  Created on: Apr 1, 2019
  *      Author: mirco
  */
-#include <DAG/IntervalPropagation.h>
-#include "DAG/MaxProduct.h"
-#include "MultiRate/MultiRateTaskset.h"
+#include <sources/Baseline/Verucchi20/DAG/IntervalPropagation.h>
+#include "sources/Baseline/Verucchi20/DAG/MaxProduct.h"
+#include "sources/Baseline/Verucchi20/MultiRate/MultiRateTaskset.h"
 #include "sources/Baseline/Verucchi20/DAG/DAG.h"
 #include <cmath>
 #include <eigen3/Eigen/Core>

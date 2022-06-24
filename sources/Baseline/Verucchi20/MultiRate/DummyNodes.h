@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "sources/Baseline/Verucchi20/DAG/DAG.h"
-#include "DAG/Node.h"
+#include "sources/Baseline/Verucchi20/DAG/Node.h"
 
 struct DummyNodes
 {

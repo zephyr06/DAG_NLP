@@ -9,13 +9,12 @@
 #define MULTIRATE_MULTINODE_H_
 #include <memory>
 
-#include "DAG/Node.h"
+#include "sources/Baseline/Verucchi20/DAG/Node.h"
 #include "HeterogeneousInfo.h"
-
 
 struct MultiNode
 {
-//	unsigned offset;
+	//	unsigned offset;
 	float deadline;
 	unsigned period;
 	float wcet;
@@ -25,7 +24,7 @@ struct MultiNode
 
 	std::string name;
 
-	HeterogeneousInfo* info = nullptr;
+	HeterogeneousInfo *info = nullptr;
 
 	std::vector<std::shared_ptr<Node>>
 	createNodes(unsigned hyperPeriod);
@@ -34,8 +33,6 @@ struct MultiNode
 
 	float
 	getUtilization() const;
-
 };
-
 
 #endif /* MULTIRATE_MULTINODE_H_ */

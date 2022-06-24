@@ -4,28 +4,26 @@
  *  Created on: May 6, 2019
  *      Author: mirco
  */
-#include <Evaluation/Evaluation.h>
-#include <Evaluation/LatencyInfo.h>
-#include <Evaluation/Scheduling.h>
-#include <MultiRate/MultiRateTaskset.h>
+#include <sources/Baseline/Verucchi20/Evaluation/Evaluation.h>
+#include <sources/Baseline/Verucchi20/Evaluation/LatencyInfo.h>
+#include <sources/Baseline/Verucchi20/Evaluation/Scheduling.h>
+#include <sources/Baseline/Verucchi20/MultiRate/MultiRateTaskset.h>
 #include <cmath>
 #include <iostream>
 
-
-void
-Evaluation::addLatency(const Chain& chain, const LatencyCost& cost,
-		const LatencyConstraint& constraint)
+void Evaluation::addLatency(const Chain &chain, const LatencyCost &cost,
+							const LatencyConstraint &constraint)
 {
 	latencyEval_.push_back(std::make_pair(chain, std::make_pair(cost, constraint)));
 }
 
-const DAG&
-Evaluation::evaluate(const std::vector<DAG>& dags)
+const DAG &
+Evaluation::evaluate(const std::vector<DAG> &dags)
 {
 	std::vector<float> cost(dags.size(), 0.0);
 
 	unsigned invalidDags = 0;
-	for (const auto& eval : latencyEval_)
+	for (const auto &eval : latencyEval_)
 	{
 		std::vector<unsigned> chain = taskChainToNum(eval.first);
 
@@ -44,7 +42,6 @@ Evaluation::evaluate(const std::vector<DAG>& dags)
 			}
 
 			cost[k] += eval.second.first.getCost(info);
-
 		}
 	}
 
@@ -63,7 +60,6 @@ Evaluation::evaluate(const std::vector<DAG>& dags)
 		}
 
 		cost[k] += schedulingEval_.first.getCost(info);
-
 	}
 	std::cout << "Num invalid dags: " << invalidDags << std::endl;
 
@@ -84,48 +80,46 @@ Evaluation::evaluate(const std::vector<DAG>& dags)
 		}
 	}
 
-	std::cout << "Best DAG: " << bestDAG << ", with total cost: " << minCost << std::endl << std::endl;
-	for (const auto& eval : latencyEval_)
+	std::cout << "Best DAG: " << bestDAG << ", with total cost: " << minCost << std::endl
+			  << std::endl;
+	for (const auto &eval : latencyEval_)
 	{
 		printChain(eval.first);
 		std::cout << dags[bestDAG].getLatencyInfo(taskChainToNum(eval.first)) << std::endl;
 	}
 
-
 	return dags[bestDAG];
 }
 
-void
-Evaluation::addScheduling(const SchedulingCost& cost, const SchedulingConstraint& constraint)
+void Evaluation::addScheduling(const SchedulingCost &cost, const SchedulingConstraint &constraint)
 {
 	schedulingEval_ = std::make_pair(cost, constraint);
 }
 
 std::vector<unsigned>
-Evaluation::taskChainToNum(const Chain& chain)
+Evaluation::taskChainToNum(const Chain &chain)
 {
 	std::vector<unsigned> c;
-	for (const auto& node : chain)
+	for (const auto &node : chain)
 	{
 		c.push_back(node->id - 1);
 	}
 	return c;
 }
 
-void
-Evaluation::printChain(const Chain& chain)
+void Evaluation::printChain(const Chain &chain)
 {
 	std::cout << "Chain: ";
 
-	for (const auto& n : chain)
+	for (const auto &n : chain)
 	{
-		std::cout <<"->" << n->name;
+		std::cout << "->" << n->name;
 	}
 	std::cout << std::endl;
 }
 
 SchedulingInfo
-Evaluation::getSchedulingInfo(const DAG& dag, const SchedulingConstraint& constraint)
+Evaluation::getSchedulingInfo(const DAG &dag, const SchedulingConstraint &constraint)
 {
 	float u = dag.getOriginatingTaskset()->getUtilization();
 
@@ -137,39 +131,3 @@ Evaluation::getSchedulingInfo(const DAG& dag, const SchedulingConstraint& constr
 
 	return SchedulingInfo(constraint.maxCores + 1);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -7,9 +7,8 @@
 
 #ifndef VARIABLETASKSET_VARIABLEMULTIEDGE_H_
 #define VARIABLETASKSET_VARIABLEMULTIEDGE_H_
-#include <MultiRate/MultiEdge.h>
-#include <MultiRate/MultiNode.h>
-
+#include <sources/Baseline/Verucchi20/MultiRate/MultiEdge.h>
+#include <sources/Baseline/Verucchi20/MultiRate/MultiNode.h>
 
 struct VariableMultiEdge
 {
@@ -20,8 +19,6 @@ struct VariableMultiEdge
 
 	std::vector<MultiEdge>
 	translateToMultiEdges();
-
 };
-
 
 #endif /* VARIABLETASKSET_VARIABLEMULTIEDGE_H_ */

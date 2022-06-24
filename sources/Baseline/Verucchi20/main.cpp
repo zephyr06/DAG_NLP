@@ -5,12 +5,12 @@
  *      Author: mirco
  */
 
-#include <DAG/MaxProduct.h>
-#include <Evaluation/Evaluation.h>
-#include <VariableTaskSet/VariableTaskSet.h>
+#include <sources/Baseline/Verucchi20/DAG/MaxProduct.h>
+#include <sources/Baseline/Verucchi20/Evaluation/Evaluation.h>
+#include <sources/Baseline/Verucchi20/VariableTaskSet/VariableTaskSet.h>
 #include <eigen3/Eigen/Core>
 #include <iostream>
-#include "MultiRate/MultiRateTaskset.h"
+#include "sources/Baseline/Verucchi20/MultiRate/MultiRateTaskset.h"
 
 #include <set>
 
@@ -52,18 +52,18 @@ int taskset3()
 
 	task5->bcet = 5;
 	task1->bcet = 1;
-	//auto task6 = taskSet.addTask(40, 5, "train");
-	//auto task7 = taskSet.addTask(160, 50, "independent");
+	// auto task6 = taskSet.addTask(40, 5, "train");
+	// auto task7 = taskSet.addTask(160, 50, "independent");
 
 	taskSet.addDataEdge(task3, task4, 0);
 
 	taskSet.addDataEdge(task1, task3, 0);
 	taskSet.addDataEdge(task1, task4, 1);
 	taskSet.addDataEdge(task2, task3, 1);
-	//taskSet.addDataEdge(task2, task4, 2);
-	//taskSet.addDataEdge(task4, task5, 1);
-	//taskSet.addDataEdge(task1, task6, 6);
-	//taskSet.addDataEdge(task2, task6, 0);
+	// taskSet.addDataEdge(task2, task4, 2);
+	// taskSet.addDataEdge(task4, task5, 1);
+	// taskSet.addDataEdge(task1, task6, 6);
+	// taskSet.addDataEdge(task2, task6, 0);
 
 	taskSet.createBaselineDAG();
 
@@ -95,7 +95,7 @@ int taskset3()
 	dags[id].getOriginatingTaskset()->toTikz("cool.tex");
 	std::cout << dags[id].getNodeInfo() << std::endl;
 	std::cout << dags[id].getLatencyInfo({0, 4}) << std::endl;
-	//dags[id].getLatencyInfoIterative( { 1,5,3,4});
+	// dags[id].getLatencyInfoIterative( { 1,5,3,4});
 
 	tend = time(0);
 	std::cout << "It took " << difftime(tend, tstart) << " second(s)." << std::endl;

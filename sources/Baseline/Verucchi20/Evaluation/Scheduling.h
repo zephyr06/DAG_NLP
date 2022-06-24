@@ -2,7 +2,7 @@
 #define SCHEDULING_H
 
 #include "sources/Baseline/Verucchi20/DAG/DAG.h"
-#include "DAG/Node.h"
+#include "sources/Baseline/Verucchi20/DAG/Node.h"
 #include <vector>
 #include <iostream>
 #include <iomanip>

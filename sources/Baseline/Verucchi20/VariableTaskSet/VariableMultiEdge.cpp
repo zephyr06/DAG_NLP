@@ -5,10 +5,7 @@
  *  Created on: May 2, 2019
  *      Author: mirco
  */
-#include <VariableTaskSet/VariableMultiEdge.h>
-
-
-
+#include <sources/Baseline/Verucchi20/VariableTaskSet/VariableMultiEdge.h>
 
 std::vector<MultiEdge>
 VariableMultiEdge::translateToMultiEdges()
