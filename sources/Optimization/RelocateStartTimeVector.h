@@ -70,6 +70,7 @@ namespace DAG_SPACE
             return EndOfInterval;
         }
     }
+
     VectorDynamic FindEmptyPosition(TaskSetInfoDerived &tasksInfo, gtsam::Symbol smallJobKey, gtsam::Symbol largeJobKey, VectorDynamic &startTimeVector, RelocationMethod relocateMethod = EndOfInterval)
     {
         VectorDynamic stvRes = startTimeVector;
