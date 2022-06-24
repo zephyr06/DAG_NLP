@@ -8,26 +8,26 @@
 #include <iostream>
 
 std::shared_ptr<MultiNode>
-VariableTaskSet::addTask(unsigned period, float wcet, float deadline, const std::string& name)
+VariableTaskSet::addTask(unsigned period, float wcet, float deadline, const std::string &name)
 {
 	return baselineTaskset_.addTask(period, wcet, deadline, name);
 }
 
 std::shared_ptr<MultiNode>
-VariableTaskSet::addTask(unsigned period, float wcet, const std::string& name)
+VariableTaskSet::addTask(unsigned period, float wcet, const std::string &name)
 {
 	return baselineTaskset_.addTask(period, wcet, name);
 }
 
-const MultiEdge&
+const MultiEdge &
 VariableTaskSet::addPrecedenceEdge(std::shared_ptr<MultiNode> from, std::shared_ptr<MultiNode> to)
 {
 	return baselineTaskset_.addPrecedenceEdge(from, to);
 }
 
-const VariableMultiEdge&
+const VariableMultiEdge &
 VariableTaskSet::addDataEdge(std::shared_ptr<MultiNode> from, std::shared_ptr<MultiNode> to,
-		std::vector<unsigned> jitters)
+							 std::vector<unsigned> jitters)
 {
 	VariableMultiEdge edge;
 	edge.from = from;
@@ -37,20 +37,20 @@ VariableTaskSet::addDataEdge(std::shared_ptr<MultiNode> from, std::shared_ptr<Mu
 	return edges_.back();
 }
 
-MultiRateTaskset&
+MultiRateTaskset &
 VariableTaskSet::createBaselineTaskset()
 {
 	baselineTaskset_.createBaselineDAG();
 	return baselineTaskset_;
 }
 
-const std::vector<MultiRateTaskset>&
+const std::vector<MultiRateTaskset> &
 VariableTaskSet::createTasksets()
 {
 	std::vector<std::vector<MultiEdge>> edgeSets;
 
 	std::vector<int> permutSets;
-	for (auto& edge : edges_)
+	for (auto &edge : edges_)
 	{
 		edgeSets.push_back(edge.translateToMultiEdges());
 		permutSets.push_back(edgeSets.back().size());
@@ -59,7 +59,7 @@ VariableTaskSet::createTasksets()
 
 	std::vector<int> permutation(edgeSets.size(), 0);
 	int numPermutations = 1;
-	for (const auto& it : edgeSets)
+	for (const auto &it : edgeSets)
 		numPermutations *= it.size();
 
 	for (int k = permutSets.size() - 2; k >= 0; k--)
@@ -90,10 +90,9 @@ VariableTaskSet::createTasksets()
 	}
 
 	return tasksets_;
-
 }
 
-const std::vector<DAG>&
+const std::vector<DAG> &
 VariableTaskSet::createDAGs()
 {
 	allDAGs_.clear();
@@ -101,25 +100,26 @@ VariableTaskSet::createDAGs()
 		createTasksets();
 
 	unsigned k = 1;
-	for (auto& set : tasksets_)
+	for (auto &set : tasksets_)
 	{
 
 		auto dags = set.createDAGs();
 
-		std::cout << std::endl << "Taskset " << k++ << "/" << tasksets_.size() << ": " << dags.size() << " created" << std::endl;
+		std::cout << std::endl
+				  << "Taskset " << k++ << "/" << tasksets_.size() << ": " << dags.size() << " created" << std::endl;
 
 		allDAGs_.insert(allDAGs_.end(), dags.begin(), dags.end());
-		std::cout << allDAGs_.size() << " total DAGs" << std::endl << std::endl << std::endl;
-
+		std::cout << allDAGs_.size() << " total DAGs" << std::endl
+				  << std::endl
+				  << std::endl;
 	}
 	return allDAGs_;
 }
 
-float
-VariableTaskSet::getUtilization() const
+float VariableTaskSet::getUtilization() const
 {
 	float u = 0;
-	for (const auto& node : nodes_)
+	for (const auto &node : nodes_)
 		u += node->getUtilization();
 	return u;
 }

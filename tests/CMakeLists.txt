@@ -9,12 +9,57 @@ gtsamAddTestsGlob(EnergyOptNLP "test*.cpp" "*OptimizeSA*" "${CONVENIENCE_LIB_NAM
 # TARGET_LINK_LIBRARIES(testOpt ${CONVENIENCE_LIB_NAME})
 # ADD_EXECUTABLE(testTask1 testTaskSetGenerate.cpp)
 # TARGET_LINK_LIBRARIES(testTask1 ${CONVENIENCE_LIB_NAME})
-ADD_EXECUTABLE(GenerateTaskSet GenerateTaskSet.cpp)
-TARGET_LINK_LIBRARIES(GenerateTaskSet ${CONVENIENCE_LIB_NAME})
 # ADD_EXECUTABLE(sa1 testOptimizeSA.cpp)
 # TARGET_LINK_LIBRARIES(sa1 ${CONVENIENCE_LIB_NAME})
-ADD_EXECUTABLE(tBatch1 tBatch.cpp)
-TARGET_LINK_LIBRARIES(tBatch1 ${CONVENIENCE_LIB_NAME})
+
+
+# ADD_EXECUTABLE(GenerateTaskSet GenerateTaskSet.cpp)
+# TARGET_LINK_LIBRARIES(GenerateTaskSet ${CONVENIENCE_LIB_NAME})
+# ADD_EXECUTABLE(tBatch1 tBatch.cpp)
+# TARGET_LINK_LIBRARIES(tBatch1 ${CONVENIENCE_LIB_NAME})
+
+
+
+
+
+
+
+# **************************************************************
+
+set(RootVerucchi ${CMAKE_SOURCE_DIR}/sources/Baseline/Verucchi20)
+set(VARIABLE_SRCS	${RootVerucchi}/VariableTaskSet/VariableTaskSet.cpp
+                    ${RootVerucchi}/VariableTaskSet/VariableMultiEdge.cpp
+					)
+
+set(MULTIRATE_SRCS	${RootVerucchi}/MultiRate/MultiNode.cpp
+${RootVerucchi}/MultiRate/MultiEdge.cpp
+${RootVerucchi}/MultiRate/MultiRateTaskset.cpp
+${RootVerucchi}/MultiRate/DummyNodes.cpp
+					)
+					
+set(DAG_SRCS	${RootVerucchi}/DAG/DAG.cpp
+${RootVerucchi}/DAG/Edge.cpp
+${RootVerucchi}/DAG/MaxProduct.cpp
+				)
+					
+set(EVAL_SRCS	${RootVerucchi}/Evaluation/Evaluation.cpp
+${RootVerucchi}/Evaluation/Scheduling.cpp
+				)
+include_directories(${CMAKE_SOURCE_DIR}/sources/Baseline/Verucchi20)
+ADD_EXECUTABLE(tVerucchi tVerucchi.cpp ${VARIABLE_SRCS}
+${MULTIRATE_SRCS}
+${DAG_SRCS}
+${EVAL_SRCS})
+TARGET_LINK_LIBRARIES(tVerucchi ${CONVENIENCE_LIB_NAME} )
+# **************************************************************
+
+
+
+
+
+
+
+
 # ADD_EXECUTABLE(testGraph1 testBGL_usage.cpp)
 # TARGET_LINK_LIBRARIES(testGraph1 ${CONVENIENCE_LIB_NAME})
 # ADD_EXECUTABLE(saaa sa_functions.cpp)

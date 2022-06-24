@@ -4,14 +4,13 @@
  *  Created on: Apr 10, 2019
  *      Author: mirco
  */
-#include "MultiRate/DummyNodes.h"
+#include "sources/Baseline/Verucchi20/MultiRate/DummyNodes.h"
 
 #include <set>
 #include <iostream>
 #include <map>
 
-void
-DummyNodes::addToDAG(DAG& dag, unsigned hyperperiod)
+void DummyNodes::addToDAG(DAG &dag, unsigned hyperperiod)
 {
 	auto dagNodes = dag.getNodes();
 
@@ -27,7 +26,7 @@ DummyNodes::addToDAG(DAG& dag, unsigned hyperperiod)
 
 	for (auto it = dummyVals.begin(); it != dummyVals.end(); it++)
 	{
-		//Skip start and end
+		// Skip start and end
 		if (*it == 0 || *it == hyperperiod)
 			continue;
 
@@ -51,11 +50,11 @@ DummyNodes::addToDAG(DAG& dag, unsigned hyperperiod)
 			syncEdges.push_back(Edge(node, endSync->second));
 	}
 
-	if(syncNodes.size() > 0)
+	if (syncNodes.size() > 0)
 	{
 
 		auto dummy = std::make_shared<Node>(0, syncNodes.front()->offset, syncNodes.front()->offset,
-				syncNodes.front()->offset, 667);
+											syncNodes.front()->offset, 667);
 		dummy->name = "dummy0-" + std::to_string(static_cast<int>(syncNodes.front()->offset));
 		dummy->shortName = "0-" + std::to_string(static_cast<int>(syncNodes.front()->offset));
 		dummyTasks.push_back(dummy);
@@ -86,25 +85,21 @@ DummyNodes::addToDAG(DAG& dag, unsigned hyperperiod)
 		dummyChain.push_back(Edge(dummy, dag.getEnd()));
 	}
 
-
 	dag.addNodes(syncNodes);
 	dag.addNodes(dummyTasks);
 	dag.addEdges(dummyChain);
 	dag.addEdges(syncEdges);
 
-	//Adding these edges to the chain after adding the chain to the dag to not duplicate edges
+	// Adding these edges to the chain after adding the chain to the dag to not duplicate edges
 	std::cout << "Adding " << syncNodes.size() << " Sync nodes" << std::endl;
 	std::cout << "Adding " << dummyTasks.size() << " Dummy tasks" << std::endl;
 	std::cout << "Adding " << syncEdges.size() << " sync edges" << std::endl;
-
 }
 
-bool
-DummyNodes::brokenDummyChain(const DAG& dag)
+bool DummyNodes::brokenDummyChain(const DAG &dag)
 {
-	for (const auto& edge : dummyChain)
+	for (const auto &edge : dummyChain)
 		if (!dag.hasEdge(edge))
 			return true;
 	return false;
 }
-

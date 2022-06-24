@@ -7,7 +7,7 @@
 
 #include <set>
 
-#include "MultiRate/DummyNodes.h"
+#include "sources/Baseline/Verucchi20/MultiRate/DummyNodes.h"
 
 #include "Evaluation/Scheduling.h"
 #include <algorithm>
