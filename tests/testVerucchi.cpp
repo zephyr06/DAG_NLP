@@ -1,7 +1,7 @@
 
 #include <CppUnitLite/TestHarness.h>
 
-#include "sources/Baseline/VeruchiScheduling.h"
+#include "sources/Baseline/VerucchiScheduling.h"
 // *************************
 
 TEST(Verucchi, v1)
