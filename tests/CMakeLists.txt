@@ -53,7 +53,7 @@ include_directories(${CMAKE_SOURCE_DIR}/sources/Baseline/Verucchi20)
 ADD_EXECUTABLE(tVerucchi tVerucchi.cpp)
 TARGET_LINK_LIBRARIES(tVerucchi ${CONVENIENCE_LIB_NAME} )
 
-message(STATUS "0000000sources include: ${sources}")
+# message(STATUS "0000000sources include: ${sources}")
 # **************************************************************
 
 
