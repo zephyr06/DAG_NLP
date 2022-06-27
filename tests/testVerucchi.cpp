@@ -1,21 +1,8 @@
 
-// below are include files required by Verucchi
-#include <algorithm>
-#include <iostream>
-#include <set>
-
-#include <eigen3/Eigen/Core>
-
-#include <sources/Baseline/Verucchi20/DAG/MaxProduct.h>
-#include <sources/Baseline/Verucchi20/Evaluation/Evaluation.h>
-#include <sources/Baseline/Verucchi20/MultiRate/MultiRateTaskset.h>
-#include <sources/Baseline/Verucchi20/VariableTaskSet/VariableTaskSet.h>
-#include "sources/Baseline/Verucchi20/MultiRate/DummyNodes.h"
-#include "Evaluation/Scheduling.h"
-
-// *************************
-
 #include <CppUnitLite/TestHarness.h>
+
+#include "sources/Baseline/VeruchiScheduling.h"
+// *************************
 
 TEST(Verucchi, v1)
 {
@@ -31,15 +18,21 @@ TEST(Verucchi, v1)
     auto task5 = taskSet.addTask(99, 2, "fusion");
     auto task6 = taskSet.addTask(33, 5, "visualize");
 
-    task2->bcet = 27;
-    task4->bcet = 2;
-    task5->bcet = 1;
+    // task2->bcet = 27;
+    // task4->bcet = 2;
+    // task5->bcet = 1;
 
     taskSet.addDataEdge(task3, task4, {0});
-    taskSet.addDataEdge(task1, task2, {0, 1, 2});
+    taskSet.addDataEdge(task1, task2, {0});
     taskSet.addDataEdge(task2, task5, {0});
     taskSet.addDataEdge(task4, task5, {0});
-    taskSet.addDataEdge(task5, task6, {0, 1, 2});
+    taskSet.addDataEdge(task5, task6, {0});
+
+    // taskSet.addPrecedenceEdge(task3, task4);
+    // taskSet.addPrecedenceEdge(task1, task2);
+    // taskSet.addPrecedenceEdge(task2, task5);
+    // taskSet.addPrecedenceEdge(task4, task5);
+    // taskSet.addPrecedenceEdge(task5, task6);
 
     taskSet.createBaselineTaskset();
 
@@ -64,6 +57,11 @@ TEST(Verucchi, v1)
     std::cout << "It took " << difftime(tend, tstart) << " second(s)." << std::endl;
 }
 
+TEST(VerucchiIO, v2)
+{
+    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/" + testDataSetName + ".csv", "orig");
+    EXPECT(SchedulabilityAnalysisVerucchi(tasks));
+}
 int main()
 {
     TestResult tr;
