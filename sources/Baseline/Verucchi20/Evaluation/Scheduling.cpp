@@ -195,7 +195,7 @@ double scheduling::computeDelta(const std::vector<double> &processorUsage, const
 
     if (std::isless(delta, epsilon))
     {
-        std::cout << "Something is VERY WRONG" << std::endl;
+        std::cout << "Something is VERY WRONG, but probably okay from my view?" << std::endl;
         return 0.1;
     }
 
