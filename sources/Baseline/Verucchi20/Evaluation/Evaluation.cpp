@@ -17,6 +17,7 @@ void Evaluation::addLatency(const Chain &chain, const LatencyCost &cost,
 	latencyEval_.push_back(std::make_pair(chain, std::make_pair(cost, constraint)));
 }
 
+// schedule each DAG task set separately, and return a cost which evaluates which dag is the best
 const DAG &
 Evaluation::evaluate(const std::vector<DAG> &dags)
 {

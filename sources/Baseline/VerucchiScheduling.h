@@ -38,7 +38,8 @@ bool SchedulabilityAnalysisVerucchi(DAG_SPACE::DAG_Model &dagTasks)
         TaskSet &tasksAfter = itr->second;
         for (uint i = 0; i < tasksAfter.size(); i++)
         {
-            taskSetVeru.addDataEdge(tasksVecVeru[itr->first], tasksVecVeru[tasksAfter[i].id], {0});
+            std::vector<uint> jitters(std::max(1, tasksAfter[i].period / dagTasks.tasks[itr->first].period));
+            taskSetVeru.addDataEdge(tasksVecVeru[itr->first], tasksVecVeru[tasksAfter[i].id], jitters);
         }
     }
 

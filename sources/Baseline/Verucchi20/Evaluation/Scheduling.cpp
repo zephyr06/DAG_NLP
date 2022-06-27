@@ -23,19 +23,19 @@ void scheduling::printSchedule(const std::vector<std::vector<std::shared_ptr<Nod
 }
 
 void scheduling::scheduleToTikz(const std::string &filename,
-                    const std::vector<std::vector<std::shared_ptr<Node>>> &processorSchedule,
-                    const double period)
+                                const std::vector<std::vector<std::shared_ptr<Node>>> &processorSchedule,
+                                const double period)
 {
-    //opening the tex file
+    // opening the tex file
     std::ofstream tikzFile;
     tikzFile.open(filename);
 
-    //beginning the tikz figure
+    // beginning the tikz figure
     tikzFile << "\\documentclass[tikz,border=10pt]{standalone}\n"
-                 "\\usepackage{tkz-graph}\n"
-                 "\\usetikzlibrary{automata}\n"
-                 "\\usetikzlibrary[automata]\n"
-                 "\\begin{document}\n";
+                "\\usepackage{tkz-graph}\n"
+                "\\usetikzlibrary{automata}\n"
+                "\\usetikzlibrary[automata]\n"
+                "\\begin{document}\n";
 
     tikzFile << "\\begin{tikzpicture}\n";
 
@@ -45,9 +45,9 @@ void scheduling::scheduleToTikz(const std::string &filename,
     {
         tikzFile << "\\draw (0," << y << ") --(0," << y + 1 << ") ;" << std::endl;
         tikzFile << "\\draw[<-] (" << period + 0.2 << "," << y << ") ->(" << period + 0.2 << ","
-                  << y + 1 << ") ;" << std::endl;
+                 << y + 1 << ") ;" << std::endl;
         tikzFile << "\\draw (-0.2," << y << ") --(" << period + 0.5 << "," << y << ") ;"
-                  << std::endl;
+                 << std::endl;
         tikzFile << "\\draw (0-0.5," << y + 0.5 << ") node {$P_{" << proc << "}$};" << std::endl;
 
         x = 0;
@@ -55,9 +55,9 @@ void scheduling::scheduleToTikz(const std::string &filename,
         {
             if (n->groupId != 888)
                 tikzFile << "\\draw (" << x << "," << y << ") rectangle (" << x + n->wcet << ","
-                          << y + 0.7 << ") node[pos=.5] {$" << n->shortName << "$};" << std::endl;
+                         << y + 0.7 << ") node[pos=.5] {$" << n->shortName << "$};" << std::endl;
             tikzFile << "\\draw (" << x << "," << y << ") node[below] {$" << x << "$};"
-                      << std::endl;
+                     << std::endl;
             x += n->wcet;
         }
 
@@ -65,11 +65,11 @@ void scheduling::scheduleToTikz(const std::string &filename,
         proc++;
     }
 
-    //ending tikz figure
+    // ending tikz figure
     tikzFile << "\\end{tikzpicture}\n";
     tikzFile << "\\end{document}\n";
 
-    //close the file
+    // close the file
     tikzFile.close();
 }
 
@@ -114,7 +114,7 @@ scheduling::createScheduleInfo(const DAG &dag, unsigned &lastUniqueId, bool verb
             }
         }
     }
-    
+
     std::sort(nodesToSched.begin(), nodesToSched.end(), compareSchedulingInfo);
 
     if (verbose)
@@ -135,7 +135,7 @@ void scheduling::scheduleIdleTask(const int proc, std::vector<std::vector<std::s
     if (processorSchedule[proc].empty() || processorSchedule[proc].back()->groupId != 888)
     {
         auto idleNode = std::make_shared<Node>();
-        idleNode->groupId = 888; //idle task
+        idleNode->groupId = 888; // idle task
         idleNode->bcet = delta;
         idleNode->wcet = delta;
         idleNode->name = "idle";
@@ -154,7 +154,7 @@ void scheduling::scheduleTask(const std::shared_ptr<ScheduleInfo> &task, int pro
     processorUsage[proc] = task->n->wcet;
     processorSchedule[proc].push_back(task->n);
 
-    //fix precedence constraints
+    // fix precedence constraints
     bool change = false;
     for (auto &s : task->succ)
     {
@@ -177,6 +177,7 @@ void scheduling::scheduleTask(const std::shared_ptr<ScheduleInfo> &task, int pro
     }
 }
 
+// compute delta: next point in time to check
 double scheduling::computeDelta(const std::vector<double> &processorUsage, const ScheduleInfoVec &nodesToSched, const ScheduleInfoVec &ready, const double t, const double epsilon)
 {
     double delta = 1000;
@@ -198,11 +199,11 @@ double scheduling::computeDelta(const std::vector<double> &processorUsage, const
         return 0.1;
     }
 
-    //delta = 0.1;
+    // delta = 0.1;
     return delta;
 }
 
-bool scheduling::scheduleDAG(const DAG &dag, const unsigned nProc,const std::string &filename, const bool verbose)
+bool scheduling::scheduleDAG(const DAG &dag, const unsigned nProc, const std::string &filename, const bool verbose)
 {
     unsigned lastUniqueId;
 
@@ -216,9 +217,9 @@ bool scheduling::scheduleDAG(const DAG &dag, const unsigned nProc,const std::str
     double delta;
 
     for (double t = 0; t < dag.getPeriod() && !(ready.empty() && nodesToSched.empty()); t +=
-                                                                                          delta)
+                                                                                        delta)
     {
-        //create ready queue
+        // create ready queue
         while (!nodesToSched.empty() && std::islessequal(nodesToSched.back()->est, t + epsilon))
         {
             ready.push_back(nodesToSched.back());
@@ -226,7 +227,7 @@ bool scheduling::scheduleDAG(const DAG &dag, const unsigned nProc,const std::str
         }
         std::sort(ready.begin(), ready.end(), compareSchedulingInfo);
 
-        //update processor state
+        // update processor state
         for (size_t i = 0; i < nProc; i++)
         {
             if (std::isgreater(processorUsage[i], 0))
@@ -240,17 +241,17 @@ bool scheduling::scheduleDAG(const DAG &dag, const unsigned nProc,const std::str
         // compute delta: next point in time to check
         delta = computeDelta(processorUsage, nodesToSched, ready, t, epsilon);
 
-        //if a processor is avaiable and there are ready tasks, schedule them, otherwise schedule an idle task
+        // if a processor is avaiable and there are ready tasks, schedule them, otherwise schedule an idle task
         for (size_t i = 0; i < nProc; i++)
         {
-            if (std::islessequal(processorUsage[i],epsilon))
+            if (std::islessequal(processorUsage[i], epsilon))
             {
                 if (!ready.empty())
                 {
                     auto taskChosen = ready.back();
                     ready.pop_back();
 
-                    //check if there is a deadline miss
+                    // check if there is a deadline miss
                     if (std::isgreater(t + taskChosen->n->wcet, taskChosen->lft + epsilon))
                     {
                         if (verbose)
@@ -262,15 +263,15 @@ bool scheduling::scheduleDAG(const DAG &dag, const unsigned nProc,const std::str
                                       << ") failed" << std::endl;
                             printSchedule(processorSchedule);
                         }
-                        
+
                         return false;
                     }
-                    //if not, schedule task
+                    // if not, schedule task
                     scheduleTask(taskChosen, i, processorUsage, nodesToSched, ready, processorSchedule, t, epsilon);
                 }
                 else
                 {
-                    //schedule idel task
+                    // schedule idel task
                     scheduleIdleTask(i, processorSchedule, delta, lastUniqueId);
                 }
             }
@@ -284,6 +285,6 @@ bool scheduling::scheduleDAG(const DAG &dag, const unsigned nProc,const std::str
     }
     if (filename != "")
         scheduleToTikz(filename, processorSchedule, dag.getPeriod());
-    
+
     return true;
 }

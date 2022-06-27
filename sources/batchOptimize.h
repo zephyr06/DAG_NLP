@@ -8,6 +8,7 @@
 
 #include "sources/Optimization/Optimize.h"
 #include "sources/Baseline/OptimizeSA.h"
+#include "sources/Baseline/VerucchiScheduling.h"
 using namespace std::chrono;
 
 double Average(vector<double> &data)
@@ -79,6 +80,18 @@ void BatchOptimize()
             else if (batchTestMethod == 0)
             {
                 res = DAG_SPACE::InitialScheduling(dagTasks);
+            }
+            else if (batchTestMethod == 3)
+            {
+                bool success = SchedulabilityAnalysisVerucchi(dagTasks);
+                if (success)
+                {
+                    res.optimizeError = 0;
+                }
+                else
+                {
+                    res.optimizeError = 100000;
+                }
             }
 
             auto stop = chrono::high_resolution_clock::now();

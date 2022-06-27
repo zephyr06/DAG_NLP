@@ -23,10 +23,10 @@ TEST(Verucchi, v1)
     // task5->bcet = 1;
 
     taskSet.addDataEdge(task3, task4, {0});
-    taskSet.addDataEdge(task1, task2, {0});
+    taskSet.addDataEdge(task1, task2, {0, 1, 2});
     taskSet.addDataEdge(task2, task5, {0});
     taskSet.addDataEdge(task4, task5, {0});
-    taskSet.addDataEdge(task5, task6, {0});
+    taskSet.addDataEdge(task5, task6, {0, 1, 2});
 
     // taskSet.addPrecedenceEdge(task3, task4);
     // taskSet.addPrecedenceEdge(task1, task2);

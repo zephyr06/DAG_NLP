@@ -1,7 +1,7 @@
 %YAML:1.0
 
 # optimization seettings
-batchTestMethod: 1 # 1 means NLP, 2 means SA, 0 means initial
+batchTestMethod: 3 # 1 means NLP, 2 means SA, 0 means initial, 3 means Verucchi20
 testDataSetName: test_n5_v64
 AcceptSchedulError: 1e-2
 debugMode: 0
