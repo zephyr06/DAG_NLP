@@ -59,7 +59,7 @@ TEST(Verucchi, v1)
 
 TEST(VerucchiIO, v2)
 {
-    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/" + testDataSetName + ".csv", "orig");
+    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n6_v1.csv", "orig");
     EXPECT(SchedulabilityAnalysisVerucchi(tasks));
 }
 int main()

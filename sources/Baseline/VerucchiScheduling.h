@@ -18,8 +18,7 @@
 
 bool SchedulabilityAnalysisVerucchi(DAG_SPACE::DAG_Model &dagTasks)
 {
-    time_t tstart, tend;
-    tstart = time(0);
+
     VariableTaskSet taskSetVeru;
 
     // add tasks
@@ -60,8 +59,5 @@ bool SchedulabilityAnalysisVerucchi(DAG_SPACE::DAG_Model &dagTasks)
     // bestDAG.getLatencyInfo({1,1,2,3,4});
     bool whetherScheduleable = scheduling::scheduleDAG(bestDAG, 4, "schedule_test.tex", true);
 
-    tend = time(0);
-    std::cout << "It took " << difftime(tend, tstart) << " second(s)." << std::endl;
-    double timeTaken = difftime(tend, tstart);
     return whetherScheduleable;
 }
