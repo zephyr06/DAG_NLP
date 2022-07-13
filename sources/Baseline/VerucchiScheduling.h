@@ -16,7 +16,7 @@
 #include "sources/TaskModel/DAG_Model.h"
 // *************************
 
-bool SchedulabilityAnalysisVerucchi(DAG_SPACE::DAG_Model &dagTasks)
+bool SchedulabilityAnalysisVerucchi(DAG_SPACE::DAG_Model &dagTasks, int processorsAvailable = coreNumberAva)
 {
 
     VariableTaskSet taskSetVeru;
@@ -51,14 +51,14 @@ bool SchedulabilityAnalysisVerucchi(DAG_SPACE::DAG_Model &dagTasks)
     Evaluation eval;
     // eval.addLatency({task1, task1, task2, task5, task6}, LatencyCost(1, 15), LatencyConstraint(400, 400));
     // eval.addLatency({task3, task3, task4, task5, task6}, LatencyCost(1, 3), LatencyConstraint(400, 400));
-    eval.addScheduling(SchedulingCost(20), SchedulingConstraint(4));
+    eval.addScheduling(SchedulingCost(20), SchedulingConstraint(processorsAvailable));
     const auto &bestDAG = eval.evaluate(allDags);
 
     bestDAG.toTikz("fusion.tex");
     bestDAG.getOriginatingTaskset()->toTikz("fusion_multi.tex");
     std::cout << bestDAG.getNodeInfo() << std::endl;
     // bestDAG.getLatencyInfo({1,1,2,3,4});
-    bool whetherScheduleable = scheduling::scheduleDAG(bestDAG, 4, "schedule_test.tex", true);
+    bool whetherScheduleable = scheduling::scheduleDAG(bestDAG, processorsAvailable, "schedule_test.tex", true);
 
     return whetherScheduleable;
 }

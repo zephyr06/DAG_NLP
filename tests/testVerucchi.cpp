@@ -51,7 +51,7 @@ TEST(Verucchi, v1)
     bestDAG.getOriginatingTaskset()->toTikz("fusion_multi.tex");
     std::cout << bestDAG.getNodeInfo() << std::endl;
     // bestDAG.getLatencyInfo({1,1,2,3,4});
-    scheduling::scheduleDAG(bestDAG, 4, "schedule_test.tex", true);
+    scheduling::scheduleDAG(bestDAG, coreNumberAva, "schedule_test.tex", true);
 
     tend = time(0);
     std::cout << "It took " << difftime(tend, tstart) << " second(s)." << std::endl;
@@ -60,7 +60,17 @@ TEST(Verucchi, v1)
 TEST(VerucchiIO, v2)
 {
     DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n6_v1.csv", "orig");
-    EXPECT(SchedulabilityAnalysisVerucchi(tasks));
+    EXPECT(SchedulabilityAnalysisVerucchi(tasks, 4));
+}
+
+TEST(Verucchi, analyzeCase)
+{
+    std::cout << std::endl
+              << std::endl
+              << std::endl;
+    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/" + testDataSetName + ".csv", "orig");
+    bool schedulable = SchedulabilityAnalysisVerucchi(tasks);
+    std::cout << "Schedulability analysis by Verucchi: " << schedulable << std::endl;
 }
 int main()
 {

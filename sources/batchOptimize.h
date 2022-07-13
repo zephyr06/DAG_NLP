@@ -58,8 +58,8 @@ void BatchOptimize()
     for (const auto &file : files)
     {
         // if (debugMode)
-        if (batchTestMethod == 1)
-            std::cout << file << endl;
+        // if (batchTestMethod == 1)
+        std::cout << file << endl;
         string delimiter = "-";
         if (file.substr(0, file.find(delimiter)) == "dag")
         {

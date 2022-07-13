@@ -50,10 +50,10 @@ if __name__ == "__main__":
         path1 = root + "TaskData/test_n5_v" + str(n) + ".csv"
     elif folder == "dagTasks":
         strN = str(n)
-        # if n < 10:
-        #     strN = "00" + str(n)
-        # elif n < 100:
-        #     strN = "0" + str(n)
+        if n < 10:
+            strN = "00" + str(n)
+        elif n < 100:
+            strN = "0" + str(n)
         path1 = root + "TaskData/dagTasks/dag-set-" + strN + "-syntheticJobs" + ".csv"
     show_graphviz(path1)
     os.system("gedit "+path1)

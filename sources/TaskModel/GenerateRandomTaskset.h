@@ -67,7 +67,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
             if (deadlineType == 1)
                 deadline = round(RandRange(std::max(1.0, ceil(periodCurr * utilVec[i])), periodCurr));
             Task task(0, periodCurr,
-                      0, int(periodCurr * utilVec[i]),
+                      0, std::max(1.0, ceil(periodCurr * utilVec[i])),
                       deadline, i,
                       processorId, coreRequire);
             tasks.push_back(task);
