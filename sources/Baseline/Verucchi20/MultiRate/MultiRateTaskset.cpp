@@ -44,7 +44,7 @@ MultiRateTaskset::addTask(unsigned period, float wcet, float deadline, const std
 	{
 		hyperPeriod_ = period;
 	}
-	else if (period > hyperPeriod_)
+	else
 		hyperPeriod_ = std::lcm(hyperPeriod_, period);
 
 	return mult;
