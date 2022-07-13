@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <iostream>
+#include <numeric>
 
 MultiRateTaskset::MultiRateTaskset() : dummyNodes_(std::make_shared<DummyNodes>()), hyperPeriod_(0)
 {
@@ -39,8 +40,12 @@ MultiRateTaskset::addTask(unsigned period, float wcet, float deadline, const std
 
 	nodes_.push_back(mult);
 
-	if (period > hyperPeriod_)
+	if (hyperPeriod_ <= 0)
+	{
 		hyperPeriod_ = period;
+	}
+	else if (period > hyperPeriod_)
+		hyperPeriod_ = std::lcm(hyperPeriod_, period);
 
 	return mult;
 }
