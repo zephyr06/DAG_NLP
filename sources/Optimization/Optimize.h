@@ -297,6 +297,20 @@ namespace DAG_SPACE
         double errorInitial = GraphErrorEvaluation(dagTasks, initialEstimate);
         return {errorInitial, errorInitial, initialEstimate, initialEstimate};
     }
+
+    struct StateActionCollection
+    {
+        double currError;
+        bool whetherVanishGradient;
+        int resetWeightSeed;
+        int initialOption;
+        RelocationMethod relocateMethod;
+
+        inline std::string to_string()
+        {
+            return ResizeStr(std::to_string(currError)) + ResizeStr(std::to_string(whetherVanishGradient)) + ResizeStr(std::to_string(resetWeightSeed)) + ResizeStr(std::to_string(initialOption)) + ResizeStr(std::to_string(relocateMethod)) + "\n";
+        }
+    };
     /**
      * @brief Perform scheduling based on optimization
      *
@@ -323,6 +337,8 @@ namespace DAG_SPACE
         ResetSRand(prevSrandRef);
         RelocationMethod currentRelocationMethod = EndOfInterval;
 
+        StateActionCollection currAction;
+
         while (loopNumber < ResetInnerWeightLoopMax)
         {
             // perform optimization for one time
@@ -332,10 +348,30 @@ namespace DAG_SPACE
             Values result = SolveFactorGraph(graph, initialEstimateFG);
             VectorDynamic startTimeComplete = CollectUnitOptResult(result, tasksInfo);
             if (debugMode)
-                cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
+                std::cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
 
             // convergence check,
             double currError = GraphErrorEvaluation(dagTasks, startTimeComplete);
+            currAction.currError = currError;
+            if (recordActionValue > 0)
+            {
+                std::string path = "/home/zephyr/Programming/DAG_NLP/RL/record1.txt";
+
+                std::ifstream myfile;
+                myfile.open(path);
+                if (!myfile) // create the file
+                {
+                    std::ofstream myfile;
+                    myfile.open(path, fstream::in | fstream::out | fstream::trunc);
+                    std::string info = ResizeStr("CurrError") + ResizeStr("VanishGrad") + ResizeStr("ResetWeight") + ResizeStr("ChangeInitial") + ResizeStr("RelocateInterval") + "\n";
+                    myfile << info;
+                    myfile.close();
+                }
+                std::ofstream myfileOutput;
+                myfileOutput.open(path, std::ios_base::app);
+                myfileOutput << currAction.to_string();
+                myfileOutput.close();
+            }
             if (currError < 1e-3)
             {
                 bestResultFound = startTimeComplete;
@@ -352,6 +388,7 @@ namespace DAG_SPACE
                 CoutWarning("Error increased!");
                 ResetSRand(++prevSrandRef); // try different random weights
             }
+            currAction.resetWeightSeed = prevSrandRef;
 
             // detect and handle gradient vanish
             GradientVanishDetectResult gvRes = RelocateIncludedInterval(tasksInfo, graph, startTimeComplete, currentRelocationMethod);
@@ -359,12 +396,13 @@ namespace DAG_SPACE
             if (prevGVPair == gvRes.gradientVanishPairs)
             {
                 currentRelocationMethod = IncrementRelocationMethod(currentRelocationMethod);
+                currAction.relocateMethod = currentRelocationMethod;
             }
             else
             {
                 prevGVPair = gvRes.gradientVanishPairs;
             }
-            // bool whetherReset = ResetRandomWeightInFG(dagTasks, graph, optComp, ++loopNumber);
+
             initialEstimate = UpdateInitialVector(gvRes.startTimeVectorAfterRelocate, tasksInfo, forestInfo);
 
             loopNumber++;

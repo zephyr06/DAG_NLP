@@ -24,6 +24,7 @@ TEST(DAG_Optimize_schedule, v1)
     //     if (PrintOutput)
     //         cout << Color::blue << res << Color::def << endl;
     // }
+
     auto sth = OptimizeSchedulingResetSeed(tasks);
     EndTimer("main");
     PrintTimer();

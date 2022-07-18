@@ -352,3 +352,29 @@ inline double RandRange(double a, double b)
     }
     return a + (b - a) * double(rand()) / RAND_MAX;
 }
+
+void AddEntry(std::string pathRes, std::string s)
+{
+    std::ofstream outfileWrite;
+    outfileWrite.open(pathRes,
+                      std::ios_base::app);
+    outfileWrite << s << std::endl;
+    outfileWrite.close();
+}
+
+std::string ResizeStr(std::string s, int size = 16)
+{
+    if (s.size() > size)
+    {
+        return s.substr(0, size);
+    }
+    else
+    {
+        std::string res = "";
+        for (size_t i = 0; i < size - s.size(); i++)
+        {
+            res += " ";
+        }
+        return res + s;
+    }
+}

@@ -83,6 +83,7 @@ int whetherRandomNoiseModelSigma = (int)ConfigParameters["whetherRandomNoiseMode
 
 const int maxIterations = (int)ConfigParameters["maxIterations"];
 const int saveGraph = (int)ConfigParameters["saveGraph"];
+const int recordActionValue = (int)ConfigParameters["recordActionValue"];
 
 const int MaxEliminateDetectIterations = (int)ConfigParameters["MaxEliminateDetectIterations"];
 string priorityMode = (string)ConfigParameters["priorityMode"];
