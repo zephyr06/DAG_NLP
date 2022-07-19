@@ -306,6 +306,8 @@ namespace DAG_SPACE
         int initialOption;
         RelocationMethod relocateMethod;
 
+        StateActionCollection() : currError(1e60), whetherVanishGradient(false), resetWeightSeed(-1), initialOption(-1), relocateMethod(EndOfInterval) {}
+
         inline std::string to_string()
         {
             return ResizeStr(std::to_string(currError)) + ResizeStr(std::to_string(whetherVanishGradient)) + ResizeStr(std::to_string(resetWeightSeed)) + ResizeStr(std::to_string(initialOption)) + ResizeStr(std::to_string(relocateMethod)) + "\n";
@@ -339,6 +341,8 @@ namespace DAG_SPACE
 
         StateActionCollection currAction;
 
+        std::string pathFolder = "/home/zephyr/Programming/DAG_NLP/RL/";
+
         while (loopNumber < ResetInnerWeightLoopMax)
         {
             // perform optimization for one time
@@ -355,7 +359,8 @@ namespace DAG_SPACE
             currAction.currError = currError;
             if (recordActionValue > 0)
             {
-                std::string path = "/home/zephyr/Programming/DAG_NLP/RL/record1.txt";
+
+                std::string path = pathFolder + "record" + std::to_string(recordRLFileCount) + ".txt";
 
                 std::ifstream myfile;
                 myfile.open(path);
@@ -427,6 +432,15 @@ namespace DAG_SPACE
 
     OptimizeResult OptimizeSchedulingResetSeed(DAG_Model &dagTasks)
     {
+        if (recordActionValue > 0)
+        {
+            std::filesystem::path p1{"/home/zephyr/Programming/DAG_NLP/RL/"};
+            for (auto &p : std::filesystem::directory_iterator(p1))
+            {
+                recordRLFileCount++;
+            }
+        }
+
         OptimizeResult sth;
         for (int i = 100; i < 100 + RandomDrawWeightMaxLoop; i++)
         {

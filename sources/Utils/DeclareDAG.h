@@ -362,7 +362,7 @@ void AddEntry(std::string pathRes, std::string s)
     outfileWrite.close();
 }
 
-std::string ResizeStr(std::string s, int size = 16)
+std::string ResizeStr(std::string s, int size = 20)
 {
     if (s.size() > size)
     {
