@@ -145,8 +145,8 @@ namespace DAG_SPACE
                 else
                 {
                     CoutWarning("Vanish gradient of non-DBF type is found, please add related relocation method!");
-                    double err = ite->get()->error(initialEstimateFG);
-                    int a = 1;
+                    // double err = ite->get()->error(initialEstimateFG);
+                    // int a = 1;
                 }
             }
         }

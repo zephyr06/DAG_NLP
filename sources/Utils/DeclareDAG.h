@@ -37,16 +37,58 @@ typedef boost::function<Vector(const Values &x)> LambdaMultiKey;
 
 typedef long long int LLint;
 
-inline gtsam::Symbol GenerateKey(int idtask, LLint index_overall)
+/**
+ * @brief given task index and instance index, return variable's index in StartTimeVector
+ *
+ * @param i
+ * @param instance_i
+ * @param sizeOfVariables
+ * @return LLint
+ */
+LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const vector<LLint> &sizeOfVariables)
 {
-    // if (idtask == -1)
-    // {
-    //     gtsam::Symbol key('z', index_overall);
-    //     return key;
-    // }
-    gtsam::Symbol key('a' + idtask, index_overall);
+    if (instance_i < 0 || instance_i > sizeOfVariables[i])
+        CoutError("Instance Index out of boundary in IndexTran_Instance2Overall");
+    if (i < 0 || i > (LLint)sizeOfVariables.size())
+        CoutError("Task Index out of boundary in IndexTran_Instance2Overall");
+    LLint index = 0;
+    for (size_t k = 0; k < (size_t)i; k++)
+        index += sizeOfVariables[k];
+    return index + instance_i;
+}
+
+/**
+ * @brief Given index in startTimeVector, decode its task index
+ *
+ * @param index
+ * @param sizeOfVariables
+ * @return int: task index
+ */
+int BigIndex2TaskIndex(LLint index, const vector<LLint> &sizeOfVariables)
+{
+    int taskIndex = 0;
+    int N = sizeOfVariables.size();
+    while (index >= 0 && taskIndex < N)
+    {
+        index -= sizeOfVariables[taskIndex];
+        taskIndex++;
+    }
+    return taskIndex - 1;
+}
+
+/**
+ * @brief generate key symbol for use in GTSAM
+ *
+ * @param idtask task index
+ * @param j job index
+ * @return gtsam::Symbol
+ */
+inline gtsam::Symbol GenerateKey(int idtask, LLint j)
+{
+    gtsam::Symbol key('a' + idtask, j);
     return key;
 }
+
 // return (taskId, jobId)
 inline pair<int, LLint> AnalyzeKey(gtsam::Symbol key)
 {
@@ -54,19 +96,19 @@ inline pair<int, LLint> AnalyzeKey(gtsam::Symbol key)
     LLint index = key.index();
     return make_pair(id, index);
 }
-inline std::vector<gtsam::Symbol> GenerateKey(std::vector<int> &idtask,
-                                              std::vector<LLint> &index_overall)
-{
+// inline std::vector<gtsam::Symbol> GenerateKey(std::vector<int> &idtask,
+//                                               std::vector<LLint> &index)
+// {
 
-    AssertEqualScalar(idtask.size(), index_overall.size(), 1e-6, __LINE__);
-    std::vector<gtsam::Symbol> res;
-    res.reserve(idtask.size());
-    for (uint i = 0; i < idtask.size(); i++)
-    {
-        res.push_back(GenerateKey(idtask[i], index_overall[i]));
-    }
-    return res;
-}
+//     AssertEqualScalar(idtask.size(), index.size(), 1e-6, __LINE__);
+//     std::vector<gtsam::Symbol> res;
+//     res.reserve(idtask.size());
+//     for (uint i = 0; i < idtask.size(); i++)
+//     {
+//         res.push_back(GenerateKey(idtask[i], index[i]));
+//     }
+//     return res;
+// }
 
 struct MappingDataStruct
 {
@@ -127,45 +169,6 @@ double ExtractVariable(const VectorDynamic &startTimeVector,
         firstTaskInstance += sizeOfVariables[i];
     }
     return startTimeVector(firstTaskInstance + instanceIndex, 0);
-}
-
-/**
- * @brief given task index and instance index, return variable's index in StartTimeVector
- *
- * @param i
- * @param instance_i
- * @param sizeOfVariables
- * @return LLint
- */
-LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const vector<LLint> &sizeOfVariables)
-{
-    if (instance_i < 0 || instance_i > sizeOfVariables[i])
-        CoutError("Instance Index out of boundary in IndexTran_Instance2Overall");
-    if (i < 0 || i > (LLint)sizeOfVariables.size())
-        CoutError("Task Index out of boundary in IndexTran_Instance2Overall");
-    LLint index = 0;
-    for (size_t k = 0; k < (size_t)i; k++)
-        index += sizeOfVariables[k];
-    return index + instance_i;
-}
-
-/**
- * @brief Given index in startTimeVector, decode its task index
- *
- * @param index
- * @param sizeOfVariables
- * @return int: task index
- */
-int BigIndex2TaskIndex(LLint index, const vector<LLint> &sizeOfVariables)
-{
-    int taskIndex = 0;
-    int N = sizeOfVariables.size();
-    while (index >= 0 && taskIndex < N)
-    {
-        index -= sizeOfVariables[taskIndex];
-        taskIndex++;
-    }
-    return taskIndex - 1;
 }
 
 VectorDynamic CompresStartTimeVector(const VectorDynamic &startTimeComplete,
@@ -362,7 +365,7 @@ void AddEntry(std::string pathRes, std::string s)
     outfileWrite.close();
 }
 
-std::string ResizeStr(std::string s, int size = 20)
+std::string ResizeStr(std::string s, uint size = 20)
 {
     if (s.size() > size)
     {

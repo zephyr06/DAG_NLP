@@ -4,7 +4,7 @@
 batchTestMethod: 1 # 1 means NLP, 2 means SA, 0 means initial, 3 means Verucchi20
 testDataSetName: test_n5_v68
 AcceptSchedulError: 1e-2
-debugMode: 2
+debugMode: 0
 recordActionValue: 1
 runMode: compare
 initializeMethod: 2
@@ -37,8 +37,8 @@ deltaInitialDogleg: 1e5
 initialLambda: 1e3
 lowerLambda: 1e-60
 upperLambda: 1e50
-# verbosityLM: "SILENCE"
-verbosityLM: "SUMMARY"
+verbosityLM: "SILENCE"
+# verbosityLM: "SUMMARY"
 # verbosityLM: "TRYDELTA"
 relativeErrorTolerance: 1e-5
 setUseFixedLambdaFactor: 1
@@ -49,6 +49,7 @@ maxIterations: 10000
 # factors to be included
 weightDDL_factor: 2.5
 weightDAG_factor: 1.8
+RtdaWeight: 1
 makespanWeight: 0
 weightPrior_factor: 0
 sensorFusionTolerance: 500000

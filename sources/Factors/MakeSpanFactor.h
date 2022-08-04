@@ -49,7 +49,7 @@ std::vector<gtsam::Symbol> GenerateKeysMS(TaskSetInfoDerived &tasksInfo,
 }
 
 void AddMakeSpanFactor(NonlinearFactorGraph &graph,
-                       TaskSetInfoDerived &tasksInfo, DAG_SPACE::MAP_Prev &mapPrev, bool ifPreemptive = false)
+                       TaskSetInfoDerived &tasksInfo, DAG_SPACE::MAP_Prev &mapPrev)
 {
     LLint errorDimensionMS = 1;
     if (makespanWeight == 0)
@@ -61,54 +61,28 @@ void AddMakeSpanFactor(NonlinearFactorGraph &graph,
     keysAll.insert(keysAll.begin(), keysBegin.begin(), keysBegin.end());
 
     TaskSet &tasks = tasksInfo.tasks;
-    if (ifPreemptive)
-    {
-        LambdaMultiKey f = [beginSize, keysAll, tasks](const Values &x)
-        {
-            // const VectorDynamic &x0 = x.at<VectorDynamic>(keyVec[0]);
-            // const VectorDynamic &x1 = x.at<VectorDynamic>(keyVec[1]);
 
-            VectorDynamic res = GenerateVectorDynamic(1);
-            double minStart = INT_MAX;
-            double maxEnd = -1;
-            for (uint i = 0; i < beginSize; i++)
-            {
-                minStart = min(minStart, x.at<VectorDynamic>(keysAll[i])(0));
-            }
-            for (uint i = beginSize; i < keysAll.size(); i++)
-            {
-                // auto p = AnalyzeKey(keysAll[i]);
-                maxEnd = max(maxEnd, x.at<VectorDynamic>(keysAll[i])(1));
-            }
-            res << maxEnd - minStart;
-            return res;
-        };
-        graph.emplace_shared<MultiKeyFactor>(keysAll, f, 1, model);
-    }
-    else
+    LambdaMultiKey f = [beginSize, keysAll, tasks](const Values &x)
     {
-        LambdaMultiKey f = [beginSize, keysAll, tasks](const Values &x)
-        {
-            // const VectorDynamic &x0 = x.at<VectorDynamic>(keyVec[0]);
-            // const VectorDynamic &x1 = x.at<VectorDynamic>(keyVec[1]);
+        // const VectorDynamic &x0 = x.at<VectorDynamic>(keyVec[0]);
+        // const VectorDynamic &x1 = x.at<VectorDynamic>(keyVec[1]);
 
-            VectorDynamic res = GenerateVectorDynamic(1);
-            double minStart = INT_MAX;
-            double maxEnd = -1;
-            for (uint i = 0; i < beginSize; i++)
-            {
-                minStart = min(minStart, x.at<VectorDynamic>(keysAll[i])(0));
-            }
-            for (uint i = beginSize; i < keysAll.size(); i++)
-            {
-                auto p = AnalyzeKey(keysAll[i]);
-                maxEnd = max(maxEnd, x.at<VectorDynamic>(keysAll[i])(0) + tasks[p.first].executionTime);
-            }
-            res << maxEnd - minStart;
-            return res;
-        };
-        graph.emplace_shared<MultiKeyFactor>(keysAll, f, 1, model);
-    }
+        VectorDynamic res = GenerateVectorDynamic(1);
+        double minStart = INT_MAX;
+        double maxEnd = -1;
+        for (uint i = 0; i < beginSize; i++)
+        {
+            minStart = min(minStart, x.at<VectorDynamic>(keysAll[i])(0));
+        }
+        for (uint i = beginSize; i < keysAll.size(); i++)
+        {
+            auto p = AnalyzeKey(keysAll[i]);
+            maxEnd = max(maxEnd, x.at<VectorDynamic>(keysAll[i])(0) + tasks[p.first].executionTime);
+        }
+        res << maxEnd - minStart;
+        return res;
+    };
+    graph.emplace_shared<MultiKeyFactor>(keysAll, f, 1, model);
 
     return;
 }

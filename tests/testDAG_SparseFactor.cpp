@@ -26,25 +26,25 @@ TEST(testDAG, v1)
     AssertEqualScalar(expect, actual, 1e-6, __LINE__);
 }
 
-TEST(testDAG, preempt_v1)
-{
-    using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
-    TaskSet tasks = dagTasks.tasks;
-    TaskSetInfoDerived tasksInfo(tasks);
-    EliminationForest forestInfo(tasksInfo);
+// TEST(testDAG, preempt_v1)
+// {
+//     using namespace DAG_SPACE;
+//     auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+//     TaskSet tasks = dagTasks.tasks;
+//     TaskSetInfoDerived tasksInfo(tasks);
+//     EliminationForest forestInfo(tasksInfo);
 
-    NonlinearFactorGraph graph;
-    AddDAG_Factor(graph, dagTasks, tasksInfo, true);
+//     NonlinearFactorGraph graph;
+//     AddDAG_Factor(graph, dagTasks, tasksInfo, true);
 
-    VectorDynamic startTimeVector;
-    startTimeVector.resize(8, 1);
-    startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
-    Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo, true);
-    double actual = graph.error(initialEstimateFG);
-    double expect = 263;
-    AssertEqualScalar(expect, actual, 1e-6, __LINE__);
-}
+//     VectorDynamic startTimeVector;
+//     startTimeVector.resize(8, 1);
+//     startTimeVector << 6, 107, 5, 3, 104, 2, 0, 101;
+//     Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo, true);
+//     double actual = graph.error(initialEstimateFG);
+//     double expect = 263;
+//     AssertEqualScalar(expect, actual, 1e-6, __LINE__);
+// }
 
 int main()
 {

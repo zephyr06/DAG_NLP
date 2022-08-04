@@ -66,6 +66,8 @@ InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initia
 const double weightPrior_factor = (double)ConfigParameters["weightPrior_factor"];
 double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"];
 double weightDAG_factor = (double)ConfigParameters["weightDAG_factor"];
+double RtdaWeight = (double)ConfigParameters["RtdaWeight"];
+
 const double ResetRandomWeightThreshold = (double)ConfigParameters["ResetRandomWeightThreshold"];
 
 int PrintInitial = (int)ConfigParameters["PrintInitial"];

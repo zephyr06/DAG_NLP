@@ -10,7 +10,7 @@ typedef std::map<int, int> ProcessorId2Index;
 using namespace RegularTaskSystem;
 namespace DAG_SPACE
 {
-    Values GenerateInitialFG(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo, bool ifPreemptive = false)
+    Values GenerateInitialFG(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo)
     {
         Values initialEstimateFG;
         Symbol key('a', 0); // just declare the variable
@@ -21,18 +21,8 @@ namespace DAG_SPACE
             {
                 // LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
                 Symbol key = GenerateKey(i, j);
-                VectorDynamic v;
-                if (ifPreemptive)
-                {
-                    v = GenerateVectorDynamic(2);
-                    v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j),
-                        ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j) + tasksInfo.tasks[i].executionTime;
-                }
-                else
-                {
-                    v = GenerateVectorDynamic(1);
-                    v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j);
-                }
+                VectorDynamic v = GenerateVectorDynamic(1);
+                v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j);
 
                 initialEstimateFG.insert(key, v);
             }
