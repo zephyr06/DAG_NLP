@@ -1,0 +1,5 @@
+           CurrError          VanishGrad         ResetWeight       ChangeInitial    RelocateInterval
+          558.744682                   0                  -1                  -1                   0
+          554.744682                   0                 100                  -1                   0
+          554.744289                   0                 100                  -1                   0
+            0.000000                   0                 101                  -1                   1
