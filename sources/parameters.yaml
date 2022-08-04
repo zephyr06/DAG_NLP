@@ -2,7 +2,7 @@
 
 # optimization seettings
 batchTestMethod: 1 # 1 means NLP, 2 means SA, 0 means initial, 3 means Verucchi20
-testDataSetName: test_n5_v68
+testDataSetName: test_n5_v66
 AcceptSchedulError: 1e-2
 debugMode: 0
 recordActionValue: 1

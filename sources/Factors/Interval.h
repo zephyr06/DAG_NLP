@@ -25,12 +25,14 @@ bool compare(Interval &i1, Interval &i2)
 {
     return (i1.start < i2.start);
 }
+
 /**
  * @brief always return v1 - v2;
  *
+ *
  * @param v1
  * @param v2
- * @return first double, overlap error
+ * @return double, overlap error
  */
 double Overlap(Interval &v1, Interval &v2)
 {
@@ -52,10 +54,12 @@ double Overlap(Interval &v1, Interval &v2)
     else if (v2.start > v1.start && f2 < f1)
     {
         return v2.length * coreError;
+        // return coreError * (v1.length + v2.length - (f2 - v1.start));
     }
     else if (v1.start > v2.start && f1 < f2)
     {
         return v1.length * coreError;
+        // return coreError * (v2.length + v1.length - (f2 - v1.start));
     }
     else if (f1 >= v2.start && f2 >= f1 && v1.start <= v2.start)
     {
