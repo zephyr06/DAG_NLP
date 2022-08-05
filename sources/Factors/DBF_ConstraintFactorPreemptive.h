@@ -75,7 +75,7 @@ namespace DAG_SPACE
         {
             auto x1 = x.at<VectorDynamic>(keys[0]);
             auto x2 = x.at<VectorDynamic>(keys[1]);
-            int a = 1;
+            // int a = 1;
         }
         return GenerateVectorDynamic1D(Barrier(slack));
     }

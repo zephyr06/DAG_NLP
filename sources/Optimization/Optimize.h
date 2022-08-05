@@ -429,7 +429,10 @@ namespace DAG_SPACE
         cout << Color::blue << "The error after optimization is " << finalError << Color::def << endl;
         return {errorInitial, finalError, initialEstimate, bestResultFound};
     }
-
+    void inline donothing(const std::filesystem::directory_entry &p)
+    {
+        ;
+    }
     OptimizeResult OptimizeSchedulingResetSeed(DAG_Model &dagTasks)
     {
         if (recordActionValue > 0)
@@ -438,6 +441,7 @@ namespace DAG_SPACE
             for (auto &p : std::filesystem::directory_iterator(p1))
             {
                 recordRLFileCount++;
+                donothing(p);
             }
         }
 

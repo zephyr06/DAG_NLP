@@ -192,6 +192,7 @@ TEST(sparse, matrix)
         for (int j = 0; j < N; j++)
         {
             double a = j / 10;
+            a++;
         }
     }
     EndTimer("inverse2", true);
