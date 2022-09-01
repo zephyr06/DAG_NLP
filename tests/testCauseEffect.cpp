@@ -60,24 +60,38 @@ struct RTDA
     RTDA(double r, double d) : reactionTime(r), dataAge(d) {}
 };
 
-RTDA GetRTDAFromSingleJob(TaskSetInfoDerived &tasksInfo, std::vector<int> &causeEffectChain, Values &x)
+RTDA GetMaxRTDA(std::vector<RTDA> &resVec)
+{
+    RTDA maxRTDA;
+    for (auto &item : resVec)
+    {
+        maxRTDA.reactionTime = max(item.reactionTime, maxRTDA.reactionTime);
+        maxRTDA.dataAge = std::max(item.dataAge, maxRTDA.dataAge);
+    }
+    return maxRTDA;
+}
+
+std::vector<RTDA> GetRTDAFromSingleJob(TaskSetInfoDerived &tasksInfo, std::vector<int> &causeEffectChain, Values &x)
 {
 
     LLint hyperPeriod = tasksInfo.hyperPeriod;
     const TaskSet &tasks = tasksInfo.tasks;
-    size_t totalStartJobs = hyperPeriod / tasks[causeEffectChain[0]].period;
+    size_t totalStartJobs = hyperPeriod / tasks[causeEffectChain[0]].period + 1;
     RTDA res;
     std::vector<RTDA> resVec;
-    resVec.reserve(totalStartJobs + 1);
+    resVec.reserve(totalStartJobs);
+    for (size_t i = 0; i < totalStartJobs; i++)
+    {
+        resVec.push_back(RTDA{-1, -1});
+    }
 
     std::unordered_map<JobCEC, JobCEC> firstReactionMap;
     // Todo: Be careful! this termination condition is not consistent with Verucchi!
-    for (size_t startInstanceIndex = 0; startInstanceIndex <= totalStartJobs + 1; startInstanceIndex++)
+    for (size_t startInstanceIndex = 0; startInstanceIndex <= totalStartJobs; startInstanceIndex++)
     {
 
         JobCEC firstJob = {causeEffectChain[0], startInstanceIndex};
         JobCEC lastJob = {-1, 0};
-        bool findLastJob = false;
         for (uint j = 1; j < causeEffectChain.size(); j++)
         {
             double currentJobFT = GetFinishTime(firstJob, x, tasksInfo);
@@ -94,7 +108,6 @@ RTDA GetRTDAFromSingleJob(TaskSetInfoDerived &tasksInfo, std::vector<int> &cause
             if (jobIndex > 0)
             {
                 lastJob = {causeEffectChain[j], jobIndex - 1};
-                findLastJob = true;
             }
             else
             {
@@ -103,21 +116,20 @@ RTDA GetRTDAFromSingleJob(TaskSetInfoDerived &tasksInfo, std::vector<int> &cause
         }
 
         // TODO: Be careful about the last instance
-        resVec.push_back(res);
         JobCEC jj(causeEffectChain[0], size_t(0));
         firstReactionMap[jj] = firstJob;
         resVec[startInstanceIndex].reactionTime = GetFinishTime(firstJob, x, tasksInfo) - GetStartTime({causeEffectChain[0], startInstanceIndex}, x, tasksInfo);
 
         // update data age
-        if (startInstanceIndex > 0)
+        JobCEC firstReactLastJob = JobCEC{causeEffectChain[0], size_t(startInstanceIndex - 1)};
+        if (startInstanceIndex > 0 && firstReactionMap[firstReactLastJob] != firstJob)
         {
             JobCEC lastReaction = firstJob;
             lastReaction.jobId--;
-            resVec[startInstanceIndex - 1].dataAge = GetStartTime(lastReaction, x, tasksInfo) + tasks[lastReaction.taskId].executionTime -
-                                                     GetStartTime({causeEffectChain[0], startInstanceIndex - 1}, x, tasksInfo);
+            resVec[startInstanceIndex - 1].dataAge = GetStartTime(lastReaction, x, tasksInfo) + tasks[lastReaction.taskId].executionTime - GetStartTime({causeEffectChain[0], startInstanceIndex - 1}, x, tasksInfo);
         }
     }
-    return resVec[0];
+    return resVec;
 }
 
 void AddReactionTimeDataAgeFactor(NonlinearFactorGraph &graph,
@@ -223,7 +235,7 @@ TEST(GetStartTime, v1)
     // EXPECT_LONGS_EQUAL(405, GetStartTime({5, 2}, initialEstimateFG, tasksInfo));
 }
 
-TEST(a, b)
+TEST(CauseAffect, v1)
 {
     using namespace DAG_SPACE;
     DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v1.csv", "orig"); // single-rate dag
@@ -234,9 +246,26 @@ TEST(a, b)
     initialEstimate << 1, 2, 3, 4, 5;
     Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
     std::vector<int> causeEffectChain = {0, 1, 2};
-    RTDA res = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
-    EXPECT_LONGS_EQUAL(414, res.reactionTime);
-    EXPECT_LONGS_EQUAL(414, res.dataAge);
+    auto res = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
+    RTDA resM = GetMaxRTDA(res);
+    EXPECT_LONGS_EQUAL(414, resM.reactionTime);
+    EXPECT_LONGS_EQUAL(414, resM.dataAge);
+}
+TEST(CA, V2)
+{
+    using namespace DAG_SPACE;
+    DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v2.csv", "orig"); // single-rate dag
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    VectorDynamic initialEstimate = GenerateVectorDynamic(6);
+    initialEstimate << 1, 101, 2, 3, 4, 5;
+    Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
+    std::vector<int> causeEffectChain = {0, 1, 2};
+    auto res = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
+    RTDA resM = GetMaxRTDA(res);
+    EXPECT_LONGS_EQUAL(414, resM.reactionTime);
+    EXPECT_LONGS_EQUAL(314, resM.dataAge);
 }
 // TEST(a, b)
 // {
