@@ -267,6 +267,22 @@ TEST(CA, V2)
     EXPECT_LONGS_EQUAL(414, resM.reactionTime);
     EXPECT_LONGS_EQUAL(314, resM.dataAge);
 }
+
+TEST(CA, v3)
+{
+    using namespace DAG_SPACE;
+    DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v4.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initialEstimate = GenerateVectorDynamic(11);
+    initialEstimate << 1, 101, 202, 303, 404, 505, 2, 204, 406, 3, 306;
+    Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
+    std::vector<int> causeEffectChain = {0, 1, 2};
+    auto res = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
+    RTDA resM = GetMaxRTDA(res);
+    EXPECT_LONGS_EQUAL(514, resM.reactionTime);
+    EXPECT_LONGS_EQUAL(312, resM.dataAge);
+}
 // TEST(a, b)
 // {
 //     using namespace DAG_SPACE;
