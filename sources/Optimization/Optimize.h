@@ -11,6 +11,7 @@
 #include "sources/Factors/DAG_ConstraintFactor.h"
 #include "sources/Factors/DDL_ConstraintFactor.h"
 #include "sources/Factors/SensorFusionFactor.h"
+#include "sources/Factors/RTDA_Factor.h"
 #include "sources/Optimization/EliminationForest_utils.h"
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Optimization/RelocateStartTimeVector.h"
@@ -56,6 +57,8 @@ namespace DAG_SPACE
         AddDAG_Factor(graph, dagTasks, tasksInfo);
         AddDBF_Factor(graph, tasksInfo);
         AddDDL_Factor(graph, tasksInfo);
+
+        AddWholeRTDAFactor(graph, tasksInfo, {0, 1, 2});
         // AddMakeSpanFactor(graph, tasksInfo, dagTasks.mapPrev);
         // LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
         // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
