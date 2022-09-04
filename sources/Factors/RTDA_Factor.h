@@ -1,56 +1,11 @@
-#include "unordered_map"
-
 #include "sources/Factors/MultiKeyFactor.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Optimization/InitialEstimate.h"
+#include "sources/Utils/JobCEC.h"
+
 
 namespace DAG_SPACE
 {
-    using namespace std;
-    struct JobCEC
-    {
-        int taskId;
-        size_t jobId;
-        JobCEC() : taskId(-1), jobId(0) {}
-        JobCEC(int taskId, size_t jobId) : taskId(taskId), jobId(jobId) {}
-
-        bool operator==(const JobCEC &other) const
-        {
-            return taskId == other.taskId && jobId == other.jobId;
-        }
-        bool operator!=(const JobCEC &other) const
-        {
-            return !(*this == other);
-        }
-    };
-    template <>
-    struct std::hash<JobCEC>
-    {
-        std::size_t operator()(const JobCEC &jobCEC) const
-        {
-            std::string str = std::to_string(jobCEC.taskId) + ", " + std::to_string(jobCEC.jobId);
-            return std::hash<std::string>{}(str);
-        }
-    };
-
-    // TODO: requires further test!
-    double GetStartTime(JobCEC jobCEC, const Values &x, const TaskSetInfoDerived &tasksInfo)
-    {
-        if (jobCEC.taskId < 0 || jobCEC.taskId >= tasksInfo.N)
-        {
-            CoutError("GetStartTime receives invalid jobCEC!");
-        }
-        int jobNumInHyperPeriod = tasksInfo.hyperPeriod / tasksInfo.tasks[jobCEC.taskId].period;
-
-        double res = x.at<VectorDynamic>(GenerateKey(jobCEC.taskId, jobCEC.jobId % jobNumInHyperPeriod))(0) + jobCEC.jobId / jobNumInHyperPeriod * tasksInfo.hyperPeriod;
-        return res;
-    }
-
-    inline double GetFinishTime(JobCEC jobCEC, const Values &x, const TaskSetInfoDerived &tasksInfo)
-    {
-        return GetStartTime(jobCEC, x, tasksInfo) + tasksInfo.tasks[jobCEC.taskId].executionTime;
-    }
-
     struct RTDA
     {
         double reactionTime;
@@ -59,7 +14,7 @@ namespace DAG_SPACE
         RTDA(double r, double d) : reactionTime(r), dataAge(d) {}
     };
 
-    RTDA GetMaxRTDA(std::vector<RTDA> &resVec)
+    RTDA GetMaxRTDA(std::vector<RTDA> & resVec)
     {
         RTDA maxRTDA;
         for (auto &item : resVec)
@@ -131,8 +86,8 @@ namespace DAG_SPACE
         return resVec;
     }
 
-    void AddWholeRTDAFactor(NonlinearFactorGraph &graph,
-                            TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain)
+    void AddWholeRTDAFactor(NonlinearFactorGraph & graph,
+                            TaskSetInfoDerived & tasksInfo, const std::vector<int> &causeEffectChain)
     {
         if (RtdaWeight == 0)
             return;
