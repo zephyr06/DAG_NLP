@@ -84,6 +84,9 @@ int withAddedSensorFusionError = (int)ConfigParameters["withAddedSensorFusionErr
 int whetherRandomNoiseModelSigma = (int)ConfigParameters["whetherRandomNoiseModelSigma"];
 int whether_ls = (int)ConfigParameters["whether_ls"];
 
+int whether_shuffle_CE_chain = (int)ConfigParameters["whether_shuffle_CE_chain"];
+const int NumCauseEffectChain = (int)ConfigParameters["NumCauseEffectChain"];
+
 const int maxIterations = (int)ConfigParameters["maxIterations"];
 const int saveGraph = (int)ConfigParameters["saveGraph"];
 const int recordActionValue = (int)ConfigParameters["recordActionValue"];

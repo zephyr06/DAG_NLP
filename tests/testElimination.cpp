@@ -35,7 +35,7 @@ TEST(addMappingFunction, singleProcess)
         mapIndex[i] = MappingDataStruct{i, 0};
     mapIndexExpect = mapIndex;
     bool whetherEliminate;
-    pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(tasksInfo);
+    pair<Graph, indexVertexMap> sth = EstablishTaskGraph(tasksInfo);
     Graph eliminationTrees = sth.first;
     indexVertexMap indexesBGL = sth.second;
 
@@ -93,7 +93,7 @@ TEST(addMappingFunction, MultiProcess)
     mapIndexExpect = mapIndex;
     bool whetherEliminate;
     TaskSetInfoDerived tasksInfo(tasks);
-    pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(tasksInfo);
+    pair<Graph, indexVertexMap> sth = EstablishTaskGraph(tasksInfo);
     Graph eliminationTrees = sth.first;
     indexVertexMap indexesBGL = sth.second;
 
@@ -145,7 +145,7 @@ TEST(addMappingFunction, MultiProcessV2)
     mapIndexExpect = mapIndex;
     bool whetherEliminate;
     TaskSetInfoDerived tasksInfo(tasks);
-    pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(tasksInfo);
+    pair<Graph, indexVertexMap> sth = EstablishTaskGraph(tasksInfo);
     Graph eliminationTrees = sth.first;
     indexVertexMap indexesBGL = sth.second;
 
@@ -188,7 +188,7 @@ TEST(EliminationTree, build_maintain_tree)
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
-    auto sth = EstablishGraphStartTimeVector(tasksInfo);
+    auto sth = EstablishTaskGraph(tasksInfo);
     Graph g = sth.first;
 
     vertex_name_map_t vertex2indexBig = get(vertex_name, g);
@@ -219,7 +219,7 @@ TEST(EliminationTree, find_sub_tree)
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
-    auto sth = EstablishGraphStartTimeVector(tasksInfo);
+    auto sth = EstablishTaskGraph(tasksInfo);
     Graph g = sth.first;
     indexVertexMap indexesBGL = sth.second;
 
@@ -290,7 +290,7 @@ TEST(find_sub_tree, v2)
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v18.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
-    auto sth = EstablishGraphStartTimeVector(tasksInfo);
+    auto sth = EstablishTaskGraph(tasksInfo);
     Graph g = sth.first;
     indexVertexMap indexesBGL = sth.second;
 
@@ -316,7 +316,7 @@ TEST(find_sub_tree, v3)
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v18.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
-    auto sth = EstablishGraphStartTimeVector(tasksInfo);
+    auto sth = EstablishTaskGraph(tasksInfo);
     Graph g = sth.first;
     indexVertexMap indexesBGL = sth.second;
 

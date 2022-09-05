@@ -19,23 +19,7 @@ using namespace std;
 // using namespace boost;
 using namespace RegularTaskSystem;
 
-typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
-                              boost::property<boost::vertex_name_t, LLint>,
-                              boost::property<boost::edge_name_t, LLint>>
-    Graph;
-// map to access properties of vertex from the graph
-typedef boost::property_map<Graph, boost::vertex_name_t>::type vertex_name_map_t;
-typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-typedef boost::property_map<Graph, boost::edge_name_t>::type edge_name_map_t;
-
-typedef std::unordered_map<LLint, Vertex> indexVertexMap;
-
-struct first_name_t
-{
-    typedef boost::vertex_property_tag kind;
-};
-
-pair<Graph, indexVertexMap> EstablishGraphStartTimeVector(RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
+pair<Graph, indexVertexMap> EstablishTaskGraph(RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
 {
     using namespace DAG_SPACE;
 
@@ -75,46 +59,6 @@ pair<Graph, indexVertexMap> EstablishGraphStartTimeVector(RegularTaskSystem::Tas
 }
 
 // it generates a graph where a vertex is a single task rather than a job
-pair<Graph, indexVertexMap> GenerateGraphForTaskSet(DAG_SPACE::DAG_Model dagTasks)
-{
-
-    Graph g;
-    // map to access properties of vertex from the graph
-    vertex_name_map_t vertex2indexBig = get(boost::vertex_name, g);
-
-    // map to access vertex from its global index
-    indexVertexMap indexesBGL;
-    for (uint i = 0; i < dagTasks.tasks.size(); i++)
-    {
-        indexVertexMap::iterator pos;
-        bool inserted;
-        Vertex u;
-        boost::tie(pos, inserted) = indexesBGL.insert(std::make_pair(i, Vertex()));
-        if (inserted)
-        {
-            u = add_vertex(g);
-            vertex2indexBig[u] = i;
-            pos->second = u;
-        }
-        else
-        {
-            CoutError("Error building indexVertexMap!");
-        }
-    }
-
-    // add edges
-
-    for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
-    {
-        const TaskSet &tasksPrev = itr->second;
-        size_t indexNext = itr->first;
-        for (size_t i = 0; i < tasksPrev.size(); i++)
-        {
-            boost::add_edge(tasksPrev[i].id, dagTasks.tasks[indexNext].id, g);
-        }
-    }
-    return std::make_pair(g, indexesBGL);
-}
 
 void FindSubTree(Graph &g, vector<LLint> &subTreeIndex, std::unordered_set<int> &indexSet, Vertex v)
 {
@@ -309,7 +253,7 @@ struct EliminationForest
             mapIndex[i] = m;
         };
 
-        pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(tasksInfo);
+        pair<Graph, indexVertexMap> sth = EstablishTaskGraph(tasksInfo);
         eliminationTrees = sth.first;
         indexesBGL = sth.second;
 

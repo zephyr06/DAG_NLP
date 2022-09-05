@@ -15,14 +15,7 @@ exactJacobian: 0
 numericalJaobian: 0
 PrintOutput: 1
 PrintInitial: 0
-#*************************************************************
 
-# Elimination settings
-MaxEliminateDetectIterations: 25
-stepJacobianIteration: 1.5
-toleranceEliminator: 1
-tightEliminate: 0
-zeroJacobianDetectTol: 1e-4
 #*************************************************************
 
 # Get away from local optimal setting
@@ -51,6 +44,8 @@ maxIterations: 10000
 weightDDL_factor: 2.5
 weightDAG_factor: 1.8
 RtdaWeight: 1
+NumCauseEffectChain: 1
+whether_shuffle_CE_chain: 0
 makespanWeight: 0
 weightPrior_factor: 0
 sensorFusionTolerance: 500000
@@ -78,8 +73,16 @@ SA_iteration: 100000
 # no need to adjust
 noiseModelSigma: 1
 saveGraph: 0
+
 #*************************************************************
 
+# Elimination settings
+MaxEliminateDetectIterations: 25
+stepJacobianIteration: 1.5
+toleranceEliminator: 1
+tightEliminate: 0
+zeroJacobianDetectTol: 1e-4
+#*************************************************************
 # not used
 barrierBase: 100
 punishmentInBarrier: 1e2
@@ -90,3 +93,5 @@ T: !!opencv-matrix
    dt: d
    data: [ 3., 1., 5. ]
 #*************************************************************
+
+

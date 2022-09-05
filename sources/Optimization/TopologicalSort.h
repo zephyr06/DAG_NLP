@@ -7,19 +7,10 @@
 
 namespace DAG_SPACE
 {
+
     TaskSet FindSourceTasks(const DAG_Model &dagTasks)
     {
-        std::set<int> originTasks;
-        for (uint i = 0; i < dagTasks.tasks.size(); i++)
-        {
-            originTasks.insert(i);
-        }
-
-        for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
-        {
-            size_t indexNext = itr->first;
-            originTasks.erase(indexNext);
-        }
+        std::vector<int> originTasks = dagTasks.FindSourceTaskIds();
 
         TaskSet tasks;
         for (auto itr = originTasks.begin(); itr != originTasks.end(); itr++)
@@ -91,7 +82,7 @@ namespace DAG_SPACE
 
         Graph graphBoost;
         indexVertexMap indexesBGL;
-        std::tie(graphBoost, indexesBGL) = GenerateGraphForTaskSet(dagTasks);
+        std::tie(graphBoost, indexesBGL) = dagTasks.GenerateGraphForTaskSet();
 
         TaskSet originTasks = FindSourceTasks(dagTasks);
 

@@ -1,5 +1,73 @@
 #pragma once
 #include "sources/TaskModel/RegularTasks.h"
+#include <utility>
+#include <boost/config.hpp>
+#include <iostream>  // for std::cout
+#include <utility>   // for std::pair
+#include <algorithm> // for std::for_each
+#include <bits/stdc++.h>
+#include <boost/utility.hpp> // for boost::tie
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/graphviz.hpp>
+#include <boost/graph/graph_traits.hpp>
+#include <boost/graph/topological_sort.hpp>
+
+#include <boost/graph/adjacency_list.hpp>       // adjacency_list
+#include <boost/graph/topological_sort.hpp>     // find_if
+#include <boost/graph/breadth_first_search.hpp> // shortest paths
+#include <boost/range/algorithm.hpp>            // range find_if
+#include <boost/graph/graphviz.hpp>             // read_graphviz
+
+typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
+                              boost::property<boost::vertex_name_t, LLint>,
+                              boost::property<boost::edge_name_t, LLint>>
+    Graph;
+// map to access properties of vertex from the graph
+typedef boost::property_map<Graph, boost::vertex_name_t>::type vertex_name_map_t;
+typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
+typedef boost::property_map<Graph, boost::edge_name_t>::type edge_name_map_t;
+
+typedef std::unordered_map<LLint, Vertex> indexVertexMap;
+
+struct first_name_t
+{
+    typedef boost::vertex_property_tag kind;
+};
+
+// Code from https://stackoverflow.com/questions/52878925/boostgraph-getting-the-path-up-to-the-root
+
+std::vector<int> shortest_paths(Vertex root, Vertex target, Graph const &g)
+{
+    std::vector<int> path;
+    // find shortest paths from the root
+    std::vector<Vertex> predecessors(boost::num_vertices(g), -1);
+    auto recorder = boost::record_predecessors(predecessors.data(), boost::on_examine_edge());
+    boost::breadth_first_search(g, root, boost::visitor(boost::make_bfs_visitor(recorder)));
+
+    for (auto pred = predecessors[target]; pred != -1; pred = predecessors[pred])
+    {
+        path.push_back(pred);
+    }
+    if (path.size() != 0)
+    {
+        std::reverse(path.begin(), path.end());
+        path.push_back(target);
+    }
+    return path;
+}
+
+void PrintChains(std::vector<std::vector<int>> &chains)
+{
+    std::cout << "Chains:" << std::endl;
+    for (size_t i = 0; i < size(chains); i++)
+    {
+        for (size_t j = 0; j < size(chains[i]); j++)
+        {
+            std::cout << chains[i][j] << ", ";
+        }
+        std::cout << endl;
+    }
+}
 
 namespace DAG_SPACE
 {
@@ -13,10 +81,56 @@ namespace DAG_SPACE
     public:
         TaskSet tasks;
         MAP_Prev mapPrev;
+        Graph graph_;
+        indexVertexMap indexesBGL_;
+        std::vector<std::vector<int>> chains_;
 
         DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev) : tasks(tasks),
                                                        mapPrev(mapPrev)
         {
+            std::tie(graph_, indexesBGL_) = GenerateGraphForTaskSet();
+            chains_ = GetRandomChains(NumCauseEffectChain);
+        }
+
+        pair<Graph, indexVertexMap> GenerateGraphForTaskSet()
+        {
+
+            Graph g;
+            // map to access properties of vertex from the graph
+            vertex_name_map_t vertex2indexBig = get(boost::vertex_name, g);
+
+            // map to access vertex from its global index
+            indexVertexMap indexesBGL;
+            for (uint i = 0; i < tasks.size(); i++)
+            {
+                indexVertexMap::iterator pos;
+                bool inserted;
+                Vertex u;
+                boost::tie(pos, inserted) = indexesBGL.insert(std::make_pair(i, Vertex()));
+                if (inserted)
+                {
+                    u = add_vertex(g);
+                    vertex2indexBig[u] = i;
+                    pos->second = u;
+                }
+                else
+                {
+                    CoutError("Error building indexVertexMap!");
+                }
+            }
+
+            // add edges
+
+            for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
+            {
+                const TaskSet &tasksPrev = itr->second;
+                size_t indexNext = itr->first;
+                for (size_t i = 0; i < tasksPrev.size(); i++)
+                {
+                    boost::add_edge(tasksPrev[i].id, tasks[indexNext].id, g);
+                }
+            }
+            return std::make_pair(g, indexesBGL);
         }
 
         void addEdge(int prevIndex, int nextIndex)
@@ -47,6 +161,74 @@ namespace DAG_SPACE
                 count += (itr->second).size();
             }
             return count;
+        }
+
+        std::vector<std::vector<int>> GetRandomChains(int numOfChains)
+        {
+            std::vector<std::vector<int>> chains;
+            chains.reserve(numOfChains);
+            int chainCount = 0;
+            std::vector<int> sourceIds = FindSourceTaskIds();
+            std::vector<int> sinkIds = FindSinkTaskIds();
+
+            for (int sourceId : sourceIds)
+            {
+                for (int sinkId : sinkIds)
+                {
+                    auto path = shortest_paths(sourceId, sinkId, graph_);
+                    if (path.size() > 1)
+                    {
+                        chains.push_back(path);
+                        chainCount++;
+                    }
+                }
+            }
+            if (chainCount > numOfChains)
+            {
+                if (whether_shuffle_CE_chain)
+                    std::shuffle(chains.begin(), chains.end(), std::default_random_engine{});
+                chains.resize(numOfChains);
+            }
+            return chains;
+        }
+
+        std::vector<int> FindSourceTaskIds() const
+        {
+            std::set<int> originTasks;
+            for (uint i = 0; i < tasks.size(); i++)
+            {
+                originTasks.insert(i);
+            }
+
+            for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
+            {
+                size_t indexNext = itr->first;
+                originTasks.erase(indexNext);
+            }
+            std::vector<int> res(originTasks.size());
+            std::copy(originTasks.begin(), originTasks.end(), res.begin());
+            return res;
+        }
+
+        std::vector<int> FindSinkTaskIds() const
+        {
+            std::set<int> originTasks;
+            for (uint i = 0; i < tasks.size(); i++)
+            {
+                originTasks.insert(i);
+            }
+
+            for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
+            {
+                auto parents = itr->second;
+                for (auto p : parents)
+                {
+                    originTasks.erase(p.id);
+                }
+            }
+            std::vector<int> res(originTasks.size());
+            std::copy(originTasks.begin(), originTasks.end(), res.begin());
+            return res;
         }
     };
     // it seems like only 'orig' priority type is allowed
