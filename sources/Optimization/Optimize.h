@@ -54,11 +54,11 @@ namespace DAG_SPACE
     void BuildFactorGraph(DAG_Model &dagTasks, NonlinearFactorGraph &graph,
                           TaskSetInfoDerived &tasksInfo, EliminationForest &forestInfo)
     {
-        AddDAG_Factor(graph, dagTasks, tasksInfo);
+        // AddDAG_Factor(graph, dagTasks, tasksInfo);
         AddDBF_Factor(graph, tasksInfo);
         AddDDL_Factor(graph, tasksInfo);
 
-        AddWholeRTDAFactor(graph, tasksInfo, {0, 1, 2});
+        AddWholeRTDAFactor(graph, tasksInfo, {2, 1, 0});
         // AddMakeSpanFactor(graph, tasksInfo, dagTasks.mapPrev);
         // LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
         // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);

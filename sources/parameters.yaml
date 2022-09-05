@@ -33,6 +33,7 @@ ResetRandomWeightThreshold: 5e-3
 #*************************************************************
 
 # optimizer settings
+whether_ls: 0
 deltaInitialDogleg: 1e5
 initialLambda: 1e3
 lowerLambda: 1e-60

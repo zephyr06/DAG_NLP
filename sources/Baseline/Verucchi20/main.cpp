@@ -208,7 +208,7 @@ int multiTaskset_fusion()
 
 	Evaluation eval;
 	eval.addLatency({task1, task1, task2, task5, task6}, LatencyCost(1, 15), LatencyConstraint(400, 400));
-	eval.addLatency({task3, task3, task4, task5, task6}, LatencyCost(1, 3), LatencyConstraint(400, 400));
+	// eval.addLatency({task3, task3, task4, task5, task6}, LatencyCost(1, 3), LatencyConstraint(400, 400));
 	eval.addScheduling(SchedulingCost(20), SchedulingConstraint(4));
 
 	const auto &bestDAG = eval.evaluate(allDags);

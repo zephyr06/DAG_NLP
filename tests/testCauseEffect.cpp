@@ -160,6 +160,7 @@ TEST(CA, v3)
 
 TEST(CA_facroe, v1)
 {
+    whether_ls = 1;
     using namespace DAG_SPACE;
     DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v4.csv", "orig"); // single-rate dag
     TaskSet tasks = dagTasks.tasks;
@@ -172,6 +173,7 @@ TEST(CA_facroe, v1)
 
     NonlinearFactorGraph graph;
     AddWholeRTDAFactor(graph, tasksInfo, causeEffectChain);
+
     double errActual = graph.error(initialEstimateFG);
     std::cout << "Actual error is " << errActual << std::endl;
     EXPECT_LONGS_EQUAL(180770, errActual);

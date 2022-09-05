@@ -3,7 +3,6 @@
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Utils/JobCEC.h"
 
-
 namespace DAG_SPACE
 {
     struct RTDA
@@ -14,7 +13,7 @@ namespace DAG_SPACE
         RTDA(double r, double d) : reactionTime(r), dataAge(d) {}
     };
 
-    RTDA GetMaxRTDA(std::vector<RTDA> & resVec)
+    RTDA GetMaxRTDA(std::vector<RTDA> &resVec)
     {
         RTDA maxRTDA;
         for (auto &item : resVec)
@@ -40,7 +39,7 @@ namespace DAG_SPACE
         }
 
         std::unordered_map<JobCEC, JobCEC> firstReactionMap;
-        // Todo: Be careful! this termination condition is not consistent with Verucchi!
+
         for (size_t startInstanceIndex = 0; startInstanceIndex <= totalStartJobs; startInstanceIndex++)
         {
 
@@ -59,14 +58,6 @@ namespace DAG_SPACE
                     }
                 }
                 firstJob = {causeEffectChain[j], jobIndex};
-                if (jobIndex > 0)
-                {
-                    lastJob = {causeEffectChain[j], jobIndex - 1};
-                }
-                else
-                {
-                    CoutError("Should not gonna happen!");
-                }
             }
 
             // TODO: Be careful about the last instance
@@ -86,8 +77,8 @@ namespace DAG_SPACE
         return resVec;
     }
 
-    void AddWholeRTDAFactor(NonlinearFactorGraph & graph,
-                            TaskSetInfoDerived & tasksInfo, const std::vector<int> &causeEffectChain)
+    void AddWholeRTDAFactor(NonlinearFactorGraph &graph,
+                            TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain)
     {
         if (RtdaWeight == 0)
             return;
@@ -107,7 +98,15 @@ namespace DAG_SPACE
             auto RTDAVec = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, x);
             RTDA finalResult = GetMaxRTDA(RTDAVec);
             VectorDynamic res = GenerateVectorDynamic(1 * 2);
-            res << finalResult.dataAge, finalResult.reactionTime;
+            if (!whether_ls)
+            {
+                res << std::pow(finalResult.dataAge, 0.5), std::pow(finalResult.reactionTime, 0.5);
+            }
+            else
+            {
+                res << finalResult.dataAge, finalResult.reactionTime;
+            }
+
             return res;
         };
 
