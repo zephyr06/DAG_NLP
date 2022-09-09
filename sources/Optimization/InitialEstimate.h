@@ -314,7 +314,7 @@ namespace DAG_SPACE
         TaskSet &tasks = dagTasks.tasks;
         // vector<int> order = FindDependencyOrderDFS(dagTasks);
         std::vector<int> order = TopologicalSortMulti(dagTasks)[3]; //"DM"
-        for (uint i = 0; i < N; i++)
+        for (int i = 0; i < N; i++)
         {
             tasks[i].priority_ = N - order[i];
         }

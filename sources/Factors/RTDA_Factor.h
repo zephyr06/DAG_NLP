@@ -44,7 +44,6 @@ namespace DAG_SPACE
         {
 
             JobCEC firstJob = {causeEffectChain[0], startInstanceIndex};
-            JobCEC lastJob = {-1, 0};
             for (uint j = 1; j < causeEffectChain.size(); j++)
             {
                 double currentJobFT = GetFinishTime(firstJob, x, tasksInfo);

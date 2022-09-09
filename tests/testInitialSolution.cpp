@@ -489,21 +489,22 @@ TEST(get_random_chain, v1)
     EXPECT_LONGS_EQUAL(2, chains.size());
     std::cout << std::endl;
 }
+
 TEST(GenerateInitial_Custom_DAG, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v40.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v14.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic inital = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
-    for (uint i = 0; i < dagTasks.tasks.size(); i++)
-    {
-        std::cout << dagTasks.tasks[i].priority_ << std::endl;
-    }
-    EXPECT_LONGS_EQUAL(5, dagTasks.tasks[0].priority_);
+    // for (uint i = 0; i < dagTasks.tasks.size(); i++)
+    // {
+    //     std::cout << dagTasks.tasks[i].priority_ << std::endl;
+    // }
+    EXPECT_LONGS_EQUAL(2, dagTasks.tasks[0].priority_);
     EXPECT_LONGS_EQUAL(4, dagTasks.tasks[4].priority_);
-    EXPECT_LONGS_EQUAL(3, dagTasks.tasks[2].priority_);
-    EXPECT_LONGS_EQUAL(2, dagTasks.tasks[3].priority_);
+    EXPECT_LONGS_EQUAL(5, dagTasks.tasks[2].priority_);
+    EXPECT_LONGS_EQUAL(3, dagTasks.tasks[3].priority_);
     EXPECT_LONGS_EQUAL(1, dagTasks.tasks[1].priority_);
     std::cout << std::endl;
 }
@@ -511,20 +512,34 @@ TEST(GenerateInitial_Custom_DAG, v1)
 TEST(GenerateInitial_Custom_DAG, v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v14.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v40.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic inital = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
-    for (uint i = 0; i < dagTasks.tasks.size(); i++)
-    {
-        std::cout << dagTasks.tasks[i].priority_ << std::endl;
-    }
+    // for (uint i = 0; i < dagTasks.tasks.size(); i++)
+    // {
+    //     std::cout << dagTasks.tasks[i].priority_ << std::endl;
+    // }
     EXPECT_LONGS_EQUAL(5, dagTasks.tasks[0].priority_);
     EXPECT_LONGS_EQUAL(4, dagTasks.tasks[4].priority_);
     EXPECT_LONGS_EQUAL(3, dagTasks.tasks[2].priority_);
     EXPECT_LONGS_EQUAL(2, dagTasks.tasks[3].priority_);
     EXPECT_LONGS_EQUAL(1, dagTasks.tasks[1].priority_);
 }
+
+TEST(GenerateInitial_Custom_DAG, initial)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v4.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initial = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    // std::cout << initial << std::endl;
+    VectorDynamic expected = initial;
+    expected << 0, 100, 200, 300, 400, 500, 10, 210, 410, 21, 310;
+    assert_equal(expected, initial);
+}
+
 int main()
 {
     TestResult tr;

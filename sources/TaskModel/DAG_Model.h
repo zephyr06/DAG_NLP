@@ -35,16 +35,16 @@ struct first_name_t
 };
 
 // Code from https://stackoverflow.com/questions/52878925/boostgraph-getting-the-path-up-to-the-root
-
+static constexpr Vertex NIL = -1;
 std::vector<int> shortest_paths(Vertex root, Vertex target, Graph const &g)
 {
     std::vector<int> path;
     // find shortest paths from the root
-    std::vector<Vertex> predecessors(boost::num_vertices(g), -1);
+    std::vector<Vertex> predecessors(boost::num_vertices(g), NIL);
     auto recorder = boost::record_predecessors(predecessors.data(), boost::on_examine_edge());
     boost::breadth_first_search(g, root, boost::visitor(boost::make_bfs_visitor(recorder)));
 
-    for (auto pred = predecessors[target]; pred != -1; pred = predecessors[pred])
+    for (auto pred = predecessors[target]; pred != NIL; pred = predecessors[pred])
     {
         path.push_back(pred);
     }
