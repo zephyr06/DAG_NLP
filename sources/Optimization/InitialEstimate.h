@@ -221,7 +221,7 @@ namespace DAG_SPACE
      *
      * @return ProcessorId2Index: map, processorID to processorIdIndex
      */
-    ProcessorId2Index CreateProcessorId2Index(TaskSet &tasks)
+    ProcessorId2Index CreateProcessorId2Index(const TaskSet &tasks)
     {
         ProcessorId2Index processorId2Index;
 
@@ -229,9 +229,9 @@ namespace DAG_SPACE
         int N = tasks.size();
         for (int i = 0; i < N; i++)
         {
-            if (processorId2Index.find(tasks[i].processorId) == processorId2Index.end())
+            if (processorId2Index.find(tasks.at(i).processorId) == processorId2Index.end())
             {
-                processorId2Index[tasks[i].processorId] = indexP++;
+                processorId2Index[tasks.at(i).processorId] = indexP++;
             }
         }
         return processorId2Index;
@@ -240,24 +240,24 @@ namespace DAG_SPACE
      * @brief Warning! All the task sets must have int type values, otherwise it may generate inappropriate initialization method;
      * If you need to use double type, please use timeScaleFactor to transform it into int type with some acceptable accuracy.
      *
+     * By default, priority is given by RM?
      * @param dagTasks
      * @param sizeOfVariables
      * @param variableDimension
      * @return VectorDynamic
      */
-    VectorDynamic GenerateInitial_RM(DAG_Model &dagTasks,
-                                     vector<LLint> &sizeOfVariables,
-                                     int variableDimension, LLint currTime = 0)
+    VectorDynamic SimulateFixedPrioritySched(const DAG_Model &dagTasks,
+                                             vector<LLint> &sizeOfVariables,
+                                             int variableDimension, LLint currTime = 0)
     {
         int N = dagTasks.tasks.size();
-        TaskSet &tasks = dagTasks.tasks;
+        const TaskSet &tasks = dagTasks.tasks;
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
         LLint hyperPeriod = HyperPeriod(tasks);
 
         ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
         int processorNum = processorTaskSet.size();
         // it maps from tasks[i].processorId to index in runQueues&busy&nextFree
-
         ProcessorId2Index processorId2Index = CreateProcessorId2Index(tasks);
         // contains the index of tasks to run
         vector<RunQueue> runQueues;
@@ -305,6 +305,22 @@ namespace DAG_SPACE
         return initial;
     }
 
+    VectorDynamic GenerateInitial_Custom_DAG(DAG_Model &dagTasks,
+                                             vector<LLint> &sizeOfVariables,
+                                             int variableDimension, LLint currTime = 0)
+    {
+        // Assign priority for the task sets
+        int N = dagTasks.tasks.size();
+        TaskSet &tasks = dagTasks.tasks;
+        // vector<int> order = FindDependencyOrderDFS(dagTasks);
+        std::vector<int> order = TopologicalSortMulti(dagTasks)[3]; //"DM"
+        for (uint i = 0; i < N; i++)
+        {
+            tasks[i].priority_ = N - order[i];
+        }
+
+        return SimulateFixedPrioritySched(dagTasks, sizeOfVariables, variableDimension, 0);
+    }
     /**
      * @brief Warning! All the tasks's processorId must begin with 0, otherwise it reports Segmentation error.
      *
@@ -451,9 +467,9 @@ namespace DAG_SPACE
                                                                   variableDimension);
             break;
         case RM:
-            initialEstimate = GenerateInitial_RM(dagTasks,
-                                                 sizeOfVariables,
-                                                 variableDimension);
+            initialEstimate = SimulateFixedPrioritySched(dagTasks,
+                                                         sizeOfVariables,
+                                                         variableDimension);
             break;
         case RM_DAG:
             initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,

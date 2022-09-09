@@ -33,6 +33,7 @@ namespace RegularTaskSystem
         int processorId;
         int coreRequire;
         int taskType;
+        int priority_; // its value needs to be assigned by other functions before usage
 
         // initializer
 
@@ -84,6 +85,8 @@ namespace RegularTaskSystem
             }
             else if (priorityMode == "orig")
                 return id;
+            else if (priorityMode == "assigned")
+                return priority_;
             else
                 CoutError("Priority settings not recognized!");
             return -1;
@@ -207,7 +210,7 @@ namespace RegularTaskSystem
     {
         return task1.deadline < task2.deadline;
     };
-    
+
     bool compareUtilization(Task task1, Task task2)
     {
         return task1.utilization() < task2.utilization();
@@ -347,20 +350,20 @@ namespace RegularTaskSystem
      * @param tasks
      * @return ProcessorTaskSet map type! processorId to vector<task ID>
      */
-    ProcessorTaskSet ExtractProcessorTaskSet(TaskSet &tasks)
+    ProcessorTaskSet ExtractProcessorTaskSet(const TaskSet &tasks)
     {
         int N = tasks.size();
         ProcessorTaskSet processorTasks;
         for (int i = 0; i < N; i++)
         {
-            if (processorTasks.find(tasks[i].processorId) == processorTasks.end())
+            if (processorTasks.find(tasks.at(i).processorId) == processorTasks.end())
             {
-                vector<int> ttt{tasks[i].id};
-                processorTasks[tasks[i].processorId] = ttt;
+                vector<int> ttt{tasks.at(i).id};
+                processorTasks[tasks.at(i).processorId] = ttt;
             }
             else
             {
-                processorTasks[tasks[i].processorId].push_back(tasks[i].id);
+                processorTasks[tasks.at(i).processorId].push_back(tasks.at(i).id);
             }
         }
         return processorTasks;

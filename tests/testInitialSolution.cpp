@@ -248,7 +248,7 @@ TEST(GenerateInitialForDAG, Multi_v3_processorMap)
         0, 200;
     assert_equal(expected, actual, 1e-2);
 }
-TEST(GenerateInitial_RM, Multi_v1)
+TEST(SimulateFixedPrioritySched, Multi_v1)
 {
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v34.csv", "orig");
@@ -265,7 +265,7 @@ TEST(GenerateInitial_RM, Multi_v1)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto actual = GenerateInitial_RM(dagTasks, sizeOfVariables, variableDimension);
+    auto actual = SimulateFixedPrioritySched(dagTasks, sizeOfVariables, variableDimension);
     VectorDynamic expected;
     expected.resize(10, 1);
     expected << 0,
@@ -275,7 +275,7 @@ TEST(GenerateInitial_RM, Multi_v1)
         0, 200;
     assert_equal(expected, actual);
 }
-TEST(GenerateInitial_RM, Multi_v2)
+TEST(SimulateFixedPrioritySched, Multi_v2)
 {
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v29.csv", "orig");
@@ -292,7 +292,7 @@ TEST(GenerateInitial_RM, Multi_v2)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto actual = GenerateInitial_RM(dagTasks, sizeOfVariables, variableDimension);
+    auto actual = SimulateFixedPrioritySched(dagTasks, sizeOfVariables, variableDimension);
     VectorDynamic expected;
     expected.resize(8, 1);
     expected << 14, 114,
@@ -331,7 +331,7 @@ TEST(GenerateInitial_RM, Multi_v2)
 //     assert_equal(expect, initialEstimate, 0.01);
 // }
 
-TEST(GenerateInitial_RM, v3)
+TEST(SimulateFixedPrioritySched, v3)
 {
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v3.csv", "orig");
@@ -348,14 +348,14 @@ TEST(GenerateInitial_RM, v3)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto actual = GenerateInitial_RM(dagTasks, sizeOfVariables, variableDimension);
+    auto actual = SimulateFixedPrioritySched(dagTasks, sizeOfVariables, variableDimension);
     VectorDynamic expected;
     expected.resize(17, 1);
     expected << 0, 195, 200, 300, 400, 500, 671, 700, 800, 900, 1, 201, 401, 672, 801, 25, 501;
     assert_equal(expected, actual);
 }
 
-TEST(GenerateInitial_RMDAG, v6)
+TEST(SimulateFixedPrioritySchedDAG, v6)
 {
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v3.csv", "orig");
@@ -487,6 +487,43 @@ TEST(get_random_chain, v1)
     auto chains = dagTasks.GetRandomChains(2);
     PrintChains(chains);
     EXPECT_LONGS_EQUAL(2, chains.size());
+    std::cout << std::endl;
+}
+TEST(GenerateInitial_Custom_DAG, v1)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v40.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic inital = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    for (uint i = 0; i < dagTasks.tasks.size(); i++)
+    {
+        std::cout << dagTasks.tasks[i].priority_ << std::endl;
+    }
+    EXPECT_LONGS_EQUAL(5, dagTasks.tasks[0].priority_);
+    EXPECT_LONGS_EQUAL(4, dagTasks.tasks[4].priority_);
+    EXPECT_LONGS_EQUAL(3, dagTasks.tasks[2].priority_);
+    EXPECT_LONGS_EQUAL(2, dagTasks.tasks[3].priority_);
+    EXPECT_LONGS_EQUAL(1, dagTasks.tasks[1].priority_);
+    std::cout << std::endl;
+}
+
+TEST(GenerateInitial_Custom_DAG, v2)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v14.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic inital = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    for (uint i = 0; i < dagTasks.tasks.size(); i++)
+    {
+        std::cout << dagTasks.tasks[i].priority_ << std::endl;
+    }
+    EXPECT_LONGS_EQUAL(5, dagTasks.tasks[0].priority_);
+    EXPECT_LONGS_EQUAL(4, dagTasks.tasks[4].priority_);
+    EXPECT_LONGS_EQUAL(3, dagTasks.tasks[2].priority_);
+    EXPECT_LONGS_EQUAL(2, dagTasks.tasks[3].priority_);
+    EXPECT_LONGS_EQUAL(1, dagTasks.tasks[1].priority_);
 }
 int main()
 {
