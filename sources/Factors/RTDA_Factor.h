@@ -60,7 +60,7 @@ namespace DAG_SPACE
             }
 
             // TODO: Be careful about the last instance
-            JobCEC jj(causeEffectChain[0], size_t(0));
+            JobCEC jj(causeEffectChain[0], startInstanceIndex);
             firstReactionMap[jj] = firstJob;
             resVec[startInstanceIndex].reactionTime = GetFinishTime(firstJob, x, tasksInfo) - GetStartTime({causeEffectChain[0], startInstanceIndex}, x, tasksInfo);
 
