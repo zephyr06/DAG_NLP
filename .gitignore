@@ -1,5 +1,6 @@
 */__pycache__
 */.idea
+**/*.tex
 .idea/
 tests/__pycache__
 /build

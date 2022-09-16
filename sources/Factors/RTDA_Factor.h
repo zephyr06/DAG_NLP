@@ -1,3 +1,5 @@
+#pragma once
+
 #include "sources/Factors/MultiKeyFactor.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Optimization/InitialEstimate.h"

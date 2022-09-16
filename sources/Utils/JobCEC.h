@@ -1,3 +1,6 @@
+#ifndef JOBCEC_H
+#define JOBECE_H
+
 #include "unordered_map"
 
 #include "gtsam/base/Value.h"
@@ -50,3 +53,5 @@ struct std::hash<DAG_SPACE::JobCEC>
         return std::hash<std::string>{}(str);
     }
 };
+
+#endif

@@ -10,6 +10,7 @@
 #include <sources/Baseline/Verucchi20/MultiRate/MultiRateTaskset.h>
 #include <cmath>
 #include <iostream>
+#include "sources/Baseline/VerucchiRTDABridge.h"
 
 void Evaluation::addLatency(const Chain &chain, const LatencyCost &cost,
 							const LatencyConstraint &constraint)
@@ -90,6 +91,106 @@ Evaluation::evaluate(const std::vector<DAG> &dags)
 	}
 
 	return dags[bestDAG];
+}
+
+// schedule each DAG task set separately using RTDA, and return a cost which evaluates which dag is the best
+const DAG &
+Evaluation::evaluateWithRTDA(const std::vector<DAG> &dags)
+{
+	std::vector<float> cost(dags.size(), 0.0);
+
+	unsigned invalidDags = 0;
+
+	for (unsigned k = 0; k < dags.size(); k++)
+	{
+		if (std::isnan(cost[k]))
+			continue;
+
+		SchedulingInfo info = getSchedulingInfo(dags[k], schedulingEval_.second);
+
+		if (!schedulingEval_.second.isValid(info))
+		{
+			cost[k] = NAN;
+			invalidDags++;
+			continue;
+		}
+
+		cost[k] += schedulingEval_.first.getCost(info);
+	}
+
+	for (const auto &eval : latencyEval_)
+	{
+		std::vector<unsigned> chain = taskChainToNum(eval.first);
+
+		for (unsigned k = 0; k < dags.size(); k++)
+		{
+			if (std::isnan(cost[k]))
+				continue;
+
+			auto info = getLatencyInfoRTDA(dags[k], chain);
+
+			if (!eval.second.second.isValid(info))
+			{
+				cost[k] = NAN;
+				invalidDags++;
+				continue;
+			}
+
+			cost[k] += eval.second.first.getCost(info);
+		}
+	}
+
+	std::cout << "Num invalid dags: " << invalidDags << std::endl;
+
+	if (invalidDags == dags.size())
+	{
+		std::cout << "No valid dag found. Constraints are too tight." << std::endl;
+		return dags[0];
+	}
+
+	unsigned bestDAG = 0;
+	float minCost = std::numeric_limits<float>::max();
+	for (unsigned k = 0; k < cost.size(); k++)
+	{
+		if (!std::isnan(cost[k]) && cost[k] < minCost)
+		{
+			bestDAG = k;
+			minCost = cost[k];
+		}
+	}
+
+	std::cout << "Best DAG: " << bestDAG << ", with total cost: " << minCost << std::endl
+			  << std::endl;
+	for (const auto &eval : latencyEval_)
+	{
+		printChain(eval.first);
+		auto info = getLatencyInfoRTDA(dags[bestDAG], taskChainToNum(eval.first));
+		std::cout << info << std::endl;
+	}
+
+	return dags[bestDAG];
+}
+
+LatencyInfo Evaluation::getLatencyInfoRTDA(const DAG &dag, std::vector<unsigned> chain)
+{
+	LatencyInfo info;
+	info.maxLatencyPair = std::make_pair((unsigned)0, (unsigned)0);
+	info.minLatencyPair = std::make_pair((unsigned)0, (unsigned)0);
+	info.reactionTimePair = std::make_pair((unsigned)0, (unsigned)0);
+
+	TaskSet tasks = getTaskSet(dag);
+	TaskSetInfoDerived tasksInfo(tasks);
+	VectorDynamic initialEstimate = getInitialEstimate(dag, schedulingEval_.second.maxCores);
+	Values initialEstimateFG = DAG_SPACE::GenerateInitialFG(initialEstimate, tasksInfo);
+	std::vector<int> causeEffectChain(chain.begin(), chain.end());
+	auto res = DAG_SPACE::GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
+	DAG_SPACE::RTDA resM = DAG_SPACE::GetMaxRTDA(res);
+	// std::cout << "<-------RTDA results------->\nReaction time: " << resM.reactionTime \
+			// 		<< "\nData age: " << resM.dataAge << std::endl;
+	info.maxLatency = resM.dataAge;
+	info.reactionTime = resM.reactionTime;
+	info.minLatency = 0.0f;
+	return info;
 }
 
 void Evaluation::addScheduling(const SchedulingCost &cost, const SchedulingConstraint &constraint)

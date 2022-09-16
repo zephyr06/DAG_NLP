@@ -41,12 +41,13 @@ void scheduling::scheduleToTikz(const std::string &filename,
 
     double x = 0, y = 0;
     int proc = 1;
+    double _scale = 0.2;
     for (const auto &p : processorSchedule)
     {
         tikzFile << "\\draw (0," << y << ") --(0," << y + 1 << ") ;" << std::endl;
-        tikzFile << "\\draw[<-] (" << period + 0.2 << "," << y << ") ->(" << period + 0.2 << ","
+        tikzFile << "\\draw[<-] (" << period*_scale + 0.2 << "," << y << ") ->(" << period*_scale + 0.2 << ","
                  << y + 1 << ") ;" << std::endl;
-        tikzFile << "\\draw (-0.2," << y << ") --(" << period + 0.5 << "," << y << ") ;"
+        tikzFile << "\\draw (-0.2," << y << ") --(" << period*_scale + 0.5 << "," << y << ") ;"
                  << std::endl;
         tikzFile << "\\draw (0-0.5," << y + 0.5 << ") node {$P_{" << proc << "}$};" << std::endl;
 
@@ -54,11 +55,11 @@ void scheduling::scheduleToTikz(const std::string &filename,
         for (const auto &n : p)
         {
             if (n->groupId != 888)
-                tikzFile << "\\draw (" << x << "," << y << ") rectangle (" << x + n->wcet << ","
+                tikzFile << "\\draw (" << x << "," << y << ") rectangle (" << x + n->wcet * _scale << ","
                          << y + 0.7 << ") node[pos=.5] {$" << n->shortName << "$};" << std::endl;
-            tikzFile << "\\draw (" << x << "," << y << ") node[below] {$" << x << "$};"
+            tikzFile << "\\draw (" << x << "," << y << ") node[below] {$" << x / _scale << "$};"
                      << std::endl;
-            x += n->wcet;
+            x += n->wcet*_scale;
         }
 
         y += 2;
@@ -287,4 +288,92 @@ bool scheduling::scheduleDAG(const DAG &dag, const unsigned nProc, const std::st
         scheduleToTikz(filename, processorSchedule, dag.getPeriod());
 
     return true;
+}
+
+std::vector<std::vector<std::shared_ptr<Node>>>
+scheduling::getScheduleFromDAG(const DAG &dag, const unsigned nProc, const std::string &filename, const bool verbose)
+{
+    unsigned lastUniqueId;
+
+    ScheduleInfoVec nodesToSched = createScheduleInfo(dag, lastUniqueId);
+    ScheduleInfoVec ready;
+
+    std::vector<std::vector<std::shared_ptr<Node>>> processorSchedule(nProc);
+    std::vector<double> processorUsage(nProc, 0);
+
+    double epsilon = 1e-5;
+    double delta;
+
+    for (double t = 0; t < dag.getPeriod() && !(ready.empty() && nodesToSched.empty()); t +=
+                                                                                        delta)
+    {
+        // create ready queue
+        while (!nodesToSched.empty() && std::islessequal(nodesToSched.back()->est, t + epsilon))
+        {
+            ready.push_back(nodesToSched.back());
+            nodesToSched.pop_back();
+        }
+        std::sort(ready.begin(), ready.end(), compareSchedulingInfo);
+
+        // update processor state
+        for (size_t i = 0; i < nProc; i++)
+        {
+            if (std::isgreater(processorUsage[i], 0))
+            {
+                processorUsage[i] -= delta;
+                if (std::isless(processorUsage[i], epsilon))
+                    processorUsage[i] = 0;
+            }
+        }
+
+        // compute delta: next point in time to check
+        delta = computeDelta(processorUsage, nodesToSched, ready, t, epsilon);
+
+        // if a processor is avaiable and there are ready tasks, schedule them, otherwise schedule an idle task
+        for (size_t i = 0; i < nProc; i++)
+        {
+            if (std::islessequal(processorUsage[i], epsilon))
+            {
+                if (!ready.empty())
+                {
+                    auto taskChosen = ready.back();
+                    ready.pop_back();
+
+                    // check if there is a deadline miss
+                    if (std::isgreater(t + taskChosen->n->wcet, taskChosen->lft + epsilon))
+                    {
+                        if (verbose)
+                        {
+                            std::cout << "Failed at t = " << t << "; ";
+                            std::cout << "task actual ft:" << t + taskChosen->n->wcet
+                                      << " task lft:" << taskChosen->lft << "; ";
+                            std::cout << taskChosen->n->uniqueId << "(" << taskChosen->n->wcet
+                                      << ") failed" << std::endl;
+                            printSchedule(processorSchedule);
+                        }
+
+                        processorSchedule.clear();
+                        return processorSchedule;
+                    }
+                    // if not, schedule task
+                    scheduleTask(taskChosen, i, processorUsage, nodesToSched, ready, processorSchedule, t, epsilon);
+                }
+                else
+                {
+                    // schedule idel task
+                    scheduleIdleTask(i, processorSchedule, delta, lastUniqueId);
+                }
+            }
+        }
+    }
+
+    if (verbose)
+    {
+        std::cout << "Succeded!" << std::endl;
+        printSchedule(processorSchedule);
+    }
+    // if (filename != "")
+    //     scheduleToTikz(filename, processorSchedule, dag.getPeriod());
+
+    return processorSchedule;
 }

@@ -26,6 +26,11 @@ public:
 	const DAG &
 	evaluate(const std::vector<DAG> &dags);
 
+	const DAG &
+	evaluateWithRTDA(const std::vector<DAG> &dags);
+
+	LatencyInfo getLatencyInfoRTDA(const DAG &dag, std::vector<unsigned> chain);
+
 	std::vector<unsigned>
 	taskChainToNum(const Chain &chain);
 

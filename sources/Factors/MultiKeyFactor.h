@@ -1,7 +1,5 @@
 #pragma once
 
-#pragma once
-
 #include <chrono>
 #include <unordered_map>
 #include <math.h>

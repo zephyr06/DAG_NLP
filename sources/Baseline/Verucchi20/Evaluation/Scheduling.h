@@ -77,6 +77,11 @@ namespace scheduling
         bool
         scheduleDAG(const DAG &dag, const unsigned nProc,
                     const std::string &filename = "", const bool verbose = false);
+        
+        
+        std::vector<std::vector<std::shared_ptr<Node>>>
+        getScheduleFromDAG(const DAG &dag, const unsigned nProc,
+                    const std::string &filename = "", const bool verbose = false);
 
 }
 #endif /*SCHEDULING_H*/
