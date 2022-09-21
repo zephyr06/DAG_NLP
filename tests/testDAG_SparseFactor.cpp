@@ -9,7 +9,7 @@ TEST(testDAG, v1)
     whetherRandomNoiseModelSigma = 0;
     weightDAG_factor = 1;
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -29,7 +29,7 @@ TEST(testDAG, v1)
 // TEST(testDAG, preempt_v1)
 // {
 //     using namespace DAG_SPACE;
-//     auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+//     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
 //     TaskSet tasks = dagTasks.tasks;
 //     TaskSetInfoDerived tasksInfo(tasks);
 //     EliminationForest forestInfo(tasksInfo);

@@ -3,7 +3,7 @@
 TEST(DAG_Generated, v1)
 {
     using namespace DAG_SPACE;
-    DAG_Model tasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/" + testDataSetName + ".csv", "orig");
+    DAG_Model tasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
 
     auto res = OptimizeSchedulingSA(tasks);
     cout << "The error after optimization is " << Color::green << res.initialError << Color::def << endl;

@@ -5,7 +5,7 @@ using namespace boost;
 TEST(FindDependencyOrderDFS, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v16.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v16.csv", "orig");
     auto actual = FindDependencyOrderDFS(dagTasks);
     vector<int> expected = {4, 3, 2, 1, 0};
     AssertEqualVectorNoRepeat(expected, actual);
@@ -13,7 +13,7 @@ TEST(FindDependencyOrderDFS, v1)
 TEST(addMappingFunction, singleProcess)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     int N = tasks.size();
@@ -70,7 +70,7 @@ TEST(addMappingFunction, singleProcess)
 TEST(addMappingFunction, MultiProcess)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v29.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -122,7 +122,7 @@ TEST(addMappingFunction, MultiProcess)
 TEST(addMappingFunction, MultiProcessV2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v29.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -186,7 +186,7 @@ TEST(EliminationTree, build_maintain_tree)
     //    if no, then add an edge, and perform eliminate
 
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     auto sth = EstablishTaskGraph(tasksInfo);
     Graph g = sth.first;
@@ -217,7 +217,7 @@ TEST(EliminationTree, find_sub_tree)
     //    if no, then add an edge, and perform eliminate
 
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     auto sth = EstablishTaskGraph(tasksInfo);
     Graph g = sth.first;
@@ -252,7 +252,7 @@ TEST(EliminationTree, find_sub_tree)
 TEST(CheckEliminationTreeConflict, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -288,7 +288,7 @@ TEST(find_sub_tree, v2)
 {
 
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v18.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v18.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     auto sth = EstablishTaskGraph(tasksInfo);
     Graph g = sth.first;
@@ -314,7 +314,7 @@ TEST(find_sub_tree, v3)
 {
 
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v18.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v18.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     auto sth = EstablishTaskGraph(tasksInfo);
     Graph g = sth.first;
@@ -344,7 +344,7 @@ TEST(find_sub_tree, v3)
 TEST(FindLeaf, V1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -376,7 +376,7 @@ TEST(FindLeaf, V1)
 TEST(FindVanishIndex, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     TaskSetInfoDerived tasksInfo(tasks);
@@ -414,7 +414,7 @@ TEST(FindVanishIndex, v1)
 TEST(FindVanishIndex, v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -454,7 +454,7 @@ TEST(FindVanishIndex, v2)
 TEST(Jacobianelimination, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v53.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v53.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);

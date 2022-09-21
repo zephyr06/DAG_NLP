@@ -344,7 +344,7 @@ namespace DAG_SPACE
 
         StateActionCollection currAction;
 
-        std::string pathFolder = "/home/zephyr/Programming/DAG_NLP/RL/";
+        std::string pathFolder = PROJECT_PATH + "RL/";
 
         while (loopNumber < ResetInnerWeightLoopMax)
         {
@@ -440,7 +440,7 @@ namespace DAG_SPACE
     {
         if (recordActionValue > 0)
         {
-            std::filesystem::path p1{"/home/zephyr/Programming/DAG_NLP/RL/"};
+            std::filesystem::path p1{PROJECT_PATH + "RL/"};
             for (auto &p : std::filesystem::directory_iterator(p1))
             {
                 recordRLFileCount++;

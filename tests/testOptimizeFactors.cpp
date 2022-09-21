@@ -229,7 +229,7 @@ TEST(sparse, matrix)
 
 // TEST(elimination, v1)
 // {
-//     auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v52.csv", "orig");
+//     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v52.csv", "orig");
 //     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
 //     EliminationForest forestInfo(tasksInfo);
 
@@ -261,7 +261,7 @@ TEST(sparse, matrix)
 // }
 // TEST(sigma, v1)
 // {
-//     auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+//     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
 //     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
 //     EliminationForest forestInfo(tasksInfo);
 
@@ -287,7 +287,7 @@ TEST(sparse, matrix)
 // {
 //     whetherRandomNoiseModelSigma = 0;
 //     noiseModelSigma = 1;
-//     auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v37.csv", "orig");
+//     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v37.csv", "orig");
 //     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
 //     EliminationForest forestInfo(tasksInfo);
 

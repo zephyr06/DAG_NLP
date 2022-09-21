@@ -39,7 +39,7 @@ vector<string> ReadFilesInDirectory(const char *path)
 
 void BatchOptimize()
 {
-    const char *pathDataset = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks";
+    const char *pathDataset = PROJECT_PATH + "TaskData/dagTasks";
     vector<double> averageErrorAccept;
     vector<double> averageErrorAccept1; // 1.0 accept
     vector<double> averageErrorAccept2; // 0.1 accept
@@ -51,7 +51,7 @@ void BatchOptimize()
 
     vector<string> errorFiles;
     ofstream outfileWrite;
-    outfileWrite.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/data_buffer_energy_task_number.txt",
+    outfileWrite.open(PROJECT_PATH + "CompareWithBaseline/data_buffer_energy_task_number.txt",
                       std::ios_base::app);
     vector<string> files = ReadFilesInDirectory(pathDataset);
     int TotalTestCases = files.size() - 2;
@@ -63,7 +63,7 @@ void BatchOptimize()
         string delimiter = "-";
         if (file.substr(0, file.find(delimiter)) == "dag")
         {
-            string path = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks/" + file;
+            string path = PROJECT_PATH + "TaskData/dagTasks/" + file;
             DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(path, readTaskMode);
             // int N = dagTasks.tasks.size();
             auto start = chrono::high_resolution_clock::now();
@@ -141,10 +141,10 @@ void BatchOptimize()
     }
 
     ofstream outfile1, outfile2;
-    outfile1.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/ResultFiles/utilization.txt", std::ios_base::app);
+    outfile1.open(PROJECT_PATH + "CompareWithBaseline/ResultFiles/utilization.txt", std::ios_base::app);
     outfile1 << double(averageErrorAccept1.size()) / TotalTestCases << endl;
 
-    outfile2.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/ResultFiles/time_task_number.txt", std::ios_base::app);
+    outfile2.open(PROJECT_PATH + "CompareWithBaseline/ResultFiles/time_task_number.txt", std::ios_base::app);
     outfile2 << Average(runTimeAll) << endl;
     // if (debugMode == 1)
     // {

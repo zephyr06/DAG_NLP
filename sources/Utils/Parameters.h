@@ -7,8 +7,10 @@
 #include <opencv2/core.hpp>
 #include "sources/Tools/testMy.h"
 using namespace std;
-string path = "/home/zephyr/Programming/DAG_NLP/sources/parameters.yaml";
-cv::FileStorage ConfigParameters(path, cv::FileStorage::READ);
+
+const std::string PROJECT_PATH = "/home/zephyr/Programming/DAG_NLP/";
+//  std::string path = PROJECT_PATH + "sources/parameters.yaml";
+cv::FileStorage ConfigParameters(PROJECT_PATH + "sources/parameters.yaml", cv::FileStorage::READ);
 
 enum InitializeMethod
 {
@@ -33,6 +35,7 @@ InitializeMethod Transform_enum(int a)
         return IndexMode;
     }
 }
+
 const double barrierBase = (double)ConfigParameters["barrierBase"];
 const double coolingRateSA = (double)ConfigParameters["coolingRateSA"];
 const double deltaInitialDogleg = (double)ConfigParameters["deltaInitialDogleg"];
@@ -115,4 +118,4 @@ vector<double> readVector(string filename)
     }
     return vec;
 }
-vector<double> aaa = readVector(path);
+vector<double> aaa = readVector(PROJECT_PATH + "sources/parameters.yaml");

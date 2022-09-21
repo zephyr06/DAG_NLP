@@ -5,7 +5,7 @@
 TEST(GenerateInitialForDAG, V2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -28,7 +28,7 @@ TEST(GenerateInitialForDAG, V2)
 TEST(GenerateInitialForDAG, V3)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v22.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v22.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -52,7 +52,7 @@ TEST(GenerateInitialForDAG, V3)
 TEST(GenerateInitialForDAG_RelativeStart, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -76,7 +76,7 @@ TEST(GenerateInitialForDAG_RelativeStart, v1)
 TEST(RunQueue, V1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v10.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v10.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     Task tasknew = tasks[4];
@@ -106,7 +106,7 @@ TEST(RunQueue, V1)
 TEST(GenerateInitialForDAG_RM_DAG, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v14.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v14.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -129,7 +129,7 @@ TEST(GenerateInitialForDAG_RM_DAG, v1)
 TEST(GenerateInitialForDAG_RM_DAG, v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v23.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v23.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -152,7 +152,7 @@ TEST(GenerateInitialForDAG_RM_DAG, v2)
 TEST(GenerateInitialForDAG_RM_DAG, v3)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -177,7 +177,7 @@ TEST(GenerateInitialForDAG_RM_DAG, v3)
 TEST(GenerateInitialForDAG_RM_DAG, MultiProcessor_v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v29.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -201,7 +201,7 @@ TEST(GenerateInitialForDAG_RM_DAG, MultiProcessor_v1)
 TEST(GenerateInitialForDAG, Multi_v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v33.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v33.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -224,7 +224,7 @@ TEST(GenerateInitialForDAG, Multi_v2)
 TEST(GenerateInitialForDAG, Multi_v3_processorMap)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v34.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v34.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -251,7 +251,7 @@ TEST(GenerateInitialForDAG, Multi_v3_processorMap)
 TEST(SimulateFixedPrioritySched, Multi_v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v34.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v34.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -278,7 +278,7 @@ TEST(SimulateFixedPrioritySched, Multi_v1)
 TEST(SimulateFixedPrioritySched, Multi_v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v29.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -307,7 +307,7 @@ TEST(SimulateFixedPrioritySched, Multi_v2)
 // {
 //     using namespace DAG_SPACE;
 //     using namespace RegularTaskSystem;
-//     string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v2.csv";
+//     string path = PROJECT_PATH + "TaskData/test_n3_v2.csv";
 //     DAG_Model dagTasks = ReadDAG_Tasks(path, "orig");
 //     TaskSet tasks = dagTasks.tasks;
 //     int N = tasks.size();
@@ -334,7 +334,7 @@ TEST(SimulateFixedPrioritySched, Multi_v2)
 TEST(SimulateFixedPrioritySched, v3)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v3.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v3.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -358,7 +358,7 @@ TEST(SimulateFixedPrioritySched, v3)
 TEST(SimulateFixedPrioritySchedDAG, v6)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v3.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v3.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -382,7 +382,7 @@ TEST(SimulateFixedPrioritySchedDAG, v6)
 TEST(UpdateInitialVector, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -399,7 +399,7 @@ TEST(UpdateInitialVector, v1)
 TEST(toplogical, sortv1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v40.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v40.csv", "orig");
 
     TaskSet originTasks = FindSourceTasks(dagTasks);
     originTasks = Reorder(originTasks, "RM");
@@ -426,7 +426,7 @@ TEST(toplogical, sortv1)
 TEST(toplogical, sortv2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v40.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v40.csv", "orig");
 
     TaskSet originTasks = FindSourceTasks(dagTasks);
     originTasks = Reorder(originTasks, "DM");
@@ -454,7 +454,7 @@ TEST(toplogical, sortv2)
 TEST(toplogical, sortv3)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v40.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v40.csv", "orig");
 
     auto res = TopologicalSortMulti(dagTasks);
     std::vector<int> topoOrder = res[2];
@@ -466,7 +466,7 @@ TEST(toplogical, sortv3)
 TEST(FindSinkTaskIds, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v40.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v40.csv", "orig");
     auto chains = dagTasks.FindSinkTaskIds();
     EXPECT_LONGS_EQUAL(2, chains.size());
     EXPECT_LONGS_EQUAL(0, chains[0]);
@@ -475,7 +475,7 @@ TEST(FindSinkTaskIds, v1)
 TEST(FindSinkTaskIds, v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v66.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v66.csv", "orig");
     auto chains = dagTasks.FindSinkTaskIds();
     EXPECT_LONGS_EQUAL(1, chains.size());
     EXPECT_LONGS_EQUAL(0, chains[0]);
@@ -483,7 +483,7 @@ TEST(FindSinkTaskIds, v2)
 TEST(get_random_chain, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v40.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v40.csv", "orig");
     auto chains = dagTasks.GetRandomChains(2);
     PrintChains(chains);
     EXPECT_LONGS_EQUAL(2, chains.size());
@@ -493,7 +493,7 @@ TEST(get_random_chain, v1)
 TEST(GenerateInitial_Custom_DAG, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v14.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v14.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic inital = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
@@ -512,7 +512,7 @@ TEST(GenerateInitial_Custom_DAG, v1)
 TEST(GenerateInitial_Custom_DAG, v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v40.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v40.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic inital = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
@@ -530,7 +530,7 @@ TEST(GenerateInitial_Custom_DAG, v2)
 TEST(GenerateInitial_Custom_DAG, initial)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v4.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v4.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);

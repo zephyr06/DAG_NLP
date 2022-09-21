@@ -23,11 +23,11 @@ TEST(VerucchiRTDA, v1)
     // task4->bcet = 2;
     // task5->bcet = 1;
 
-    taskSet.addDataEdge(task3, task4, { 0 });
-    taskSet.addDataEdge(task1, task2, { 0 });
-    taskSet.addDataEdge(task2, task5, { 0 });
-    taskSet.addDataEdge(task4, task5, { 0 });
-    taskSet.addDataEdge(task5, task6, { 0 });
+    taskSet.addDataEdge(task3, task4, {0});
+    taskSet.addDataEdge(task1, task2, {0});
+    taskSet.addDataEdge(task2, task5, {0});
+    taskSet.addDataEdge(task4, task5, {0});
+    taskSet.addDataEdge(task5, task6, {0});
 
     // taskSet.addPrecedenceEdge(task3, task4);
     // taskSet.addPrecedenceEdge(task1, task2);
@@ -42,7 +42,7 @@ TEST(VerucchiRTDA, v1)
     std::cout << allDags.size() << " total valid DAGs were created" << std::endl;
 
     Evaluation eval;
-    eval.addLatency({ task1, task2, task5, task6 }, LatencyCost(1, 15), LatencyConstraint(400, 400));
+    eval.addLatency({task1, task2, task5, task6}, LatencyCost(1, 15), LatencyConstraint(400, 400));
     // eval.addLatency({task3, task3, task4, task5, task6}, LatencyCost(1, 3), LatencyConstraint(400, 400));
     eval.addScheduling(SchedulingCost(20), SchedulingConstraint(4));
 
@@ -62,15 +62,17 @@ TEST(VerucchiRTDA, v1)
     std::cout << "Generated initial estimate from the bestDAG of Verucchi:\n";
     std::cout << initialEstimate.transpose() << std::endl;
     Values initialEstimateFG = DAG_SPACE::GenerateInitialFG(initialEstimate, tasksInfo);
-    std::vector<int> causeEffectChain = { 0,1,4,5 };
+    std::vector<int> causeEffectChain = {0, 1, 4, 5};
     auto res = DAG_SPACE::GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
     DAG_SPACE::RTDA resM = DAG_SPACE::GetMaxRTDA(res);
     std::cout << "<-------------RTDA results-------------->\nChain: ";
-    for (auto task : causeEffectChain) { std::cout << task << ", "; }
+    for (auto task : causeEffectChain)
+    {
+        std::cout << task << ", ";
+    }
     std::cout << "\nReaction time: " << resM.reactionTime << "\nData age: " << resM.dataAge << std::endl;
     std::cout << "<-------------End of RTDA results------->\n\n";
 }
-
 
 TEST(VerucchiRTDA, v2)
 {
@@ -89,11 +91,11 @@ TEST(VerucchiRTDA, v2)
     // task4->bcet = 2;
     // task5->bcet = 1;
 
-    taskSet.addDataEdge(task3, task4, { 0 });
-    taskSet.addDataEdge(task1, task2, { 0 });
-    taskSet.addDataEdge(task2, task5, { 0 });
-    taskSet.addDataEdge(task4, task5, { 0 });
-    taskSet.addDataEdge(task5, task6, { 0 });
+    taskSet.addDataEdge(task3, task4, {0});
+    taskSet.addDataEdge(task1, task2, {0});
+    taskSet.addDataEdge(task2, task5, {0});
+    taskSet.addDataEdge(task4, task5, {0});
+    taskSet.addDataEdge(task5, task6, {0});
 
     // taskSet.addPrecedenceEdge(task3, task4);
     // taskSet.addPrecedenceEdge(task1, task2);
@@ -108,7 +110,7 @@ TEST(VerucchiRTDA, v2)
     std::cout << allDags.size() << " total valid DAGs were created" << std::endl;
 
     Evaluation eval;
-    eval.addLatency({ task1, task2, task5, task6 }, LatencyCost(1, 15), LatencyConstraint(400, 400));
+    eval.addLatency({task1, task2, task5, task6}, LatencyCost(1, 15), LatencyConstraint(400, 400));
     // eval.addLatency({task3, task3, task4, task5, task6}, LatencyCost(1, 3), LatencyConstraint(400, 400));
     eval.addScheduling(SchedulingCost(20), SchedulingConstraint(4));
 
@@ -128,41 +130,52 @@ TEST(VerucchiRTDA, v2)
     std::cout << "Generated initial estimate from the bestDAG of Verucchi:\n";
     std::cout << initialEstimate.transpose() << std::endl;
     Values initialEstimateFG = DAG_SPACE::GenerateInitialFG(initialEstimate, tasksInfo);
-    std::vector<int> causeEffectChain = { 0,1,4,5 };
+    std::vector<int> causeEffectChain = {0, 1, 4, 5};
     auto res = DAG_SPACE::GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
     DAG_SPACE::RTDA resM = DAG_SPACE::GetMaxRTDA(res);
     std::cout << "<-------------RTDA results-------------->\nChain: ";
-    for (auto task : causeEffectChain) { std::cout << task << ", "; }
+    for (auto task : causeEffectChain)
+    {
+        std::cout << task << ", ";
+    }
     std::cout << "\nReaction time: " << resM.reactionTime << "\nData age: " << resM.dataAge << std::endl;
     std::cout << "<-------------End of RTDA results------->\n\n";
-
 }
 
 TEST(VerucchiRTDA, single_case_v1)
 {
-    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks("/home/dong/workspace/DAG_NLP/TaskData/test_n5_v1.csv", "orig");
-    std::vector<int> causeEffectChain{ 0,1,2,3 };
+    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig");
+    std::vector<int> causeEffectChain{0, 1, 2, 3};
     DAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, causeEffectChain, 1);
     std::cout << "<-------------RTDA results-------------->\nChain: ";
-    for (auto task : causeEffectChain) { std::cout << task << ", "; }
+    for (auto task : causeEffectChain)
+    {
+        std::cout << task << ", ";
+    }
     std::cout << "\nReaction time: " << rtda.reactionTime << "\nData age: " << rtda.dataAge << std::endl;
     std::cout << "<-------------End of RTDA results------->\n\n";
 }
 
 TEST(VerucchiRTDA, single_case_v2)
 {
-    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks("/home/dong/workspace/DAG_NLP/TaskData/test_n5_v2.csv", "orig");
-    std::vector<int> causeEffectChain{ 0,1,2,3 };
+    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v2.csv", "orig");
+    std::vector<int> causeEffectChain{0, 1, 2, 3};
 
     DAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, causeEffectChain, 1, 15.0, 400.0, 15.0, 400.0, 15.0);
     std::cout << "<-------------RTDA results-------------->\nChain: ";
-    for (auto task : causeEffectChain) { std::cout << task << ", "; }
+    for (auto task : causeEffectChain)
+    {
+        std::cout << task << ", ";
+    }
     std::cout << "\nReaction time: " << rtda.reactionTime << "\nData age: " << rtda.dataAge << std::endl;
     std::cout << "<-------------End of RTDA results------->\n\n";
-    
+
     rtda = GetVerucchiRTDA(tasks, causeEffectChain, 1, 15.0, 100.0, 15.0, 100.0, 15.0);
     std::cout << "<-------------RTDA results-------------->\nChain: ";
-    for (auto task : causeEffectChain) { std::cout << task << ", "; }
+    for (auto task : causeEffectChain)
+    {
+        std::cout << task << ", ";
+    }
     std::cout << "\nReaction time: " << rtda.reactionTime << "\nData age: " << rtda.dataAge << std::endl;
     std::cout << "<-------------End of RTDA results------->\n\n";
 }

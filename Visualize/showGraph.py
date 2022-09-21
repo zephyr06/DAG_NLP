@@ -38,7 +38,7 @@ if __name__ == "__main__":
                         help='the number of test file to visualize, default 14 means test_n5_v14.csv')
     parser.add_argument('--folder', type=str, default="TaskData",
                         help='the number of test file to visualize, default 14 means test_n5_v14.csv')
-    parser.add_argument('--root', type=str, default="/home/zephyr/Programming/DAG_NLP/",
+    parser.add_argument('--root', type=str, default=PROJECT_PATH + "",
                         help='the number of test file to visualize, default 14 means test_n5_v14.csv')
 
     args = parser.parse_args()

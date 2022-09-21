@@ -33,7 +33,7 @@ TEST(testDBF, v1)
 {
     coreNumberAva = 1;
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v1.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -76,7 +76,7 @@ TEST(testDBF, v1)
 TEST(testDBF, v2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -109,7 +109,7 @@ TEST(testDBF, v2)
 TEST(testDBF, v3MultiProcess)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v29.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -159,7 +159,7 @@ TEST(testDBF, v3MultiProcess)
 TEST(testDBF, v4MultiProcess)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v30.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v30.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -201,7 +201,7 @@ TEST(testDBF, v4MultiProcess)
 TEST(testDBF, v5MultiProcess)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v31.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v31.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -244,7 +244,7 @@ TEST(testDBF, v5MultiProcess)
 TEST(NumericalDerivativeDynamicUpperDBF, v2)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v22.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v22.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -280,7 +280,7 @@ TEST(NumericalDerivativeDynamicUpperDBF, v2)
 TEST(NumericalDerivativeDynamicUpperDBF, v1)
 {
     using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -322,7 +322,7 @@ TEST(NumericalDerivativeDynamicUpperDBF, v1)
 TEST(AnalyticJaocbian_DBF, v1)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -378,7 +378,7 @@ TEST(AnalyticJaocbian_DBF, v1)
 TEST(AnalyticJaocbian_DBF, v2)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v17.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();
@@ -435,7 +435,7 @@ TEST(AnalyticJaocbian_DBF, v2)
 TEST(AnalyticJaocbian_DBF, v3)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v36.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v36.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
     int N = tasks.size();

@@ -91,7 +91,7 @@ using namespace std;
 TEST(GetStartTime, v1)
 {
     using namespace DAG_SPACE;
-    DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v1.csv", "orig"); // single-rate dag
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig"); // single-rate dag
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -112,7 +112,7 @@ TEST(GetStartTime, v1)
 TEST(CauseAffect, v1)
 {
     using namespace DAG_SPACE;
-    DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v1.csv", "orig"); // single-rate dag
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig"); // single-rate dag
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -128,7 +128,7 @@ TEST(CauseAffect, v1)
 TEST(CA, V2)
 {
     using namespace DAG_SPACE;
-    DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v2.csv", "orig"); // single-rate dag
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v2.csv", "orig"); // single-rate dag
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -145,7 +145,7 @@ TEST(CA, V2)
 TEST(CA, v3)
 {
     using namespace DAG_SPACE;
-    DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v4.csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v4.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initialEstimate = GenerateVectorDynamic(11);
@@ -162,7 +162,7 @@ TEST(CA_facroe, v1)
 {
     whether_ls = 1;
     using namespace DAG_SPACE;
-    DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v4.csv", "orig"); // single-rate dag
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v4.csv", "orig"); // single-rate dag
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     std::vector<int> causeEffectChain = {0, 1, 2};
@@ -182,7 +182,7 @@ TEST(CA_facroe, v1)
 // TEST(CA_facroe, v1)
 // {
 //     using namespace DAG_SPACE;
-//     DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v4.csv", "orig");
+//     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v4.csv", "orig");
 //     TaskSet tasks = dagTasks.tasks;
 //     TaskSetInfoDerived tasksInfo(tasks);
 //     VectorDynamic initialEstimate = GenerateVectorDynamic(11);

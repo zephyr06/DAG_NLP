@@ -6,7 +6,7 @@ TEST(DAG_Optimize_schedule, v1)
 {
     BeginTimer("main");
     using namespace DAG_SPACE;
-    DAG_Model tasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/" + testDataSetName + ".csv", "orig");
+    DAG_Model tasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
 
     // for (size_t i = 100; i < 200; i++)
     // {
@@ -33,9 +33,9 @@ TEST(DAG_Optimize_schedule, v1)
 // {
 //     BeginTimer("main");
 //     using namespace DAG_SPACE;
-//     // DAG_Model dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/" + testDataSetName + ".csv", "orig");
+//     // DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
 
-//     auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v38.csv", "orig");
+//     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v38.csv", "orig");
 
 //     VectorDynamic initial;
 //     initial.resize(6, 1);

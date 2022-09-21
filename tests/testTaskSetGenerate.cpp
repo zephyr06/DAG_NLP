@@ -16,7 +16,7 @@ TEST(ExtractVariable, v1)
 
 TEST(ReadDAG_Tasks, V1)
 {
-    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v8.csv";
+    string path = PROJECT_PATH + "TaskData/test_n5_v8.csv";
     DAG_Model dm = ReadDAG_Tasks(path);
     dm.print();
     AssertBool(true, dm.mapPrev[3].size() == 3);
@@ -25,7 +25,7 @@ TEST(ReadDAG_Tasks, V1)
 
 TEST(ReadDAG_Tasks, v3)
 {
-    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v41.csv";
+    string path = PROJECT_PATH + "TaskData/test_n5_v41.csv";
     DAG_Model dm = ReadDAG_Tasks(path);
     dm.print();
     AssertEqualScalar(14.38, dm.tasks[0].executionTime);
@@ -34,7 +34,7 @@ TEST(ReadDAG_Tasks, v3)
 
 TEST(ReadDAG_Tasks, v2)
 {
-    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v15.csv";
+    string path = PROJECT_PATH + "TaskData/test_n5_v15.csv";
     DAG_Model dm = ReadDAG_Tasks(path);
     dm.print();
     AssertBool(true, dm.mapPrev[1].size() == 2);
@@ -43,7 +43,7 @@ TEST(ReadDAG_Tasks, v2)
 }
 TEST(ReadDAG_Tasks, v4)
 {
-    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n3_v1.csv";
+    string path = PROJECT_PATH + "TaskData/test_n3_v1.csv";
     DAG_Model dm = ReadDAG_Tasks(path, "orig");
     dm.print();
     AssertEqualScalar(1, dm.tasks[0].period);
@@ -54,7 +54,7 @@ TEST(ReadDAG_Tasks, v4)
 }
 TEST(ReadDAG_Tasks, v5)
 {
-    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v45.csv";
+    string path = PROJECT_PATH + "TaskData/test_n5_v45.csv";
     DAG_Model dm = ReadDAG_Tasks(path, "orig");
     dm.print();
     for (int i = 0; i < 3; i++)
@@ -64,7 +64,7 @@ TEST(ReadDAG_Tasks, v5)
 }
 TEST(ReadDAG_Tasks, v6)
 {
-    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v49.csv";
+    string path = PROJECT_PATH + "TaskData/test_n5_v49.csv";
     DAG_Model dm = ReadDAG_Tasks(path, "orig");
     dm.print();
     for (int i = 0; i < 3; i++)
@@ -75,7 +75,7 @@ TEST(ReadDAG_Tasks, v6)
 }
 TEST(ReadDAG_Tasks, v7)
 {
-    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v45.csv";
+    string path = PROJECT_PATH + "TaskData/test_n5_v45.csv";
     DAG_Model dm = ReadDAG_Tasks(path, "orig");
     dm.print();
     for (int i = 0; i < 3; i++)
@@ -85,7 +85,7 @@ TEST(ReadDAG_Tasks, v7)
 TEST(ProcessorTaskSet, add)
 {
     using namespace DAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v28.csv", "orig");
+    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v28.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -118,7 +118,7 @@ TEST(ProcessorTaskSet, add)
 
 TEST(TaskSetInfoDerived, v1)
 {
-    string path = "/home/zephyr/Programming/DAG_NLP/TaskData/test_n5_v45.csv";
+    string path = PROJECT_PATH + "TaskData/test_n5_v45.csv";
     DAG_Model dm = ReadDAG_Tasks(path, "orig");
     TaskSet tasks = dm.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
