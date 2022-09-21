@@ -38,7 +38,7 @@ if __name__ == "__main__":
                         help='the number of test file to visualize, default 14 means test_n5_v14.csv')
     parser.add_argument('--folder', type=str, default="TaskData",
                         help='the number of test file to visualize, default 14 means test_n5_v14.csv')
-    parser.add_argument('--root', type=str, default=PROJECT_PATH + "",
+    parser.add_argument('--root', type=str, default="../",
                         help='the number of test file to visualize, default 14 means test_n5_v14.csv')
 
     args = parser.parse_args()
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     root = args.root
     path1 = ""
     if folder == "TaskData":
-        path1 = root + "TaskData/test_n5_v" + str(n) + ".csv"
+        path1 = root + "TaskData/test_n6_v" + str(n) + ".csv"
     elif folder == "dagTasks":
         strN = str(n)
         if n < 10:

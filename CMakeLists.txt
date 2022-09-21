@@ -40,7 +40,9 @@ target_link_libraries(${CONVENIENCE_LIB_NAME} CppUnitLite)
 target_link_libraries(${CONVENIENCE_LIB_NAME} ${OpenCV_LIBS} )
 target_link_libraries(${CONVENIENCE_LIB_NAME} yaml-cpp)
 # target_link_libraries(${CONVENIENCE_LIB_NAME} gtest_main )
-
+target_link_libraries(${CONVENIENCE_LIB_NAME} "stdc++fs")
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
 
 add_subdirectory(tests)
 add_subdirectory(sources)

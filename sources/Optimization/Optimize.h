@@ -52,13 +52,13 @@ namespace DAG_SPACE
     }
 
     void BuildFactorGraph(DAG_Model &dagTasks, NonlinearFactorGraph &graph,
-                          TaskSetInfoDerived &tasksInfo, EliminationForest &forestInfo)
+        TaskSetInfoDerived &tasksInfo, EliminationForest &forestInfo)
     {
         // AddDAG_Factor(graph, dagTasks, tasksInfo);
         AddDBF_Factor(graph, tasksInfo);
         AddDDL_Factor(graph, tasksInfo);
 
-        AddWholeRTDAFactor(graph, tasksInfo, {2, 1, 0});
+        AddWholeRTDAFactor(graph, tasksInfo, { 0, 1, 2, 3 });
         // AddMakeSpanFactor(graph, tasksInfo, dagTasks.mapPrev);
         // LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
         // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
@@ -223,8 +223,8 @@ namespace DAG_SPACE
      * @return all the instances' start time
      */
     VectorDynamic UnitOptimization(DAG_Model &dagTasks, VectorDynamic &initialEstimate,
-                                   EliminationForest &forestInfo,
-                                   TaskSetInfoDerived &tasksInfo)
+        EliminationForest &forestInfo,
+        TaskSetInfoDerived &tasksInfo)
     {
         BeginTimer("UnitOptimization");
 
@@ -237,6 +237,15 @@ namespace DAG_SPACE
         if (debugMode)
             cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
         EndTimer("UnitOptimization");
+
+        if (debugMode == 1)
+        {
+            auto rtdaVec = GetRTDAFromSingleJob(tasksInfo, { 0,1,4,5 }, result);
+            RTDA resAfterOpt = GetMaxRTDA(rtdaVec);
+            std::cout << Color::green << std::endl;
+            resAfterOpt.print();
+            std::cout << Color::def << std::endl;
+        }
         return optComp;
     }
 
@@ -254,8 +263,8 @@ namespace DAG_SPACE
     };
 
     VectorDynamic UpdateInitialVector(VectorDynamic &startTimeComplete,
-                                      TaskSetInfoDerived &tasksInfo,
-                                      EliminationForest &forestInfo)
+        TaskSetInfoDerived &tasksInfo,
+        EliminationForest &forestInfo)
     {
         VectorDynamic initialUpdate;
         initialUpdate.resize(forestInfo.lengthCompressed, 1);
@@ -296,9 +305,9 @@ namespace DAG_SPACE
         }
 
         VectorDynamic initialEstimate = GenerateInitial(dagTasks,
-                                                        sizeOfVariables, variableDimension);
+            sizeOfVariables, variableDimension);
         double errorInitial = GraphErrorEvaluation(dagTasks, initialEstimate);
-        return {errorInitial, errorInitial, initialEstimate, initialEstimate};
+        return { errorInitial, errorInitial, initialEstimate, initialEstimate };
     }
 
     struct StateActionCollection
@@ -323,8 +332,8 @@ namespace DAG_SPACE
      * @return VectorDynamic all the task instances' start time
      */
     OptimizeResult OptimizeScheduling(DAG_Model &dagTasks,
-                                      size_t initialSeed = ResetInnerWeightLoopMax + 1,
-                                      VectorDynamic initialUser = GenerateVectorDynamic(1))
+        size_t initialSeed = ResetInnerWeightLoopMax + 1,
+        VectorDynamic initialUser = GenerateVectorDynamic(1))
     {
         TaskSet tasks = dagTasks.tasks;
         TaskSetInfoDerived tasksInfo(tasks);
@@ -356,7 +365,14 @@ namespace DAG_SPACE
             VectorDynamic startTimeComplete = CollectUnitOptResult(result, tasksInfo);
             if (debugMode)
                 std::cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
-
+            if (debugMode == 2)
+            {
+                auto rtdaVec = GetRTDAFromSingleJob(tasksInfo, { 0,1,4,5 }, result);
+                RTDA resAfterOpt = GetMaxRTDA(rtdaVec);
+                std::cout << Color::green << std::endl;
+                resAfterOpt.print();
+                std::cout << Color::def << std::endl;
+            }
             // convergence check,
             double currError = GraphErrorEvaluation(dagTasks, startTimeComplete);
             currAction.currError = currError;
@@ -422,15 +438,16 @@ namespace DAG_SPACE
         if (PrintInitial)
         {
             std::cout << "The initial solution is: " << std::endl
-                      << initialEstimate << std::endl;
+                << initialEstimate << std::endl;
         }
         double errorInitial = GraphErrorEvaluation(dagTasks, initialEstimate);
 
         cout << Color::blue << "The error before optimization is "
-             << errorInitial << Color::def << endl;
+            << errorInitial << Color::def << endl;
         double finalError = GraphErrorEvaluation(dagTasks, bestResultFound, debugMode > 0);
         cout << Color::blue << "The error after optimization is " << finalError << Color::def << endl;
-        return {errorInitial, finalError, initialEstimate, bestResultFound};
+
+        return { errorInitial, finalError, initialEstimate, bestResultFound };
     }
     void inline donothing(const std::filesystem::directory_entry &p)
     {
@@ -440,7 +457,7 @@ namespace DAG_SPACE
     {
         if (recordActionValue > 0)
         {
-            std::filesystem::path p1{PROJECT_PATH + "RL/"};
+            std::filesystem::path p1{ PROJECT_PATH + "RL/" };
             for (auto &p : std::filesystem::directory_iterator(p1))
             {
                 recordRLFileCount++;
@@ -456,7 +473,7 @@ namespace DAG_SPACE
             VectorDynamic res = sth.optimizeVariable;
             // if (debugMode > 1)
             cout << "The result after optimization is " << Color::green << sth.optimizeError
-                 << Color::def << endl;
+                << Color::def << endl;
             if (sth.optimizeError < 1e-3)
             {
                 if (i > 101)

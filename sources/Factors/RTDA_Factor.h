@@ -13,6 +13,9 @@ namespace DAG_SPACE
         double dataAge;
         RTDA() : reactionTime(-1), dataAge(-1) {}
         RTDA(double r, double d) : reactionTime(r), dataAge(d) {}
+        void print(){
+            std::cout<<"Reaction time is "<<reactionTime<<", data age is "<<dataAge<<std::endl;
+        }
     };
 
     RTDA GetMaxRTDA(std::vector<RTDA> &resVec)

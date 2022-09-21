@@ -187,7 +187,7 @@ LatencyInfo Evaluation::getLatencyInfoRTDA(const DAG &dag, std::vector<unsigned>
 	auto res = DAG_SPACE::GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
 	DAG_SPACE::RTDA resM = DAG_SPACE::GetMaxRTDA(res);
 	// std::cout << "<-------RTDA results------->\nReaction time: " << resM.reactionTime \
-			// 		<< "\nData age: " << resM.dataAge << std::endl;
+			 		<< "\nData age: " << resM.dataAge << std::endl;
 	info.maxLatency = resM.dataAge;
 	info.reactionTime = resM.reactionTime;
 	info.minLatency = 0.0f;

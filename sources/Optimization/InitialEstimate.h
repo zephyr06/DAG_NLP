@@ -476,6 +476,12 @@ namespace DAG_SPACE
                                                            sizeOfVariables,
                                                            variableDimension);
             break;
+        case Custom_DAG:
+            initialEstimate = GenerateInitial_Custom_DAG(dagTasks,
+                                                           sizeOfVariables,
+                                                           variableDimension);
+            break;
+            
         default:
             initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,
                                                            sizeOfVariables,

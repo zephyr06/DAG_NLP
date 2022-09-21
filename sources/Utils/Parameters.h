@@ -8,7 +8,8 @@
 #include "sources/Tools/testMy.h"
 using namespace std;
 
-const std::string PROJECT_PATH = "/home/zephyr/Programming/DAG_NLP/";
+// const std::string PROJECT_PATH = "/home/zephyr/Programming/DAG_NLP/";
+const std::string PROJECT_PATH = "/home/dong/workspace/DAG_NLP/";
 //  std::string path = PROJECT_PATH + "sources/parameters.yaml";
 cv::FileStorage ConfigParameters(PROJECT_PATH + "sources/parameters.yaml", cv::FileStorage::READ);
 
@@ -17,7 +18,8 @@ enum InitializeMethod
     IndexMode,
     FixedRelativeStart,
     RM,
-    RM_DAG
+    RM_DAG,
+    Custom_DAG
 };
 InitializeMethod Transform_enum(int a)
 {
@@ -29,6 +31,8 @@ InitializeMethod Transform_enum(int a)
         return RM;
     else if (a == 3)
         return RM_DAG;
+    else if (a == 4)
+        return Custom_DAG;
     else
     {
         CoutError("Not recognized enum InitializeMethod\n");
