@@ -63,15 +63,15 @@ TEST(VerucchiIO, v2)
     EXPECT(SchedulabilityAnalysisVerucchi(tasks, 4));
 }
 
-// TEST(Verucchi, analyzeCase)
-// {
-//     std::cout << std::endl
-//               << std::endl
-//               << std::endl;
-//     DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
-//     bool schedulable = SchedulabilityAnalysisVerucchi(tasks);
-//     std::cout << "Schedulability analysis by Verucchi: " << schedulable << std::endl;
-// }
+TEST(Verucchi, analyzeCase)
+{
+    std::cout << std::endl
+              << std::endl
+              << std::endl;
+    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
+    bool schedulable = SchedulabilityAnalysisVerucchi(tasks);
+    std::cout << "Schedulability analysis by Verucchi: " << schedulable << std::endl;
+}
 int main()
 {
     TestResult tr;
