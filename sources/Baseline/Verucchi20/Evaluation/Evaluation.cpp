@@ -145,7 +145,8 @@ Evaluation::evaluateWithRTDA(const std::vector<DAG> &dags)
 	if (invalidDags == dags.size())
 	{
 		std::cout << "No valid dag found. Constraints are too tight." << std::endl;
-		return dags[0];
+		std::shared_ptr<DAG> empty_dag = std::shared_ptr<DAG>(new DAG(0));
+		return *empty_dag;
 	}
 
 	unsigned bestDAG = 0;
@@ -178,9 +179,9 @@ LatencyInfo Evaluation::getLatencyInfoRTDA(const DAG &dag, std::vector<unsigned>
 	info.minLatencyPair = std::make_pair((unsigned)0, (unsigned)0);
 	info.reactionTimePair = std::make_pair((unsigned)0, (unsigned)0);
 
-	TaskSet tasks = getTaskSet(dag);
+	TaskSet tasks = GetTaskSet(dag);
 	TaskSetInfoDerived tasksInfo(tasks);
-	VectorDynamic initialEstimate = getInitialEstimate(dag, schedulingEval_.second.maxCores);
+	VectorDynamic initialEstimate = GetInitialEstimate(dag, schedulingEval_.second.maxCores);
 	Values initialEstimateFG = DAG_SPACE::GenerateInitialFG(initialEstimate, tasksInfo);
 	std::vector<int> causeEffectChain(chain.begin(), chain.end());
 	auto res = DAG_SPACE::GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);

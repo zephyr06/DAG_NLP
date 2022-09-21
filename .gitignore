@@ -14,3 +14,4 @@ CompareWithBaseline/time_task_number.txt
 Visualize/currGraph.gv.pdf
 Visualize/currGraph.gv
 .vscode
+.editorconfig
