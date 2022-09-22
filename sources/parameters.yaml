@@ -5,7 +5,7 @@ batchTestMethod: 1 # 1 means NLP, 2 means SA, 0 means initial, 3 means Verucchi2
 testDataSetName: test_n6_v1
 AcceptSchedulError: 1e-2
 debugMode: 2
-recordActionValue: 1
+recordActionValue: 0
 runMode: compare
 initializeMethod: 4
 optimizerType: 2 # 1 means dogleg, 2 means LM
@@ -17,11 +17,10 @@ PrintOutput: 1
 PrintInitial: 0
 
 #*************************************************************
-
 # Get away from local optimal setting
 whetherRandomNoiseModelSigma: 1
-RandomDrawWeightMaxLoop: 10
-ResetInnerWeightLoopMax: 5
+RandomDrawWeightMaxLoop: 5 # must be >=1
+ResetInnerWeightLoopMax: 1 # must be >=1
 ResetRandomWeightThreshold: 5e-3
 #*************************************************************
 
@@ -87,11 +86,6 @@ zeroJacobianDetectTol: 1e-4
 barrierBase: 100
 punishmentInBarrier: 1e2
 weightLogBarrier: -1.0
-T: !!opencv-matrix
-   rows: 3
-   cols: 1
-   dt: d
-   data: [ 3., 1., 5. ]
 #*************************************************************
 
 

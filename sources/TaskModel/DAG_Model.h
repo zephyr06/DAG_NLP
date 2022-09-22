@@ -191,7 +191,10 @@ namespace DAG_SPACE
             }
             return chains;
         }
-
+        void SetChains(std::vector<std::vector<int>> &chains)
+        {
+            chains_ = chains;
+        }
         std::vector<int> FindSourceTaskIds() const
         {
             std::set<int> originTasks;

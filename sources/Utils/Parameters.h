@@ -106,20 +106,20 @@ const string testDataSetName = (string)ConfigParameters["testDataSetName"];
 double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
 std::string verbosityLM = (std::string)ConfigParameters["verbosityLM"];
 // code below is only used to show how to read vectors, but is not actually used in this project
-vector<double> readVector(string filename)
-{
-    cv::FileStorage fs;
-    fs.open(filename, cv::FileStorage::READ);
-    cv::Mat Tt;
-    fs["T"] >> Tt;
-    int rows = Tt.rows;
+// vector<int> readVector(string filename)
+// {
+//     cv::FileStorage fs;
+//     fs.open(filename, cv::FileStorage::READ);
+//     cv::Mat Tt;
+//     fs["chain"] >> Tt;
+//     int rows = Tt.rows;
 
-    vector<double> vec;
-    vec.reserve(rows);
-    for (int i = 0; i < rows; i++)
-    {
-        vec.push_back(Tt.at<double>(i, 0));
-    }
-    return vec;
-}
-vector<double> aaa = readVector(PROJECT_PATH + "sources/parameters.yaml");
+//     vector<int> vec;
+//     vec.reserve(rows);
+//     for (int i = 0; i < rows; i++)
+//     {
+//         vec.push_back(Tt.at<int>(i, 0));
+//     }
+//     return vec;
+// }
+// vector<int> CA_CHAIN = readVector(PROJECT_PATH + "sources/parameters.yaml");
