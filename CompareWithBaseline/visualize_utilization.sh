@@ -49,7 +49,6 @@ python Visualize_util.py --baseline "RM"
 # parallelFactor: 0.2
 # punishmentInBarrier: 1e2
 # randomInitialize: 0
-# readTaskMode: orig
 # withAddedSensorFusionError: 1
 # ResetInnerWeightLoopMax: 50
 # zeroJacobianDetectTol: 1e-7

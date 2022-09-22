@@ -7,20 +7,20 @@ AcceptSchedulError: 1e-2
 debugMode: 2
 recordActionValue: 0
 runMode: compare
-initializeMethod: 4
+initializeMethod: 2
 optimizerType: 2 # 1 means dogleg, 2 means LM
 
 deltaOptimizer: 1e0
 exactJacobian: 0
 numericalJaobian: 0
 PrintOutput: 1
-PrintInitial: 0
+PrintInitial: 1
 
 #*************************************************************
 # Get away from local optimal setting
 whetherRandomNoiseModelSigma: 1
 RandomDrawWeightMaxLoop: 5 # must be >=1
-ResetInnerWeightLoopMax: 1 # must be >=1
+ResetInnerWeightLoopMax: 5 # must be >=1
 ResetRandomWeightThreshold: 5e-3
 #*************************************************************
 
@@ -55,7 +55,6 @@ withAddedSensorFusionError: 1
 # task-set settings
 coreNumberAva: 1
 parallelFactor: 0.4
-readTaskMode: orig
 TaskSetType: 1 # 1 means total random, 2 means automobile tasksets
 timeScaleFactor: 1e0
 priorityMode: RM

@@ -100,7 +100,6 @@ const int recordActionValue = (int)ConfigParameters["recordActionValue"];
 int recordRLFileCount = 0;
 const int MaxEliminateDetectIterations = (int)ConfigParameters["MaxEliminateDetectIterations"];
 string priorityMode = (string)ConfigParameters["priorityMode"];
-const string readTaskMode = (string)ConfigParameters["readTaskMode"];
 const string runMode = (string)ConfigParameters["runMode"];
 const string testDataSetName = (string)ConfigParameters["testDataSetName"];
 double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];

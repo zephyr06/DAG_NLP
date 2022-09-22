@@ -64,7 +64,7 @@ void BatchOptimize()
         if (file.substr(0, file.find(delimiter)) == "dag")
         {
             string path = PROJECT_PATH + "TaskData/dagTasks/" + file;
-            DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(path, readTaskMode);
+            DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(path, priorityMode);
             // int N = dagTasks.tasks.size();
             auto start = chrono::high_resolution_clock::now();
             DAG_SPACE::OptimizeResult res;
