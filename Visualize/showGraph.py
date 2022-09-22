@@ -1,6 +1,7 @@
 import argparse
 import graphviz
 import os
+from pathlib import Path
 
 def write_csv_to_graphviz(path, destination):
     file = open(path)
@@ -34,7 +35,7 @@ def show_graphviz(path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--n', type=int, default="14",
+    parser.add_argument('--n', type=int, default="1",
                         help='the number of test file to visualize, default 14 means test_n5_v14.csv')
     parser.add_argument('--folder', type=str, default="TaskData",
                         help='the number of test file to visualize, default 14 means test_n5_v14.csv')
@@ -44,10 +45,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
     n = args.n
     folder = args.folder
-    root = args.root
+    # root = args.root
+    root = os.path.dirname(__file__)
     path1 = ""
     if folder == "TaskData":
-        path1 = root + "TaskData/test_n6_v" + str(n) + ".csv"
+        path1 = str(Path.cwd()) +  "/TaskData/test_n6_v" + str(n) + ".csv"
     elif folder == "dagTasks":
         strN = str(n)
         if n < 10:

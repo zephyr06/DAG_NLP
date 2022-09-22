@@ -538,6 +538,20 @@ TEST(GenerateInitial_Custom_DAG, initial)
     VectorDynamic expected = initial;
     expected << 0, 100, 200, 300, 400, 500, 10, 210, 410, 21, 310;
     assert_equal(expected, initial);
+    cout << std::endl;
+}
+
+TEST(GenerateInitial_Custom_DAG, n6v1)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initial = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    std::cout << initial << std::endl;
+    VectorDynamic expected = initial;
+    expected << 0, 45, 68, 5, 50, 60, 73, 85, 80, 75;
+    assert_equal(expected, initial);
 }
 
 int main()

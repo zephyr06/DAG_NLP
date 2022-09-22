@@ -18,6 +18,12 @@ using namespace std;
 
 #define TaskSet vector<RegularTaskSystem::Task>
 typedef std::map<int, vector<int>> ProcessorTaskSet;
+
+bool CompareStringNoCase(std::string &s1, std::string s2)
+{
+    return strcasecmp(s1.c_str(), s2.c_str()) == 0;
+}
+
 namespace RegularTaskSystem
 {
     class Task
@@ -76,16 +82,16 @@ namespace RegularTaskSystem
 
         double priority()
         {
-            if (priorityMode == "RM")
+            if (CompareStringNoCase(priorityMode, "RM"))
             {
                 if (period > 0)
                     return 1.0 / period;
                 else
                     CoutError("Period parameter less or equal to 0!");
             }
-            else if (priorityMode == "orig")
+            else if (CompareStringNoCase(priorityMode, "orig"))
                 return id;
-            else if (priorityMode == "assigned")
+            else if (CompareStringNoCase(priorityMode, "assigned"))
                 return priority_;
             else
                 CoutError("Priority settings not recognized!");
@@ -267,19 +273,19 @@ namespace RegularTaskSystem
 
     TaskSet Reorder(TaskSet tasks, string priorityType)
     {
-        if (priorityType == "RM")
+        if (CompareStringNoCase(priorityType, "RM"))
         {
             sort(tasks.begin(), tasks.end(), comparePeriod);
         }
-        else if (priorityType == "utilization")
+        else if (CompareStringNoCase(priorityType, "utilization"))
         {
             sort(tasks.begin(), tasks.end(), compareUtilization);
         }
-        else if (priorityType == "DM")
+        else if (CompareStringNoCase(priorityType, "DM"))
         {
             sort(tasks.begin(), tasks.end(), compareDeadline);
         }
-        else if (priorityType == "orig")
+        else if (CompareStringNoCase(priorityType, "orig"))
         {
             ;
         }

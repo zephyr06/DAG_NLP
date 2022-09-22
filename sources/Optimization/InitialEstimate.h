@@ -97,7 +97,7 @@ namespace DAG_SPACE
     class RunQueue
     {
     public:
-        typedef pair<int, LLint> ID_INSTANCE_PAIR;
+        typedef pair<int, LLint> ID_INSTANCE_PAIR; // taskId, jobId
         vector<RegularTaskSystem::Task> tasks;
         int N;
         vector<ID_INSTANCE_PAIR> taskQueue;
@@ -136,7 +136,7 @@ namespace DAG_SPACE
         }
         /**
          * @brief Given a new task's id, find its position in the queue
-         * such that the queue is order from highest priority to lowest priority
+         * such that the queue is ordered from highest priority to lowest priority
          *
          * @param id: new task's id
          * @return LLint
@@ -305,10 +305,13 @@ namespace DAG_SPACE
         return initial;
     }
 
+    // This method is not suitable to compare with Verucchi20 because it focus more on dependency, but less on schedulability (FT<Deadline), and RTDA.
+    // TODO(Sen): fix this issue
     VectorDynamic GenerateInitial_Custom_DAG(DAG_Model &dagTasks,
                                              vector<LLint> &sizeOfVariables,
                                              int variableDimension, LLint currTime = 0)
     {
+        priorityMode = "Assigned";
         // Assign priority for the task sets
         int N = dagTasks.tasks.size();
         TaskSet &tasks = dagTasks.tasks;
@@ -478,10 +481,10 @@ namespace DAG_SPACE
             break;
         case Custom_DAG:
             initialEstimate = GenerateInitial_Custom_DAG(dagTasks,
-                                                           sizeOfVariables,
-                                                           variableDimension);
+                                                         sizeOfVariables,
+                                                         variableDimension);
             break;
-            
+
         default:
             initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,
                                                            sizeOfVariables,
