@@ -72,6 +72,10 @@ TEST(VerucchiRTDA, v1)
     }
     std::cout << "\nReaction time: " << resM.reactionTime << "\nData age: " << resM.dataAge << std::endl;
     std::cout << "<-------------End of RTDA results------->\n\n";
+
+
+    EXPECT_DOUBLES_EQUAL(106, resM.reactionTime, 1e-3);
+    EXPECT_DOUBLES_EQUAL(104, resM.dataAge, 1e-3);
 }
 
 TEST(VerucchiRTDA, v2)
@@ -140,6 +144,9 @@ TEST(VerucchiRTDA, v2)
     }
     std::cout << "\nReaction time: " << resM.reactionTime << "\nData age: " << resM.dataAge << std::endl;
     std::cout << "<-------------End of RTDA results------->\n\n";
+
+    EXPECT_DOUBLES_EQUAL(106, resM.reactionTime, 1e-3);
+    EXPECT_DOUBLES_EQUAL(104, resM.dataAge, 1e-3);
 }
 
 TEST(VerucchiRTDA, single_case_v1)
@@ -154,6 +161,9 @@ TEST(VerucchiRTDA, single_case_v1)
     }
     std::cout << "\nReaction time: " << rtda.reactionTime << "\nData age: " << rtda.dataAge << std::endl;
     std::cout << "<-------------End of RTDA results------->\n\n";
+
+    EXPECT_DOUBLES_EQUAL(60.0, rtda.reactionTime, 1e-3);
+    EXPECT_DOUBLES_EQUAL(60.0, rtda.dataAge, 1e-3);
 }
 
 TEST(VerucchiRTDA, single_case_v2)
