@@ -13,8 +13,9 @@ namespace DAG_SPACE
         double dataAge;
         RTDA() : reactionTime(-1), dataAge(-1) {}
         RTDA(double r, double d) : reactionTime(r), dataAge(d) {}
-        void print(){
-            std::cout<<"Reaction time is "<<reactionTime<<", data age is "<<dataAge<<std::endl;
+        void print()
+        {
+            std::cout << "Reaction time is " << reactionTime << ", data age is " << dataAge << std::endl;
         }
     };
 
@@ -31,7 +32,10 @@ namespace DAG_SPACE
 
     std::vector<RTDA> GetRTDAFromSingleJob(const TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain, const Values &x)
     {
-
+        if (causeEffectChain.size() == 0)
+        {
+            return {RTDA(0, 0)};
+        }
         LLint hyperPeriod = tasksInfo.hyperPeriod;
         const TaskSet &tasks = tasksInfo.tasks;
         size_t totalStartJobs = hyperPeriod / tasks[causeEffectChain[0]].period + 1;

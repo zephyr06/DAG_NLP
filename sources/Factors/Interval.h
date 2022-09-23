@@ -20,6 +20,16 @@ struct Interval
                                                                length(l1),
                                                                coreRequire(coreRequire),
                                                                indexInSTV(i) {}
+
+    bool IfBelong(double x)
+    {
+        return x >= start && x <= start + length;
+    }
+    // whether interval x belongs to this
+    bool IfBelong(Interval x)
+    {
+        return start <= x.start && x.start + x.length <= start + length;
+    }
 };
 bool compare(Interval &i1, Interval &i2)
 {

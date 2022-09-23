@@ -39,7 +39,7 @@ vector<string> ReadFilesInDirectory(const char *path)
 
 void BatchOptimize()
 {
-    const char *pathDataset = PROJECT_PATH + "TaskData/dagTasks";
+    const char *pathDataset = (PROJECT_PATH + "TaskData/dagTasks").c_str();
     vector<double> averageErrorAccept;
     vector<double> averageErrorAccept1; // 1.0 accept
     vector<double> averageErrorAccept2; // 0.1 accept

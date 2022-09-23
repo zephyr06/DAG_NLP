@@ -1,3 +1,5 @@
+#pragma once
+
 #include "sources/Factors/BaseSchedulingFactor.h"
 
 using namespace RegularTaskSystem;
@@ -27,32 +29,32 @@ public:
     }
 };
 
-void AddDDL_Factor(NonlinearFactorGraph &graph, TaskSetInfoDerived &tasksInfo, bool ifPreemptive = false)
+void AddDDL_JobFactor(NonlinearFactorGraph &graph, TaskSetInfoDerived &tasksInfo, int taskId, int jobId, SharedNoiseModel model1 = NULL)
+{
+    if (!NULL)
+    {
+        model1 = noiseModel::Isotropic::Sigma(1, noiseModelSigma / weightDDL_factor);
+    }
+    Symbol key = GenerateKey(taskId, jobId);
+    TaskSet &tasks = tasksInfo.tasks;
+    // this factor is explained as: variable * 1 <= tasks[i].deadline + i * tasks[i].period
+    graph.emplace_shared<SmallerThanFactor1D>(key,
+                                              tasks[taskId].deadline - tasks[taskId].executionTime + (jobId)*tasks[taskId].period, model1);
+    // this factor is explained as: variable * -1 < -1 *(i * tasks[i].period)
+    graph.emplace_shared<LargerThanFactor1D>(key, jobId * tasks[taskId].period, model1);
+}
+
+void AddDDL_Factor(NonlinearFactorGraph &graph, TaskSetInfoDerived &tasksInfo)
 {
 
     auto model1 = noiseModel::Isotropic::Sigma(1, noiseModelSigma / weightDDL_factor);
     auto model2 = noiseModel::Isotropic::Sigma(2, noiseModelSigma / weightDDL_factor);
-    TaskSet &tasks = tasksInfo.tasks;
 
     for (int i = 0; i < tasksInfo.N; i++)
     {
         for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
         {
-            Symbol key = GenerateKey(i, j);
-
-            if (ifPreemptive)
-            {
-                graph.emplace_shared<DDLFactorPreempt>(key, j * tasks[i].period,
-                                                       tasks[i].deadline + j * tasks[i].period, model2);
-            }
-            else
-            {
-                // this factor is explained as: variable * 1 <= tasks[i].deadline + i * tasks[i].period
-                graph.emplace_shared<SmallerThanFactor1D>(key,
-                                                          tasks[i].deadline - tasks[i].executionTime + (j)*tasks[i].period, model1);
-                // this factor is explained as: variable * -1 < -1 *(i * tasks[i].period)
-                graph.emplace_shared<LargerThanFactor1D>(key, j * tasks[i].period, model1);
-            }
+            AddDDL_JobFactor(graph, tasksInfo, i, j, model1);
         }
     }
 }

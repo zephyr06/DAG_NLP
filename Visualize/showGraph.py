@@ -35,6 +35,8 @@ def show_graphviz(path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument('--taskNumber', type=int, default="5",
+                        help='the number of test file to visualize, default 14 means test_n5_v14.csv')
     parser.add_argument('--n', type=int, default="1",
                         help='the number of test file to visualize, default 14 means test_n5_v14.csv')
     parser.add_argument('--folder', type=str, default="TaskData",
@@ -45,11 +47,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
     n = args.n
     folder = args.folder
+    taskNumber = args.taskNumber
     # root = args.root
     root = os.path.dirname(__file__)
     path1 = ""
     if folder == "TaskData":
-        path1 = str(Path.cwd()) +  "/TaskData/test_n6_v" + str(n) + ".csv"
+        path1 = str(Path.cwd()) +  "/TaskData/test_n"+str(taskNumber)+"_v" + str(n) + ".csv"
     elif folder == "dagTasks":
         strN = str(n)
         if n < 10:

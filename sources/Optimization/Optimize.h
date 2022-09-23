@@ -57,8 +57,9 @@ namespace DAG_SPACE
         // AddDAG_Factor(graph, dagTasks, tasksInfo);
         AddDBF_Factor(graph, tasksInfo);
         AddDDL_Factor(graph, tasksInfo);
+        // if (dagTasks.chains_.size() > 0)
+        //     AddWholeRTDAFactor(graph, tasksInfo, dagTasks.chains_[0]);
 
-        // AddWholeRTDAFactor(graph, tasksInfo, dagTasks.chains_[0]);
         // AddMakeSpanFactor(graph, tasksInfo, dagTasks.mapPrev);
         // LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
         // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
@@ -315,7 +316,7 @@ namespace DAG_SPACE
         int initialOption;
         RelocationMethod relocateMethod;
 
-        StateActionCollection() : currError(1e60), whetherVanishGradient(false), resetWeightSeed(-1), initialOption(-1), relocateMethod(EndOfInterval) {}
+        StateActionCollection() : currError(1e60), whetherVanishGradient(false), resetWeightSeed(-1), initialOption(-1), relocateMethod(EndOfLongInterval) {}
 
         inline std::string to_string()
         {
@@ -338,10 +339,14 @@ namespace DAG_SPACE
         std::cout << "DDL error: " << graph2.error(xValues) << std::endl;
 
         // RTDA
-        auto rtdaVec = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], xValues);
-        RTDA resAfterOpt = GetMaxRTDA(rtdaVec);
-        resAfterOpt.print();
-        std::cout << Color::def << std::endl;
+        if (dagTasks.chains_.size() > 0)
+        {
+            auto rtdaVec = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], xValues);
+            RTDA resAfterOpt = GetMaxRTDA(rtdaVec);
+            resAfterOpt.print();
+            std::cout << Color::def << std::endl;
+        }
+
         std::cout << "************************************************" << std::endl;
     }
 
@@ -369,7 +374,7 @@ namespace DAG_SPACE
         // this makes sure we get the same result every time we run the program
         size_t prevSrandRef = initialSeed;
         ResetSRand(prevSrandRef);
-        RelocationMethod currentRelocationMethod = EndOfInterval;
+        RelocationMethod currentRelocationMethod = EndOfLongInterval;
 
         StateActionCollection currAction;
 
@@ -456,7 +461,7 @@ namespace DAG_SPACE
 
         cout << Color::blue << "The error before optimization is "
              << errorInitial << Color::def << endl;
-        double finalError = GraphErrorEvaluation(dagTasks, bestResultFound, debugMode == 1);
+        double finalError = GraphErrorEvaluation(dagTasks, bestResultFound);
         cout << Color::blue << "The error after optimization is " << finalError << Color::def << endl;
 
         return {errorInitial, finalError, initialEstimate, bestResultFound};

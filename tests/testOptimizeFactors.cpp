@@ -283,55 +283,94 @@ TEST(sparse, matrix)
 //     AssertEqualScalar(err1, err2 * 4, 1e-6, __LINE__);
 // }
 
-// TEST(relocateIncludedInterval, v1)
-// {
-//     whetherRandomNoiseModelSigma = 0;
-//     noiseModelSigma = 1;
-//     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v37.csv", "orig");
-//     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
-//     EliminationForest forestInfo(tasksInfo);
+TEST(relocateIncludedInterval, moveSmallTask)
+{
+    whetherRandomNoiseModelSigma = 0;
+    noiseModelSigma = 1;
+    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v37.csv", "orig");
+    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    EliminationForest forestInfo(tasksInfo);
 
-//     VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks,
-//                                                                     tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
-//     startTimeVector << 102.024, 300.012,
-//         63.0085, 369.046,
-//         10.4945, 202.024, 408.068,
-//         8.359, 100.012, 200.019, 304.026, 406.058, 500,
-//         0.008, 306.039;
-//     NonlinearFactorGraph graph;
-//     AddDAG_Factor(graph, dagTasks, tasksInfo);
-//     AddDBF_Factor(graph, tasksInfo);
-//     AddDDL_Factor(graph, tasksInfo);
-//     Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
-//     double err1 = graph.error(initialEstimateFG);
-//     EXPECT_DOUBLES_EQUAL(14.5, err1, 1e-3);
-//     std::cout << GraphErrorEvaluation(dagTasks, startTimeVector);
+    VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks,
+                                                                    tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
+    startTimeVector << 102.024, 300.012,
+        63.0085, 369.046,
+        10.4945, 202.024, 408.068,
+        8.359, 100.012, 200.019, 304.026, 406.058, 500,
+        0.008, 306.039;
+    NonlinearFactorGraph graph;
+    AddDAG_Factor(graph, dagTasks, tasksInfo);
+    AddDBF_Factor(graph, tasksInfo);
+    AddDDL_Factor(graph, tasksInfo);
+    Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
+    double err1 = graph.error(initialEstimateFG);
+    EXPECT_DOUBLES_EQUAL(14.5, err1, 1e-3);
+    std::cout << GraphErrorEvaluation(dagTasks, startTimeVector);
 
-//     // first find out which DBF factor has zero gradient but non-zero error
+    // first find out which DBF factor has zero gradient but non-zero error
 
-//     auto relocateRes = RelocateIncludedInterval(tasksInfo, graph, startTimeVector);
-//     EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[0][0] == gtsam::Symbol('c', 0));
-//     EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[0][1] == gtsam::Symbol('e', 0));
-//     EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[1][0] == gtsam::Symbol('d', 0));
-//     EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[1][1] == gtsam::Symbol('e', 0));
-//     std::cout << startTimeVector << std::endl
-//               << std::endl;
-//     std::cout << relocateRes.startTimeVectorAfterRelocate << std::endl;
+    auto relocateRes = RelocateIncludedInterval(tasksInfo, graph, startTimeVector);
+    EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[0][0] == gtsam::Symbol('c', 0));
+    EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[0][1] == gtsam::Symbol('e', 0));
+    EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[1][0] == gtsam::Symbol('d', 0));
+    EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[1][1] == gtsam::Symbol('e', 0));
+    std::cout << startTimeVector << std::endl
+              << std::endl;
+    std::cout << relocateRes.startTimeVectorAfterRelocate << std::endl;
 
-//     EXPECT_DOUBLES_EQUAL(63, relocateRes.startTimeVectorAfterRelocate(4), 0.1);
-//     EXPECT_DOUBLES_EQUAL(63, relocateRes.startTimeVectorAfterRelocate(7), 0.1);
+    EXPECT_DOUBLES_EQUAL(63, relocateRes.startTimeVectorAfterRelocate(4), 0.1);
+    EXPECT_DOUBLES_EQUAL(63, relocateRes.startTimeVectorAfterRelocate(7), 0.1);
 
-//     GradientVanishPairs prevGVPair;
-//     EXPECT((prevGVPair != relocateRes.gradientVanishPairs));
-//     prevGVPair = relocateRes.gradientVanishPairs;
-//     EXPECT((prevGVPair == relocateRes.gradientVanishPairs));
+    GradientVanishPairs prevGVPair;
+    EXPECT((prevGVPair != relocateRes.gradientVanishPairs));
+    prevGVPair = relocateRes.gradientVanishPairs;
+    EXPECT((prevGVPair == relocateRes.gradientVanishPairs));
 
-//     RelocationMethod currentRelocationMethod = EndOfInterval;
-//     currentRelocationMethod = IncrementRelocationMethod(currentRelocationMethod);
-//     relocateRes = RelocateIncludedInterval(tasksInfo, graph, startTimeVector, currentRelocationMethod);
-//     EXPECT_DOUBLES_EQUAL(-5, relocateRes.startTimeVectorAfterRelocate(4), 0.1);
-//     EXPECT_DOUBLES_EQUAL(-2, relocateRes.startTimeVectorAfterRelocate(7), 0.1);
-// }
+    RelocationMethod currentRelocationMethod = EndOfLongInterval;
+    currentRelocationMethod = IncrementRelocationMethod(currentRelocationMethod);
+    relocateRes = RelocateIncludedInterval(tasksInfo, graph, startTimeVector, currentRelocationMethod);
+    EXPECT_DOUBLES_EQUAL(63, relocateRes.startTimeVectorAfterRelocate(4), 0.1);
+    EXPECT_DOUBLES_EQUAL(63, relocateRes.startTimeVectorAfterRelocate(7), 0.1);
+}
+
+TEST(relocateIncludedInterval, moveLargeTask)
+{
+    whetherRandomNoiseModelSigma = 0;
+    noiseModelSigma = 1;
+    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v69.csv", "orig");
+    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    EliminationForest forestInfo(tasksInfo);
+
+    VectorDynamic startTimeVector = GenerateInitialForDAG_IndexMode(dagTasks,
+                                                                    tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
+    startTimeVector << 102.024, 300.012,
+        63.0085, 369.046,
+        10.4945, 202.024, 408.068,
+        8.359, 100.012, 200.019, 304.026, 406.058, 500,
+        0.008, 306.039;
+    NonlinearFactorGraph graph;
+    AddDAG_Factor(graph, dagTasks, tasksInfo);
+    AddDBF_Factor(graph, tasksInfo);
+    AddDDL_Factor(graph, tasksInfo);
+    Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
+    double err1 = graph.error(initialEstimateFG);
+    std::cout << GraphErrorEvaluation(dagTasks, startTimeVector);
+
+    // first find out which DBF factor has zero gradient but non-zero error
+
+    auto relocateRes = RelocateIncludedInterval(tasksInfo, graph, startTimeVector);
+    EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[0][0] == gtsam::Symbol('c', 0));
+    EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[0][1] == gtsam::Symbol('e', 0));
+    EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[1][0] == gtsam::Symbol('d', 0));
+    EXPECT(relocateRes.gradientVanishPairs.vanishPairs_[1][1] == gtsam::Symbol('e', 0));
+    std::cout << startTimeVector << std::endl
+              << std::endl;
+    std::cout << relocateRes.startTimeVectorAfterRelocate << std::endl;
+
+    EXPECT_DOUBLES_EQUAL(99, relocateRes.startTimeVectorAfterRelocate(4), 0.1);
+    EXPECT_DOUBLES_EQUAL(8.359, relocateRes.startTimeVectorAfterRelocate(7), 0.1);
+    EXPECT_DOUBLES_EQUAL(10.359, relocateRes.startTimeVectorAfterRelocate(13), 0.1);
+}
 
 int main()
 {
