@@ -326,6 +326,7 @@ namespace DAG_SPACE
 
     void PrintResultAnalyzation(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, VectorDynamic &x)
     {
+        std::cout << "Current start time vector: " << x << std::endl;
         std::cout << Color::blue;
         Values xValues = GenerateInitialFG(x, tasksInfo);
         std::cout << "Overall graph error is: " << GraphErrorEvaluation(dagTasks, x, debugMode == 1) << std::endl;

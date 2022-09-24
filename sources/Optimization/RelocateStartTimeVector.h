@@ -9,7 +9,6 @@ namespace DAG_SPACE
     // TODO:  first try begin and end, if both fails, they randomly generate a start time within the feasible region, and keep excluding regions where gradient vanish is possible. Algorithm terminates if there is no such possible space to generate start time.
     enum RelocationMethod
     {
-        Inference,
         EndOfLongInterval,
         BeginOfLongInterval,
         EndOfShortInterval,
