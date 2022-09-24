@@ -3,7 +3,9 @@
 namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
-
+    double ff(double x) {
+        return std::pow(x, 0.5);
+    }
     void AddDBF_Factor(NonlinearFactorGraph &graph, TaskSetInfoDerived &tasksInfo)
     {
 
@@ -33,9 +35,10 @@ namespace DAG_SPACE
                         LLint index_overall_inner = IndexTran_Instance2Overall(ii, jj, tasksInfo.sizeOfVariables);
                         Symbol key_inner = GenerateKey(ii, jj);
                         Interval v1 = CreateSingleInterval(index_overall, 0.0,
-                                                           tasksInfo.tasks, tasksInfo.sizeOfVariables);
+                            tasksInfo.tasks, tasksInfo.sizeOfVariables);
                         Interval v2 = CreateSingleInterval(index_overall_inner, 0.0,
-                                                           tasksInfo.tasks, tasksInfo.sizeOfVariables);
+                            tasksInfo.tasks, tasksInfo.sizeOfVariables);
+
                         NormalErrorFunction2D DBF2D =
                             [v1, v2](VectorDynamic x1, VectorDynamic x2)
                         {
@@ -46,12 +49,13 @@ namespace DAG_SPACE
                             v11.start = x1(0, 0);
                             v22.start = x2(0, 0);
 
-                            res << Overlap(v11, v22);
+                            res << ff(Overlap(v11, v22));
                             EndTimer("DBF_Lambda");
                             if (res(0) != 0)
                             {
                                 // int a = 1;
                             }
+
                             return res;
                         };
                         // this factor is explained as: variable * 1 <= tasks[i].deadline + i * tasks[i].period
@@ -68,12 +72,12 @@ namespace DAG_SPACE
     {
     public:
         DBF_ConstraintFactor(Key key, TaskSetInfoDerived &tasksInfo,
-                             EliminationForest &forestInfo, LLint errorDimension,
-                             SharedNoiseModel model) : BaseSchedulingFactor(key,
-                                                                            tasksInfo,
-                                                                            forestInfo,
-                                                                            errorDimension,
-                                                                            model)
+            EliminationForest &forestInfo, LLint errorDimension,
+            SharedNoiseModel model) : BaseSchedulingFactor(key,
+                tasksInfo,
+                forestInfo,
+                errorDimension,
+                model)
         {
         }
         /**
@@ -88,13 +92,13 @@ namespace DAG_SPACE
             res.resize(errorDimension, 1);
 
             VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
-                                                                   forestInfo);
+                forestInfo);
 
             int indexPro = 0;
             for (auto itr = tasksInfo.processorTaskSet.begin(); itr != tasksInfo.processorTaskSet.end(); itr++)
             {
                 res(indexPro++, 0) = DbfIntervalOverlapError(startTimeVector, itr->first,
-                                                             tasksInfo.processorTaskSet, tasksInfo.tasks, tasksInfo.sizeOfVariables);
+                    tasksInfo.processorTaskSet, tasksInfo.tasks, tasksInfo.sizeOfVariables);
             }
 
             return res;
@@ -116,7 +120,7 @@ namespace DAG_SPACE
                 if (debugMode == 1)
                 {
                     cout << "The Jacobian matrix of DBF_ConstraintFactor is " << endl
-                         << *H << endl;
+                        << *H << endl;
                     cout << Color::green << "The input startTimeVector of DBF is " << startTimeVector << Color::def << endl;
                     cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << endl;
                 }
@@ -130,7 +134,7 @@ namespace DAG_SPACE
                 {
                     auto sth = NumericalDerivativeDynamicUpperDBF(f, startTimeVector, deltaOptimizer, errorDimension);
                     cout << "The Jacobian matrix of DBF_ConstraintFactor is " << endl
-                         << sth << endl;
+                        << sth << endl;
                     cout << Color::green << "The input startTimeVector of DBF is " << startTimeVector << Color::def << endl;
                     cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << endl;
                 }
@@ -153,13 +157,13 @@ namespace DAG_SPACE
          * @param eliminationTrees_Update
          * @param indexesBGL_Update properties access for eliminationTrees_Update
          */
-        // void addMappingFunction(VectorDynamic &resTemp,
-        //                         MAP_Index2Data &mapIndex, bool &whetherEliminate,
-        //                         vector<bool> &maskForEliminate_addMap,
-        //                         Graph &eliminationTrees_Update,
-        //                         indexVertexMap &indexesBGL_Update)
+         // void addMappingFunction(VectorDynamic &resTemp,
+         //                         MAP_Index2Data &mapIndex, bool &whetherEliminate,
+         //                         vector<bool> &maskForEliminate_addMap,
+         //                         Graph &eliminationTrees_Update,
+         //                         indexVertexMap &indexesBGL_Update)
         void addMappingFunction(VectorDynamic &resTemp, bool &whetherEliminate,
-                                EliminationForest &forestInfo)
+            EliminationForest &forestInfo)
         {
             BeginTimer("addMap2");
 
@@ -170,7 +174,7 @@ namespace DAG_SPACE
                 int processorCurr = itr->first;
                 vector<int> tasksCurr = itr->second;
                 vector<Interval> intervalVec = DbfInterval(startTimeVector, processorCurr,
-                                                           tasksInfo.processorTaskSet, tasksInfo.tasks, tasksInfo.sizeOfVariables);
+                    tasksInfo.processorTaskSet, tasksInfo.tasks, tasksInfo.sizeOfVariables);
                 sort(intervalVec.begin(), intervalVec.end(), compare);
 
                 // find DBF error that need elimination
@@ -195,8 +199,8 @@ namespace DAG_SPACE
                             if (intervalVec[k].start >= endTime)
                                 break;
                             sumIJK += ComputationTime_IJK(intervalVec[i],
-                                                          intervalVec[j],
-                                                          intervalVec[k]);
+                                intervalVec[j],
+                                intervalVec[k]);
                         }
                         double distanceToBound_j_i = intervalVec[j].start + intervalVec[j].length - intervalVec[i].start - sumIJK;
 
@@ -247,7 +251,7 @@ namespace DAG_SPACE
                                 else if (tightEliminate == 0)
                                 {
                                     double distt = startTimeVector(index_j_overall, 0) -
-                                                   startTimeVector(index_i_overall, 0);
+                                        startTimeVector(index_i_overall, 0);
                                     forestInfo.AddLinearEliminate(index_j_overall, index_i_overall, distt);
                                 }
                                 else
@@ -278,7 +282,7 @@ namespace DAG_SPACE
          * @return false
          */
         bool CheckNoConflictionTree(const vector<LLint> &tree1, const vector<LLint> &tree2,
-                                    const VectorDynamic &startTimeVector)
+            const VectorDynamic &startTimeVector)
         {
             // TODO: separate this checking process can improve speed
             vector<LLint> trees;
@@ -323,8 +327,8 @@ namespace DAG_SPACE
          * @return MatrixDynamic
          */
         MatrixDynamic NumericalDerivativeDynamicUpperDBF(boost::function<VectorDynamic(const VectorDynamic &)> h,
-                                                         const VectorDynamic &x, double deltaOptimizer,
-                                                         int mOfJacobian) const
+            const VectorDynamic &x, double deltaOptimizer,
+            int mOfJacobian) const
         {
             int n = x.rows();
             MatrixDynamic jacobian;
@@ -414,7 +418,7 @@ namespace DAG_SPACE
             for (auto proPtr = tasksInfo.processorTaskSet.begin(); proPtr != tasksInfo.processorTaskSet.end(); proPtr++)
             {
                 vector<Interval> intervalVec = DbfInterval(startTimeVector, proPtr->first,
-                                                           tasksInfo.processorTaskSet, tasksInfo.tasks, tasksInfo.sizeOfVariables);
+                    tasksInfo.processorTaskSet, tasksInfo.tasks, tasksInfo.sizeOfVariables);
                 sort(intervalVec.begin(), intervalVec.end(), compare);
 
                 for (LLint i = 0; i < LLint(intervalVec.size()); i++)
@@ -449,8 +453,8 @@ namespace DAG_SPACE
          * @return MatrixDynamic
          */
         MatrixDynamic DBFJacobian(boost::function<VectorDynamic(const VectorDynamic &)> h,
-                                  const VectorDynamic &x, double deltaOptimizer,
-                                  int mOfJacobian) const
+            const VectorDynamic &x, double deltaOptimizer,
+            int mOfJacobian) const
         {
             int n = x.rows();
             MatrixDynamic jacobian = JacobianAnalytic(x);

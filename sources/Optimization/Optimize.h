@@ -434,7 +434,6 @@ namespace DAG_SPACE
 
             // detect and handle gradient vanish
             GradientVanishDetectResult gvRes = RelocateIncludedInterval(tasksInfo, graph, startTimeComplete, currentRelocationMethod);
-
             if (prevGVPair == gvRes.gradientVanishPairs)
             {
                 currentRelocationMethod = IncrementRelocationMethod(currentRelocationMethod);
@@ -444,8 +443,12 @@ namespace DAG_SPACE
             {
                 prevGVPair = gvRes.gradientVanishPairs;
             }
-
             initialEstimate = UpdateInitialVector(gvRes.startTimeVectorAfterRelocate, tasksInfo, forestInfo);
+
+            // TODO:
+            // std::vector<LLint> FindJobIndexWithError(...) e.g., {3,1,4,8}
+            // std::vector<std::vector<LLint>> GroupIndexWithError(...) e.g., {{3,1,4,8}}
+            // VectorDynamic AdjustIndexOrderWithinEachGroup(std::vector<std::vector<LLint>> groupIndex, VectorDynamic initialEstimate)
 
             loopNumber++;
             if (loopNumber >= ResetInnerWeightLoopMax)

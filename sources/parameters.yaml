@@ -7,7 +7,7 @@ AcceptSchedulError: 1e-2
 debugMode: 1
 recordActionValue: 0
 runMode: compare
-initializeMethod: 2
+initializeMethod: 4
 optimizerType: 2 # 1 means dogleg, 2 means LM
 
 deltaOptimizer: 1e0
@@ -20,7 +20,7 @@ PrintInitial: 1
 # Get away from local optimal setting
 whetherRandomNoiseModelSigma: 0
 RandomDrawWeightMaxLoop: 1 # must be >=1
-ResetInnerWeightLoopMax: 3 # must be >=1
+ResetInnerWeightLoopMax: 4 # must be >=1
 ResetRandomWeightThreshold: 5e-3
 #*************************************************************
 
