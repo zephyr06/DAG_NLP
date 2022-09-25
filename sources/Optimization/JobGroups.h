@@ -3,6 +3,8 @@
 #include "sources/Utils/Parameters.h"
 #include "sources/Tools/MatirxConvenient.h"
 #include "sources/TaskModel/DAG_Model.h"
+#include "sources/Utils/JobCEC.h"
+#include "unordered_set"
 
 namespace DAG_SPACE
 {
@@ -17,23 +19,96 @@ namespace DAG_SPACE
         std::cout << endl;
     }
 
-    std::vector<gtsam::KeyVector> FindJobIndexWithError(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo, NonlinearFactorGraph &graph)
+    std::vector<JobCEC> KeyVector2JobCECVec(gtsam::KeyVector &keys)
+    {
+        std::vector<JobCEC> res;
+        res.reserve(keys.size());
+        for (uint i = 0; i < keys.size(); i++)
+        {
+            auto s = AnalyzeKey(gtsam::Symbol{keys[i]});
+            res.push_back(JobCEC{s.first, s.second});
+        }
+        return res;
+    }
+
+    std::vector<std::vector<JobCEC>> FindJobIndexWithError(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo, NonlinearFactorGraph &graph)
     {
 
         Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
-        std::vector<gtsam::KeyVector> indexPairsWithError;
+        std::vector<std::vector<JobCEC>> indexPairsWithError;
         // go through each factor
         for (auto itr = graph.begin(); itr != graph.end(); itr++)
         {
             if ((*itr)->error(initialEstimateFG) != 0)
             {
                 gtsam::KeyVector keys = (*itr)->keys();
-                indexPairsWithError.push_back(keys);
+                indexPairsWithError.push_back(KeyVector2JobCECVec(keys));
                 itr->get()->printKeys();
                 std::cout << (*itr)->error(initialEstimateFG) << std::endl;
             }
         }
         return indexPairsWithError;
+    }
+
+    class JobGroup
+    {
+    public:
+        std::unordered_set<JobCEC> jobs_;
+        JobGroup(std::vector<JobCEC> &jobs)
+        {
+            insert(jobs);
+        }
+
+        bool exist(const JobCEC &job)
+        {
+            return jobs_.find(job) != jobs_.end();
+        }
+
+        void insert(std::vector<JobCEC> &jobs)
+        {
+            for (size_t i = 0; i < jobs.size(); i++)
+            {
+                if (jobs_.find(jobs[i]) == jobs_.end())
+                {
+                    jobs_.insert(jobs[i]);
+                }
+            }
+        }
+
+        bool existOverlap(std::vector<JobCEC> &jobs)
+        {
+            for (size_t i = 0; i < jobs.size(); i++)
+            {
+                if (exist(jobs[i]))
+                    return true;
+            }
+            return false;
+        }
+    };
+
+    std::vector<JobGroup>
+    CreateJobGroups(std::vector<std::vector<JobCEC>> &jobPairsWithError)
+    {
+        std::vector<JobGroup> jobGroups;
+        if (jobPairsWithError.size() == 0)
+        {
+            return jobGroups;
+        }
+        jobGroups.reserve(jobPairsWithError.size());
+        for (size_t i = 0; i < jobPairsWithError.size(); i++)
+        {
+            for (size_t j = 0; j < jobGroups.size(); j++)
+            {
+                if (jobGroups[j].existOverlap(jobPairsWithError[i]))
+                {
+                    jobGroups[j].insert(jobPairsWithError[i]);
+                    break;
+                }
+            }
+            // no jobGroup overlaps with this job pair
+            jobGroups.push_back(JobGroup(jobPairsWithError[i]));
+        }
+        return jobGroups;
     }
 
     VectorDynamic JobGroupsOptimize(VectorDynamic &initialEstimate, TaskSetInfoDerived &tasksInfo)

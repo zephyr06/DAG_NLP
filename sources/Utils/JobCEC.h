@@ -1,3 +1,4 @@
+#pragma once
 #ifndef JOBCEC_H
 #define JOBECE_H
 
