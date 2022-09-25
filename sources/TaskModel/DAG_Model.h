@@ -19,8 +19,8 @@
 #include <boost/graph/graphviz.hpp>             // read_graphviz
 
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
-                              boost::property<boost::vertex_name_t, LLint>,
-                              boost::property<boost::edge_name_t, LLint>>
+    boost::property<boost::vertex_name_t, LLint>,
+    boost::property<boost::edge_name_t, LLint>>
     Graph;
 // map to access properties of vertex from the graph
 typedef boost::property_map<Graph, boost::vertex_name_t>::type vertex_name_map_t;
@@ -86,7 +86,7 @@ namespace DAG_SPACE
         std::vector<std::vector<int>> chains_;
 
         DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev) : tasks(tasks),
-                                                       mapPrev(mapPrev)
+            mapPrev(mapPrev)
         {
             std::tie(graph_, indexesBGL_) = GenerateGraphForTaskSet();
             chains_ = GetRandomChains(NumCauseEffectChain);
@@ -148,6 +148,18 @@ namespace DAG_SPACE
                     cout << "Edge: " << ((itr->second)[i].id) << "-->" << (itr->first) << endl;
             }
         }
+
+        void printChains() {
+            for (size_t i = 0; i < chains_.size(); i++) {
+                std::cout << "Chain #" << i << ": ";
+                for (auto task : chains_[i])
+                {
+                    std::cout << task << ", ";
+                }
+                std::cout << std::endl;
+            }
+        }
+
         TaskSet GetTasks() const
         {
             return tasks;
@@ -274,8 +286,8 @@ namespace DAG_SPACE
         else
         {
             cout << Color::red << "The path does not exist in ReadTaskSet!" << endl
-                 << path
-                 << Color::def << endl;
+                << path
+                << Color::def << endl;
             throw;
         }
     }

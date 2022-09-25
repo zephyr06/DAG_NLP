@@ -13,7 +13,7 @@
 #include "sources/Baseline/VerucchiRTDABridge.h"
 
 void Evaluation::addLatency(const Chain &chain, const LatencyCost &cost,
-							const LatencyConstraint &constraint)
+	const LatencyConstraint &constraint)
 {
 	latencyEval_.push_back(std::make_pair(chain, std::make_pair(cost, constraint)));
 }
@@ -83,7 +83,7 @@ Evaluation::evaluate(const std::vector<DAG> &dags)
 	}
 
 	std::cout << "Best DAG: " << bestDAG << ", with total cost: " << minCost << std::endl
-			  << std::endl;
+		<< std::endl;
 	for (const auto &eval : latencyEval_)
 	{
 		printChain(eval.first);
@@ -161,7 +161,7 @@ Evaluation::evaluateWithRTDA(const std::vector<DAG> &dags)
 	}
 
 	std::cout << "Best DAG: " << bestDAG << ", with total cost: " << minCost << std::endl
-			  << std::endl;
+		<< std::endl;
 	for (const auto &eval : latencyEval_)
 	{
 		printChain(eval.first);
@@ -186,8 +186,6 @@ LatencyInfo Evaluation::getLatencyInfoRTDA(const DAG &dag, std::vector<unsigned>
 	std::vector<int> causeEffectChain(chain.begin(), chain.end());
 	auto res = DAG_SPACE::GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
 	DAG_SPACE::RTDA resM = DAG_SPACE::GetMaxRTDA(res);
-	// std::cout << "<-------RTDA results------->\nReaction time: " << resM.reactionTime \
-			 		<< "\nData age: " << resM.dataAge << std::endl;
 	info.maxLatency = resM.dataAge;
 	info.reactionTime = resM.reactionTime;
 	info.minLatency = 0.0f;

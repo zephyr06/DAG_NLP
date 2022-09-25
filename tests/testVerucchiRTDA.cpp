@@ -168,26 +168,53 @@ TEST(VerucchiRTDA, single_case_v1)
 
 TEST(VerucchiRTDA, single_case_v2)
 {
-    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
+    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     std::vector<int> causeEffectChain{ 0, 1, 4, 5 };
 
     DAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, causeEffectChain, 1, 15.0, 4000.0, 15.0, 4000.0, 15.0);
-    std::cout << "<-------------RTDA results-------------->\nChain: ";
+    std::cout << "<-------------RTDA results-------------->\n";
     for (auto task : causeEffectChain)
     {
         std::cout << task << ", ";
     }
-    std::cout << "\nReaction time: " << rtda.reactionTime << "\nData age: " << rtda.dataAge << std::endl;
+    std::cout << "Reaction time: " << rtda.reactionTime << "\nData age: " << rtda.dataAge << std::endl;
     std::cout << "<-------------End of RTDA results------->\n\n";
 
-    // rtda = GetVerucchiRTDA(tasks, causeEffectChain, 1, 15.0, 100.0, 15.0, 100.0, 15.0);
-    // std::cout << "<-------------RTDA results-------------->\nChain: ";
-    // for (auto task : causeEffectChain)
-    // {
-    //     std::cout << task << ", ";
-    // }
-    // std::cout << "\nReaction time: " << rtda.reactionTime << "\nData age: " << rtda.dataAge << std::endl;
-    // std::cout << "<-------------End of RTDA results------->\n\n";
+    EXPECT_DOUBLES_EQUAL(118, rtda.reactionTime, 1e-3);
+    EXPECT_DOUBLES_EQUAL(154, rtda.dataAge, 1e-3);
+}
+
+TEST(VerucchiRTDA, single_case_multiple_chains)
+{
+    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+
+    DAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, tasks.chains_, 1, 15.0, 4000.0, 15.0, 4000.0, 15.0);
+    std::cout << "<-------------RTDA results-------------->\n";
+    tasks.printChains();
+    std::cout << "Reaction time: " << rtda.reactionTime << "\nData age: " << rtda.dataAge << std::endl;
+    std::cout << "<-------------End of RTDA results------->\n\n";
+
+    if (!whether_shuffle_CE_chain) {
+        if (tasks.chains_.size() == 1) {
+            EXPECT_DOUBLES_EQUAL(118, rtda.reactionTime, 1e-3);
+            EXPECT_DOUBLES_EQUAL(154, rtda.dataAge, 1e-3);
+        }
+        else if (tasks.chains_.size() == 2) {
+            EXPECT_DOUBLES_EQUAL(217, rtda.reactionTime, 1e-3);
+            EXPECT_DOUBLES_EQUAL(331, rtda.dataAge, 1e-3);
+        }
+    }
+}
+
+TEST(VerucchiRTDA, multichains_debug_use_only)
+{
+    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
+
+    DAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, tasks.chains_, 1, 15.0, 4000.0, 15.0, 4000.0, 15.0);
+    std::cout << "<-------------RTDA results-------------->\n";
+    tasks.printChains();
+    std::cout << "Reaction time: " << rtda.reactionTime << "\nData age: " << rtda.dataAge << std::endl;
+    std::cout << "<-------------End of RTDA results------->\n\n";
 }
 
 int main()
