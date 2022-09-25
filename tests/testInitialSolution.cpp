@@ -379,22 +379,22 @@ TEST(SimulateFixedPrioritySchedDAG, v6)
     assert_equal(expected, actual);
 }
 
-TEST(UpdateInitialVector, v1)
-{
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
-    TaskSet tasks = dagTasks.tasks;
-    TaskSetInfoDerived tasksInfo(tasks);
-    EliminationForest forestInfo(tasksInfo);
+// TEST(UpdateInitialVector, v1)
+// {
+//     using namespace DAG_SPACE;
+//     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
+//     TaskSet tasks = dagTasks.tasks;
+//     TaskSetInfoDerived tasksInfo(tasks);
+//     EliminationForest forestInfo(tasksInfo);
 
-    auto initialSTV = GenerateVectorDynamic(tasksInfo.variableDimension);
-    initialSTV << 3, 107, 5, 3, 104, 2, 0, 102;
-    forestInfo.AddLinearEliminate(5, 2, -3);
-    VectorDynamic actual = UpdateInitialVector(initialSTV, tasksInfo, forestInfo);
-    auto expect = GenerateVectorDynamic(tasksInfo.variableDimension - 1);
-    expect << 3, 107, 5, 3, 104, 0, 102;
-    AssertEigenEqualVector(expect, actual, __LINE__);
-}
+//     auto initialSTV = GenerateVectorDynamic(tasksInfo.variableDimension);
+//     initialSTV << 3, 107, 5, 3, 104, 2, 0, 102;
+//     forestInfo.AddLinearEliminate(5, 2, -3);
+//     VectorDynamic actual = UpdateInitialVector(initialSTV, tasksInfo, forestInfo);
+//     auto expect = GenerateVectorDynamic(tasksInfo.variableDimension - 1);
+//     expect << 3, 107, 5, 3, 104, 0, 102;
+//     AssertEigenEqualVector(expect, actual, __LINE__);
+// }
 
 TEST(toplogical, sortv1)
 {

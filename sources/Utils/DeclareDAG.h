@@ -29,6 +29,7 @@
 #include "sources/Tools/MatirxConvenient.h"
 
 using namespace std;
+// TODO: remove using namespace
 using namespace gtsam;
 
 typedef boost::function<VectorDynamic(const VectorDynamic &)> NormalErrorFunction1D;

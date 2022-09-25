@@ -15,6 +15,7 @@
 #include "sources/Optimization/EliminationForest_utils.h"
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Optimization/RelocateStartTimeVector.h"
+#include "sources/Optimization/JobGroups.h"
 #include "sources/Tools/colormod.h"
 
 VectorDynamic CollectUnitOptResult(Values &result, TaskSetInfoDerived &tasksInfo)
@@ -52,13 +53,20 @@ namespace DAG_SPACE
     }
 
     void BuildFactorGraph(DAG_Model &dagTasks, NonlinearFactorGraph &graph,
-                          TaskSetInfoDerived &tasksInfo, EliminationForest &forestInfo)
+                          TaskSetInfoDerived &tasksInfo)
     {
-        // AddDAG_Factor(graph, dagTasks, tasksInfo);
+        if (weightDAG_factor != 0)
+            AddDAG_Factor(graph, dagTasks, tasksInfo);
+
         AddDBF_Factor(graph, tasksInfo);
-        AddDDL_Factor(graph, tasksInfo);
-        // if (dagTasks.chains_.size() > 0)
-        //     AddWholeRTDAFactor(graph, tasksInfo, dagTasks.chains_[0]);
+
+        if (weightDDL_factor != 0)
+            AddDDL_Factor(graph, tasksInfo);
+        if (RtdaWeight != 0)
+        {
+            if (dagTasks.chains_.size() > 0)
+                AddWholeRTDAFactor(graph, tasksInfo, dagTasks.chains_[0]);
+        }
 
         // AddMakeSpanFactor(graph, tasksInfo, dagTasks.mapPrev);
         // LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
@@ -74,8 +82,8 @@ namespace DAG_SPACE
         whetherRandomNoiseModelSigma = 0;
         NonlinearFactorGraph graph;
         TaskSetInfoDerived tasksInfo(dagTasks.tasks);
-        EliminationForest forestInfo(tasksInfo);
-        BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
+        // EliminationForest forestInfo(tasksInfo);
+        BuildFactorGraph(dagTasks, graph, tasksInfo);
         Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
         if (printDetail)
         {
@@ -264,6 +272,8 @@ namespace DAG_SPACE
                                       TaskSetInfoDerived &tasksInfo,
                                       EliminationForest &forestInfo)
     {
+        return startTimeComplete;
+
         VectorDynamic initialUpdate;
         initialUpdate.resize(forestInfo.lengthCompressed, 1);
 
@@ -363,7 +373,7 @@ namespace DAG_SPACE
     {
         TaskSet tasks = dagTasks.tasks;
         TaskSetInfoDerived tasksInfo(tasks);
-        EliminationForest forestInfo(tasksInfo);
+        // EliminationForest forestInfo(tasksInfo);
 
         VectorDynamic initialEstimate = GenerateInitial(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, initialUser);
 
@@ -386,7 +396,7 @@ namespace DAG_SPACE
             // perform optimization for one time
             Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
             NonlinearFactorGraph graph;
-            BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
+            BuildFactorGraph(dagTasks, graph, tasksInfo);
             Values result = SolveFactorGraph(graph, initialEstimateFG);
             VectorDynamic startTimeComplete = CollectUnitOptResult(result, tasksInfo);
             PrintResultAnalyzation(dagTasks, tasksInfo, startTimeComplete);
@@ -443,12 +453,10 @@ namespace DAG_SPACE
             {
                 prevGVPair = gvRes.gradientVanishPairs;
             }
-            initialEstimate = UpdateInitialVector(gvRes.startTimeVectorAfterRelocate, tasksInfo, forestInfo);
+            initialEstimate = gvRes.startTimeVectorAfterRelocate;
 
             // TODO:
-            // std::vector<LLint> FindJobIndexWithError(...) e.g., {3,1,4,8}
-            // std::vector<std::vector<LLint>> GroupIndexWithError(...) e.g., {{3,1,4,8}}
-            // VectorDynamic AdjustIndexOrderWithinEachGroup(std::vector<std::vector<LLint>> groupIndex, VectorDynamic initialEstimate)
+            VectorDynamic initialEstimate = JobGroupsOptimize(initialEstimate, tasksInfo);
 
             loopNumber++;
             if (loopNumber >= ResetInnerWeightLoopMax)

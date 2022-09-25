@@ -20,7 +20,7 @@ PrintInitial: 1
 # Get away from local optimal setting
 whetherRandomNoiseModelSigma: 0
 RandomDrawWeightMaxLoop: 1 # must be >=1
-ResetInnerWeightLoopMax: 4 # must be >=1
+ResetInnerWeightLoopMax: 3 # must be >=1
 ResetRandomWeightThreshold: 5e-3
 #*************************************************************
 
@@ -41,8 +41,8 @@ maxIterations: 10000
 
 # factors to be included
 weightDDL_factor: 10
-weightDAG_factor: 1
-RtdaWeight: 1
+weightDAG_factor: 0
+RtdaWeight: 0
 NumCauseEffectChain: 1
 whether_shuffle_CE_chain: 0
 makespanWeight: 0
