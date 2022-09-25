@@ -26,6 +26,17 @@ TEST(FindJobIndexWithError, v1)
     EXPECT_LONGS_EQUAL(5, (actual[1][1]).taskId);
 }
 
+TEST(JobGroup, v1)
+{
+    std::vector<JobCEC> jobs1{JobCEC(3, 3), JobCEC(1, 1)};
+    std::vector<JobCEC> jobs2{JobCEC(0, 0), JobCEC(1, 1), JobCEC(2, 2)};
+    JobGroup g1(jobs2);
+    JobGroup g2(jobs1);
+    EXPECT(g1.existOverlap(jobs1));
+    g1.insert(jobs1);
+    EXPECT_LONGS_EQUAL(4, g1.size());
+}
+
 TEST(CreateJobGroups, v1)
 {
     weightDDL_factor = 1;
@@ -47,6 +58,22 @@ TEST(CreateJobGroups, v1)
     EXPECT(jobGroups[0].exist(JobCEC(5, 1)));
     EXPECT(jobGroups[1].exist(JobCEC(1, 0)));
     EXPECT(jobGroups[1].exist(JobCEC(5, 0)));
+}
+
+TEST(CreateJobGroups, v2)
+{
+    std::vector<std::vector<JobCEC>> jobPairsWithError;
+    jobPairsWithError.push_back({JobCEC(0, 0), JobCEC(1, 1), JobCEC(2, 2)});
+    jobPairsWithError.push_back({JobCEC(0, 0), JobCEC(3, 3), JobCEC(2, 2)});
+    jobPairsWithError.push_back({JobCEC(5, 5), JobCEC(4, 4)});
+    auto jobGroups = CreateJobGroups(jobPairsWithError);
+    EXPECT_LONGS_EQUAL(2, jobGroups.size());
+    EXPECT(jobGroups[0].exist(JobCEC(0, 0)));
+    EXPECT(jobGroups[0].exist(JobCEC(1, 1)));
+    EXPECT(jobGroups[0].exist(JobCEC(2, 2)));
+    EXPECT(jobGroups[0].exist(JobCEC(3, 3)));
+    EXPECT(jobGroups[1].exist(JobCEC(4, 4)));
+    EXPECT(jobGroups[1].exist(JobCEC(5, 5)));
 }
 
 int main()

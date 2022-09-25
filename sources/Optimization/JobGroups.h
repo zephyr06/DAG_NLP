@@ -84,6 +84,8 @@ namespace DAG_SPACE
             }
             return false;
         }
+
+        size_t size() { return jobs_.size(); }
     };
 
     std::vector<JobGroup>
@@ -97,16 +99,18 @@ namespace DAG_SPACE
         jobGroups.reserve(jobPairsWithError.size());
         for (size_t i = 0; i < jobPairsWithError.size(); i++)
         {
+            bool findMatchGroup = false;
             for (size_t j = 0; j < jobGroups.size(); j++)
             {
                 if (jobGroups[j].existOverlap(jobPairsWithError[i]))
                 {
                     jobGroups[j].insert(jobPairsWithError[i]);
+                    findMatchGroup = true;
                     break;
                 }
             }
-            // no jobGroup overlaps with this job pair
-            jobGroups.push_back(JobGroup(jobPairsWithError[i]));
+            if (!findMatchGroup)
+                jobGroups.push_back(JobGroup(jobPairsWithError[i]));
         }
         return jobGroups;
     }
