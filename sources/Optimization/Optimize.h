@@ -401,6 +401,7 @@ namespace DAG_SPACE
             BuildFactorGraph(dagTasks, graph, tasksInfo);
             Values result = SolveFactorGraph(graph, initialEstimateFG);
             VectorDynamic startTimeComplete = CollectUnitOptResult(result, tasksInfo);
+            // TODO: probably add job aligns?
             PrintResultAnalyzation(dagTasks, tasksInfo, startTimeComplete);
             if (debugMode)
                 std::cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
@@ -444,6 +445,8 @@ namespace DAG_SPACE
             }
             currAction.resetWeightSeed = prevSrandRef;
 
+            startTimeComplete = JobGroupsOptimize(startTimeComplete, tasksInfo, graph);
+
             // detect and handle gradient vanish
             GradientVanishDetectResult gvRes = RelocateIncludedInterval(tasksInfo, graph, startTimeComplete, currentRelocationMethod);
             if (prevGVPair == gvRes.gradientVanishPairs)
@@ -456,9 +459,6 @@ namespace DAG_SPACE
                 prevGVPair = gvRes.gradientVanishPairs;
             }
             initialEstimate = gvRes.startTimeVectorAfterRelocate;
-
-            // TODO:
-            VectorDynamic initialEstimate = JobGroupsOptimize(initialEstimate, tasksInfo);
 
             loopNumber++;
             if (loopNumber >= ResetInnerWeightLoopMax)

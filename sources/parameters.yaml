@@ -20,7 +20,7 @@ PrintInitial: 1
 # Get away from local optimal setting
 whetherRandomNoiseModelSigma: 0
 RandomDrawWeightMaxLoop: 1 # must be >=1
-ResetInnerWeightLoopMax: 3 # must be >=1
+ResetInnerWeightLoopMax: 1 # must be >=1
 ResetRandomWeightThreshold: 5e-3
 #*************************************************************
 

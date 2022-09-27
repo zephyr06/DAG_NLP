@@ -44,8 +44,15 @@ namespace DAG_SPACE
             {
                 gtsam::KeyVector keys = (*itr)->keys();
                 indexPairsWithError.push_back(KeyVector2JobCECVec(keys));
-                itr->get()->printKeys();
-                std::cout << (*itr)->error(initialEstimateFG) << std::endl;
+                if (debugMode == 1)
+                {
+                    itr->get()->printKeys();
+                    std::cout << (*itr)->error(initialEstimateFG) << std::endl;
+                    if ((*itr)->error(initialEstimateFG) >= 54449)
+                    {
+                        int a = 1;
+                    }
+                }
             }
         }
         return indexPairsWithError;
@@ -158,24 +165,27 @@ namespace DAG_SPACE
             JobCEC rightMostJob = findRightJob(startTimeVector, tasksInfo);
             double rPeriodBegin = GetActivationTime(rightMostJob, tasksInfo);
             double rDeadline = GetDeadline(rightMostJob, tasksInfo);
+            // exam whether rightmostjob violates deadline, if not, then no need to swap, and let vanish gradient/RTDA's swap to take care of this case.
+            if (GetFinishTime(rightMostJob, startTimeVector, tasksInfo) <= rDeadline)
+            {
+                return startTimeVector;
+            }
 
             std::vector<JobCEC> sortedJobs = sort(startTimeVector, tasksInfo, "deadline");
-
             // go through jobs from largest deadline to smallest deadline
             for (int i = static_cast<int>(size()) - 1; i >= 0; i--)
             {
                 JobCEC jobCurr = sortedJobs[i];
                 if (jobCurr == rightMostJob)
                     continue;
-                // jobcurr's deadline should be larger than rightMostJob's deadline
-                if (GetDeadline(jobCurr, tasksInfo) < rDeadline)
-                    continue;
-                // rightMostJob's begin time should be smaller than jobCurr's smaller time
-                if (GetActivationTime(jobCurr, tasksInfo) < rPeriodBegin)
-                    continue;
 
-                swap(startTimeVector, IndexTran_Instance2Overall(jobCurr.taskId, jobCurr.jobId, tasksInfo.sizeOfVariables), IndexTran_Instance2Overall(rightMostJob.taskId, rightMostJob.jobId, tasksInfo.sizeOfVariables));
-                return startTimeVector;
+                // jobcurr's deadline should be larger than rightMostJob's deadline
+                // rightMostJob's begin time should be smaller than jobCurr's smaller time
+                if (GetDeadline(jobCurr, tasksInfo) < rDeadline && rPeriodBegin <= GetActivationTime(jobCurr, tasksInfo))
+                {
+                    swap(startTimeVector, IndexTran_Instance2Overall(jobCurr.taskId, jobCurr.jobId, tasksInfo.sizeOfVariables), IndexTran_Instance2Overall(rightMostJob.taskId, rightMostJob.jobId, tasksInfo.sizeOfVariables));
+                    return startTimeVector;
+                }
             }
 
             // no good match found, randomly swap
@@ -212,15 +222,6 @@ namespace DAG_SPACE
                 jobGroups.push_back(JobGroup(jobPairsWithError[i]));
         }
         return jobGroups;
-    }
-
-    VectorDynamic AdjustIndexOrderWithinEachGroup(std::vector<JobGroup> jobGroups, VectorDynamic initialEstimate)
-    {
-        for (JobGroup &group : jobGroups)
-        {
-            // IF only DBF and DDL constraints are considered
-        }
-        return initialEstimate;
     }
 
     VectorDynamic JobGroupsOptimize(VectorDynamic &initialEstimate, TaskSetInfoDerived &tasksInfo, NonlinearFactorGraph &graph)

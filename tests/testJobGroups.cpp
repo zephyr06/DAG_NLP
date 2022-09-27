@@ -125,18 +125,48 @@ TEST(JobGroup, SwitchRightJob)
     weightDAG_factor = 0;
     RtdaWeight = 0;
     DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    dagTasks.tasks[2].deadline = 61;
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     NonlinearFactorGraph graph;
     BuildFactorGraph(dagTasks, graph, tasksInfo);
     VectorDynamic initialEstimate = GenerateInitial(dagTasks,
                                                     tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
     initialEstimate << 0, 46, 84.9, 5.56, 52, 76.5, 90.3, 27.9, 50, 92.4;
+
     auto jobPairsWithError = FindJobIndexWithError(initialEstimate, tasksInfo, graph);
     auto jobGroups = CreateJobGroups(jobPairsWithError);
     VectorDynamic actual = jobGroups[0].SwitchRightJob(initialEstimate, tasksInfo);
     EXPECT_LONGS_EQUAL(50, actual(4));
     EXPECT_LONGS_EQUAL(52, actual(8));
+
+    // no deadline miss, leave the job to vanish gradient
+    actual = jobGroups[1].SwitchRightJob(initialEstimate, tasksInfo);
+    EXPECT_DOUBLES_EQUAL(5.56, actual(3), 0.1);
+    EXPECT_DOUBLES_EQUAL(27.9, actual(7), 0.1);
 }
+
+// TEST(JobGroup, SwitchRightJob_v2)
+// {
+//     weightDDL_factor = 1;
+//     weightDAG_factor = 0;
+//     RtdaWeight = 0;
+//     DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+//     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+//     NonlinearFactorGraph graph;
+//     BuildFactorGraph(dagTasks, graph, tasksInfo);
+//     VectorDynamic initialEstimate = GenerateInitial(dagTasks,
+//                                                     tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
+//     initialEstimate << 0, 45, 68, 5, 50, 60, 73, 27.9, 60.9, 75;
+//     auto jobPairsWithError = FindJobIndexWithError(initialEstimate, tasksInfo, graph);
+//     auto jobGroups = CreateJobGroups(jobPairsWithError);
+//     VectorDynamic actual = jobGroups[0].SwitchRightJob(initialEstimate, tasksInfo);
+//     EXPECT_LONGS_EQUAL(27.9, actual(4));
+//     EXPECT_LONGS_EQUAL(5, actual(8));
+
+//     actual = jobGroups[1].SwitchRightJob(initialEstimate, tasksInfo);
+//     EXPECT_DOUBLES_EQUAL(60.9, actual(3), 0.1);
+//     EXPECT_DOUBLES_EQUAL(60, actual(7), 0.1);
+// }
 
 int main()
 {
