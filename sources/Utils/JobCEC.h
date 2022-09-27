@@ -40,6 +40,15 @@ namespace DAG_SPACE
         return res;
     }
 
+    inline double GetDeadline(JobCEC job, const TaskSetInfoDerived &tasksInfo)
+    {
+        return tasksInfo.tasks[job.taskId].period * job.jobId + tasksInfo.tasks[job.taskId].deadline;
+    }
+    inline double GetActivationTime(JobCEC job, const TaskSetInfoDerived &tasksInfo)
+    {
+        return tasksInfo.tasks[job.taskId].period * job.jobId;
+    }
+
     double GetStartTime(JobCEC jobCEC, const VectorDynamic &x, const TaskSetInfoDerived &tasksInfo)
     {
         if (jobCEC.taskId < 0 || jobCEC.taskId >= tasksInfo.N)

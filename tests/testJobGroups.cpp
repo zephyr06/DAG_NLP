@@ -99,6 +99,45 @@ TEST(findRightJob, v1)
     EXPECT_LONGS_EQUAL(2, jobGroups[0].findRightJob(initialEstimate, tasksInfo).taskId);
 }
 
+TEST(JobGroup, sort)
+{
+    weightDDL_factor = 1;
+    weightDAG_factor = 0;
+    RtdaWeight = 0;
+    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    NonlinearFactorGraph graph;
+    BuildFactorGraph(dagTasks, graph, tasksInfo);
+    VectorDynamic initialEstimate = GenerateInitial(dagTasks,
+                                                    tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
+    initialEstimate << 0, 46, 84.9, 5.56, 52.6, 76.5, 90.3, 27.9, 50, 92.4;
+    auto jobPairsWithError = FindJobIndexWithError(initialEstimate, tasksInfo, graph);
+    auto jobGroups = CreateJobGroups(jobPairsWithError);
+    std::vector<JobCEC> actual = jobGroups[0].sort(initialEstimate, tasksInfo, "deadline");
+    EXPECT_LONGS_EQUAL(0, actual[0].taskId);
+    EXPECT_LONGS_EQUAL(5, actual[1].taskId);
+    EXPECT_LONGS_EQUAL(2, actual[2].taskId);
+}
+
+TEST(JobGroup, SwitchRightJob)
+{
+    weightDDL_factor = 1;
+    weightDAG_factor = 0;
+    RtdaWeight = 0;
+    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    NonlinearFactorGraph graph;
+    BuildFactorGraph(dagTasks, graph, tasksInfo);
+    VectorDynamic initialEstimate = GenerateInitial(dagTasks,
+                                                    tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
+    initialEstimate << 0, 46, 84.9, 5.56, 52, 76.5, 90.3, 27.9, 50, 92.4;
+    auto jobPairsWithError = FindJobIndexWithError(initialEstimate, tasksInfo, graph);
+    auto jobGroups = CreateJobGroups(jobPairsWithError);
+    VectorDynamic actual = jobGroups[0].SwitchRightJob(initialEstimate, tasksInfo);
+    EXPECT_LONGS_EQUAL(50, actual(4));
+    EXPECT_LONGS_EQUAL(52, actual(8));
+}
+
 int main()
 {
     TestResult tr;

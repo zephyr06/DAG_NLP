@@ -60,6 +60,27 @@ namespace DAG_SPACE
             insert(jobs);
         }
 
+        std::vector<JobCEC> sort(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo, string sortType = "deadline")
+        {
+            std::vector<JobCEC> jobVec;
+            jobVec.reserve(size());
+            for (auto ite = jobs_.begin(); ite != jobs_.end(); ite++)
+            {
+                jobVec.push_back(*ite);
+            }
+            if (sortType == "deadline")
+            {
+                auto compareFunc = [&](JobCEC &j1, JobCEC &j2) -> bool
+                {
+                    return GetFinishTime(j1, startTimeVector, tasksInfo) < GetFinishTime(j2, startTimeVector, tasksInfo);
+                };
+                std::sort(jobVec.begin(), jobVec.end(), compareFunc);
+            }
+            else
+                CoutError("Unrecognized sortType in JobGroup!");
+            return jobVec;
+        }
+
         bool exist(const JobCEC &job)
         {
             return jobs_.find(job) != jobs_.end();
@@ -132,6 +153,37 @@ namespace DAG_SPACE
             return rightMostJob;
         }
 
+        VectorDynamic SwitchRightJob(VectorDynamic startTimeVector, TaskSetInfoDerived &tasksInfo)
+        {
+            JobCEC rightMostJob = findRightJob(startTimeVector, tasksInfo);
+            double rPeriodBegin = GetActivationTime(rightMostJob, tasksInfo);
+            double rDeadline = GetDeadline(rightMostJob, tasksInfo);
+
+            std::vector<JobCEC> sortedJobs = sort(startTimeVector, tasksInfo, "deadline");
+
+            // go through jobs from largest deadline to smallest deadline
+            for (int i = static_cast<int>(size()) - 1; i >= 0; i--)
+            {
+                JobCEC jobCurr = sortedJobs[i];
+                if (jobCurr == rightMostJob)
+                    continue;
+                // jobcurr's deadline should be larger than rightMostJob's deadline
+                if (GetDeadline(jobCurr, tasksInfo) < rDeadline)
+                    continue;
+                // rightMostJob's begin time should be smaller than jobCurr's smaller time
+                if (GetActivationTime(jobCurr, tasksInfo) < rPeriodBegin)
+                    continue;
+
+                swap(startTimeVector, IndexTran_Instance2Overall(jobCurr.taskId, jobCurr.jobId, tasksInfo.sizeOfVariables), IndexTran_Instance2Overall(rightMostJob.taskId, rightMostJob.jobId, tasksInfo.sizeOfVariables));
+                return startTimeVector;
+            }
+
+            // no good match found, randomly swap
+            JobCEC jobCurr = sortedJobs[rand() % size()];
+            swap(startTimeVector, IndexTran_Instance2Overall(jobCurr.taskId, jobCurr.jobId, tasksInfo.sizeOfVariables), IndexTran_Instance2Overall(rightMostJob.taskId, rightMostJob.jobId, tasksInfo.sizeOfVariables));
+            return startTimeVector;
+        }
+
         size_t size() { return jobs_.size(); }
     };
 
@@ -171,12 +223,14 @@ namespace DAG_SPACE
         return initialEstimate;
     }
 
-    VectorDynamic JobGroupsOptimize(VectorDynamic &initialEstimate, TaskSetInfoDerived &tasksInfo)
+    VectorDynamic JobGroupsOptimize(VectorDynamic &initialEstimate, TaskSetInfoDerived &tasksInfo, NonlinearFactorGraph &graph)
     {
+        std::vector<std::vector<JobCEC>> jobPairsWithError = FindJobIndexWithError(initialEstimate, tasksInfo, graph);
+        std::vector<JobGroup> jobGroups = CreateJobGroups(jobPairsWithError);
+        for (size_t i = 0; i < jobGroups.size(); i++)
+            initialEstimate = jobGroups[0].SwitchRightJob(initialEstimate, tasksInfo);
+
         return initialEstimate;
-        // std::vector<LLint> FindJobIndexWithError(...) e.g., {3,1,4,8}
-        // std::vector<std::vector<LLint>> GroupIndexWithError(...) e.g., {{3,1,4,8}}
-        // VectorDynamic AdjustIndexOrderWithinEachGroup(std::vector<std::vector<LLint>> groupIndex, VectorDynamic initialEstimate)
     }
 
 } // namespace DAG_SPACE

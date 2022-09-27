@@ -28,6 +28,13 @@ double max(double a, double b)
     return 0;
 }
 
+void swap(VectorDynamic &x, LLint i, LLint j)
+{
+    double t = x(i);
+    x(i) = x(j);
+    x(j) = t;
+}
+
 inline MatrixDynamic GenerateMatrixDynamic(int m, int n)
 {
     MatrixDynamic M;
