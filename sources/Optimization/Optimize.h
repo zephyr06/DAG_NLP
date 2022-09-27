@@ -377,6 +377,8 @@ namespace DAG_SPACE
 
         VectorDynamic initialEstimate = GenerateInitial(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, initialUser);
 
+        // initialEstimate << 0, 45, 66, 5, 50, 73, 44, 28, 60, 81;
+
         int loopNumber = 0;
         VectorDynamic bestResultFound;
         double prevError = INT32_MAX;

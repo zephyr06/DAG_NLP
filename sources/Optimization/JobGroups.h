@@ -1,10 +1,11 @@
 #pragma once
+#include "unordered_set"
 
 #include "sources/Utils/Parameters.h"
 #include "sources/Tools/MatirxConvenient.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/JobCEC.h"
-#include "unordered_set"
+#include "sources/Optimization/RelocateStartTimeVector.h"
 
 namespace DAG_SPACE
 {
@@ -75,6 +76,7 @@ namespace DAG_SPACE
             }
         }
 
+        // return true if at least one job exists in the job group and given job vectors
         bool existOverlap(std::vector<JobCEC> &jobs)
         {
             for (size_t i = 0; i < jobs.size(); i++)
@@ -83,6 +85,51 @@ namespace DAG_SPACE
                     return true;
             }
             return false;
+        }
+
+        // probably not gonna be used
+        bool existVanishGradient(GradientVanishPairs &gvp)
+        {
+            if (gvp.size() == 0)
+                return false;
+
+            for (auto &keyVec : gvp.vanishPairs_)
+            {
+                bool whetherMatch = true;
+                for (auto &key : keyVec)
+                {
+                    gtsam::Symbol s(key);
+                    JobCEC job{AnalyzeKey(s)};
+                    if (!exist(job))
+                    {
+                        whetherMatch = false;
+                        break;
+                    }
+                }
+                if (whetherMatch)
+                    return true;
+            }
+            return false;
+        }
+
+        JobCEC findRightJob(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo)
+        {
+            if (size() == 0)
+            {
+                CoutError("No right most job because job group is empty!");
+            }
+            double finishTimeMax = -100;
+            JobCEC rightMostJob;
+            for (auto ite = jobs_.begin(); ite != jobs_.end(); ite++)
+            {
+                double finishTime = GetFinishTime(*(ite), startTimeVector, tasksInfo);
+                if (finishTime > finishTimeMax)
+                {
+                    finishTimeMax = finishTime;
+                    rightMostJob = *ite;
+                }
+            }
+            return rightMostJob;
         }
 
         size_t size() { return jobs_.size(); }
@@ -113,6 +160,15 @@ namespace DAG_SPACE
                 jobGroups.push_back(JobGroup(jobPairsWithError[i]));
         }
         return jobGroups;
+    }
+
+    VectorDynamic AdjustIndexOrderWithinEachGroup(std::vector<JobGroup> jobGroups, VectorDynamic initialEstimate)
+    {
+        for (JobGroup &group : jobGroups)
+        {
+            // IF only DBF and DDL constraints are considered
+        }
+        return initialEstimate;
     }
 
     VectorDynamic JobGroupsOptimize(VectorDynamic &initialEstimate, TaskSetInfoDerived &tasksInfo)

@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Factors/DDL_ConstraintFactor.h"

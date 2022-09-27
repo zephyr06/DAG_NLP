@@ -16,6 +16,7 @@ namespace DAG_SPACE
         size_t jobId;
         JobCEC() : taskId(-1), jobId(0) {}
         JobCEC(int taskId, size_t jobId) : taskId(taskId), jobId(jobId) {}
+        JobCEC(std::pair<int, LLint> p) : taskId(p.first), jobId(p.second) {}
 
         bool operator==(const JobCEC &other) const
         {
@@ -39,7 +40,23 @@ namespace DAG_SPACE
         return res;
     }
 
+    double GetStartTime(JobCEC jobCEC, const VectorDynamic &x, const TaskSetInfoDerived &tasksInfo)
+    {
+        if (jobCEC.taskId < 0 || jobCEC.taskId >= tasksInfo.N)
+        {
+            CoutError("GetStartTime receives invalid jobCEC!");
+        }
+        int jobNumInHyperPeriod = tasksInfo.hyperPeriod / tasksInfo.tasks[jobCEC.taskId].period;
+
+        double res = x(IndexTran_Instance2Overall(jobCEC.taskId, jobCEC.jobId, tasksInfo.sizeOfVariables)) + jobCEC.jobId / jobNumInHyperPeriod * tasksInfo.hyperPeriod;
+        return res;
+    }
+
     inline double GetFinishTime(JobCEC jobCEC, const Values &x, const TaskSetInfoDerived &tasksInfo)
+    {
+        return GetStartTime(jobCEC, x, tasksInfo) + tasksInfo.tasks[jobCEC.taskId].executionTime;
+    }
+    inline double GetFinishTime(JobCEC jobCEC, const VectorDynamic &x, const TaskSetInfoDerived &tasksInfo)
     {
         return GetStartTime(jobCEC, x, tasksInfo) + tasksInfo.tasks[jobCEC.taskId].executionTime;
     }

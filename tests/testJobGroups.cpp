@@ -76,6 +76,29 @@ TEST(CreateJobGroups, v2)
     EXPECT(jobGroups[1].exist(JobCEC(5, 5)));
 }
 
+TEST(findRightJob, v1)
+{
+    weightDDL_factor = 1;
+    weightDAG_factor = 0;
+    RtdaWeight = 0;
+    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    NonlinearFactorGraph graph;
+    BuildFactorGraph(dagTasks, graph, tasksInfo);
+    VectorDynamic initialEstimate = GenerateInitial(dagTasks,
+                                                    tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
+    initialEstimate << 0, 46, 84.9, 5.56, 52.6, 76.5, 90.3, 27.9, 46, 92.4;
+    auto jobPairsWithError = FindJobIndexWithError(initialEstimate, tasksInfo, graph);
+    auto jobGroups = CreateJobGroups(jobPairsWithError);
+    EXPECT_LONGS_EQUAL(5, jobGroups[0].findRightJob(initialEstimate, tasksInfo).taskId);
+    EXPECT_LONGS_EQUAL(1, jobGroups[1].findRightJob(initialEstimate, tasksInfo).taskId);
+
+    initialEstimate << 0, 46, 84.9, 5.56, 52.6, 76.5, 90.3, 27.9, 50, 92.4;
+    jobPairsWithError = FindJobIndexWithError(initialEstimate, tasksInfo, graph);
+    jobGroups = CreateJobGroups(jobPairsWithError);
+    EXPECT_LONGS_EQUAL(2, jobGroups[0].findRightJob(initialEstimate, tasksInfo).taskId);
+}
+
 int main()
 {
     TestResult tr;
