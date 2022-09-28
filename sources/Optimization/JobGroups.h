@@ -14,7 +14,7 @@ namespace DAG_SPACE
     {
         for (uint i = 0; i < vec.size(); i++)
         {
-            gtsam::Symbol{vec[i]}.print();
+            gtsam::Symbol{ vec[i] }.print();
             std::cout << ", ";
         }
         std::cout << endl;
@@ -26,8 +26,8 @@ namespace DAG_SPACE
         res.reserve(keys.size());
         for (uint i = 0; i < keys.size(); i++)
         {
-            auto s = AnalyzeKey(gtsam::Symbol{keys[i]});
-            res.push_back(JobCEC{s.first, s.second});
+            auto s = AnalyzeKey(gtsam::Symbol{ keys[i] });
+            res.push_back(JobCEC{ s.first, s.second });
         }
         return res;
     }
@@ -127,7 +127,7 @@ namespace DAG_SPACE
                 for (auto &key : keyVec)
                 {
                     gtsam::Symbol s(key);
-                    JobCEC job{AnalyzeKey(s)};
+                    JobCEC job{ AnalyzeKey(s) };
                     if (!exist(job))
                     {
                         whetherMatch = false;
@@ -181,9 +181,11 @@ namespace DAG_SPACE
 
                 // jobcurr's deadline should be larger than rightMostJob's deadline
                 // rightMostJob's begin time should be smaller than jobCurr's smaller time
-                if (GetDeadline(jobCurr, tasksInfo) < rDeadline && rPeriodBegin <= GetActivationTime(jobCurr, tasksInfo))
+                // if (GetDeadline(jobCurr, tasksInfo) > rDeadline)
+                if (GetDeadline(jobCurr, tasksInfo) > rDeadline && rPeriodBegin <= GetStartTime(jobCurr, startTimeVector, tasksInfo))
                 {
                     swap(startTimeVector, IndexTran_Instance2Overall(jobCurr.taskId, jobCurr.jobId, tasksInfo.sizeOfVariables), IndexTran_Instance2Overall(rightMostJob.taskId, rightMostJob.jobId, tasksInfo.sizeOfVariables));
+                    std::cout << "/n/n Actually do the swap !!!!/n/n";
                     return startTimeVector;
                 }
             }
@@ -198,7 +200,7 @@ namespace DAG_SPACE
     };
 
     std::vector<JobGroup>
-    CreateJobGroups(std::vector<std::vector<JobCEC>> &jobPairsWithError)
+        CreateJobGroups(std::vector<std::vector<JobCEC>> &jobPairsWithError)
     {
         std::vector<JobGroup> jobGroups;
         if (jobPairsWithError.size() == 0)
@@ -221,6 +223,7 @@ namespace DAG_SPACE
             if (!findMatchGroup)
                 jobGroups.push_back(JobGroup(jobPairsWithError[i]));
         }
+        // TODO: add a merge jobGroups
         return jobGroups;
     }
 
