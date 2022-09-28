@@ -25,7 +25,7 @@ ResetRandomWeightThreshold: 5e-3
 #*************************************************************
 
 # optimizer settings
-whether_ls: 0
+whether_ls: 1
 deltaInitialDogleg: 1e5
 initialLambda: 1e3
 lowerLambda: 1e-60
@@ -43,6 +43,8 @@ maxIterations: 10000
 weightDDL_factor: 1e1
 weightDAG_factor: 0
 RtdaWeight: 0
+DataAgeThreshold: 1e3
+ReactionTimeThreshold: 1e3
 NumCauseEffectChain: 1
 whether_shuffle_CE_chain: 0
 makespanWeight: 0

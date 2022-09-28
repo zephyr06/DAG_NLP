@@ -108,11 +108,11 @@ namespace DAG_SPACE
             VectorDynamic res = GenerateVectorDynamic(1 * 2);
             if (!whether_ls)
             {
-                res << std::pow(finalResult.dataAge, 0.5), std::pow(finalResult.reactionTime, 0.5);
+                res << std::pow(Barrier(DataAgeThreshold - finalResult.dataAge), 0.5), std::pow(Barrier(ReactionTimeThreshold - finalResult.reactionTime), 0.5);
             }
             else
             {
-                res << finalResult.dataAge, finalResult.reactionTime;
+                res << Barrier(DataAgeThreshold - finalResult.dataAge), Barrier(ReactionTimeThreshold - finalResult.reactionTime);
             }
 
             return res;

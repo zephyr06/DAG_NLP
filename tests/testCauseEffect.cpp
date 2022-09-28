@@ -161,6 +161,8 @@ TEST(CA, v3)
 TEST(CA_facroe, v1)
 {
     whether_ls = 1;
+    ReactionTimeThreshold = 0;
+    DataAgeThreshold = 0;
     using namespace DAG_SPACE;
     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v4.csv", "orig"); // single-rate dag
     TaskSet tasks = dagTasks.tasks;
