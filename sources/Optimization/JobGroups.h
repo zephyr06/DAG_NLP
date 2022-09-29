@@ -88,7 +88,7 @@ namespace DAG_SPACE
             return jobVec;
         }
 
-        bool exist(const JobCEC &job)
+        bool exist(const JobCEC &job) const
         {
             return jobs_.find(job) != jobs_.end();
         }
@@ -219,24 +219,32 @@ namespace DAG_SPACE
         size_t size() { return jobs_.size(); }
     };
 
-    // std::vector<JobGroup> MergeJobGroup(std::vector<JobGroup> &jobGroups)
-    // {
-    //     std::set<JobGroup> jobSet;
-    //     for (size_t i = 0; i < jobGroups.size(); i++)
-    //         jobSet.insert(jobGroups[i]);
+    std::vector<JobGroup> MergeJobGroup(std::vector<JobGroup> &jobGroups)
+    {
+        std::vector<bool> eraseRecord(jobGroups.size(), false);
 
-    //     for (size_t i = jobGroups.size() - 1; i >= 0; i--)
-    //     {
-    //         JobGroup &jobGroupCurr = jobGroups[i];
-    //         for (size_t j = 0; j < jobGroups.size(); j++)
-    //         {
-    //             if (jobGroups[j].existOverlap(jobGroupCurr))
-    //             {
-    //                 jobGroups[j].insert(jobGroupCurr);
-    //             }
-    //         }
-    //     }
-    // }
+        for (size_t i = 0; i < jobGroups.size(); i++)
+        {
+            JobGroup &jobGroupCurr = jobGroups[i];
+            for (size_t j = i + 1; j < jobGroups.size(); j++)
+            {
+                if (jobGroups[j].existOverlap(jobGroupCurr))
+                {
+                    jobGroups[j].insert(jobGroupCurr);
+                    eraseRecord[i] = true;
+                    break;
+                }
+            }
+        }
+        std::vector<JobGroup> res;
+        res.reserve(jobGroups.size());
+        for (uint i = 0; i < eraseRecord.size(); i++)
+        {
+            if (!eraseRecord[i])
+                res.push_back(jobGroups[i]);
+        }
+        return res;
+    }
 
     std::vector<JobGroup>
     CreateJobGroups(std::vector<std::vector<JobCEC>> &jobPairsWithError)

@@ -177,6 +177,20 @@ TEST(JobGroup, MergeJobGroups)
     EXPECT_LONGS_EQUAL(6, jobGroups[0].size());
 }
 
+TEST(MergeJobGroup, v2)
+{
+    std::vector<std::vector<JobCEC>> jobPairsWithError;
+    jobPairsWithError.push_back({JobCEC(0, 0), JobCEC(1, 1), JobCEC(2, 2)});
+    jobPairsWithError.push_back({JobCEC(9, 9), JobCEC(3, 3)});
+    jobPairsWithError.push_back({JobCEC(5, 5), JobCEC(4, 4)});
+    jobPairsWithError.push_back({JobCEC(8, 8), JobCEC(7, 7)});
+    jobPairsWithError.push_back({JobCEC(10, 10), JobCEC(6, 6)});
+    jobPairsWithError.push_back({JobCEC(1, 1), JobCEC(3, 3), JobCEC(4, 4), JobCEC(7, 7), JobCEC(6, 6)});
+    auto jobGroups = CreateJobGroups(jobPairsWithError);
+    EXPECT_LONGS_EQUAL(1, jobGroups.size());
+    EXPECT_LONGS_EQUAL(11, (int)(jobGroups[0].size()));
+}
+
 // TEST(JobGroup, SwitchRightJob_v2)
 // {
 //     weightDDL_factor = 1;
