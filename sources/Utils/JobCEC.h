@@ -13,9 +13,9 @@ namespace DAG_SPACE
     struct JobCEC
     {
         int taskId;
-        size_t jobId;
+        LLint jobId;
         JobCEC() : taskId(-1), jobId(0) {}
-        JobCEC(int taskId, size_t jobId) : taskId(taskId), jobId(jobId) {}
+        JobCEC(int taskId, LLint jobId) : taskId(taskId), jobId(jobId) {}
         JobCEC(std::pair<int, LLint> p) : taskId(p.first), jobId(p.second) {}
 
         bool operator==(const JobCEC &other) const

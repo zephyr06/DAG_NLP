@@ -14,7 +14,7 @@ namespace DAG_SPACE
     {
         for (uint i = 0; i < vec.size(); i++)
         {
-            gtsam::Symbol{ vec[i] }.print();
+            gtsam::Symbol{vec[i]}.print();
             std::cout << ", ";
         }
         std::cout << endl;
@@ -26,8 +26,8 @@ namespace DAG_SPACE
         res.reserve(keys.size());
         for (uint i = 0; i < keys.size(); i++)
         {
-            auto s = AnalyzeKey(gtsam::Symbol{ keys[i] });
-            res.push_back(JobCEC{ s.first, s.second });
+            auto s = AnalyzeKey(gtsam::Symbol{keys[i]});
+            res.push_back(JobCEC{s.first, s.second});
         }
         return res;
     }
@@ -48,10 +48,10 @@ namespace DAG_SPACE
                 {
                     itr->get()->printKeys();
                     std::cout << (*itr)->error(initialEstimateFG) << std::endl;
-                    if ((*itr)->error(initialEstimateFG) >= 54449)
-                    {
-                        int a = 1;
-                    }
+                    // if ((*itr)->error(initialEstimateFG) >= 54449)
+                    // {
+                    //     // int a = 1;
+                    // }
                 }
             }
         }
@@ -103,13 +103,33 @@ namespace DAG_SPACE
                 }
             }
         }
+        void insert(JobGroup &jobs)
+        {
+            for (auto itr = jobs.jobs_.begin(); itr != jobs.jobs_.end(); itr++)
+            {
+                if (!exist(*itr))
+                {
+                    jobs_.insert(*itr);
+                }
+            }
+        }
 
         // return true if at least one job exists in the job group and given job vectors
-        bool existOverlap(std::vector<JobCEC> &jobs)
+        bool existOverlap(std::vector<JobCEC> &jobs) const
         {
             for (size_t i = 0; i < jobs.size(); i++)
             {
                 if (exist(jobs[i]))
+                    return true;
+            }
+            return false;
+        }
+        // return true if at least one job exists in the job group and given job vectors
+        bool existOverlap(JobGroup &jobs) const
+        {
+            for (auto itr = jobs.jobs_.begin(); itr != jobs.jobs_.end(); itr++)
+            {
+                if (exist(*itr))
                     return true;
             }
             return false;
@@ -127,7 +147,7 @@ namespace DAG_SPACE
                 for (auto &key : keyVec)
                 {
                     gtsam::Symbol s(key);
-                    JobCEC job{ AnalyzeKey(s) };
+                    JobCEC job{AnalyzeKey(s)};
                     if (!exist(job))
                     {
                         whetherMatch = false;
@@ -199,19 +219,36 @@ namespace DAG_SPACE
         size_t size() { return jobs_.size(); }
     };
 
+    // std::vector<JobGroup> MergeJobGroup(std::vector<JobGroup> &jobGroups)
+    // {
+    //     std::set<JobGroup> jobSet;
+    //     for (size_t i = 0; i < jobGroups.size(); i++)
+    //         jobSet.insert(jobGroups[i]);
+
+    //     for (size_t i = jobGroups.size() - 1; i >= 0; i--)
+    //     {
+    //         JobGroup &jobGroupCurr = jobGroups[i];
+    //         for (size_t j = 0; j < jobGroups.size(); j++)
+    //         {
+    //             if (jobGroups[j].existOverlap(jobGroupCurr))
+    //             {
+    //                 jobGroups[j].insert(jobGroupCurr);
+    //             }
+    //         }
+    //     }
+    // }
+
     std::vector<JobGroup>
-        CreateJobGroups(std::vector<std::vector<JobCEC>> &jobPairsWithError)
+    CreateJobGroups(std::vector<std::vector<JobCEC>> &jobPairsWithError)
     {
         std::vector<JobGroup> jobGroups;
         if (jobPairsWithError.size() == 0)
-        {
             return jobGroups;
-        }
-        jobGroups.reserve(jobPairsWithError.size());
+
         for (size_t i = 0; i < jobPairsWithError.size(); i++)
         {
             bool findMatchGroup = false;
-            for (size_t j = 0; j < jobGroups.size(); j++)
+            for (uint j = 0; j < jobGroups.size(); j++)
             {
                 if (jobGroups[j].existOverlap(jobPairsWithError[i]))
                 {
@@ -223,7 +260,9 @@ namespace DAG_SPACE
             if (!findMatchGroup)
                 jobGroups.push_back(JobGroup(jobPairsWithError[i]));
         }
-        // TODO: add a merge jobGroups
+
+        jobGroups = MergeJobGroup(jobGroups);
+
         return jobGroups;
     }
 

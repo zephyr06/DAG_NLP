@@ -287,6 +287,7 @@ TEST(relocateIncludedInterval, moveSmallTask)
 {
     whetherRandomNoiseModelSigma = 0;
     noiseModelSigma = 1;
+    weightDAG_factor = 1;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v37.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -304,7 +305,7 @@ TEST(relocateIncludedInterval, moveSmallTask)
     AddDDL_Factor(graph, tasksInfo);
     Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
     double err1 = graph.error(initialEstimateFG);
-    EXPECT_DOUBLES_EQUAL(14.5, err1, 1e-3);
+    EXPECT_DOUBLES_EQUAL(14.5, err1, 1e-3); // task 4 overlaps with task2 and task 3
     std::cout << GraphErrorEvaluation(dagTasks, startTimeVector);
 
     // first find out which DBF factor has zero gradient but non-zero error
@@ -372,6 +373,19 @@ TEST(relocateIncludedInterval, moveLargeTask)
     EXPECT_DOUBLES_EQUAL(10.359, relocateRes.startTimeVectorAfterRelocate(13), 0.1);
 }
 
+TEST(align, x2integer)
+{
+    VectorDynamic x = GenerateVectorDynamic(5);
+    x << 0.000318099,
+        198.888,
+        202.048,
+        300,
+        454;
+    VectorDynamic actual = AlignVariablesF2I(x, 0.1);
+    VectorDynamic expected = actual;
+    expected << 0, 198.888, 202, 300, 454;
+    assert_equal(expected, actual);
+}
 int main()
 {
     TestResult tr;

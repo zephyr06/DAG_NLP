@@ -38,25 +38,25 @@ namespace DAG_SPACE
         }
         LLint hyperPeriod = tasksInfo.hyperPeriod;
         const TaskSet &tasks = tasksInfo.tasks;
-        size_t totalStartJobs = hyperPeriod / tasks[causeEffectChain[0]].period + 1;
+        LLint totalStartJobs = hyperPeriod / tasks[causeEffectChain[0]].period + 1;
         RTDA res;
         std::vector<RTDA> resVec;
         resVec.reserve(totalStartJobs);
-        for (size_t i = 0; i < totalStartJobs; i++)
+        for (LLint i = 0; i < totalStartJobs; i++)
         {
             resVec.push_back(RTDA{-1, -1});
         }
 
         std::unordered_map<JobCEC, JobCEC> firstReactionMap;
 
-        for (size_t startInstanceIndex = 0; startInstanceIndex <= totalStartJobs; startInstanceIndex++)
+        for (LLint startInstanceIndex = 0; startInstanceIndex <= totalStartJobs; startInstanceIndex++)
         {
 
-            JobCEC firstJob = {causeEffectChain[0], startInstanceIndex};
+            JobCEC firstJob = {causeEffectChain[0], (startInstanceIndex)};
             for (uint j = 1; j < causeEffectChain.size(); j++)
             {
                 double currentJobFT = GetFinishTime(firstJob, x, tasksInfo);
-                size_t jobIndex = 0;
+                LLint jobIndex = 0;
                 while (GetStartTime({causeEffectChain[j], jobIndex}, x, tasksInfo) < currentJobFT)
                 {
                     jobIndex++;
@@ -74,7 +74,7 @@ namespace DAG_SPACE
             resVec[startInstanceIndex].reactionTime = GetFinishTime(firstJob, x, tasksInfo) - GetStartTime({causeEffectChain[0], startInstanceIndex}, x, tasksInfo);
 
             // update data age
-            JobCEC firstReactLastJob = JobCEC{causeEffectChain[0], size_t(startInstanceIndex - 1)};
+            JobCEC firstReactLastJob = JobCEC{causeEffectChain[0], (startInstanceIndex - 1)};
             if (startInstanceIndex > 0 && firstReactionMap[firstReactLastJob] != firstJob)
             {
                 JobCEC lastReaction = firstJob;

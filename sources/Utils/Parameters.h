@@ -105,6 +105,8 @@ const string testDataSetName = (string)ConfigParameters["testDataSetName"];
 double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
 double DataAgeThreshold = (double)ConfigParameters["DataAgeThreshold"];
 double ReactionTimeThreshold = (double)ConfigParameters["ReactionTimeThreshold"];
+double RoundingThreshold = (double)ConfigParameters["RoundingThreshold"];
+
 std::string verbosityLM = (std::string)ConfigParameters["verbosityLM"];
 // code below is only used to show how to read vectors, but is not actually used in this project
 // vector<int> readVector(string filename)

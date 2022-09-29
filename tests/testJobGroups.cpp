@@ -144,6 +144,38 @@ TEST(JobGroup, SwitchRightJob)
     EXPECT_DOUBLES_EQUAL(5.56, actual(3), 0.1);
     EXPECT_DOUBLES_EQUAL(27.9, actual(7), 0.1);
 }
+TEST(JobGroup, MergeJobGroups)
+{
+    weightDDL_factor = 1;
+    weightDAG_factor = 0;
+    RtdaWeight = 0;
+    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v70.csv", "orig");
+    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    NonlinearFactorGraph graph;
+    BuildFactorGraph(dagTasks, graph, tasksInfo);
+    VectorDynamic initialEstimate = GenerateInitial(dagTasks,
+                                                    tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
+    initialEstimate << -0.00705601,
+        199.004,
+        202,
+        300,
+        454,
+        503,
+        49.5819,
+        304,
+        47.5669,
+        301,
+        48.0087,
+        302,
+        0.0514781,
+        204,
+        455;
+
+    auto jobPairsWithError = FindJobIndexWithError(initialEstimate, tasksInfo, graph);
+    std::vector<JobGroup> jobGroups = CreateJobGroups(jobPairsWithError);
+    EXPECT_LONGS_EQUAL(1, jobGroups.size());
+    EXPECT_LONGS_EQUAL(6, jobGroups[0].size());
+}
 
 // TEST(JobGroup, SwitchRightJob_v2)
 // {

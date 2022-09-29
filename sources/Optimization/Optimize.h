@@ -38,6 +38,19 @@ using namespace RegularTaskSystem;
 
 // -------------------------------------------------------- from previous optimization ends
 
+VectorDynamic AlignVariablesF2I(VectorDynamic &x, double threshold)
+{
+    VectorDynamic y = x;
+    for (long int i = 0; i < y.rows(); i++)
+    {
+        if (std::abs(y(i) - round(y(i))) < threshold)
+        {
+            y(i) = round(y(i));
+        }
+    }
+    return y;
+}
+
 namespace DAG_SPACE
 {
 
@@ -53,7 +66,7 @@ namespace DAG_SPACE
     }
 
     void BuildFactorGraph(DAG_Model &dagTasks, NonlinearFactorGraph &graph,
-        TaskSetInfoDerived &tasksInfo)
+                          TaskSetInfoDerived &tasksInfo)
     {
         if (weightDAG_factor != 0)
             AddDAG_Factor(graph, dagTasks, tasksInfo);
@@ -231,29 +244,29 @@ namespace DAG_SPACE
             - event chain RTA
      * @return all the instances' start time
      */
-     // VectorDynamic UnitOptimization(DAG_Model &dagTasks, VectorDynamic &initialEstimate,
-     //     EliminationForest &forestInfo,
-     //     TaskSetInfoDerived &tasksInfo)
-     // {
-     //     BeginTimer("UnitOptimization");
-     //     Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
-     //     NonlinearFactorGraph graph;
-     //     BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
-     //     Values result = SolveFactorGraph(graph, initialEstimateFG);
-     //     VectorDynamic optComp = CollectUnitOptResult(result, tasksInfo);
-     //     if (debugMode)
-     //         cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
-     //     EndTimer("UnitOptimization");
-     //     if (debugMode == 1)
-     //     {
-     //         auto rtdaVec = GetRTDAFromSingleJob(tasksInfo, { 0,1,4,5 }, result);
-     //         RTDA resAfterOpt = GetMaxRTDA(rtdaVec);
-     //         std::cout << Color::green << std::endl;
-     //         resAfterOpt.print();
-     //         std::cout << Color::def << std::endl;
-     //     }
-     //     return optComp;
-     // }
+    // VectorDynamic UnitOptimization(DAG_Model &dagTasks, VectorDynamic &initialEstimate,
+    //     EliminationForest &forestInfo,
+    //     TaskSetInfoDerived &tasksInfo)
+    // {
+    //     BeginTimer("UnitOptimization");
+    //     Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
+    //     NonlinearFactorGraph graph;
+    //     BuildFactorGraph(dagTasks, graph, tasksInfo, forestInfo);
+    //     Values result = SolveFactorGraph(graph, initialEstimateFG);
+    //     VectorDynamic optComp = CollectUnitOptResult(result, tasksInfo);
+    //     if (debugMode)
+    //         cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
+    //     EndTimer("UnitOptimization");
+    //     if (debugMode == 1)
+    //     {
+    //         auto rtdaVec = GetRTDAFromSingleJob(tasksInfo, { 0,1,4,5 }, result);
+    //         RTDA resAfterOpt = GetMaxRTDA(rtdaVec);
+    //         std::cout << Color::green << std::endl;
+    //         resAfterOpt.print();
+    //         std::cout << Color::def << std::endl;
+    //     }
+    //     return optComp;
+    // }
 
     struct OptimizeResult
     {
@@ -269,8 +282,8 @@ namespace DAG_SPACE
     };
 
     VectorDynamic UpdateInitialVector(VectorDynamic &startTimeComplete,
-        TaskSetInfoDerived &tasksInfo,
-        EliminationForest &forestInfo)
+                                      TaskSetInfoDerived &tasksInfo,
+                                      EliminationForest &forestInfo)
     {
         return startTimeComplete;
 
@@ -313,9 +326,9 @@ namespace DAG_SPACE
         }
 
         VectorDynamic initialEstimate = GenerateInitial(dagTasks,
-            sizeOfVariables, variableDimension);
+                                                        sizeOfVariables, variableDimension);
         double errorInitial = GraphErrorEvaluation(dagTasks, initialEstimate);
-        return { errorInitial, errorInitial, initialEstimate, initialEstimate };
+        return {errorInitial, errorInitial, initialEstimate, initialEstimate};
     }
 
     struct StateActionCollection
@@ -358,13 +371,14 @@ namespace DAG_SPACE
             std::cout << Color::def << std::endl;
         }
 
-
         // souted start time
         std::vector<std::pair<std::pair<double, double>, std::pair<LLint, LLint>>> time_job_vector;
         int temp_count = 0;
-        for (LLint task_id = 0; task_id < LLint(tasksInfo.sizeOfVariables.size()); task_id++) {
+        for (LLint task_id = 0; task_id < LLint(tasksInfo.sizeOfVariables.size()); task_id++)
+        {
             auto execution_time = tasksInfo.tasks[task_id].executionTime;
-            for (LLint job_id = 0; job_id < tasksInfo.sizeOfVariables[task_id]; job_id++) {
+            for (LLint job_id = 0; job_id < tasksInfo.sizeOfVariables[task_id]; job_id++)
+            {
                 double start_time = x(temp_count, 0);
                 double finish_time = x(temp_count, 0) + execution_time;
                 std::pair<double, double> time_pair(start_time, finish_time);
@@ -375,19 +389,22 @@ namespace DAG_SPACE
         }
 
         std::sort(time_job_vector.begin(), time_job_vector.end(),
-            [](auto a, auto b) {
-                return a.first.first < b.first.first;
-            });
+                  [](auto a, auto b)
+                  {
+                      return a.first.first < b.first.first;
+                  });
 
         std::cout << "Current sorted start time: " << std::endl;
 
         temp_count = 0;
-        for (auto time_job_pair : time_job_vector) {
+        for (auto time_job_pair : time_job_vector)
+        {
             // std::cout << std::setprecision(6);
             std::cout << "T" << time_job_pair.second.first << "_" << time_job_pair.second.second << " (" << time_job_pair.first.first << ", ";
             std::cout << time_job_pair.first.second << "), ";
             temp_count++;
-            if (temp_count % 4 == 0) {
+            if (temp_count % 4 == 0)
+            {
                 std::cout << std::endl;
             }
             // std::cout << std::setprecision(8);
@@ -402,8 +419,8 @@ namespace DAG_SPACE
      * @return VectorDynamic all the task instances' start time
      */
     OptimizeResult OptimizeScheduling(DAG_Model &dagTasks,
-        size_t initialSeed = ResetInnerWeightLoopMax + 1,
-        VectorDynamic initialUser = GenerateVectorDynamic(1))
+                                      size_t initialSeed = ResetInnerWeightLoopMax + 1,
+                                      VectorDynamic initialUser = GenerateVectorDynamic(1))
     {
         TaskSet tasks = dagTasks.tasks;
         TaskSetInfoDerived tasksInfo(tasks);
@@ -411,7 +428,7 @@ namespace DAG_SPACE
 
         VectorDynamic initialEstimate = GenerateInitial(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, initialUser);
 
-        // initialEstimate << 0, 45, 66, 5, 50, 73, 44, 28, 60, 81;
+        // initialEstimate << 0.000335766, 198.888, 202.048, 300, 454, 503, 52.0149, 304, 290, 301, 285, 302, 1, 203.997, 455;
 
         int loopNumber = 0;
         VectorDynamic bestResultFound;
@@ -429,8 +446,10 @@ namespace DAG_SPACE
 
         while (loopNumber < ResetInnerWeightLoopMax)
         {
+            initialEstimate = AlignVariablesF2I(initialEstimate, RoundingThreshold);
             // perform optimization for one time
-            if (debugMode == 1) {
+            if (debugMode == 1)
+            {
                 std::cout << "Initial solution for this loop: " << initialEstimate << std::endl;
             }
             Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
@@ -506,16 +525,16 @@ namespace DAG_SPACE
         if (PrintInitial)
         {
             std::cout << "The initial solution is: " << std::endl
-                << initialEstimate << std::endl;
+                      << initialEstimate << std::endl;
         }
         double errorInitial = GraphErrorEvaluation(dagTasks, initialEstimate);
 
         cout << Color::blue << "The error before optimization is "
-            << errorInitial << Color::def << endl;
+             << errorInitial << Color::def << endl;
         double finalError = GraphErrorEvaluation(dagTasks, bestResultFound);
         cout << Color::blue << "The error after optimization is " << finalError << Color::def << endl;
 
-        return { errorInitial, finalError, initialEstimate, bestResultFound };
+        return {errorInitial, finalError, initialEstimate, bestResultFound};
     }
     void inline donothing(const std::filesystem::directory_entry &p)
     {
@@ -526,7 +545,7 @@ namespace DAG_SPACE
 
         if (recordActionValue > 0)
         {
-            std::filesystem::path p1{ PROJECT_PATH + "RL/" };
+            std::filesystem::path p1{PROJECT_PATH + "RL/"};
             for (auto &p : std::filesystem::directory_iterator(p1))
             {
                 recordRLFileCount++;
@@ -542,7 +561,7 @@ namespace DAG_SPACE
             VectorDynamic res = sth.optimizeVariable;
             // if (debugMode > 1)
             cout << "The result after optimization is " << Color::green << sth.optimizeError
-                << Color::def << endl;
+                 << Color::def << endl;
             if (sth.optimizeError < 1e-3)
             {
                 if (i > 101)
