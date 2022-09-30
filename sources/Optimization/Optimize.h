@@ -38,18 +38,6 @@ using namespace RegularTaskSystem;
 
 // -------------------------------------------------------- from previous optimization ends
 
-VectorDynamic AlignVariablesF2I(VectorDynamic &x, double threshold)
-{
-    VectorDynamic y = x;
-    for (long int i = 0; i < y.rows(); i++)
-    {
-        if (std::abs(y(i) - round(y(i))) < threshold)
-        {
-            y(i) = round(y(i));
-        }
-    }
-    return y;
-}
 
 namespace DAG_SPACE
 {

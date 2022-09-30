@@ -20,16 +20,16 @@ PrintInitial: 1
 # Get away from local optimal setting
 whetherRandomNoiseModelSigma: 0
 RandomDrawWeightMaxLoop: 1 # must be >=1
-ResetInnerWeightLoopMax: 5 # must be >=1
+ResetInnerWeightLoopMax: 2 # must be >=1
 ResetRandomWeightThreshold: 5e-3
-RoundingThreshold: 1e0
+RoundingThreshold: 1e-3
 #*************************************************************
 
 # optimizer settings
 whether_ls: 1
 deltaInitialDogleg: 1e5
-initialLambda: 1e3
-lowerLambda: 1e-60
+initialLambda: 1e-6
+lowerLambda: 1e-20
 upperLambda: 1e50
 # verbosityLM: "SILENCE"
 verbosityLM: "SUMMARY"

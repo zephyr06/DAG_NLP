@@ -9,6 +9,18 @@
 
 namespace DAG_SPACE
 {
+    VectorDynamic AlignVariablesF2I(VectorDynamic &x, double threshold)
+    {
+        VectorDynamic y = x;
+        for (long int i = 0; i < y.rows(); i++)
+        {
+            if (std::abs(y(i) - round(y(i))) < threshold)
+            {
+                y(i) = round(y(i));
+            }
+        }
+        return y;
+    }
 
     void PrintKeyVector(gtsam::KeyVector &vec)
     {
@@ -34,13 +46,12 @@ namespace DAG_SPACE
 
     std::vector<std::vector<JobCEC>> FindJobIndexWithError(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo, NonlinearFactorGraph &graph)
     {
-
         Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
         std::vector<std::vector<JobCEC>> indexPairsWithError;
         // go through each factor
         for (auto itr = graph.begin(); itr != graph.end(); itr++)
         {
-            if ((*itr)->error(initialEstimateFG) != 0)
+            if ((*itr)->error(initialEstimateFG) > 1e-2)
             {
                 gtsam::KeyVector keys = (*itr)->keys();
                 indexPairsWithError.push_back(KeyVector2JobCECVec(keys));
@@ -79,7 +90,7 @@ namespace DAG_SPACE
             {
                 auto compareFunc = [&](JobCEC &j1, JobCEC &j2) -> bool
                 {
-                    return GetFinishTime(j1, startTimeVector, tasksInfo) < GetFinishTime(j2, startTimeVector, tasksInfo);
+                    return GetDeadline(j1, tasksInfo) < GetDeadline(j2, tasksInfo);
                 };
                 std::sort(jobVec.begin(), jobVec.end(), compareFunc);
             }
