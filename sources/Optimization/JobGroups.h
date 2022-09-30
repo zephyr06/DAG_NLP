@@ -1,14 +1,36 @@
 #pragma once
 #include "unordered_set"
+#include "gtsam/base/Value.h"
+#include "gtsam/inference/Symbol.h"
 
 #include "sources/Utils/Parameters.h"
 #include "sources/Tools/MatirxConvenient.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/JobCEC.h"
-#include "sources/Optimization/RelocateStartTimeVector.h"
 
 namespace DAG_SPACE
 {
+
+    gtsam::Values GenerateInitialFG(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo)
+    {
+        gtsam::Values initialEstimateFG;
+        gtsam::Symbol key('a', 0); // just declare the variable
+
+        for (int i = 0; i < tasksInfo.N; i++)
+        {
+            for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
+            {
+                // LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
+                gtsam::Symbol key = GenerateKey(i, j);
+                VectorDynamic v = GenerateVectorDynamic(1);
+                v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j);
+
+                initialEstimateFG.insert(key, v);
+            }
+        }
+        return initialEstimateFG;
+    }
+
     VectorDynamic AlignVariablesF2I(VectorDynamic &x, double threshold)
     {
         VectorDynamic y = x;
@@ -141,31 +163,6 @@ namespace DAG_SPACE
             for (auto itr = jobs.jobs_.begin(); itr != jobs.jobs_.end(); itr++)
             {
                 if (exist(*itr))
-                    return true;
-            }
-            return false;
-        }
-
-        // probably not gonna be used
-        bool existVanishGradient(GradientVanishPairs &gvp)
-        {
-            if (gvp.size() == 0)
-                return false;
-
-            for (auto &keyVec : gvp.vanishPairs_)
-            {
-                bool whetherMatch = true;
-                for (auto &key : keyVec)
-                {
-                    gtsam::Symbol s(key);
-                    JobCEC job{AnalyzeKey(s)};
-                    if (!exist(job))
-                    {
-                        whetherMatch = false;
-                        break;
-                    }
-                }
-                if (whetherMatch)
                     return true;
             }
             return false;

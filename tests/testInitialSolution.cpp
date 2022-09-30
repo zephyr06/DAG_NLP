@@ -554,6 +554,19 @@ TEST(GenerateInitial_Custom_DAG, n6v1)
     assert_equal(expected, initial);
 }
 
+TEST(list_scheduling, least_finish_time)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    std::cout << initial << std::endl;
+    PrintSchedule(tasksInfo, initial);
+    VectorDynamic expected = initial;
+    expected << 5, 50, 83, 10, 60, 70, 88, 0, 55, 78;
+    assert_equal(expected, initial);
+}
 int main()
 {
     TestResult tr;

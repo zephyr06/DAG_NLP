@@ -386,7 +386,7 @@ namespace RegularTaskSystem
         LLint length;
         ProcessorTaskSet processorTaskSet;
 
-        TaskSetInfoDerived(TaskSet &tasksInput)
+        TaskSetInfoDerived(const TaskSet &tasksInput)
         {
             tasks = tasksInput;
             N = tasks.size();
@@ -403,4 +403,5 @@ namespace RegularTaskSystem
             processorTaskSet = ExtractProcessorTaskSet(tasks);
         }
     };
+
 }

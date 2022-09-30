@@ -38,7 +38,6 @@ using namespace RegularTaskSystem;
 
 // -------------------------------------------------------- from previous optimization ends
 
-
 namespace DAG_SPACE
 {
 
@@ -335,30 +334,8 @@ namespace DAG_SPACE
         }
     };
 
-    void PrintResultAnalyzation(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, VectorDynamic &x)
+    void PrintSchedule(TaskSetInfoDerived &tasksInfo, VectorDynamic &x)
     {
-        std::cout << "Current start time vector: " << x << std::endl;
-        std::cout << Color::blue;
-        Values xValues = GenerateInitialFG(x, tasksInfo);
-        std::cout << "Overall graph error is: " << GraphErrorEvaluation(dagTasks, x, debugMode == 1) << std::endl;
-
-        NonlinearFactorGraph graph1;
-        AddDBF_Factor(graph1, tasksInfo);
-        std::cout << "DBF error: " << graph1.error(xValues) << std::endl;
-
-        NonlinearFactorGraph graph2;
-        AddDDL_Factor(graph2, tasksInfo);
-        std::cout << "DDL error: " << graph2.error(xValues) << std::endl;
-
-        // RTDA
-        if (dagTasks.chains_.size() > 0)
-        {
-            auto rtdaVec = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], xValues);
-            RTDA resAfterOpt = GetMaxRTDA(rtdaVec);
-            resAfterOpt.print();
-            std::cout << Color::def << std::endl;
-        }
-
         // souted start time
         std::vector<std::pair<std::pair<double, double>, std::pair<LLint, LLint>>> time_job_vector;
         int temp_count = 0;
@@ -398,6 +375,32 @@ namespace DAG_SPACE
             // std::cout << std::setprecision(8);
         }
         std::cout << "\n************************************************" << std::endl;
+    }
+
+    void PrintResultAnalyzation(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, VectorDynamic &x)
+    {
+        std::cout << "Current start time vector: " << x << std::endl;
+        std::cout << Color::blue;
+        Values xValues = GenerateInitialFG(x, tasksInfo);
+        std::cout << "Overall graph error is: " << GraphErrorEvaluation(dagTasks, x, debugMode == 1) << std::endl;
+
+        NonlinearFactorGraph graph1;
+        AddDBF_Factor(graph1, tasksInfo);
+        std::cout << "DBF error: " << graph1.error(xValues) << std::endl;
+
+        NonlinearFactorGraph graph2;
+        AddDDL_Factor(graph2, tasksInfo);
+        std::cout << "DDL error: " << graph2.error(xValues) << std::endl;
+
+        // RTDA
+        if (dagTasks.chains_.size() > 0)
+        {
+            auto rtdaVec = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], xValues);
+            RTDA resAfterOpt = GetMaxRTDA(rtdaVec);
+            resAfterOpt.print();
+            std::cout << Color::def << std::endl;
+        }
+        PrintSchedule(tasksInfo, x);
     }
 
     /**

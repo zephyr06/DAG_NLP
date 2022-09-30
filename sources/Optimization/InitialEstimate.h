@@ -3,32 +3,15 @@
 #include "unordered_map"
 
 #include "sources/TaskModel/DAG_Model.h"
+#include "sources/Utils/DeclareDAG.h"
 #include "sources/Optimization/TopologicalSort.h"
 #include "sources/Tools/colormod.h"
+#include "sources/Optimization/JobGroups.h"
 
 typedef std::map<int, int> ProcessorId2Index;
 using namespace RegularTaskSystem;
 namespace DAG_SPACE
 {
-    Values GenerateInitialFG(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo)
-    {
-        Values initialEstimateFG;
-        Symbol key('a', 0); // just declare the variable
-
-        for (int i = 0; i < tasksInfo.N; i++)
-        {
-            for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
-            {
-                // LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
-                Symbol key = GenerateKey(i, j);
-                VectorDynamic v = GenerateVectorDynamic(1);
-                v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j);
-
-                initialEstimateFG.insert(key, v);
-            }
-        }
-        return initialEstimateFG;
-    }
 
     /**
      * @brief Generate initial solution for the whole optimization
@@ -214,6 +197,28 @@ namespace DAG_SPACE
         bool empty()
         {
             return taskQueue.empty();
+        }
+
+        ID_INSTANCE_PAIR popLeastFinishTime(TaskSetInfoDerived &tasksInfo)
+        {
+            if (taskQueue.empty())
+                CoutError("TaskQueue is empty!");
+            uint lftJobIndex;
+            double lftAll = std::numeric_limits<double>::max();
+
+            for (uint i = 0; i < taskQueue.size(); i++)
+            {
+                JobCEC currJob(taskQueue[i].first, taskQueue[i].second);
+                double lft = GetDeadline(currJob, tasksInfo) - tasksInfo.tasks[currJob.taskId].executionTime;
+                if (lft < lftAll)
+                {
+                    lftJobIndex = i;
+                    lftAll = lft;
+                }
+            }
+            ID_INSTANCE_PAIR jobPop = taskQueue[lftJobIndex];
+            taskQueue.erase(taskQueue.begin() + lftJobIndex);
+            return jobPop;
         }
     };
     /**
@@ -428,6 +433,65 @@ namespace DAG_SPACE
         return initial;
     }
 
+    VectorDynamic ListSchedulingLFT(const DAG_Model &dagTasks,
+                                    vector<LLint> &sizeOfVariables,
+                                    int variableDimension, LLint currTime = 0)
+    {
+        int N = dagTasks.tasks.size();
+        const TaskSet &tasks = dagTasks.tasks;
+        TaskSetInfoDerived tasksInfo(tasks);
+        VectorDynamic initial = GenerateVectorDynamic(variableDimension);
+        LLint hyperPeriod = HyperPeriod(tasks);
+
+        ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+        int processorNum = processorTaskSet.size();
+        // it maps from tasks[i].processorId to index in runQueues&busy&nextFree
+        ProcessorId2Index processorId2Index = CreateProcessorId2Index(tasks);
+        // contains the index of tasks to run
+        vector<RunQueue> runQueues;
+        runQueues.reserve(processorNum);
+        for (int i = 0; i < processorNum; i++)
+        {
+            runQueues.push_back(RunQueue(tasks));
+        }
+
+        vector<bool> busy(processorNum, false);
+        vector<LLint> nextFree(processorNum, -1);
+        // LLint nextFree;
+
+        for (LLint timeNow = currTime; timeNow < hyperPeriod; timeNow++)
+        {
+
+            // check whether to add new instances
+            for (int i = 0; i < N; i++)
+            {
+                if (timeNow % tasks[i].period == 0)
+                {
+                    int currId = tasks[i].processorId;
+                    runQueues[processorId2Index[currId]].insert({i, timeNow / tasks[i].period});
+                }
+            }
+            for (int i = 0; i < processorNum; i++)
+            {
+                if (timeNow >= nextFree[i])
+                {
+                    busy[i] = false;
+                }
+                if (!busy[i] && (!runQueues[i].empty()))
+                {
+                    auto sth = runQueues[i].popLeastFinishTime(tasksInfo);
+                    int id = sth.first;
+                    LLint instance_id = sth.second;
+                    LLint index_overall = IndexTran_Instance2Overall(id, instance_id, sizeOfVariables);
+                    initial(index_overall, 0) = timeNow;
+                    nextFree[i] = timeNow + tasks[id].executionTime;
+                    busy[i] = true;
+                }
+            }
+        }
+
+        return initial;
+    }
     /**
      * @brief Generate initial estimate based on provided options'
      * param: initializeMethod: global parameter passed implicitly
@@ -485,6 +549,11 @@ namespace DAG_SPACE
                                                          variableDimension);
             break;
 
+        case ListScheduling:
+            initialEstimate = ListSchedulingLFT(dagTasks,
+                                                sizeOfVariables,
+                                                variableDimension);
+            break;
         default:
             initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,
                                                            sizeOfVariables,

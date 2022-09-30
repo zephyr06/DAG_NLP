@@ -19,7 +19,8 @@ enum InitializeMethod
     FixedRelativeStart,
     RM,
     RM_DAG,
-    Custom_DAG
+    Custom_DAG,
+    ListScheduling
 };
 InitializeMethod Transform_enum(int a)
 {
@@ -33,6 +34,8 @@ InitializeMethod Transform_enum(int a)
         return RM_DAG;
     else if (a == 4)
         return Custom_DAG;
+    else if (a == 5)
+        return ListScheduling;
     else
     {
         CoutError("Not recognized enum InitializeMethod\n");

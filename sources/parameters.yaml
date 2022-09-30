@@ -7,7 +7,7 @@ AcceptSchedulError: 1e-2
 debugMode: 1
 recordActionValue: 0
 runMode: compare
-initializeMethod: 4
+initializeMethod: 5
 optimizerType: 2 # 1 means dogleg, 2 means LM
 
 deltaOptimizer: 1e0
