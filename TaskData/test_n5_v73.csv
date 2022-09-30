@@ -2,7 +2,7 @@ JobID,Offset,Period,Overhead,ExecutionTime,DeadLine,processorId,coreRequire
 0,0,100,0,16,100,1,1
 1,0,300,0,153,300,1,1
 2,0,300,0,10,300,1,1
-3,0,300,0,14,100,1,1
+3,0,300,0,14,300,1,1
 4,0,200,0,15,200,1,1
 *0,1
 *0,2
