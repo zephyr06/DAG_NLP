@@ -183,21 +183,22 @@ TEST(CA_facroe, v1)
     EXPECT_LONGS_EQUAL(180770, errActual);
 }
 
-// TEST(CA_facroe, v1)
-// {
-//     using namespace DAG_SPACE;
-//     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v4.csv", "orig");
-//     TaskSet tasks = dagTasks.tasks;
-//     TaskSetInfoDerived tasksInfo(tasks);
-//     VectorDynamic initialEstimate = GenerateVectorDynamic(11);
-//     initialEstimate << 1, 101, 202, 303, 404, 505, 2, 204, 406, 3, 306;
-//     Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
-//     std::vector<int> causeEffectChain = {0, 1, 2};
-//     auto res = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
-//     RTDA resM = GetMaxRTDA(res);
-//     EXPECT_LONGS_EQUAL(514, resM.reactionTime);
-//     EXPECT_LONGS_EQUAL(312, resM.dataAge);
-// }
+TEST(CA_customize, v1)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initialEstimate = GenerateVectorDynamic(10);
+    initialEstimate << 5, 57, 85, 10, 62, 72, 50, 0, 52, 80;
+    Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
+    std::vector<int> causeEffectChain = {0, 1, 4, 5};
+    auto res = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
+    RTDA resM = GetMaxRTDA(res);
+    resM.print();
+    // EXPECT_LONGS_EQUAL(514, resM.reactionTime);
+    // EXPECT_LONGS_EQUAL(312, resM.dataAge);
+}
 
 int main()
 {
