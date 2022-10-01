@@ -156,7 +156,7 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
         for (uint i = 0; i < tasksAfter.size(); i++)
         {
             // fix jitter to {0}
-            taskSetVeru.addDataEdge(tasksVecVeru[tasksAfter[i].id], tasksVecVeru[itr->first], { 0 });
+            taskSetVeru.addDataEdge(tasksVecVeru[tasksAfter[i].id], tasksVecVeru[itr->first], { 0, 1, 2 });
         }
     }
 

@@ -2,7 +2,7 @@
 
 # optimization seettings
 batchTestMethod: 1 # 1 means NLP, 2 means SA, 0 means initial, 3 means Verucchi20
-testDataSetName: test_n5_v70
+testDataSetName: test_n10_v2
 AcceptSchedulError: 1e-2
 debugMode: 1
 recordActionValue: 0
@@ -20,7 +20,7 @@ PrintInitial: 1
 # Get away from local optimal setting
 whetherRandomNoiseModelSigma: 0
 RandomDrawWeightMaxLoop: 1 # must be >=1
-ResetInnerWeightLoopMax: 2 # must be >=1
+ResetInnerWeightLoopMax: 5 # must be >=1
 ResetRandomWeightThreshold: 5e-3
 RoundingThreshold: 1e-3
 #*************************************************************
@@ -43,7 +43,7 @@ maxIterations: 10000
 # factors to be included
 weightDDL_factor: 1e1
 weightDAG_factor: 0
-RtdaWeight: 0
+RtdaWeight: 1e1
 DataAgeThreshold: 1e3
 ReactionTimeThreshold: 1e3
 NumCauseEffectChain: 1

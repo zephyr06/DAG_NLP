@@ -52,7 +52,7 @@ if __name__ == "__main__":
     root = os.path.dirname(__file__)
     path1 = ""
     if folder == "TaskData":
-        path1 = str(Path.cwd()) +  "/TaskData/test_n"+str(taskNumber)+"_v" + str(n) + ".csv"
+        path1 = root +  "/../TaskData/test_n"+str(taskNumber)+"_v" + str(n) + ".csv"
     elif folder == "dagTasks":
         strN = str(n)
         if n < 10:
