@@ -11,7 +11,7 @@
 namespace DAG_SPACE
 {
 
-    gtsam::Values GenerateInitialFG(VectorDynamic &startTimeVector, const TaskSetInfoDerived &tasksInfo)
+    gtsam::Values GenerateInitialFG(const VectorDynamic &startTimeVector, const TaskSetInfoDerived &tasksInfo)
     {
         gtsam::Values initialEstimateFG;
         gtsam::Symbol key('a', 0); // just declare the variable

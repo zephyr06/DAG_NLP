@@ -32,9 +32,11 @@ namespace DAG_SPACE
         RTDA resAfterOpt = GetMaxRTDA(tasksInfo, dagTasks.chains_[0], scheduleResult.startTimeVector_);
         resAfterOpt.print();
         std::cout << Color::def << std::endl;
+        std::cout << "Schedule: " << std::endl;
+        PrintSchedule(tasksInfo, scheduleResult.startTimeVector_);
     }
 
-    bool SchedulabilityCheck(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector)
+    bool SchedulabilityCheck(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
     {
         gtsam::NonlinearFactorGraph graph;
         AddDBF_Factor(graph, tasksInfo);
@@ -43,18 +45,63 @@ namespace DAG_SPACE
         return 0 == graph.error(initialEstimateFG);
     }
 
+    struct IterationStatus
+    {
+        DAG_Model dagTasks_;
+        JobOrder jobOrder_;
+        VectorDynamic startTimeVector_;
+        std::vector<RTDA> rtdaVec_;
+        RTDA maxRtda_;
+        double objVal_;
+        bool schedulable_;
+
+        IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const JobOrder &jobOrder) : dagTasks_(dagTasks), jobOrder_(jobOrder)
+        {
+            startTimeVector_ = ListSchedulingGivenOrder(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, jobOrder_);
+            rtdaVec_ = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector_);
+            maxRtda_ = GetMaxRTDA(rtdaVec_);
+            objVal_ = ObjRTDA(maxRtda_);
+            schedulable_ = SchedulabilityCheck(dagTasks, tasksInfo, startTimeVector_);
+        }
+    };
+
+    bool MakeProgress(IterationStatus &statusPrev, IterationStatus &statusCurr)
+    {
+        if (!statusCurr.schedulable_)
+            return false;
+
+        if (statusCurr.objVal_ < statusPrev.objVal_)
+            return true;
+
+        // whether average of chains decrease
+        double overallObjPrev = 0;
+        double overallObjCurr = 0;
+        for (uint i = 0; i < statusPrev.rtdaVec_.size(); i++)
+        {
+            overallObjPrev += ObjRTDA(statusPrev.rtdaVec_[i]);
+            overallObjCurr += ObjRTDA(statusCurr.rtdaVec_[i]);
+        }
+        if (overallObjCurr < overallObjPrev && statusPrev.objVal_ == statusCurr.objVal_)
+            return true;
+
+        return false;
+    }
+
     ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks)
     {
         TaskSet &tasks = dagTasks.tasks;
         TaskSetInfoDerived tasksInfo(tasks);
         VectorDynamic initialSTV = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
+        if (debugMode == 1)
+        {
+            std::cout << "Initial schedule: " << std::endl;
+            PrintSchedule(tasksInfo, initialSTV);
+        }
+
         JobOrder jobOrderRef(tasksInfo, initialSTV);
+        IterationStatus statusPrev(dagTasks, tasksInfo, jobOrderRef);
 
-        RTDA rtda = GetMaxRTDA(tasksInfo, dagTasks.chains_[0], initialSTV);
-        double rtdaMin = ObjRTDA(tasksInfo, dagTasks.chains_[0], initialSTV);
         bool findNewUpdate = true;
-
-        ScheduleResult scheduleRes{jobOrderRef, initialSTV, false, rtda};
         while (findNewUpdate)
         {
             findNewUpdate = false;
@@ -62,26 +109,24 @@ namespace DAG_SPACE
             {
                 for (LLint j = 0; j < static_cast<LLint>(jobOrderRef.size()); j++)
                 {
-                    JobOrder jobOrderCurr = jobOrderRef;
+                    JobOrder jobOrderCurr = statusPrev.jobOrder_;
                     jobOrderCurr.ChangeJobOrder(i, j);
-                    VectorDynamic startTimeVector = ListSchedulingGivenOrder(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, jobOrderCurr);
-                    if (SchedulabilityCheck(dagTasks, tasksInfo, startTimeVector))
+                    IterationStatus statusCurr(dagTasks, tasksInfo, jobOrderCurr);
+                    if (MakeProgress(statusPrev, statusCurr))
                     {
-                        double rtdaCurr = ObjRTDA(tasksInfo, dagTasks.chains_[0], startTimeVector);
-                        if (rtdaCurr < rtdaMin)
+                        findNewUpdate = true;
+                        statusPrev = statusCurr;
+                        if (debugMode == 1)
                         {
-                            rtdaMin = rtdaCurr;
-                            findNewUpdate = true;
-                            scheduleRes.jobOrder_ = jobOrderCurr;
-                            scheduleRes.startTimeVector_ = startTimeVector;
-                            scheduleRes.schedulable_ = true;
-                            scheduleRes.rtda_ = GetMaxRTDA(tasksInfo, dagTasks.chains_[0], startTimeVector);
-                            std::cout << "Make progress after one switch!" << std::endl;
+                            std::cout << "Make progress!" << std::endl;
+                            PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
                         }
                     }
                 }
             }
         }
+
+        ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.maxRtda_};
         return scheduleRes;
     }
 

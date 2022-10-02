@@ -112,7 +112,7 @@ namespace DAG_SPACE
     {
         auto timeJobVector = ObtainAllJobSchedule(tasksInfo, x);
         timeJobVector = SortJobSchedule(timeJobVector);
-        std::cout << "Current sorted start time: " << std::endl;
+        // std::cout << "Current sorted start time: " << std::endl;
 
         int temp_count = 0;
         for (auto time_job_pair : timeJobVector)

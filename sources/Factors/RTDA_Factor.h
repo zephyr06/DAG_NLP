@@ -85,6 +85,12 @@ namespace DAG_SPACE
         return resVec;
     }
 
+    std::vector<RTDA> GetRTDAFromSingleJob(const TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain, const VectorDynamic &x)
+    {
+        gtsam::Values initialFG = GenerateInitialFG(x, tasksInfo);
+        return GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialFG);
+    }
+
     RTDA GetMaxRTDA(const TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain, VectorDynamic &startTimeVector)
     {
         // TODO: improve efficiency by avoiding transforming vector to values
@@ -94,10 +100,9 @@ namespace DAG_SPACE
         return maxRTDA;
     }
 
-    double ObjRTDA(const TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain, VectorDynamic &startTimeVector)
+    double ObjRTDA(const RTDA &rtda)
     {
-        RTDA rtda = GetMaxRTDA(tasksInfo, causeEffectChain, startTimeVector);
-        return rtda.dataAge + rtda.reactionTime;
+        return rtda.reactionTime + rtda.dataAge;
     }
 
     void AddWholeRTDAFactor(NonlinearFactorGraph &graph,

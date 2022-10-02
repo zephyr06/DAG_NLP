@@ -56,13 +56,19 @@ namespace DAG_SPACE
 
         JobCEC operator[](LLint index) { return jobOrder_[index]; }
 
+        // jobIndex and newPosition is relative to the original job vector
         void ChangeJobOrder(LLint jobIndex, LLint newPosition)
         {
             if (jobIndex == newPosition)
                 return;
+            else if (jobIndex < 0 || jobIndex >= static_cast<LLint>(jobOrder_.size()) || newPosition < 0 || newPosition >= static_cast<LLint>(jobOrder_.size()))
+            {
+                CoutError("Index out-of-range in ChangeJobOrder");
+            }
 
-            JobCEC job = *(jobOrder_.erase(jobOrder_.begin() + jobIndex));
-            jobOrder_.insert(jobOrder_.begin() + newPosition, job);
+            JobCEC job = jobOrder_[newPosition];
+            jobOrder_[newPosition] = jobOrder_[jobIndex];
+            jobOrder_[jobIndex] = job;
             UpdateMap();
         }
     };
