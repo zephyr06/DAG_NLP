@@ -334,49 +334,6 @@ namespace DAG_SPACE
         }
     };
 
-    void PrintSchedule(TaskSetInfoDerived &tasksInfo, VectorDynamic &x)
-    {
-        // souted start time
-        std::vector<std::pair<std::pair<double, double>, std::pair<LLint, LLint>>> time_job_vector;
-        int temp_count = 0;
-        for (LLint task_id = 0; task_id < LLint(tasksInfo.sizeOfVariables.size()); task_id++)
-        {
-            auto execution_time = tasksInfo.tasks[task_id].executionTime;
-            for (LLint job_id = 0; job_id < tasksInfo.sizeOfVariables[task_id]; job_id++)
-            {
-                double start_time = x(temp_count, 0);
-                double finish_time = x(temp_count, 0) + execution_time;
-                std::pair<double, double> time_pair(start_time, finish_time);
-                std::pair<LLint, LLint> job_pair(task_id, job_id);
-                time_job_vector.push_back(std::make_pair(time_pair, job_pair));
-                temp_count++;
-            }
-        }
-
-        std::sort(time_job_vector.begin(), time_job_vector.end(),
-                  [](auto a, auto b)
-                  {
-                      return a.first.first < b.first.first;
-                  });
-
-        std::cout << "Current sorted start time: " << std::endl;
-
-        temp_count = 0;
-        for (auto time_job_pair : time_job_vector)
-        {
-            // std::cout << std::setprecision(6);
-            std::cout << "T" << time_job_pair.second.first << "_" << time_job_pair.second.second << " (" << time_job_pair.first.first << ", ";
-            std::cout << time_job_pair.first.second << "), ";
-            temp_count++;
-            if (temp_count % 4 == 0)
-            {
-                std::cout << std::endl;
-            }
-            // std::cout << std::setprecision(8);
-        }
-        std::cout << "\n************************************************" << std::endl;
-    }
-
     void PrintResultAnalyzation(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, VectorDynamic &x)
     {
         std::cout << "Current start time vector: " << x << std::endl;

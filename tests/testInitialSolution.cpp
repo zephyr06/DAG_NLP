@@ -1,6 +1,7 @@
 #include "sources/Optimization/Optimize.h"
 #include "sources/Tools/testMy.h"
 #include "sources/Optimization/EliminationForest_utils.h"
+#include "sources/Optimization/InitialEstimate.h"
 
 TEST(GenerateInitialForDAG, V2)
 {
@@ -566,6 +567,29 @@ TEST(list_scheduling, least_finish_time)
     VectorDynamic expected = initial;
     expected << 5, 50, 83, 10, 60, 70, 88, 0, 55, 78;
     assert_equal(expected, initial);
+}
+
+TEST(PrintSchedule, SortJobSchedule)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    std::cout << initial << std::endl;
+
+    std::vector<std::pair<std::pair<double, double>, JobCEC>> timeJobVector = ObtainAllJobSchedule(tasksInfo, initial);
+    timeJobVector = SortJobSchedule(timeJobVector);
+    EXPECT(JobCEC(5, 0) == timeJobVector[0].second);
+    EXPECT(JobCEC(0, 0) == timeJobVector[1].second);
+    EXPECT(JobCEC(1, 0) == timeJobVector[2].second);
+    EXPECT(JobCEC(0, 1) == timeJobVector[3].second);
+    EXPECT(JobCEC(5, 1) == timeJobVector[4].second);
+    EXPECT(JobCEC(2, 0) == timeJobVector[5].second);
+    EXPECT(JobCEC(3, 0) == timeJobVector[6].second);
+    EXPECT(JobCEC(5, 2) == timeJobVector[7].second);
+    EXPECT(JobCEC(0, 2) == timeJobVector[8].second);
+    EXPECT(JobCEC(4, 0) == timeJobVector[9].second);
 }
 int main()
 {

@@ -11,14 +11,14 @@
 namespace DAG_SPACE
 {
 
-    gtsam::Values GenerateInitialFG(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo)
+    gtsam::Values GenerateInitialFG(VectorDynamic &startTimeVector, const TaskSetInfoDerived &tasksInfo)
     {
         gtsam::Values initialEstimateFG;
         gtsam::Symbol key('a', 0); // just declare the variable
 
         for (int i = 0; i < tasksInfo.N; i++)
         {
-            for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
+            for (int j = 0; j < int(tasksInfo.sizeOfVariables.at(i)); j++)
             {
                 // LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
                 gtsam::Symbol key = GenerateKey(i, j);

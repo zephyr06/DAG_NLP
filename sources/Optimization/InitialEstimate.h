@@ -83,7 +83,7 @@ namespace DAG_SPACE
         typedef pair<int, LLint> ID_INSTANCE_PAIR; // taskId, jobId
         vector<RegularTaskSystem::Task> tasks;
         int N;
-        vector<ID_INSTANCE_PAIR> taskQueue;
+        std::vector<ID_INSTANCE_PAIR> taskQueue;
         // ProcessorId2Index processorId2Index;,
         //                    ProcessorId2Index &processorId2Index                                             processorId2Index(processorId2Index)
         /**

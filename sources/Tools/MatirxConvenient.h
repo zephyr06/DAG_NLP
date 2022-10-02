@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Eigen/Core>
+#include <Eigen/SparseCore>
 
 #include "sources/Tools/testMy.h"
 #include "sources/Tools/profilier.h"
