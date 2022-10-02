@@ -11,7 +11,8 @@ include(GtsamBuildTypes)
 include(GtsamTesting)
 
 include_directories(${CMAKE_SOURCE_DIR})
-
+include_directories("/usr/include/opencv4/opencv2")
+include_directories("/usr/include/opencv4")
 
 # for unittest scripts
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${GTSAM_DIR}/../GTSAMCMakeTools")
@@ -39,7 +40,6 @@ target_link_libraries(${CONVENIENCE_LIB_NAME} ${Boost_LIBRARIES})
 target_link_libraries(${CONVENIENCE_LIB_NAME} CppUnitLite)
 target_link_libraries(${CONVENIENCE_LIB_NAME} ${OpenCV_LIBS} )
 target_link_libraries(${CONVENIENCE_LIB_NAME} yaml-cpp)
-# target_link_libraries(${CONVENIENCE_LIB_NAME} gtest_main )
 target_link_libraries(${CONVENIENCE_LIB_NAME} "stdc++fs")
 find_package(Eigen3 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})

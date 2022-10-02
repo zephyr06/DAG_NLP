@@ -1,3 +1,5 @@
+#pragma once
+
 #include "sources/Factors/Interval.h"
 #include "sources/Factors/MultiKeyFactor.h"
 #include "sources/TaskModel/RegularTasks.h"

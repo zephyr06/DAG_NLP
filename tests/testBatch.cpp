@@ -1,8 +1,8 @@
-#include "../sources/batchOptimizeOrder.h"
+#include "sources/batchOptimizeOrder.h"
 TEST(parameters, a1)
 {
     BeginTimer("main");
-    BatchOptimize();
+    BatchOptimizeOrder();
     EndTimer("main");
     PrintTimer();
 }

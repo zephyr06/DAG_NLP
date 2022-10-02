@@ -1,3 +1,4 @@
+#pragma once
 #include "sources/Tools/MatirxConvenient.h"
 #include "sources/Utils/Parameters.h"
 #include "sources/TaskModel/DAG_Model.h"

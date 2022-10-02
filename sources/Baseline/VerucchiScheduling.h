@@ -1,4 +1,5 @@
 
+#pragma once
 // below are include files required by Verucchi
 #include <algorithm>
 #include <iostream>

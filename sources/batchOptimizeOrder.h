@@ -17,7 +17,9 @@ using namespace std::chrono;
 
 void BatchOptimizeOrder()
 {
-    const char *pathDataset = (PROJECT_PATH + "TaskData/dagTasks").c_str();
+    std::string dirStr = PROJECT_PATH + "TaskData/dagTasks";
+    const char *pathDataset = (dirStr).c_str();
+    std::cout << "Dataset Directory: " << pathDataset << std::endl;
     vector<double> runTimeAll;
     // int N;
 
@@ -51,6 +53,7 @@ void BatchOptimizeOrder()
             else if (batchTestMethod == 2)
             {
                 DAG_SPACE::RTDA rtda = GetVerucchiRTDA(dagTasks, dagTasks.chains_, 1, 15.0, 400000.0, 15.0, 400000.0, 15.0);
+                rtda.print();
             }
 
             auto stop = chrono::high_resolution_clock::now();

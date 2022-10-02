@@ -2,9 +2,8 @@
 #include <vector>
 #include <iostream>
 #include <Eigen/Core>
-#include <Eigen/Geometry>
+// #include <Eigen/Geometry>
 #include <opencv2/core/core.hpp>
-#include <opencv2/core.hpp>
 #include "sources/Tools/testMy.h"
 using namespace std;
 
