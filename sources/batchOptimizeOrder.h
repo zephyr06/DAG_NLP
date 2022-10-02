@@ -53,7 +53,9 @@ void BatchOptimizeOrder()
             else if (batchTestMethod == 2)
             {
                 DAG_SPACE::RTDA rtda = GetVerucchiRTDA(dagTasks, dagTasks.chains_, 1, 15.0, 400000.0, 15.0, 400000.0, 15.0);
+                std::cout << Color::red;
                 rtda.print();
+                std::cout << Color::def;
             }
 
             auto stop = chrono::high_resolution_clock::now();
