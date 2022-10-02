@@ -14,6 +14,9 @@ namespace DAG_SPACE
         JobOrder jobOrder_;
         VectorDynamic startTimeVector_;
         bool schedulable_;
+        RTDA rtda_;
+
+        ScheduleResult() {}
     };
 
     void PrintResultAnalyzation(ScheduleResult &scheduleResult, DAG_Model &dagTasks)
@@ -42,11 +45,12 @@ namespace DAG_SPACE
         TaskSetInfoDerived tasksInfo(tasks);
         VectorDynamic initialSTV = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
         JobOrder jobOrderRef(tasksInfo, initialSTV);
-        double rtdaMin = ObjRTDA(tasksInfo, dagTasks.chains_[0], initialSTV);
 
+        RTDA rtda = GetMaxRTDA(tasksInfo, dagTasks.chains_[0], initialSTV);
+        double rtdaMin = ObjRTDA(tasksInfo, dagTasks.chains_[0], initialSTV);
         bool findNewUpdate = true;
 
-        ScheduleResult scheduleRes{jobOrderRef, initialSTV, false};
+        ScheduleResult scheduleRes{jobOrderRef, initialSTV, false, rtda};
         while (findNewUpdate)
         {
             findNewUpdate = false;
@@ -67,6 +71,7 @@ namespace DAG_SPACE
                             scheduleRes.jobOrder_ = jobOrderCurr;
                             scheduleRes.startTimeVector_ = startTimeVector;
                             scheduleRes.schedulable_ = true;
+                            scheduleRes.rtda_ = GetMaxRTDA(tasksInfo, dagTasks.chains_[0], startTimeVector);
                             std::cout << "Make progress after one switch!" << std::endl;
                         }
                     }
@@ -76,4 +81,20 @@ namespace DAG_SPACE
         return scheduleRes;
     }
 
+    ScheduleResult ScheduleDAGLS_LFT(DAG_Model &dagTasks)
+    {
+        TaskSet &tasks = dagTasks.tasks;
+        TaskSetInfoDerived tasksInfo(tasks);
+        VectorDynamic initialSTV = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension);
+        JobOrder jobOrderRef(tasksInfo, initialSTV);
+        RTDA rtda = GetMaxRTDA(tasksInfo, dagTasks.chains_[0], initialSTV);
+
+        if (SchedulabilityCheck(dagTasks, tasksInfo, initialSTV))
+            return ScheduleResult{
+                jobOrderRef,
+                initialSTV,
+                true, rtda};
+        else
+            return ScheduleResult{jobOrderRef, initialSTV, false, rtda};
+    }
 } // namespace DAG_SPACE

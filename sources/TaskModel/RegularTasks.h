@@ -386,6 +386,8 @@ namespace RegularTaskSystem
         LLint length;
         ProcessorTaskSet processorTaskSet;
 
+        TaskSetInfoDerived() {}
+
         TaskSetInfoDerived(const TaskSet &tasksInput)
         {
             tasks = tasksInput;

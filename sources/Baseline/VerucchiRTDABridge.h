@@ -10,11 +10,12 @@
 #include "sources/Baseline/Verucchi20/Evaluation/Scheduling.h"
 #include "sources/Baseline/Verucchi20/VariableTaskSet/VariableTaskSet.h"
 
-
-TaskSet GetTaskSet(DAG dag) {
+TaskSet GetTaskSet(DAG dag)
+{
     TaskSet tasks;
     auto nodes = dag.getOriginatingTaskset()->getNodes();
-    for (auto node : nodes) {
+    for (auto node : nodes)
+    {
         RegularTaskSystem::Task task;
 
         task.offset = 0;
@@ -34,11 +35,13 @@ TaskSet GetTaskSet(DAG dag) {
 // }
 
 // defaut proposser number is 1
-VectorDynamic GetInitialEstimate(DAG dag, int nproc = 1) {
+VectorDynamic GetInitialEstimate(DAG dag, int nproc = 1)
+{
     int total_jobs = 0;
     std::vector<int> job_count;
     auto nodes = dag.getOriginatingTaskset()->getNodes();
-    for (auto node : nodes) {
+    for (auto node : nodes)
+    {
         job_count.push_back(node->nodes.size());
         total_jobs += node->nodes.size();
     }
@@ -46,10 +49,13 @@ VectorDynamic GetInitialEstimate(DAG dag, int nproc = 1) {
     auto processorSchedule =
         scheduling::getScheduleFromDAG(dag, nproc);
 
-    for (size_t i = 0; i < processorSchedule.size(); i++) {
+    for (size_t i = 0; i < processorSchedule.size(); i++)
+    {
         float time = 0.0f;
-        for (const auto &n : processorSchedule[i]) {
-            if (n->uniqueId > 1 && (int)n->uniqueId < (total_jobs + 2)) {
+        for (const auto &n : processorSchedule[i])
+        {
+            if (n->uniqueId > 1 && (int)n->uniqueId < (total_jobs + 2))
+            {
                 initial_estimate(n->uniqueId - 2, 0) = time;
             }
             time += n->wcet;
@@ -66,7 +72,8 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
     float maxReact = 400.0,
     float ageCost = 15.0,
     float maxAge = 400.0,
-    unsigned coreCost = 50) {
+    unsigned coreCost = 50)
+{
 
     VariableTaskSet taskSetVeru;
     // add tasks
@@ -86,7 +93,7 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
         for (uint i = 0; i < tasksAfter.size(); i++)
         {
             // fix jitter to {0}
-            taskSetVeru.addDataEdge(tasksVecVeru[tasksAfter[i].id], tasksVecVeru[itr->first], { 0 });
+            taskSetVeru.addDataEdge(tasksVecVeru[tasksAfter[i].id], tasksVecVeru[itr->first], {0});
         }
     }
 
@@ -97,22 +104,24 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
 
     Evaluation eval;
     std::vector<std::shared_ptr<MultiNode>> chain;
-    for (auto task_id : causeEffectChain) {
+    for (auto task_id : causeEffectChain)
+    {
         chain.push_back(tasksVecVeru[task_id]);
     }
     eval.addLatency(chain, LatencyCost(ageCost, reactCost), LatencyConstraint(maxAge, maxReact));
     eval.addScheduling(SchedulingCost(coreCost), SchedulingConstraint(processorsAvailable));
 
     const auto &bestDAG = eval.evaluateWithRTDA(allDags);
-    if (bestDAG.getNumNodes() <= 2) {
+    if (bestDAG.getNumNodes() <= 2)
+    {
         std::cout << "Failed to find a valid dag.\n";
         return DAG_SPACE::RTDA();
     }
 
-
     std::cout << bestDAG.getNodeInfo() << std::endl;
     bool verucchiSuccess = scheduling::scheduleDAG(bestDAG, processorsAvailable, "schedule_test.tex", true);
-    if (!verucchiSuccess) {
+    if (!verucchiSuccess)
+    {
         return DAG_SPACE::RTDA();
     }
 
@@ -136,8 +145,9 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
     float maxReact = 400.0,
     float ageCost = 15.0,
     float maxAge = 400.0,
-    unsigned coreCost = 50) {
-
+    unsigned coreCost = 50)
+{
+    BeginTimer(__func__);
     VariableTaskSet taskSetVeru;
     // add tasks
     std::vector<std::shared_ptr<MultiNode>> tasksVecVeru;
@@ -156,7 +166,7 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
         for (uint i = 0; i < tasksAfter.size(); i++)
         {
             // fix jitter to {0}
-            taskSetVeru.addDataEdge(tasksVecVeru[tasksAfter[i].id], tasksVecVeru[itr->first], { 0, 1, 2 });
+            taskSetVeru.addDataEdge(tasksVecVeru[tasksAfter[i].id], tasksVecVeru[itr->first], {0, 1, 2});
         }
     }
 
@@ -166,9 +176,11 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
     std::cout << allDags.size() << " total valid DAGs were created" << std::endl;
 
     Evaluation eval;
-    for (auto causeEffectChain : causeEffectChains) {
+    for (auto causeEffectChain : causeEffectChains)
+    {
         std::vector<std::shared_ptr<MultiNode>> chain;
-        for (auto task_id : causeEffectChain) {
+        for (auto task_id : causeEffectChain)
+        {
             chain.push_back(tasksVecVeru[task_id]);
         }
         eval.addLatency(chain, LatencyCost(ageCost, reactCost), LatencyConstraint(maxAge, maxReact));
@@ -176,15 +188,16 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
     eval.addScheduling(SchedulingCost(coreCost), SchedulingConstraint(processorsAvailable));
 
     const auto &bestDAG = eval.evaluateWithRTDA(allDags);
-    if (bestDAG.getNumNodes() <= 2) {
+    if (bestDAG.getNumNodes() <= 2)
+    {
         std::cout << "Failed to find a valid dag.\n";
         return DAG_SPACE::RTDA();
     }
 
-
     std::cout << bestDAG.getNodeInfo() << std::endl;
     bool verucchiSuccess = scheduling::scheduleDAG(bestDAG, processorsAvailable, "schedule_test.tex", true);
-    if (!verucchiSuccess) {
+    if (!verucchiSuccess)
+    {
         return DAG_SPACE::RTDA();
     }
 
@@ -195,13 +208,15 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
     std::cout << initialEstimate.transpose() << std::endl;
     Values initialEstimateFG = DAG_SPACE::GenerateInitialFG(initialEstimate, tasksInfo);
     DAG_SPACE::RTDA resM(0, 0);
-    for (auto causeEffectChain : causeEffectChains) {
+    for (auto causeEffectChain : causeEffectChains)
+    {
         auto res = DAG_SPACE::GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
         auto max_of_current_chain = DAG_SPACE::GetMaxRTDA(res);
         resM.dataAge += max_of_current_chain.dataAge;
         resM.reactionTime += max_of_current_chain.reactionTime;
     }
 
+    EndTimer(__func__);
     return resM;
 }
 

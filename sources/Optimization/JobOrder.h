@@ -21,6 +21,7 @@ namespace DAG_SPACE
         std::vector<JobCEC> jobOrder_;
         std::unordered_map<JobCEC, LLint> jobOrderMap_;
 
+        JobOrder() {}
         JobOrder(TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector) : tasksInfo_(tasksInfo)
         {
             std::vector<std::pair<std::pair<double, double>, JobCEC>> timeJobVector = ObtainAllJobSchedule(tasksInfo, startTimeVector);
