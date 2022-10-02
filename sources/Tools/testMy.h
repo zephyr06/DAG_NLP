@@ -111,8 +111,8 @@ void AssertEqualVectorExact(const std::vector<T> &expected, const std::vector<T>
     {
         if (expected[i] != actual[i])
         {
-            CoutError("Expected element: " + std::to_string(expected.at(i)) +
-                      " while actual element: " + std::to_string(actual.at(i)));
+            CoutError("Expected element at " + std::to_string(i) +
+                      " does not match actual element at " + std::to_string((i)));
         }
     }
 

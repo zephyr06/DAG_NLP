@@ -31,6 +31,7 @@ namespace DAG_SPACE
             {
                 jobOrder_.push_back(timeJobVector[i].second);
             }
+            UpdateMap();
         }
 
         void UpdateMap()

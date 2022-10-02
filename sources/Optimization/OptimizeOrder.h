@@ -17,6 +17,10 @@ namespace DAG_SPACE
         RTDA rtda_;
 
         ScheduleResult() {}
+        ScheduleResult(JobOrder jobOrder,
+                       VectorDynamic startTimeVector,
+                       bool schedulable,
+                       RTDA rtda) : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), rtda_(rtda) {}
     };
 
     void PrintResultAnalyzation(ScheduleResult &scheduleResult, DAG_Model &dagTasks)
@@ -90,10 +94,14 @@ namespace DAG_SPACE
         RTDA rtda = GetMaxRTDA(tasksInfo, dagTasks.chains_[0], initialSTV);
 
         if (SchedulabilityCheck(dagTasks, tasksInfo, initialSTV))
-            return ScheduleResult{
+        {
+            ScheduleResult res{
                 jobOrderRef,
                 initialSTV,
                 true, rtda};
+            return res;
+        }
+
         else
             return ScheduleResult{jobOrderRef, initialSTV, false, rtda};
     }
