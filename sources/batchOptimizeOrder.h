@@ -38,6 +38,7 @@ void BatchOptimizeOrder()
             string path = PROJECT_PATH + "TaskData/dagTasks/" + file;
             DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(path, priorityMode);
             // int N = dagTasks.tasks.size();
+            AssertBool(true, dagTasks.chains_.size() > 0, __LINE__);
             auto start = chrono::high_resolution_clock::now();
             DAG_SPACE::ScheduleResult res;
             if (batchTestMethod == 0)

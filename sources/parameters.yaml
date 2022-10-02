@@ -2,7 +2,7 @@
 
 # optimization seettings
 batchTestMethod: 1 # 0 means initial, 1 means proposed optimization, 2 means Verucchi20
-testDataSetName: test_n10_v3
+testDataSetName: test_n5_v74
 AcceptSchedulError: 1e-2
 debugMode: 1
 recordActionValue: 0
@@ -60,7 +60,7 @@ coreNumberAva: 1
 parallelFactor: 0.4
 TaskSetType: 1 # 1 means total random, 2 means automobile tasksets
 timeScaleFactor: 1e0
-priorityMode: RM
+priorityMode: orig
 #*************************************************************
 
 # used in SA

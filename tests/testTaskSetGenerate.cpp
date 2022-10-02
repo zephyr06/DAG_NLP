@@ -124,6 +124,15 @@ TEST(TaskSetInfoDerived, v1)
     TaskSetInfoDerived tasksInfo(tasks);
     AssertEqualScalar(10, tasksInfo.tasks[0].executionTime);
 }
+
+TEST(GetRandomChains, DAG_Model)
+{
+
+    string path = PROJECT_PATH + "TaskData/test_n5_v74.csv";
+    DAG_Model dagTasks = ReadDAG_Tasks(path, "orig");
+    EXPECT(dagTasks.chains_.size() > 0);
+    std::cout << dagTasks.chains_.size() << std::endl;
+}
 int main()
 {
     TestResult tr;
