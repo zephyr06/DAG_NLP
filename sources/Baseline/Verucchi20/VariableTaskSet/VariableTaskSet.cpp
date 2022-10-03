@@ -6,6 +6,7 @@
  */
 #include <sources/Baseline/Verucchi20/VariableTaskSet/VariableTaskSet.h>
 #include <iostream>
+#include <chrono>
 
 std::shared_ptr<MultiNode>
 VariableTaskSet::addTask(unsigned period, float wcet, float deadline, const std::string &name)
@@ -102,7 +103,6 @@ VariableTaskSet::createDAGs()
 	unsigned k = 1;
 	for (auto &set : tasksets_)
 	{
-
 		auto dags = set.createDAGs();
 
 		std::cout << std::endl
@@ -112,6 +112,42 @@ VariableTaskSet::createDAGs()
 		std::cout << allDAGs_.size() << " total DAGs" << std::endl
 				  << std::endl
 				  << std::endl;
+	}
+	return allDAGs_;
+}
+
+const std::vector<DAG> &
+VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
+{
+	allDAGs_.clear();
+	if (tasksets_.empty())
+		createTasksets();
+
+	auto start = std::chrono::system_clock::now();
+	auto curr = std::chrono::system_clock::now();
+	if (seconds < 0) {
+		seconds = INT64_MAX;
+	}
+
+	unsigned k = 1;
+	for (auto &set : tasksets_)
+	{
+		auto dags = set.createDAGs();
+
+		std::cout << std::endl
+				  << "Taskset " << k++ << "/" << tasksets_.size() << ": " << dags.size() << " created" << std::endl;
+
+		allDAGs_.insert(allDAGs_.end(), dags.begin(), dags.end());
+		std::cout << allDAGs_.size() << " total DAGs" << std::endl
+				  << std::endl
+				  << std::endl;
+
+		curr = std::chrono::system_clock::now();
+		if (std::chrono::duration_cast<std::chrono::seconds>(curr - start).count() >= seconds)
+		{
+			std::cout << "\nTime out when creating DAGs. Maximum time is " << seconds << " seconds.\n\n";
+			break;
+		}
 	}
 	return allDAGs_;
 }

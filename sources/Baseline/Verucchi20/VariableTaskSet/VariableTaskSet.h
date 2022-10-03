@@ -39,6 +39,9 @@ public:
 	const std::vector<DAG> &
 	createDAGs();
 
+	const std::vector<DAG> &
+	createDAGsWithTimeLimit(int64_t seconds = INT64_MAX); // default to unlimited time
+
 	float
 	getUtilization() const;
 

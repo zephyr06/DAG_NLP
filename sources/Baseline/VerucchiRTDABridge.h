@@ -1,5 +1,5 @@
-#ifndef VERUCCHI_RTDA_BRDIGE_H
-#define VERUCCHI_RTDA_BRDIGE_H
+#ifndef VERUCCHI_RTDA_BRDIGE_H_
+#define VERUCCHI_RTDA_BRDIGE_H_
 // below are include files required by Verucchi
 // #include "sources/Baseline/VerucchiScheduling.h"
 
@@ -64,6 +64,8 @@ VectorDynamic GetInitialEstimate(DAG dag, int nproc = 1)
     return initial_estimate;
 }
 
+// Deprecated. Use the multiple chains' override version instead
+// get verucchi's RTDA on a single chain
 DAG_SPACE::RTDA GetVerucchiRTDA(
     DAG_SPACE::DAG_Model &dagTasks,
     std::vector<int> causeEffectChain,
@@ -74,7 +76,6 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
     float maxAge = 400.0,
     unsigned coreCost = 50)
 {
-
     VariableTaskSet taskSetVeru;
     // add tasks
     std::vector<std::shared_ptr<MultiNode>> tasksVecVeru;
@@ -137,6 +138,7 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
     return resM;
 }
 
+// get verucchi's RTDA on multiple chains
 DAG_SPACE::RTDA GetVerucchiRTDA(
     DAG_SPACE::DAG_Model &dagTasks,
     std::vector<std::vector<int>> causeEffectChains,
@@ -145,7 +147,8 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
     float maxReact = 400.0,
     float ageCost = 15.0,
     float maxAge = 400.0,
-    unsigned coreCost = 50)
+    unsigned coreCost = 50,
+    int64_t time_limit = INT64_MAX)
 {
     BeginTimer(__func__);
     VariableTaskSet taskSetVeru;
@@ -172,7 +175,11 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
 
     // generate all dags
     taskSetVeru.createBaselineTaskset();
-    auto &allDags = taskSetVeru.createDAGs();
+
+    // add time limits when create dags
+    // auto &allDags = taskSetVeru.createDAGs();
+    auto &allDags = taskSetVeru.createDAGsWithTimeLimit(time_limit);
+
     std::cout << allDags.size() << " total valid DAGs were created" << std::endl;
 
     Evaluation eval;
@@ -220,4 +227,4 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
     return resM;
 }
 
-#endif
+#endif // VERUCCHI_RTDA_BRDIGE_H_

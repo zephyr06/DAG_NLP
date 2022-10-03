@@ -7,8 +7,8 @@
 #include "sources/Tools/testMy.h"
 using namespace std;
 
-const std::string PROJECT_PATH = "/home/zephyr/Programming/DAG_NLP/";
-// const std::string PROJECT_PATH = "/home/dong/workspace/DAG_NLP/";
+// const std::string PROJECT_PATH = "/home/zephyr/Programming/DAG_NLP/";
+const std::string PROJECT_PATH = "/home/dong/workspace/DAG_NLP/";
 //  std::string path = PROJECT_PATH + "sources/parameters.yaml";
 cv::FileStorage ConfigParameters(PROJECT_PATH + "sources/parameters.yaml", cv::FileStorage::READ);
 
@@ -128,3 +128,10 @@ std::string verbosityLM = (std::string)ConfigParameters["verbosityLM"];
 //     return vec;
 // }
 // vector<int> CA_CHAIN = readVector(PROJECT_PATH + "sources/parameters.yaml");
+
+const int64_t kVerucchiTimeLimit = (int)ConfigParameters["kVerucchiTimeLimit"];
+const double kVerucchiReactionCost = (double)ConfigParameters["kVerucchiReactionCost"];
+const double kVerucchiMaxReaction = (double)ConfigParameters["kVerucchiMaxReaction"];
+const double kVerucchiDataAgeCost = (double)ConfigParameters["kVerucchiDataAgeCost"];
+const double kVerucchiMaxDataAge = (double)ConfigParameters["kVerucchiMaxDataAge"];
+const double kVerucchiCoreCost = (double)ConfigParameters["kVerucchiCoreCost"];
