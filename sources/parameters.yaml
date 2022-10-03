@@ -91,7 +91,7 @@ weightLogBarrier: -1.0
 #*************************************************************
 
 # Verucchi20 settings
-kVerucchiTimeLimit: 1
+kVerucchiTimeLimit: 5
 kVerucchiReactionCost: 15.0
 kVerucchiMaxReaction: 400000.0
 kVerucchiDataAgeCost: 15.0

@@ -170,10 +170,7 @@ namespace DAG_SPACE
         VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
         LLint hyperPeriod = HyperPeriod(tasks);
 
-        ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
-        int processorNum = processorTaskSet.size();
-        // it maps from tasks[i].processorId to index in runQueues&busy&nextFree
-        ProcessorId2Index processorId2Index = CreateProcessorId2Index(tasks);
+        int processorNum = coreNumberAva;
         // contains the index of tasks to run
         RunQueue runQueue(tasks);
 
