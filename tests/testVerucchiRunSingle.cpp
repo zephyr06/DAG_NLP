@@ -1,6 +1,6 @@
 
 #include <CppUnitLite/TestHarness.h>
-#include "sources/Tools/profiler.h"
+#include "sources/Tools/profilier.h"
 #include "sources/Baseline/VerucchiScheduling.h"
 #include "sources/Factors/RTDA_Factor.h"
 #include "sources/Baseline/VerucchiRTDABridge.h"

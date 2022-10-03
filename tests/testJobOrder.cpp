@@ -124,6 +124,24 @@ TEST(list_scheduling, least_finish_time_v2)
     EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
 }
 
+TEST(list_scheduling, ListSchedulingGivenOrderPA_v1)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v74.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    // this is probably a little embarssed, consider designing a better way
+    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+
+    PrintSchedule(tasksInfo, initial);
+    JobOrder jobOrder(tasksInfo, initial);
+    initial = ListSchedulingGivenOrderPA(dagTasks, jobOrder);
+    std::cout << initial << std::endl;
+    PrintSchedule(tasksInfo, initial);
+    EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
+}
+
 int main()
 {
     TestResult tr;

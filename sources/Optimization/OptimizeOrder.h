@@ -45,6 +45,7 @@ namespace DAG_SPACE
         return 0 == graph.error(initialEstimateFG);
     }
 
+    // this function seems unnecessary because list scheduling should return a solution without DBF error
     bool CheckDBFConstraint(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
     {
         for (auto itr = tasksInfo.processorTaskSet.begin(); itr != tasksInfo.processorTaskSet.end(); itr++)
