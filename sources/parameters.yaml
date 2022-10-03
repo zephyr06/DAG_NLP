@@ -90,4 +90,11 @@ punishmentInBarrier: 1e2
 weightLogBarrier: -1.0
 #*************************************************************
 
-
+# Verucchi20 settings
+kVerucchiTimeLimit: 1
+kVerucchiReactionCost: 15.0
+kVerucchiMaxReaction: 400000.0
+kVerucchiDataAgeCost: 15.0
+kVerucchiMaxDataAge: 400000.0
+kVerucchiCoreCost: 50.0
+#*************************************************************
