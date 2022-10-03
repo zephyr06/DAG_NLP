@@ -8,6 +8,7 @@ namespace DAG_SPACE
     {
         return std::pow(x, 1);
     }
+    // this function only works for sinlge-processor case
     void AddDBF_Factor(NonlinearFactorGraph &graph, TaskSetInfoDerived &tasksInfo)
     {
 

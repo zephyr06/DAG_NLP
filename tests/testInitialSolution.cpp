@@ -78,6 +78,7 @@ TEST(RunQueue, V1)
 {
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v10.csv", "orig");
+    priorityMode = "RM";
     TaskSet tasks = dagTasks.tasks;
 
     Task tasknew = tasks[4];
@@ -591,6 +592,7 @@ TEST(PrintSchedule, SortJobSchedule)
     EXPECT(JobCEC(0, 2) == timeJobVector[8].second);
     EXPECT(JobCEC(4, 0) == timeJobVector[9].second);
 }
+
 int main()
 {
     TestResult tr;

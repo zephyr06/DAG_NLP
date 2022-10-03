@@ -37,13 +37,28 @@ namespace DAG_SPACE
         PrintSchedule(tasksInfo, scheduleResult.startTimeVector_);
     }
 
-    bool SchedulabilityCheck(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
+    bool CheckDDLConstraint(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
     {
         gtsam::NonlinearFactorGraph graph;
-        AddDBF_Factor(graph, tasksInfo);
         AddDDL_Factor(graph, tasksInfo);
         gtsam::Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
         return 0 == graph.error(initialEstimateFG);
+    }
+
+    bool CheckDBFConstraint(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
+    {
+        for (auto itr = tasksInfo.processorTaskSet.begin(); itr != tasksInfo.processorTaskSet.end(); itr++)
+        {
+            if (DbfIntervalOverlapError(startTimeVector, itr->first,
+                                        tasksInfo.processorTaskSet, tasksInfo.tasks, tasksInfo.sizeOfVariables) > 0)
+                return false;
+        }
+        return true;
+    }
+
+    bool SchedulabilityCheck(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
+    {
+        return CheckDDLConstraint(dagTasks, tasksInfo, startTimeVector) && CheckDBFConstraint(dagTasks, tasksInfo, startTimeVector);
     }
 
     struct IterationStatus
@@ -101,6 +116,10 @@ namespace DAG_SPACE
 
         JobOrder jobOrderRef(tasksInfo, initialSTV);
         IterationStatus statusPrev(dagTasks, tasksInfo, jobOrderRef);
+        if (!statusPrev.schedulable_)
+        {
+            CoutWarning("Initial schedule is not schedulable!!!");
+        }
 
         bool findNewUpdate = true;
         while (findNewUpdate)
