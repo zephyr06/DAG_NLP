@@ -29,12 +29,18 @@ TEST(constructor, ListSchedulingGivenOrder_v2)
     EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
     JobOrder jobOrderRef(tasksInfo, initial);
     IterationStatus statusPrev(dagTasks, tasksInfo, jobOrderRef);
+    PrintSchedule(tasksInfo, initial);
 
     JobOrder jobOrderCurr = jobOrderRef;
-    jobOrderCurr.ChangeJobOrder(4, 5);
+    JobCEC job1 = jobOrderCurr[4];
+    JobCEC job2 = jobOrderCurr[9];
+    jobOrderCurr.ChangeJobOrder(4, 9);
     IterationStatus statusCurr(dagTasks, tasksInfo, jobOrderCurr);
-    EXPECT_LONGS_EQUAL(8, GetStartTime(JobCEC{1, 0}, statusCurr.startTimeVector_, tasksInfo));
-    EXPECT_LONGS_EQUAL(7, GetStartTime(JobCEC{3, 0}, statusCurr.startTimeVector_, tasksInfo));
+    EXPECT(job1 == jobOrderCurr[9]);
+    EXPECT(job2 == jobOrderCurr[8]);
+    // EXPECT_LONGS_EQUAL(8, GetStartTime(JobCEC{1, 0}, statusCurr.startTimeVector_, tasksInfo));
+    // EXPECT_LONGS_EQUAL(7, GetStartTime(JobCEC{3, 0}, statusCurr.startTimeVector_, tasksInfo));
+    PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
 }
 
 TEST(constructor, JobOrder)
@@ -63,13 +69,13 @@ TEST(JobOrder, change_order)
     IterationStatus statusPrev(dagTasks, tasksInfo, jobOrderRef);
 
     JobOrder jobOrderCurr = jobOrderRef;
-    jobOrderCurr.ChangeJobOrder(4, 5);
-    EXPECT(jobOrderRef[4] == jobOrderCurr[5]);
+    jobOrderCurr.ChangeJobOrder(0, 5);
+    EXPECT(jobOrderRef[0] == jobOrderCurr[5]);
     EXPECT(jobOrderRef[5] == jobOrderCurr[4]);
-    JobCEC j1(3, 0);
-    JobCEC j2(1, 0);
-    EXPECT_LONGS_EQUAL(4, jobOrderCurr.jobOrderMap_[j1]);
-    EXPECT_LONGS_EQUAL(5, jobOrderCurr.jobOrderMap_[j2]);
+    JobCEC j1=jobOrderRef[0];
+    JobCEC j2=jobOrderRef[5];
+    EXPECT_LONGS_EQUAL(5, jobOrderCurr.jobOrderMap_[j1]);
+    EXPECT_LONGS_EQUAL(4, jobOrderCurr.jobOrderMap_[j2]);
 }
 
 TEST(Schedule_optimize, MakeProgress)

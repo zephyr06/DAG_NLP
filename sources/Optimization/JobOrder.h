@@ -66,9 +66,9 @@ namespace DAG_SPACE
                 CoutError("Index out-of-range in ChangeJobOrder");
             }
 
-            JobCEC job = jobOrder_[newPosition];
-            jobOrder_[newPosition] = jobOrder_[jobIndex];
-            jobOrder_[jobIndex] = job;
+            JobCEC job = jobOrder_[jobIndex];
+            jobOrder_.erase(jobOrder_.begin() + jobIndex);
+            jobOrder_.insert(jobOrder_.begin() + newPosition, job);
             UpdateMap();
         }
     };
@@ -145,6 +145,7 @@ namespace DAG_SPACE
                 if (!busy[i] && (!runQueues[i].empty()))
                 {
                     auto sth = PopTaskLS(runQueues[i], jobOrder);
+                    // TODO: strictly follow JobOrder
                     int id = sth.first;
                     LLint instance_id = sth.second;
                     LLint index_overall = IndexTran_Instance2Overall(id, instance_id, sizeOfVariables);

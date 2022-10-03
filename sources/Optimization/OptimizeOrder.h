@@ -146,6 +146,7 @@ namespace DAG_SPACE
                 }
             }
         }
+        // TODO: optimize the final schedule to reduce RTDA
 
         ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.maxRtda_};
         return scheduleRes;
