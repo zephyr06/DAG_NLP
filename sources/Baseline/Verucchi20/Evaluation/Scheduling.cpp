@@ -1,5 +1,7 @@
 #include "Scheduling.h"
 
+extern int debugMode;
+
 bool scheduling::compareSchedulingInfo(const std::shared_ptr<ScheduleInfo> a, const std::shared_ptr<ScheduleInfo> b)
 {
     return ((a->est > b->est) || (a->est == b->est && a->lft > b->lft));
@@ -45,9 +47,9 @@ void scheduling::scheduleToTikz(const std::string &filename,
     for (const auto &p : processorSchedule)
     {
         tikzFile << "\\draw (0," << y << ") --(0," << y + 1 << ") ;" << std::endl;
-        tikzFile << "\\draw[<-] (" << period*_scale + 0.2 << "," << y << ") ->(" << period*_scale + 0.2 << ","
+        tikzFile << "\\draw[<-] (" << period * _scale + 0.2 << "," << y << ") ->(" << period * _scale + 0.2 << ","
                  << y + 1 << ") ;" << std::endl;
-        tikzFile << "\\draw (-0.2," << y << ") --(" << period*_scale + 0.5 << "," << y << ") ;"
+        tikzFile << "\\draw (-0.2," << y << ") --(" << period * _scale + 0.5 << "," << y << ") ;"
                  << std::endl;
         tikzFile << "\\draw (0-0.5," << y + 0.5 << ") node {$P_{" << proc << "}$};" << std::endl;
 
@@ -59,7 +61,7 @@ void scheduling::scheduleToTikz(const std::string &filename,
                          << y + 0.7 << ") node[pos=.5] {$" << n->shortName << "$};" << std::endl;
             tikzFile << "\\draw (" << x << "," << y << ") node[below] {$" << x / _scale << "$};"
                      << std::endl;
-            x += n->wcet*_scale;
+            x += n->wcet * _scale;
         }
 
         y += 2;
@@ -255,14 +257,17 @@ bool scheduling::scheduleDAG(const DAG &dag, const unsigned nProc, const std::st
                     // check if there is a deadline miss
                     if (std::isgreater(t + taskChosen->n->wcet, taskChosen->lft + epsilon))
                     {
-                        if (verbose)
+                        if (debugMode)
                         {
-                            std::cout << "Failed at t = " << t << "; ";
-                            std::cout << "task actual ft:" << t + taskChosen->n->wcet
-                                      << " task lft:" << taskChosen->lft << "; ";
-                            std::cout << taskChosen->n->uniqueId << "(" << taskChosen->n->wcet
-                                      << ") failed" << std::endl;
-                            printSchedule(processorSchedule);
+                            if (verbose)
+                            {
+                                std::cout << "Failed at t = " << t << "; ";
+                                std::cout << "task actual ft:" << t + taskChosen->n->wcet
+                                          << " task lft:" << taskChosen->lft << "; ";
+                                std::cout << taskChosen->n->uniqueId << "(" << taskChosen->n->wcet
+                                          << ") failed" << std::endl;
+                                printSchedule(processorSchedule);
+                            }
                         }
 
                         return false;
@@ -279,13 +284,16 @@ bool scheduling::scheduleDAG(const DAG &dag, const unsigned nProc, const std::st
         }
     }
 
-    if (verbose)
+    if (debugMode)
     {
-        std::cout << "Succeded!" << std::endl;
-        printSchedule(processorSchedule);
+        if (verbose)
+        {
+            std::cout << "Succeded!" << std::endl;
+            printSchedule(processorSchedule);
+        }
+        if (filename != "")
+            scheduleToTikz(filename, processorSchedule, dag.getPeriod());
     }
-    if (filename != "")
-        scheduleToTikz(filename, processorSchedule, dag.getPeriod());
 
     return true;
 }

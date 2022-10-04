@@ -10,6 +10,8 @@
 #include <iostream>
 #include <map>
 
+extern int debugMode;
+
 void DummyNodes::addToDAG(DAG &dag, unsigned hyperperiod)
 {
 	auto dagNodes = dag.getNodes();
@@ -90,10 +92,13 @@ void DummyNodes::addToDAG(DAG &dag, unsigned hyperperiod)
 	dag.addEdges(dummyChain);
 	dag.addEdges(syncEdges);
 
-	// Adding these edges to the chain after adding the chain to the dag to not duplicate edges
-	std::cout << "Adding " << syncNodes.size() << " Sync nodes" << std::endl;
-	std::cout << "Adding " << dummyTasks.size() << " Dummy tasks" << std::endl;
-	std::cout << "Adding " << syncEdges.size() << " sync edges" << std::endl;
+	if (debugMode)
+	{
+		// Adding these edges to the chain after adding the chain to the dag to not duplicate edges
+		std::cout << "Adding " << syncNodes.size() << " Sync nodes" << std::endl;
+		std::cout << "Adding " << dummyTasks.size() << " Dummy tasks" << std::endl;
+		std::cout << "Adding " << syncEdges.size() << " sync edges" << std::endl;
+	}
 }
 
 bool DummyNodes::brokenDummyChain(const DAG &dag)

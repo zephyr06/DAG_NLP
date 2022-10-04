@@ -13,7 +13,7 @@
 #include "sources/Baseline/VerucchiRTDABridge.h"
 
 void Evaluation::addLatency(const Chain &chain, const LatencyCost &cost,
-	const LatencyConstraint &constraint)
+							const LatencyConstraint &constraint)
 {
 	latencyEval_.push_back(std::make_pair(chain, std::make_pair(cost, constraint)));
 }
@@ -63,8 +63,11 @@ Evaluation::evaluate(const std::vector<DAG> &dags)
 
 		cost[k] += schedulingEval_.first.getCost(info);
 	}
-	std::cout << "Num invalid dags: " << invalidDags << std::endl;
 
+	if (debugMode)
+	{
+		std::cout << "Num invalid dags: " << invalidDags << std::endl;
+	}
 	if (invalidDags == dags.size())
 	{
 		std::cout << "No valid dag found. Constraints are too tight." << std::endl;
@@ -82,12 +85,15 @@ Evaluation::evaluate(const std::vector<DAG> &dags)
 		}
 	}
 
-	std::cout << "Best DAG: " << bestDAG << ", with total cost: " << minCost << std::endl
-		<< std::endl;
-	for (const auto &eval : latencyEval_)
+	if (debugMode)
 	{
-		printChain(eval.first);
-		std::cout << dags[bestDAG].getLatencyInfo(taskChainToNum(eval.first)) << std::endl;
+		std::cout << "Best DAG: " << bestDAG << ", with total cost: " << minCost << std::endl
+				  << std::endl;
+		for (const auto &eval : latencyEval_)
+		{
+			printChain(eval.first);
+			std::cout << dags[bestDAG].getLatencyInfo(taskChainToNum(eval.first)) << std::endl;
+		}
 	}
 
 	return dags[bestDAG];
@@ -139,8 +145,10 @@ Evaluation::evaluateWithRTDA(const std::vector<DAG> &dags)
 			cost[k] += eval.second.first.getCost(info);
 		}
 	}
-
-	std::cout << "Num invalid dags: " << invalidDags << std::endl;
+	if (debugMode)
+	{
+		std::cout << "Num invalid dags: " << invalidDags << std::endl;
+	}
 
 	if (invalidDags == dags.size())
 	{
@@ -160,13 +168,16 @@ Evaluation::evaluateWithRTDA(const std::vector<DAG> &dags)
 		}
 	}
 
-	std::cout << "Best DAG: " << bestDAG << ", with total cost: " << minCost << std::endl
-		<< std::endl;
-	for (const auto &eval : latencyEval_)
+	if (debugMode)
 	{
-		printChain(eval.first);
-		auto info = getLatencyInfoRTDA(dags[bestDAG], taskChainToNum(eval.first));
-		std::cout << info << std::endl;
+		std::cout << "Best DAG: " << bestDAG << ", with total cost: " << minCost << std::endl
+				  << std::endl;
+		for (const auto &eval : latencyEval_)
+		{
+			printChain(eval.first);
+			auto info = getLatencyInfoRTDA(dags[bestDAG], taskChainToNum(eval.first));
+			std::cout << info << std::endl;
+		}
 	}
 
 	return dags[bestDAG];
