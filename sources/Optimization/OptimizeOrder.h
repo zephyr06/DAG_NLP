@@ -74,7 +74,7 @@ namespace DAG_SPACE
 
         IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const JobOrder &jobOrder) : dagTasks_(dagTasks), jobOrder_(jobOrder)
         {
-            startTimeVector_ = ListSchedulingGivenOrder(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, jobOrder_);
+            startTimeVector_ = ListSchedulingGivenOrder(dagTasks, jobOrder_);
             rtdaVec_ = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector_);
             maxRtda_ = GetMaxRTDA(rtdaVec_);
             objVal_ = ObjRTDA(maxRtda_);

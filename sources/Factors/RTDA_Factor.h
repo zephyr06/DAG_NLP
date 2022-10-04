@@ -68,14 +68,13 @@ namespace DAG_SPACE
                 firstJob = {causeEffectChain[j], jobIndex};
             }
 
-            // TODO: Be careful about the last instance
             JobCEC jj(causeEffectChain[0], startInstanceIndex);
             firstReactionMap[jj] = firstJob;
             resVec[startInstanceIndex].reactionTime = GetFinishTime(firstJob, x, tasksInfo) - GetStartTime({causeEffectChain[0], startInstanceIndex}, x, tasksInfo);
 
             // update data age
             JobCEC firstReactLastJob = JobCEC{causeEffectChain[0], (startInstanceIndex - 1)};
-            if (startInstanceIndex > 0 && firstReactionMap[firstReactLastJob] != firstJob)
+            if (startInstanceIndex > 0 && firstReactionMap[firstReactLastJob] != firstJob && firstJob.jobId > 0)
             {
                 JobCEC lastReaction = firstJob;
                 lastReaction.jobId--;

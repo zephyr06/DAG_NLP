@@ -86,6 +86,10 @@ int BigIndex2TaskIndex(LLint index, const vector<LLint> &sizeOfVariables)
  */
 inline gtsam::Symbol GenerateKey(int idtask, LLint j)
 {
+    if (idtask > 100 || j > 100000 || idtask < 0 || j < 0)
+    {
+        CoutWarning("Invalid index in GenerateKey!");
+    }
     gtsam::Symbol key('a' + idtask, j);
     return key;
 }

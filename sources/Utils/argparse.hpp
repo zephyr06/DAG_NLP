@@ -410,7 +410,7 @@ namespace argparse
             -> std::ostream &;
 
         template <std::size_t N, std::size_t... I>
-        explicit Argument(std::string_view(&&a)[N], std::index_sequence<I...>)
+        explicit Argument(std::string_view (&&a)[N], std::index_sequence<I...>)
             : mIsOptional((is_optional(a[I]) || ...)), mIsRequired(false),
               mIsRepeatable(false), mIsUsed(false)
         {
@@ -422,7 +422,7 @@ namespace argparse
 
     public:
         template <std::size_t N>
-        explicit Argument(std::string_view(&&a)[N])
+        explicit Argument(std::string_view (&&a)[N])
             : Argument(std::move(a), std::make_index_sequence<N>{}) {}
 
         Argument &help(std::string aHelp)
@@ -594,8 +594,8 @@ namespace argparse
         }
 
         /*
-   * @throws std::runtime_error if argument values are not valid
-   */
+         * @throws std::runtime_error if argument values are not valid
+         */
         void validate() const
         {
             if (auto expected = maybe_nargs())
@@ -612,7 +612,6 @@ namespace argparse
                     }
                     else
                     {
-                        // TODO: check if an implicit value was programmed for this argument
                         if (!mIsUsed && !mDefaultValue.has_value() && mIsRequired)
                         {
                             std::stringstream stream;
@@ -690,9 +689,9 @@ namespace argparse
         }
 
         /*
-   * Compare to an argument value of known type
-   * @throws std::logic_error in case of incompatible types
-   */
+         * Compare to an argument value of known type
+         * @throws std::logic_error in case of incompatible types
+         */
         template <typename T>
         bool operator==(const T &aRhs) const
         {
@@ -722,33 +721,33 @@ namespace argparse
         }
 
         /*
-   * decimal-literal:
-   *    '0'
-   *    nonzero-digit digit-sequence_opt
-   *    integer-part fractional-part
-   *    fractional-part
-   *    integer-part '.' exponent-part_opt
-   *    integer-part exponent-part
-   *
-   * integer-part:
-   *    digit-sequence
-   *
-   * fractional-part:
-   *    '.' post-decimal-point
-   *
-   * post-decimal-point:
-   *    digit-sequence exponent-part_opt
-   *
-   * exponent-part:
-   *    'e' post-e
-   *    'E' post-e
-   *
-   * post-e:
-   *    sign_opt digit-sequence
-   *
-   * sign: one of
-   *    '+' '-'
-   */
+         * decimal-literal:
+         *    '0'
+         *    nonzero-digit digit-sequence_opt
+         *    integer-part fractional-part
+         *    fractional-part
+         *    integer-part '.' exponent-part_opt
+         *    integer-part exponent-part
+         *
+         * integer-part:
+         *    digit-sequence
+         *
+         * fractional-part:
+         *    '.' post-decimal-point
+         *
+         * post-decimal-point:
+         *    digit-sequence exponent-part_opt
+         *
+         * exponent-part:
+         *    'e' post-e
+         *    'E' post-e
+         *
+         * post-e:
+         *    sign_opt digit-sequence
+         *
+         * sign: one of
+         *    '+' '-'
+         */
         static bool is_decimal_literal(std::string_view s)
         {
             auto is_digit = [](auto c) constexpr
@@ -886,12 +885,12 @@ namespace argparse
         }
 
         /*
-   * positional:
-   *    _empty_
-   *    '-'
-   *    '-' decimal-literal
-   *    !'-' anything
-   */
+         * positional:
+         *    _empty_
+         *    '-'
+         *    '-' decimal-literal
+         *    !'-' anything
+         */
         static bool is_positional(std::string_view aName)
         {
             switch (lookahead(aName))
@@ -912,9 +911,9 @@ namespace argparse
         }
 
         /*
-   * Get argument value given a type
-   * @throws std::logic_error in case of incompatible types
-   */
+         * Get argument value given a type
+         * @throws std::logic_error in case of incompatible types
+         */
         template <typename T>
         T get() const
         {
@@ -933,10 +932,10 @@ namespace argparse
         }
 
         /*
-   * Get argument value given a type.
-   * @pre The object has no default value.
-   * @returns The stored value if any, std::nullopt otherwise.
-   */
+         * Get argument value given a type.
+         * @pre The object has no default value.
+         * @returns The stored value if any, std::nullopt otherwise.
+         */
         template <typename T>
         auto present() const -> std::optional<T>
         {
@@ -1077,10 +1076,10 @@ namespace argparse
         }
 
         /* Call parse_args_internal - which does all the work
-   * Then, validate the parsed arguments
-   * This variant is used mainly for testing
-   * @throws std::runtime_error in case of any invalid argument
-   */
+         * Then, validate the parsed arguments
+         * This variant is used mainly for testing
+         * @throws std::runtime_error in case of any invalid argument
+         */
         void parse_args(const std::vector<std::string> &aArguments)
         {
             parse_args_internal(aArguments);
@@ -1088,9 +1087,9 @@ namespace argparse
         }
 
         /* Main entry point for parsing command-line arguments using this
-   * ArgumentParser
-   * @throws std::runtime_error in case of any invalid argument
-   */
+         * ArgumentParser
+         * @throws std::runtime_error in case of any invalid argument
+         */
         void parse_args(int argc, const char *const argv[])
         {
             std::vector<std::string> arguments;
@@ -1099,10 +1098,10 @@ namespace argparse
         }
 
         /* Getter for options with default values.
-   * @throws std::logic_error if there is no such option
-   * @throws std::logic_error if the option has no value
-   * @throws std::bad_any_cast if the option is not of type T
-   */
+         * @throws std::logic_error if there is no such option
+         * @throws std::logic_error if the option has no value
+         * @throws std::bad_any_cast if the option is not of type T
+         */
         template <typename T = std::string>
         T get(std::string_view aArgumentName) const
         {
@@ -1110,10 +1109,10 @@ namespace argparse
         }
 
         /* Getter for options without default values.
-   * @pre The option has no default value.
-   * @throws std::logic_error if there is no such option
-   * @throws std::bad_any_cast if the option is not of type T
-   */
+         * @pre The option has no default value.
+         * @throws std::logic_error if there is no such option
+         * @throws std::bad_any_cast if the option is not of type T
+         */
         template <typename T = std::string>
         auto present(std::string_view aArgumentName) const -> std::optional<T>
         {
@@ -1121,17 +1120,17 @@ namespace argparse
         }
 
         /* Getter that returns true for user-supplied options. Returns false if not
-   * user-supplied, even with a default value.
-   */
+         * user-supplied, even with a default value.
+         */
         auto is_used(std::string_view aArgumentName) const
         {
             return (*this)[aArgumentName].mIsUsed;
         }
 
         /* Indexing operator. Return a reference to an Argument object
-   * Used in conjuction with Argument.operator== e.g., parser["foo"] == true
-   * @throws std::logic_error in case of an invalid argument name
-   */
+         * Used in conjuction with Argument.operator== e.g., parser["foo"] == true
+         * @throws std::logic_error in case of an invalid argument name
+         */
         Argument &operator[](std::string_view aArgumentName) const
         {
             auto tIterator = mArgumentMap.find(aArgumentName);
@@ -1207,8 +1206,8 @@ namespace argparse
 
     private:
         /*
-   * @throws std::runtime_error in case of any invalid argument
-   */
+         * @throws std::runtime_error in case of any invalid argument
+         */
         void parse_args_internal(const std::vector<std::string> &aArguments)
         {
             if (mProgramName.empty() && !aArguments.empty())
@@ -1280,8 +1279,8 @@ namespace argparse
         }
 
         /*
-   * @throws std::runtime_error in case of any invalid argument
-   */
+         * @throws std::runtime_error in case of any invalid argument
+         */
         void parse_args_validate()
         {
             // Check if all arguments are parsed
@@ -1303,8 +1302,7 @@ namespace argparse
                            std::begin(argumentLengths), [](const auto &argPair)
                            {
                                const auto &tArgument = argPair.second;
-                               return tArgument->get_arguments_length();
-                           });
+                               return tArgument->get_arguments_length(); });
             return *std::max_element(std::begin(argumentLengths),
                                      std::end(argumentLengths));
         }

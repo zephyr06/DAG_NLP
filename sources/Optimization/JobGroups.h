@@ -21,6 +21,7 @@ namespace DAG_SPACE
             for (int j = 0; j < int(tasksInfo.sizeOfVariables.at(i)); j++)
             {
                 // LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
+
                 gtsam::Symbol key = GenerateKey(i, j);
                 VectorDynamic v = GenerateVectorDynamic(1);
                 v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j);

@@ -95,17 +95,15 @@ namespace DAG_SPACE
         taskQueue.erase(taskQueue.begin() + lftJobIndex);
         return jobPop;
     };
+
     VectorDynamic ListSchedulingGivenOrder(const DAG_Model &dagTasks,
-                                           vector<LLint> &sizeOfVariables,
-                                           int variableDimension,
                                            JobOrder &jobOrder,
                                            LLint currTime = 0)
     {
-
         int N = dagTasks.tasks.size();
         const TaskSet &tasks = dagTasks.tasks;
         TaskSetInfoDerived tasksInfo(tasks);
-        VectorDynamic initial = GenerateVectorDynamic(variableDimension);
+        VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
         LLint hyperPeriod = HyperPeriod(tasks);
 
         ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
@@ -122,7 +120,7 @@ namespace DAG_SPACE
 
         vector<bool> busy(processorNum, false);
         vector<LLint> nextFree(processorNum, -1);
-        // LLint nextFree;
+        std::vector<bool> jobScheduled(jobOrder.size(), false); // order is the same as JobOrder's jobs
 
         for (LLint timeNow = currTime; timeNow < hyperPeriod; timeNow++)
         {
@@ -145,13 +143,24 @@ namespace DAG_SPACE
                 if (!busy[i] && (!runQueues[i].empty()))
                 {
                     auto sth = PopTaskLS(runQueues[i], jobOrder);
-                    // TODO: strictly follow JobOrder
+                    JobCEC jobCurr(sth.first, sth.second);
+                    // this part can improve efficiency
+                    for (uint j = 0; j < jobOrder.jobOrderMap_[jobCurr]; j++)
+                    {
+                        if (!jobScheduled[j]) // prior job has not been scheduled yet
+                        {
+                            runQueues[processorId2Index[tasks[jobCurr.taskId].processorId]].insert({jobCurr.taskId, jobCurr.jobId});
+                            break;
+                        }
+                    }
+
                     int id = sth.first;
                     LLint instance_id = sth.second;
-                    LLint index_overall = IndexTran_Instance2Overall(id, instance_id, sizeOfVariables);
+                    LLint index_overall = IndexTran_Instance2Overall(id, instance_id, tasksInfo.sizeOfVariables);
                     initial(index_overall, 0) = timeNow;
                     nextFree[i] = timeNow + tasks[id].executionTime;
                     busy[i] = true;
+                    jobScheduled[jobOrder.jobOrderMap_[jobCurr]] = true;
                 }
             }
         }

@@ -14,7 +14,7 @@ TEST(constructor, ListSchedulingGivenOrder)
 
     VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
     JobOrder jobOrder(tasksInfo, initial);
-    VectorDynamic actual = ListSchedulingGivenOrder(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, jobOrder);
+    VectorDynamic actual = ListSchedulingGivenOrder(dagTasks, jobOrder);
     assert_equal(initial, actual);
 }
 
@@ -72,8 +72,8 @@ TEST(JobOrder, change_order)
     jobOrderCurr.ChangeJobOrder(0, 5);
     EXPECT(jobOrderRef[0] == jobOrderCurr[5]);
     EXPECT(jobOrderRef[5] == jobOrderCurr[4]);
-    JobCEC j1=jobOrderRef[0];
-    JobCEC j2=jobOrderRef[5];
+    JobCEC j1 = jobOrderRef[0];
+    JobCEC j2 = jobOrderRef[5];
     EXPECT_LONGS_EQUAL(5, jobOrderCurr.jobOrderMap_[j1]);
     EXPECT_LONGS_EQUAL(4, jobOrderCurr.jobOrderMap_[j2]);
 }
@@ -146,6 +146,27 @@ TEST(list_scheduling, ListSchedulingGivenOrderPA_v1)
     std::cout << initial << std::endl;
     PrintSchedule(tasksInfo, initial);
     EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
+}
+
+TEST(ListSchedulingGivenOrder, strict_job_order)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v74.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    // this is probably a little embarssed, consider designing a better way
+    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+
+    PrintSchedule(tasksInfo, initial);
+    JobOrder jobOrder(tasksInfo, initial);
+    JobCEC j1(3, 1);
+    JobCEC j2(1, 1);
+    jobOrder.ChangeJobOrder(6, 9); // j1 to the end of j2
+    EXPECT(jobOrder.jobOrderMap_[j2] < jobOrder.jobOrderMap_[j1]);
+    VectorDynamic actual = ListSchedulingGivenOrder(dagTasks, jobOrder);
+    EXPECT(GetStartTime(j1, actual, tasksInfo) > GetStartTime(j2, actual, tasksInfo));
+    PrintSchedule(tasksInfo, actual);
 }
 
 int main()
