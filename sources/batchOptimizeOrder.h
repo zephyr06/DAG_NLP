@@ -53,9 +53,9 @@ void BatchOptimizeOrder()
             }
             else if (batchTestMethod == 2)
             {
-                DAG_SPACE::RTDA rtda = GetVerucchiRTDA(dagTasks, dagTasks.chains_, 1, 15.0, 400000.0, 15.0, 400000.0, 15.0);
+                res = ScheduleVerucchiRTDA(dagTasks, dagTasks.chains_, 1, 15.0, 400000.0, 15.0, 400000.0, 15.0);
                 std::cout << Color::red;
-                rtda.print();
+                res.rtda_.print();
                 std::cout << Color::def;
             }
 
