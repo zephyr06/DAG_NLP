@@ -10,6 +10,8 @@
 
 namespace DAG_SPACE
 {
+
+    typedef std::map<int, int> ProcessorId2Index;
     class RunQueue
     {
     public:
@@ -174,6 +176,31 @@ namespace DAG_SPACE
         }
         return processorId2Index;
     }
+
+    void AddTasksToRunQueues(vector<RunQueue> &runQueues, const TaskSet &tasks, ProcessorId2Index &processorId2Index, LLint timeNow)
+    {
+        for (uint i = 0; i < tasks.size(); i++)
+        {
+            if (timeNow % tasks[i].period == 0)
+            {
+                int currId = tasks[i].processorId;
+                runQueues[processorId2Index[currId]].insert({i, timeNow / tasks[i].period});
+            }
+        }
+    }
+
+    void UpdateSTVAfterPopTask(RunQueue::ID_INSTANCE_PAIR &job, VectorDynamic &startTimeVector,
+                               LLint timeNow, vector<LLint> &nextFree, const TaskSet &tasks,
+                               vector<bool> &busy, int processodId, vector<LLint> &sizeOfVariables)
+    {
+        int id = job.first;
+        LLint instance_id = job.second;
+        LLint index_overall = IndexTran_Instance2Overall(id, instance_id, sizeOfVariables);
+        startTimeVector(index_overall, 0) = timeNow;
+        nextFree[processodId] = timeNow + tasks[id].executionTime;
+        busy[processodId] = true;
+    }
+
     /**
      * @brief Warning! All the task sets must have int type values, otherwise it may generate inappropriate initialization method;
      * If you need to use double type, please use timeScaleFactor to transform it into int type with some acceptable accuracy.
@@ -184,20 +211,17 @@ namespace DAG_SPACE
      * @param variableDimension
      * @return VectorDynamic
      */
-    VectorDynamic SimulateFixedPrioritySched(const DAG_Model &dagTasks,
-                                             vector<LLint> &sizeOfVariables,
-                                             int variableDimension, LLint currTime = 0)
+    VectorDynamic SimulateFixedPrioritySched(const DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, LLint currTime = 0)
     {
-        int N = dagTasks.tasks.size();
         const TaskSet &tasks = dagTasks.tasks;
-        VectorDynamic initial = GenerateVectorDynamic(variableDimension);
-        LLint hyperPeriod = HyperPeriod(tasks);
+        VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
 
         ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
         int processorNum = processorTaskSet.size();
         // it maps from tasks[i].processorId to index in runQueues&busy&nextFree
         ProcessorId2Index processorId2Index = CreateProcessorId2Index(tasks);
         // contains the index of tasks to run
+
         vector<RunQueue> runQueues;
         runQueues.reserve(processorNum);
         for (int i = 0; i < processorNum; i++)
@@ -209,33 +233,21 @@ namespace DAG_SPACE
         vector<LLint> nextFree(processorNum, -1);
         // LLint nextFree;
 
-        for (LLint timeNow = currTime; timeNow < hyperPeriod; timeNow++)
+        for (LLint timeNow = currTime; timeNow < tasksInfo.hyperPeriod; timeNow++)
         {
-
             // check whether to add new instances
-            for (int i = 0; i < N; i++)
-            {
-                if (timeNow % tasks[i].period == 0)
-                {
-                    int currId = tasks[i].processorId;
-                    runQueues[processorId2Index[currId]].insert({i, timeNow / tasks[i].period});
-                }
-            }
+            AddTasksToRunQueues(runQueues, tasks, processorId2Index, timeNow);
+
             for (int i = 0; i < processorNum; i++)
             {
                 if (timeNow >= nextFree[i])
                 {
                     busy[i] = false;
                 }
-                if (!busy[i] && (!runQueues[i].empty()))
+                if (timeNow >= nextFree[i] && (!runQueues[i].empty()))
                 {
                     auto sth = runQueues[i].pop();
-                    int id = sth.first;
-                    LLint instance_id = sth.second;
-                    LLint index_overall = IndexTran_Instance2Overall(id, instance_id, sizeOfVariables);
-                    initial(index_overall, 0) = timeNow;
-                    nextFree[i] = timeNow + tasks[id].executionTime;
-                    busy[i] = true;
+                    UpdateSTVAfterPopTask(sth, initial, timeNow, nextFree, tasks, busy, i, tasksInfo.sizeOfVariables);
                 }
             }
         }
@@ -244,14 +256,10 @@ namespace DAG_SPACE
     }
 
     VectorDynamic ListSchedulingLFT(const DAG_Model &dagTasks,
-                                    vector<LLint> &sizeOfVariables,
-                                    int variableDimension, LLint currTime = 0)
+                                    TaskSetInfoDerived &tasksInfo, LLint currTime = 0)
     {
-        int N = dagTasks.tasks.size();
         const TaskSet &tasks = dagTasks.tasks;
-        TaskSetInfoDerived tasksInfo(tasks);
-        VectorDynamic initial = GenerateVectorDynamic(variableDimension);
-        LLint hyperPeriod = HyperPeriod(tasks);
+        VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
 
         ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
         int processorNum = processorTaskSet.size();
@@ -269,33 +277,22 @@ namespace DAG_SPACE
         vector<LLint> nextFree(processorNum, -1);
         // LLint nextFree;
 
-        for (LLint timeNow = currTime; timeNow < hyperPeriod; timeNow++)
+        for (LLint timeNow = currTime; timeNow < tasksInfo.hyperPeriod; timeNow++)
         {
 
             // check whether to add new instances
-            for (int i = 0; i < N; i++)
-            {
-                if (timeNow % tasks[i].period == 0)
-                {
-                    int currId = tasks[i].processorId;
-                    runQueues[processorId2Index[currId]].insert({i, timeNow / tasks[i].period});
-                }
-            }
+            AddTasksToRunQueues(runQueues, tasks, processorId2Index, timeNow);
+
             for (int i = 0; i < processorNum; i++)
             {
                 if (timeNow >= nextFree[i])
                 {
                     busy[i] = false;
                 }
-                if (!busy[i] && (!runQueues[i].empty()))
+                if (timeNow >= nextFree[i] && (!runQueues[i].empty()))
                 {
                     auto sth = runQueues[i].popLeastFinishTime(tasksInfo);
-                    int id = sth.first;
-                    LLint instance_id = sth.second;
-                    LLint index_overall = IndexTran_Instance2Overall(id, instance_id, sizeOfVariables);
-                    initial(index_overall, 0) = timeNow;
-                    nextFree[i] = timeNow + tasks[id].executionTime;
-                    busy[i] = true;
+                    UpdateSTVAfterPopTask(sth, initial, timeNow, nextFree, tasks, busy, i, tasksInfo.sizeOfVariables);
                 }
             }
         }

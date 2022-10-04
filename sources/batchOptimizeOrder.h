@@ -64,7 +64,7 @@ void BatchOptimizeOrder()
             double timeTaken = double(duration.count()) / 1e6;
             runTimeAll.push_back(timeTaken);
 
-            if (!res.schedulable_ == -1)
+            if (!res.schedulable_)
             {
                 errorFiles.push_back(file);
             }

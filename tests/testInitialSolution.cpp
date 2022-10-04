@@ -255,6 +255,7 @@ TEST(SimulateFixedPrioritySched, Multi_v1)
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v34.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -267,7 +268,7 @@ TEST(SimulateFixedPrioritySched, Multi_v1)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto actual = SimulateFixedPrioritySched(dagTasks, sizeOfVariables, variableDimension);
+    auto actual = SimulateFixedPrioritySched(dagTasks, tasksInfo);
     VectorDynamic expected;
     expected.resize(10, 1);
     expected << 0,
@@ -282,6 +283,7 @@ TEST(SimulateFixedPrioritySched, Multi_v2)
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -294,7 +296,7 @@ TEST(SimulateFixedPrioritySched, Multi_v2)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto actual = SimulateFixedPrioritySched(dagTasks, sizeOfVariables, variableDimension);
+    auto actual = SimulateFixedPrioritySched(dagTasks, tasksInfo);
     VectorDynamic expected;
     expected.resize(8, 1);
     expected << 14, 114,
@@ -338,6 +340,7 @@ TEST(SimulateFixedPrioritySched, v3)
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v3.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -350,7 +353,7 @@ TEST(SimulateFixedPrioritySched, v3)
         sizeOfVariables.push_back(size);
         variableDimension += size;
     }
-    auto actual = SimulateFixedPrioritySched(dagTasks, sizeOfVariables, variableDimension);
+    auto actual = SimulateFixedPrioritySched(dagTasks, tasksInfo);
     VectorDynamic expected;
     expected.resize(17, 1);
     expected << 0, 195, 200, 300, 400, 500, 671, 700, 800, 900, 1, 201, 401, 672, 801, 25, 501;
@@ -362,6 +365,7 @@ TEST(SimulateFixedPrioritySchedDAG, v6)
     using namespace DAG_SPACE;
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v3.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
@@ -562,7 +566,7 @@ TEST(list_scheduling, least_finish_time)
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
-    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo, 0);
     std::cout << initial << std::endl;
     PrintSchedule(tasksInfo, initial);
     VectorDynamic expected = initial;
@@ -576,7 +580,7 @@ TEST(PrintSchedule, SortJobSchedule)
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
-    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo, 0);
     std::cout << initial << std::endl;
 
     std::vector<std::pair<std::pair<double, double>, JobCEC>> timeJobVector = ObtainAllJobSchedule(tasksInfo, initial);

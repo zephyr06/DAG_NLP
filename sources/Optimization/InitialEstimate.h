@@ -9,7 +9,6 @@
 #include "sources/Optimization/JobGroups.h"
 #include "sources/Optimization/ScheduleSimulation.h"
 
-typedef std::map<int, int> ProcessorId2Index;
 using namespace RegularTaskSystem;
 namespace DAG_SPACE
 {
@@ -88,6 +87,7 @@ namespace DAG_SPACE
         // Assign priority for the task sets
         int N = dagTasks.tasks.size();
         TaskSet &tasks = dagTasks.tasks;
+        TaskSetInfoDerived tasksInfo(tasks);
         // vector<int> order = FindDependencyOrderDFS(dagTasks);
         std::vector<int> order = TopologicalSortMulti(dagTasks)[3]; //"DM"
         for (int i = 0; i < N; i++)
@@ -95,7 +95,7 @@ namespace DAG_SPACE
             tasks[i].priority_ = N - order[i];
         }
 
-        return SimulateFixedPrioritySched(dagTasks, sizeOfVariables, variableDimension, 0);
+        return SimulateFixedPrioritySched(dagTasks, tasksInfo, 0);
     }
     /**
      * @brief Warning! All the tasks's processorId must begin with 0, otherwise it reports Segmentation error.
@@ -214,6 +214,7 @@ namespace DAG_SPACE
                                   vector<LLint> &sizeOfVariables,
                                   int variableDimension, VectorDynamic initialUser = GenerateVectorDynamic(1))
     {
+        TaskSetInfoDerived tasksInfo(dagTasks.tasks);
         VectorDynamic initialEstimate;
         // initialEstimate = GenerateVectorDynamic(5);
         // initialEstimate << 62, 70, 85, 88, 90;
@@ -244,8 +245,7 @@ namespace DAG_SPACE
             break;
         case RM:
             initialEstimate = SimulateFixedPrioritySched(dagTasks,
-                                                         sizeOfVariables,
-                                                         variableDimension);
+                                                         tasksInfo);
             break;
         case RM_DAG:
             initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,
@@ -260,8 +260,7 @@ namespace DAG_SPACE
 
         case ListScheduling:
             initialEstimate = ListSchedulingLFT(dagTasks,
-                                                sizeOfVariables,
-                                                variableDimension);
+                                                tasksInfo);
             break;
         default:
             initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,

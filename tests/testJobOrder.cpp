@@ -12,9 +12,9 @@ TEST(constructor, ListSchedulingGivenOrder)
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
-    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo, 0);
     JobOrder jobOrder(tasksInfo, initial);
-    VectorDynamic actual = ListSchedulingGivenOrder(dagTasks, jobOrder);
+    VectorDynamic actual = ListSchedulingGivenOrder(dagTasks, tasksInfo, jobOrder);
     assert_equal(initial, actual);
 }
 
@@ -25,7 +25,7 @@ TEST(constructor, ListSchedulingGivenOrder_v2)
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
-    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo, 0);
     EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
     JobOrder jobOrderRef(tasksInfo, initial);
     IterationStatus statusPrev(dagTasks, tasksInfo, jobOrderRef);
@@ -50,7 +50,7 @@ TEST(constructor, JobOrder)
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
-    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo, 0);
     JobOrder jobOrder(tasksInfo, initial);
 
     std::vector<JobCEC> jobOrderExpect{JobCEC{5, 0}, JobCEC{0, 0}, JobCEC{1, 0}, JobCEC{5, 1}, JobCEC{0, 1}, JobCEC{2, 0}, JobCEC{3, 0}, JobCEC{5, 2}, JobCEC{0, 2}, JobCEC{4, 0}};
@@ -63,7 +63,7 @@ TEST(JobOrder, change_order)
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
-    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo, 0);
     EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
     JobOrder jobOrderRef(tasksInfo, initial);
     IterationStatus statusPrev(dagTasks, tasksInfo, jobOrderRef);
@@ -84,7 +84,7 @@ TEST(Schedule_optimize, MakeProgress)
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
-    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo, 0);
     EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
     JobOrder jobOrderRef(tasksInfo, initial);
     IterationStatus statusPrev(dagTasks, tasksInfo, jobOrderRef);
@@ -124,7 +124,7 @@ TEST(list_scheduling, least_finish_time_v2)
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v74.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
-    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo, 0);
     std::cout << initial << std::endl;
     PrintSchedule(tasksInfo, initial);
     EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
@@ -138,7 +138,7 @@ TEST(list_scheduling, ListSchedulingGivenOrderPA_v1)
     TaskSetInfoDerived tasksInfo(tasks);
 
     // this is probably a little embarssed, consider designing a better way
-    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo, 0);
 
     PrintSchedule(tasksInfo, initial);
     JobOrder jobOrder(tasksInfo, initial);
@@ -156,7 +156,7 @@ TEST(ListSchedulingGivenOrder, strict_job_order)
     TaskSetInfoDerived tasksInfo(tasks);
 
     // this is probably a little embarssed, consider designing a better way
-    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo, 0);
 
     PrintSchedule(tasksInfo, initial);
     JobOrder jobOrder(tasksInfo, initial);
@@ -164,7 +164,7 @@ TEST(ListSchedulingGivenOrder, strict_job_order)
     JobCEC j2(1, 1);
     jobOrder.ChangeJobOrder(6, 9); // j1 to the end of j2
     EXPECT(jobOrder.jobOrderMap_[j2] < jobOrder.jobOrderMap_[j1]);
-    VectorDynamic actual = ListSchedulingGivenOrder(dagTasks, jobOrder);
+    VectorDynamic actual = ListSchedulingGivenOrder(dagTasks, tasksInfo, jobOrder);
     EXPECT(GetStartTime(j1, actual, tasksInfo) > GetStartTime(j2, actual, tasksInfo));
     PrintSchedule(tasksInfo, actual);
 }
