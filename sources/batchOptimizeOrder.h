@@ -32,7 +32,7 @@ void BatchOptimizeOrder()
     {
         std::cout << file << endl;
         string delimiter = "-";
-        if (file.substr(0, file.find(delimiter)) == "dag")
+        if (file.substr(0, file.find(delimiter)) == "dag" && file.find("Res") == std::string::npos)
         {
             string path = PROJECT_PATH + "TaskData/dagTasks/" + file;
             DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(path, priorityMode);

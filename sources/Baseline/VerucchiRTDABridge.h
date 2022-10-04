@@ -173,9 +173,11 @@ DAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     DAG_SPACE::ScheduleResult res;
     res.rtda_ = GetVerucchiRTDA(dagTasks, causeEffectChains, processorsAvailable, reactCost, maxReact,
                                 ageCost, maxAge, coreCost, time_limit);
-    if (res.rtda_.reactionTime < 0 || res.rtda_.dataAge < 0) {
+    if (res.rtda_.reactionTime < 0 || res.rtda_.dataAge < 0)
+    {
         res.schedulable_ = false;
     }
+    res.obj_ = ObjRTDA(res.rtda_);
     return res;
 }
 
