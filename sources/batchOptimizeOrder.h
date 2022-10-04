@@ -53,27 +53,22 @@ void BatchOptimizeOrder()
                     if (batchTestMethod == 0)
                     {
                         res = DAG_SPACE::ScheduleDAGLS_LFT(dagTasks);
-                        obj = res.obj_;
                         res.rtda_.print();
                     }
                     else if (batchTestMethod == 1)
                     {
                         res = DAG_SPACE::ScheduleDAGModel(dagTasks);
-                        obj = res.obj_;
                         res.rtda_.print();
                     }
                     else if (batchTestMethod == 2)
                     {
-                        DAG_SPACE::RTDA rtda = GetVerucchiRTDA(dagTasks, dagTasks.chains_, 1, 15.0, 400000.0, 15.0, 400000.0, 15.0);
-                        obj = ObjRTDA(rtda);
-                        std::cout << Color::red;
-                        rtda.print();
-                        std::cout << Color::def;
+                        res = ScheduleVerucchiRTDA(dagTasks, dagTasks.chains_, 1, 15.0, 400000.0, 15.0, 400000.0, 15.0);
                     }
                     else
                     {
                         CoutError("Please provide batchTestMethod implementation!");
                     }
+                    obj = res.obj_;
 
                     auto stop = chrono::high_resolution_clock::now();
                     auto duration = duration_cast<microseconds>(stop - start);

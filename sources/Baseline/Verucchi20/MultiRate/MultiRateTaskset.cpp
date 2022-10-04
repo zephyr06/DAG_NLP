@@ -11,6 +11,8 @@
 #include <iostream>
 #include <numeric>
 
+extern int debugMode;
+
 MultiRateTaskset::MultiRateTaskset() : dummyNodes_(std::make_shared<DummyNodes>()), hyperPeriod_(0)
 {
 }
@@ -105,9 +107,12 @@ MultiRateTaskset::createBaselineDAG()
 
 	dummyNodes_->addToDAG(baselineDAG_, hyperPeriod_);
 
-	std::cout << "Baseline DAG created" << std::endl;
-	std::cout << "Number of Nodes: " << baselineDAG_.getNumNodes() << std::endl;
-	std::cout << "Number of Edges: " << baselineDAG_.getNumEdges() << std::endl;
+	if (debugMode)
+	{
+		std::cout << "Baseline DAG created" << std::endl;
+		std::cout << "Number of Nodes: " << baselineDAG_.getNumNodes() << std::endl;
+		std::cout << "Number of Edges: " << baselineDAG_.getNumEdges() << std::endl;
+	}
 	// Set Unique IDs
 	auto nodes = baselineDAG_.getNodes();
 	for (unsigned k = 0; k < nodes.size(); k++)
@@ -156,7 +161,10 @@ MultiRateTaskset::createDAGs()
 	int wcetFailure = 0;
 	int jitterFailure = 0;
 
-	std::cout << numPermutations << " Permutations available" << std::endl;
+	if (debugMode)
+	{
+		std::cout << numPermutations << " Permutations available" << std::endl;
+	}
 
 	baselineDAG_.setOriginatingTaskset(this);
 	dags_.clear();
@@ -207,11 +215,14 @@ MultiRateTaskset::createDAGs()
 		dags_.push_back(std::move(dag));
 	}
 
-	std::cout << cyclicDags << " cyclic Dags were excluded" << std::endl;
-	std::cout << wcetFailure << " Dags were removed because the chains are too long" << std::endl;
-	std::cout << jitterFailure << " Dags were removed because the parallelism is incorrect"
-			  << std::endl;
-	std::cout << dags_.size() << " valid DAGs were created" << std::endl;
+	if (debugMode)
+	{
+		std::cout << cyclicDags << " cyclic Dags were excluded" << std::endl;
+		std::cout << wcetFailure << " Dags were removed because the chains are too long" << std::endl;
+		std::cout << jitterFailure << " Dags were removed because the parallelism is incorrect"
+				  << std::endl;
+		std::cout << dags_.size() << " valid DAGs were created" << std::endl;
+	}
 
 	return dags_;
 }

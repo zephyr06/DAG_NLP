@@ -4,9 +4,12 @@
  *  Created on: May 2, 2019
  *      Author: mirco
  */
-#include <sources/Baseline/Verucchi20/VariableTaskSet/VariableTaskSet.h>
+#include "sources/Baseline/Verucchi20/VariableTaskSet/VariableTaskSet.h"
+
 #include <iostream>
 #include <chrono>
+
+extern int debugMode;
 
 std::shared_ptr<MultiNode>
 VariableTaskSet::addTask(unsigned period, float wcet, float deadline, const std::string &name)
@@ -68,7 +71,10 @@ VariableTaskSet::createTasksets()
 		permutSets[k] = permutSets[k + 1] * permutSets[k];
 	}
 
-	std::cout << numPermutations << " Permutations available" << std::endl;
+	if (debugMode)
+	{
+		std::cout << numPermutations << " Permutations available" << std::endl;
+	}
 
 	tasksets_.clear();
 	for (int k = 0; k < numPermutations; k++)
@@ -105,13 +111,15 @@ VariableTaskSet::createDAGs()
 	{
 		auto dags = set.createDAGs();
 
-		std::cout << std::endl
-				  << "Taskset " << k++ << "/" << tasksets_.size() << ": " << dags.size() << " created" << std::endl;
-
 		allDAGs_.insert(allDAGs_.end(), dags.begin(), dags.end());
-		std::cout << allDAGs_.size() << " total DAGs" << std::endl
-				  << std::endl
-				  << std::endl;
+		if (debugMode)
+		{
+			std::cout << std::endl
+					  << "Taskset " << k++ << "/" << tasksets_.size() << ": " << dags.size() << " created" << std::endl;
+			std::cout << allDAGs_.size() << " total DAGs" << std::endl
+					  << std::endl
+					  << std::endl;
+		}
 	}
 	return allDAGs_;
 }
@@ -125,7 +133,8 @@ VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
 
 	auto start = std::chrono::system_clock::now();
 	auto curr = std::chrono::system_clock::now();
-	if (seconds < 0) {
+	if (seconds < 0)
+	{
 		seconds = INT64_MAX;
 	}
 
@@ -134,13 +143,16 @@ VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
 	{
 		auto dags = set.createDAGs();
 
-		std::cout << std::endl
-				  << "Taskset " << k++ << "/" << tasksets_.size() << ": " << dags.size() << " created" << std::endl;
-
 		allDAGs_.insert(allDAGs_.end(), dags.begin(), dags.end());
-		std::cout << allDAGs_.size() << " total DAGs" << std::endl
-				  << std::endl
-				  << std::endl;
+
+		if (debugMode)
+		{
+			std::cout << std::endl
+					  << "Taskset " << k++ << "/" << tasksets_.size() << ": " << dags.size() << " created" << std::endl;
+			std::cout << allDAGs_.size() << " total DAGs" << std::endl
+					  << std::endl
+					  << std::endl;
+		}
 
 		curr = std::chrono::system_clock::now();
 		if (std::chrono::duration_cast<std::chrono::seconds>(curr - start).count() >= seconds)

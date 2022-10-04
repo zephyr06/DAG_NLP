@@ -34,3 +34,4 @@ add_executable(main main.cpp
 					${EVAL_SRCS}
 					)
 
+target_link_libraries(main ${CONVENIENCE_LIB_NAME})
