@@ -73,7 +73,6 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
     unsigned coreCost = 50,
     int64_t time_limit = INT64_MAX)
 {
-    BeginTimer(__func__);
     VariableTaskSet taskSetVeru;
     // add tasks
     std::vector<std::shared_ptr<MultiNode>> tasksVecVeru;
@@ -155,7 +154,6 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
         resM.reactionTime += max_of_current_chain.reactionTime;
     }
 
-    EndTimer(__func__);
     return resM;
 }
 

@@ -8,7 +8,6 @@
 
 TEST(VerucchiRTDA, multichains_debug_use_only)
 {
-    BeginTimer("main");
     DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
 
     DAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, tasks.chains_, 1, kVerucchiReactionCost, kVerucchiMaxReaction,
@@ -17,9 +16,6 @@ TEST(VerucchiRTDA, multichains_debug_use_only)
     tasks.printChains();
     std::cout << "Reaction time: " << rtda.reactionTime << "\nData age: " << rtda.dataAge << std::endl;
     std::cout << "<-------------End of RTDA results------->\n\n";
-
-    EndTimer("main");
-    PrintTimer();
 }
 
 int main()
