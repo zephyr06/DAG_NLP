@@ -100,7 +100,6 @@ namespace DAG_SPACE
                                            JobOrder &jobOrder,
                                            LLint currTime = 0)
     {
-        int N = dagTasks.tasks.size();
         const TaskSet &tasks = dagTasks.tasks;
         VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
 

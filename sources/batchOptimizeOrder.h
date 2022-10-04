@@ -86,8 +86,6 @@ void BatchOptimizeOrder()
         }
     }
 
-    double avObj = -1;
-    double aveTime = -1;
     int n = objsAll[0].size();
     if (n != 0)
     {
