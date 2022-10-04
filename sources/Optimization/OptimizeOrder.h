@@ -16,12 +16,16 @@ namespace DAG_SPACE
         VectorDynamic startTimeVector_;
         bool schedulable_;
         RTDA rtda_;
+        double obj_;
 
         ScheduleResult() {}
         ScheduleResult(JobOrder jobOrder,
                        VectorDynamic startTimeVector,
                        bool schedulable,
-                       RTDA rtda) : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), rtda_(rtda) {}
+                       RTDA rtda) : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), rtda_(rtda)
+        {
+            obj_ = ObjRTDA(rtda_);
+        }
     };
 
     void PrintResultAnalyzation(ScheduleResult &scheduleResult, DAG_Model &dagTasks)

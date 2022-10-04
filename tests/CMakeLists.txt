@@ -17,8 +17,8 @@ ADD_EXECUTABLE(GenerateTaskSet GenerateTaskSet.cpp)
 TARGET_LINK_LIBRARIES(GenerateTaskSet ${CONVENIENCE_LIB_NAME})
 
 # TODO: figure out why can't this command work!
-# ADD_EXECUTABLE(tBatch1 tBatch.cpp)
-# TARGET_LINK_LIBRARIES(tBatch1 ${CONVENIENCE_LIB_NAME})
+ADD_EXECUTABLE(tBatch1 testBatch.cpp)
+TARGET_LINK_LIBRARIES(tBatch1 ${CONVENIENCE_LIB_NAME})
 
 
 
