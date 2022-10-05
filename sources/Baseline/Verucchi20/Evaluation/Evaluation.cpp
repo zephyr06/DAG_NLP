@@ -152,8 +152,11 @@ Evaluation::evaluateWithRTDA(const std::vector<DAG> &dags)
 
 	if (invalidDags == dags.size())
 	{
-		std::cout << "No valid dag found. Constraints are too tight." << std::endl;
-		std::shared_ptr<DAG> empty_dag = std::shared_ptr<DAG>(new DAG(0));
+		if (debugMode)
+		{
+			std::cout << "No valid dag found. Constraints are too tight." << std::endl;
+		}
+		std::shared_ptr<DAG> empty_dag = std::shared_ptr<DAG>(new DAG(-1));
 		return *empty_dag;
 	}
 

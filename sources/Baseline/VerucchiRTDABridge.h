@@ -32,8 +32,13 @@ TaskSet GetTaskSet(DAG dag)
 }
 
 // defaut proposser number is 1
-VectorDynamic GetInitialEstimate(DAG dag, int nproc = 1)
+VectorDynamic GetInitialEstimate(const DAG &dag, int nproc = 1)
 {
+    if (dag.getPeriod() == 0)
+    {
+        VectorDynamic empty;
+        return empty;
+    }
     int total_jobs = 0;
     std::vector<int> job_count;
     auto nodes = dag.getOriginatingTaskset()->getNodes();
@@ -43,8 +48,7 @@ VectorDynamic GetInitialEstimate(DAG dag, int nproc = 1)
         total_jobs += node->nodes.size();
     }
     VectorDynamic initial_estimate = GenerateVectorDynamic(total_jobs);
-    auto processorSchedule =
-        scheduling::getScheduleFromDAG(dag, nproc);
+    auto processorSchedule = scheduling::getScheduleFromDAG(dag, nproc);
 
     for (size_t i = 0; i < processorSchedule.size(); i++)
     {
@@ -116,7 +120,7 @@ DAG FindTheBestDag(
         {
             std::cout << "Failed to find a valid dag.\n";
         }
-        return DAG(-1);
+        return DAG(0);
     }
     bool verucchiSuccess = scheduling::scheduleDAG(bestDAG, processorsAvailable, "schedule_test.tex", true);
     if (!verucchiSuccess)
@@ -125,7 +129,7 @@ DAG FindTheBestDag(
         {
             std::cout << "Best dag is not schedulable.\n";
         }
-        return DAG(-1);
+        return DAG(0);
     }
     if (debugMode)
     {
@@ -140,7 +144,7 @@ DAG_SPACE::RTDA GetRTDAFromBestDag(
     const std::vector<std::vector<int>> &causeEffectChains,
     int processorsAvailable = coreNumberAva)
 {
-    if (bestDAG.getPeriod() < 0)
+    if (bestDAG.getPeriod() == 0)
     {
         return DAG_SPACE::RTDA();
     }
