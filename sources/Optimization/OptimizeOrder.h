@@ -62,7 +62,7 @@ namespace DAG_SPACE
     {
         TaskSet &tasks = dagTasks.tasks;
         TaskSetInfoDerived tasksInfo(tasks);
-        VectorDynamic initialSTV = ListSchedulingLFT(dagTasks, tasksInfo);
+        VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo);
         if (debugMode == 1)
         {
             std::cout << "Initial schedule: " << std::endl;

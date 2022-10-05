@@ -301,6 +301,47 @@ namespace DAG_SPACE
         return initial;
     }
 
+    VectorDynamic ListSchedulingLFTPA(const DAG_Model &dagTasks,
+                                      TaskSetInfoDerived &tasksInfo, LLint currTime = 0)
+    {
+        int N = dagTasks.tasks.size();
+        const TaskSet &tasks = dagTasks.tasks;
+        VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
+
+        int processorNum = coreNumberAva;
+        // contains the index of tasks to run
+        RunQueue runQueue(tasks);
+
+        vector<bool> busy(processorNum, false);
+        vector<LLint> nextFree(processorNum, -1);
+
+        for (LLint timeNow = currTime; timeNow < tasksInfo.hyperPeriod; timeNow++)
+        {
+            // check whether to add new instances
+            for (int i = 0; i < N; i++)
+            {
+                if (timeNow % tasks[i].period == 0)
+                {
+                    runQueue.insert({i, timeNow / tasks[i].period});
+                }
+            }
+            for (int i = 0; i < processorNum; i++)
+            {
+                if (timeNow >= nextFree[i])
+                {
+                    busy[i] = false;
+                }
+                if (!busy[i] && (!runQueue.empty()))
+                {
+                    auto sth = runQueue.popLeastFinishTime(tasksInfo);
+                    UpdateSTVAfterPopTask(sth, initial, timeNow, nextFree, tasks, busy, i, tasksInfo.sizeOfVariables);
+                }
+            }
+        }
+
+        return initial;
+    }
+
     RunQueue::ID_INSTANCE_PAIR PopTaskLS(RunQueue &runQueue, JobOrder &jobOrder)
     {
         std::vector<RunQueue::ID_INSTANCE_PAIR> &taskQueue = runQueue.taskQueue;
