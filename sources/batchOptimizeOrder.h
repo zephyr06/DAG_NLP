@@ -87,7 +87,7 @@ void BatchOptimizeOrder()
                 objsAll[batchTestMethod].push_back(obj);
                 runTimeAll[batchTestMethod].push_back(timeTaken);
             }
-            if (objsAll[1] > objsAll[2])
+            if (objsAll[1].back() > objsAll[2].back())
             {
                 CoutWarning("One case where proposed method performs worse is found: " + file);
                 errorFiles.push_back(file);
