@@ -87,6 +87,11 @@ void BatchOptimizeOrder()
                 objsAll[batchTestMethod].push_back(obj);
                 runTimeAll[batchTestMethod].push_back(timeTaken);
             }
+            if (objsAll[1] > objsAll[2])
+            {
+                CoutWarning("One case where proposed method performs worse is found: " + file);
+                errorFiles.push_back(file);
+            }
         }
     }
 
@@ -103,6 +108,9 @@ void BatchOptimizeOrder()
         vt.print(std::cout);
     }
 
+    std::cout << "The number of error files: " << errorFiles.size() << std::endl;
+    for (string file : errorFiles)
+        std::cout << file << std::endl;
     // std::cout << Color::green << "Average error after optimization (accepted) is " << avEnergy << Color::def << endl;
     // std::cout << Color::green << "Average time consumed (accepted) is " << aveTime << Color::def << endl;
     // std::cout << Color::green << "The number of tasksets under analyzation is " << averageErrorAccept.size() << Color::def << endl;
