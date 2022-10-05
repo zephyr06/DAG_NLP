@@ -7,7 +7,11 @@ TEST(DAG_Optimize_schedule, v1)
     using namespace DAG_SPACE;
     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
 
-    ScheduleResult sth = ScheduleDAGModel(dagTasks);
+    ScheduleResult sth;
+    if (processorAssignmentMode == 0)
+        sth = DAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
+    else if (processorAssignmentMode == 1)
+        sth = DAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
     PrintResultAnalyzation(sth, dagTasks);
     EndTimer("main");
     PrintTimer();

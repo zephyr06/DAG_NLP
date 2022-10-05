@@ -79,6 +79,7 @@ double RtdaWeight = (double)ConfigParameters["RtdaWeight"];
 
 const double ResetRandomWeightThreshold = (double)ConfigParameters["ResetRandomWeightThreshold"];
 
+int processorAssignmentMode = (int)ConfigParameters["processorAssignmentMode"];
 int PrintInitial = (int)ConfigParameters["PrintInitial"];
 int debugMode = (int)ConfigParameters["debugMode"];
 const int exactJacobian = (int)ConfigParameters["exactJacobian"];

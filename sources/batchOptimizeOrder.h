@@ -57,7 +57,10 @@ void BatchOptimizeOrder()
                     }
                     else if (batchTestMethod == 1)
                     {
-                        res = DAG_SPACE::ScheduleDAGModel(dagTasks);
+                        if (processorAssignmentMode == 0)
+                            res = DAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
+                        else if (processorAssignmentMode == 1)
+                            res = DAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
                         res.rtda_.print();
                     }
                     else if (batchTestMethod == 2)

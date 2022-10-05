@@ -1,8 +1,7 @@
 #include <CppUnitLite/TestHarness.h>
 #include "sources/Tools/testMy.h"
-#include "sources/Utils/Parameters.h"
-#include "sources/Factors/DBF_ConstraintFactorPreemptive.h"
-#include "sources/batchOptimizeOrder.h"
+#include "sources/Optimization/JobOrder.h"
+#include "sources/Optimization/ScheduleSimulation.h"
 
 int main()
 {
