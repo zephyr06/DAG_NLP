@@ -354,7 +354,7 @@ TEST(relocateIncludedInterval, moveLargeTask)
     AddDBF_Factor(graph, tasksInfo);
     AddDDL_Factor(graph, tasksInfo);
     Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
-    double err1 = graph.error(initialEstimateFG);
+    // double err1 = graph.error(initialEstimateFG);
     std::cout << GraphErrorEvaluation(dagTasks, startTimeVector);
 
     // first find out which DBF factor has zero gradient but non-zero error

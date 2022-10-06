@@ -56,7 +56,7 @@ namespace DAG_SPACE
     {
         TaskSet &tasks = dagTasks.tasks;
         TaskSetInfoDerived tasksInfo(tasks);
-        VectorDynamic initialSTV = ListSchedulingLFT(dagTasks, tasksInfo);
+        VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva);
         JobOrder jobOrderRef(tasksInfo, initialSTV);
         RTDA rtda = GetMaxRTDA(tasksInfo, dagTasks.chains_[0], initialSTV);
 

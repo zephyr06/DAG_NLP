@@ -566,7 +566,7 @@ TEST(list_scheduling, least_finish_time)
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
-    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo, 0);
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
     std::cout << initial << std::endl;
     PrintSchedule(tasksInfo, initial);
     VectorDynamic expected = initial;
@@ -580,7 +580,7 @@ TEST(PrintSchedule, SortJobSchedule)
     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
-    VectorDynamic initial = ListSchedulingLFT(dagTasks, tasksInfo, 0);
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
     std::cout << initial << std::endl;
 
     std::vector<std::pair<std::pair<double, double>, JobCEC>> timeJobVector = ObtainAllJobSchedule(tasksInfo, initial);

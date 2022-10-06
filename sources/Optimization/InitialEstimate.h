@@ -259,7 +259,7 @@ namespace DAG_SPACE
             break;
 
         case ListScheduling:
-            initialEstimate = ListSchedulingLFT(dagTasks,
+            initialEstimate = ListSchedulingLFTPA(dagTasks,
                                                 tasksInfo);
             break;
         default:
