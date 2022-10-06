@@ -81,6 +81,22 @@ namespace DAG_SPACE
         }
 
         bool findNewUpdate = true;
+
+        auto ExamAndApplyUpdate = [&](JobOrderMultiCore jobOrderCurr)
+        {
+            IterationStatus<SchedulingAlgorithm> statusCurr(dagTasks, tasksInfo, jobOrderCurr, processorNum);
+            if (MakeProgress<SchedulingAlgorithm>(statusPrev, statusCurr))
+            {
+                findNewUpdate = true;
+                statusPrev = statusCurr;
+                if (debugMode == 1)
+                {
+                    std::cout << "Make progress!" << std::endl;
+                    PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
+                }
+            }
+        };
+
         while (findNewUpdate)
         {
             findNewUpdate = false;
@@ -90,21 +106,21 @@ namespace DAG_SPACE
                 {
                     JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
                     jobOrderCurr.ChangeJobOrder(i, j);
-                    IterationStatus<SchedulingAlgorithm> statusCurr(dagTasks, tasksInfo, jobOrderCurr, processorNum);
-                    if (MakeProgress<SchedulingAlgorithm>(statusPrev, statusCurr))
-                    {
-                        findNewUpdate = true;
-                        statusPrev = statusCurr;
-                        if (debugMode == 1)
-                        {
-                            std::cout << "Make progress!" << std::endl;
-                            PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
-                        }
-                    }
+                    ExamAndApplyUpdate(jobOrderCurr);
                 }
             }
 
             // TODO: iterate possible permutations of JobOrderMultiCore
+            // TOTEST
+            for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
+            {
+                for (LLint j = 0; j < static_cast<LLint>(statusPrev.jobOrder_.sizeNP()); j++)
+                {
+                    JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
+                    jobOrderCurr.ChangeJobOrder(i, j);
+                    // ExamAndApplyUpdate(jobOrderCurr);
+                }
+            }
         }
         // TODO: optimize the final schedule to reduce RTDA
 

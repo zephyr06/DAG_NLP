@@ -66,11 +66,77 @@ namespace DAG_SPACE
     class JobOrderMultiCore : public JobOrder
     {
     public:
-        JobOrderMultiCore(TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector) : JobOrder(tasksInfo, startTimeVector) {}
         std::vector<JobCEC> jobOrderNonParall_;
+        std::unordered_map<JobCEC, LLint> jobIndexMapNP_;
 
-        void ChangeJobOrderNonParallel();
+    private:
+        void insertNP(JobCEC jobCurr, LLint position)
+        {
+            jobOrderNonParall_.insert(jobOrderNonParall_.begin() + position, jobCurr);
+            UpdateMapNP();
+        }
 
-        std::vector<JobCEC> FindPrecedenceJobs();
+        void eraseNP(LLint position)
+        {
+            jobOrderNonParall_.erase(jobOrderNonParall_.begin() + position);
+            UpdateMapNP();
+        }
+
+        void UpdateMapNP()
+        {
+            for (uint i = 0; i < sizeNP(); i++)
+            {
+                JobCEC job = jobOrderNonParall_[i];
+                jobIndexMapNP_[job] = i;
+            }
+        }
+
+    public:
+        JobOrderMultiCore(TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector) : JobOrder(tasksInfo, startTimeVector) { jobOrderNonParall_.reserve(jobOrder_.size()); }
+
+        // newPosition<0 means remove jobIndex
+        /**
+         * @brief Behavior of this function:
+         * If jobOrderNonParall_ is empty, it inserts the job at jobIndex into jobOrderNonParall_ no matter what newPosition's value is;
+         * Otherwise, it switches position similarly as ChangeJobOrder;
+         *
+         * @param jobIndex
+         * @param newPosition
+         */
+        void ChangeJobOrderNonParallel(LLint jobIndex, LLint newPosition)
+        {
+            if (jobIndex < 0 || jobIndex > static_cast<LLint>(jobOrderNonParall_.size()) || newPosition > static_cast<LLint>(jobOrderNonParall_.size()))
+            {
+                CoutError("Index out-of-range in ChangeJobOrderNonParallel");
+            }
+
+            JobCEC jobCurr = jobOrder_[jobIndex];
+            if (jobIndexMapNP_.find(jobCurr) == jobIndexMapNP_.end())
+            {
+                // try to insert jobCurr into all the possible positions in jobIndexMapNP_
+                if (static_cast<size_t>(newPosition) > jobOrderNonParall_.size())
+                {
+                    CoutWarning("newPosition in jobOrderNP exceeds its range!");
+                }
+                // TO improve performance, avoid conflicted insert between jobOrderNonParall_ oand jobOrder_
+                insertNP(jobCurr, newPosition);
+                return;
+            }
+            else
+            {
+                if (jobIndex == newPosition)
+                    return;
+                if (newPosition < 0)
+                {
+                    eraseNP(jobIndex);
+                    return;
+                }
+                JobCEC job = jobOrderNonParall_[jobIndex];
+                eraseNP(jobIndex);
+                insertNP(job, newPosition);
+            }
+        }
+
+        size_t sizeNP() const { return jobOrderNonParall_.size(); }
     };
 } // namespace DAG_SPACE
