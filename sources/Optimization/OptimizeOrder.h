@@ -16,17 +16,18 @@ namespace DAG_SPACE
     struct IterationStatus
     {
         DAG_Model dagTasks_;
-        JobOrder jobOrder_;
+        JobOrderMultiCore jobOrder_;
+        int processorNum_;
         VectorDynamic startTimeVector_;
         std::vector<RTDA> rtdaVec_;
         RTDA maxRtda_;
         double objVal_;
         bool schedulable_;
 
-        IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const JobOrder &jobOrder) : dagTasks_(dagTasks), jobOrder_(jobOrder)
+        IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const JobOrderMultiCore &jobOrder, int processorNum) : dagTasks_(dagTasks), jobOrder_(jobOrder), processorNum_(processorNum)
         {
             // startTimeVector_ = ListSchedulingGivenOrder(dagTasks, tasksInfo, jobOrder_);
-            startTimeVector_ = SchedulingAlgorithm::Schedule(dagTasks, tasksInfo, jobOrder_, coreNumberAva);
+            startTimeVector_ = SchedulingAlgorithm::Schedule(dagTasks, tasksInfo, processorNum_, jobOrder_);
             rtdaVec_ = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector_);
             maxRtda_ = GetMaxRTDA(rtdaVec_);
             objVal_ = ObjRTDA(maxRtda_);
@@ -58,19 +59,22 @@ namespace DAG_SPACE
     }
 
     template <class SchedulingAlgorithm>
-    ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks)
+    ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, int processorNum = coreNumberAva)
     {
+        if (dagTasks.chains_.size() == 0)
+            CoutWarning("No chain is provided for the given dag!");
+
         TaskSet &tasks = dagTasks.tasks;
         TaskSetInfoDerived tasksInfo(tasks);
-        VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva);
+        VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
         if (debugMode == 1)
         {
             std::cout << "Initial schedule: " << std::endl;
             PrintSchedule(tasksInfo, initialSTV);
         }
 
-        JobOrder jobOrderRef(tasksInfo, initialSTV);
-        IterationStatus<SchedulingAlgorithm> statusPrev(dagTasks, tasksInfo, jobOrderRef);
+        JobOrderMultiCore jobOrderRef(tasksInfo, initialSTV);
+        IterationStatus<SchedulingAlgorithm> statusPrev(dagTasks, tasksInfo, jobOrderRef, processorNum);
         if (!statusPrev.schedulable_)
         {
             CoutWarning("Initial schedule is not schedulable!!!");
@@ -84,9 +88,9 @@ namespace DAG_SPACE
             {
                 for (LLint j = 0; j < static_cast<LLint>(jobOrderRef.size()); j++)
                 {
-                    JobOrder jobOrderCurr = statusPrev.jobOrder_;
+                    JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
                     jobOrderCurr.ChangeJobOrder(i, j);
-                    IterationStatus<SchedulingAlgorithm> statusCurr(dagTasks, tasksInfo, jobOrderCurr);
+                    IterationStatus<SchedulingAlgorithm> statusCurr(dagTasks, tasksInfo, jobOrderCurr, processorNum);
                     if (MakeProgress<SchedulingAlgorithm>(statusPrev, statusCurr))
                     {
                         findNewUpdate = true;
@@ -107,7 +111,7 @@ namespace DAG_SPACE
         // JobOrder jobOrderCurr = statusPrev.jobOrder_;
         // jobOrderCurr.ChangeJobOrder(5, 0);
         // IterationStatus<SchedulingAlgorithm> statusCurr(dagTasks, tasksInfo, jobOrderCurr);
-        // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
+        // PrintSchedule(tasksInfo, statusCurr.startTimeVector_, processorNum);
         // if (MakeProgress<SchedulingAlgorithm>(statusPrev, statusCurr))
         // {
         //     findNewUpdate = true;

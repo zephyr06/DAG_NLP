@@ -19,7 +19,7 @@ namespace DAG_SPACE
     public:
         TaskSetInfoDerived tasksInfo_;
         std::vector<JobCEC> jobOrder_;
-        std::unordered_map<JobCEC, LLint> jobOrderMap_;
+        std::unordered_map<JobCEC, LLint> jobIndexMap_;
 
         JobOrder() {}
         JobOrder(TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector) : tasksInfo_(tasksInfo)
@@ -31,24 +31,14 @@ namespace DAG_SPACE
             {
                 jobOrder_.push_back(timeJobVector[i].second);
             }
-            UpdateMap();
+            UpdateIndexMap();
         }
 
-        void UpdateMap()
+        void UpdateIndexMap()
         {
             for (LLint i = 0; i < static_cast<LLint>(jobOrder_.size()); i++)
             {
-                jobOrderMap_[jobOrder_[i]] = i;
-            }
-        }
-
-        void print() const
-        {
-            for (uint i = 0; i < jobOrder_.size(); i++)
-            {
-                std::cout << jobOrder_[i].ToString() + ", ";
-                if (i % 4 == 0)
-                    std::cout << std::endl;
+                jobIndexMap_[jobOrder_[i]] = i;
             }
         }
 
@@ -69,7 +59,7 @@ namespace DAG_SPACE
             JobCEC job = jobOrder_[jobIndex];
             jobOrder_.erase(jobOrder_.begin() + jobIndex);
             jobOrder_.insert(jobOrder_.begin() + newPosition, job);
-            UpdateMap();
+            UpdateIndexMap();
         }
     };
 
@@ -77,13 +67,12 @@ namespace DAG_SPACE
     {
     public:
         std::vector<JobCEC> jobOrderNonParall_;
-        std::unordered_map<JobCEC, std::vector<JobCEC>> strictPrecedenceMap_;
 
         // TODO: utilize jobOrderNonParall_ and jobOrder_;
-        void UpdateMap();
-
-        void Print();
+        void UpdateIndexMap();
 
         void ChangeJobOrderNonParallel();
+
+        std::vector<JobCEC> FindPrecedenceJobs();
     };
 } // namespace DAG_SPACE

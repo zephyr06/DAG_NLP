@@ -28,14 +28,14 @@ TEST(constructor, ListSchedulingGivenOrder_v2)
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
     EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
     JobOrder jobOrderRef(tasksInfo, initial);
-    IterationStatus<LSchedulingKnownTA> statusPrev(dagTasks, tasksInfo, jobOrderRef);
+    IterationStatus<LSchedulingKnownTA> statusPrev(dagTasks, tasksInfo, jobOrderRef, 1);
     PrintSchedule(tasksInfo, initial);
 
     JobOrder jobOrderCurr = jobOrderRef;
     JobCEC job1 = jobOrderCurr[4];
     JobCEC job2 = jobOrderCurr[9];
     jobOrderCurr.ChangeJobOrder(4, 9);
-    IterationStatus<LSchedulingKnownTA> statusCurr(dagTasks, tasksInfo, jobOrderCurr);
+    IterationStatus<LSchedulingKnownTA> statusCurr(dagTasks, tasksInfo, jobOrderCurr, 1);
     EXPECT(job1 == jobOrderCurr[9]);
     EXPECT(job2 == jobOrderCurr[8]);
     // EXPECT_LONGS_EQUAL(8, GetStartTime(JobCEC{1, 0}, statusCurr.startTimeVector_, tasksInfo));
@@ -66,7 +66,7 @@ TEST(JobOrder, change_order)
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
     EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
     JobOrder jobOrderRef(tasksInfo, initial);
-    IterationStatus<LSchedulingKnownTA> statusPrev(dagTasks, tasksInfo, jobOrderRef);
+    IterationStatus<LSchedulingKnownTA> statusPrev(dagTasks, tasksInfo, jobOrderRef, 1);
 
     JobOrder jobOrderCurr = jobOrderRef;
     jobOrderCurr.ChangeJobOrder(0, 5);
@@ -74,8 +74,8 @@ TEST(JobOrder, change_order)
     EXPECT(jobOrderRef[5] == jobOrderCurr[4]);
     JobCEC j1 = jobOrderRef[0];
     JobCEC j2 = jobOrderRef[5];
-    EXPECT_LONGS_EQUAL(5, jobOrderCurr.jobOrderMap_[j1]);
-    EXPECT_LONGS_EQUAL(4, jobOrderCurr.jobOrderMap_[j2]);
+    EXPECT_LONGS_EQUAL(5, jobOrderCurr.jobIndexMap_[j1]);
+    EXPECT_LONGS_EQUAL(4, jobOrderCurr.jobIndexMap_[j2]);
 }
 
 TEST(Schedule_optimize, MakeProgress)
@@ -87,9 +87,9 @@ TEST(Schedule_optimize, MakeProgress)
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
     EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
     JobOrder jobOrderRef(tasksInfo, initial);
-    IterationStatus<LSchedulingKnownTA> statusPrev(dagTasks, tasksInfo, jobOrderRef);
+    IterationStatus<LSchedulingKnownTA> statusPrev(dagTasks, tasksInfo, jobOrderRef, 1);
     {
-        IterationStatus<LSchedulingKnownTA> statusCurr(dagTasks, tasksInfo, jobOrderRef);
+        IterationStatus<LSchedulingKnownTA> statusCurr(dagTasks, tasksInfo, jobOrderRef, 1);
         EXPECT(!MakeProgress(statusPrev, statusCurr));
         std::cout << "Initial schedule" << std::endl;
         PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
@@ -97,7 +97,7 @@ TEST(Schedule_optimize, MakeProgress)
     {
         JobOrder jobOrderCurr = jobOrderRef;
         jobOrderCurr.ChangeJobOrder(4, 5);
-        IterationStatus<LSchedulingKnownTA> statusCurr(dagTasks, tasksInfo, jobOrderCurr);
+        IterationStatus<LSchedulingKnownTA> statusCurr(dagTasks, tasksInfo, jobOrderCurr, 1);
         PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
         EXPECT(MakeProgress(statusPrev, statusCurr));
     }
@@ -105,7 +105,7 @@ TEST(Schedule_optimize, MakeProgress)
         JobOrder jobOrderCurr = jobOrderRef;
         jobOrderCurr.ChangeJobOrder(4, 5);
         jobOrderCurr.ChangeJobOrder(16, 17);
-        IterationStatus<LSchedulingKnownTA> statusCurr(dagTasks, tasksInfo, jobOrderCurr);
+        IterationStatus<LSchedulingKnownTA> statusCurr(dagTasks, tasksInfo, jobOrderCurr, 1);
         EXPECT(MakeProgress(statusPrev, statusCurr));
     }
 }
@@ -164,12 +164,28 @@ TEST(ListSchedulingGivenOrder, strict_job_order)
     JobCEC j1 = jobOrder[6];
     JobCEC j2 = jobOrder[9];
     jobOrder.ChangeJobOrder(6, 9); // j1 to the end of j2
-    EXPECT(jobOrder.jobOrderMap_[j2] < jobOrder.jobOrderMap_[j1]);
+    EXPECT(jobOrder.jobIndexMap_[j2] < jobOrder.jobIndexMap_[j1]);
     VectorDynamic actual = ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder);
     EXPECT(GetStartTime(j1, actual, tasksInfo) > GetStartTime(j2, actual, tasksInfo));
     PrintSchedule(tasksInfo, actual);
 }
 
+TEST(JobOrderMultiCore, optimize)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v7.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    // this is probably a little embarssed, consider designing a better way
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
+    PrintSchedule(tasksInfo, initial);
+    VectorDynamic actual = initial;
+    actual << 0, 0, 0;
+    assert_equal(actual, initial);
+    ScheduleResult res = ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, 3);
+    PrintSchedule(tasksInfo, res.startTimeVector_);
+}
 int main()
 {
     TestResult tr;

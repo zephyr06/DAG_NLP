@@ -268,7 +268,7 @@ namespace DAG_SPACE
         return initial;
     }
 
-    RunQueue::ID_INSTANCE_PAIR PopTaskLS(RunQueue &runQueue, const JobOrder &jobOrder)
+    RunQueue::ID_INSTANCE_PAIR PopTaskLS(RunQueue &runQueue, const JobOrderMultiCore &jobOrder)
     {
         std::vector<RunQueue::ID_INSTANCE_PAIR> &taskQueue = runQueue.taskQueue;
         if (taskQueue.empty())
@@ -279,7 +279,7 @@ namespace DAG_SPACE
         for (uint i = 0; i < taskQueue.size(); i++)
         {
             JobCEC currJob(taskQueue[i].first, taskQueue[i].second);
-            LLint priority = jobOrder.jobOrderMap_.at(currJob);
+            LLint priority = jobOrder.jobIndexMap_.at(currJob);
             if (priority < lftAll)
             {
                 lftJobIndex = i;
@@ -291,9 +291,13 @@ namespace DAG_SPACE
         return jobPop;
     };
 
+    // exam all the jobs in jobOrder_ have been dispatched
+    // exam all the jobs in strictPrecedenceMap_ have been finished
+    bool ExamPrecedenceJobSatisfied();
+
     // TODO: when two jobs have same priority, choose the one with higher precedence priority
     VectorDynamic ListSchedulingLFTPA(const DAG_Model &dagTasks,
-                                      TaskSetInfoDerived &tasksInfo, int processorNum, const std::optional<JobOrder> &jobOrder = std::nullopt)
+                                      TaskSetInfoDerived &tasksInfo, int processorNum, const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt)
     {
         const TaskSet &tasks = dagTasks.tasks;
         VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
@@ -323,7 +327,7 @@ namespace DAG_SPACE
                         p = PopTaskLS(runQueue, *jobOrder);
                         JobCEC jobCurr(p.first, p.second);
                         // efficiency can be improved
-                        for (uint j = 0; j < jobOrder->jobOrderMap_.at(jobCurr); j++)
+                        for (uint j = 0; j < jobOrder->jobIndexMap_.at(jobCurr); j++)
                         {
                             if (!jobScheduled[j]) // prior job has not been scheduled yet
                             {
@@ -331,7 +335,7 @@ namespace DAG_SPACE
                                 break;
                             }
                         }
-                        jobScheduled[jobOrder->jobOrderMap_.at(jobCurr)] = true;
+                        jobScheduled[jobOrder->jobIndexMap_.at(jobCurr)] = true;
                     }
                     else
                     {
@@ -349,7 +353,7 @@ namespace DAG_SPACE
     class SchedulingAlgorithm
     {
     public:
-        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, JobOrder &jobOrder)
+        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, JobOrderMultiCore &jobOrder)
         {
             CoutError("Base function in SchedulingAlgorithm must be overwritten!");
             return GenerateVectorDynamic1D(0);
@@ -360,7 +364,7 @@ namespace DAG_SPACE
     {
     public:
         // If used, this function needs to be carefully checked!
-        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, JobOrder &jobOrder, int processorNum)
+        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, JobOrderMultiCore &jobOrder, int processorNum)
         {
             return ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder);
         }
@@ -370,7 +374,7 @@ namespace DAG_SPACE
     class LSchedulingFreeTA : public SchedulingAlgorithm
     {
     public:
-        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, JobOrder &jobOrder, int processorNum)
+        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, JobOrderMultiCore &jobOrder)
         {
             return ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, jobOrder);
         }
@@ -461,7 +465,7 @@ namespace DAG_SPACE
 //                 auto sth = PopTaskLS(runQueues[i], jobOrder);
 //                 JobCEC jobCurr(sth.first, sth.second);
 //                 // this part can improve efficiency
-//                 for (uint j = 0; j < jobOrder.jobOrderMap_[jobCurr]; j++)
+//                 for (uint j = 0; j < jobOrder.jobIndexMap_[jobCurr]; j++)
 //                 {
 //                     if (!jobScheduled[j]) // prior job has not been scheduled yet
 //                     {
@@ -472,7 +476,7 @@ namespace DAG_SPACE
 //                 // TODO:
 //                 // for(JobCEC jobMustBeFinished: jobOrder.strictPrecedenceMap_[jobCurr])
 //                 // {
-//                 //     if (!jobFinished[jobOrder.jobOrderMap_[jobMustBeFinished]])
+//                 //     if (!jobFinished[jobOrder.jobIndexMap_[jobMustBeFinished]])
 //                 //     {
 //                 //         runQueues[processorId2Index[tasks[jobCurr.taskId].processorId]].insert({jobCurr.taskId, jobCurr.jobId});
 //                 //         break;
@@ -480,7 +484,7 @@ namespace DAG_SPACE
 //                 // }
 
 //                 UpdateSTVAfterPopTask(sth, initial, timeNow, nextFree, tasks, busy, i, tasksInfo.sizeOfVariables);
-//                 jobScheduled[jobOrder.jobOrderMap_[jobCurr]] = true;
+//                 jobScheduled[jobOrder.jobIndexMap_[jobCurr]] = true;
 //             }
 //         }
 //     }
@@ -515,7 +519,7 @@ namespace DAG_SPACE
 //                 auto sth = PopTaskLS(runQueue, jobOrder);
 //                 JobCEC jobCurr(sth.first, sth.second);
 //                 // efficiency can be improved
-//                 for (uint j = 0; j < jobOrder.jobOrderMap_[jobCurr]; j++)
+//                 for (uint j = 0; j < jobOrder.jobIndexMap_[jobCurr]; j++)
 //                 {
 //                     if (!jobScheduled[j]) // prior job has not been scheduled yet
 //                     {
@@ -524,7 +528,7 @@ namespace DAG_SPACE
 //                     }
 //                 }
 //                 UpdateSTVAfterPopTask(sth, initial, timeNow, nextFree, tasks, busy, i, tasksInfo.sizeOfVariables);
-//                 jobScheduled[jobOrder.jobOrderMap_[jobCurr]] = true;
+//                 jobScheduled[jobOrder.jobIndexMap_[jobCurr]] = true;
 //             }
 //         }
 //     }
