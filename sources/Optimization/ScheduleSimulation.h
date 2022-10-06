@@ -353,7 +353,7 @@ namespace DAG_SPACE
     class SchedulingAlgorithm
     {
     public:
-        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, JobOrderMultiCore &jobOrder)
+        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, JobOrderMultiCore &jobOrder)
         {
             CoutError("Base function in SchedulingAlgorithm must be overwritten!");
             return GenerateVectorDynamic1D(0);
@@ -364,7 +364,7 @@ namespace DAG_SPACE
     {
     public:
         // If used, this function needs to be carefully checked!
-        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, JobOrderMultiCore &jobOrder, int processorNum)
+        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, JobOrderMultiCore &jobOrder)
         {
             return ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder);
         }

@@ -66,10 +66,8 @@ namespace DAG_SPACE
     class JobOrderMultiCore : public JobOrder
     {
     public:
+        JobOrderMultiCore(TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector) : JobOrder(tasksInfo, startTimeVector) {}
         std::vector<JobCEC> jobOrderNonParall_;
-
-        // TODO: utilize jobOrderNonParall_ and jobOrder_;
-        void UpdateIndexMap();
 
         void ChangeJobOrderNonParallel();
 
