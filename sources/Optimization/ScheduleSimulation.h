@@ -32,6 +32,7 @@ namespace DAG_SPACE
             N = tasks.size();
             taskQueue.reserve(N);
         }
+        size_t size() const { return taskQueue.size(); }
         /**
          * @brief
          *  always maintain taskQueue's inverse priority order, i.e. first task has highest priority,
@@ -385,7 +386,10 @@ namespace DAG_SPACE
                 }
             }
         }
-
+        if (runQueue.size() != 0)
+        {
+            initial = GenerateVectorDynamic(tasksInfo.variableDimension);
+        }
         return initial;
     }
 
