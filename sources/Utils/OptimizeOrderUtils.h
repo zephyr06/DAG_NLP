@@ -42,24 +42,13 @@ namespace DAG_SPACE
         gtsam::NonlinearFactorGraph graph;
         AddDDL_Factor(graph, tasksInfo);
         gtsam::Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
-        return 0 == graph.error(initialEstimateFG);
-    }
-
-    // this function seems unnecessary because list scheduling should return a solution without DBF error
-    bool CheckDBFConstraint(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
-    {
-        for (auto itr = tasksInfo.processorTaskSet.begin(); itr != tasksInfo.processorTaskSet.end(); itr++)
-        {
-            if (DbfIntervalOverlapError(startTimeVector, itr->first,
-                                        tasksInfo.processorTaskSet, tasksInfo.tasks, tasksInfo.sizeOfVariables) > 0)
-                return false;
-        }
-        return true;
+        double err = graph.error(initialEstimateFG);
+        return 0 == err;
     }
 
     bool SchedulabilityCheck(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
     {
-        return CheckDDLConstraint(dagTasks, tasksInfo, startTimeVector) && CheckDBFConstraint(dagTasks, tasksInfo, startTimeVector);
+        return CheckDDLConstraint(dagTasks, tasksInfo, startTimeVector);
     }
 
     ScheduleResult ScheduleDAGLS_LFT(DAG_Model &dagTasks)

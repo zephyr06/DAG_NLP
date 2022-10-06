@@ -112,6 +112,7 @@ TEST(Schedule_optimize, MakeProgress)
 
 TEST(Schedule, jobOrder)
 {
+    coreNumberAva = 1;
     DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     ScheduleResult res = ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
     EXPECT_LONGS_EQUAL(99, res.rtda_.reactionTime);

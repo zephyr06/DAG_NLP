@@ -102,20 +102,20 @@ namespace DAG_SPACE
         }
         // TODO: optimize the final schedule to reduce RTDA
 
-        JobOrder jobOrderCurr = statusPrev.jobOrder_;
-        jobOrderCurr.ChangeJobOrder(5, 0);
-        IterationStatus<SchedulingAlgorithm> statusCurr(dagTasks, tasksInfo, jobOrderCurr);
-        PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
-        if (MakeProgress<SchedulingAlgorithm>(statusPrev, statusCurr))
-        {
-            findNewUpdate = true;
-            statusPrev = statusCurr;
-            if (debugMode == 1)
-            {
-                std::cout << "Make progress!" << std::endl;
-                PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
-            }
-        }
+        // JobOrder jobOrderCurr = statusPrev.jobOrder_;
+        // jobOrderCurr.ChangeJobOrder(5, 0);
+        // IterationStatus<SchedulingAlgorithm> statusCurr(dagTasks, tasksInfo, jobOrderCurr);
+        // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
+        // if (MakeProgress<SchedulingAlgorithm>(statusPrev, statusCurr))
+        // {
+        //     findNewUpdate = true;
+        //     statusPrev = statusCurr;
+        //     if (debugMode == 1)
+        //     {
+        //         std::cout << "Make progress!" << std::endl;
+        //         PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
+        //     }
+        // }
 
         ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.maxRtda_};
         return scheduleRes;

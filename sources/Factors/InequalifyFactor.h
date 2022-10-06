@@ -57,6 +57,8 @@ public:
         {
             VectorDynamic res = x;
             res << Barrier(b - x(0, 0));
+            // if (res(0) > 0)
+            //     int a = 1;
             return res;
         };
     }
@@ -77,6 +79,8 @@ public:
         {
             VectorDynamic res = x;
             res << Barrier(x(0, 0) - b);
+            // if (res(0) > 0)
+            //     int a = 1;
             return res;
         };
     }
