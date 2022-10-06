@@ -268,42 +268,7 @@ namespace DAG_SPACE
         return initial;
     }
 
-
-
-    // TODO: when two jobs have same priority, choose the one with higher precedence priority
-    VectorDynamic ListSchedulingLFTPA(const DAG_Model &dagTasks,
-                                      TaskSetInfoDerived &tasksInfo, int processorNum = coreNumberAva)
-    {
-        const TaskSet &tasks = dagTasks.tasks;
-        VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
-
-        // contains the index of tasks to run
-        RunQueue runQueue(tasks);
-
-        vector<bool> busy(processorNum, false);
-        vector<LLint> nextFree(processorNum, -1);
-        LLint currTime = 0;
-        for (LLint timeNow = currTime; timeNow < tasksInfo.hyperPeriod; timeNow++)
-        {
-            AddTasksToRunQueue(runQueue, tasks, timeNow);
-            for (int i = 0; i < processorNum; i++)
-            {
-                if (timeNow >= nextFree[i])
-                {
-                    busy[i] = false;
-                }
-                if (!busy[i] && (!runQueue.empty()))
-                {
-                    auto sth = runQueue.popLeastFinishTime(tasksInfo);
-                    UpdateSTVAfterPopTask(sth, initial, timeNow, nextFree, tasks, busy, i, tasksInfo.sizeOfVariables);
-                }
-            }
-        }
-
-        return initial;
-    }
-
-    RunQueue::ID_INSTANCE_PAIR PopTaskLS(RunQueue &runQueue, JobOrder &jobOrder)
+    RunQueue::ID_INSTANCE_PAIR PopTaskLS(RunQueue &runQueue, const JobOrder &jobOrder)
     {
         std::vector<RunQueue::ID_INSTANCE_PAIR> &taskQueue = runQueue.taskQueue;
         if (taskQueue.empty())
@@ -314,7 +279,7 @@ namespace DAG_SPACE
         for (uint i = 0; i < taskQueue.size(); i++)
         {
             JobCEC currJob(taskQueue[i].first, taskQueue[i].second);
-            LLint priority = jobOrder.jobOrderMap_[currJob];
+            LLint priority = jobOrder.jobOrderMap_.at(currJob);
             if (priority < lftAll)
             {
                 lftJobIndex = i;
@@ -326,10 +291,9 @@ namespace DAG_SPACE
         return jobPop;
     };
 
-
-    // with Processor Assignment
-    VectorDynamic ListSchedulingGivenOrderPA(const DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo,
-                                             JobOrder &jobOrder, int processorNum = coreNumberAva)
+    // TODO: when two jobs have same priority, choose the one with higher precedence priority
+    VectorDynamic ListSchedulingLFTPA(const DAG_Model &dagTasks,
+                                      TaskSetInfoDerived &tasksInfo, int processorNum, const std::optional<JobOrder> &jobOrder = std::nullopt)
     {
         const TaskSet &tasks = dagTasks.tasks;
         VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
@@ -339,7 +303,8 @@ namespace DAG_SPACE
 
         vector<bool> busy(processorNum, false);
         vector<LLint> nextFree(processorNum, -1);
-        std::vector<bool> jobScheduled(jobOrder.size(), false); // order is the same as JobOrder's jobs
+
+        std::vector<bool> jobScheduled(jobOrder ? ((*jobOrder).size()) : 0, false); // order is the same as JobOrder's jobs
         LLint currTime = 0;
         for (LLint timeNow = currTime; timeNow < tasksInfo.hyperPeriod; timeNow++)
         {
@@ -352,25 +317,78 @@ namespace DAG_SPACE
                 }
                 if (!busy[i] && (!runQueue.empty()))
                 {
-                    auto sth = PopTaskLS(runQueue, jobOrder);
-                    JobCEC jobCurr(sth.first, sth.second);
-                    // efficiency can be improved
-                    for (uint j = 0; j < jobOrder.jobOrderMap_[jobCurr]; j++)
+                    RunQueue::ID_INSTANCE_PAIR p;
+                    if (jobOrder)
                     {
-                        if (!jobScheduled[j]) // prior job has not been scheduled yet
+                        p = PopTaskLS(runQueue, *jobOrder);
+                        JobCEC jobCurr(p.first, p.second);
+                        // efficiency can be improved
+                        for (uint j = 0; j < jobOrder->jobOrderMap_.at(jobCurr); j++)
                         {
-                            runQueue.insert({jobCurr.taskId, jobCurr.jobId});
-                            break;
+                            if (!jobScheduled[j]) // prior job has not been scheduled yet
+                            {
+                                runQueue.insert({jobCurr.taskId, jobCurr.jobId});
+                                break;
+                            }
                         }
+                        jobScheduled[jobOrder->jobOrderMap_.at(jobCurr)] = true;
                     }
-                    UpdateSTVAfterPopTask(sth, initial, timeNow, nextFree, tasks, busy, i, tasksInfo.sizeOfVariables);
-                    jobScheduled[jobOrder.jobOrderMap_[jobCurr]] = true;
+                    else
+                    {
+                        p = runQueue.popLeastFinishTime(tasksInfo);
+                    }
+
+                    UpdateSTVAfterPopTask(p, initial, timeNow, nextFree, tasks, busy, i, tasksInfo.sizeOfVariables);
                 }
             }
         }
 
         return initial;
     }
+
+    // with Processor Assignment
+    // VectorDynamic ListSchedulingGivenOrderPA(const DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, JobOrder &jobOrder)
+    // {
+    //     const TaskSet &tasks = dagTasks.tasks;
+    //     VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
+
+    //     // contains the index of tasks to run
+    //     RunQueue runQueue(tasks);
+
+    //     vector<bool> busy(processorNum, false);
+    //     vector<LLint> nextFree(processorNum, -1);
+    //     std::vector<bool> jobScheduled(jobOrder.size(), false); // order is the same as JobOrder's jobs
+    //     LLint currTime = 0;
+    //     for (LLint timeNow = currTime; timeNow < tasksInfo.hyperPeriod; timeNow++)
+    //     {
+    //         AddTasksToRunQueue(runQueue, tasks, timeNow);
+    //         for (int i = 0; i < processorNum; i++)
+    //         {
+    //             if (timeNow >= nextFree[i])
+    //             {
+    //                 busy[i] = false;
+    //             }
+    //             if (!busy[i] && (!runQueue.empty()))
+    //             {
+    //                 auto sth = PopTaskLS(runQueue, jobOrder);
+    //                 JobCEC jobCurr(sth.first, sth.second);
+    //                 // efficiency can be improved
+    //                 for (uint j = 0; j < jobOrder.jobOrderMap_[jobCurr]; j++)
+    //                 {
+    //                     if (!jobScheduled[j]) // prior job has not been scheduled yet
+    //                     {
+    //                         runQueue.insert({jobCurr.taskId, jobCurr.jobId});
+    //                         break;
+    //                     }
+    //                 }
+    //                 UpdateSTVAfterPopTask(sth, initial, timeNow, nextFree, tasks, busy, i, tasksInfo.sizeOfVariables);
+    //                 jobScheduled[jobOrder.jobOrderMap_[jobCurr]] = true;
+    //             }
+    //         }
+    //     }
+
+    //     return initial;
+    // }
 
     class SchedulingAlgorithm
     {
@@ -385,9 +403,10 @@ namespace DAG_SPACE
     class LSchedulingKnownTA : public SchedulingAlgorithm
     {
     public:
-        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, JobOrder &jobOrder)
+        // If used, this function needs to be carefully checked!
+        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, JobOrder &jobOrder, int processorNum)
         {
-            return ListSchedulingGivenOrderPA(dagTasks, tasksInfo, jobOrder, 1);
+            return ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder);
         }
     };
 
@@ -395,124 +414,120 @@ namespace DAG_SPACE
     class LSchedulingFreeTA : public SchedulingAlgorithm
     {
     public:
-        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, JobOrder &jobOrder)
+        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, JobOrder &jobOrder, int processorNum)
         {
-            return ListSchedulingGivenOrderPA(dagTasks, tasksInfo, jobOrder);
+            return ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, jobOrder);
         }
     };
 } // namespace DAG_SPACE
 
+// VectorDynamic ListSchedulingLFT(const DAG_Model &dagTasks,
+//                                 TaskSetInfoDerived &tasksInfo)
+// {
+//     const TaskSet &tasks = dagTasks.tasks;
+//     VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
 
+//     ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+//     int processorNum = processorTaskSet.size();
+//     // it maps from tasks[i].processorId to index in runQueues&busy&nextFree
+//     ProcessorId2Index processorId2Index = CreateProcessorId2Index(tasks);
+//     // contains the index of tasks to run
+//     vector<RunQueue> runQueues;
+//     runQueues.reserve(processorNum);
+//     for (int i = 0; i < processorNum; i++)
+//     {
+//         runQueues.push_back(RunQueue(tasks));
+//     }
 
-    // VectorDynamic ListSchedulingLFT(const DAG_Model &dagTasks,
-    //                                 TaskSetInfoDerived &tasksInfo)
-    // {
-    //     const TaskSet &tasks = dagTasks.tasks;
-    //     VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
+//     vector<bool> busy(processorNum, false);
+//     vector<LLint> nextFree(processorNum, -1);
+//     // LLint nextFree;
+//     LLint currTime = 0;
+//     for (LLint timeNow = currTime; timeNow < tasksInfo.hyperPeriod; timeNow++)
+//     {
 
-    //     ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
-    //     int processorNum = processorTaskSet.size();
-    //     // it maps from tasks[i].processorId to index in runQueues&busy&nextFree
-    //     ProcessorId2Index processorId2Index = CreateProcessorId2Index(tasks);
-    //     // contains the index of tasks to run
-    //     vector<RunQueue> runQueues;
-    //     runQueues.reserve(processorNum);
-    //     for (int i = 0; i < processorNum; i++)
-    //     {
-    //         runQueues.push_back(RunQueue(tasks));
-    //     }
+//         // check whether to add new instances
+//         AddTasksToRunQueues(runQueues, tasks, processorId2Index, timeNow);
 
-    //     vector<bool> busy(processorNum, false);
-    //     vector<LLint> nextFree(processorNum, -1);
-    //     // LLint nextFree;
-    //     LLint currTime = 0;
-    //     for (LLint timeNow = currTime; timeNow < tasksInfo.hyperPeriod; timeNow++)
-    //     {
+//         for (int i = 0; i < processorNum; i++)
+//         {
+//             if (timeNow >= nextFree[i])
+//             {
+//                 busy[i] = false;
+//             }
+//             if (timeNow >= nextFree[i] && (!runQueues[i].empty()))
+//             {
+//                 auto sth = runQueues[i].popLeastFinishTime(tasksInfo);
+//                 UpdateSTVAfterPopTask(sth, initial, timeNow, nextFree, tasks, busy, i, tasksInfo.sizeOfVariables);
+//             }
+//         }
+//     }
 
-    //         // check whether to add new instances
-    //         AddTasksToRunQueues(runQueues, tasks, processorId2Index, timeNow);
+//     return initial;
+// }
 
-    //         for (int i = 0; i < processorNum; i++)
-    //         {
-    //             if (timeNow >= nextFree[i])
-    //             {
-    //                 busy[i] = false;
-    //             }
-    //             if (timeNow >= nextFree[i] && (!runQueues[i].empty()))
-    //             {
-    //                 auto sth = runQueues[i].popLeastFinishTime(tasksInfo);
-    //                 UpdateSTVAfterPopTask(sth, initial, timeNow, nextFree, tasks, busy, i, tasksInfo.sizeOfVariables);
-    //             }
-    //         }
-    //     }
+// VectorDynamic ListSchedulingGivenOrder(const DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo,
+//                                        JobOrder &jobOrder)
+// {
+//     const TaskSet &tasks = dagTasks.tasks;
+//     VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
 
-    //     return initial;
-    // }
+//     ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
+//     int processorNum = processorTaskSet.size();
+//     // it maps from tasks[i].processorId to index in runQueues&busy&nextFree
+//     ProcessorId2Index processorId2Index = CreateProcessorId2Index(tasks);
+//     // contains the index of tasks to run
+//     vector<RunQueue> runQueues;
+//     runQueues.reserve(processorNum);
+//     for (int i = 0; i < processorNum; i++)
+//     {
+//         runQueues.push_back(RunQueue(tasks));
+//     }
 
+//     vector<bool> busy(processorNum, false);
+//     vector<LLint> nextFree(processorNum, -1);
+//     std::vector<bool> jobScheduled(jobOrder.size(), false); // order is the same as JobOrder's jobs
+//     std::vector<bool> jobFinished(jobOrder.size(), false);  // order is the same as JobOrder's jobs
 
+//     LLint currTime = 0;
+//     for (LLint timeNow = currTime; timeNow < tasksInfo.hyperPeriod; timeNow++)
+//     {
+//         AddTasksToRunQueues(runQueues, tasks, processorId2Index, timeNow);
 
-    // VectorDynamic ListSchedulingGivenOrder(const DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo,
-    //                                        JobOrder &jobOrder)
-    // {
-    //     const TaskSet &tasks = dagTasks.tasks;
-    //     VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
+//         for (int i = 0; i < processorNum; i++)
+//         {
+//             if (timeNow >= nextFree[i])
+//             {
+//                 busy[i] = false;
+//             }
+//             if (!busy[i] && (!runQueues[i].empty()))
+//             {
+//                 auto sth = PopTaskLS(runQueues[i], jobOrder);
+//                 JobCEC jobCurr(sth.first, sth.second);
+//                 // this part can improve efficiency
+//                 for (uint j = 0; j < jobOrder.jobOrderMap_[jobCurr]; j++)
+//                 {
+//                     if (!jobScheduled[j]) // prior job has not been scheduled yet
+//                     {
+//                         runQueues[processorId2Index[tasks[jobCurr.taskId].processorId]].insert({jobCurr.taskId, jobCurr.jobId});
+//                         break;
+//                     }
+//                 }
+//                 // TODO:
+//                 // for(JobCEC jobMustBeFinished: jobOrder.strictPrecedenceMap_[jobCurr])
+//                 // {
+//                 //     if (!jobFinished[jobOrder.jobOrderMap_[jobMustBeFinished]])
+//                 //     {
+//                 //         runQueues[processorId2Index[tasks[jobCurr.taskId].processorId]].insert({jobCurr.taskId, jobCurr.jobId});
+//                 //         break;
+//                 //     }
+//                 // }
 
-    //     ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
-    //     int processorNum = processorTaskSet.size();
-    //     // it maps from tasks[i].processorId to index in runQueues&busy&nextFree
-    //     ProcessorId2Index processorId2Index = CreateProcessorId2Index(tasks);
-    //     // contains the index of tasks to run
-    //     vector<RunQueue> runQueues;
-    //     runQueues.reserve(processorNum);
-    //     for (int i = 0; i < processorNum; i++)
-    //     {
-    //         runQueues.push_back(RunQueue(tasks));
-    //     }
+//                 UpdateSTVAfterPopTask(sth, initial, timeNow, nextFree, tasks, busy, i, tasksInfo.sizeOfVariables);
+//                 jobScheduled[jobOrder.jobOrderMap_[jobCurr]] = true;
+//             }
+//         }
+//     }
 
-    //     vector<bool> busy(processorNum, false);
-    //     vector<LLint> nextFree(processorNum, -1);
-    //     std::vector<bool> jobScheduled(jobOrder.size(), false); // order is the same as JobOrder's jobs
-    //     std::vector<bool> jobFinished(jobOrder.size(), false);  // order is the same as JobOrder's jobs
-
-    //     LLint currTime = 0;
-    //     for (LLint timeNow = currTime; timeNow < tasksInfo.hyperPeriod; timeNow++)
-    //     {
-    //         AddTasksToRunQueues(runQueues, tasks, processorId2Index, timeNow);
-
-    //         for (int i = 0; i < processorNum; i++)
-    //         {
-    //             if (timeNow >= nextFree[i])
-    //             {
-    //                 busy[i] = false;
-    //             }
-    //             if (!busy[i] && (!runQueues[i].empty()))
-    //             {
-    //                 auto sth = PopTaskLS(runQueues[i], jobOrder);
-    //                 JobCEC jobCurr(sth.first, sth.second);
-    //                 // this part can improve efficiency
-    //                 for (uint j = 0; j < jobOrder.jobOrderMap_[jobCurr]; j++)
-    //                 {
-    //                     if (!jobScheduled[j]) // prior job has not been scheduled yet
-    //                     {
-    //                         runQueues[processorId2Index[tasks[jobCurr.taskId].processorId]].insert({jobCurr.taskId, jobCurr.jobId});
-    //                         break;
-    //                     }
-    //                 }
-    //                 // TODO:
-    //                 // for(JobCEC jobMustBeFinished: jobOrder.strictPrecedenceMap_[jobCurr])
-    //                 // {
-    //                 //     if (!jobFinished[jobOrder.jobOrderMap_[jobMustBeFinished]])
-    //                 //     {
-    //                 //         runQueues[processorId2Index[tasks[jobCurr.taskId].processorId]].insert({jobCurr.taskId, jobCurr.jobId});
-    //                 //         break;
-    //                 //     }
-    //                 // }
-
-    //                 UpdateSTVAfterPopTask(sth, initial, timeNow, nextFree, tasks, busy, i, tasksInfo.sizeOfVariables);
-    //                 jobScheduled[jobOrder.jobOrderMap_[jobCurr]] = true;
-    //             }
-    //         }
-    //     }
-
-    //     return initial;
-    // }
+//     return initial;
+// }

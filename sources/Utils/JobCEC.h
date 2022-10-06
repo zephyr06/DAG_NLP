@@ -27,7 +27,7 @@ namespace DAG_SPACE
             return !(*this == other);
         }
 
-        std::string ToString()
+        std::string ToString() const
         {
             return "T" + std::to_string(taskId) + "_" + std::to_string(jobId);
         }

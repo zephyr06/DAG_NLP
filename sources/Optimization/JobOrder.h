@@ -42,7 +42,7 @@ namespace DAG_SPACE
             }
         }
 
-        void print()
+        void print() const
         {
             for (uint i = 0; i < jobOrder_.size(); i++)
             {
@@ -52,7 +52,7 @@ namespace DAG_SPACE
             }
         }
 
-        size_t size() { return jobOrder_.size(); }
+        size_t size() const { return jobOrder_.size(); }
 
         JobCEC operator[](LLint index) { return jobOrder_[index]; }
 
@@ -73,9 +73,8 @@ namespace DAG_SPACE
         }
     };
 
-
-class JobOrderMultiCore: public JobOrder
-{
+    class JobOrderMultiCore : public JobOrder
+    {
     public:
         std::vector<JobCEC> jobOrderNonParall_;
         std::unordered_map<JobCEC, std::vector<JobCEC>> strictPrecedenceMap_;
@@ -86,6 +85,5 @@ class JobOrderMultiCore: public JobOrder
         void Print();
 
         void ChangeJobOrderNonParallel();
-
-};
+    };
 } // namespace DAG_SPACE

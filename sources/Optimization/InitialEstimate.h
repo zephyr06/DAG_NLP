@@ -260,7 +260,7 @@ namespace DAG_SPACE
 
         case ListScheduling:
             initialEstimate = ListSchedulingLFTPA(dagTasks,
-                                                tasksInfo);
+                                                  tasksInfo, coreNumberAva);
             break;
         default:
             initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,

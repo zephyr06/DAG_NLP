@@ -26,7 +26,7 @@ namespace DAG_SPACE
         IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const JobOrder &jobOrder) : dagTasks_(dagTasks), jobOrder_(jobOrder)
         {
             // startTimeVector_ = ListSchedulingGivenOrder(dagTasks, tasksInfo, jobOrder_);
-            startTimeVector_ = SchedulingAlgorithm::Schedule(dagTasks, tasksInfo, jobOrder_);
+            startTimeVector_ = SchedulingAlgorithm::Schedule(dagTasks, tasksInfo, jobOrder_, coreNumberAva);
             rtdaVec_ = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector_);
             maxRtda_ = GetMaxRTDA(rtdaVec_);
             objVal_ = ObjRTDA(maxRtda_);
@@ -62,7 +62,7 @@ namespace DAG_SPACE
     {
         TaskSet &tasks = dagTasks.tasks;
         TaskSetInfoDerived tasksInfo(tasks);
-        VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo);
+        VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva);
         if (debugMode == 1)
         {
             std::cout << "Initial schedule: " << std::endl;
@@ -101,7 +101,6 @@ namespace DAG_SPACE
             }
 
             // TODO: iterate possible permutations of JobOrderMultiCore
-            
         }
         // TODO: optimize the final schedule to reduce RTDA
 

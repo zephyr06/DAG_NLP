@@ -14,7 +14,7 @@ TEST(constructor, ListSchedulingGivenOrder)
 
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
     JobOrder jobOrder(tasksInfo, initial);
-    VectorDynamic actual = ListSchedulingGivenOrderPA(dagTasks, tasksInfo, jobOrder, 1);
+    VectorDynamic actual = ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder);
     assert_equal(initial, actual);
 }
 
@@ -143,7 +143,7 @@ TEST(list_scheduling, ListSchedulingGivenOrderPA_v1)
 
     PrintSchedule(tasksInfo, initial);
     JobOrder jobOrder(tasksInfo, initial);
-    initial = ListSchedulingGivenOrderPA(dagTasks, tasksInfo, jobOrder);
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder);
     std::cout << initial << std::endl;
     PrintSchedule(tasksInfo, initial);
     EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
@@ -165,7 +165,7 @@ TEST(ListSchedulingGivenOrder, strict_job_order)
     JobCEC j2 = jobOrder[9];
     jobOrder.ChangeJobOrder(6, 9); // j1 to the end of j2
     EXPECT(jobOrder.jobOrderMap_[j2] < jobOrder.jobOrderMap_[j1]);
-    VectorDynamic actual = ListSchedulingGivenOrderPA(dagTasks, tasksInfo, jobOrder, 1);
+    VectorDynamic actual = ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder);
     EXPECT(GetStartTime(j1, actual, tasksInfo) > GetStartTime(j2, actual, tasksInfo));
     PrintSchedule(tasksInfo, actual);
 }
