@@ -99,6 +99,9 @@ namespace DAG_SPACE
                     }
                 }
             }
+
+            // TODO: iterate possible permutations of JobOrderMultiCore
+            
         }
         // TODO: optimize the final schedule to reduce RTDA
 
