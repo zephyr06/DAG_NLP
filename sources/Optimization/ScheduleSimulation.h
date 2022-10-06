@@ -255,7 +255,7 @@ namespace DAG_SPACE
 
         return initial;
     }
-
+    // TODO: when two jobs have same priority, choose the one with higher precedence priority
     VectorDynamic ListSchedulingLFT(const DAG_Model &dagTasks,
                                     TaskSetInfoDerived &tasksInfo, LLint currTime = 0)
     {
@@ -387,6 +387,7 @@ namespace DAG_SPACE
         vector<bool> busy(processorNum, false);
         vector<LLint> nextFree(processorNum, -1);
         std::vector<bool> jobScheduled(jobOrder.size(), false); // order is the same as JobOrder's jobs
+        std::vector<bool> jobFinished(jobOrder.size(), false); // order is the same as JobOrder's jobs
 
         for (LLint timeNow = currTime; timeNow < tasksInfo.hyperPeriod; timeNow++)
         {
@@ -411,6 +412,15 @@ namespace DAG_SPACE
                             break;
                         }
                     }
+                    // TODO: 
+                    // for(JobCEC jobMustBeFinished: jobOrder.strictPrecedenceMap_[jobCurr])
+                    // {
+                    //     if (!jobFinished[jobOrder.jobOrderMap_[jobMustBeFinished]])
+                    //     {
+                    //         runQueues[processorId2Index[tasks[jobCurr.taskId].processorId]].insert({jobCurr.taskId, jobCurr.jobId});
+                    //         break;
+                    //     }
+                    // }
 
                     UpdateSTVAfterPopTask(sth, initial, timeNow, nextFree, tasks, busy, i, tasksInfo.sizeOfVariables);
                     jobScheduled[jobOrder.jobOrderMap_[jobCurr]] = true;

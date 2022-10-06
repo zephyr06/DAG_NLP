@@ -73,4 +73,19 @@ namespace DAG_SPACE
         }
     };
 
+
+class JobOrderMultiCore: public JobOrder
+{
+    public:
+        std::vector<JobCEC> jobOrderNonParall_;
+        std::unordered_map<JobCEC, std::vector<JobCEC>> strictPrecedenceMap_;
+
+        // TODO: utilize jobOrderNonParall_ and jobOrder_;
+        void UpdateMap();
+
+        void Print();
+
+        void ChangeJobOrderNonParallel();
+
+};
 } // namespace DAG_SPACE
