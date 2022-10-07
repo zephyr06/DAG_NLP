@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include "sources/Utils/Parameters.h"
+#include "sources/Optimization/OptimizeOrder.h"
 
 namespace DAG_SPACE
 {
@@ -27,24 +28,28 @@ namespace DAG_SPACE
         }
         return pathDataset + file + property;
     }
-    void WriteToResultFile(const std::string &pathDataset, const std::string &file, double res, double timeTaken, int batchTestMethod_)
+    // TOTEST: read & write
+    void WriteToResultFile(const std::string &pathDataset, const std::string &file, DAG_SPACE::ScheduleResult &res, int batchTestMethod_)
     {
         std::string resFile = GetResFileName(pathDataset, file, batchTestMethod_);
         std::ofstream outfileWrite;
-        outfileWrite.open(resFile,
-                          std::ios_base::app);
-        outfileWrite << res << std::endl;
-        outfileWrite << timeTaken << std::endl;
+        outfileWrite.open(resFile, std::ofstream::out | std::ofstream::trunc); // std::ios_base::app
+        outfileWrite << res.schedulable_ << std::endl;
+        outfileWrite << res.obj_ << std::endl;
+        outfileWrite << res.timeTaken_ << std::endl;
         outfileWrite.close();
     }
-    std::pair<double, double> ReadFromResultFile(const std::string &pathDataset, const std::string &file, int batchTestMethod_)
+
+    DAG_SPACE::ScheduleResult ReadFromResultFile(const std::string &pathDataset, const std::string &file, int batchTestMethod_)
     {
+        DAG_SPACE::ScheduleResult result;
         std::string resFile = GetResFileName(pathDataset, file, batchTestMethod_);
         std::ifstream cResultFile(resFile.data());
-        double timeTaken = 0, res = 0;
-        cResultFile >> res >> timeTaken;
+        // double timeTaken = 0, obj = 0;
+        // int schedulable = 0;
+        cResultFile >> result.schedulable_ >> result.obj_ >> result.timeTaken_;
         cResultFile.close();
-        return std::make_pair(res, timeTaken);
+        return result;
     }
 
     bool VerifyResFileExist(const std::string &pathDataset, const std::string &file, int batchTestMethod_)

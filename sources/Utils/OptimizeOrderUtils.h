@@ -14,6 +14,7 @@ namespace DAG_SPACE
         bool schedulable_;
         RTDA rtda_;
         double obj_;
+        double timeTaken_;
 
         ScheduleResult() {}
         ScheduleResult(JobOrder jobOrder,
@@ -22,6 +23,7 @@ namespace DAG_SPACE
                        RTDA rtda) : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), rtda_(rtda)
         {
             obj_ = ObjRTDA(rtda_);
+            timeTaken_ = 0;
         }
     };
 

@@ -2,6 +2,7 @@
 #include "sources/Tools/testMy.h"
 #include "sources/Optimization/JobOrder.h"
 #include "sources/Optimization/OptimizeOrder.h"
+#include "sources/Utils/BatchUtils.h"
 
 using namespace DAG_SPACE;
 
@@ -380,6 +381,21 @@ TEST(ListSchedulingLFTPA_NP, jobOrderConflict)
     PrintSchedule(tasksInfo, initial);
 }
 
+TEST(IO, ReadWriteResult)
+{
+    DAG_SPACE::ScheduleResult res;
+    res.schedulable_ = false;
+    res.timeTaken_ = 1.1;
+    res.obj_ = 2.1;
+    std::string dirStr = PROJECT_PATH + "build/";
+    const char *pathDataset = (dirStr).c_str();
+    std::string file = "testIO.txt";
+    WriteToResultFile(pathDataset, file, res, 0);
+    DAG_SPACE::ScheduleResult res2 = ReadFromResultFile(pathDataset, file, 0);
+    EXPECT_DOUBLES_EQUAL(1.1, res2.timeTaken_, 1e-3);
+    EXPECT_DOUBLES_EQUAL(2.1, res2.obj_, 1e-3);
+    EXPECT(!res2.schedulable_);
+}
 // todo: ADD more tests on ListSchedulingLFTPA, add check JobOrderMultiCore confliction
 
 // TEST(JobOrderMultiCore, optimize)

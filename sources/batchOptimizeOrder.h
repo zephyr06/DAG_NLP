@@ -20,11 +20,13 @@ using namespace std::chrono;
 
 void BatchOptimizeOrder()
 {
+    int totalMethodNum = 4;
     std::string dirStr = PROJECT_PATH + "TaskData/dagTasks/";
     const char *pathDataset = (dirStr).c_str();
     std::cout << "Dataset Directory: " << pathDataset << std::endl;
-    std::vector<std::vector<double>> runTimeAll(4);
-    std::vector<std::vector<double>> objsAll(4);
+    std::vector<std::vector<double>> runTimeAll(totalMethodNum);
+    std::vector<std::vector<double>> objsAll(totalMethodNum);
+    std::vector<std::vector<int>> schedulableAll(totalMethodNum); // values could only be 0 / 1
 
     std::vector<string> errorFiles;
     std::vector<string> worseFiles;
@@ -42,20 +44,19 @@ void BatchOptimizeOrder()
 
             for (int batchTestMethod = 0; batchTestMethod < 3; batchTestMethod++)
             {
-                double obj, timeTaken;
+                double obj;
+                int schedulable;
+                DAG_SPACE::ScheduleResult res;
                 if (VerifyResFileExist(pathDataset, file, batchTestMethod))
                 {
-                    std::tie(obj, timeTaken) = ReadFromResultFile(pathDataset, file, batchTestMethod);
+                    res = ReadFromResultFile(pathDataset, file, batchTestMethod);
                 }
                 else
                 {
                     auto start = chrono::high_resolution_clock::now();
-                    DAG_SPACE::ScheduleResult res;
                     if (batchTestMethod == 0)
                     {
                         res = DAG_SPACE::ScheduleDAGLS_LFT(dagTasks);
-                        res.rtda_.print();
-                        std::cout << "Schedulable? " << res.schedulable_ << std::endl;
                     }
                     else if (batchTestMethod == 1)
                     {
@@ -63,33 +64,33 @@ void BatchOptimizeOrder()
                             res = DAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
                         else if (processorAssignmentMode == 1)
                             res = DAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
-                        res.rtda_.print();
-                        std::cout << "Schedulable? " << res.schedulable_ << std::endl;
                     }
                     else if (batchTestMethod == 2)
                     {
                         res = ScheduleVerucchiRTDA(dagTasks, dagTasks.chains_, 1, 15.0, 400000.0, 15.0, 400000.0, 15.0);
-                        res.rtda_.print();
-                        std::cout << "Schedulable? " << res.schedulable_ << std::endl;
                     }
                     else
                     {
                         CoutError("Please provide batchTestMethod implementation!");
                     }
-                    obj = res.obj_;
-
                     auto stop = chrono::high_resolution_clock::now();
                     auto duration = duration_cast<microseconds>(stop - start);
-                    timeTaken = double(duration.count()) / 1e6;
-                    if (res.schedulable_ == false)
-                    {
-                        errorFiles.push_back(file);
-                    }
-                    WriteToResultFile(pathDataset, file, obj, timeTaken, batchTestMethod);
+                    res.timeTaken_ = double(duration.count()) / 1e6;
                 }
 
-                objsAll[batchTestMethod].push_back(obj);
-                runTimeAll[batchTestMethod].push_back(timeTaken);
+                // print intermediate results
+                res.rtda_.print();
+                std::cout << "Schedulable? " << res.schedulable_ << std::endl;
+
+                if (res.schedulable_ == false)
+                {
+                    errorFiles.push_back(file);
+                }
+                WriteToResultFile(pathDataset, file, res, batchTestMethod);
+
+                runTimeAll[batchTestMethod].push_back(res.timeTaken_);
+                schedulableAll[batchTestMethod].push_back((res.schedulable_ ? 1 : 0));
+                objsAll[batchTestMethod].push_back(objsAll[0].back()); // If optimized schedule is not schedulable, use list scheduling instead
             }
             if (objsAll[1].back() > objsAll[2].back())
             {
@@ -102,11 +103,11 @@ void BatchOptimizeOrder()
     int n = objsAll[0].size();
     if (n != 0)
     {
-        VariadicTable<std::string, double, double> vt({"Method", "Obj", "TimeTaken"}, 10);
+        VariadicTable<std::string, double, double> vt({"Method", "Schedulable ratio", "Obj", "TimeTaken"}, 10);
 
-        vt.addRow("Initial", Average(objsAll[0]), Average(runTimeAll[0]));
-        vt.addRow("OrderOpt", Average(objsAll[1]), Average(runTimeAll[1]));
-        vt.addRow("Verucchi20", Average(objsAll[2]), Average(runTimeAll[2]));
+        vt.addRow("Initial", Average(schedulableAll[0]), Average(objsAll[0]), Average(runTimeAll[0]));
+        vt.addRow("OrderOpt", Average(schedulableAll[1]), Average(objsAll[1]), Average(runTimeAll[1]));
+        vt.addRow("Verucchi20", Average(schedulableAll[2]), Average(objsAll[2]), Average(runTimeAll[2]));
         // vt.addRow("Initial", Average(objsAll[0]), Average(runTimeAll[0]));
 
         vt.print(std::cout);
