@@ -110,17 +110,38 @@ namespace DAG_SPACE
                 }
             }
 
-            // TODO: iterate possible permutations of JobOrderMultiCore
-            // TOTEST
-            for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
+            // Initialize it with a pair of jobs
+            if (statusPrev.jobOrder_.sizeNP() == 0)
             {
-                for (LLint j = 0; j < static_cast<LLint>(statusPrev.jobOrder_.sizeNP()); j++)
+                for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
                 {
-                    JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
-                    jobOrderCurr.ChangeJobOrder(i, j);
-                    // ExamAndApplyUpdate(jobOrderCurr);
+                    for (LLint j = 0; j < static_cast<LLint>(jobOrderRef.size()); j++)
+                    {
+                        if (i == j)
+                            continue;
+                        JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
+                        jobOrderCurr.insertNP(jobOrderRef[i], 0);
+                        jobOrderCurr.insertNP(jobOrderRef[j], 0);
+                        ExamAndApplyUpdate(jobOrderCurr);
+                    }
                 }
             }
+
+            // TODO: iterate possible permutations of JobOrderMultiCore
+            // for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
+            // {
+            //     JobCEC jobI = jobOrderRef[i];
+            //     for (LLint j = 0; j < static_cast<LLint>(statusPrev.jobOrder_.sizeNP()); j++)
+            //     {
+            //         JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
+            //         if(jobOrderCurr.jobIndexMapNP_.find(jobI) == jobOrderCurr.jobIndexMapNP_.end())
+            //         {
+            //             jobOrderCurr.insertNP(jobI);
+            //         }
+            //         jobOrderCurr.ChangeJobOrderNonParallel(i, j);
+            //         ExamAndApplyUpdate(jobOrderCurr);
+            //     }
+            // }
         }
         // TODO: optimize the final schedule to reduce RTDA
 

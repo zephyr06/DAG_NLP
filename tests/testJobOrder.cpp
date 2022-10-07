@@ -180,23 +180,27 @@ TEST(changeOrderNP, insert_delete)
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
     JobOrderMultiCore jobOrder(tasksInfo, initial);
 
-    jobOrder.ChangeJobOrderNonParallel(0, 0); // insert j0
+    jobOrder.insertNP(jobOrder.jobOrder_[0], 0);
+    // jobOrder.ChangeJobOrderNonParallel(0, 0); // insert j0
     EXPECT_LONGS_EQUAL(1, jobOrder.sizeNP());
     JobCEC j0 = jobOrder.jobOrder_[0];
     EXPECT(j0 == jobOrder.jobOrderNonParall_[0]);
     EXPECT_LONGS_EQUAL(0, jobOrder.jobIndexMapNP_[j0]);
 
-    jobOrder.ChangeJobOrderNonParallel(1, 1);
+    jobOrder.insertNP(jobOrder.jobOrder_[1], 1);
+    // jobOrder.ChangeJobOrderNonParallel(1, 1);
     EXPECT_LONGS_EQUAL(2, jobOrder.sizeNP());
     JobCEC j1 = jobOrder.jobOrder_[1];
     EXPECT(j1 == jobOrder.jobOrderNonParall_[1]);
     EXPECT_LONGS_EQUAL(1, jobOrder.jobIndexMapNP_[j1]);
 
-    jobOrder.ChangeJobOrderNonParallel(0, -1); // delete j0
+    jobOrder.eraseNP(0);
+    // jobOrder.ChangeJobOrderNonParallel(0, -1); // delete j0
     EXPECT_LONGS_EQUAL(1, jobOrder.sizeNP());
     EXPECT(j1 == jobOrder.jobOrderNonParall_[0]);
 
-    jobOrder.ChangeJobOrderNonParallel(0, -1); // delete j1
+    jobOrder.eraseNP(j1);
+    // jobOrder.ChangeJobOrderNonParallel(0, -1); // delete j1
     EXPECT_LONGS_EQUAL(0, jobOrder.sizeNP());
 }
 
@@ -209,9 +213,11 @@ TEST(changeOrderNP, switch_position)
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
     JobOrderMultiCore jobOrder(tasksInfo, initial);
 
-    jobOrder.ChangeJobOrderNonParallel(0, 0); // insert j0
+    jobOrder.insertNP(jobOrder.jobOrder_[0], 0);
+    // jobOrder.ChangeJobOrderNonParallel(0, 0); // insert j0
     JobCEC j0 = jobOrder.jobOrder_[0];
-    jobOrder.ChangeJobOrderNonParallel(1, 1);
+    jobOrder.insertNP(jobOrder.jobOrder_[1], 1);
+    // jobOrder.ChangeJobOrderNonParallel(1, 1);
     JobCEC j1 = jobOrder.jobOrder_[1];
     jobOrder.ChangeJobOrderNonParallel(0, 1); // swap j0 and j1
 
@@ -321,8 +327,10 @@ TEST(changeOrderNP, ListSchedulingLFTPA_NP)
     JobOrderMultiCore jobOrder(tasksInfo, initial); //
     PrintSchedule(tasksInfo, initial);
 
-    jobOrder.ChangeJobOrderNonParallel(0, 0); // insert j0
-    jobOrder.ChangeJobOrderNonParallel(1, 1);
+    // jobOrder.ChangeJobOrderNonParallel(0, 0); // insert j0
+    jobOrder.insertNP(jobOrder[0], 0);
+    // jobOrder.ChangeJobOrderNonParallel(1, 1);
+    jobOrder.insertNP(jobOrder[1], 1);
     jobOrder.ChangeJobOrderNonParallel(0, 1); // swap j0 and j1
 
     jobOrder.ChangeJobOrder(0, 1);
@@ -345,8 +353,10 @@ TEST(changeOrderNP, ListSchedulingLFTPA_NP_v2)
     JobOrderMultiCore jobOrder(tasksInfo, initial); //
     PrintSchedule(tasksInfo, initial);
 
-    jobOrder.ChangeJobOrderNonParallel(0, 0); // insert j0
-    jobOrder.ChangeJobOrderNonParallel(1, 1);
+    // jobOrder.ChangeJobOrderNonParallel(0, 0); // insert j0
+    jobOrder.insertNP(jobOrder[0], 0);
+    // jobOrder.ChangeJobOrderNonParallel(1, 1);
+    jobOrder.insertNP(jobOrder[1], 1);
     jobOrder.ChangeJobOrderNonParallel(0, 1); // swap j0 and j1
 
     jobOrder.ChangeJobOrder(0, 1);
@@ -369,8 +379,10 @@ TEST(ListSchedulingLFTPA_NP, jobOrderConflict)
     JobOrderMultiCore jobOrder(tasksInfo, initial); //
     PrintSchedule(tasksInfo, initial);
 
-    jobOrder.ChangeJobOrderNonParallel(0, 0); // insert j0
-    jobOrder.ChangeJobOrderNonParallel(1, 1);
+    // jobOrder.ChangeJobOrderNonParallel(0, 0); // insert j0
+    jobOrder.insertNP(jobOrder[0], 0);
+    // jobOrder.ChangeJobOrderNonParallel(1, 1);
+    jobOrder.insertNP(jobOrder[1], 1);
     jobOrder.ChangeJobOrderNonParallel(0, 1); // swap j0 and j1
 
     initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3, jobOrder);
@@ -396,7 +408,38 @@ TEST(IO, ReadWriteResult)
     EXPECT_DOUBLES_EQUAL(2.1, res2.obj_, 1e-3);
     EXPECT(!res2.schedulable_);
 }
-// todo: ADD more tests on ListSchedulingLFTPA, add check JobOrderMultiCore confliction
+
+TEST(changeOrderNP, ListSchedulingLFTPA_NP_overwrite_P)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
+    JobOrderMultiCore jobOrder(tasksInfo, initial); // 0,1,2
+    PrintSchedule(tasksInfo, initial);
+    jobOrder.jobOrder_ = {JobCEC{0, 0}, JobCEC{2, 0}, JobCEC{1, 0}};
+
+    jobOrder.insertNP(jobOrder[2], 0);
+    jobOrder.insertNP(jobOrder[1], 1);
+
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, jobOrder);
+    VectorDynamic expected = initial;
+    expected << 0, 0, 1;
+    EXPECT(assert_equal(expected, initial));
+
+    jobOrder.ChangeJobOrderNonParallel(0, 1);
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, jobOrder);
+    expected << 0, 0, 0; // P and NP are conflicted
+    EXPECT(assert_equal(expected, initial));
+
+    jobOrder.ChangeJobOrder(0, 1);
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, jobOrder);
+    expected << 0, 3, 0; // P and NP are consistent
+    EXPECT(assert_equal(expected, initial));
+
+    PrintSchedule(tasksInfo, initial);
+}
 
 // TEST(JobOrderMultiCore, optimize)
 // {
