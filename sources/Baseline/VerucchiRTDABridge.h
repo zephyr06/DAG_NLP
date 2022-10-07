@@ -232,6 +232,10 @@ DAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     {
         res.schedulable_ = false;
     }
+    else
+    {
+        res.schedulable_ = true;
+    }
     res.obj_ = ObjRTDA(res.rtda_);
     return res;
 }

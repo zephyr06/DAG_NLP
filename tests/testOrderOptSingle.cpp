@@ -13,6 +13,7 @@ TEST(DAG_Optimize_schedule, v1)
     else if (processorAssignmentMode == 1)
         sth = DAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
     PrintResultAnalyzation(sth, dagTasks);
+    std::cout << "Schedulable? " << sth.schedulable_ << std::endl;
     EndTimer("main");
     PrintTimer();
 }

@@ -27,6 +27,7 @@ void BatchOptimizeOrder()
     std::vector<std::vector<double>> objsAll(4);
 
     std::vector<string> errorFiles;
+    std::vector<string> worseFiles;
     std::vector<string> files = ReadFilesInDirectory(pathDataset);
     for (const auto &file : files)
     {
@@ -54,6 +55,7 @@ void BatchOptimizeOrder()
                     {
                         res = DAG_SPACE::ScheduleDAGLS_LFT(dagTasks);
                         res.rtda_.print();
+                        std::cout << "Schedulable? " << res.schedulable_ << std::endl;
                     }
                     else if (batchTestMethod == 1)
                     {
@@ -62,11 +64,13 @@ void BatchOptimizeOrder()
                         else if (processorAssignmentMode == 1)
                             res = DAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
                         res.rtda_.print();
+                        std::cout << "Schedulable? " << res.schedulable_ << std::endl;
                     }
                     else if (batchTestMethod == 2)
                     {
                         res = ScheduleVerucchiRTDA(dagTasks, dagTasks.chains_, 1, 15.0, 400000.0, 15.0, 400000.0, 15.0);
                         res.rtda_.print();
+                        std::cout << "Schedulable? " << res.schedulable_ << std::endl;
                     }
                     else
                     {
@@ -77,7 +81,7 @@ void BatchOptimizeOrder()
                     auto stop = chrono::high_resolution_clock::now();
                     auto duration = duration_cast<microseconds>(stop - start);
                     timeTaken = double(duration.count()) / 1e6;
-                    if (!res.schedulable_)
+                    if (res.schedulable_ == false)
                     {
                         errorFiles.push_back(file);
                     }
@@ -90,7 +94,7 @@ void BatchOptimizeOrder()
             if (objsAll[1].back() > objsAll[2].back())
             {
                 CoutWarning("One case where proposed method performs worse is found: " + file);
-                errorFiles.push_back(file);
+                worseFiles.push_back(file);
             }
         }
     }
@@ -110,6 +114,10 @@ void BatchOptimizeOrder()
 
     std::cout << "The number of error files: " << errorFiles.size() << std::endl;
     for (string file : errorFiles)
+        std::cout << file << std::endl;
+
+    std::cout << "The number of files where OrderOpt performs worse: " << worseFiles.size() << std::endl;
+    for (string file : worseFiles)
         std::cout << file << std::endl;
     // std::cout << Color::green << "Average error after optimization (accepted) is " << avEnergy << Color::def << endl;
     // std::cout << Color::green << "Average time consumed (accepted) is " << aveTime << Color::def << endl;
