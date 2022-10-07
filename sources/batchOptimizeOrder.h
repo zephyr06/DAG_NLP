@@ -33,10 +33,10 @@ void BatchOptimizeOrder()
     std::vector<string> files = ReadFilesInDirectory(pathDataset);
     for (const auto &file : files)
     {
-        std::cout << file << endl;
         string delimiter = "-";
         if (file.substr(0, file.find(delimiter)) == "dag" && file.find("Res") == std::string::npos)
         {
+            std::cout << file << endl;
             string path = PROJECT_PATH + "TaskData/dagTasks/" + file;
             DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(path, priorityMode);
             // int N = dagTasks.tasks.size();
@@ -76,21 +76,22 @@ void BatchOptimizeOrder()
                     auto stop = chrono::high_resolution_clock::now();
                     auto duration = duration_cast<microseconds>(stop - start);
                     res.timeTaken_ = double(duration.count()) / 1e6;
+                    res.rtda_.print();
                 }
-
-                // print intermediate results
-                res.rtda_.print();
                 std::cout << "Schedulable? " << res.schedulable_ << std::endl;
 
-                if (res.schedulable_ == false)
-                {
-                    errorFiles.push_back(file);
-                }
                 WriteToResultFile(pathDataset, file, res, batchTestMethod);
 
                 runTimeAll[batchTestMethod].push_back(res.timeTaken_);
                 schedulableAll[batchTestMethod].push_back((res.schedulable_ ? 1 : 0));
-                objsAll[batchTestMethod].push_back(objsAll[0].back()); // If optimized schedule is not schedulable, use list scheduling instead
+                objsAll[batchTestMethod].push_back(res.obj_);
+
+                if (res.schedulable_ == false)
+                {
+                    objsAll[batchTestMethod][objsAll[batchTestMethod].size() - 1] = (objsAll[0].back()); // If optimized schedule is not schedulable, use list scheduling instead
+
+                    errorFiles.push_back(file);
+                }
             }
             if (objsAll[1].back() > objsAll[2].back())
             {
@@ -103,7 +104,7 @@ void BatchOptimizeOrder()
     int n = objsAll[0].size();
     if (n != 0)
     {
-        VariadicTable<std::string, double, double> vt({"Method", "Schedulable ratio", "Obj", "TimeTaken"}, 10);
+        VariadicTable<std::string, double, double, double> vt({"Method", "Schedulable ratio", "Obj", "TimeTaken"}, 10);
 
         vt.addRow("Initial", Average(schedulableAll[0]), Average(objsAll[0]), Average(runTimeAll[0]));
         vt.addRow("OrderOpt", Average(schedulableAll[1]), Average(objsAll[1]), Average(runTimeAll[1]));
