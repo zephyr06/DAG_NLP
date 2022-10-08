@@ -145,8 +145,8 @@ namespace DAG_SPACE
 
             for (uint i = 0; i < taskQueue.size(); i++)
             {
-                JobCEC currJob(taskQueue[i].first, taskQueue[i].second);
-                double lft = GetDeadline(currJob, tasksInfo) - tasksInfo.tasks[currJob.taskId].executionTime;
+                JobCEC jobCurr(taskQueue[i].first, taskQueue[i].second);
+                double lft = GetDeadline(jobCurr, tasksInfo) - tasksInfo.tasks[jobCurr.taskId].executionTime;
                 if (lft < lftAll)
                 {
                     lftJobIndex = i;
@@ -269,29 +269,6 @@ namespace DAG_SPACE
         return initial;
     }
 
-    RunQueue::ID_INSTANCE_PAIR PopTaskLS(RunQueue &runQueue, const JobOrderMultiCore &jobOrder)
-    {
-        std::vector<RunQueue::ID_INSTANCE_PAIR> &taskQueue = runQueue.taskQueue;
-        if (taskQueue.empty())
-            CoutError("TaskQueue is empty!");
-        uint lftJobIndex;
-        double lftAll = std::numeric_limits<double>::max();
-
-        for (uint i = 0; i < taskQueue.size(); i++)
-        {
-            JobCEC currJob(taskQueue[i].first, taskQueue[i].second);
-            LLint priority = jobOrder.jobIndexMap_.at(currJob);
-            if (priority < lftAll)
-            {
-                lftJobIndex = i;
-                lftAll = priority;
-            }
-        }
-        RunQueue::ID_INSTANCE_PAIR jobPop = taskQueue[lftJobIndex];
-        taskQueue.erase(taskQueue.begin() + lftJobIndex);
-        return jobPop;
-    };
-
     // exam all the jobs in jobOrder_ have been dispatched
     bool ExamPrecedenceJobSatisfied(JobCEC jobCurr, std::vector<LLint> &jobScheduled, const JobOrderMultiCore &jobOrder)
     {
@@ -306,7 +283,7 @@ namespace DAG_SPACE
     }
 
     // exam all the jobs in strictPrecedenceMap_ have been finished
-    bool ExamPrecedenceJobSatisfiedNP(JobCEC jobCurr, VectorDynamic &startTimeVector, LLint currTime, const JobOrderMultiCore &jobOrder, std::vector<LLint> &jobScheduled, const TaskSetInfoDerived &tasksInfo)
+    bool ExamPrecedenceJobSatisfiedNP(JobCEC jobCurr, LLint currTime, const JobOrderMultiCore &jobOrder, std::vector<LLint> &jobScheduled, const TaskSetInfoDerived &tasksInfo)
     {
         if (jobOrder.jobIndexMapNP_.find(jobCurr) == jobOrder.jobIndexMapNP_.end())
             return true;
@@ -319,6 +296,43 @@ namespace DAG_SPACE
         }
         return true;
     }
+
+    /**
+     * @brief
+     */
+    RunQueue::ID_INSTANCE_PAIR PopTaskLS(RunQueue &runQueue, const JobOrderMultiCore &jobOrder,
+                                         LLint timeNow, std::vector<LLint> &jobScheduled, const TaskSetInfoDerived &tasksInfo)
+    {
+        std::vector<RunQueue::ID_INSTANCE_PAIR> &taskQueue = runQueue.taskQueue;
+        if (taskQueue.empty())
+            CoutError("TaskQueue is empty!");
+
+        double leastIndex = std::numeric_limits<double>::max();
+        LLint leastIndexJobInQueue = -1;
+        // take all the tasks:
+        std::unordered_set<JobCEC> set;
+        for (uint i = 0; i < taskQueue.size(); i++)
+        {
+            JobCEC jobCurr(taskQueue[i].first, taskQueue[i].second);
+            if (ExamPrecedenceJobSatisfiedNP(jobCurr, timeNow, jobOrder, jobScheduled, tasksInfo) && ExamPrecedenceJobSatisfied(jobCurr, jobScheduled, jobOrder))
+            {
+                LLint priority = jobOrder.jobIndexMap_.at(jobCurr);
+                if (priority < leastIndex)
+                {
+                    leastIndex = priority;
+                    leastIndexJobInQueue = i;
+                }
+            }
+        }
+        RunQueue::ID_INSTANCE_PAIR jobPop = std::make_pair(-1, -1);
+        if (leastIndexJobInQueue == -1)
+        {
+            return jobPop;
+        }
+        jobPop = taskQueue[leastIndexJobInQueue];
+        taskQueue.erase(taskQueue.begin() + leastIndexJobInQueue);
+        return jobPop;
+    };
 
     // TODO: when two jobs have same priority, choose the one with higher precedence priority
     VectorDynamic ListSchedulingLFTPA(const DAG_Model &dagTasks,
@@ -350,28 +364,20 @@ namespace DAG_SPACE
                     bool findTaskToSchedule;
                     if (jobOrder)
                     {
-                        std::vector<JobCEC> jobBuffer;
                         findTaskToSchedule = false;
                         while (!findTaskToSchedule && runQueue.taskQueue.size() > 0)
                         {
-                            p = PopTaskLS(runQueue, *jobOrder);
-                            JobCEC jobCurr(p.first, p.second);
-
-                            if (!ExamPrecedenceJobSatisfied(jobCurr, jobScheduled, *jobOrder) ||
-                                !ExamPrecedenceJobSatisfiedNP(jobCurr, initial, timeNow, *jobOrder, jobScheduled, tasksInfo))
+                            p = PopTaskLS(runQueue, *jobOrder, timeNow, jobScheduled, tasksInfo);
+                            if (p.first == -1)
                             {
-                                jobBuffer.push_back(jobCurr);
+                                break;
                             }
                             else
                             {
+                                JobCEC jobCurr(p.first, p.second);
                                 jobScheduled[jobOrder->jobIndexMap_.at(jobCurr)] = timeNow;
                                 findTaskToSchedule = true;
                             }
-                        }
-
-                        for (JobCEC &job : jobBuffer) // put tasks that cannot be scheduled back
-                        {
-                            runQueue.insert({job.taskId, job.jobId});
                         }
                     }
                     else

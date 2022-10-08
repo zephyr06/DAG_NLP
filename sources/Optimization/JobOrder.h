@@ -69,17 +69,24 @@ namespace DAG_SPACE
         std::vector<JobCEC> jobOrderNonParall_;
         std::unordered_map<JobCEC, LLint> jobIndexMapNP_;
 
-    private:
         void insertNP(JobCEC jobCurr, LLint position)
         {
+            if (position < 0 || position > static_cast<LLint>(jobOrderNonParall_.size()))
+                CoutError("Index out-of-range in ChangeJobOrderNonParallel");
             jobOrderNonParall_.insert(jobOrderNonParall_.begin() + position, jobCurr);
             UpdateMapNP();
         }
 
         void eraseNP(LLint position)
         {
+            if (position < 0 || position >= static_cast<LLint>(jobOrderNonParall_.size()))
+                CoutError("Index out-of-range in ChangeJobOrderNonParallel");
             jobOrderNonParall_.erase(jobOrderNonParall_.begin() + position);
             UpdateMapNP();
+        }
+        void eraseNP(JobCEC j1)
+        {
+            eraseNP(jobIndexMapNP_[j1]);
         }
 
         void UpdateMapNP()
@@ -105,36 +112,23 @@ namespace DAG_SPACE
          */
         void ChangeJobOrderNonParallel(LLint jobIndex, LLint newPosition)
         {
-            if (jobIndex < 0 || jobIndex > static_cast<LLint>(jobOrderNonParall_.size()) || newPosition > static_cast<LLint>(jobOrderNonParall_.size()))
+            if (jobIndex < 0 || jobIndex >= static_cast<LLint>(jobOrder_.size()) || newPosition > static_cast<LLint>(jobOrderNonParall_.size()))
             {
                 CoutError("Index out-of-range in ChangeJobOrderNonParallel");
             }
 
             JobCEC jobCurr = jobOrder_[jobIndex];
-            if (jobIndexMapNP_.find(jobCurr) == jobIndexMapNP_.end())
+
+            if (jobIndex == newPosition)
+                return;
+            if (newPosition < 0)
             {
-                // try to insert jobCurr into all the possible positions in jobIndexMapNP_
-                if (static_cast<size_t>(newPosition) > jobOrderNonParall_.size())
-                {
-                    CoutWarning("newPosition in jobOrderNP exceeds its range!");
-                }
-                // TO improve performance, avoid conflicted insert between jobOrderNonParall_ oand jobOrder_
-                insertNP(jobCurr, newPosition);
+                eraseNP(jobIndex);
                 return;
             }
-            else
-            {
-                if (jobIndex == newPosition)
-                    return;
-                if (newPosition < 0)
-                {
-                    eraseNP(jobIndex);
-                    return;
-                }
-                JobCEC job = jobOrderNonParall_[jobIndex];
-                eraseNP(jobIndex);
-                insertNP(job, newPosition);
-            }
+            JobCEC job = jobOrderNonParall_[jobIndex];
+            eraseNP(jobIndex);
+            insertNP(job, newPosition);
         }
 
         size_t sizeNP() const { return jobOrderNonParall_.size(); }
