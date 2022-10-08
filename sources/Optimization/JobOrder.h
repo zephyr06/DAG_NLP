@@ -117,8 +117,6 @@ namespace DAG_SPACE
                 CoutError("Index out-of-range in ChangeJobOrderNonParallel");
             }
 
-            JobCEC jobCurr = jobOrder_[jobIndex];
-
             if (jobIndex == newPosition)
                 return;
             if (newPosition < 0)

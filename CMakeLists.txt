@@ -43,7 +43,7 @@ if (DEFINED ENV{CPLEX_ROOT_DIR})
 else()
   # exclude files denpends on cplex
   message("Cplex not found! Related files will be removed from building tree.")
-  list(FILTER sources EXCLUDE REGEX "^.*ScheduleOptimizer.h|^.*ScheduleOptimizer.cpp|^.*file3_to_be_ignored.h")
+  list(FILTER sources EXCLUDE REGEX "^.*ScheduleOptimizer.h|^.*other_files_to_be_ignored.h")
 endif()
 
 add_library(${CONVENIENCE_LIB_NAME} SHARED ${sources})

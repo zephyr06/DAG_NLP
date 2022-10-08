@@ -2,7 +2,7 @@
 #include "sources/Tools/testMy.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/JobCEC.h"
-// #include "sources/Optimization/ScheduleOptimizer.h"
+#include "sources/Optimization/ScheduleOptimizer.h"
 
 using namespace DAG_SPACE;
 
@@ -30,12 +30,12 @@ TEST(JobCEC, GetJobUniqueId)
     EXPECT(9 == GetJobUniqueId(JobCEC(2, 0), tasksInfo));
 }
 
-// TEST(ScheduleOptimizer, constructor)
-// {
-//     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
-//     schedule_optimizer.print();
-//     schedule_optimizer.SolveLP();
-// }
+TEST(ScheduleOptimizer, constructor)
+{
+    ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
+    schedule_optimizer.print();
+    schedule_optimizer.SolveLP();
+}
 
 int main()
 {
