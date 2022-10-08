@@ -129,6 +129,38 @@ namespace DAG_SPACE
         }
         std::cout << "\n************************************************" << std::endl;
     }
+
+    LLint GetJobUniqueId(const JobCEC &jobCEC, const TaskSetInfoDerived &tasksInfo)
+    {
+        LLint id = jobCEC.jobId;
+        for (int i = 0; i < jobCEC.taskId; i++)
+        {
+            id += tasksInfo.sizeOfVariables[i];
+        }
+        return id;
+    }
+
+    JobCEC GetJobCECFromUniqueId(LLint id, const TaskSetInfoDerived &tasksInfo)
+    {
+        if (id < 0 || id >= tasksInfo.variableDimension)
+        {
+            return JobCEC();
+        }
+        int task_id = 0;
+        for (auto size : tasksInfo.sizeOfVariables)
+        {
+            if (id < size)
+            {
+                return JobCEC(task_id, id);
+            }
+            else
+            {
+                id -= size;
+                task_id++;
+            }
+        }
+        return JobCEC();
+    }
 }
 
 template <>

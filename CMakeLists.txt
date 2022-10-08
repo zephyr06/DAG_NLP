@@ -32,6 +32,20 @@ include_directories(/usr/local/lib)
 # file(GLOB sources "sources/*.cpp" "sources/*.h")
 file(GLOB_RECURSE sources "sources/*.cpp" "sources/*.h")
 set(CONVENIENCE_LIB_NAME ${PROJECT_NAME})
+
+# Config Cplex
+if (DEFINED ENV{CPLEX_ROOT_DIR})
+  message("Find Cplex installed at " $ENV{CPLEX_ROOT_DIR})
+  set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+  set(CPLEX_ROOT_DIR $ENV{CPLEX_ROOT_DIR})
+  find_package(Cplex)
+  include_directories(SYSTEM ${CPLEX_INCLUDE_DIRS})
+else()
+  # exclude files denpends on cplex
+  message("Cplex not found! Related files will be removed from building tree.")
+  list(FILTER sources EXCLUDE REGEX "^.*ScheduleOptimizer.h|^.*ScheduleOptimizer.cpp|^.*file3_to_be_ignored.h")
+endif()
+
 add_library(${CONVENIENCE_LIB_NAME} SHARED ${sources})
 
 # linking with dependencies
@@ -43,6 +57,9 @@ target_link_libraries(${CONVENIENCE_LIB_NAME} yaml-cpp)
 target_link_libraries(${CONVENIENCE_LIB_NAME} "stdc++fs")
 find_package(Eigen3 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
+if (CPLEX_FOUND)
+  target_link_libraries(${CONVENIENCE_LIB_NAME} ${CPLEX_LIBRARIES} ${CMAKE_DL_LIBS})
+endif()
 
 add_subdirectory(tests)
 add_subdirectory(sources)
