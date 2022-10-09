@@ -4,7 +4,7 @@
 batchTestMethod: 1 # 0 means initial, 1 means proposed optimization, 2 means Verucchi20, 3 means SA
 testDataSetName: test_n3_v9
 AcceptSchedulError: 1e-2
-debugMode: 0
+debugMode: 1
 recordActionValue: 0
 runMode: compare
 initializeMethod: 5
@@ -98,4 +98,8 @@ kVerucchiMaxReaction: 400000.0
 kVerucchiDataAgeCost: 15.0
 kVerucchiMaxDataAge: 400000.0
 kVerucchiCoreCost: 50.0
+#*************************************************************
+
+# Cplex settings
+kCplexInequalityThreshold: 1e-3
 #*************************************************************

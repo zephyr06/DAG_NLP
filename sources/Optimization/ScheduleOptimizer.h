@@ -114,28 +114,27 @@ namespace DAG_SPACE
         }
         void AddCauseEffectiveChainConstraints()
         {
-            if (debugMode)
+            for (auto chain : p_dagTasks_->chains_)
             {
-                for (auto chain : p_dagTasks_->chains_)
+                auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, result_to_be_optimized_.startTimeVector_);
+                for (auto pair : react_chain_map)
                 {
-                    auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, result_to_be_optimized_.startTimeVector_);
-                    for (auto pair : react_chain_map)
+                    auto &react_chain = pair.second;
+                    if (react_chain.size() > 1)
                     {
-                        auto &react_chain = pair.second;
-                        if (react_chain.size() > 1)
+                        JobCEC pre_job_in_chain = react_chain[0];
+                        for (auto i = 1u; i < react_chain.size(); i++)
                         {
-                            JobCEC pre_job_in_chain = react_chain[0];
-                            for (auto i = 1u; i < react_chain.size(); i++)
+                            JobCEC cur_job = react_chain[i];
+                            JobCEC pre_job_of_same_task = cur_job;
+                            pre_job_of_same_task.jobId--;
+                            model_.add(GetFinishTimeExpression(pre_job_in_chain) <= GetStartTimeExpression(cur_job));
+                            if (pre_job_of_same_task.jobId >= 0)
                             {
-                                JobCEC cur_job = react_chain[i];
-                                JobCEC pre_job_of_same_task = cur_job;
-                                pre_job_of_same_task.jobId--;
-                                model_.add(GetFinishTimeExpression(pre_job_in_chain) <= GetStartTimeExpression(cur_job));
-                                if (pre_job_of_same_task.jobId >= 0)
-                                {
-                                    model_.add(GetFinishTimeExpression(pre_job_in_chain) > GetStartTimeExpression(pre_job_of_same_task));
-                                }
+                                // Cplex only support weak inequality, a threshold is added to enforce strict inequality
+                                model_.add(GetStartTimeExpression(pre_job_of_same_task) <= GetFinishTimeExpression(pre_job_in_chain) - kCplexInequalityThreshold);
                             }
+                            pre_job_in_chain = cur_job;
                         }
                     }
                 }

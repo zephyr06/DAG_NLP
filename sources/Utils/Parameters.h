@@ -136,3 +136,5 @@ const double kVerucchiMaxReaction = (double)ConfigParameters["kVerucchiMaxReacti
 const double kVerucchiDataAgeCost = (double)ConfigParameters["kVerucchiDataAgeCost"];
 const double kVerucchiMaxDataAge = (double)ConfigParameters["kVerucchiMaxDataAge"];
 const double kVerucchiCoreCost = (double)ConfigParameters["kVerucchiCoreCost"];
+
+double kCplexInequalityThreshold = (double)ConfigParameters["kCplexInequalityThreshold"];
