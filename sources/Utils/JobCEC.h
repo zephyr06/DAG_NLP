@@ -62,7 +62,7 @@ namespace DAG_SPACE
         }
         int jobNumInHyperPeriod = tasksInfo.hyperPeriod / tasksInfo.tasks[jobCEC.taskId].period;
 
-        double res = x(IndexTran_Instance2Overall(jobCEC.taskId, jobCEC.jobId, tasksInfo.sizeOfVariables)) + jobCEC.jobId / jobNumInHyperPeriod * tasksInfo.hyperPeriod;
+        double res = x(IndexTran_Instance2Overall(jobCEC.taskId, jobCEC.jobId % jobNumInHyperPeriod, tasksInfo.sizeOfVariables)) + jobCEC.jobId / jobNumInHyperPeriod * tasksInfo.hyperPeriod;
         return res;
     }
 
