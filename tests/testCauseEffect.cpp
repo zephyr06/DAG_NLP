@@ -200,6 +200,22 @@ TEST(CA_customize, v1)
     // EXPECT_LONGS_EQUAL(312, resM.dataAge);
 }
 
+TEST(RTDA, v1)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n4_v1.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initialEstimate = GenerateVectorDynamic(7);
+    initialEstimate << 3, 4, 2, 5, 1, 6, 7;
+    Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
+    std::vector<int> causeEffectChain = {0, 1, 2};
+    auto res = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
+    RTDA resM = GetMaxRTDA(res);
+    EXPECT_LONGS_EQUAL(4, resM.reactionTime);
+    EXPECT_LONGS_EQUAL(6, resM.dataAge);
+}
+
 int main()
 {
     TestResult tr;

@@ -2,6 +2,8 @@
 #define OPTIMIZATION_SCHEDULE_OPTIMIZER_H_
 #include <iostream>
 #include <memory>
+#include <vector>
+#include <unordered_map>
 #include "sources/Utils/BatchUtils.h"
 #include "ilcplex/cplex.h"
 #include "ilcplex/ilocplex.h"
@@ -13,100 +15,161 @@ namespace DAG_SPACE
     public:
         ScheduleOptimizer()
         {
-            p_env_ = std::shared_ptr<IloEnv>(new IloEnv);
-            p_model_ = std::shared_ptr<IloModel>(new IloModel(*p_env_));
-            p_cplex_solver_ = std::shared_ptr<IloCplex>(new IloCplex(*p_env_));
+            reset();
         }
         void reset()
         {
-            p_env_->end();
-            p_model_->end();
-            p_cplex_solver_->clear();
-            p_env_ = std::shared_ptr<IloEnv>(new IloEnv);
-            p_model_ = std::shared_ptr<IloModel>(new IloModel(*p_env_));
-            p_cplex_solver_ = std::shared_ptr<IloCplex>(new IloCplex(*p_env_));
+            // env_.end();
+            // model_.end();
+            // cplex_solver_.end();
+            env_ = IloEnv();
+            model_ = IloModel(env_);
+            cplex_solver_ = IloCplex(env_);
+            num_variables_ = 0;
+            num_hyper_periods_ = 0;
+        }
+        void Optimize(DAG_Model &dagTasks, ScheduleResult &result)
+        {
+            reset();
+            setScheduleResult(result);
+            TaskSetInfoDerived taskInfo(dagTasks.tasks);
+            setTaskInfo(taskInfo);
+            AddVariables();
+            AddDBFConstraints();
+            AddDDLConstraints();
+            AddCauseEffectiveChainConstraints();
+            AddObjectives();
+
+            cplex_solver_.extract(model_);
+            cplex_solver_.solve();
+
+            auto status = cplex_solver_.getStatus();
+            IloNumArray values_optimized(env_, 0);
+            cplex_solver_.getValues(var_array_, values_optimized);
+            GenerateOptimizedResult(values_optimized, dagTasks);
+            std::cout << "Values are :" << values_optimized << "\n";
+            std::cout << status << " solution found: " << cplex_solver_.getObjValue() << "\n";
         }
 
-        inline std::shared_ptr<IloEnv> getEnv()
+        void AddVariables()
         {
-            return p_env_;
+            num_variables_ = tasksInfo_.variableDimension;
+            var_array_ = IloNumVarArray(env_, num_variables_, 0, tasksInfo_.hyperPeriod, IloNumVar::Float);
         }
-        inline std::shared_ptr<IloModel> getModel()
+        void AddDBFConstraints()
         {
-            return p_model_;
+            std::unordered_map<int, std::vector<JobCEC>> processor_job_map;
+            int processor_id = 0;
+            for (int i = 0; i < num_variables_; i++)
+            {
+                // TODO: need to support multiple processor id
+                processor_id = 0;
+                auto job = GetJobCECFromUniqueId(i, tasksInfo_);
+                if (processor_job_map.count(processor_id) == 0)
+                {
+                    processor_job_map[processor_id] = std::vector<JobCEC>{};
+                }
+                processor_job_map[processor_id].push_back(job);
+            }
+            for (auto &pair : processor_job_map)
+            {
+                std::sort(pair.second.begin(), pair.second.end(),
+                          [this](auto a, auto b) -> bool
+                          { return GetStartTime(a, result_to_be_optimized_.startTimeVector_, tasksInfo_) <
+                                   GetStartTime(b, result_to_be_optimized_.startTimeVector_, tasksInfo_); });
+                if (pair.second.size() > 1)
+                {
+                    int pre_job_id = GetJobUniqueId(pair.second[0], tasksInfo_);
+                    int cur_job_id;
+                    for (auto j = 1u; j < pair.second.size(); j++)
+                    {
+                        cur_job_id = GetJobUniqueId(pair.second[j], tasksInfo_);
+                        model_.add(var_array_[pre_job_id] + tasksInfo_.tasks[pair.second[j - 1].taskId].executionTime <= var_array_[cur_job_id]);
+                        pre_job_id = cur_job_id;
+                    }
+                }
+            }
         }
-        inline std::shared_ptr<IloCplex> getSolver()
+        void AddDDLConstraints()
         {
-            return p_cplex_solver_;
+            for (int i = 0; i < num_variables_; i++)
+            {
+                model_.add(var_array_[i] >= GetActivationTime(GetJobCECFromUniqueId(i, tasksInfo_), tasksInfo_));
+                model_.add(var_array_[i] + GetExecutionTime(i, tasksInfo_) <= GetDeadline(GetJobCECFromUniqueId(i, tasksInfo_), tasksInfo_));
+            }
+        }
+        void AddCauseEffectiveChainConstraints()
+        {
+            num_hyper_periods_ = 1; // TODO: need to support multiple hyper periods
+        }
+        void AddObjectives()
+        {
+            IloExpr rtda_expression(env_);
+            rtda_expression += var_array_[4] + tasksInfo_.tasks[2].executionTime - var_array_[0];
+            rtda_expression += var_array_[4] + tasksInfo_.tasks[2].executionTime + tasksInfo_.hyperPeriod - var_array_[1];
+            model_.add(IloMinimize(env_, rtda_expression));
+            rtda_expression.end();
+        }
+        void GenerateOptimizedResult(IloNumArray &values_optimized, DAG_Model &dagTasks)
+        {
+            result_after_optimization_ = result_to_be_optimized_;
+            VectorDynamic start_time(num_variables_);
+            for (int i = 0; i < num_variables_; i++)
+            {
+                start_time(i) = values_optimized[i];
+            }
+
+            Values initialEstimateFG = GenerateInitialFG(start_time, tasksInfo_);
+            std::vector<RTDA> rtda_vector;
+            for (auto chain : dagTasks.chains_)
+            {
+                auto res = GetRTDAFromSingleJob(tasksInfo_, chain, initialEstimateFG);
+                RTDA resM = GetMaxRTDA(res);
+                if (resM.reactionTime == -1 || resM.dataAge == -1)
+                {
+                    return;
+                }
+                rtda_vector.push_back(resM);
+            }
+            RTDA rtda_optimized(0, 0);
+            for (auto rtda : rtda_vector)
+            {
+                rtda_optimized.reactionTime += rtda.reactionTime;
+                rtda_optimized.dataAge += rtda.dataAge;
+            }
+            if (ObjRTDA(rtda_optimized) < ObjRTDA(result_after_optimization_.rtda_))
+            {
+                result_after_optimization_.rtda_ = rtda_optimized;
+                result_after_optimization_.obj_ = ObjRTDA(rtda_optimized);
+            }
         }
         void setScheduleResult(ScheduleResult &res)
         {
-            result_to_optimize_ = res;
+            result_to_be_optimized_ = res;
         }
         ScheduleResult getOptimizedResult()
         {
             return result_after_optimization_;
         }
-
+        void setTaskInfo(TaskSetInfoDerived &info)
+        {
+            tasksInfo_ = info;
+        }
         void print()
         {
-            std::cout << "ScheduleOptimizer successfully print something!!!\n";
-        }
-        void SolveLP()
-        {
-            IloEnv env = *getEnv();
-            IloCplex cplex = *getSolver();
-            IloModel model = *getModel();
-
-            IloNumVar var1(env);
-            IloNumVarArray var_array(env, 2, -10, 200, IloNumVar::Float);
-            var_array[0].setBounds(10.0, 20.0);
-            var_array[1].setBounds(15.0, 20.0);
-
-            model.add(IloRange(env, var_array[0] + var_array[1], 35));
-            model.add(30 <= var_array[0] + var_array[1]);
-
-            IloExpr myexpr(env);
-            myexpr -= var_array[0];
-            myexpr -= var_array[1];
-            model.add(IloRange(env, myexpr, 0));
-            myexpr.end();
-
-            IloRangeArray constraint_array(env);
-            constraint_array.add(IloRange(env, 0, 100));
-            constraint_array.add(IloRange(env, 10, 200));
-            constraint_array[0].setLinearCoef(var_array[0], 1);
-            IloNumArray coeffs(env, 2, 1, 1);
-            std::cout << coeffs.getSize() << "\n";
-            constraint_array[1].setLinearCoefs(var_array, coeffs);
-            model.add(constraint_array);
-            // std::cout << constraint_array.getSize()<<"\n";
-
-            model.add(var1 >= var_array[0] * 2 + 0.5 * var_array[1]);
-            model.add(var1 >= var_array[0] * 0.9 + 1.8 * var_array[1]);
-
-            // model.add(IloMinimize(env, var_array[0] * 2 + 0.5 * var_array[1]));
-            model.add(IloMinimize(env, var1));
-
-            cplex.extract(model);
-            cplex.solve();
-
-            auto status = cplex.getStatus();
-            std::cout << cplex.getValue(var1) << "\n";
-            std::cout << cplex.getValue(var_array[0]) << ",  " << cplex.getValue(var_array[1]) << "\n";
-            std::cout << status << " solution found: " << cplex.getObjValue() << "\n";
-
-            cplex.clear();
-            env.end();
+            std::cout << "ScheduleOptimizer print something!!!\n";
         }
 
     private:
-        std::shared_ptr<IloEnv> p_env_;
-        std::shared_ptr<IloModel> p_model_;
-        std::shared_ptr<IloCplex> p_cplex_solver_;
-        ScheduleResult result_to_optimize_;
+        IloEnv env_;
+        IloModel model_;
+        IloCplex cplex_solver_;
+        IloNumVarArray var_array_;
+        ScheduleResult result_to_be_optimized_;
         ScheduleResult result_after_optimization_;
-        TaskSetInfoDerived taskInfo_;
+        TaskSetInfoDerived tasksInfo_;
+        int num_variables_;
+        int num_hyper_periods_;
     };
 } // namespace DAG_SPACE
 #endif // OPTIMIZATION_SCHEDULE_OPTIMIZER_H_

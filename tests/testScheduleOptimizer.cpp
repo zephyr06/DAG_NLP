@@ -28,13 +28,37 @@ TEST(JobCEC, GetJobUniqueId)
     EXPECT(5 == GetJobUniqueId(JobCEC(0, 5), tasksInfo));
     EXPECT(7 == GetJobUniqueId(JobCEC(1, 1), tasksInfo));
     EXPECT(9 == GetJobUniqueId(JobCEC(2, 0), tasksInfo));
+
+    EXPECT(5 == GetJobUniqueId(JobCEC(0, 11), tasksInfo));
+    EXPECT(7 == GetJobUniqueId(JobCEC(1, 4), tasksInfo));
+    EXPECT(9 == GetJobUniqueId(JobCEC(2, 2), tasksInfo));
 }
 
 TEST(ScheduleOptimizer, constructor)
 {
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
-    schedule_optimizer.print();
-    schedule_optimizer.SolveLP();
+    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v10.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initialEstimate = GenerateVectorDynamic(5);
+    initialEstimate << 0, 11, 20, 1, 6;
+    Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
+    std::vector<int> causeEffectChain = {0, 1, 2};
+    auto res = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
+    RTDA resM = GetMaxRTDA(res);
+    resM.print();
+    EXPECT_LONGS_EQUAL(30, resM.reactionTime);
+    EXPECT_LONGS_EQUAL(11, resM.dataAge);
+    ScheduleResult result_to_be_optimized;
+    ScheduleResult result_after_optimization;
+
+    result_to_be_optimized.startTimeVector_ = initialEstimate;
+    result_to_be_optimized.rtda_ = resM;
+    schedule_optimizer.Optimize(dagTasks, result_to_be_optimized);
+    result_after_optimization = schedule_optimizer.getOptimizedResult();
+    result_after_optimization.rtda_.print();
+    EXPECT_LONGS_EQUAL(22, result_after_optimization.rtda_.reactionTime);
+    EXPECT_LONGS_EQUAL(11, result_after_optimization.rtda_.dataAge);
 }
 
 int main()
