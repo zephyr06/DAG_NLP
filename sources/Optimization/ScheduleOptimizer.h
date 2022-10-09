@@ -17,21 +17,11 @@ namespace DAG_SPACE
         {
             reset();
         }
-        void reset()
-        {
-            // env_.end();
-            // model_.end();
-            // cplex_solver_.end();
-            env_ = IloEnv();
-            model_ = IloModel(env_);
-            cplex_solver_ = IloCplex(env_);
-            num_variables_ = 0;
-            num_hyper_periods_ = 0;
-        }
         void Optimize(DAG_Model &dagTasks, ScheduleResult &result)
         {
             reset();
             setScheduleResult(result);
+            setDagTasks(dagTasks);
             TaskSetInfoDerived taskInfo(dagTasks.tasks);
             setTaskInfo(taskInfo);
             AddVariables();
@@ -46,11 +36,34 @@ namespace DAG_SPACE
             auto status = cplex_solver_.getStatus();
             IloNumArray values_optimized(env_, 0);
             cplex_solver_.getValues(var_array_, values_optimized);
-            GenerateOptimizedResult(values_optimized, dagTasks);
-            std::cout << "Values are :" << values_optimized << "\n";
-            std::cout << status << " solution found: " << cplex_solver_.getObjValue() << "\n";
+            GenerateOptimizedResult(values_optimized);
+            if (debugMode)
+            {
+                std::cout << "Values are :" << values_optimized << "\n";
+                std::cout << status << " solution found: " << cplex_solver_.getObjValue() << "\n";
+            }
+        }
+        void print()
+        {
+            std::cout << "ScheduleOptimizer print something!!!\n";
+        }
+        ScheduleResult getOptimizedResult()
+        {
+            return result_after_optimization_;
         }
 
+    protected:
+        void reset()
+        {
+            // env_.end();
+            // model_.end();
+            // cplex_solver_.end();
+            env_ = IloEnv();
+            model_ = IloModel(env_);
+            cplex_solver_ = IloCplex(env_);
+            num_variables_ = 0;
+            num_hyper_periods_ = 0;
+        }
         void AddVariables()
         {
             num_variables_ = tasksInfo_.variableDimension;
@@ -84,11 +97,12 @@ namespace DAG_SPACE
                     for (auto j = 1u; j < pair.second.size(); j++)
                     {
                         cur_job_id = GetJobUniqueId(pair.second[j], tasksInfo_);
-                        model_.add(var_array_[pre_job_id] + tasksInfo_.tasks[pair.second[j - 1].taskId].executionTime <= var_array_[cur_job_id]);
+                        model_.add(var_array_[pre_job_id] + GetExecutionTime(pre_job_id, tasksInfo_) <= var_array_[cur_job_id]);
                         pre_job_id = cur_job_id;
                     }
                 }
             }
+            // TODO: need to support job order constraint ?
         }
         void AddDDLConstraints()
         {
@@ -100,7 +114,32 @@ namespace DAG_SPACE
         }
         void AddCauseEffectiveChainConstraints()
         {
-            num_hyper_periods_ = 1; // TODO: need to support multiple hyper periods
+            if (debugMode)
+            {
+                for (auto chain : p_dagTasks_->chains_)
+                {
+                    auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, result_to_be_optimized_.startTimeVector_);
+                    for (auto pair : react_chain_map)
+                    {
+                        auto &react_chain = pair.second;
+                        if (react_chain.size() > 1)
+                        {
+                            JobCEC pre_job_in_chain = react_chain[0];
+                            for (auto i = 1u; i < react_chain.size(); i++)
+                            {
+                                JobCEC cur_job = react_chain[i];
+                                JobCEC pre_job_of_same_task = cur_job;
+                                pre_job_of_same_task.jobId--;
+                                model_.add(GetFinishTimeExpression(pre_job_in_chain) <= GetStartTimeExpression(cur_job));
+                                if (pre_job_of_same_task.jobId >= 0)
+                                {
+                                    model_.add(GetFinishTimeExpression(pre_job_in_chain) > GetStartTimeExpression(pre_job_of_same_task));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         void AddObjectives()
         {
@@ -110,7 +149,23 @@ namespace DAG_SPACE
             model_.add(IloMinimize(env_, rtda_expression));
             rtda_expression.end();
         }
-        void GenerateOptimizedResult(IloNumArray &values_optimized, DAG_Model &dagTasks)
+        IloExpr GetStartTimeExpression(JobCEC &jobCEC)
+        {
+            IloExpr exp(env_);
+            if (jobCEC.taskId < 0 || jobCEC.taskId >= tasksInfo_.N)
+            {
+                CoutError("GetStartTime receives invalid jobCEC!");
+            }
+            int jobNumInHyperPeriod = tasksInfo_.hyperPeriod / tasksInfo_.tasks[jobCEC.taskId].period;
+            exp += var_array_[GetJobUniqueId(jobCEC, tasksInfo_)];
+            exp += jobCEC.jobId / jobNumInHyperPeriod * tasksInfo_.hyperPeriod;
+            return exp;
+        }
+        IloExpr GetFinishTimeExpression(JobCEC &jobCEC)
+        {
+            return GetStartTimeExpression(jobCEC) + GetExecutionTime(jobCEC, tasksInfo_);
+        }
+        void GenerateOptimizedResult(IloNumArray &values_optimized)
         {
             result_after_optimization_ = result_to_be_optimized_;
             VectorDynamic start_time(num_variables_);
@@ -121,7 +176,7 @@ namespace DAG_SPACE
 
             Values initialEstimateFG = GenerateInitialFG(start_time, tasksInfo_);
             std::vector<RTDA> rtda_vector;
-            for (auto chain : dagTasks.chains_)
+            for (auto chain : p_dagTasks_->chains_)
             {
                 auto res = GetRTDAFromSingleJob(tasksInfo_, chain, initialEstimateFG);
                 RTDA resM = GetMaxRTDA(res);
@@ -147,17 +202,13 @@ namespace DAG_SPACE
         {
             result_to_be_optimized_ = res;
         }
-        ScheduleResult getOptimizedResult()
+        inline void setDagTasks(DAG_Model &dagTasks)
         {
-            return result_after_optimization_;
+            p_dagTasks_ = &dagTasks;
         }
         void setTaskInfo(TaskSetInfoDerived &info)
         {
             tasksInfo_ = info;
-        }
-        void print()
-        {
-            std::cout << "ScheduleOptimizer print something!!!\n";
         }
 
     private:
@@ -168,6 +219,7 @@ namespace DAG_SPACE
         ScheduleResult result_to_be_optimized_;
         ScheduleResult result_after_optimization_;
         TaskSetInfoDerived tasksInfo_;
+        DAG_Model *p_dagTasks_;
         int num_variables_;
         int num_hyper_periods_;
     };

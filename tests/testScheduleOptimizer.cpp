@@ -34,7 +34,7 @@ TEST(JobCEC, GetJobUniqueId)
     EXPECT(9 == GetJobUniqueId(JobCEC(2, 2), tasksInfo));
 }
 
-TEST(ScheduleOptimizer, constructor)
+TEST(ScheduleOptimizer, single_core_optimization)
 {
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
     DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v10.csv", "orig");
