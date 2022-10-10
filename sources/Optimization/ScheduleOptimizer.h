@@ -31,17 +31,20 @@ namespace DAG_SPACE
             AddObjectives();
 
             cplex_solver_.extract(model_);
-            cplex_solver_.solve();
+            bool found_feasible_solution = cplex_solver_.solve();
 
-            auto status = cplex_solver_.getStatus();
-            IloNumArray values_optimized(env_, 0);
-            cplex_solver_.getValues(var_array_, values_optimized);
-            GenerateOptimizedResult(values_optimized);
-            if (debugMode)
+            IloNumArray values_optimized(env_, num_variables_);
+            if (found_feasible_solution)
             {
-                std::cout << "Values are :" << values_optimized << "\n";
-                std::cout << status << " solution found: " << cplex_solver_.getObjValue() << "\n";
+                auto status = cplex_solver_.getStatus();
+                cplex_solver_.getValues(var_array_, values_optimized);
+                if (debugMode)
+                {
+                    std::cout << "Values are :" << values_optimized << "\n";
+                    std::cout << status << " solution found: " << cplex_solver_.getObjValue() << "\n";
+                }
             }
+            GenerateOptimizedResult(values_optimized);
         }
         void print()
         {
@@ -143,8 +146,40 @@ namespace DAG_SPACE
         void AddObjectives()
         {
             IloExpr rtda_expression(env_);
-            rtda_expression += var_array_[4] + tasksInfo_.tasks[2].executionTime - var_array_[0];
-            rtda_expression += var_array_[4] + tasksInfo_.tasks[2].executionTime + tasksInfo_.hyperPeriod - var_array_[1];
+            std::stringstream var_name;
+            int chain_count = 0;
+            LLint hyper_period = tasksInfo_.hyperPeriod;
+            const TaskSet &tasks = tasksInfo_.tasks;
+
+            for (auto chain : p_dagTasks_->chains_)
+            {
+                var_name << "Chain_" << chain_count << "_RT";
+                auto theta_rt = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, var_name.str().c_str());
+                var_name.str("");
+                var_name << "Chain_" << chain_count << "_DA";
+                auto theta_da = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, var_name.str().c_str());
+                var_name.str("");
+                auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, result_to_be_optimized_.startTimeVector_);
+
+                LLint total_start_jobs = hyper_period / tasks[chain[0]].period + 1;
+                for (LLint start_instance_index = 0; start_instance_index <= total_start_jobs; start_instance_index++)
+                {
+                    JobCEC start_job = {chain[0], (start_instance_index)};
+                    auto &react_chain = react_chain_map[start_job];
+                    JobCEC first_react_job = react_chain.back();
+                    model_.add(theta_rt >= (GetFinishTimeExpression(first_react_job) - GetStartTimeExpression(start_job)));
+
+                    JobCEC last_start_job = {chain[0], (start_instance_index - 1)};
+                    if (start_instance_index > 0 && react_chain_map[last_start_job].back() != first_react_job && first_react_job.jobId > 0)
+                    {
+                        JobCEC last_react_job = first_react_job;
+                        last_react_job.jobId--;
+                        model_.add(theta_da >= (GetFinishTimeExpression(last_react_job) - GetStartTimeExpression(last_start_job)));
+                    }
+                }
+                rtda_expression += theta_rt;
+                rtda_expression += theta_da;
+            }
             model_.add(IloMinimize(env_, rtda_expression));
             rtda_expression.end();
         }
