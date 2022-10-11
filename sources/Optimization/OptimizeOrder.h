@@ -54,7 +54,7 @@ namespace DAG_SPACE
         }
         if (overallObjCurr < overallObjPrev && statusPrev.objVal_ == statusCurr.objVal_)
             return true;
-        else if (overallObjCurr == overallObjPrev && rand() < RandomAccept)
+        else if (overallObjCurr < overallObjPrev && ((double)rand() / (RAND_MAX)) < RandomAccept)
             return true;
         return false;
     }
@@ -62,6 +62,7 @@ namespace DAG_SPACE
     template <class SchedulingAlgorithm>
     ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, int processorNum = coreNumberAva)
     {
+        // srand(RandomDrawWeightMaxLoop);
         if (dagTasks.chains_.size() == 0)
             CoutWarning("No chain is provided for the given dag!");
 
@@ -87,7 +88,7 @@ namespace DAG_SPACE
         {
             IterationStatus<SchedulingAlgorithm> statusCurr(dagTasks, tasksInfo, jobOrderCurr, processorNum);
 
-            PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
+            // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
             if (MakeProgress<SchedulingAlgorithm>(statusPrev, statusCurr))
             {
                 findNewUpdate = true;
@@ -139,39 +140,8 @@ namespace DAG_SPACE
                     ExamAndApplyUpdate(jobOrderCurr); // update outside variables
                 }
             }
-
-            // TODO: iterate possible permutations of JobOrderMultiCore
-            // for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
-            // {
-            //     JobCEC jobI = jobOrderRef[i];
-            //     for (LLint j = 0; j < static_cast<LLint>(statusPrev.jobOrder_.sizeNP()); j++)
-            //     {
-            //         JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
-            //         if(jobOrderCurr.jobIndexMapNP_.find(jobI) == jobOrderCurr.jobIndexMapNP_.end())
-            //         {
-            //             jobOrderCurr.insertNP(jobI);
-            //         }
-            //         jobOrderCurr.ChangeJobOrderNonParallel(i, j);
-            //         ExamAndApplyUpdate(jobOrderCurr);
-            //     }
-            // }
         }
         // TODO: optimize the final schedule to reduce RTDA
-
-        // JobOrder jobOrderCurr = statusPrev.jobOrder_;
-        // jobOrderCurr.ChangeJobStartOrder(5, 0);
-        // IterationStatus<SchedulingAlgorithm> statusCurr(dagTasks, tasksInfo, jobOrderCurr);
-        // PrintSchedule(tasksInfo, statusCurr.startTimeVector_, processorNum);
-        // if (MakeProgress<SchedulingAlgorithm>(statusPrev, statusCurr))
-        // {
-        //     findNewUpdate = true;
-        //     statusPrev = statusCurr;
-        //     if (debugMode == 1)
-        //     {
-        //         std::cout << "Make progress!" << std::endl;
-        //         PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
-        //     }
-        // }
 
         ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.maxRtda_};
         return scheduleRes;

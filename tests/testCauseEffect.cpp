@@ -207,18 +207,23 @@ TEST(RTDA, v2)
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initialEstimate = GenerateVectorDynamic(7);
-    initialEstimate << 0, 0, 100, 200, 12, 100, 200;
+    initialEstimate << 0, 37, 100, 200, 12, 100, 200;
     PrintSchedule(tasksInfo, initialEstimate);
     Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
     std::vector<int> causeEffectChain = {2, 1};
     auto res = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
     std::cout << std::endl;
-    for (auto rtda : res)
-    {
-        rtda.print();
-    }
+    // for (auto rtda : res)
+    // {
+    //     rtda.print();
+    // }
     EXPECT_LONGS_EQUAL(4, res.size());
+    EXPECT_LONGS_EQUAL(37, res[0].reactionTime);
+    EXPECT_LONGS_EQUAL(149, res[2].reactionTime);
+    EXPECT_LONGS_EQUAL(-1, res[2].dataAge);
+    EXPECT_LONGS_EQUAL(100, res[3].dataAge);
     RTDA resM = GetMaxRTDA(res);
+    std::cout << std::endl;
     resM.print();
 }
 
