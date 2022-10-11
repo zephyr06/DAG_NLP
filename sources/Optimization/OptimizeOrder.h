@@ -131,7 +131,7 @@ namespace DAG_SPACE
                     ExamAndApplyUpdate(jobOrderCurr);
                 }
             }
-            if (coreNumberAva > 1)
+            if (processorNum > 1)
             {
                 // Initialize it with a pair of jobs
                 if (statusPrev.jobOrder_.sizeSerial() == 0)

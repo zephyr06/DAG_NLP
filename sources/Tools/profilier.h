@@ -29,7 +29,7 @@ struct ProfilerData
     }
 };
 
-std::unordered_map<std::string, ProfilerData> profilerMap;
+static std::unordered_map<std::string, ProfilerData> profilerMap;
 
 void BeginTimer(std::string funcName)
 {
