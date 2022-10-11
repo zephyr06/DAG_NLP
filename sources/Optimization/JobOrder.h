@@ -47,7 +47,7 @@ namespace DAG_SPACE
         JobCEC operator[](LLint index) { return jobOrder_[index]; }
 
         // jobIndex and newPosition is relative to the original job vector
-        void ChangeJobOrder(LLint jobIndex, LLint newPosition)
+        void ChangeJobStartOrder(LLint jobIndex, LLint newPosition)
         {
             if (jobIndex == newPosition)
                 return;
@@ -66,40 +66,49 @@ namespace DAG_SPACE
     class JobOrderMultiCore : public JobOrder
     {
     public:
-        std::vector<JobCEC> jobOrderNonParall_;
-        std::unordered_map<JobCEC, LLint> jobIndexMapNP_;
+        std::vector<bool> jobOrderSerial_;
 
-        void insertNP(JobCEC jobCurr, LLint position)
+        void insertNP(LLint position)
         {
-            if (position < 0 || position > static_cast<LLint>(jobOrderNonParall_.size()))
+            if (position < 0 || position > static_cast<LLint>(jobOrder_.size()))
                 CoutError("Index out-of-range in ChangeJobOrderNonParallel");
-            jobOrderNonParall_.insert(jobOrderNonParall_.begin() + position, jobCurr);
-            UpdateMapNP();
+            jobOrderSerial_[position] = true;
         }
 
         void eraseNP(LLint position)
         {
-            if (position < 0 || position >= static_cast<LLint>(jobOrderNonParall_.size()))
+            if (position < 0 || position >= static_cast<LLint>(jobOrder_.size()))
                 CoutError("Index out-of-range in ChangeJobOrderNonParallel");
-            jobOrderNonParall_.erase(jobOrderNonParall_.begin() + position);
-            UpdateMapNP();
+            jobOrderSerial_[position] = false;
         }
         void eraseNP(JobCEC j1)
         {
-            eraseNP(jobIndexMapNP_[j1]);
+            eraseNP(jobIndexMap_[j1]);
         }
 
-        void UpdateMapNP()
+        bool HaveSerialConstraint(const JobCEC &j1) const
         {
-            for (uint i = 0; i < sizeNP(); i++)
-            {
-                JobCEC job = jobOrderNonParall_[i];
-                jobIndexMapNP_[job] = i;
-            }
+            return jobOrderSerial_.at(jobIndexMap_.at(j1));
+        }
+
+        size_t sizeSerial() const
+        {
+            size_t count = 0;
+            for (size_t i = 0; i < jobOrderSerial_.size(); i++)
+                if (jobOrderSerial_[i])
+                    count++;
+            return count;
         }
 
     public:
-        JobOrderMultiCore(TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector) : JobOrder(tasksInfo, startTimeVector) { jobOrderNonParall_.reserve(jobOrder_.size()); }
+        JobOrderMultiCore(TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector) : JobOrder(tasksInfo, startTimeVector)
+        {
+            jobOrderSerial_.reserve(jobOrder_.size());
+            for (size_t i = 0; i < size(); i++)
+            {
+                jobOrderSerial_.push_back(false);
+            }
+        }
 
         // newPosition<0 means remove jobIndex
         /**
@@ -110,27 +119,15 @@ namespace DAG_SPACE
          * @param jobIndex
          * @param newPosition
          */
-        void ChangeJobOrderNonParallel(LLint jobIndex, LLint newPosition)
+        void ChangeJobOrder(LLint jobIndex, LLint newPosition)
         {
-            if (jobIndex < 0 || jobIndex >= static_cast<LLint>(jobOrder_.size()) || newPosition > static_cast<LLint>(jobOrderNonParall_.size()))
-            {
-                CoutError("Index out-of-range in ChangeJobOrderNonParallel");
-            }
+            ChangeJobStartOrder(jobIndex, newPosition);
 
-            JobCEC jobCurr = jobOrder_[jobIndex];
-
-            if (jobIndex == newPosition)
-                return;
-            if (newPosition < 0)
-            {
-                eraseNP(jobIndex);
-                return;
-            }
-            JobCEC job = jobOrderNonParall_[jobIndex];
-            eraseNP(jobIndex);
-            insertNP(job, newPosition);
+            bool tmp = jobOrderSerial_[jobIndex];
+            jobOrderSerial_.erase(jobOrderSerial_.begin() + jobIndex);
+            jobOrderSerial_.insert(jobOrderSerial_.begin() + newPosition, tmp);
         }
 
-        size_t sizeNP() const { return jobOrderNonParall_.size(); }
+        // size_t sizeNP() const { return jobOrderNonParall_.size(); }
     };
 } // namespace DAG_SPACE

@@ -105,13 +105,13 @@ namespace DAG_SPACE
                 for (LLint j = 0; j < static_cast<LLint>(jobOrderRef.size()); j++)
                 {
                     JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
-                    jobOrderCurr.ChangeJobOrder(i, j);
+                    jobOrderCurr.ChangeJobStartOrder(i, j);
                     ExamAndApplyUpdate(jobOrderCurr);
                 }
             }
 
             // Initialize it with a pair of jobs
-            if (statusPrev.jobOrder_.sizeNP() == 0)
+            if (statusPrev.jobOrder_.sizeSerial() == 0)
             {
                 for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
                 {
@@ -120,9 +120,9 @@ namespace DAG_SPACE
                         if (i == j)
                             continue;
                         JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
-                        jobOrderCurr.insertNP(jobOrderRef[i], 0);
-                        jobOrderCurr.insertNP(jobOrderRef[j], 0);
-                        ExamAndApplyUpdate(jobOrderCurr);
+                        jobOrderCurr.insertNP(i);
+                        jobOrderCurr.insertNP(j);
+                        // ExamAndApplyUpdate(jobOrderCurr);
                     }
                 }
             }
@@ -146,7 +146,7 @@ namespace DAG_SPACE
         // TODO: optimize the final schedule to reduce RTDA
 
         // JobOrder jobOrderCurr = statusPrev.jobOrder_;
-        // jobOrderCurr.ChangeJobOrder(5, 0);
+        // jobOrderCurr.ChangeJobStartOrder(5, 0);
         // IterationStatus<SchedulingAlgorithm> statusCurr(dagTasks, tasksInfo, jobOrderCurr);
         // PrintSchedule(tasksInfo, statusCurr.startTimeVector_, processorNum);
         // if (MakeProgress<SchedulingAlgorithm>(statusPrev, statusCurr))

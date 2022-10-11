@@ -285,11 +285,11 @@ namespace DAG_SPACE
     // exam all the jobs in strictPrecedenceMap_ have been finished
     bool ExamPrecedenceJobSatisfiedNP(JobCEC jobCurr, LLint currTime, const JobOrderMultiCore &jobOrder, std::vector<LLint> &jobScheduled, const TaskSetInfoDerived &tasksInfo)
     {
-        if (jobOrder.jobIndexMapNP_.find(jobCurr) == jobOrder.jobIndexMapNP_.end())
+        if (jobOrder.HaveSerialConstraint(jobCurr) == false)
             return true;
-        for (uint i = 0; i < jobOrder.jobIndexMapNP_.at(jobCurr); i++)
+        for (uint i = 0; i < jobOrder.jobIndexMap_.at(jobCurr); i++)
         {
-            JobCEC jobPrec = jobOrder.jobOrderNonParall_.at(i);
+            const JobCEC &jobPrec = jobOrder.jobOrder_.at(i);
             LLint jobPrecIndex = jobOrder.jobIndexMap_.at(jobPrec);
             if (jobScheduled[jobPrecIndex] == -1 || jobScheduled[jobPrecIndex] + tasksInfo.tasks[jobPrec.taskId].executionTime > currTime)
                 return false;
