@@ -54,7 +54,8 @@ namespace DAG_SPACE
         }
         if (overallObjCurr < overallObjPrev && statusPrev.objVal_ == statusCurr.objVal_)
             return true;
-
+        else if (overallObjCurr == overallObjPrev && rand() < RandomAccept)
+            return true;
         return false;
     }
 
@@ -85,6 +86,8 @@ namespace DAG_SPACE
         auto ExamAndApplyUpdate = [&](JobOrderMultiCore jobOrderCurr)
         {
             IterationStatus<SchedulingAlgorithm> statusCurr(dagTasks, tasksInfo, jobOrderCurr, processorNum);
+
+            PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
             if (MakeProgress<SchedulingAlgorithm>(statusPrev, statusCurr))
             {
                 findNewUpdate = true;
