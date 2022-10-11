@@ -8,6 +8,7 @@
 #include "sources/Factors/DBF_ConstraintFactorNonPreemptive.h"
 #include "sources/Factors/DDL_ConstraintFactor.h"
 #include "sources/Utils/OptimizeOrderUtils.h"
+#include "sources/Factors/Interval.h"
 
 namespace DAG_SPACE
 {
@@ -55,6 +56,21 @@ namespace DAG_SPACE
         if (overallObjCurr < overallObjPrev && statusPrev.objVal_ == statusCurr.objVal_)
             return true;
         else if (overallObjCurr < overallObjPrev && ((double)rand() / (RAND_MAX)) < RandomAccept)
+            return true;
+        return false;
+    }
+
+    bool WhetherSkipSwitch(const TaskSetInfoDerived &tasksInfo, const JobCEC &j1, const JobCEC &j2)
+    {
+        if (j1 == j2)
+            return true;
+
+        // Such switch always returns infeasible results
+        if (j1.taskId == j2.taskId)
+            return true;
+        Interval v1(tasksInfo.tasks[j1.taskId].period * j1.jobId, tasksInfo.tasks[j1.taskId].period);
+        Interval v2(tasksInfo.tasks[j2.taskId].period * j2.jobId, tasksInfo.tasks[j2.taskId].period);
+        if (v2.start > v1.start + v1.length)
             return true;
         return false;
     }
@@ -109,6 +125,8 @@ namespace DAG_SPACE
                 for (LLint j = 0; j < static_cast<LLint>(jobOrderRef.size()); j++)
                 {
                     JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
+                    if (WhetherSkipSwitch(tasksInfo, jobOrderCurr[i], jobOrderCurr[j]))
+                        continue;
                     jobOrderCurr.ChangeJobStartOrder(i, j);
                     ExamAndApplyUpdate(jobOrderCurr);
                 }
@@ -121,9 +139,9 @@ namespace DAG_SPACE
                 {
                     for (LLint j = 0; j < static_cast<LLint>(jobOrderRef.size()); j++)
                     {
-                        if (i == j)
-                            continue;
                         JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
+                        if (WhetherSkipSwitch(tasksInfo, jobOrderCurr[i], jobOrderCurr[j]))
+                            continue;
                         jobOrderCurr.insertNP(i);
                         jobOrderCurr.insertNP(j);
                         jobOrderCurr.ChangeJobOrder(i, j);

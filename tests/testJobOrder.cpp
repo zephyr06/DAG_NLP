@@ -500,6 +500,28 @@ TEST(JobOrderMultiCore, optimize)
     EXPECT_LONGS_EQUAL(12, res.obj_);
 }
 
+TEST(WhetherSkipSwitch, v1)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v11.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
+    PrintSchedule(tasksInfo, initial);
+    JobOrderMultiCore jobOrder(tasksInfo, initial);
+    JobCEC j00(0, 0);
+    JobCEC j01(0, 1);
+    JobCEC j10(1, 0);
+    JobCEC j20(2, 0);
+    JobCEC j21(2, 1);
+    EXPECT(WhetherSkipSwitch(tasksInfo, j00, j01));
+    EXPECT(WhetherSkipSwitch(tasksInfo, j20, j21));
+    EXPECT(WhetherSkipSwitch(tasksInfo, j21, j20));
+    EXPECT(WhetherSkipSwitch(tasksInfo, j00, j00));
+    EXPECT(WhetherSkipSwitch(tasksInfo, j00, j21));
+    EXPECT(!WhetherSkipSwitch(tasksInfo, j00, j20));
+    EXPECT(!WhetherSkipSwitch(tasksInfo, j01, j20));
+}
 int main()
 {
     TestResult tr;
