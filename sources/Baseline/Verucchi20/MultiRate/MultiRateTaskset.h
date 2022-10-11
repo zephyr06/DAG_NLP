@@ -9,6 +9,7 @@
 #define MULTIRATE_H_
 
 #include <memory>
+#include <chrono>
 
 #include "sources/Baseline/Verucchi20/DAG/DAG.h"
 #include "sources/Baseline/Verucchi20/MultiRate/DummyNodes.h"
@@ -46,6 +47,9 @@ public:
 
 	const std::vector<DAG> &
 	createDAGs();
+
+	const std::vector<DAG> &
+	createDAGs(std::chrono::_V2::system_clock::time_point start, int64_t seconds);
 
 	std::shared_ptr<DummyNodes>
 	getDummyNodes() const;

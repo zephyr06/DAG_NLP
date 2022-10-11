@@ -17,6 +17,7 @@ namespace DAG_SPACE
         {
             reset();
         }
+        
         void Optimize(DAG_Model &dagTasks, ScheduleResult &result)
         {
             reset();
@@ -46,10 +47,12 @@ namespace DAG_SPACE
             }
             GenerateOptimizedResult(values_optimized);
         }
+
         void print()
         {
             std::cout << "ScheduleOptimizer print something!!!\n";
         }
+
         ScheduleResult getOptimizedResult()
         {
             return result_after_optimization_;
@@ -58,20 +61,19 @@ namespace DAG_SPACE
     protected:
         void reset()
         {
-            // env_.end();
-            // model_.end();
-            // cplex_solver_.end();
             env_ = IloEnv();
             model_ = IloModel(env_);
             cplex_solver_ = IloCplex(env_);
             num_variables_ = 0;
             num_hyper_periods_ = 0;
         }
+
         void AddVariables()
         {
             num_variables_ = tasksInfo_.variableDimension;
             var_array_ = IloNumVarArray(env_, num_variables_, 0, tasksInfo_.hyperPeriod, IloNumVar::Float);
         }
+        
         void AddDBFConstraints()
         {
             std::unordered_map<int, std::vector<JobCEC>> processor_job_map;
@@ -107,6 +109,7 @@ namespace DAG_SPACE
             }
             // TODO: need to support job order constraint ?
         }
+
         void AddDDLConstraints()
         {
             for (int i = 0; i < num_variables_; i++)
@@ -115,6 +118,7 @@ namespace DAG_SPACE
                 model_.add(var_array_[i] + GetExecutionTime(i, tasksInfo_) <= GetDeadline(GetJobCECFromUniqueId(i, tasksInfo_), tasksInfo_));
             }
         }
+
         void AddCauseEffectiveChainConstraints()
         {
             for (auto chain : p_dagTasks_->chains_)
@@ -143,6 +147,7 @@ namespace DAG_SPACE
                 }
             }
         }
+
         void AddObjectives()
         {
             IloExpr rtda_expression(env_);
@@ -183,6 +188,7 @@ namespace DAG_SPACE
             model_.add(IloMinimize(env_, rtda_expression));
             rtda_expression.end();
         }
+
         IloExpr GetStartTimeExpression(JobCEC &jobCEC)
         {
             IloExpr exp(env_);
@@ -195,10 +201,12 @@ namespace DAG_SPACE
             exp += jobCEC.jobId / jobNumInHyperPeriod * tasksInfo_.hyperPeriod;
             return exp;
         }
+
         IloExpr GetFinishTimeExpression(JobCEC &jobCEC)
         {
             return GetStartTimeExpression(jobCEC) + GetExecutionTime(jobCEC, tasksInfo_);
         }
+
         void GenerateOptimizedResult(IloNumArray &values_optimized)
         {
             result_after_optimization_ = result_to_be_optimized_;
@@ -232,14 +240,17 @@ namespace DAG_SPACE
                 result_after_optimization_.obj_ = ObjRTDA(rtda_optimized);
             }
         }
+
         void setScheduleResult(ScheduleResult &res)
         {
             result_to_be_optimized_ = res;
         }
+
         inline void setDagTasks(DAG_Model &dagTasks)
         {
             p_dagTasks_ = &dagTasks;
         }
+
         void setTaskInfo(TaskSetInfoDerived &info)
         {
             tasksInfo_ = info;

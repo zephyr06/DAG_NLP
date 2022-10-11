@@ -3,6 +3,8 @@
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/JobCEC.h"
 #include "sources/Optimization/ScheduleOptimizer.h"
+#include "sources/Optimization/OptimizeOrder.h"
+#include "sources/Tools/profilier.h"
 
 using namespace DAG_SPACE;
 
@@ -44,7 +46,7 @@ TEST(ScheduleOptimizer, single_core_optimization)
     initialEstimate << 0, 11, 20, 1, 6;
     Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
     std::vector<int> causeEffectChain = {0, 1, 2};
-    auto res = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
+    auto res = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], initialEstimateFG);
     RTDA resM = GetMaxRTDA(res);
     resM.print();
     EXPECT_LONGS_EQUAL(30, resM.reactionTime);

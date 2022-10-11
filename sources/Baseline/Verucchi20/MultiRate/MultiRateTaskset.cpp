@@ -10,6 +10,7 @@
 #include <vector>
 #include <iostream>
 #include <numeric>
+#include <chrono>
 
 extern int debugMode;
 
@@ -170,6 +171,118 @@ MultiRateTaskset::createDAGs()
 	dags_.clear();
 	for (int k = 0; k < numPermutations; k++)
 	{
+		//		std::cout << k + 1 << "/" << numPermutations;
+		DAG dag(baselineDAG_);
+
+		int tmp = k;
+		for (unsigned i = 0; i < permutation.size(); i++)
+		{
+			permutation[i] = tmp / permutSets[i + 1];
+			tmp = tmp % permutSets[i + 1];
+		}
+
+		for (unsigned n = 0; n < edgeSets.size(); n++)
+		{
+			dag.addEdges(edgeSets[n][permutation[n]]);
+		}
+
+		if (dag.isCyclic())
+		{
+			//			std::cout << " excluded because it is cyclic" << std::endl;
+			cyclicDags++;
+			continue;
+		}
+
+		dag.createMats();
+		dag.transitiveReduction();
+
+		// Check WCET sum in the chains
+		if (!dag.checkLongestChain())
+		{
+			//			std::cout << " excluded because longest chain too long" << std::endl;
+			wcetFailure++;
+			continue;
+		}
+
+		if (!checkJitter(dag))
+		{
+			//			std::cout << " excluded because jitter incorrect" << std::endl;
+			jitterFailure++;
+			continue;
+		}
+
+		dag.createNodeInfo();
+		//		std::cout << " is fine" << std::endl;
+		dags_.push_back(std::move(dag));
+	}
+
+	if (debugMode)
+	{
+		std::cout << cyclicDags << " cyclic Dags were excluded" << std::endl;
+		std::cout << wcetFailure << " Dags were removed because the chains are too long" << std::endl;
+		std::cout << jitterFailure << " Dags were removed because the parallelism is incorrect"
+				  << std::endl;
+		std::cout << dags_.size() << " valid DAGs were created" << std::endl;
+	}
+
+	return dags_;
+}
+
+const std::vector<DAG> &
+MultiRateTaskset::createDAGs(std::chrono::_V2::system_clock::time_point start, int64_t seconds)
+{
+	std::vector<std::vector<std::vector<Edge>>> edgeSets;
+
+	std::vector<int> permutSets;
+	for (auto &edge : edges_)
+	{
+		edgeSets.push_back(edge.translateToEdges());
+		permutSets.push_back(edgeSets.back().size());
+	}
+	permutSets.push_back(1);
+
+	std::vector<int> permutation(edgeSets.size(), 0);
+	int numPermutations = 1;
+	for (const auto &it : edgeSets)
+		numPermutations *= it.size();
+
+	for (int k = permutSets.size() - 2; k >= 0; k--)
+	{
+		permutSets[k] = permutSets[k + 1] * permutSets[k];
+	}
+
+	for (const auto &edge : edges_)
+		if (edge.jitter == 0)
+			if (edge.from->getUtilization() + edge.to->getUtilization() > 1.0)
+			{
+				std::cout << "Utilization overusage" << std::endl;
+				std::cout << "Edge from " << edge.from->name << " to " << edge.to->name << ":" << std::endl;
+				std::cout << "Jitter is 0 but total utilization is " << edge.from->getUtilization() + edge.to->getUtilization() << std::endl;
+				std::cout << "Taskset not schedulable." << std::endl;
+				std::cout << dags_.size() << " valid DAGs were created" << std::endl;
+
+				return dags_;
+			}
+
+	int cyclicDags = 0;
+	int wcetFailure = 0;
+	int jitterFailure = 0;
+
+	if (debugMode)
+	{
+		std::cout << numPermutations << " Permutations available" << std::endl;
+	}
+
+	baselineDAG_.setOriginatingTaskset(this);
+	dags_.clear();
+	for (int k = 0; k < numPermutations; k++)
+	{
+		auto curr = std::chrono::system_clock::now();
+		if (std::chrono::duration_cast<std::chrono::seconds>(curr - start).count() >= seconds)
+		{
+			std::cout << "\nTime out when creating DAGs. Maximum time is " << seconds << " seconds.\n\n";
+			break;
+		}
 		//		std::cout << k + 1 << "/" << numPermutations;
 		DAG dag(baselineDAG_);
 
