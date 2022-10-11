@@ -131,31 +131,33 @@ namespace DAG_SPACE
                     ExamAndApplyUpdate(jobOrderCurr);
                 }
             }
-
-            // Initialize it with a pair of jobs
-            if (statusPrev.jobOrder_.sizeSerial() == 0)
+            if (coreNumberAva > 1)
             {
-                for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
+                // Initialize it with a pair of jobs
+                if (statusPrev.jobOrder_.sizeSerial() == 0)
                 {
-                    for (LLint j = 0; j < static_cast<LLint>(jobOrderRef.size()); j++)
+                    for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
                     {
-                        JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
-                        if (WhetherSkipSwitch(tasksInfo, jobOrderCurr[i], jobOrderCurr[j]))
-                            continue;
-                        jobOrderCurr.insertNP(i);
-                        jobOrderCurr.insertNP(j);
-                        jobOrderCurr.ChangeJobOrder(i, j);
-                        ExamAndApplyUpdate(jobOrderCurr); // update outside variables
+                        for (LLint j = 0; j < static_cast<LLint>(jobOrderRef.size()); j++)
+                        {
+                            JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
+                            if (WhetherSkipSwitch(tasksInfo, jobOrderCurr[i], jobOrderCurr[j]))
+                                continue;
+                            jobOrderCurr.insertNP(i);
+                            jobOrderCurr.insertNP(j);
+                            jobOrderCurr.ChangeJobOrder(i, j);
+                            ExamAndApplyUpdate(jobOrderCurr); // update outside variables
+                        }
                     }
                 }
-            }
-            else
-            {
-                for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
+                else
                 {
-                    JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
-                    jobOrderCurr.jobOrderSerial_[i] = !jobOrderCurr.jobOrderSerial_[i];
-                    ExamAndApplyUpdate(jobOrderCurr); // update outside variables
+                    for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
+                    {
+                        JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
+                        jobOrderCurr.jobOrderSerial_[i] = !jobOrderCurr.jobOrderSerial_[i];
+                        ExamAndApplyUpdate(jobOrderCurr); // update outside variables
+                    }
                 }
             }
         }
