@@ -141,7 +141,7 @@ VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
 	unsigned k = 1;
 	for (auto &set : tasksets_)
 	{
-		auto dags = set.createDAGs();
+		auto dags = set.createDAGs(start, seconds);
 
 		allDAGs_.insert(allDAGs_.end(), dags.begin(), dags.end());
 

@@ -142,4 +142,44 @@ namespace DAG_SPACE
 
         graph.emplace_shared<MultiKeyFactor>(keysAll, f, 2, model);
     }
+
+    std::unordered_map<JobCEC, std::vector<JobCEC>> GetRTDAReactChainsFromSingleJob(
+        const TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain, const VectorDynamic &x)
+    {
+        std::unordered_map<JobCEC, std::vector<JobCEC>> firstReactionChainMap;
+
+        if (causeEffectChain.size() == 0)
+        {
+            return firstReactionChainMap;
+        }
+        LLint hyperPeriod = tasksInfo.hyperPeriod;
+        const TaskSet &tasks = tasksInfo.tasks;
+        LLint totalStartJobs = hyperPeriod / tasks[causeEffectChain[0]].period + 1;
+
+        for (LLint startInstanceIndex = 0; startInstanceIndex <= totalStartJobs; startInstanceIndex++)
+        {
+            JobCEC firstJob = {causeEffectChain[0], (startInstanceIndex)};
+            std::vector<JobCEC> react_chain;
+            react_chain.push_back(firstJob);
+            for (uint j = 1; j < causeEffectChain.size(); j++)
+            {
+                double currentJobFT = GetFinishTime(firstJob, x, tasksInfo);
+                LLint jobIndex = 0;
+                while (GetStartTime({causeEffectChain[j], jobIndex}, x, tasksInfo) < currentJobFT)
+                {
+                    jobIndex++;
+                    if (jobIndex > 100)
+                    {
+                        CoutError("didn't find a match!");
+                    }
+                }
+                firstJob = {causeEffectChain[j], jobIndex};
+                react_chain.push_back(firstJob);
+            }
+
+            JobCEC jj(causeEffectChain[0], startInstanceIndex);
+            firstReactionChainMap[jj] = react_chain;
+        }
+        return firstReactionChainMap;
+    }
 }

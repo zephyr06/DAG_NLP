@@ -62,7 +62,7 @@ namespace DAG_SPACE
         }
         int jobNumInHyperPeriod = tasksInfo.hyperPeriod / tasksInfo.tasks[jobCEC.taskId].period;
 
-        double res = x(IndexTran_Instance2Overall(jobCEC.taskId, jobCEC.jobId, tasksInfo.sizeOfVariables)) + jobCEC.jobId / jobNumInHyperPeriod * tasksInfo.hyperPeriod;
+        double res = x(IndexTran_Instance2Overall(jobCEC.taskId, jobCEC.jobId % jobNumInHyperPeriod, tasksInfo.sizeOfVariables)) + jobCEC.jobId / jobNumInHyperPeriod * tasksInfo.hyperPeriod;
         return res;
     }
 
@@ -128,6 +128,48 @@ namespace DAG_SPACE
             // std::cout << std::setprecision(8);
         }
         std::cout << "\n************************************************" << std::endl;
+    }
+
+    // map the job to the first hyper period and return job's unique id
+    LLint GetJobUniqueId(const JobCEC &jobCEC, const TaskSetInfoDerived &tasksInfo)
+    {
+        LLint id = jobCEC.jobId % tasksInfo.sizeOfVariables[jobCEC.taskId];
+        for (int i = 0; i < jobCEC.taskId; i++)
+        {
+            id += tasksInfo.sizeOfVariables[i];
+        }
+        return id;
+    }
+
+    JobCEC GetJobCECFromUniqueId(LLint id, const TaskSetInfoDerived &tasksInfo)
+    {
+        if (id < 0 || id >= tasksInfo.variableDimension)
+        {
+            return JobCEC();
+        }
+        int task_id = 0;
+        for (auto size : tasksInfo.sizeOfVariables)
+        {
+            if (id < size)
+            {
+                return JobCEC(task_id, id);
+            }
+            else
+            {
+                id -= size;
+                task_id++;
+            }
+        }
+        return JobCEC();
+    }
+
+    double GetExecutionTime(LLint id, const TaskSetInfoDerived &tasksInfo)
+    {
+        return tasksInfo.tasks[GetJobCECFromUniqueId(id, tasksInfo).taskId].executionTime;
+    }
+    double GetExecutionTime(JobCEC &jobCEC, const TaskSetInfoDerived &tasksInfo)
+    {
+        return tasksInfo.tasks[GetJobCECFromUniqueId(GetJobUniqueId(jobCEC, tasksInfo), tasksInfo).taskId].executionTime;
     }
 }
 
