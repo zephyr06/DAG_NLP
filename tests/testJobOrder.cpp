@@ -483,21 +483,22 @@ TEST(changeOrderNP, ListSchedulingLFTPA_NP_overwrite_P)
     PrintSchedule(tasksInfo, initial);
 }
 
-// TEST(JobOrderMultiCore, optimize)
-// {
-//     using namespace DAG_SPACE;
-//     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v7.csv", "orig");
-//     TaskSet tasks = dagTasks.tasks;
-//     TaskSetInfoDerived tasksInfo(tasks);
+TEST(JobOrderMultiCore, optimize)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
 
-//     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
-//     PrintSchedule(tasksInfo, initial);
-//     VectorDynamic actual = initial;
-//     actual << 0, 0, 0;
-//     assert_equal(actual, initial);
-//     ScheduleResult res = ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, 3);
-//     PrintSchedule(tasksInfo, res.startTimeVector_);
-// }
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
+    PrintSchedule(tasksInfo, initial);
+    VectorDynamic actual = initial;
+    actual << 0, 0, 0;
+    assert_equal(actual, initial);
+    ScheduleResult res = ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, 3);
+    PrintSchedule(tasksInfo, res.startTimeVector_);
+    EXPECT_LONGS_EQUAL(12, res.obj_);
+}
 
 int main()
 {

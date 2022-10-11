@@ -122,8 +122,18 @@ namespace DAG_SPACE
                         JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
                         jobOrderCurr.insertNP(i);
                         jobOrderCurr.insertNP(j);
-                        // ExamAndApplyUpdate(jobOrderCurr);
+                        jobOrderCurr.ChangeJobOrder(i, j);
+                        ExamAndApplyUpdate(jobOrderCurr); // update outside variables
                     }
+                }
+            }
+            else
+            {
+                for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
+                {
+                    JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
+                    jobOrderCurr.jobOrderSerial_[i] = !jobOrderCurr.jobOrderSerial_[i];
+                    ExamAndApplyUpdate(jobOrderCurr); // update outside variables
                 }
             }
 
