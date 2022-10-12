@@ -15,6 +15,7 @@ namespace DAG_SPACE
         RTDA rtda_;
         double obj_;
         double timeTaken_;
+        std::vector<uint> processorJobVec_;
 
         ScheduleResult() {}
         ScheduleResult(JobOrder jobOrder,
@@ -24,6 +25,7 @@ namespace DAG_SPACE
         {
             obj_ = ObjRTDA(rtda_);
             timeTaken_ = 0;
+            processorJobVec_.clear();
         }
     };
 

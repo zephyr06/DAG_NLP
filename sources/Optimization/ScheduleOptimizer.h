@@ -17,7 +17,7 @@ namespace DAG_SPACE
         {
             reset();
         }
-        
+
         void Optimize(DAG_Model &dagTasks, ScheduleResult &result)
         {
             reset();
@@ -73,15 +73,17 @@ namespace DAG_SPACE
             num_variables_ = tasksInfo_.variableDimension;
             var_array_ = IloNumVarArray(env_, num_variables_, 0, tasksInfo_.hyperPeriod, IloNumVar::Float);
         }
-        
+
         void AddDBFConstraints()
         {
             std::unordered_map<int, std::vector<JobCEC>> processor_job_map;
             int processor_id = 0;
             for (int i = 0; i < num_variables_; i++)
             {
-                // TODO: need to support multiple processor id
-                processor_id = 0;
+                if (!result_to_be_optimized_.processorJobVec_.empty())
+                {
+                    processor_id = result_to_be_optimized_.processorJobVec_[i];
+                }
                 auto job = GetJobCECFromUniqueId(i, tasksInfo_);
                 if (processor_job_map.count(processor_id) == 0)
                 {
@@ -238,6 +240,7 @@ namespace DAG_SPACE
             {
                 result_after_optimization_.rtda_ = rtda_optimized;
                 result_after_optimization_.obj_ = ObjRTDA(rtda_optimized);
+                result_after_optimization_.startTimeVector_ = start_time;
             }
         }
 

@@ -63,6 +63,46 @@ TEST(ScheduleOptimizer, single_core_optimization)
     EXPECT_LONGS_EQUAL(11, result_after_optimization.rtda_.dataAge);
 }
 
+TEST(ScheduleOptimizer, multi_core_optimization)
+{
+    std::cout << "\n\n#############  New Test  ##############\n\n";
+    ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
+
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
+    PrintSchedule(tasksInfo, initial);
+    JobOrderMultiCore jobOrder(tasksInfo, initial);
+
+    std::vector<uint> processorJobVec;
+
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, jobOrder, processorJobVec);
+    VectorDynamic actualAssignment = Vector2Eigen<uint>(processorJobVec);
+    VectorDynamic expected = actualAssignment;
+    expected << 0, 0, 1, 1, 0;
+    EXPECT(assert_equal(expected, actualAssignment));
+    Values initialEstimateFG = GenerateInitialFG(initial, tasksInfo);
+    auto res = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], initialEstimateFG);
+    RTDA resM = GetMaxRTDA(res);
+    resM.print();
+    EXPECT_LONGS_EQUAL(340, resM.reactionTime);
+    EXPECT_LONGS_EQUAL(240, resM.dataAge);
+
+    ScheduleResult result_to_be_optimized;
+    ScheduleResult result_after_optimization;
+
+    result_to_be_optimized.startTimeVector_ = initial;
+    result_to_be_optimized.rtda_ = resM;
+    result_to_be_optimized.processorJobVec_ = processorJobVec;
+    schedule_optimizer.Optimize(dagTasks, result_to_be_optimized);
+    result_after_optimization = schedule_optimizer.getOptimizedResult();
+    PrintSchedule(tasksInfo, result_after_optimization.startTimeVector_);
+    result_after_optimization.rtda_.print();
+    EXPECT_LONGS_EQUAL(250, result_after_optimization.rtda_.reactionTime);
+    EXPECT_LONGS_EQUAL(240, result_after_optimization.rtda_.dataAge);
+}
+
 int main()
 {
     TestResult tr;
