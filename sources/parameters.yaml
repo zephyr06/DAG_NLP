@@ -2,45 +2,22 @@
 
 # optimization seettings
 batchTestMethod: 1 # 0 means initial, 1 means proposed optimization, 2 means Verucchi20, 3 means SA
-testDataSetName: test_n3_v10
-AcceptSchedulError: 1e-2
-debugMode: 1
-recordActionValue: 0
-runMode: compare
-initializeMethod: 5
-optimizerType: 2 # 1 means dogleg, 2 means LM
-
-deltaOptimizer: 1e0
-exactJacobian: 0
-numericalJaobian: 0
-PrintOutput: 1
-PrintInitial: 1
-
+testDataSetName: test_n5_v79
+debugMode: 0
 #*************************************************************
 # Get away from local optimal setting
-whetherRandomNoiseModelSigma: 0
-RandomDrawWeightMaxLoop: 8 # must be >=1
-ResetInnerWeightLoopMax: 5 # must be >=1
-ResetRandomWeightThreshold: 5e-3
-RoundingThreshold: 1e-3
 RandomAccept: 1 # chance to take a possibly better solution
 #*************************************************************
 
-# optimizer settings
-whether_ls: 1
-deltaInitialDogleg: 1e5
-initialLambda: 1e-6
-lowerLambda: 1e-20
-upperLambda: 1e50
-# verbosityLM: "SILENCE"
-verbosityLM: "SUMMARY"
-# verbosityLM: "TRYDELTA"
-relativeErrorTolerance: 1e-5
-setUseFixedLambdaFactor: 1
-setDiagonalDamping: 0
-maxIterations: 10000
-#*************************************************************
 
+# task-set settings
+coreNumberAva: 2
+processorAssignmentMode: 1 # 0 means using given processor assignment, 1 means using deciding by the scheduling algorithm
+parallelFactor: 0.4
+TaskSetType: 1 # 1 means total random, 2 means automobile tasksets
+priorityMode: orig
+
+#*************************************************************
 # factors to be included
 weightDDL_factor: 1e1
 weightDAG_factor: 0
@@ -56,42 +33,12 @@ FreshTol: 50000
 withAddedSensorFusionError: 1
 #*************************************************************
 
-# task-set settings
-coreNumberAva: 2
-processorAssignmentMode: 1 # 0 means using given processor assignment, 1 means using deciding by the scheduling algorithm
-parallelFactor: 0.4
-TaskSetType: 1 # 1 means total random, 2 means automobile tasksets
-timeScaleFactor: 1e0
-priorityMode: orig
-#*************************************************************
-
 # used in SA
 coolingRateSA: 0.1
 randomInitialize: 0
 temperatureSA: 100000000
 SA_iteration: 100000
 #*************************************************************
-
-
-# no need to adjust
-noiseModelSigma: 1
-saveGraph: 0
-
-#*************************************************************
-
-# Elimination settings
-MaxEliminateDetectIterations: 25
-stepJacobianIteration: 1.5
-toleranceEliminator: 1
-tightEliminate: 0
-zeroJacobianDetectTol: 1e-4
-#*************************************************************
-# not used
-barrierBase: 100
-punishmentInBarrier: 1e2
-weightLogBarrier: -1.0
-#*************************************************************
-
 # Verucchi20 settings
 kVerucchiTimeLimit: 5
 kVerucchiReactionCost: 15.0
@@ -103,4 +50,64 @@ kVerucchiCoreCost: 50.0
 
 # Cplex settings
 kCplexInequalityThreshold: 1e-3
+#*************************************************************
+
+
+
+
+
+#*************************************************************
+# Used only in old optimization system
+initializeMethod: 5
+recordActionValue: 0
+PrintOutput: 1
+PrintInitial: 1
+numericalJaobian: 0
+exactJacobian: 0
+deltaOptimizer: 1e0
+optimizerType: 2 # 1 means dogleg, 2 means LM
+runMode: compare
+AcceptSchedulError: 1e-2
+
+
+# Get away from local optimal setting
+whetherRandomNoiseModelSigma: 0
+RandomDrawWeightMaxLoop: 8 # must be >=1
+ResetInnerWeightLoopMax: 5 # must be >=1
+ResetRandomWeightThreshold: 5e-3
+RoundingThreshold: 1e-3
+
+# optimizer settings
+whether_ls: 1
+deltaInitialDogleg: 1e5
+initialLambda: 1e-6
+lowerLambda: 1e-20
+upperLambda: 1e50
+# verbosityLM: "SILENCE"
+verbosityLM: "SUMMARY"
+# verbosityLM: "TRYDELTA"
+relativeErrorTolerance: 1e-5
+setUseFixedLambdaFactor: 1
+setDiagonalDamping: 0
+maxIterations: 10000
+
+
+timeScaleFactor: 1e0
+
+# Elimination settings
+MaxEliminateDetectIterations: 25
+stepJacobianIteration: 1.5
+toleranceEliminator: 1
+tightEliminate: 0
+zeroJacobianDetectTol: 1e-4
+
+
+# no need to adjust
+noiseModelSigma: 1
+saveGraph: 0
+
+# not used
+barrierBase: 100
+punishmentInBarrier: 1e2
+weightLogBarrier: -1.0
 #*************************************************************

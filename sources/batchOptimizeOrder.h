@@ -67,7 +67,7 @@ void BatchOptimizeOrder()
                     }
                     else if (batchTestMethod == 2)
                     {
-                        res = ScheduleVerucchiRTDA(dagTasks, dagTasks.chains_, 1, 15.0, 400000.0, 15.0, 400000.0, 15.0);
+                        res = ScheduleVerucchiRTDA(dagTasks, dagTasks.chains_, coreNumberAva, 15.0, 400000.0, 15.0, 400000.0, 15.0);
                     }
                     else
                     {

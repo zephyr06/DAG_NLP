@@ -203,7 +203,7 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
 DAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     DAG_SPACE::DAG_Model &dagTasks,
     std::vector<std::vector<int>> causeEffectChains,
-    int processorsAvailable = coreNumberAva,
+    int processorsAvailable,
     float reactCost = 15.0,
     float maxReact = 400.0,
     float ageCost = 15.0,
