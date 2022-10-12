@@ -9,6 +9,7 @@
 #include "sources/Factors/DDL_ConstraintFactor.h"
 #include "sources/Utils/OptimizeOrderUtils.h"
 #include "sources/Factors/Interval.h"
+#include "sources/Optimization/ScheduleOptimizer.h"
 
 namespace DAG_SPACE
 {
@@ -161,9 +162,18 @@ namespace DAG_SPACE
                 }
             }
         }
-        // TODO: optimize the final schedule to reduce RTDA
 
         ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.maxRtda_};
+        if (doScheduleOptimization)
+        {
+            auto no_thing = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_);
+
+            ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
+            ScheduleResult result_after_optimization;
+            schedule_optimizer.Optimize(dagTasks, scheduleRes);
+            result_after_optimization = schedule_optimizer.getOptimizedResult();
+            return result_after_optimization;
+        }
         return scheduleRes;
     }
 

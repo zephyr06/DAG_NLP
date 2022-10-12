@@ -139,3 +139,5 @@ const double kVerucchiMaxDataAge = (double)ConfigParameters["kVerucchiMaxDataAge
 const double kVerucchiCoreCost = (double)ConfigParameters["kVerucchiCoreCost"];
 
 double kCplexInequalityThreshold = (double)ConfigParameters["kCplexInequalityThreshold"];
+
+const int doScheduleOptimization = (int)ConfigParameters["doScheduleOptimization"];
