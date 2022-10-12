@@ -60,7 +60,7 @@ namespace DAG_SPACE
                 while (GetStartTime({causeEffectChain[j], jobIndex}, x, tasksInfo) < currentJobFT)
                 {
                     jobIndex++;
-                    if (jobIndex > 100)
+                    if (jobIndex > 10000)
                     {
                         CoutError("didn't find a match!");
                     }
@@ -168,7 +168,7 @@ namespace DAG_SPACE
                 while (GetStartTime({causeEffectChain[j], jobIndex}, x, tasksInfo) < currentJobFT)
                 {
                     jobIndex++;
-                    if (jobIndex > 100)
+                    if (jobIndex > 10000)
                     {
                         CoutError("didn't find a match!");
                     }

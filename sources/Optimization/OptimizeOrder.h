@@ -35,7 +35,7 @@ namespace DAG_SPACE
                 index++;
             }
         }
-        for (uint i = 0; i < processorNum; i++)
+        for (int i = 0; i < processorNum; i++)
         {
             if (IntervalOverlapError(jobsPerProcessor[i]) > 0)
                 return false;
