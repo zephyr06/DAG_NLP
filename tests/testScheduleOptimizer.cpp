@@ -2,8 +2,8 @@
 #include "sources/Tools/testMy.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/JobCEC.h"
-#include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Optimization/OptimizeOrder.h"
+#include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Tools/profilier.h"
 
 using namespace DAG_SPACE;

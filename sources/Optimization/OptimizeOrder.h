@@ -197,11 +197,11 @@ namespace DAG_SPACE
         {
             auto no_thing = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_);
 
-            ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
-            ScheduleResult result_after_optimization;
+            DAG_SPACE::ScheduleOptimizer schedule_optimizer = DAG_SPACE::ScheduleOptimizer();
+            DAG_SPACE::ScheduleResult result_after_optimization;
             schedule_optimizer.Optimize(dagTasks, scheduleRes);
             result_after_optimization = schedule_optimizer.getOptimizedResult();
-            return result_after_optimization;
+            scheduleRes = result_after_optimization;
         }
 
         if (!ExamFeasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum))
