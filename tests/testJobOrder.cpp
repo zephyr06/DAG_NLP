@@ -522,6 +522,52 @@ TEST(WhetherSkipSwitch, v1)
     EXPECT(!WhetherSkipSwitch(tasksInfo, j00, j20));
     EXPECT(!WhetherSkipSwitch(tasksInfo, j01, j20));
 }
+
+TEST(ListSchedulingLFTPA, processorIdVec)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
+    JobOrderMultiCore jobOrder(tasksInfo, initial);
+    PrintSchedule(tasksInfo, initial);
+    jobOrder.jobOrder_ = {JobCEC{0, 0}, JobCEC{2, 0}, JobCEC{1, 0}};
+
+    std::vector<uint> processorJobVec;
+
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, jobOrder, processorJobVec);
+    VectorDynamic actualAssignment = Vector2Eigen<uint>(processorJobVec);
+    VectorDynamic expected = actualAssignment;
+    expected << 0, 1, 1;
+    EXPECT(assert_equal(expected, actualAssignment));
+
+    jobOrder.ChangeJobStartOrder(0, 1);
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, jobOrder, processorJobVec);
+    PrintSchedule(tasksInfo, initial);
+    actualAssignment = Vector2Eigen<uint>(processorJobVec);
+    expected << 1, 1, 0;
+    EXPECT(assert_equal(expected, actualAssignment));
+}
+
+TEST(ListSchedulingLFTPA, processorIdVec_multi_rate)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
+    PrintSchedule(tasksInfo, initial);
+    JobOrderMultiCore jobOrder(tasksInfo, initial);
+
+    std::vector<uint> processorJobVec;
+
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, jobOrder, processorJobVec);
+    VectorDynamic actualAssignment = Vector2Eigen<uint>(processorJobVec);
+    VectorDynamic expected = actualAssignment;
+    expected << 0, 0, 1, 1, 0;
+    EXPECT(assert_equal(expected, actualAssignment));
+}
 int main()
 {
     TestResult tr;
