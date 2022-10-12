@@ -203,6 +203,11 @@ namespace DAG_SPACE
             result_after_optimization = schedule_optimizer.getOptimizedResult();
             return result_after_optimization;
         }
+
+        if (!ExamFeasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum))
+        {
+            CoutError("Found one unschedulable case after optimization!");
+        }
         return scheduleRes;
     }
 
