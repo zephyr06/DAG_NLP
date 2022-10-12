@@ -209,7 +209,7 @@ DAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     float ageCost = 15.0,
     float maxAge = 400.0,
     unsigned coreCost = 50,
-    int64_t time_limit = INT64_MAX)
+    int64_t time_limit = kVerucchiTimeLimit)
 {
     DAG_SPACE::ScheduleResult res;
     VariableTaskSet taskSetVeru;
