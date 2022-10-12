@@ -3,6 +3,7 @@
 #include "sources/Optimization/JobOrder.h"
 #include "sources/Optimization/OptimizeOrder.h"
 #include "sources/Utils/BatchUtils.h"
+#include "sources/Factors/Interval.h"
 
 using namespace DAG_SPACE;
 
@@ -116,8 +117,10 @@ TEST(Schedule, jobOrder)
     coreNumberAva = 1;
     DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     ScheduleResult res = ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
-    EXPECT_LONGS_EQUAL(99, res.rtda_.reactionTime);
-    EXPECT_LONGS_EQUAL(99, res.rtda_.dataAge);
+    EXPECT(99 >= res.rtda_.reactionTime);
+    EXPECT(99 >= res.rtda_.dataAge);
+    // EXPECT_LONGS_EQUAL(99, res.rtda_.reactionTime);
+    // EXPECT_LONGS_EQUAL(99, res.rtda_.dataAge);
 }
 
 TEST(list_scheduling, least_finish_time_v2)
@@ -567,6 +570,53 @@ TEST(ListSchedulingLFTPA, processorIdVec_multi_rate)
     VectorDynamic expected = actualAssignment;
     expected << 0, 0, 1, 1, 0;
     EXPECT(assert_equal(expected, actualAssignment));
+}
+
+
+TEST(ExamFeasibility, v1)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    int processorNum = 3;
+    std::vector<uint> processorJobVec;
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    PrintSchedule(tasksInfo, initial);
+    JobOrderMultiCore jobOrder(tasksInfo, initial);
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, jobOrder, processorJobVec);
+    EXPECT(ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
+    EXPECT(!ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum - 1));
+    EXPECT(!ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum - 2));
+}
+TEST(ExamFeasibility, v2)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
+    PrintSchedule(tasksInfo, initial);
+    JobOrderMultiCore jobOrder(tasksInfo, initial);
+
+    std::vector<uint> processorJobVec;
+
+    int processorNum = 2;
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, jobOrder, processorJobVec);
+    PrintSchedule(tasksInfo, initial);
+
+    EXPECT(ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
+    initial(0) = 1;
+    EXPECT(!ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
+    initial(0) = 0;
+    initial(1) = 99;
+    EXPECT(!ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
+    initial(1) = 100;
+    initial(4) = 30;
+    EXPECT(ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
+    initial(4) = 8;
+    EXPECT(!ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
 }
 int main()
 {
