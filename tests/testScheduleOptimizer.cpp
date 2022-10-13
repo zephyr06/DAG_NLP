@@ -38,6 +38,7 @@ TEST(JobCEC, GetJobUniqueId)
 
 TEST(ScheduleOptimizer, single_core_optimization)
 {
+    std::cout << "\n\n#############  New Test  ##############\n\n";
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
     DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v10.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
@@ -101,6 +102,65 @@ TEST(ScheduleOptimizer, multi_core_optimization)
     result_after_optimization.rtda_.print();
     EXPECT_LONGS_EQUAL(250, result_after_optimization.rtda_.reactionTime);
     EXPECT_LONGS_EQUAL(240, result_after_optimization.rtda_.dataAge);
+}
+
+TEST(ScheduleOptimizer, single_core_sensor_fusion)
+{
+    std::cout << "\n\n#############  New Test  ##############\n\n";
+    ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
+    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v16.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initialEstimate = GenerateVectorDynamic(5);
+    initialEstimate << 0, 11, 20, 1, 6;
+    Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
+    auto res = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], initialEstimateFG);
+    RTDA resM = GetMaxRTDA(res);
+    resM.print();
+    EXPECT_LONGS_EQUAL(36, resM.reactionTime);
+    EXPECT_LONGS_EQUAL(55, resM.dataAge);
+
+    sensorFusionTolerance = 6;
+    ScheduleResult result_to_be_optimized;
+    ScheduleResult result_after_optimization;
+
+    result_to_be_optimized.startTimeVector_ = initialEstimate;
+    result_to_be_optimized.rtda_ = resM;
+    schedule_optimizer.Optimize(dagTasks, result_to_be_optimized);
+    result_after_optimization = schedule_optimizer.getOptimizedResult();
+    result_after_optimization.rtda_.print();
+    EXPECT_LONGS_EQUAL(36, result_after_optimization.rtda_.reactionTime);
+    EXPECT_LONGS_EQUAL(47, result_after_optimization.rtda_.dataAge);
+    EXPECT(result_after_optimization.startTimeVector_(3) - result_after_optimization.startTimeVector_(4) <= sensorFusionTolerance);
+    EXPECT(result_after_optimization.startTimeVector_(4) - result_after_optimization.startTimeVector_(3) <= sensorFusionTolerance);
+
+    initialEstimate << 0, 10, 20, 1, 11;
+    initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
+    res = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], initialEstimateFG);
+    resM = GetMaxRTDA(res);
+    resM.print();
+    EXPECT_LONGS_EQUAL(30, resM.reactionTime);
+    EXPECT_LONGS_EQUAL(50, resM.dataAge);
+
+    sensorFusionTolerance = 20;
+    result_to_be_optimized.startTimeVector_ = initialEstimate;
+    result_to_be_optimized.rtda_ = resM;
+    schedule_optimizer.Optimize(dagTasks, result_to_be_optimized);
+    result_after_optimization = schedule_optimizer.getOptimizedResult();
+    result_after_optimization.rtda_.print();
+    EXPECT(result_after_optimization.startTimeVector_(3) - result_after_optimization.startTimeVector_(4) <= sensorFusionTolerance);
+    EXPECT(result_after_optimization.startTimeVector_(4) - result_after_optimization.startTimeVector_(3) <= sensorFusionTolerance);
+    
+    sensorFusionTolerance = 15;
+    ScheduleResult result_after_optimization_with_strong_constraints;
+    schedule_optimizer.Optimize(dagTasks, result_to_be_optimized);
+    result_after_optimization_with_strong_constraints = schedule_optimizer.getOptimizedResult();
+    result_after_optimization_with_strong_constraints.rtda_.print();
+    EXPECT_LONGS_EQUAL(54, result_after_optimization.obj_);
+    EXPECT_LONGS_EQUAL(58, result_after_optimization_with_strong_constraints.obj_);
+    EXPECT(result_after_optimization.obj_ < result_after_optimization_with_strong_constraints.obj_);
+    EXPECT(result_after_optimization_with_strong_constraints.startTimeVector_(3) - result_after_optimization_with_strong_constraints.startTimeVector_(4) <= sensorFusionTolerance);
+    EXPECT(result_after_optimization_with_strong_constraints.startTimeVector_(4) - result_after_optimization_with_strong_constraints.startTimeVector_(3) <= sensorFusionTolerance);
 }
 
 int main()

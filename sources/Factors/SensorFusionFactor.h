@@ -8,10 +8,13 @@
  * @copyright Copyright (c) 2022
  *
  */
+#pragma once
+
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/TaskModel/RegularTasks.h"
 #include "sources/Optimization/EliminationForest_utils.h"
 #include "sources/Factors/BaseSchedulingFactor.h"
+#include "sources/Utils/JobCEC.h"
 namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
@@ -328,4 +331,45 @@ namespace DAG_SPACE
         }
     };
 
+    std::unordered_map<JobCEC, std::vector<JobCEC>> GetSensorMapFromSingleJob(
+        const TaskSetInfoDerived &tasksInfo, int task_id, TaskSet &precede_tasks, const VectorDynamic &x)
+    {
+        std::unordered_map<JobCEC, std::vector<JobCEC>> sensor_map;
+
+        if (precede_tasks.size() < 2)
+        {
+            return sensor_map;
+        }
+        LLint hyperPeriod = tasksInfo.hyperPeriod;
+        const TaskSet &tasks = tasksInfo.tasks;
+        LLint totalStartJobs = hyperPeriod / tasks[task_id].period + 1;
+
+        for (LLint startInstanceIndex = 0; startInstanceIndex <= totalStartJobs; startInstanceIndex++)
+        {
+            JobCEC succeed_job = {task_id, (startInstanceIndex)};
+            std::vector<JobCEC> precede_jobs;
+            double currentJobST = GetStartTime(succeed_job, x, tasksInfo);
+            for (auto precede_task : precede_tasks)
+            {
+                LLint jobIndex = 0;
+                while (GetFinishTime({precede_task.id, jobIndex}, x, tasksInfo) <= currentJobST)
+                {
+                    jobIndex++;
+                    if (jobIndex > 10000)
+                    {
+                        CoutError("didn't find a match!");
+                    }
+                }
+                if (jobIndex > 0)
+                {
+                    precede_jobs.push_back(JobCEC(precede_task.id, jobIndex - 1));
+                }
+            }
+            if (precede_jobs.size() > 0)
+            {
+                sensor_map[succeed_job] = precede_jobs;
+            }
+        }
+        return sensor_map;
+    }
 }
