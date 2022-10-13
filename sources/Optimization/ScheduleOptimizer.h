@@ -4,7 +4,10 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
-#include "sources/Utils/BatchUtils.h"
+#include "sources/TaskModel/DAG_Model.h"
+#include "sources/Utils/OptimizeOrderUtils.h" // ScheduleResult
+#include "sources/Optimization/JobOrder.h"
+#include "sources/Factors/RTDA_Factor.h"
 #include "ilcplex/cplex.h"
 #include "ilcplex/ilocplex.h"
 
