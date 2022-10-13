@@ -12,6 +12,8 @@
 #include "sources/TaskModel/RegularTasks.h"
 #include "sources/Optimization/EliminationForest_utils.h"
 #include "sources/Factors/BaseSchedulingFactor.h"
+#include "sources/Optimization/JobOrder.h"
+
 namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
