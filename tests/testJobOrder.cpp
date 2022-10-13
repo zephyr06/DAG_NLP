@@ -6,6 +6,97 @@
 #include "sources/Factors/Interval.h"
 
 using namespace DAG_SPACE;
+TEST(EventPool, v)
+{
+    EventPool pool;
+    pool.Insert(10);
+    pool.Insert(100);
+    pool.Insert(20);
+    pool.Insert(20);
+
+    EXPECT_LONGS_EQUAL(10, pool.PopMinEvent());
+    EXPECT_LONGS_EQUAL(2, pool.size());
+    EXPECT_LONGS_EQUAL(20, pool.PopMinEvent());
+    EXPECT_LONGS_EQUAL(100, pool.PopMinEvent());
+    EXPECT_LONGS_EQUAL(0, pool.size());
+}
+TEST(EventPool, v2)
+{
+    EventPool pool;
+    pool.Insert(10);
+    pool.Insert(10);
+    pool.Insert(20);
+    EXPECT_LONGS_EQUAL(2, pool.size());
+
+    EXPECT_LONGS_EQUAL(10, pool.PopMinEvent());
+    EXPECT_LONGS_EQUAL(1, pool.size());
+    EXPECT_LONGS_EQUAL(20, pool.PopMinEvent());
+
+    EXPECT_LONGS_EQUAL(0, pool.size());
+}
+TEST(ListSchedulingLFTPA, EventPool)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    int processorNum = 1;
+    std::vector<uint> processorJobVec;
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    PrintSchedule(tasksInfo, initial);
+    VectorDynamic expect = initial;
+    expect << 3, 5, 0;
+    EXPECT(assert_equal(expect, initial));
+}
+
+TEST(ListSchedulingLFTPA, EventPool_v2)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    int processorNum = 2;
+    std::vector<uint> processorJobVec;
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    PrintSchedule(tasksInfo, initial);
+    VectorDynamic expect = initial;
+    expect << 0, 2, 0;
+    EXPECT(assert_equal(expect, initial));
+}
+
+TEST(ListSchedulingLFTPA, EventPool_v3)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    int processorNum = 3;
+    std::vector<uint> processorJobVec;
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    PrintSchedule(tasksInfo, initial);
+    VectorDynamic expect = initial;
+    expect << 0, 100, 0, 100, 0;
+    EXPECT(assert_equal(expect, initial));
+}
+
+TEST(ListSchedulingLFTPA, EventPool_v4)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    int processorNum = 2;
+    std::vector<uint> processorJobVec;
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    PrintSchedule(tasksInfo, initial);
+    VectorDynamic expect = initial;
+    expect << 0, 100, 0, 100, 10;
+    EXPECT(assert_equal(expect, initial));
+}
 
 TEST(constructor, ListSchedulingGivenOrder)
 {
@@ -18,6 +109,36 @@ TEST(constructor, ListSchedulingGivenOrder)
     JobOrderMultiCore jobOrder(tasksInfo, initial);
     VectorDynamic actual = ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder);
     assert_equal(initial, actual);
+}
+
+TEST(list_scheduling, least_finish_time_v2)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v74.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
+    std::cout << initial << std::endl;
+    PrintSchedule(tasksInfo, initial);
+    EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
+}
+
+TEST(list_scheduling, ListSchedulingGivenOrderPA_v1)
+{
+    using namespace DAG_SPACE;
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v74.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    // this is probably a little embarssed, consider designing a better way
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
+
+    PrintSchedule(tasksInfo, initial);
+    JobOrderMultiCore jobOrder(tasksInfo, initial);
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder);
+    std::cout << initial << std::endl;
+    PrintSchedule(tasksInfo, initial);
+    EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
 }
 
 TEST(constructor, ListSchedulingGivenOrder_v2)
@@ -121,36 +242,6 @@ TEST(Schedule, jobOrder)
     EXPECT(99 >= res.rtda_.dataAge);
     // EXPECT_LONGS_EQUAL(99, res.rtda_.reactionTime);
     // EXPECT_LONGS_EQUAL(99, res.rtda_.dataAge);
-}
-
-TEST(list_scheduling, least_finish_time_v2)
-{
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v74.csv", "orig");
-    TaskSet tasks = dagTasks.tasks;
-    TaskSetInfoDerived tasksInfo(tasks);
-    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
-    std::cout << initial << std::endl;
-    PrintSchedule(tasksInfo, initial);
-    EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
-}
-
-TEST(list_scheduling, ListSchedulingGivenOrderPA_v1)
-{
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v74.csv", "orig");
-    TaskSet tasks = dagTasks.tasks;
-    TaskSetInfoDerived tasksInfo(tasks);
-
-    // this is probably a little embarssed, consider designing a better way
-    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
-
-    PrintSchedule(tasksInfo, initial);
-    JobOrderMultiCore jobOrder(tasksInfo, initial);
-    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder);
-    std::cout << initial << std::endl;
-    PrintSchedule(tasksInfo, initial);
-    EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
 }
 
 TEST(ListSchedulingGivenOrder, strict_job_order)
@@ -572,7 +663,6 @@ TEST(ListSchedulingLFTPA, processorIdVec_multi_rate)
     EXPECT(assert_equal(expected, actualAssignment));
 }
 
-
 TEST(ExamFeasibility, v1)
 {
     using namespace DAG_SPACE;
@@ -618,6 +708,7 @@ TEST(ExamFeasibility, v2)
     initial(4) = 8;
     EXPECT(!ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
 }
+
 int main()
 {
     TestResult tr;
