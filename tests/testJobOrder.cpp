@@ -709,6 +709,81 @@ TEST(ExamFeasibility, v2)
     EXPECT(!ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
 }
 
+TEST(sensorFusion, v1)
+{
+    using namespace DAG_SPACE;
+    using namespace RegularTaskSystem;
+
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v9.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+
+    VectorDynamic initial;
+    initial.resize(5, 1);
+    initial << 2, 1, 0, 3, 4;
+    EXPECT_LONGS_EQUAL(0, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(0));
+
+    // cout << sth << endl;
+    initial << 3, 5, 1, 6, 7;
+    EXPECT_LONGS_EQUAL(3, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(0));
+}
+
+TEST(sensorFusion, multi_rate)
+{
+    using namespace DAG_SPACE;
+    using namespace RegularTaskSystem;
+
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+
+    VectorDynamic initial;
+    initial.resize(8, 1);
+    initial << 6, 107,
+        5,
+        3, 104,
+        2,
+        0, 101;
+
+    // 0 depends on 1,3,4
+    // 1 finishes 5 + 11 = 16, 3 at 2+13, 4 at 101+14
+    EXPECT_LONGS_EQUAL(100, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(0));
+    // 1 finishes 5 + 11 = 16, 3 at 2+13, 4 at 0+14
+    EXPECT_LONGS_EQUAL(2, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(1));
+
+    // 1 depends on 2,3,4;
+    // 2 finishes at 104+12, 3 at 2+13, 4 at 101+14
+    EXPECT_LONGS_EQUAL(101, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(2));
+
+    initial << 16, 107, 5, 3, 104, 2, 0, 101; // 2 finishes at 104+12, 3 at 2+13, 4 at 101+14
+    // 1 finishes 5 + 11 = 16, 3 at 2+13, 4 at 0+14
+    EXPECT_LONGS_EQUAL(2, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(0));
+    EXPECT_LONGS_EQUAL(2, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(1));
+
+    EXPECT_LONGS_EQUAL(101, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(2));
+}
+TEST(sensorFusion, v1_no_fork)
+{
+    using namespace DAG_SPACE;
+    using namespace RegularTaskSystem;
+
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v10.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+
+    VectorDynamic initial;
+    initial.resize(5, 1);
+    initial << 2, 1, 0, 3, 4;
+    EXPECT_LONGS_EQUAL(0, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(0));
+
+    // cout << sth << endl;
+    initial << 3, 5, 1, 6, 7;
+    EXPECT_LONGS_EQUAL(0, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(0));
+}
+
 int main()
 {
     TestResult tr;

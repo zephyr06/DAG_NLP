@@ -41,16 +41,7 @@ using namespace RegularTaskSystem;
 namespace DAG_SPACE
 {
 
-    LLint CountSFError(DAG_Model &dagTasks, vector<LLint> &sizeOfVariables)
-    {
-        LLint errorDimensionSF = 0;
-        for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
-        {
-            if ((itr->second).size() > 1)
-                errorDimensionSF += sizeOfVariables[(itr->first)];
-        }
-        return errorDimensionSF;
-    }
+  
 
     void BuildFactorGraph(DAG_Model &dagTasks, NonlinearFactorGraph &graph,
                           TaskSetInfoDerived &tasksInfo)
