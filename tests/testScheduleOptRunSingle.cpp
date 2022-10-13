@@ -27,8 +27,9 @@ TEST(ScheduleOptimizer, RunSingle)
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
     schedule_optimizer.Optimize(dagTasks, sth);
     auto result_after_optimization = schedule_optimizer.getOptimizedResult();
-    result_after_optimization.rtda_.print();
     EndTimer("schedule_optimizer");
+    dagTasks.printChains();
+    result_after_optimization.rtda_.print();
     PrintTimer();
 }
 
