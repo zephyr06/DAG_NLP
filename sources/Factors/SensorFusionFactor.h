@@ -14,10 +14,22 @@
 #include "sources/TaskModel/RegularTasks.h"
 #include "sources/Optimization/EliminationForest_utils.h"
 #include "sources/Factors/BaseSchedulingFactor.h"
-#include "sources/Utils/JobCEC.h"
+#include "sources/Optimization/JobOrder.h"
+
 namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
+    LLint CountSFError(DAG_Model &dagTasks, vector<LLint> &sizeOfVariables)
+    {
+        LLint errorDimensionSF = 0;
+        for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
+        {
+            if ((itr->second).size() > 1)
+                errorDimensionSF += sizeOfVariables[(itr->first)];
+        }
+        return errorDimensionSF;
+    }
+
     struct IndexData
     {
         LLint index;
@@ -55,6 +67,59 @@ namespace DAG_SPACE
         return *max_element(sourceFinishTime.begin(), sourceFinishTime.end()) -
                *min_element(sourceFinishTime.begin(), sourceFinishTime.end());
     }
+
+    VectorDynamic ObtainSensorFusionError(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector)
+    {
+        VectorDynamic res;
+        LLint errorDimension = CountSFError(dagTasks, tasksInfo.sizeOfVariables);
+        if (errorDimension == 0)
+            return GenerateVectorDynamic1D(0);
+
+        res.resize(errorDimension, 1);
+        LLint indexRes = 0;
+        for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
+        {
+            const TaskSet &tasksPrev = itr->second;
+            if (tasksPrev.size() > 1)
+            {
+                vector<double> sourceFinishTime;
+                sourceFinishTime.reserve(tasksPrev.size());
+                size_t indexCurr = itr->first;
+
+                for (int instanceCurr = 0; instanceCurr < tasksInfo.sizeOfVariables[indexCurr]; instanceCurr++)
+                {
+                    sourceFinishTime.clear();
+                    double startTimeCurr = ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, indexCurr, instanceCurr);
+
+                    // go through three source sensor tasks in the example
+                    for (size_t ii = 0; ii < tasksPrev.size(); ii++)
+                    {
+                        int sourceIndex = tasksPrev.at(ii).id;
+                        LLint instanceSource = floor(startTimeCurr / tasksInfo.tasks[sourceIndex].period);
+                        if (instanceSource < 0 || instanceSource > tasksInfo.sizeOfVariables[sourceIndex] - 1)
+                            CoutError("Error in OptimizeORder's SF evaluation!");
+
+                        JobCEC jCurr(sourceIndex, instanceSource);
+                        double finishTimeSourceInstance = GetFinishTime(jCurr, startTimeVector, tasksInfo);
+                        if (finishTimeSourceInstance <= startTimeCurr)
+                            sourceFinishTime.push_back(finishTimeSourceInstance);
+                        else
+                        {
+                            if (jCurr.jobId == 0)
+                                jCurr.jobId = tasksInfo.sizeOfVariables[jCurr.taskId] - 1;
+                            else
+                                jCurr.jobId--;
+                            sourceFinishTime.push_back(GetFinishTime(jCurr, startTimeVector, tasksInfo));
+                        }
+                    }
+                    res(indexRes, 0) = ExtractMaxDistance(sourceFinishTime);
+                    indexRes++;
+                }
+            }
+        }
+        return res;
+    }
+
     class SensorFusion_ConstraintFactor : public BaseSchedulingFactor
     {
     public:

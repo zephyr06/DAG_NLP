@@ -191,7 +191,39 @@ namespace DAG_SPACE
         }
     }
 
-    void AddTasksToRunQueue(RunQueue &runQueue, const TaskSet &tasks, LLint timeNow)
+    class EventPool
+    {
+    public:
+        std::vector<LLint> events_;
+        void Insert(LLint time)
+        {
+            if (find(events_.begin(), events_.end(), time) != events_.end())
+                return;
+            auto ite = std::upper_bound(events_.begin(), events_.end(), time);
+            events_.insert(
+                ite,
+                time);
+        }
+
+        LLint PopMinEvent()
+        {
+            LLint event = events_[0];
+            events_.erase(events_.begin());
+            return event;
+        }
+
+        void Print()
+        {
+            for (size_t i = 0; i < events_.size(); i++)
+            {
+                std::cout << events_[i] << ", ";
+            }
+            std::cout << std::endl;
+        }
+        size_t size() const { return events_.size(); }
+    };
+
+    void AddTasksToRunQueue(RunQueue &runQueue, const TaskSet &tasks, LLint timeNow, EventPool &eventPool)
     {
         // check whether to add new instances
         for (uint i = 0; i < tasks.size(); i++)
@@ -199,20 +231,21 @@ namespace DAG_SPACE
             if (timeNow % tasks[i].period == 0)
             {
                 runQueue.insert({i, timeNow / tasks[i].period});
+                eventPool.Insert(timeNow + tasks[i].period);
             }
         }
     }
 
     void UpdateSTVAfterPopTask(RunQueue::ID_INSTANCE_PAIR &job, VectorDynamic &startTimeVector,
                                LLint timeNow, vector<LLint> &nextFree, const TaskSet &tasks,
-                               vector<bool> &busy, int processodId, vector<LLint> &sizeOfVariables)
+                               vector<bool> &busy, int processorId, vector<LLint> &sizeOfVariables)
     {
         int id = job.first;
         LLint instance_id = job.second;
         LLint index_overall = IndexTran_Instance2Overall(id, instance_id, sizeOfVariables);
         startTimeVector(index_overall, 0) = timeNow;
-        nextFree[processodId] = timeNow + tasks[id].executionTime;
-        busy[processodId] = true;
+        nextFree[processorId] = timeNow + tasks[id].executionTime;
+        busy[processorId] = true;
     }
 
     /**
@@ -350,14 +383,16 @@ namespace DAG_SPACE
         vector<LLint> nextFree(processorNum, -1);
 
         std::vector<LLint> jobScheduled(jobOrder ? ((*jobOrder).size()) : 0, -1); // order is the same as JobOrder's jobs
-        LLint timeInitial = 0;
-
+        EventPool eventPool;
+        eventPool.Insert(0);
+        LLint timeInitial = eventPool.PopMinEvent();
         if (processorIdVec)
             *processorIdVec = Eigen2Vector<uint>(initial);
 
-        for (LLint timeNow = timeInitial; timeNow < tasksInfo.hyperPeriod; timeNow++)
+        for (LLint timeNow = timeInitial; timeNow < tasksInfo.hyperPeriod;)
         {
-            AddTasksToRunQueue(runQueue, tasks, timeNow);
+            AddTasksToRunQueue(runQueue, tasks, timeNow, eventPool);
+
             for (int processorId = 0; processorId < processorNum; processorId++)
             {
                 if (timeNow >= nextFree[processorId])
@@ -394,6 +429,7 @@ namespace DAG_SPACE
                     if (findTaskToSchedule)
                     {
                         UpdateSTVAfterPopTask(p, initial, timeNow, nextFree, tasks, busy, processorId, tasksInfo.sizeOfVariables);
+                        eventPool.Insert(nextFree[processorId]);
                         if (processorIdVec)
                         {
                             (*processorIdVec)[IndexTran_Instance2Overall(p.first, p.second, tasksInfo.sizeOfVariables)] = processorId;
@@ -401,6 +437,7 @@ namespace DAG_SPACE
                     }
                 }
             }
+            timeNow = eventPool.PopMinEvent();
         }
         if (runQueue.size() != 0)
         {
