@@ -108,7 +108,7 @@ void BatchOptimizeOrder()
 
         vt.addRow("Initial", Average(schedulableAll[0]), Average(objsAll[0]), Average(runTimeAll[0]));
         vt.addRow("OrderOpt", Average(schedulableAll[1]), Average(objsAll[1]), Average(runTimeAll[1]));
-        vt.addRow("Verucchi20", Average(schedulableAll[2]), Average(objsAll[2]), Average(runTimeAll[2]));
+        vt.addRow("Verucchi20RTAS", Average(schedulableAll[2]), Average(objsAll[2]), Average(runTimeAll[2]));
         // vt.addRow("Initial", Average(objsAll[0]), Average(runTimeAll[0]));
 
         vt.print(std::cout);
