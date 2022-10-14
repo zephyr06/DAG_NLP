@@ -17,7 +17,7 @@
 namespace DAG_SPACE
 {
     using namespace RegularTaskSystem;
-    LLint CountSFError(DAG_Model &dagTasks, vector<LLint> &sizeOfVariables)
+    LLint CountSFError(const DAG_Model &dagTasks, const vector<LLint> &sizeOfVariables)
     {
         LLint errorDimensionSF = 0;
         for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
@@ -66,7 +66,7 @@ namespace DAG_SPACE
                *min_element(sourceFinishTime.begin(), sourceFinishTime.end());
     }
 
-    VectorDynamic ObtainSensorFusionError(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector)
+    VectorDynamic ObtainSensorFusionError(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector)
     {
         VectorDynamic res;
         LLint errorDimension = CountSFError(dagTasks, tasksInfo.sizeOfVariables);
@@ -116,6 +116,43 @@ namespace DAG_SPACE
             }
         }
         return res;
+    }
+
+    std::vector<gtsam::Symbol> GenerateKeySF(TaskSetInfoDerived &tasksInfo)
+    {
+        std::vector<gtsam::Symbol> keyVec;
+        for (int i = 0; i < tasksInfo.N; i++)
+        {
+            for (LLint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
+            {
+                keyVec.push_back(GenerateKey(i, j));
+            }
+        }
+        return keyVec;
+    }
+    void AddSF_Factor(gtsam::NonlinearFactorGraph &graph, DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo)
+    {
+
+        if (weightSF_factor == 0)
+            return;
+        LLint errorDimensionSF = CountSFError(dagTasks, tasksInfo.sizeOfVariables);
+        auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma / weightSF_factor);
+        vector<gtsam::Symbol> keys = GenerateKeySF(tasksInfo);
+
+        LambdaMultiKey f = [dagTasks, tasksInfo](const Values &x)
+        {
+            VectorDynamic startTimeVector = GenerateVectorDynamic(tasksInfo.length);
+            for (int i = 0; i < tasksInfo.N; i++)
+            {
+                for (LLint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
+                    startTimeVector(IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables)) = x.at<VectorDynamic>(GenerateKey(i, j))(0);
+            }
+            VectorDynamic res = ObtainSensorFusionError(dagTasks, tasksInfo, startTimeVector);
+            for (uint i = 0; i < res.rows(); i++)
+                res(i) = Barrier(sensorFusionTolerance - res(i));
+            return res;
+        };
+        graph.emplace_shared<MultiKeyFactor>(keys, f, errorDimensionSF, model);
     }
 
     class SensorFusion_ConstraintFactor : public BaseSchedulingFactor

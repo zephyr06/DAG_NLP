@@ -22,13 +22,13 @@ priorityMode: orig
 # factors to be included
 weightDDL_factor: 1e1
 weightDAG_factor: 0
+weightSF_factor: 1
 RtdaWeight: 1e1
 DataAgeThreshold: 1e3
 ReactionTimeThreshold: 1e3
 NumCauseEffectChain: 1
 whether_shuffle_CE_chain: 0
 makespanWeight: 0
-weightPrior_factor: 0
 sensorFusionTolerance: 500000
 FreshTol: 50000
 withAddedSensorFusionError: 1

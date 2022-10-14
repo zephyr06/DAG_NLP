@@ -72,13 +72,13 @@ const int setDiagonalDamping = (int)ConfigParameters["setDiagonalDamping"];
 const int RandomDrawWeightMaxLoop = (int)ConfigParameters["RandomDrawWeightMaxLoop"];
 
 InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initializeMethod"]);
-const double weightPrior_factor = (double)ConfigParameters["weightPrior_factor"];
 double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"];
 double weightDAG_factor = (double)ConfigParameters["weightDAG_factor"];
 double RtdaWeight = (double)ConfigParameters["RtdaWeight"];
 double RandomAccept = (double)ConfigParameters["RandomAccept"];
 
 const double ResetRandomWeightThreshold = (double)ConfigParameters["ResetRandomWeightThreshold"];
+const double weightSF_factor = (double)ConfigParameters["weightSF_factor"];
 
 int processorAssignmentMode = (int)ConfigParameters["processorAssignmentMode"];
 int PrintInitial = (int)ConfigParameters["PrintInitial"];
