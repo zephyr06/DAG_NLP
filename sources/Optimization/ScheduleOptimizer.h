@@ -8,6 +8,7 @@
 #include "sources/Utils/OptimizeOrderUtils.h" // ScheduleResult
 #include "sources/Optimization/JobOrder.h"
 #include "sources/Factors/RTDA_Factor.h"
+#include "sources/Factors/SensorFusionFactor.h"
 #include "ilcplex/cplex.h"
 #include "ilcplex/ilocplex.h"
 
@@ -32,6 +33,7 @@ namespace DAG_SPACE
             AddDBFConstraints();
             AddDDLConstraints();
             AddCauseEffectiveChainConstraints();
+            AddSensorFusionConstraints();
             AddObjectives();
 
             cplex_solver_.extract(model_);
@@ -69,6 +71,11 @@ namespace DAG_SPACE
             cplex_solver_ = IloCplex(env_);
             num_variables_ = 0;
             num_hyper_periods_ = 0;
+            var_array_ = IloNumVarArray(env_, num_variables_, 0, tasksInfo_.hyperPeriod, IloNumVar::Float);
+            result_to_be_optimized_ = ScheduleResult();
+            result_after_optimization_ = ScheduleResult();
+            tasksInfo_ = TaskSetInfoDerived();
+            p_dagTasks_ = nullptr;
         }
 
         void AddVariables()
@@ -151,6 +158,44 @@ namespace DAG_SPACE
                     }
                 }
             }
+        }
+
+        void AddSensorFusionConstraints()
+        {
+            IloNumVar max_sensor_fusion_interval = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, "MaxSensorFusionInterval");
+            for (auto itr = p_dagTasks_->mapPrev.begin(); itr != p_dagTasks_->mapPrev.end(); itr++)
+            {
+                if (itr->second.size() < 2)
+                {
+                    continue;
+                }
+                std::unordered_map<JobCEC, std::vector<JobCEC>> sensor_map = GetSensorMapFromSingleJob(tasksInfo_, itr->first, itr->second, result_to_be_optimized_.startTimeVector_);
+
+                for (auto pair : sensor_map)
+                {
+                    auto &precede_jobs = pair.second;
+                    if (precede_jobs.size() < 2)
+                    {
+                        continue;
+                    }
+                    for (uint i = 0; i < precede_jobs.size(); i++)
+                    {
+                        for (uint j = i + 1; j < precede_jobs.size(); j++)
+                        {
+                            model_.add(max_sensor_fusion_interval >= (GetFinishTimeExpression(precede_jobs[i]) - GetFinishTimeExpression(precede_jobs[j])));
+                            model_.add(max_sensor_fusion_interval >= (GetFinishTimeExpression(precede_jobs[j]) - GetFinishTimeExpression(precede_jobs[i])));
+                        }
+                    }
+                    auto succeed_job = pair.first;
+                    for (auto precede_job : precede_jobs)
+                    {
+                        model_.add(GetFinishTimeExpression(precede_job) <= GetFinishTimeExpression(succeed_job));
+                        precede_job.jobId++;
+                        model_.add(GetFinishTimeExpression(precede_job) >= GetFinishTimeExpression(succeed_job) + kCplexInequalityThreshold);
+                    }
+                }
+            }
+            model_.add(max_sensor_fusion_interval <= sensorFusionTolerance);
         }
 
         void AddObjectives()
