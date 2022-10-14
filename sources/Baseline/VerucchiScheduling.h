@@ -36,7 +36,7 @@ bool SchedulabilityAnalysisVerucchi(DAG_SPACE::DAG_Model &dagTasks, int processo
     DAG_SPACE::MAP_Prev &mapPrev = dagTasks.mapPrev;
     for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
     {
-        TaskSet &tasksAfter = itr->second;
+        RegularTaskSystem::TaskSet &tasksAfter = itr->second;
         for (uint i = 0; i < tasksAfter.size(); i++)
         {
             std::vector<uint> jitters(std::max(1, tasksAfter[i].period / dagTasks.tasks[itr->first].period));

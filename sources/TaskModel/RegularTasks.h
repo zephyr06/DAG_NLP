@@ -16,8 +16,7 @@
 #include "sources/Tools/testMy.h"
 using namespace std;
 
-#define TaskSet vector<RegularTaskSystem::Task>
-typedef std::map<int, vector<int>> ProcessorTaskSet;
+typedef std::map<int, std::vector<int>> ProcessorTaskSet;
 
 bool CompareStringNoCase(std::string &s1, std::string s2)
 {
@@ -142,6 +141,7 @@ namespace RegularTaskSystem
         }
     };
 
+    typedef vector<RegularTaskSystem::Task> TaskSet;
     void Print(TaskSet &tasks)
     {
         cout << "The task set is printed as follows" << endl;

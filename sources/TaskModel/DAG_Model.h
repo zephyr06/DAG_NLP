@@ -19,8 +19,8 @@
 #include <boost/graph/graphviz.hpp>             // read_graphviz
 
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
-    boost::property<boost::vertex_name_t, LLint>,
-    boost::property<boost::edge_name_t, LLint>>
+                              boost::property<boost::vertex_name_t, LLint>,
+                              boost::property<boost::edge_name_t, LLint>>
     Graph;
 // map to access properties of vertex from the graph
 typedef boost::property_map<Graph, boost::vertex_name_t>::type vertex_name_map_t;
@@ -74,7 +74,7 @@ namespace DAG_SPACE
     // *2, 1 means task 2 depend on task 1, or task 1 must execute before task 2;
     // 1 would be the first in MAP_Prev, while 2 is one task in TaskSet
     // MAP_Prev maps one task to all the tasks it depends on
-    typedef std::map<int, TaskSet> MAP_Prev;
+    typedef std::map<int, RegularTaskSystem::TaskSet> MAP_Prev;
     using namespace RegularTaskSystem;
     class DAG_Model
     {
@@ -86,7 +86,7 @@ namespace DAG_SPACE
         std::vector<std::vector<int>> chains_;
 
         DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev) : tasks(tasks),
-            mapPrev(mapPrev)
+                                                       mapPrev(mapPrev)
         {
             std::tie(graph_, indexesBGL_) = GenerateGraphForTaskSet();
             chains_ = GetRandomChains(NumCauseEffectChain);
@@ -149,8 +149,10 @@ namespace DAG_SPACE
             }
         }
 
-        void printChains() {
-            for (size_t i = 0; i < chains_.size(); i++) {
+        void printChains()
+        {
+            for (size_t i = 0; i < chains_.size(); i++)
+            {
                 std::cout << "Chain #" << i << ": ";
                 for (auto task : chains_[i])
                 {
@@ -286,8 +288,8 @@ namespace DAG_SPACE
         else
         {
             cout << Color::red << "The path does not exist in ReadTaskSet!" << endl
-                << path
-                << Color::def << endl;
+                 << path
+                 << Color::def << endl;
             throw;
         }
     }
