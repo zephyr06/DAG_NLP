@@ -41,8 +41,6 @@ using namespace RegularTaskSystem;
 namespace DAG_SPACE
 {
 
-  
-
     void BuildFactorGraph(DAG_Model &dagTasks, NonlinearFactorGraph &graph,
                           TaskSetInfoDerived &tasksInfo)
     {
@@ -60,11 +58,13 @@ namespace DAG_SPACE
         }
 
         // AddMakeSpanFactor(graph, tasksInfo, dagTasks.mapPrev);
-        // LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
-        // model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
+        // LLint errorDimensionSF = CountSFError(dagTasks, tasksInfo.sizeOfVariables);
+        // auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
         // graph.emplace_shared<SensorFusion_ConstraintFactor>(key, dagTasks, sizeOfVariables,
         //                                                     errorDimensionSF, sensorFusionTolerance,
         //                                                     mapIndex, maskForEliminate, model);
+        if (weightSF_factor != 0)
+            AddSF_Factor(graph, dagTasks, tasksInfo);
     }
 
     double GraphErrorEvaluation(DAG_Model &dagTasks, VectorDynamic startTimeVector, bool printDetail = false)

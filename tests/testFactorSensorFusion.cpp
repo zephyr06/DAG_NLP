@@ -340,6 +340,45 @@ TEST(sensorFusion_AnalyticJacobian, v3)
     withAddedSensorFusionError = sthh;
 }
 
+TEST(AddSF_Factor, v1)
+{
+    using namespace DAG_SPACE;
+    using namespace RegularTaskSystem;
+
+    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v9.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    EliminationForest forestInfo(tasksInfo);
+
+    Symbol key('a', 0);
+    LLint errorDimensionSF = CountSFError(dagTasks, tasksInfo.sizeOfVariables);
+    AssertEqualScalar(1, errorDimensionSF);
+    MAP_Index2Data mapIndex;
+    for (LLint i = 0; i < tasksInfo.variableDimension; i++)
+    {
+        MappingDataStruct m{i, 0};
+        mapIndex[i] = m;
+    }
+    vector<bool> maskForEliminate(tasksInfo.variableDimension, false);
+
+    NonlinearFactorGraph graph;
+    AddSF_Factor(graph, dagTasks, tasksInfo);
+
+    VectorDynamic initial;
+    initial.resize(5, 1);
+    initial << 3, 5, 1, 6, 7;
+    auto sthh = withAddedSensorFusionError;
+    withAddedSensorFusionError = 1;
+    double defaultSF = sensorFusionTolerance;
+    sensorFusionTolerance = 2;
+    Values initialFG = GenerateInitialFG(initial, tasksInfo);
+    auto sth = pow(graph.error(initialFG) * 2, 0.5);
+    AssertEqualScalar(1, sth); // 9 before
+
+    sensorFusionTolerance = defaultSF;
+    withAddedSensorFusionError = sthh;
+}
+
 int main()
 {
     TestResult tr;
