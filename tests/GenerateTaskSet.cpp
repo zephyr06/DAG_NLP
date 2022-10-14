@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
         .scan<'i', int>();
     program.add_argument("--taskSetType")
         .default_value(2)
-        .help("type of taskset period generation method, 1 means normal, 2 means automobile method")
+        .help("type of taskset period generation method, 1 means normal, 2 means automobile method, 3 means automobile with WATERS distribution")
         .scan<'i', int>();
     program.add_argument("--coreRequireMax")
         .default_value(1)
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
         .help("whether exclude unschedulable task set on List Scheduler, default 1")
         .scan<'i', int>();
     program.add_argument("--randomSeed")
-        .default_value(0)
+        .default_value(-1)
         .help("seed of random, negative means use current time as seed, otherwise means self-defined seed")
         .scan<'i', int>();
 
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
          << "periodMin(--periodMin): " << periodMin << endl
          << "periodMax(--periodMax): " << periodMax << endl
          << "taskType(--taskType), 0 means normal, 1 means DAG: " << taskType << endl
-         << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile: " << taskSetType << endl
+         << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile, 3 means automobile with WATERS distribution: " << taskSetType << endl
          << "deadlineType(--deadlineType), 1 means random, 0 means implicit: " << deadlineType << endl
          << "coreRequireMax(--coreRequireMax): " << coreRequireMax << endl
          << "randomSeed(--randomSeed), negative will use current time, otherwise use the given seed: " << randomSeed << endl

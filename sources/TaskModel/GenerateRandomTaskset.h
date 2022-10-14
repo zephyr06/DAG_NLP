@@ -14,6 +14,9 @@ namespace po = boost::program_options;
 // vector<int> PeriodSetAM = {2, 5, 10, 20, 50, 100, 200};
 vector<int> PeriodSetAM = {100, 200, 300};
 // vector<int> PeriodSetAM = {100, 200, 300, 400, 500, 600, 800, 1000, 1200};
+const vector<int> PeriodSetWaters = {1, 2, 5, 10, 20, 50, 100, 200, 1000};
+const vector<int> PeriodPDFWaters = {3, 2, 2, 25, 25, 3, 20, 1, 4};
+const vector<int> PeriodCDFWaters = {3, 5, 7, 32, 57, 60, 80, 81, 85};
 
 vector<double> Uunifast(int N, double utilAll)
 {
@@ -59,10 +62,27 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
                       processorId, coreRequire);
             tasks.push_back(task);
         }
-
         else if (taskSetType == 2)
         {
             periodCurr = int(PeriodSetAM[rand() % PeriodSetAM.size()] * timeScaleFactor);
+            double deadline = periodCurr;
+            if (deadlineType == 1)
+                deadline = round(RandRange(std::max(1.0, ceil(periodCurr * utilVec[i])), periodCurr));
+            Task task(0, periodCurr,
+                      0, std::max(1.0, ceil(periodCurr * utilVec[i])),
+                      deadline, i,
+                      processorId, coreRequire);
+            tasks.push_back(task);
+        }
+        else if (taskSetType == 3)
+        {
+            int probability = rand() % PeriodCDFWaters.back();
+            int period_idx = 0;
+            while (probability > PeriodCDFWaters[period_idx])
+            {
+                period_idx++;
+            }
+            periodCurr = int(PeriodSetWaters[period_idx] * timeScaleFactor);
             double deadline = periodCurr;
             if (deadlineType == 1)
                 deadline = round(RandRange(std::max(1.0, ceil(periodCurr * utilVec[i])), periodCurr));
