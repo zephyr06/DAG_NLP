@@ -4,7 +4,11 @@
 #include <Eigen/Geometry>
 #include <opencv2/core/core.hpp>
 #include "testMy.h"
-cv::FileStorage ConfigParameters("/home/zephyr/Programming/DAG_NLP/sources/parameters.yaml", cv::FileStorage::READ);
+
+const std::string PROJECT_PATH = "/home/zephyr/Programming/DAG_NLP/";
+// const std::string PROJECT_PATH = "/home/dong/workspace/DAG_NLP/";
+//  std::string path = PROJECT_PATH + "sources/parameters.yaml";
+cv::FileStorage ConfigParameters(PROJECT_PATH + "sources/parameters.yaml", cv::FileStorage::READ);
 using namespace std;
 enum InitializeMethod
 {
@@ -47,7 +51,7 @@ const double toleranceEliminator = (double)ConfigParameters["toleranceEliminator
 const double upperLambda = (double)ConfigParameters["upperLambda"];
 const double weightLogBarrier = (double)ConfigParameters["weightLogBarrier"];
 const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetectTol"];
-const double FreshTol = (double)ConfigParameters["FreshTol"];
+ double FreshTol = (double)ConfigParameters["FreshTol"];
 const double stepJacobianIteration = (double)ConfigParameters["stepJacobianIteration"];
 
 const int moreElimination = (int)ConfigParameters["moreElimination"];

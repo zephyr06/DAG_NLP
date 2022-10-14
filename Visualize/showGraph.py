@@ -37,7 +37,7 @@ if __name__=="__main__":
                         help='the number of test file to visualize, default 14 means test_n5_v14.csv')
     args = parser.parse_args()
     n = args.n
-    path1="../TaskData/test_n5_v"+str(n)+".csv"
+    path1=PROJECT_PATH+"TaskData/test_n5_v"+str(n)+".csv"
     # path_destination="currGraph.gv"
     # write_csv_to_graphviz(path1,path_destination)
     show_graphviz(path1)

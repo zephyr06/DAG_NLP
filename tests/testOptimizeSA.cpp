@@ -1,7 +1,8 @@
-#include "../sources/OptimizeSA.h"
+#include "sources/OptimizeSA.h"
 
 TEST(DAG_Generated, v1)
 {
+    using namespace RTSS21IC_NLP;
     using namespace DAG_SPACE;
     DAG_Model tasks = ReadDAG_Tasks("/home/zephyr/Programming/DAG_NLP/TaskData/" + testDataSetName + ".csv", "orig");
 

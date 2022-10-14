@@ -1,6 +1,11 @@
+#pragma once
+
 #include "DeclareDAG.h"
 #include "RegularTasks.h"
 #include "GraphUtilsFromBGL.h"
+namespace RTSS21IC_NLP
+{
+
 
 namespace DAG_SPACE
 {
@@ -98,3 +103,5 @@ namespace DAG_SPACE
     };
 
 }
+} // namespace RTSS21IC_NLP
+

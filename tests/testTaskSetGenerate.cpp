@@ -1,6 +1,6 @@
-#include "../sources/GenerateRandomTaskset.h"
-#include "../sources/testMy.h"
-
+#include "sources/GenerateRandomTaskset.h"
+#include "sources/testMy.h"
+using namespace RTSS21IC_NLP;
 TEST(ExtractVariable, v1)
 {
     int N = 5;

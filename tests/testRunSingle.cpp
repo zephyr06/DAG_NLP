@@ -1,12 +1,13 @@
-#include "../sources/Optimize.h"
-#include "../sources/testMy.h"
-#include "../sources/GraphUtilsFromBGL.h"
-#include "../sources/profilier.h"
+#include "sources/Optimize.h"
+#include "sources/testMy.h"
+#include "sources/GraphUtilsFromBGL.h"
+#include "sources/profilier.h"
 TEST(DAG_Optimize_schedule, v1)
 {
+    using namespace RTSS21IC_NLP;
     BeginTimer("main");
     using namespace DAG_SPACE;
-    DAG_Model tasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
+    DAG_Model tasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
 
     auto sth = OptimizeScheduling(tasks);
 
@@ -22,9 +23,9 @@ TEST(DAG_Optimize_schedule, v1)
 // {
 //     BeginTimer("main");
 //     using namespace DAG_SPACE;
-//     // DAG_Model dagTasks = ReadDAG_Tasks("../TaskData/" + testDataSetName + ".csv", "orig");
+//     // DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH+"TaskData/" + testDataSetName + ".csv", "orig");
 
-//     auto dagTasks = ReadDAG_Tasks("../TaskData/test_n5_v38.csv", "orig");
+//     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH+"TaskData/test_n5_v38.csv", "orig");
 
 //     VectorDynamic initial;
 //     initial.resize(6, 1);

@@ -1,0 +1,22 @@
+\documentclass[tikz,border=10pt]{standalone}
+\usepackage{tkz-graph}
+\usetikzlibrary{automata}
+\usetikzlibrary[automata]
+\begin{document}
+\begin{tikzpicture}[shorten >=1pt,node distance=3cm,auto,bend angle=45]
+\tikzstyle{state}=[state with output]
+\node[state] (0) at (4,0) {0 \nodepart{lower} $T=33$};
+\node[state] (1) at (8,0) {1 \nodepart{lower} $T=99$};
+\node[state] (2) at (12,0) {2 \nodepart{lower} $T=99$};
+\node[state] (3) at (16,0) {3 \nodepart{lower} $T=99$};
+\node[state] (4) at (20,0) {4 \nodepart{lower} $T=99$};
+\node[state] (5) at (20,4) {5 \nodepart{lower} $T=33$};
+\path[->] 
+(1) edge[dashed] node {0} (0)
+(3) edge[dashed] node {0} (2)
+(4) edge[dashed] node {0} (1)
+(4) edge[dashed] node {0} (3)
+(5) edge[dashed] node {0} (4)
+;
+\end{tikzpicture}
+\end{document}

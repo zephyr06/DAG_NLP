@@ -1,6 +1,7 @@
-#include "../sources/GenerateRandomTaskset.h"
-#include "../sources/argparse.hpp"
+#include "sources/GenerateRandomTaskset.h"
+#include "sources/argparse.hpp"
 
+using namespace RTSS21IC_NLP;
 void deleteDirectoryContents(const std::string &dir_path)
 {
     for (const auto &entry : std::filesystem::directory_iterator(dir_path))
