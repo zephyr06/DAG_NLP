@@ -22,18 +22,7 @@ namespace RTSS21IC_NLP
     namespace DAG_SPACE
     {
 
-        LLint CountSFError(OrderOptDAG_SPACE::DAG_Model &dagTasks, vector<LLint> &sizeOfVariables)
-        {
-            LLint errorDimensionSF = 0;
-            for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
-            {
-                if ((itr->second).size() > 1)
-                    errorDimensionSF += sizeOfVariables[(itr->first)];
-            }
-            return errorDimensionSF;
-        }
-
-        double GraphErrorEvaluation(OrderOptDAG_SPACE::DAG_Model &dagTasks, VectorDynamic startTimeVector)
+            double GraphErrorEvaluation(OrderOptDAG_SPACE::DAG_Model &dagTasks, VectorDynamic startTimeVector)
         {
             TaskSet tasks = dagTasks.tasks;
             int N = tasks.size();

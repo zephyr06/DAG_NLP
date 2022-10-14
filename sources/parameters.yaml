@@ -20,7 +20,7 @@ priorityMode: orig
 
 #*************************************************************
 # factors to be included
-weightDDL_factor: 1e1
+weightDDL_factor: 1e0
 weightDAG_factor: 0
 weightSF_factor: 1
 RtdaWeight: 1e1
