@@ -3,7 +3,7 @@
 #include "sources/Factors/BaseSchedulingFactor.h"
 
 using namespace RegularTaskSystem;
-using namespace DAG_SPACE;
+using namespace OrderOptDAG_SPACE;
 
 /**
  * @brief DDL factor in preemptive case

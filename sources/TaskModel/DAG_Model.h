@@ -69,7 +69,7 @@ void PrintChains(std::vector<std::vector<int>> &chains)
     }
 }
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
     // *2, 1 means task 2 depend on task 1, or task 1 must execute before task 2;
     // 1 would be the first in MAP_Prev, while 2 is one task in TaskSet

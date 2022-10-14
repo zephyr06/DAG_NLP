@@ -11,7 +11,7 @@
 #include "sources/Utils/JobCEC.h"
 // #include "sources/Optimization/InitialEstimate.h"
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
 
     class JobOrder
@@ -130,4 +130,4 @@ namespace DAG_SPACE
 
         // size_t sizeNP() const { return jobOrderNonParall_.size(); }
     };
-} // namespace DAG_SPACE
+} // namespace OrderOptDAG_SPACE

@@ -17,7 +17,7 @@
 #include "sources/TaskModel/DAG_Model.h"
 // *************************
 
-bool SchedulabilityAnalysisVerucchi(DAG_SPACE::DAG_Model &dagTasks, int processorsAvailable = coreNumberAva)
+bool SchedulabilityAnalysisVerucchi(OrderOptDAG_SPACE::DAG_Model &dagTasks, int processorsAvailable = coreNumberAva)
 {
 
     VariableTaskSet taskSetVeru;
@@ -27,13 +27,13 @@ bool SchedulabilityAnalysisVerucchi(DAG_SPACE::DAG_Model &dagTasks, int processo
     tasksVecVeru.reserve(dagTasks.tasks.size());
     for (size_t i = 0; i < dagTasks.tasks.size(); i++)
     {
-        DAG_SPACE::Task &taskCurr = dagTasks.tasks[i];
+        OrderOptDAG_SPACE::Task &taskCurr = dagTasks.tasks[i];
         auto task = taskSetVeru.addTask(taskCurr.period, taskCurr.executionTime, std::to_string(taskCurr.id));
         tasksVecVeru.push_back(task);
     }
 
     // add edges
-    DAG_SPACE::MAP_Prev &mapPrev = dagTasks.mapPrev;
+    OrderOptDAG_SPACE::MAP_Prev &mapPrev = dagTasks.mapPrev;
     for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
     {
         RegularTaskSystem::TaskSet &tasksAfter = itr->second;

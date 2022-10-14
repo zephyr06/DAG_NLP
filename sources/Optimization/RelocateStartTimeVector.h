@@ -4,7 +4,7 @@
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Factors/DDL_ConstraintFactor.h"
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
 
     // move start time of small interval to the end of large interval
@@ -215,4 +215,4 @@ namespace DAG_SPACE
         }
         return {whetherRelocate, gradientVanishPairs, startTimeVector};
     }
-} // namespace DAG_SPACE
+} // namespace OrderOptDAG_SPACE

@@ -1,7 +1,7 @@
 #pragma once
 #include "unordered_map"
 #include "sources/Factors/BaseSchedulingFactor.h"
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
     using namespace RegularTaskSystem;
     double ff(double x)

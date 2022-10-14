@@ -6,7 +6,7 @@
 #include "sources/Optimization/Optimize.h"
 #include "../includeMoe/moe/moe.hpp"
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
     OptimizeResult OptimizeSchedulingSA(DAG_Model &dagTasks)
     {

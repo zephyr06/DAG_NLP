@@ -2,13 +2,13 @@
 #include "sources/Tools/testMy.h"
 #include "sources/Optimization/Optimize.h"
 
-using namespace DAG_SPACE;
+using namespace OrderOptDAG_SPACE;
 TEST(FindJobIndexWithError, v1)
 {
     weightDDL_factor = 1;
     weightDAG_factor = 0;
     RtdaWeight = 0;
-    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     NonlinearFactorGraph graph;
     BuildFactorGraph(dagTasks, graph, tasksInfo);
@@ -42,7 +42,7 @@ TEST(CreateJobGroups, v1)
     weightDDL_factor = 1;
     weightDAG_factor = 0;
     RtdaWeight = 0;
-    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     NonlinearFactorGraph graph;
     BuildFactorGraph(dagTasks, graph, tasksInfo);
@@ -81,7 +81,7 @@ TEST(findRightJob, v1)
     weightDDL_factor = 1;
     weightDAG_factor = 0;
     RtdaWeight = 0;
-    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     NonlinearFactorGraph graph;
     BuildFactorGraph(dagTasks, graph, tasksInfo);
@@ -104,7 +104,7 @@ TEST(JobGroup, sort)
     weightDDL_factor = 1;
     weightDAG_factor = 0;
     RtdaWeight = 0;
-    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     NonlinearFactorGraph graph;
     BuildFactorGraph(dagTasks, graph, tasksInfo);
@@ -124,7 +124,7 @@ TEST(JobGroup, SwitchRightJob)
     weightDDL_factor = 1;
     weightDAG_factor = 0;
     RtdaWeight = 0;
-    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     dagTasks.tasks[2].deadline = 61;
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     NonlinearFactorGraph graph;
@@ -149,7 +149,7 @@ TEST(JobGroup, MergeJobGroups)
     weightDDL_factor = 1;
     weightDAG_factor = 0;
     RtdaWeight = 0;
-    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v70.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v70.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     NonlinearFactorGraph graph;
     BuildFactorGraph(dagTasks, graph, tasksInfo);
@@ -196,7 +196,7 @@ TEST(MergeJobGroup, v2)
 //     weightDDL_factor = 1;
 //     weightDAG_factor = 0;
 //     RtdaWeight = 0;
-//     DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+//     OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
 //     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
 //     NonlinearFactorGraph graph;
 //     BuildFactorGraph(dagTasks, graph, tasksInfo);

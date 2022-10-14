@@ -10,7 +10,7 @@
 #include "sources/Optimization/ScheduleSimulation.h"
 
 using namespace RegularTaskSystem;
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
 
     /**

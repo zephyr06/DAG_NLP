@@ -6,7 +6,7 @@
 #include "sources/Factors/RTDA_Factor.h"
 #include "sources/Optimization/JobOrder.h"
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
 
     struct ScheduleResult
@@ -78,4 +78,4 @@ namespace DAG_SPACE
         else
             return ScheduleResult{jobOrderRef, initialSTV, false, rtda};
     }
-} // namespace DAG_SPACE
+} // namespace OrderOptDAG_SPACE

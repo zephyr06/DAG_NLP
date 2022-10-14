@@ -12,7 +12,7 @@
 #include "sources/Factors/Interval.h"
 #include "sources/Optimization/ScheduleOptimizer.h"
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
     bool ExamFeasibility(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum)
     {
@@ -212,4 +212,4 @@ namespace DAG_SPACE
         return scheduleRes;
     }
 
-} // namespace DAG_SPACE
+} // namespace OrderOptDAG_SPACE

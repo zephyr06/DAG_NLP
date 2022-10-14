@@ -3,13 +3,13 @@
 #include "sources/Tools/testMy.h"
 #include "sources/Optimization/EliminationForest_utils.h"
 
-using namespace DAG_SPACE;
+using namespace OrderOptDAG_SPACE;
 
 TEST(testDDL, v1)
 {
     whetherRandomNoiseModelSigma = 0;
     weightDDL_factor = 1;
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);

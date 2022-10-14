@@ -16,7 +16,7 @@
  * @return vector<gtsam::Symbol>
  */
 std::vector<gtsam::Symbol> GenerateKeysMS(TaskSetInfoDerived &tasksInfo,
-                                          DAG_SPACE::MAP_Prev &mapPrev, char type)
+                                          OrderOptDAG_SPACE::MAP_Prev &mapPrev, char type)
 {
     std::unordered_set<int> keySetToExclude;
     for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
@@ -49,7 +49,7 @@ std::vector<gtsam::Symbol> GenerateKeysMS(TaskSetInfoDerived &tasksInfo,
 }
 
 void AddMakeSpanFactor(NonlinearFactorGraph &graph,
-                       TaskSetInfoDerived &tasksInfo, DAG_SPACE::MAP_Prev &mapPrev)
+                       TaskSetInfoDerived &tasksInfo, OrderOptDAG_SPACE::MAP_Prev &mapPrev)
 {
     LLint errorDimensionMS = 1;
     if (makespanWeight == 0)

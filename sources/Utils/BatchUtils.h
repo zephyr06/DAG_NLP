@@ -4,7 +4,7 @@
 #include "sources/Utils/Parameters.h"
 #include "sources/Optimization/OptimizeOrder.h"
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
 
     inline std::string GetResFileName(const std::string &pathDataset, const std::string &file, int batchTestMethod_)
@@ -29,7 +29,7 @@ namespace DAG_SPACE
         return pathDataset + file + property;
     }
     // TOTEST: read & write
-    void WriteToResultFile(const std::string &pathDataset, const std::string &file, DAG_SPACE::ScheduleResult &res, int batchTestMethod_)
+    void WriteToResultFile(const std::string &pathDataset, const std::string &file, OrderOptDAG_SPACE::ScheduleResult &res, int batchTestMethod_)
     {
         std::string resFile = GetResFileName(pathDataset, file, batchTestMethod_);
         std::ofstream outfileWrite;
@@ -40,9 +40,9 @@ namespace DAG_SPACE
         outfileWrite.close();
     }
 
-    DAG_SPACE::ScheduleResult ReadFromResultFile(const std::string &pathDataset, const std::string &file, int batchTestMethod_)
+    OrderOptDAG_SPACE::ScheduleResult ReadFromResultFile(const std::string &pathDataset, const std::string &file, int batchTestMethod_)
     {
-        DAG_SPACE::ScheduleResult result;
+        OrderOptDAG_SPACE::ScheduleResult result;
         std::string resFile = GetResFileName(pathDataset, file, batchTestMethod_);
         std::ifstream cResultFile(resFile.data());
         // double timeTaken = 0, obj = 0;

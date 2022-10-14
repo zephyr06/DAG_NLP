@@ -5,7 +5,7 @@
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Optimization/EliminationForest_utils.h"
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
 
     TaskSet FindSourceTasks(const DAG_Model &dagTasks)
@@ -104,4 +104,4 @@ namespace DAG_SPACE
 
         return paths;
     }
-} // namespace DAG_SPACE
+} // namespace OrderOptDAG_SPACE

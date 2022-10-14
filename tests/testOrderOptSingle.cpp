@@ -4,14 +4,14 @@
 TEST(DAG_Optimize_schedule, v1)
 {
     BeginTimer("main");
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
 
     ScheduleResult sth;
     if (processorAssignmentMode == 0)
-        sth = DAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
+        sth = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
     else if (processorAssignmentMode == 1)
-        sth = DAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
+        sth = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
     PrintResultAnalyzation(sth, dagTasks);
     std::cout << "Schedulable? " << sth.schedulable_ << std::endl;
     EndTimer("main");
@@ -20,7 +20,7 @@ TEST(DAG_Optimize_schedule, v1)
 // TEST(SensorFusionDiscrete, v1)
 // {
 //     BeginTimer("main");
-//     using namespace DAG_SPACE;
+//     using namespace OrderOptDAG_SPACE;
 //     // DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
 
 //     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v38.csv", "orig");

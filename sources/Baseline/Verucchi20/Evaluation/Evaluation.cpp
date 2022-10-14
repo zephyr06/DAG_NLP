@@ -196,10 +196,10 @@ LatencyInfo Evaluation::getLatencyInfoRTDA(const DAG &dag, std::vector<unsigned>
 	TaskSet tasks = GetTaskSet(dag);
 	TaskSetInfoDerived tasksInfo(tasks);
 	VectorDynamic initialEstimate = GetInitialEstimate(dag, schedulingEval_.second.maxCores);
-	Values initialEstimateFG = DAG_SPACE::GenerateInitialFG(initialEstimate, tasksInfo);
+	Values initialEstimateFG = OrderOptDAG_SPACE::GenerateInitialFG(initialEstimate, tasksInfo);
 	std::vector<int> causeEffectChain(chain.begin(), chain.end());
-	auto res = DAG_SPACE::GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
-	DAG_SPACE::RTDA resM = DAG_SPACE::GetMaxRTDA(res);
+	auto res = OrderOptDAG_SPACE::GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
+	OrderOptDAG_SPACE::RTDA resM = OrderOptDAG_SPACE::GetMaxRTDA(res);
 	info.maxLatency = resM.dataAge;
 	info.reactionTime = resM.reactionTime;
 	info.minLatency = 0.0f;

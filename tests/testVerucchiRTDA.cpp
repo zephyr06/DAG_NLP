@@ -8,9 +8,9 @@
 
 TEST(VerucchiRTDA, single_case_v1)
 {
-    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model tasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig");
     std::vector<std::vector<int>> causeEffectChains{{0, 1, 2, 3}};
-    DAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, causeEffectChains, 1);
+    OrderOptDAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, causeEffectChains, 1);
     std::cout << "<-------------RTDA results-------------->\nChain: ";
     for (auto chain : causeEffectChains)
     {
@@ -26,10 +26,10 @@ TEST(VerucchiRTDA, single_case_v1)
 
 TEST(VerucchiRTDA, single_case_v2)
 {
-    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model tasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     std::vector<std::vector<int>> causeEffectChains{{0, 1, 4, 5}};
 
-    DAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, causeEffectChains, 1, 15.0, 4000.0, 15.0, 4000.0, 15.0);
+    OrderOptDAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, causeEffectChains, 1, 15.0, 4000.0, 15.0, 4000.0, 15.0);
     std::cout << "<-------------RTDA results-------------->\n";
     for (auto chain : causeEffectChains)
     {
@@ -45,9 +45,9 @@ TEST(VerucchiRTDA, single_case_v2)
 
 TEST(VerucchiRTDA, single_case_multiple_chains)
 {
-    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model tasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
 
-    DAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, tasks.chains_, 1, 15.0, 4000.0, 15.0, 4000.0, 15.0);
+    OrderOptDAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, tasks.chains_, 1, 15.0, 4000.0, 15.0, 4000.0, 15.0);
     std::cout << "<-------------RTDA results-------------->\n";
     tasks.printChains();
     std::cout << "Reaction time: " << rtda.reactionTime << "\nData age: " << rtda.dataAge << std::endl;

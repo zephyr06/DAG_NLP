@@ -4,10 +4,10 @@
 
 TEST(sensorFusion, v1)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
 
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v9.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -47,11 +47,11 @@ TEST(sensorFusion, v1)
 
 TEST(sensorFusion, v2)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
     auto sthh = withAddedSensorFusionError;
     withAddedSensorFusionError = 1;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -121,10 +121,10 @@ TEST(sensorFusion, v2)
 
 TEST(sensorFusion, v3)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
 
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v38.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v38.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -171,11 +171,11 @@ TEST(sensorFusion, v3)
 
 TEST(sensorFusion_AnalyticJacobian, v1)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
     auto sthh = withAddedSensorFusionError;
     withAddedSensorFusionError = 1;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -236,10 +236,10 @@ TEST(sensorFusion_AnalyticJacobian, v1)
 }
 TEST(sensorFusion_AnalyticJacobian, v2)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
     double defaultSF = sensorFusionTolerance;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v38.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v38.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -284,10 +284,10 @@ TEST(sensorFusion_AnalyticJacobian, v2)
 }
 TEST(sensorFusion_AnalyticJacobian, v3)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
     double defaultSF = sensorFusionTolerance;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v9.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -342,10 +342,10 @@ TEST(sensorFusion_AnalyticJacobian, v3)
 
 TEST(AddSF_Factor, v1)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
 
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v9.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);

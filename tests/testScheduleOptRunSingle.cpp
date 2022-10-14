@@ -6,19 +6,19 @@
 #include "sources/Optimization/OptimizeOrder.h"
 #include "sources/Tools/profilier.h"
 
-using namespace DAG_SPACE;
+using namespace OrderOptDAG_SPACE;
 
 TEST(ScheduleOptimizer, RunSingle)
 {
     BeginTimer("main");
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
 
     ScheduleResult sth;
     if (processorAssignmentMode == 0)
-        sth = DAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
+        sth = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
     else if (processorAssignmentMode == 1)
-        sth = DAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
+        sth = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
     PrintResultAnalyzation(sth, dagTasks);
     std::cout << "Schedulable? " << sth.schedulable_ << std::endl;
     EndTimer("main");

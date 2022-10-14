@@ -8,7 +8,7 @@
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/JobCEC.h"
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
 
     gtsam::Values GenerateInitialFG(const VectorDynamic &startTimeVector, const TaskSetInfoDerived &tasksInfo)
@@ -293,4 +293,4 @@ namespace DAG_SPACE
         return initialEstimate;
     }
 
-} // namespace DAG_SPACE
+} // namespace OrderOptDAG_SPACE

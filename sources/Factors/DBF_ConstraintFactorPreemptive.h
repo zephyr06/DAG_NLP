@@ -4,7 +4,7 @@
 #include "sources/Factors/MultiKeyFactor.h"
 #include "sources/TaskModel/RegularTasks.h"
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
 
     using namespace RegularTaskSystem;

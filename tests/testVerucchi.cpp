@@ -59,7 +59,7 @@ TEST(Verucchi, v1)
 
 TEST(VerucchiIO, v2)
 {
-    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model tasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     EXPECT(SchedulabilityAnalysisVerucchi(tasks, 4));
 }
 
@@ -68,7 +68,7 @@ TEST(Verucchi, analyzeCase)
     std::cout << std::endl
               << std::endl
               << std::endl;
-    DAG_SPACE::DAG_Model tasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model tasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
     bool schedulable = SchedulabilityAnalysisVerucchi(tasks);
     std::cout << "Schedulability analysis by Verucchi: " << schedulable << std::endl;
 }

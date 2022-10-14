@@ -4,7 +4,7 @@
 
 #include "sources/Utils/OptimizeOrderUtils.h"
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
     RTSS21IC_NLP::RegularTaskSystem::TaskSet TaskSet2RTSSIC(const TaskSet &tasksInput)
     {
@@ -34,8 +34,8 @@ namespace DAG_SPACE
         return dag21;
     }
 
-    DAG_SPACE::ScheduleResult
-    ScheduleRTSS21IC(DAG_SPACE::DAG_Model &dagTasks)
+    ScheduleResult
+    ScheduleRTSS21IC(DAG_Model &dagTasks)
     {
         RTSS21IC_NLP::DAG_SPACE::DAG_Model dagTasksIC = DAG_Model2RTSS21IC(dagTasks);
 
@@ -47,7 +47,7 @@ namespace DAG_SPACE
                       //  << Color::blue << res
                       << RTSS21IC_NLP::Color::def << std::endl;
         }
-        DAG_SPACE::ScheduleResult res;
+        ScheduleResult res;
         res.schedulable_ = sth.optimizeError < 1e-1;
 
         return res;

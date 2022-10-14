@@ -40,7 +40,7 @@ typedef boost::function<Vector(const Values &x)> LambdaMultiKey;
 
 typedef long long int LLint;
 
-// using namespace DAG_SPACE;
+// using namespace OrderOptDAG_SPACE;
 typedef std::vector<VectorDynamic> VVec;
 
 class MultiKeyFactor : public NoiseModelFactor

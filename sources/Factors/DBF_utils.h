@@ -2,7 +2,7 @@
 #include "sources/Factors/Interval.h"
 #include "sources/Optimization/EliminationForest_utils.h"
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
     using namespace RegularTaskSystem;
     /**

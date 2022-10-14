@@ -9,7 +9,7 @@
 #include "sources/Utils/JobCEC.h"
 #include "sources/Optimization/JobOrder.h"
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
 
     typedef std::map<int, int> ProcessorId2Index;
@@ -475,4 +475,4 @@ namespace DAG_SPACE
             return ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, jobOrder);
         }
     };
-} // namespace DAG_SPACE
+} // namespace OrderOptDAG_SPACE

@@ -16,7 +16,7 @@
 #include "sources/Factors/BaseSchedulingFactor.h"
 #include "sources/Optimization/JobOrder.h"
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
     using namespace RegularTaskSystem;
     LLint CountSFError(const DAG_Model &dagTasks, const vector<LLint> &sizeOfVariables)

@@ -12,7 +12,7 @@
 #include "ilcplex/cplex.h"
 #include "ilcplex/ilocplex.h"
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
     class ScheduleOptimizer
     {
@@ -319,5 +319,5 @@ namespace DAG_SPACE
         int num_variables_;
         int num_hyper_periods_;
     };
-} // namespace DAG_SPACE
+} // namespace OrderOptDAG_SPACE
 #endif // OPTIMIZATION_SCHEDULE_OPTIMIZER_H_

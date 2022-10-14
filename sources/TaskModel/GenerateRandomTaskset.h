@@ -91,7 +91,7 @@ void WriteTaskSets(ofstream &file, TaskSet &tasks)
     }
 }
 
-using namespace DAG_SPACE;
+using namespace OrderOptDAG_SPACE;
 DAG_Model GenerateDAG(int N, double totalUtilization,
                       int numberOfProcessor, int periodMin,
                       int periodMax, int coreRequireMax,

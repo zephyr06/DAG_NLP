@@ -38,7 +38,7 @@ using namespace RegularTaskSystem;
 
 // -------------------------------------------------------- from previous optimization ends
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
 
     void BuildFactorGraph(DAG_Model &dagTasks, NonlinearFactorGraph &graph,

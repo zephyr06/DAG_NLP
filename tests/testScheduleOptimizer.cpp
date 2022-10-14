@@ -6,7 +6,7 @@
 #include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Tools/profilier.h"
 
-using namespace DAG_SPACE;
+using namespace OrderOptDAG_SPACE;
 
 TEST(JobCEC, GetJobUniqueId)
 {
@@ -40,7 +40,7 @@ TEST(ScheduleOptimizer, single_core_optimization)
 {
     std::cout << "\n\n#############  New Test  ##############\n\n";
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
-    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v10.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v10.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initialEstimate = GenerateVectorDynamic(5);
@@ -69,7 +69,7 @@ TEST(ScheduleOptimizer, multi_core_optimization)
     std::cout << "\n\n#############  New Test  ##############\n\n";
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
 
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
@@ -108,7 +108,7 @@ TEST(ScheduleOptimizer, single_core_sensor_fusion)
 {
     std::cout << "\n\n#############  New Test  ##############\n\n";
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
-    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v16.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v16.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initialEstimate = GenerateVectorDynamic(5);
@@ -150,7 +150,7 @@ TEST(ScheduleOptimizer, single_core_sensor_fusion)
     result_after_optimization.rtda_.print();
     EXPECT(result_after_optimization.startTimeVector_(3) - result_after_optimization.startTimeVector_(4) <= sensorFusionTolerance);
     EXPECT(result_after_optimization.startTimeVector_(4) - result_after_optimization.startTimeVector_(3) <= sensorFusionTolerance);
-    
+
     sensorFusionTolerance = 15;
     ScheduleResult result_after_optimization_with_strong_constraints;
     schedule_optimizer.Optimize(dagTasks, result_to_be_optimized);

@@ -38,7 +38,7 @@ void BatchOptimizeOrder()
         {
             std::cout << file << endl;
             string path = PROJECT_PATH + "TaskData/dagTasks/" + file;
-            DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(path, priorityMode);
+            OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(path, priorityMode);
             // int N = dagTasks.tasks.size();
             AssertBool(true, dagTasks.chains_.size() > 0, __LINE__);
 
@@ -46,7 +46,7 @@ void BatchOptimizeOrder()
             {
                 double obj;
                 int schedulable;
-                DAG_SPACE::ScheduleResult res;
+                OrderOptDAG_SPACE::ScheduleResult res;
                 if (VerifyResFileExist(pathDataset, file, batchTestMethod))
                 {
                     res = ReadFromResultFile(pathDataset, file, batchTestMethod);
@@ -56,14 +56,14 @@ void BatchOptimizeOrder()
                     auto start = chrono::high_resolution_clock::now();
                     if (batchTestMethod == 0)
                     {
-                        res = DAG_SPACE::ScheduleDAGLS_LFT(dagTasks);
+                        res = OrderOptDAG_SPACE::ScheduleDAGLS_LFT(dagTasks);
                     }
                     else if (batchTestMethod == 1)
                     {
                         if (processorAssignmentMode == 0)
-                            res = DAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
+                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
                         else if (processorAssignmentMode == 1)
-                            res = DAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
+                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
                     }
                     else if (batchTestMethod == 2)
                     {

@@ -5,7 +5,7 @@
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Utils/JobCEC.h"
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
     struct RTDA
     {

@@ -21,7 +21,7 @@ using namespace RegularTaskSystem;
 
 pair<Graph, indexVertexMap> EstablishTaskGraph(RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
 
     Graph g;
     // map to access properties of vertex from the graph
@@ -132,11 +132,11 @@ std::unordered_map<LLint, LLint> MapIndex_True2Compress(const vector<bool> &mask
  * @param dagTasks
  * @return vector<int> execution order of task index, first task first
  */
-vector<int> FindDependencyOrderDFS(const DAG_SPACE::DAG_Model &dagTasks)
+vector<int> FindDependencyOrderDFS(const OrderOptDAG_SPACE::DAG_Model &dagTasks)
 {
 
     using namespace RegularTaskSystem;
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     int N = dagTasks.tasks.size();
 
     typedef boost::property<first_name_t, Task> FirstNameProperty;
@@ -181,11 +181,11 @@ vector<int> FindDependencyOrderDFS(const DAG_SPACE::DAG_Model &dagTasks)
  * @param dagTasks
  * @return int
  */
-int FindSinkNode(DAG_SPACE::DAG_Model dagTasks)
+int FindSinkNode(OrderOptDAG_SPACE::DAG_Model dagTasks)
 {
 
     using namespace RegularTaskSystem;
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     int N = dagTasks.tasks.size();
 
     typedef boost::property<first_name_t, Task> FirstNameProperty;

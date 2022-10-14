@@ -75,8 +75,8 @@ TEST(RecoverStartTimeVector, v3)
 
 TEST(ExtractVariable, v1)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -104,8 +104,8 @@ TEST(ExtractVariable, v1)
 
 TEST(ExtractVariable, v2)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v20.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v20.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -130,7 +130,7 @@ TEST(ExtractVariable, v2)
 
 TEST(BigIndex2TaskIndex, v1)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     TaskSet tasks = ReadTaskSet(PROJECT_PATH + "TaskData/test_n5_v3.csv", "orig");
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -158,7 +158,7 @@ TEST(BigIndex2TaskIndex, v1)
 
 TEST(CompresStartTimeVector, v1)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 

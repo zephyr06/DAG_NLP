@@ -32,7 +32,7 @@ TEST(Overlap, v1)
 TEST(testDBF, v1)
 {
     coreNumberAva = 1;
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
@@ -64,7 +64,7 @@ TEST(testDBF, v1)
     VectorDynamic dbfExpect1 = factor.f(startTimeVector);
     auto dbfActual = DbfIntervalOverlapError(startTimeVector, 0,
                                              processorTaskSet, tasks, tasksInfo.sizeOfVariables);
-    // VectorDynamic actual = DAG_SPACE::RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
+    // VectorDynamic actual = OrderOptDAG_SPACE::RecoverStartTimeVector(compressed, maskEliminate, mapIndex);
     AssertEqualScalar(dbfExpect1(0, 0), dbfActual);
     assert_equal(dbfExpect, dbfExpect1);
 
@@ -75,7 +75,7 @@ TEST(testDBF, v1)
 }
 TEST(testDBF, v2)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
@@ -108,7 +108,7 @@ TEST(testDBF, v2)
 }
 TEST(testDBF, v3MultiProcess)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v29.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
@@ -158,7 +158,7 @@ TEST(testDBF, v3MultiProcess)
 }
 TEST(testDBF, v4MultiProcess)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v30.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
@@ -200,7 +200,7 @@ TEST(testDBF, v4MultiProcess)
 }
 TEST(testDBF, v5MultiProcess)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v31.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
@@ -243,8 +243,8 @@ TEST(testDBF, v5MultiProcess)
 // TODO: not done yet
 TEST(NumericalDerivativeDynamicUpperDBF, v2)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v22.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v22.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -279,8 +279,8 @@ TEST(NumericalDerivativeDynamicUpperDBF, v2)
 
 TEST(NumericalDerivativeDynamicUpperDBF, v1)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -321,7 +321,7 @@ TEST(NumericalDerivativeDynamicUpperDBF, v1)
 
 TEST(AnalyticJaocbian_DBF, v1)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
@@ -377,7 +377,7 @@ TEST(AnalyticJaocbian_DBF, v1)
 
 TEST(AnalyticJaocbian_DBF, v2)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 
@@ -434,7 +434,7 @@ TEST(AnalyticJaocbian_DBF, v2)
 
 TEST(AnalyticJaocbian_DBF, v3)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v36.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
 

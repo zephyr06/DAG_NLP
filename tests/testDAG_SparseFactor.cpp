@@ -2,13 +2,13 @@
 #include "sources/Tools/testMy.h"
 #include "sources/Optimization/EliminationForest_utils.h"
 
-using namespace DAG_SPACE;
+using namespace OrderOptDAG_SPACE;
 
 TEST(testDAG, v1)
 {
     whetherRandomNoiseModelSigma = 0;
     weightDAG_factor = 1;
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
@@ -28,7 +28,7 @@ TEST(testDAG, v1)
 
 // TEST(testDAG, preempt_v1)
 // {
-//     using namespace DAG_SPACE;
+//     using namespace OrderOptDAG_SPACE;
 //     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
 //     TaskSet tasks = dagTasks.tasks;
 //     TaskSetInfoDerived tasksInfo(tasks);

@@ -66,19 +66,19 @@ VectorDynamic GetInitialEstimate(const DAG &dag, int nproc = 1)
 }
 
 void GenerateVariableTaskSetFromDAGModel(
-    DAG_SPACE::DAG_Model &dagTasks,
+    OrderOptDAG_SPACE::DAG_Model &dagTasks,
     VariableTaskSet &taskSetVeru,
     std::vector<std::shared_ptr<MultiNode>> &tasksVecVeru)
 {
     tasksVecVeru.reserve(dagTasks.tasks.size());
     for (size_t i = 0; i < dagTasks.tasks.size(); i++)
     {
-        DAG_SPACE::Task &taskCurr = dagTasks.tasks[i];
+        OrderOptDAG_SPACE::Task &taskCurr = dagTasks.tasks[i];
         auto task = taskSetVeru.addTask(taskCurr.period, taskCurr.executionTime, std::to_string(taskCurr.id));
         tasksVecVeru.push_back(task);
     }
     // add edges
-    DAG_SPACE::MAP_Prev &mapPrev = dagTasks.mapPrev;
+    OrderOptDAG_SPACE::MAP_Prev &mapPrev = dagTasks.mapPrev;
     for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
     {
         TaskSet &tasksAfter = itr->second;
@@ -139,14 +139,14 @@ DAG FindTheBestDag(
     return DAG(bestDAG);
 }
 
-DAG_SPACE::RTDA GetRTDAFromBestDag(
+OrderOptDAG_SPACE::RTDA GetRTDAFromBestDag(
     const DAG &bestDAG,
     const std::vector<std::vector<int>> &causeEffectChains,
     int processorsAvailable = coreNumberAva)
 {
     if (bestDAG.getPeriod() == 0)
     {
-        return DAG_SPACE::RTDA();
+        return OrderOptDAG_SPACE::RTDA();
     }
 
     TaskSet tasks = GetTaskSet(bestDAG);
@@ -155,14 +155,14 @@ DAG_SPACE::RTDA GetRTDAFromBestDag(
     if (debugMode)
     {
         std::cout << "Generated initial estimate from the bestDAG of Verucchi:\n";
-        DAG_SPACE::PrintSchedule(tasksInfo, initialEstimate);
+        OrderOptDAG_SPACE::PrintSchedule(tasksInfo, initialEstimate);
     }
-    Values initialEstimateFG = DAG_SPACE::GenerateInitialFG(initialEstimate, tasksInfo);
-    DAG_SPACE::RTDA resM(0, 0);
+    Values initialEstimateFG = OrderOptDAG_SPACE::GenerateInitialFG(initialEstimate, tasksInfo);
+    OrderOptDAG_SPACE::RTDA resM(0, 0);
     for (auto causeEffectChain : causeEffectChains)
     {
-        auto res = DAG_SPACE::GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
-        auto max_of_current_chain = DAG_SPACE::GetMaxRTDA(res);
+        auto res = OrderOptDAG_SPACE::GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
+        auto max_of_current_chain = OrderOptDAG_SPACE::GetMaxRTDA(res);
         resM.dataAge += max_of_current_chain.dataAge;
         resM.reactionTime += max_of_current_chain.reactionTime;
     }
@@ -170,8 +170,8 @@ DAG_SPACE::RTDA GetRTDAFromBestDag(
 }
 
 // get verucchi's RTDA on multiple chains
-DAG_SPACE::RTDA GetVerucchiRTDA(
-    DAG_SPACE::DAG_Model &dagTasks,
+OrderOptDAG_SPACE::RTDA GetVerucchiRTDA(
+    OrderOptDAG_SPACE::DAG_Model &dagTasks,
     std::vector<std::vector<int>> causeEffectChains,
     int processorsAvailable = coreNumberAva,
     float reactCost = 15.0,
@@ -200,8 +200,8 @@ DAG_SPACE::RTDA GetVerucchiRTDA(
     return GetRTDAFromBestDag(bestDAG, causeEffectChains, processorsAvailable);
 }
 
-DAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
-    DAG_SPACE::DAG_Model &dagTasks,
+OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
+    OrderOptDAG_SPACE::DAG_Model &dagTasks,
     std::vector<std::vector<int>> causeEffectChains,
     int processorsAvailable,
     float reactCost = 15.0,
@@ -211,7 +211,7 @@ DAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     unsigned coreCost = 50,
     int64_t time_limit = kVerucchiTimeLimit)
 {
-    DAG_SPACE::ScheduleResult res;
+    OrderOptDAG_SPACE::ScheduleResult res;
     VariableTaskSet taskSetVeru;
     std::vector<std::shared_ptr<MultiNode>> tasksVecVeru;
     GenerateVariableTaskSetFromDAGModel(dagTasks, taskSetVeru, tasksVecVeru);

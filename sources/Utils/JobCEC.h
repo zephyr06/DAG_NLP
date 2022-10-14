@@ -8,7 +8,7 @@
 
 #include "sources/TaskModel/RegularTasks.h"
 
-namespace DAG_SPACE
+namespace OrderOptDAG_SPACE
 {
     struct JobCEC
     {
@@ -174,9 +174,9 @@ namespace DAG_SPACE
 }
 
 template <>
-struct std::hash<DAG_SPACE::JobCEC>
+struct std::hash<OrderOptDAG_SPACE::JobCEC>
 {
-    std::size_t operator()(const DAG_SPACE::JobCEC &jobCEC) const
+    std::size_t operator()(const OrderOptDAG_SPACE::JobCEC &jobCEC) const
     {
         std::string str = std::to_string(jobCEC.taskId) + ", " + std::to_string(jobCEC.jobId);
         return std::hash<std::string>{}(str);

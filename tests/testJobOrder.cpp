@@ -5,7 +5,7 @@
 #include "sources/Utils/BatchUtils.h"
 #include "sources/Factors/Interval.h"
 
-using namespace DAG_SPACE;
+using namespace OrderOptDAG_SPACE;
 TEST(EventPool, v)
 {
     EventPool pool;
@@ -36,8 +36,8 @@ TEST(EventPool, v2)
 }
 TEST(ListSchedulingLFTPA, EventPool)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -52,8 +52,8 @@ TEST(ListSchedulingLFTPA, EventPool)
 
 TEST(ListSchedulingLFTPA, EventPool_v2)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -68,8 +68,8 @@ TEST(ListSchedulingLFTPA, EventPool_v2)
 
 TEST(ListSchedulingLFTPA, EventPool_v3)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -84,8 +84,8 @@ TEST(ListSchedulingLFTPA, EventPool_v3)
 
 TEST(ListSchedulingLFTPA, EventPool_v4)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -101,7 +101,7 @@ TEST(ListSchedulingLFTPA, EventPool_v4)
 TEST(constructor, ListSchedulingGivenOrder)
 {
 
-    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -113,8 +113,8 @@ TEST(constructor, ListSchedulingGivenOrder)
 
 TEST(list_scheduling, least_finish_time_v2)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v74.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v74.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
@@ -125,8 +125,8 @@ TEST(list_scheduling, least_finish_time_v2)
 
 TEST(list_scheduling, ListSchedulingGivenOrderPA_v1)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v74.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v74.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -144,7 +144,7 @@ TEST(list_scheduling, ListSchedulingGivenOrderPA_v1)
 TEST(constructor, ListSchedulingGivenOrder_v2)
 {
 
-    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n10_v3.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n10_v3.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -169,7 +169,7 @@ TEST(constructor, ListSchedulingGivenOrder_v2)
 TEST(constructor, JobOrderMultiCore)
 {
 
-    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -182,7 +182,7 @@ TEST(constructor, JobOrderMultiCore)
 
 TEST(JobOrder, change_order)
 {
-    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n10_v3.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n10_v3.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -203,7 +203,7 @@ TEST(JobOrder, change_order)
 
 TEST(Schedule_optimize, MakeProgress)
 {
-    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n10_v3.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n10_v3.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -236,7 +236,7 @@ TEST(Schedule_optimize, MakeProgress)
 TEST(Schedule, jobOrder)
 {
     coreNumberAva = 1;
-    DAG_SPACE::DAG_Model dagTasks = DAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     ScheduleResult res = ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
     EXPECT(99 >= res.rtda_.reactionTime);
     EXPECT(99 >= res.rtda_.dataAge);
@@ -246,8 +246,8 @@ TEST(Schedule, jobOrder)
 
 TEST(ListSchedulingGivenOrder, strict_job_order)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v74.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v74.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -267,8 +267,8 @@ TEST(ListSchedulingGivenOrder, strict_job_order)
 
 TEST(changeOrderNP, insert_delete)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v7.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v7.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
@@ -294,8 +294,8 @@ TEST(changeOrderNP, insert_delete)
 
 TEST(changeOrderNP, switch_position)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v7.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v7.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
@@ -317,8 +317,8 @@ TEST(changeOrderNP, switch_position)
 
 TEST(changeOrderNP, ListSchedulingLFTPA)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v7.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v7.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
@@ -339,8 +339,8 @@ TEST(changeOrderNP, ListSchedulingLFTPA)
 
 TEST(changeOrderNP, ListSchedulingLFTPA_MultiCore)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v7.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v7.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
@@ -362,8 +362,8 @@ TEST(changeOrderNP, ListSchedulingLFTPA_MultiCore)
 
 TEST(changeOrderNP, ListSchedulingLFTPA_MultiCore_v2)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v7.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v7.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
@@ -385,8 +385,8 @@ TEST(changeOrderNP, ListSchedulingLFTPA_MultiCore_v2)
 
 TEST(changeOrderNP, ListSchedulingLFTPA_MultiCore_v3)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
@@ -408,8 +408,8 @@ TEST(changeOrderNP, ListSchedulingLFTPA_MultiCore_v3)
 
 TEST(changeOrderNP, ListSchedulingLFTPA_NP)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
@@ -432,8 +432,8 @@ TEST(changeOrderNP, ListSchedulingLFTPA_NP)
 
 TEST(changeOrderNP, ListSchedulingLFTPA_NP_v2)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
@@ -456,8 +456,8 @@ TEST(changeOrderNP, ListSchedulingLFTPA_NP_v2)
 
 // TEST(ListSchedulingLFTPA_NP, jobOrderConflict)
 // {
-//     using namespace DAG_SPACE;
-//     DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+//     using namespace OrderOptDAG_SPACE;
+//     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
 //     TaskSet tasks = dagTasks.tasks;
 //     TaskSetInfoDerived tasksInfo(tasks);
 //     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
@@ -480,7 +480,7 @@ TEST(changeOrderNP, ListSchedulingLFTPA_NP_v2)
 
 TEST(IO, ReadWriteResult)
 {
-    DAG_SPACE::ScheduleResult res;
+    OrderOptDAG_SPACE::ScheduleResult res;
     res.schedulable_ = false;
     res.timeTaken_ = 1.1;
     res.obj_ = 2.1;
@@ -488,7 +488,7 @@ TEST(IO, ReadWriteResult)
     const char *pathDataset = (dirStr).c_str();
     std::string file = "testIO.txt";
     WriteToResultFile(pathDataset, file, res, 0);
-    DAG_SPACE::ScheduleResult res2 = ReadFromResultFile(pathDataset, file, 0);
+    OrderOptDAG_SPACE::ScheduleResult res2 = ReadFromResultFile(pathDataset, file, 0);
     EXPECT_DOUBLES_EQUAL(1.1, res2.timeTaken_, 1e-3);
     EXPECT_DOUBLES_EQUAL(2.1, res2.obj_, 1e-3);
     EXPECT(!res2.schedulable_);
@@ -496,8 +496,8 @@ TEST(IO, ReadWriteResult)
 
 TEST(changeOrderNP, ExamPrecedenceJobSatisfied)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
@@ -547,8 +547,8 @@ TEST(changeOrderNP, ExamPrecedenceJobSatisfied)
 
 TEST(changeOrderNP, ListSchedulingLFTPA_NP_overwrite_P)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
@@ -579,8 +579,8 @@ TEST(changeOrderNP, ListSchedulingLFTPA_NP_overwrite_P)
 
 TEST(JobOrderMultiCore, optimize)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -596,8 +596,8 @@ TEST(JobOrderMultiCore, optimize)
 
 TEST(WhetherSkipSwitch, v1)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v12.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v12.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
@@ -619,8 +619,8 @@ TEST(WhetherSkipSwitch, v1)
 
 TEST(ListSchedulingLFTPA, processorIdVec)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 3);
@@ -646,8 +646,8 @@ TEST(ListSchedulingLFTPA, processorIdVec)
 
 TEST(ListSchedulingLFTPA, processorIdVec_multi_rate)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
@@ -665,8 +665,8 @@ TEST(ListSchedulingLFTPA, processorIdVec_multi_rate)
 
 TEST(ExamFeasibility, v1)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -682,8 +682,8 @@ TEST(ExamFeasibility, v1)
 }
 TEST(ExamFeasibility, v2)
 {
-    using namespace DAG_SPACE;
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
@@ -711,10 +711,10 @@ TEST(ExamFeasibility, v2)
 
 TEST(sensorFusion, v1)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
 
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v9.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -731,10 +731,10 @@ TEST(sensorFusion, v1)
 
 TEST(sensorFusion, multi_rate)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
 
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -766,10 +766,10 @@ TEST(sensorFusion, multi_rate)
 }
 TEST(sensorFusion, v1_no_fork)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
 
-    DAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v10.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v10.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);

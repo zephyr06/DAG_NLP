@@ -2,7 +2,7 @@
 
 TEST(DAG_Generated, v1)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     DAG_Model tasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
 
     auto res = OptimizeSchedulingSA(tasks);

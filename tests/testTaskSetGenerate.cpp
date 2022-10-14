@@ -84,7 +84,7 @@ TEST(ReadDAG_Tasks, v7)
 
 TEST(ProcessorTaskSet, add)
 {
-    using namespace DAG_SPACE;
+    using namespace OrderOptDAG_SPACE;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v28.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);

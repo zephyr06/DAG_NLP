@@ -1,7 +1,7 @@
 #include "sources/Factors/BaseSchedulingFactor.h"
 
 using namespace RegularTaskSystem;
-using namespace DAG_SPACE;
+using namespace OrderOptDAG_SPACE;
 
 /**
  * @brief Preempt factor, guarantee f_i >= s_i + c_i
