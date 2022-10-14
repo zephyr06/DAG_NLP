@@ -138,6 +138,8 @@ namespace DAG_SPACE
         if (weightSF_factor == 0)
             return;
         LLint errorDimensionSF = CountSFError(dagTasks, tasksInfo.sizeOfVariables);
+        if (errorDimensionSF == 0)
+            return;
         auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma / weightSF_factor);
         vector<gtsam::Symbol> keys = GenerateKeySF(tasksInfo);
 
