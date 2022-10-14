@@ -1,5 +1,6 @@
 #include "sources/TaskModel/GenerateRandomTaskset.h"
 #include "sources/Utils/argparse.hpp"
+#include "sources/Optimization/OptimizeOrder.h"
 
 void deleteDirectoryContents(const std::string &dir_path)
 {
@@ -55,6 +56,10 @@ int main(int argc, char *argv[])
         .default_value(1)
         .help("maximum number of cores that each task could require, default 1")
         .scan<'i', int>();
+    program.add_argument("--excludeUnschedulable")
+        .default_value(1)
+        .help("whether exclude unschedulable task set on List Scheduler, default 1")
+        .scan<'i', int>();
 
     // program.add_argument("--parallelismFactor")
     //     .default_value(1000)
@@ -90,10 +95,13 @@ int main(int argc, char *argv[])
     int deadlineType = program.get<int>("--deadlineType");
     int coreRequireMax = program.get<int>("--coreRequireMax");
     int taskSetType = program.get<int>("--taskSetType");
+    int excludeUnschedulable = program.get<int>("--excludeUnschedulable");
     cout << "Task configuration: " << endl
          << "the number of tasks in DAG(--N): " << N << endl
          << "DAG_taskSetNumber(--taskSetNumber): " << DAG_taskSetNumber << endl
+         << "excludeUnschedulable(--excludeUnschedulable): " << excludeUnschedulable << endl
          << "totalUtilization(--totalUtilization): " << totalUtilization << endl
+         << "aveUtilization(--aveUtilization): " << aveUtilization << endl
          << "NumberOfProcessor(--NumberOfProcessor): " << numberOfProcessor << endl
          << "periodMin(--periodMin): " << periodMin << endl
          << "periodMax(--periodMax): " << periodMax << endl
@@ -126,6 +134,18 @@ int main(int argc, char *argv[])
                                           numberOfProcessor,
                                           periodMin,
                                           periodMax, coreRequireMax, taskSetType, deadlineType);
+            if (excludeUnschedulable == 1)
+            {
+                TaskSet &taskSet = tasks.tasks;
+                TaskSetInfoDerived tasksInfo(taskSet);
+                std::vector<uint> processorJobVec;
+                std::optional<JobOrderMultiCore> emptyOrder;
+                VectorDynamic initialSTV = ListSchedulingLFTPA(tasks, tasksInfo, numberOfProcessor, emptyOrder, processorJobVec);
+                if (!ExamFeasibility(tasks, tasksInfo, initialSTV, processorJobVec, numberOfProcessor))
+                {
+                    continue;
+                }
+            }
             string fileName = "dag-set-" + string(3 - to_string(i).size(), '0') + to_string(i) + "-syntheticJobs" + ".csv";
             ofstream myfile;
             myfile.open(outDirectory + fileName);
