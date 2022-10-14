@@ -5,7 +5,7 @@
 #include <cmath>
 #include <time.h>
 #include "Optimize.h"
-#include "../includeMoe/moe/moe.hpp"
+#include "includeMoe/moe/moe.hpp"
 
 namespace RTSS21IC_NLP
 {
