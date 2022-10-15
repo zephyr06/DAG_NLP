@@ -433,6 +433,7 @@ namespace OrderOptDAG_SPACE
                         if (processorIdVec)
                         {
                             (*processorIdVec)[IndexTran_Instance2Overall(p.first, p.second, tasksInfo.sizeOfVariables)] = processorId;
+                            dagTasks.tasks[p.first].processorId = processorId;
                         }
                     }
                 }

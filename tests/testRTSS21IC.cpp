@@ -3,8 +3,11 @@
 #include "sources/Baseline/RTSS21IC.h"
 TEST(DAG_Optimize_schedule, v1)
 {
-    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(RTSS21IC_NLP::PROJECT_PATH + "TaskData/" + RTSS21IC_NLP::testDataSetName + ".csv", "orig");
-    OrderOptDAG_SPACE::ScheduleResult res = OrderOptDAG_SPACE::ScheduleRTSS21IC(dagTasks);
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
+    auto sth = OrderOptDAG_SPACE::ScheduleRTSS21IC(dagTasks, 1000, 1000);
+    EXPECT(sth.schedulable_);
+    sth = OrderOptDAG_SPACE::ScheduleRTSS21IC(dagTasks, 60, 60);
+    EXPECT(!sth.schedulable_);
 }
 int main()
 {

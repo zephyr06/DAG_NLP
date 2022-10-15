@@ -15,6 +15,7 @@
 #include "sources/Optimization/EliminationForest_utils.h"
 #include "sources/Factors/BaseSchedulingFactor.h"
 #include "sources/Optimization/JobOrder.h"
+#include "sources/Factors/MultiKeyFactor.h"
 
 namespace OrderOptDAG_SPACE
 {
@@ -97,7 +98,12 @@ namespace OrderOptDAG_SPACE
                         int sourceIndex = tasksPrev.at(ii).id;
                         LLint instanceSource = floor(startTimeCurr / tasksInfo.tasks[sourceIndex].period);
                         if (instanceSource < 0 || instanceSource > tasksInfo.sizeOfVariables[sourceIndex] - 1)
-                            CoutError("Error in OptimizeORder's SF evaluation!");
+                        // CoutError("Error in OptimizeORder's SF evaluation!");
+                        {
+                            if (debugMode == 1)
+                                CoutWarning("Possible Error in OptimizeORder's SF evaluation!");
+                            instanceSource = 0;
+                        }
 
                         JobCEC jCurr(sourceIndex, instanceSource);
                         double finishTimeSourceInstance = GetFinishTime(jCurr, startTimeVector, tasksInfo);
@@ -182,21 +188,7 @@ namespace OrderOptDAG_SPACE
 
             if (H)
             {
-                if (numericalJaobian)
-                {
-                    *H = NumericalDerivativeDynamic(f, startTimeVector, deltaOptimizer, errorDimension);
-                }
-                else
-                    *H = JacobianAnalytic(startTimeVector);
-                if (debugMode == 1)
-                {
-                    cout << "The Jacobian matrix of SensorFusion_ConstraintFactor is " << endl;
-                    cout << *H << endl;
-                }
-                if (debugMode == 1)
-                {
-                    cout << "The error vector of SensorFusion is " << Color::blue << f(startTimeVector) << Color::def << endl;
-                }
+                *H = NumericalDerivativeDynamic(f, startTimeVector, deltaOptimizer, errorDimension);
             }
             EndTimer("Sensor_all");
             return f(startTimeVector);
