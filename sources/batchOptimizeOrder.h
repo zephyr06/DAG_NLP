@@ -115,7 +115,7 @@ void BatchOptimizeOrder()
     int n = objsAll[0].size();
     if (n != 0)
     {
-        VariadicTable<std::string, double, double, double> vt({"Method", "Schedulable ratio", "Obj", "TimeTaken"}, 10);
+        VariadicTable<std::string, double, double, double> vt({"Method", "Schedulable ratio", "Obj (Only used in RTDA experiment)", "TimeTaken"}, 10);
 
         vt.addRow("Initial", Average(schedulableAll[0]), Average(objsAll[0]), Average(runTimeAll[0]));
         vt.addRow("OrderOpt", Average(schedulableAll[1]), Average(objsAll[1]), Average(runTimeAll[1]));
