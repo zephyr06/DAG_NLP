@@ -79,7 +79,7 @@ double RandomAccept = (double)ConfigParameters["RandomAccept"];
 
 const double ResetRandomWeightThreshold = (double)ConfigParameters["ResetRandomWeightThreshold"];
 const double weightSF_factor = (double)ConfigParameters["weightSF_factor"];
-
+int TotalMethodUnderComparison = (int)ConfigParameters["TotalMethodUnderComparison"];
 int processorAssignmentMode = (int)ConfigParameters["processorAssignmentMode"];
 int PrintInitial = (int)ConfigParameters["PrintInitial"];
 int debugMode = (int)ConfigParameters["debugMode"];

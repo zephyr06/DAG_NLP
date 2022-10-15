@@ -14,35 +14,6 @@
 
 namespace OrderOptDAG_SPACE
 {
-    bool ExamFeasibility(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum)
-    {
-        if (processorNum <= 0)
-            return false;
-        std::vector<std::vector<Interval>> jobsPerProcessor(processorNum);
-        int index = 0;
-        for (uint i = 0; i < dagTasks.tasks.size(); i++)
-        {
-            for (uint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
-            {
-                JobCEC job(i, j);
-                Interval v(GetStartTime(job, startTimeVector, tasksInfo), tasksInfo.tasks[i].executionTime);
-                if (v.start < tasksInfo.tasks[i].period * j)
-                    return false;
-                else if (v.start + v.length > tasksInfo.tasks[i].period * j + tasksInfo.tasks[i].deadline)
-                    return false;
-                if (processorJobVec[index] >= jobsPerProcessor.size())
-                    return false;
-                jobsPerProcessor[processorJobVec[index]].push_back(v);
-                index++;
-            }
-        }
-        for (int i = 0; i < processorNum; i++)
-        {
-            if (IntervalOverlapError(jobsPerProcessor[i]) > 0)
-                return false;
-        }
-        return true;
-    }
 
     template <class SchedulingAlgorithm>
     struct IterationStatus
@@ -63,7 +34,7 @@ namespace OrderOptDAG_SPACE
             rtdaVec_ = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector_);
             maxRtda_ = GetMaxRTDA(rtdaVec_);
             objVal_ = ObjRTDA(maxRtda_);
-            schedulable_ = SchedulabilityCheck(dagTasks, tasksInfo, startTimeVector_);
+            schedulable_ = ExamDDL_Feasibility(dagTasks, tasksInfo, startTimeVector_);
         }
     };
 
@@ -205,7 +176,7 @@ namespace OrderOptDAG_SPACE
             scheduleRes = result_after_optimization;
         }
 
-        if (!ExamFeasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum))
+        if (!ExamDBF_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum))
         {
             CoutError("Found one unschedulable case after optimization!");
         }

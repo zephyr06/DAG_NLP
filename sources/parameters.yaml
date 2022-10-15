@@ -1,7 +1,8 @@
 %YAML:1.0
 
 # optimization seettings
-batchTestMethod: 1 # 0 means initial, 1 means proposed optimization, 2 means Verucchi20, 3 means SA
+batchTestMethod: 1 # 0 means initial, 1 means proposed optimization, 2 means Verucchi20, 3 means NLP, SA is not considered
+TotalMethodUnderComparison: 4
 testDataSetName: test_n3_v8
 debugMode: 0
 doScheduleOptimization: 1
@@ -23,7 +24,7 @@ priorityMode: orig
 weightDDL_factor: 1e0
 weightDAG_factor: 0
 weightSF_factor: 1
-RtdaWeight: 1e1
+RtdaWeight: 1e0
 DataAgeThreshold: 1e3
 ReactionTimeThreshold: 1e3
 NumCauseEffectChain: 1

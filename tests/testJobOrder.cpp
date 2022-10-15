@@ -120,7 +120,7 @@ TEST(list_scheduling, least_finish_time_v2)
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
     std::cout << initial << std::endl;
     PrintSchedule(tasksInfo, initial);
-    EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
+    EXPECT(ExamDDL_Feasibility(dagTasks, tasksInfo, initial));
 }
 
 TEST(list_scheduling, ListSchedulingGivenOrderPA_v1)
@@ -138,7 +138,7 @@ TEST(list_scheduling, ListSchedulingGivenOrderPA_v1)
     initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder);
     std::cout << initial << std::endl;
     PrintSchedule(tasksInfo, initial);
-    EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
+    EXPECT(ExamDDL_Feasibility(dagTasks, tasksInfo, initial));
 }
 
 TEST(constructor, ListSchedulingGivenOrder_v2)
@@ -149,7 +149,7 @@ TEST(constructor, ListSchedulingGivenOrder_v2)
     TaskSetInfoDerived tasksInfo(tasks);
 
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
-    EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
+    EXPECT(ExamDDL_Feasibility(dagTasks, tasksInfo, initial));
     JobOrderMultiCore jobOrderRef(tasksInfo, initial);
     IterationStatus<LSchedulingKnownTA> statusPrev(dagTasks, tasksInfo, jobOrderRef, 1);
     PrintSchedule(tasksInfo, initial);
@@ -187,7 +187,7 @@ TEST(JobOrder, change_order)
     TaskSetInfoDerived tasksInfo(tasks);
 
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
-    EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
+    EXPECT(ExamDDL_Feasibility(dagTasks, tasksInfo, initial));
     JobOrderMultiCore jobOrderRef(tasksInfo, initial);
     IterationStatus<LSchedulingKnownTA> statusPrev(dagTasks, tasksInfo, jobOrderRef, 1);
 
@@ -208,7 +208,7 @@ TEST(Schedule_optimize, MakeProgress)
     TaskSetInfoDerived tasksInfo(tasks);
 
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
-    EXPECT(SchedulabilityCheck(dagTasks, tasksInfo, initial));
+    EXPECT(ExamDDL_Feasibility(dagTasks, tasksInfo, initial));
     JobOrderMultiCore jobOrderRef(tasksInfo, initial);
     IterationStatus<LSchedulingKnownTA> statusPrev(dagTasks, tasksInfo, jobOrderRef, 1);
     {
@@ -663,7 +663,7 @@ TEST(ListSchedulingLFTPA, processorIdVec_multi_rate)
     EXPECT(assert_equal(expected, actualAssignment));
 }
 
-TEST(ExamFeasibility, v1)
+TEST(ExamDBF_Feasibility, v1)
 {
     using namespace OrderOptDAG_SPACE;
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
@@ -676,11 +676,11 @@ TEST(ExamFeasibility, v1)
     PrintSchedule(tasksInfo, initial);
     JobOrderMultiCore jobOrder(tasksInfo, initial);
     initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, jobOrder, processorJobVec);
-    EXPECT(ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
-    EXPECT(!ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum - 1));
-    EXPECT(!ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum - 2));
+    EXPECT(ExamDBF_Feasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
+    EXPECT(!ExamDBF_Feasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum - 1));
+    EXPECT(!ExamDBF_Feasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum - 2));
 }
-TEST(ExamFeasibility, v2)
+TEST(ExamDBF_Feasibility, v2)
 {
     using namespace OrderOptDAG_SPACE;
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
@@ -696,17 +696,17 @@ TEST(ExamFeasibility, v2)
     initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, jobOrder, processorJobVec);
     PrintSchedule(tasksInfo, initial);
 
-    EXPECT(ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
+    EXPECT(ExamDBF_Feasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
     initial(0) = 1;
-    EXPECT(!ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
+    EXPECT(!ExamDBF_Feasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
     initial(0) = 0;
     initial(1) = 99;
-    EXPECT(!ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
+    EXPECT(!ExamDBF_Feasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
     initial(1) = 100;
     initial(4) = 30;
-    EXPECT(ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
+    EXPECT(ExamDBF_Feasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
     initial(4) = 8;
-    EXPECT(!ExamFeasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
+    EXPECT(!ExamDBF_Feasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
 }
 
 TEST(sensorFusion, v1)

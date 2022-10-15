@@ -22,7 +22,7 @@ namespace RTSS21IC_NLP
     namespace DAG_SPACE
     {
 
-            double GraphErrorEvaluation(OrderOptDAG_SPACE::DAG_Model &dagTasks, VectorDynamic startTimeVector)
+        double GraphErrorEvaluation(OrderOptDAG_SPACE::DAG_Model &dagTasks, VectorDynamic startTimeVector)
         {
             TaskSet tasks = dagTasks.tasks;
             int N = tasks.size();
@@ -212,7 +212,7 @@ namespace RTSS21IC_NLP
 
             VectorDynamic initialEstimate = GenerateInitial(dagTasks,
                                                             sizeOfVariables, variableDimension);
-            double errorInitial = GraphErrorEvaluation(dagTasks, initialEstimate);
+            double errorInitial = RTSS21IC_NLP::DAG_SPACE::GraphErrorEvaluation(dagTasks, initialEstimate);
             return {errorInitial, errorInitial, initialEstimate, initialEstimate};
         }
 
@@ -323,11 +323,11 @@ namespace RTSS21IC_NLP
             }
 
             initialEstimate = GenerateInitial(dagTasks, sizeOfVariables, variableDimension, initialUser);
-            double errorInitial = GraphErrorEvaluation(dagTasks, initialEstimate);
+            double errorInitial = RTSS21IC_NLP::DAG_SPACE::GraphErrorEvaluation(dagTasks, initialEstimate);
 
             cout << Color::blue << "The error before optimization is "
                  << errorInitial << Color::def << endl;
-            double finalError = GraphErrorEvaluation(dagTasks, trueResult);
+            double finalError = RTSS21IC_NLP::DAG_SPACE::GraphErrorEvaluation(dagTasks, trueResult);
             cout << Color::blue << "The error after optimization is " << finalError << Color::def << endl;
             return {errorInitial, finalError, initialEstimate, trueResult};
         }

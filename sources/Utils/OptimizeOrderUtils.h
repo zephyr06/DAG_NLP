@@ -34,7 +34,7 @@ namespace OrderOptDAG_SPACE
     void PrintResultAnalyzation(ScheduleResult &scheduleResult, DAG_Model &dagTasks)
     {
         TaskSet &tasks = dagTasks.tasks;
-        TaskSetInfoDerived tasksInfo(tasks);
+        RegularTaskSystem::TaskSetInfoDerived tasksInfo(tasks);
         std::cout << Color::blue;
         std::cout << "Schedulable after optimization? " << scheduleResult.schedulable_ << std::endl;
         RTDA resAfterOpt = GetMaxRTDA(tasksInfo, dagTasks.chains_[0], scheduleResult.startTimeVector_);
@@ -44,7 +44,7 @@ namespace OrderOptDAG_SPACE
         PrintSchedule(tasksInfo, scheduleResult.startTimeVector_);
     }
 
-    bool CheckDDLConstraint(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
+    bool CheckDDLConstraint(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
     {
         gtsam::NonlinearFactorGraph graph;
         AddDDL_Factor(graph, tasksInfo);
@@ -53,29 +53,74 @@ namespace OrderOptDAG_SPACE
         return 0 == err;
     }
 
-    bool SchedulabilityCheck(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
+    // Exams DBF constraints
+    bool ExamDBF_Feasibility(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum)
+    {
+        if (processorNum <= 0)
+            return false;
+        std::vector<std::vector<Interval>> jobsPerProcessor(processorNum);
+        int index = 0;
+        for (uint i = 0; i < dagTasks.tasks.size(); i++)
+        {
+            for (uint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
+            {
+                JobCEC job(i, j);
+                Interval v(GetStartTime(job, startTimeVector, tasksInfo), tasksInfo.tasks[i].executionTime);
+                if (v.start < tasksInfo.tasks[i].period * j)
+                    return false;
+                else if (v.start + v.length > tasksInfo.tasks[i].period * j + tasksInfo.tasks[i].deadline)
+                    return false;
+                if (processorJobVec[index] >= jobsPerProcessor.size())
+                    return false;
+                jobsPerProcessor[processorJobVec[index]].push_back(v);
+                index++;
+            }
+        }
+        for (int i = 0; i < processorNum; i++)
+        {
+            if (IntervalOverlapError(jobsPerProcessor[i]) > 0)
+                return false;
+        }
+        return true;
+    }
+
+    bool ExamDDL_Feasibility(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
     {
         return CheckDDLConstraint(dagTasks, tasksInfo, startTimeVector);
     }
 
-    ScheduleResult ScheduleDAGLS_LFT(DAG_Model &dagTasks)
+    bool ExamAll_Feasibility(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum, double sfBound, double freshnessBound)
+    {
+        if (!ExamDDL_Feasibility(dagTasks, tasksInfo, startTimeVector) || !ExamDBF_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec, processorNum))
+            return false;
+
+        // Exam RTDA
+        std::vector<OrderOptDAG_SPACE::RTDA> rtdaVec = OrderOptDAG_SPACE::GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector);
+        OrderOptDAG_SPACE::RTDA rtda = GetMaxRTDA(rtdaVec);
+        if (rtda.dataAge > freshnessBound || rtda.reactionTime > freshnessBound)
+            return false;
+
+        // Exam SF
+        VectorDynamic sfError = OrderOptDAG_SPACE::ObtainSensorFusionError(dagTasks, tasksInfo, startTimeVector);
+        if (sfError.maxCoeff() > sfBound)
+            return false;
+        return true;
+    }
+
+    ScheduleResult ScheduleDAGLS_LFT(DAG_Model &dagTasks, int processorNum, double sfBound, double freshnessBound)
     {
         TaskSet &tasks = dagTasks.tasks;
-        TaskSetInfoDerived tasksInfo(tasks);
-        VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva);
+        RegularTaskSystem::TaskSetInfoDerived tasksInfo(tasks);
+        std::vector<uint> processorJobVec;
+        VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, std::nullopt, processorJobVec);
         JobOrder jobOrderRef(tasksInfo, initialSTV);
         RTDA rtda = GetMaxRTDA(tasksInfo, dagTasks.chains_[0], initialSTV);
+        ScheduleResult res{
+            jobOrderRef,
+            initialSTV,
+            true, rtda};
+        res.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, initialSTV, processorJobVec, processorNum, sfBound, freshnessBound);
 
-        if (SchedulabilityCheck(dagTasks, tasksInfo, initialSTV))
-        {
-            ScheduleResult res{
-                jobOrderRef,
-                initialSTV,
-                true, rtda};
-            return res;
-        }
-
-        else
-            return ScheduleResult{jobOrderRef, initialSTV, false, rtda};
+        return res;
     }
 } // namespace OrderOptDAG_SPACE

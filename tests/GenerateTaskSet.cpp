@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
                 std::vector<uint> processorJobVec;
                 std::optional<JobOrderMultiCore> emptyOrder;
                 VectorDynamic initialSTV = ListSchedulingLFTPA(tasks, tasksInfo, numberOfProcessor, emptyOrder, processorJobVec);
-                if (!ExamFeasibility(tasks, tasksInfo, initialSTV, processorJobVec, numberOfProcessor))
+                if (!ExamDBF_Feasibility(tasks, tasksInfo, initialSTV, processorJobVec, numberOfProcessor))
                 {
                     continue;
                 }

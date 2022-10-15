@@ -24,7 +24,7 @@ namespace OrderOptDAG_SPACE
         }
         else if (batchTestMethod_ == 3)
         {
-            property = "SA_Res.txt";
+            property = "NLP_Res.txt";
         }
         return pathDataset + file + property;
     }
@@ -81,5 +81,23 @@ namespace OrderOptDAG_SPACE
         {
             return -1;
         }
+    }
+
+    vector<string> ReadFilesInDirectory(const char *path)
+    {
+        vector<string> files;
+        DIR *dr;
+        struct dirent *en;
+        dr = opendir(path);
+        if (dr)
+        {
+            while ((en = readdir(dr)) != NULL)
+            {
+                files.push_back(en->d_name); // print all directory name
+            }
+            closedir(dr); // close all directory
+        }
+        sort(files.begin(), files.end());
+        return files;
     }
 }
