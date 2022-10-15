@@ -2,14 +2,14 @@
 #pragma once
 #include "unordered_map"
 
-#include "sources/Baseline/RTSS21IC/sources/Parameters.h"
-#include "sources/Baseline/RTSS21IC/sources/GraphUtilsFromBGL.h"
+#include "sources/Baseline/Wang21/sources/Parameters.h"
+#include "sources/Baseline/Wang21/sources/GraphUtilsFromBGL.h"
 #include "sources/TaskModel/RegularTasks.h"
 
 #include "sources/TaskModel/DAG_Model.h"
-#include "sources/Baseline/RTSS21IC/sources/DBF_ConstraintFactor.h"
-#include "sources/Baseline/RTSS21IC/sources/DDL_ConstraintFactor.h"
-#include "sources/Baseline/RTSS21IC/sources/SensorFusionFactor.h"
+#include "sources/Baseline/Wang21/sources/DBF_ConstraintFactor.h"
+#include "sources/Baseline/Wang21/sources/DDL_ConstraintFactor.h"
+#include "sources/Baseline/Wang21/sources/SensorFusionFactor.h"
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Tools/colormod.h"
 
