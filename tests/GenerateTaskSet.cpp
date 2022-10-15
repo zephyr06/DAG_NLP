@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
         .scan<'i', int>();
     program.add_argument("--taskSetType")
         .default_value(2)
-        .help("type of taskset period generation method, 1 means normal, 2 means automobile method")
+        .help("type of taskset period generation method, 1 means normal, 2 means automobile method, 3 means automobile with WATERS distribution")
         .scan<'i', int>();
     program.add_argument("--coreRequireMax")
         .default_value(1)
@@ -59,6 +59,10 @@ int main(int argc, char *argv[])
     program.add_argument("--excludeUnschedulable")
         .default_value(1)
         .help("whether exclude unschedulable task set on List Scheduler, default 1")
+        .scan<'i', int>();
+    program.add_argument("--randomSeed")
+        .default_value(-1)
+        .help("seed of random, negative means use current time as seed, otherwise means self-defined seed")
         .scan<'i', int>();
 
     // program.add_argument("--parallelismFactor")
@@ -96,6 +100,7 @@ int main(int argc, char *argv[])
     int coreRequireMax = program.get<int>("--coreRequireMax");
     int taskSetType = program.get<int>("--taskSetType");
     int excludeUnschedulable = program.get<int>("--excludeUnschedulable");
+    int randomSeed = program.get<int>("--randomSeed");
     cout << "Task configuration: " << endl
          << "the number of tasks in DAG(--N): " << N << endl
          << "DAG_taskSetNumber(--taskSetNumber): " << DAG_taskSetNumber << endl
@@ -106,15 +111,23 @@ int main(int argc, char *argv[])
          << "periodMin(--periodMin): " << periodMin << endl
          << "periodMax(--periodMax): " << periodMax << endl
          << "taskType(--taskType), 0 means normal, 1 means DAG: " << taskType << endl
-         << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile: " << taskSetType << endl
+         << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile, 3 means automobile with WATERS distribution: " << taskSetType << endl
          << "deadlineType(--deadlineType), 1 means random, 0 means implicit: " << deadlineType << endl
          << "coreRequireMax(--coreRequireMax): " << coreRequireMax << endl
+         << "randomSeed(--randomSeed), negative will use current time, otherwise use the given seed: " << randomSeed << endl
          << endl;
 
     string outDirectory = PROJECT_PATH + "TaskData/dagTasks/";
     // string outDirectory = PROJECT_PATH + "Energy_Opt_NLP/TaskData/task_number/";
     deleteDirectoryContents(outDirectory);
-    srand(time(0));
+    if (randomSeed < 0)
+    {
+        srand(time(0));
+    }
+    else
+    {
+        srand(randomSeed);
+    }
     for (size_t i = 0; i < DAG_taskSetNumber; i++)
     {
         if (taskType == 0)
@@ -130,27 +143,35 @@ int main(int argc, char *argv[])
         }
         else if (taskType == 1)
         {
-            DAG_Model tasks = GenerateDAG(N, totalUtilization,
-                                          numberOfProcessor,
-                                          periodMin,
-                                          periodMax, coreRequireMax, taskSetType, deadlineType);
-            if (excludeUnschedulable == 1)
+            while (true)
             {
-                TaskSet &taskSet = tasks.tasks;
-                TaskSetInfoDerived tasksInfo(taskSet);
-                std::vector<uint> processorJobVec;
-                std::optional<JobOrderMultiCore> emptyOrder;
-                VectorDynamic initialSTV = ListSchedulingLFTPA(tasks, tasksInfo, numberOfProcessor, emptyOrder, processorJobVec);
-                if (!ExamDBF_Feasibility(tasks, tasksInfo, initialSTV, processorJobVec, numberOfProcessor))
+                DAG_Model tasks = GenerateDAG(N, totalUtilization,
+                                              numberOfProcessor,
+                                              periodMin,
+                                              periodMax, coreRequireMax, taskSetType, deadlineType);
+                if (excludeUnschedulable == 1)
                 {
-                    continue;
+                    TaskSet &taskSet = tasks.tasks;
+                    TaskSetInfoDerived tasksInfo(taskSet);
+                    std::vector<uint> processorJobVec;
+                    std::optional<JobOrderMultiCore> emptyOrder;
+                    VectorDynamic initialSTV = ListSchedulingLFTPA(tasks, tasksInfo, numberOfProcessor, emptyOrder, processorJobVec);
+                    if (!ExamAll_Feasibility(tasks, tasksInfo, initialSTV, processorJobVec))
+                    {
+                        if (debugMode)
+                        {
+                            std::cout << "Un feasible case, skipped.\n";
+                        }
+                        continue;
+                    }
                 }
+                string fileName = "dag-set-" + string(3 - to_string(i).size(), '0') + to_string(i) + "-syntheticJobs" + ".csv";
+                ofstream myfile;
+                myfile.open(outDirectory + fileName);
+                WriteDAG(myfile, tasks);
+                myfile.close();
+                break;
             }
-            string fileName = "dag-set-" + string(3 - to_string(i).size(), '0') + to_string(i) + "-syntheticJobs" + ".csv";
-            ofstream myfile;
-            myfile.open(outDirectory + fileName);
-            WriteDAG(myfile, tasks);
-            myfile.close();
         }
     }
 
