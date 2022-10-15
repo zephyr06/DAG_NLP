@@ -13,7 +13,9 @@ namespace OrderOptDAG_SPACE
         RTSS21IC_NLP::FreshTol = freshTol;
         RegularTaskSystem::TaskSetInfoDerived tasksInfo(dagTasks.tasks);
         std::vector<uint> processorIdVec;
-        VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, std::nullopt, processorIdVec);
+        // VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, std::nullopt, processorIdVec);
+
+        VectorDynamic initial = SimulateFixedPrioritySched(dagTasks, tasksInfo);
         auto sth = RTSS21IC_NLP::DAG_SPACE::OptimizeScheduling(dagTasks, initial);
         ScheduleResult res;
         res.schedulable_ = sth.optimizeError < 1e-1;
