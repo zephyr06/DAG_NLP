@@ -22,4 +22,12 @@ namespace OrderOptDAG_SPACE
         return res;
     }
 
+    bool ExamBasicFeasibilityRTSS21IC(DAG_Model &dagTasks)
+    {
+        RegularTaskSystem::TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+        VectorDynamic initial = SimulateFixedPrioritySched(dagTasks, tasksInfo);
+
+        return ExamDDL_Feasibility(dagTasks, tasksInfo, initial);
+    }
+
 }

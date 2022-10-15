@@ -8,7 +8,7 @@ debugMode: 0
 doScheduleOptimization: 1
 #*************************************************************
 # Get away from local optimal setting
-RandomAccept: 1 # chance to take a possibly better solution
+RandomAccept: 0 # chance to take a possibly better solution
 #*************************************************************
 
 
