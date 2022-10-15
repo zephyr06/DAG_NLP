@@ -40,8 +40,8 @@ ReactionTimeThreshold: 1e3
 NumCauseEffectChain: 1
 whether_shuffle_CE_chain: 0
 makespanWeight: 0
-sensorFusionTolerance: 500000
-FreshTol: 50000
+sensorFusionTolerance: 100
+FreshTol: 100
 withAddedSensorFusionError: 1
 #*************************************************************
 
