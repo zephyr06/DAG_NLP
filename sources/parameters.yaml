@@ -21,6 +21,14 @@ parallelFactor: 0.4 # percentage of edges in generated dag
 TaskSetType: 1 # 1 means total random, 2 means automobile tasksets
 timeScaleFactor: 1e0 # used to scale minimum period to 1 or larger, as currently only support integer periods
 
+
+#*************************************************************
+# MakeProgress's weight parameters
+weightInMpRTDA: 0.5
+weightInMpSf: 1
+weightInMpSfPunish: 10
+weightInMpRTDAPunish: 10
+
 #*************************************************************
 # factors to be included
 weightDDL_factor: 1e0

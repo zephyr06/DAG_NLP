@@ -27,6 +27,7 @@ namespace OrderOptDAG_SPACE
         RTDA maxRtda_;
         double objVal_;
         bool schedulable_;
+        VectorDynamic sfVec_;
 
         IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const JobOrderMultiCore &jobOrder, int processorNum) : dagTasks_(dagTasks), jobOrder_(jobOrder), processorNum_(processorNum)
         {
@@ -36,8 +37,25 @@ namespace OrderOptDAG_SPACE
             maxRtda_ = GetMaxRTDA(rtdaVec_);
             objVal_ = ObjRTDA(maxRtda_);
             if (weightSF_factor)
-                objVal_ + ObjSF(ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_));
+            {
+                sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
+                objVal_ + ObjSF(sfVec_);
+            }
             schedulable_ = ExamDDL_Feasibility(dagTasks, tasksInfo, startTimeVector_);
+        }
+        double ObjWeighted()
+        {
+            double overallRTDA = 0;
+            for (uint i = 0; i < rtdaVec_.size(); i++)
+                overallRTDA += ObjRTDA(rtdaVec_[i]);
+            double sfOverall = sfVec_.sum();
+            double res = ObjRTDA(maxRtda_) + overallRTDA * weightInMpRTDA;
+            if (weightSF_factor != 0)
+            {
+                res += sfOverall * weightInMpSf + Barrier(sensorFusionTolerance - sfVec_.maxCoeff()) * weightInMpSfPunish +
+                       Barrier(FreshTol - ObjRTDA(maxRtda_)) * weightInMpRTDAPunish;
+            }
+            return res;
         }
     };
 
@@ -47,21 +65,11 @@ namespace OrderOptDAG_SPACE
         if (!statusCurr.schedulable_)
             return false;
 
-        if (statusCurr.objVal_ < statusPrev.objVal_)
+        if (statusCurr.ObjWeighted() < statusPrev.ObjWeighted())
             return true;
 
-        // whether average of chains decrease
-        double overallObjPrev = 0;
-        double overallObjCurr = 0;
-        for (uint i = 0; i < statusPrev.rtdaVec_.size(); i++)
-        {
-            overallObjPrev += ObjRTDA(statusPrev.rtdaVec_[i]);
-            overallObjCurr += ObjRTDA(statusCurr.rtdaVec_[i]);
-        }
-        if (overallObjCurr < overallObjPrev && statusPrev.objVal_ == statusCurr.objVal_)
-            return true;
-        else if (overallObjCurr < overallObjPrev && ((double)rand() / (RAND_MAX)) < RandomAccept)
-            return true;
+        // if (overallObjCurr < overallObjPrev && ((double)rand() / (RAND_MAX)) < RandomAccept)
+        //     return true;
         return false;
     }
 

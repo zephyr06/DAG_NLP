@@ -47,6 +47,8 @@ void BatchOptimizeOrder()
             {
                 if (weightSF_factor != 0 && batchTestMethod == 2)
                     continue;
+                else if (weightSF_factor == 0 && batchTestMethod == 3)
+                    continue;
                 double obj;
                 int schedulable;
                 OrderOptDAG_SPACE::ScheduleResult res;
