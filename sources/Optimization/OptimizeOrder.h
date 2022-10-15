@@ -11,6 +11,7 @@
 #include "sources/Utils/OptimizeOrderUtils.h"
 #include "sources/Factors/Interval.h"
 #include "sources/Optimization/ScheduleOptimizer.h"
+#include "sources/Factors/SensorFusionFactor.h"
 
 namespace OrderOptDAG_SPACE
 {
@@ -34,6 +35,8 @@ namespace OrderOptDAG_SPACE
             rtdaVec_ = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector_);
             maxRtda_ = GetMaxRTDA(rtdaVec_);
             objVal_ = ObjRTDA(maxRtda_);
+            if (weightSF_factor)
+                objVal_ + ObjSF(ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_));
             schedulable_ = ExamDDL_Feasibility(dagTasks, tasksInfo, startTimeVector_);
         }
     };

@@ -10,7 +10,6 @@
 #include "sources/Baseline/RTSS21IC/sources/DBF_ConstraintFactor.h"
 #include "sources/Baseline/RTSS21IC/sources/DDL_ConstraintFactor.h"
 #include "sources/Baseline/RTSS21IC/sources/SensorFusionFactor.h"
-#include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Tools/colormod.h"
 
@@ -44,12 +43,10 @@ namespace RTSS21IC_NLP
                 MappingDataStruct m{i, 0};
                 mapIndex[i] = m;
             }
-            bool whetherEliminate = false;
             vector<bool> maskForEliminate(variableDimension, false);
 
             Symbol key('a', 0);
             NonlinearFactorGraph graph;
-            LLint errorDimensionMS = 1;
 
             ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
             LLint errorDimensionDBF = processorTaskSet.size();
@@ -111,7 +108,7 @@ namespace RTSS21IC_NLP
         {
             using namespace RegularTaskSystem;
 
-            int N = dagTasks.tasks.size();
+            // int N = dagTasks.tasks.size();
 
             // build the factor graph
             NonlinearFactorGraph graph;
@@ -291,8 +288,7 @@ namespace RTSS21IC_NLP
                 // update initial estimate
                 vector<double> initialUpdateVec;
                 initialUpdateVec.reserve(variableDimension - 1);
-                LLint indexUpdate = 0;
-                for (size_t i = 0; i < variableDimension; i++)
+                for (int i = 0; i < variableDimension; i++)
                 {
                     if (not maskForEliminate[i])
                     {

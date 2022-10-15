@@ -165,6 +165,11 @@ namespace OrderOptDAG_SPACE
         graph.emplace_shared<MultiKeyFactor>(keys, f, errorDimensionSF, model);
     }
 
+    double ObjSF(VectorDynamic sfVec)
+    {
+        return sfVec.maxCoeff();
+    }
+
     class SensorFusion_ConstraintFactor : public BaseSchedulingFactor
     {
     public:
