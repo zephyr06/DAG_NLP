@@ -1,0 +1,4 @@
+batchTestMethod: 1 # keep this line
+testDataSetName: test_n3_v8 
+debugMode: 0
+doScheduleOptimization: 1
