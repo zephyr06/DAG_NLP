@@ -33,7 +33,10 @@ namespace OrderOptDAG_SPACE
             AddDBFConstraints();
             AddDDLConstraints();
             AddCauseEffectiveChainConstraints();
-            AddSensorFusionConstraints();
+            if (weightSF_factor > 0)
+            {
+                AddSensorFusionConstraints();
+            }
             AddObjectives();
 
             cplex_solver_.extract(model_);
