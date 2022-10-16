@@ -131,8 +131,8 @@ VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
 	if (tasksets_.empty())
 		createTasksets();
 
-	auto start = std::chrono::system_clock::now();
-	auto curr = std::chrono::system_clock::now();
+	auto start_time = std::chrono::system_clock::now();
+	auto curr_time = std::chrono::system_clock::now();
 	if (seconds < 0)
 	{
 		seconds = INT64_MAX;
@@ -141,7 +141,7 @@ VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
 	unsigned k = 1;
 	for (auto &set : tasksets_)
 	{
-		auto dags = set.createDAGs(start, seconds);
+		auto dags = set.createDAGs(start_time, seconds);
 
 		allDAGs_.insert(allDAGs_.end(), dags.begin(), dags.end());
 
@@ -154,8 +154,8 @@ VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
 					  << std::endl;
 		}
 
-		curr = std::chrono::system_clock::now();
-		if (std::chrono::duration_cast<std::chrono::seconds>(curr - start).count() >= seconds)
+		curr_time = std::chrono::system_clock::now();
+		if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= seconds)
 		{
 			std::cout << "\nTime out when creating DAGs. Maximum time is " << seconds << " seconds.\n\n";
 			break;

@@ -229,7 +229,7 @@ MultiRateTaskset::createDAGs()
 }
 
 const std::vector<DAG> &
-MultiRateTaskset::createDAGs(std::chrono::_V2::system_clock::time_point start, int64_t seconds)
+MultiRateTaskset::createDAGs(std::chrono::_V2::system_clock::time_point start_time, int64_t seconds)
 {
 	std::vector<std::vector<std::vector<Edge>>> edgeSets;
 
@@ -277,8 +277,8 @@ MultiRateTaskset::createDAGs(std::chrono::_V2::system_clock::time_point start, i
 	dags_.clear();
 	for (int k = 0; k < numPermutations; k++)
 	{
-		auto curr = std::chrono::system_clock::now();
-		if (std::chrono::duration_cast<std::chrono::seconds>(curr - start).count() >= seconds)
+		auto curr_time = std::chrono::system_clock::now();
+		if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= seconds)
 		{
 			std::cout << "\nTime out when creating DAGs. Maximum time is " << seconds << " seconds.\n\n";
 			break;

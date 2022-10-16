@@ -130,8 +130,25 @@ namespace OrderOptDAG_SPACE
             }
         };
 
+        auto start_time = std::chrono::system_clock::now();
+        auto curr_time = std::chrono::system_clock::now();
+        int64_t seconds = makeProgressTimeLimit;
+        if (seconds < 0)
+        {
+            seconds = INT64_MAX;
+        }
+
         while (findNewUpdate)
         {
+            curr_time = std::chrono::system_clock::now();
+            if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= seconds)
+            {
+                if (debugMode)
+                {
+                    std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << seconds << " seconds.\n\n";
+                }
+                break;
+            }
             findNewUpdate = false;
             for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
             {
