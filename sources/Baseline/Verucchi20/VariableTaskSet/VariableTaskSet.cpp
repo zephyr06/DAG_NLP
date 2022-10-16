@@ -138,7 +138,6 @@ VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
 	// if (tasksets_.empty())
 	// 	createTasksets();
 
-	unsigned k = 1;
 	std::vector<std::vector<MultiEdge>> edgeSets;
 	std::vector<int> permutSets;
 	for (auto &edge : edges_)
@@ -162,6 +161,7 @@ VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
 	}
 
 	tasksets_.clear();
+	tasksets_.reserve(numPermutations);
 	for (int k = 0; k < numPermutations; k++)
 	{
 		MultiRateTaskset set(baselineTaskset_);
@@ -176,12 +176,13 @@ VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
 			set.addEdge(edgeSets[n][permutation[n]]);
 		}
 		tasksets_.push_back(std::move(set));
-		auto dags = tasksets_.back().createDAGs(start_time, seconds);
+		MultiRateTaskset &temp_taskset = tasksets_.back();
+		auto dags = temp_taskset.createDAGs(start_time, seconds);
 		allDAGs_.insert(allDAGs_.end(), dags.begin(), dags.end());
 		if (debugMode)
 		{
 			std::cout << std::endl
-					  << "Taskset " << k++ << "/" << tasksets_.size() << ": " << dags.size() << " created" << std::endl;
+					  << "Taskset " << k+1 << "/" << numPermutations << ": " << dags.size() << " created" << std::endl;
 			std::cout << allDAGs_.size() << " total DAGs" << std::endl
 					  << std::endl
 					  << std::endl;

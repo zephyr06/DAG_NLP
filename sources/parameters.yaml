@@ -53,7 +53,7 @@ temperatureSA: 100000000
 SA_iteration: 100000
 #*************************************************************
 # Verucchi20 settings
-kVerucchiTimeLimit: 5 # seconds, -1 means unlimited time
+kVerucchiTimeLimit: -1 # seconds, -1 means unlimited time
 kVerucchiReactionCost: 15.0
 kVerucchiMaxReaction: 400000.0
 kVerucchiDataAgeCost: 15.0
