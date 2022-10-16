@@ -238,7 +238,7 @@ Evaluation::getSchedulingInfo(const DAG &dag, const SchedulingConstraint &constr
 {
 	float u = dag.getOriginatingTaskset()->getUtilization();
 
-	for (unsigned m = std::ceil(u); m <= constraint.maxCores; m++)
+	for (unsigned m = std::max(1.0f, std::ceil(u)); m <= constraint.maxCores; m++)
 	{
 		if (scheduling::scheduleDAG(dag, m))
 			return SchedulingInfo(m);

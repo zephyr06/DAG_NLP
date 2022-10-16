@@ -78,6 +78,7 @@ double weightInMpRTDA = (double)ConfigParameters["weightInMpRTDA"];
 double weightInMpSf = (double)ConfigParameters["weightInMpSf"];
 double weightInMpSfPunish = (double)ConfigParameters["weightInMpSfPunish"];
 double weightInMpRTDAPunish = (double)ConfigParameters["weightInMpRTDAPunish"];
+int64_t makeProgressTimeLimit = (int)ConfigParameters["makeProgressTimeLimit"];
 
 double RtdaWeight = (double)ConfigParameters["RtdaWeight"];
 double RandomAccept = (double)ConfigParameters["RandomAccept"];

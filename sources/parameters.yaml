@@ -28,7 +28,7 @@ weightInMpRTDA: 0.5
 weightInMpSf: 1
 weightInMpSfPunish: 10
 weightInMpRTDAPunish: 10
-makeProgressTimeLimit: 5 # seconds, -1 means unlimited time
+makeProgressTimeLimit: 10 # seconds, -1 means unlimited time
 
 #*************************************************************
 # factors to be included

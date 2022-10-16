@@ -127,24 +127,57 @@ VariableTaskSet::createDAGs()
 const std::vector<DAG> &
 VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
 {
-	allDAGs_.clear();
-	if (tasksets_.empty())
-		createTasksets();
-
 	auto start_time = std::chrono::system_clock::now();
 	auto curr_time = std::chrono::system_clock::now();
 	if (seconds < 0)
 	{
 		seconds = INT64_MAX;
 	}
+	allDAGs_.clear();
+
+	// if (tasksets_.empty())
+	// 	createTasksets();
 
 	unsigned k = 1;
-	for (auto &set : tasksets_)
+	std::vector<std::vector<MultiEdge>> edgeSets;
+	std::vector<int> permutSets;
+	for (auto &edge : edges_)
 	{
-		auto dags = set.createDAGs(start_time, seconds);
+		edgeSets.push_back(edge.translateToMultiEdges());
+		permutSets.push_back(edgeSets.back().size());
+	}
+	permutSets.push_back(1);
+	std::vector<int> permutation(edgeSets.size(), 0);
+	int numPermutations = 1;
+	for (const auto &it : edgeSets)
+		numPermutations *= it.size();
+	for (int k = permutSets.size() - 2; k >= 0; k--)
+	{
+		permutSets[k] = permutSets[k + 1] * permutSets[k];
+	}
 
+	if (debugMode)
+	{
+		std::cout << numPermutations << " Permutations available" << std::endl;
+	}
+
+	tasksets_.clear();
+	for (int k = 0; k < numPermutations; k++)
+	{
+		MultiRateTaskset set(baselineTaskset_);
+		int tmp = k;
+		for (unsigned i = 0; i < permutation.size(); i++)
+		{
+			permutation[i] = tmp / permutSets[i + 1];
+			tmp = tmp % permutSets[i + 1];
+		}
+		for (unsigned n = 0; n < edgeSets.size(); n++)
+		{
+			set.addEdge(edgeSets[n][permutation[n]]);
+		}
+		tasksets_.push_back(std::move(set));
+		auto dags = tasksets_.back().createDAGs(start_time, seconds);
 		allDAGs_.insert(allDAGs_.end(), dags.begin(), dags.end());
-
 		if (debugMode)
 		{
 			std::cout << std::endl
@@ -153,7 +186,6 @@ VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
 					  << std::endl
 					  << std::endl;
 		}
-
 		curr_time = std::chrono::system_clock::now();
 		if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= seconds)
 		{
@@ -161,6 +193,7 @@ VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
 			break;
 		}
 	}
+
 	return allDAGs_;
 }
 
