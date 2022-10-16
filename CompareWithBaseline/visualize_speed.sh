@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 title="task_number"
 MaxTaskNumber=10
@@ -10,7 +10,7 @@ time_file="ResultFiles/time_$title.txt"
 
 cd ../release
 make -j8
-cd ../CompareWithBaseline
+cd ../compare
 for taskNumber in {6..10}
 do
 	echo "$title iteration is: $taskNumber"
@@ -28,7 +28,7 @@ do
 	sleep 1
 done
 
-cd ../CompareWithBaseline
+cd ../compare
 cp ResultFiles/time_task_number.txt ResultFiles/time_task_number_result_copy.txt
 # visualize the result
 # python Visualize_average_speed.py --baseline "RM" --minTaskNumber 3 --maxTaskNumber $MaxTaskNumber
