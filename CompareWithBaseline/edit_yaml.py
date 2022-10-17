@@ -5,7 +5,7 @@ parser.add_argument('--entry', type=str, default="batchTestMethod",
                     help='entry to modify')
 parser.add_argument('--value', type=str, default="1",
                     help='value for the new entry')
-parser.add_argument('--target', type=str, default="./test.yaml",  # default="../sources/parameters.yaml",
+parser.add_argument('--target', type=str, default="../sources/parameters.yaml",
                     help='target yaml file location')
 args = parser.parse_args()
 entry = args.entry
