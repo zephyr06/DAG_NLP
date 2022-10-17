@@ -61,6 +61,10 @@ int main(int argc, char *argv[])
         .default_value(1)
         .help("whether exclude unschedulable task set on List Scheduler, default 1")
         .scan<'i', int>();
+    program.add_argument("--excludeEmptyEdgeDag")
+        .default_value(1)
+        .help("whether exclude dags that don't have edges, default 1")
+        .scan<'i', int>();
     program.add_argument("--randomSeed")
         .default_value(-1)
         .help("seed of random, negative means use current time as seed, otherwise means self-defined seed")
@@ -101,11 +105,13 @@ int main(int argc, char *argv[])
     int coreRequireMax = program.get<int>("--coreRequireMax");
     int taskSetType = program.get<int>("--taskSetType");
     int excludeUnschedulable = program.get<int>("--excludeUnschedulable");
+    int excludeEmptyEdgeDag = program.get<int>("--excludeEmptyEdgeDag");
     int randomSeed = program.get<int>("--randomSeed");
     cout << "Task configuration: " << endl
          << "the number of tasks in DAG(--N): " << N << endl
          << "DAG_taskSetNumber(--taskSetNumber): " << DAG_taskSetNumber << endl
          << "excludeUnschedulable(--excludeUnschedulable): " << excludeUnschedulable << endl
+         << "excludeEmptyEdgeDag(--excludeEmptyEdgeDag): " << excludeEmptyEdgeDag << endl
          << "totalUtilization(--totalUtilization): " << totalUtilization << endl
          << "aveUtilization(--aveUtilization): " << aveUtilization << endl
          << "NumberOfProcessor(--NumberOfProcessor): " << numberOfProcessor << endl
@@ -164,6 +170,22 @@ int main(int argc, char *argv[])
                         {
                             std::cout << "Un feasible case, skipped.\n";
                         }
+                        continue;
+                    }
+                }
+                if (excludeEmptyEdgeDag == 1)
+                {
+                    bool whether_empty_edges = true;
+                    for (auto pair : tasks.mapPrev)
+                    {
+                        if (pair.second.size() > 0)
+                        {
+                            whether_empty_edges = false;
+                            break;
+                        }
+                    }
+                    if (whether_empty_edges)
+                    {
                         continue;
                     }
                 }
