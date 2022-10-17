@@ -18,22 +18,30 @@ const vector<int> PeriodSetWaters = {1, 2, 5, 10, 20, 50, 100, 200, 1000};
 const vector<int> PeriodPDFWaters = {3, 2, 2, 25, 25, 3, 20, 1, 4};
 const vector<int> PeriodCDFWaters = {3, 5, 7, 32, 57, 60, 80, 81, 85};
 
-vector<double> Uunifast(int N, double utilAll)
-{
-    double sumU = utilAll;
-    vector<double> utilVec(N, 0);
-
-    double nextU;
-    for (size_t i = 1; i < (size_t)N; i++)
+std::vector<double> Uunifast(int N, double utilAll, bool boundU = true)
     {
+        double sumU = utilAll;
+        std::vector<double> utilVec(N, 0);
 
-        nextU = sumU * pow(double(rand()) / RAND_MAX, 1.0 / (N - 1));
-        utilVec[i - 1] = sumU - nextU;
-        sumU = nextU;
+        double nextU;
+        for (int i = 1; i < N; i++)
+        {
+
+            nextU = sumU * pow(double(rand()) / RAND_MAX, 1.0 / (N - 1));
+            if (boundU)
+            {
+                utilVec[i - 1] = std::min(1.0, sumU - nextU);
+                nextU += std::max(0.0, sumU - nextU - 1.0);
+            }
+            else
+            {
+                utilVec[i - 1] = sumU - nextU;
+            }
+            sumU = nextU;
+        }
+        utilVec[N - 1] = nextU;
+        return utilVec;
     }
-    utilVec[N - 1] = nextU;
-    return utilVec;
-}
 
 TaskSet GenerateTaskSet(int N, double totalUtilization,
                         int numberOfProcessor, int periodMin,
