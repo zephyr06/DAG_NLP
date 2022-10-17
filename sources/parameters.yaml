@@ -34,7 +34,7 @@ makeProgressTimeLimit: 10 # seconds, -1 means unlimited time
 # factors to be included
 weightDDL_factor: 1e0
 weightDAG_factor: 0
-weightSF_factor: 1
+weightSF_factor: 0
 RtdaWeight: 1e0
 DataAgeThreshold: 1e3
 ReactionTimeThreshold: 1e3
@@ -58,7 +58,7 @@ kVerucchiReactionCost: 15.0
 kVerucchiMaxReaction: 400000.0
 kVerucchiDataAgeCost: 15.0
 kVerucchiMaxDataAge: 400000.0
-kVerucchiCoreCost: 50.0
+kVerucchiCoreCost: 0.0
 #*************************************************************
 
 # Cplex settings

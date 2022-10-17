@@ -204,7 +204,7 @@ namespace OrderOptDAG_SPACE
             scheduleRes = result_after_optimization;
         }
 
-        if (!ExamDBF_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum))
+        if (!ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum))
         {
             CoutError("Found one unschedulable case after optimization!");
         }
