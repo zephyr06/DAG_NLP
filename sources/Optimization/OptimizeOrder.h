@@ -39,7 +39,7 @@ namespace OrderOptDAG_SPACE
             if (weightSF_factor)
             {
                 sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
-                objVal_ + ObjSF(sfVec_);
+                objVal_ += ObjSF(sfVec_);
             }
             schedulable_ = ExamDDL_Feasibility(dagTasks, tasksInfo, startTimeVector_);
         }
