@@ -16,3 +16,7 @@ Visualize/currGraph.gv
 .vscode
 .editorconfig
 CompareWithBaseline_deprecated/
+**/Initial_Res/
+**/NLP_Res/
+**/OptOrder_Res/
+**/Verucchi_Res/

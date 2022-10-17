@@ -4,32 +4,32 @@
 # ************** Adjust settings there **************
 title="RTDASingleCorePerformance"
 MinTaskNumber=3
-MaxTaskNumber=7
+MaxTaskNumber=10
 ## no separator '/' at the end of the path
 #ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
 ROOT_PATH="/home/dong/workspace/DAG_NLP"
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks"
-keep_current_result=False
-methods_result_file_name=( "Initial_Res" "OptOrder_Res" "Verucchi_Res" "NLP_Res" )
-coreNumberAva=1
-TaskSetType=1
+methods_dir_name=( "Initial_Res" "OptOrder_Res" "Verucchi_Res" "NLP_Res" )
 makeProgressTimeLimit=10
 kVerucchiTimeLimit=10
+coreNumberAva=1
+keep_current_result=False
 ## setting for generating task sets
-taskSetNumber=10
+TaskSetType=1
+taskSetNumber=3
 randomSeed=-1 # negative means time seed
 # ***************************************************
 # ***************************************************
 
 if [[ $keep_current_result == 0 || $keep_current_result == false || $keep_current_result == False ]]; then
   echo "Clearing all current results."
-  for file_name in ${methods_result_file_name[@]}; do
-    if [[ -d $file_name ]]; then rm -rf $file_name; fi
-    mkdir $file_name
+  for dir_name in ${methods_dir_name[@]}; do
+    if [[ -d $dir_name ]]; then rm -rf $dir_name; fi
+    mkdir $dir_name
   done
 else
-  for file_name in ${methods_result_file_name[@]}; do
-    if [[ ! -d $file_name ]]; then mkdir $file_name; fi
+  for dir_name in ${methods_dir_name[@]}; do
+    if [[ ! -d $dir_name ]]; then mkdir $dir_name; fi
   done
 fi
 
@@ -68,17 +68,16 @@ do
 	
   #copy results to corresponding folder
 	taskset_folder_name="N$jobNumber"
-  for file_name in ${methods_result_file_name[@]}; do
-    cd $file_name
+  taskset_result_summary_file_name="N$jobNumber.txt"
+  for dir_name in ${methods_dir_name[@]}; do
+    cd $dir_name
     if [[ ! -d $taskset_folder_name ]]; then mkdir $taskset_folder_name; fi
-    cp $RESULTS_PATH/*$file_name.txt ./$taskset_folder_name/
+    cp $RESULTS_PATH/*$dir_name.txt ./$taskset_folder_name/
+    cat ./$taskset_folder_name/* >> $taskset_result_summary_file_name
     cd $ROOT_PATH/CompareWithBaseline/$title
   done
 
 done
 
-# visualize the result
-# cd $ROOT_PATH/CompareWithBaseline/$title
-# python $ROOT_PATH/CompareWithBaseline/$title/Visualize_performance.py  --minTaskNumber $MinTaskNumber --title $title  --maxTaskNumber $MaxTaskNumber --data_source "EnergySaveRatio"
-# python $ROOT_PATH/CompareWithBaseline/$title/Visualize_performance.py  --minTaskNumber $MinTaskNumber --title $title  --maxTaskNumber $MaxTaskNumber --data_source "Time"
-# python $ROOT_PATH/CompareWithBaseline/$title/Visualize_performance.py  --minTaskNumber $MinTaskNumber --title $title  --maxTaskNumber $MaxTaskNumber --data_source "RTA"
+visualize the result
+python $ROOT_PATH/CompareWithBaseline/$title/Visualize_performance.py  --minTaskNumber $MinTaskNumber --title $title  --maxTaskNumber $MaxTaskNumber --root_path $ROOT_PATH
