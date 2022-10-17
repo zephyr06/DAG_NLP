@@ -24,7 +24,7 @@ namespace OrderOptDAG_SPACE
         }
         else if (batchTestMethod_ == 3)
         {
-            property = "NLP_Res.txt";
+            property = "_NLP_Res.txt";
         }
         return pathDataset + file + property;
     }

@@ -381,6 +381,7 @@ TEST(AddSF_Factor, v1)
 
 int main()
 {
+    weightSF_factor = 1;
     TestResult tr;
     return TestRegistry::runAllTests(tr);
 }

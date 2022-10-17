@@ -106,6 +106,8 @@ TEST(ScheduleOptimizer, multi_core_optimization)
 
 TEST(ScheduleOptimizer, single_core_sensor_fusion)
 {
+    weightSF_factor = 1;
+    
     std::cout << "\n\n#############  New Test  ##############\n\n";
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
     OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v16.csv", "orig");
