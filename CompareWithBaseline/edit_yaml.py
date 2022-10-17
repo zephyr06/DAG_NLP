@@ -1,11 +1,12 @@
 import argparse
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--entry', type=str, default="batchTestMethod",
                     help='entry to modify')
 parser.add_argument('--value', type=str, default="1",
                     help='value for the new entry')
-parser.add_argument('--target', type=str, default="../sources/parameters.yaml",
+parser.add_argument('--target', type=str, default=os.path.dirname(os.path.realpath(__file__))+"/../sources/parameters.yaml",
                     help='target yaml file location')
 args = parser.parse_args()
 entry = args.entry
@@ -21,7 +22,7 @@ for i, line in enumerate(lines):
         if (len(comments) == 2):
             comments = " #" + comments[1]
         else:
-            comments = " "
+            comments = " \n"
         line_new = entry_curr+": "+value+comments
         lines[i] = line_new
         break
