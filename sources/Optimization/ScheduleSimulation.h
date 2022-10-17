@@ -140,7 +140,7 @@ namespace OrderOptDAG_SPACE
         {
             if (taskQueue.empty())
                 CoutError("TaskQueue is empty!");
-            uint lftJobIndex;
+            uint lftJobIndex = -1;
             double lftAll = std::numeric_limits<double>::max();
 
             for (uint i = 0; i < taskQueue.size(); i++)

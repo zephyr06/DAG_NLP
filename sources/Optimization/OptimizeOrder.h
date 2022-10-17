@@ -25,7 +25,7 @@ namespace OrderOptDAG_SPACE
         VectorDynamic startTimeVector_;
         std::vector<RTDA> rtdaVec_;
         RTDA maxRtda_;
-        double objVal_;
+        // double objVal_;
         bool schedulable_;
         VectorDynamic sfVec_;
 
@@ -35,11 +35,11 @@ namespace OrderOptDAG_SPACE
             startTimeVector_ = SchedulingAlgorithm::Schedule(dagTasks, tasksInfo, processorNum_, jobOrder_);
             rtdaVec_ = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector_);
             maxRtda_ = GetMaxRTDA(rtdaVec_);
-            objVal_ = ObjRTDA(maxRtda_);
+            // objVal_ = ObjRTDA(maxRtda_);
             if (weightSF_factor)
             {
                 sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
-                objVal_ += ObjSF(sfVec_);
+                // objVal_ += ObjSF(sfVec_);
             }
             schedulable_ = ExamDDL_Feasibility(dagTasks, tasksInfo, startTimeVector_);
         }
@@ -50,7 +50,7 @@ namespace OrderOptDAG_SPACE
                 overallRTDA += ObjRTDA(rtdaVec_[i]);
             double sfOverall = sfVec_.sum();
             double res = ObjRTDA(maxRtda_) + overallRTDA * weightInMpRTDA;
-            if (weightSF_factor != 0)
+            if (weightSF_factor != 0) // only used in RTSS21IC experiment
             {
                 res += sfOverall * weightInMpSf + Barrier(sensorFusionTolerance - sfVec_.maxCoeff()) * weightInMpSfPunish +
                        Barrier(FreshTol - ObjRTDA(maxRtda_)) * weightInMpRTDAPunish;
@@ -208,6 +208,7 @@ namespace OrderOptDAG_SPACE
         {
             CoutError("Found one unschedulable case after optimization!");
         }
+        // scheduleRes.schedulable_ = ExamAll_Feasibility();
         return scheduleRes;
     }
 

@@ -78,6 +78,9 @@ namespace OrderOptDAG_SPACE
     using namespace RegularTaskSystem;
     class DAG_Model
     {
+    private:
+        double sfBound_;
+        double rtdaBound_;
     public:
         TaskSet tasks;
         MAP_Prev mapPrev;
