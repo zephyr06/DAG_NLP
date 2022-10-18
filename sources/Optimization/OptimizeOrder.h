@@ -190,22 +190,21 @@ namespace OrderOptDAG_SPACE
         }
 
         ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.maxRtda_};
+        auto no_thing = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_); // get the processor assignment
         if (doScheduleOptimization)
         {
-            auto no_thing = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_);
-
             ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
             ScheduleResult result_after_optimization;
             schedule_optimizer.Optimize(dagTasks, scheduleRes);
             result_after_optimization = schedule_optimizer.getOptimizedResult();
             scheduleRes = result_after_optimization;
+            if (!ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum))
+            {
+                CoutError("Found one unschedulable case after optimization!");
+            }
         }
 
-        if (!ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum))
-        {
-            CoutError("Found one unschedulable case after optimization!");
-        }
-        // scheduleRes.schedulable_ = ExamAll_Feasibility();
+        scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
         return scheduleRes;
     }
 
