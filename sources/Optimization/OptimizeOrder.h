@@ -143,10 +143,7 @@ namespace OrderOptDAG_SPACE
             curr_time = std::chrono::system_clock::now();
             if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= seconds)
             {
-                if (debugMode)
-                {
-                    std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << seconds << " seconds.\n\n";
-                }
+                std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << seconds << " seconds.\n\n";
                 break;
             }
             findNewUpdate = false;

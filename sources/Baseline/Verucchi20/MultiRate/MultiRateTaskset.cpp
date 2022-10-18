@@ -267,7 +267,11 @@ MultiRateTaskset::createDAGs(std::chrono::_V2::system_clock::time_point start_ti
 	int cyclicDags = 0;
 	int wcetFailure = 0;
 	int jitterFailure = 0;
-
+	
+	int maxPermutations = INT32_MAX >> 10;
+	if (numPermutations < 0 || numPermutations > maxPermutations) {
+		numPermutations = maxPermutations;
+	}
 	if (debugMode)
 	{
 		std::cout << numPermutations << " Permutations available" << std::endl;

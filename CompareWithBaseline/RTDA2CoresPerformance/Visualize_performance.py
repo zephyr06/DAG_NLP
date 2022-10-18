@@ -69,6 +69,7 @@ def plot_figure(data_to_plot, ylabel_name):
     plt.savefig("Compare_" + ylabel_name + "_" + title + ".pdf", format='pdf')
     plt.show(block=False)
     plt.pause(1)
+    plt.clf()
 
 
 parser = argparse.ArgumentParser()

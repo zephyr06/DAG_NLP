@@ -155,6 +155,10 @@ VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
 		permutSets[k] = permutSets[k + 1] * permutSets[k];
 	}
 
+	int maxPermutations = INT32_MAX >> 10;
+	if (numPermutations < 0 || numPermutations > maxPermutations) {
+		numPermutations = maxPermutations;
+	}
 	if (debugMode)
 	{
 		std::cout << numPermutations << " Permutations available" << std::endl;
