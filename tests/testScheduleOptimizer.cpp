@@ -106,7 +106,7 @@ TEST(ScheduleOptimizer, multi_core_optimization)
 
 TEST(ScheduleOptimizer, single_core_sensor_fusion)
 {
-    weightSF_factor = 1;
+    considerSensorFusion = 1;
     
     std::cout << "\n\n#############  New Test  ##############\n\n";
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();

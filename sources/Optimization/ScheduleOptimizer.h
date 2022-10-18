@@ -33,7 +33,7 @@ namespace OrderOptDAG_SPACE
             AddDBFConstraints();
             AddDDLConstraints();
             AddCauseEffectiveChainConstraints();
-            if (weightSF_factor > 0)
+            if (considerSensorFusion > 0)
             {
                 AddSensorFusionConstraints();
             }

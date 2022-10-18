@@ -102,16 +102,19 @@ namespace OrderOptDAG_SPACE
         if (!ExamDDL_Feasibility(dagTasks, tasksInfo, startTimeVector) || !ExamDBF_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec, processorNum))
             return false;
 
-        // Exam RTDA
-        std::vector<OrderOptDAG_SPACE::RTDA> rtdaVec = OrderOptDAG_SPACE::GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector);
-        OrderOptDAG_SPACE::RTDA rtda = GetMaxRTDA(rtdaVec);
-        if (rtda.dataAge > freshnessBound || rtda.reactionTime > freshnessBound)
-            return false;
+        if (considerSensorFusion)
+        {
+            // Exam RTDA
+            std::vector<OrderOptDAG_SPACE::RTDA> rtdaVec = OrderOptDAG_SPACE::GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector);
+            OrderOptDAG_SPACE::RTDA rtda = GetMaxRTDA(rtdaVec);
+            if (rtda.dataAge > freshnessBound || rtda.reactionTime > freshnessBound)
+                return false;
 
-        // Exam SF
-        VectorDynamic sfError = OrderOptDAG_SPACE::ObtainSensorFusionError(dagTasks, tasksInfo, startTimeVector);
-        if (sfError.maxCoeff() > sfBound)
-            return false;
+            // Exam SF
+            VectorDynamic sfError = OrderOptDAG_SPACE::ObtainSensorFusionError(dagTasks, tasksInfo, startTimeVector);
+            if (sfError.maxCoeff() > sfBound)
+                return false;
+        }
         return true;
     }
 

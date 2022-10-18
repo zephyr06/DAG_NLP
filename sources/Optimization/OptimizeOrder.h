@@ -36,7 +36,7 @@ namespace OrderOptDAG_SPACE
             rtdaVec_ = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector_);
             maxRtda_ = GetMaxRTDA(rtdaVec_);
             // objVal_ = ObjRTDA(maxRtda_);
-            if (weightSF_factor)
+            if (considerSensorFusion)
             {
                 sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
                 // objVal_ += ObjSF(sfVec_);
@@ -50,7 +50,7 @@ namespace OrderOptDAG_SPACE
                 overallRTDA += ObjRTDA(rtdaVec_[i]);
             double sfOverall = sfVec_.sum();
             double res = ObjRTDA(maxRtda_) + overallRTDA * weightInMpRTDA;
-            if (weightSF_factor != 0) // only used in RTSS21IC experiment
+            if (considerSensorFusion != 0) // only used in RTSS21IC experiment
             {
                 res += sfOverall * weightInMpSf + Barrier(sensorFusionTolerance - sfVec_.maxCoeff()) * weightInMpSfPunish +
                        Barrier(FreshTol - ObjRTDA(maxRtda_)) * weightInMpRTDAPunish;

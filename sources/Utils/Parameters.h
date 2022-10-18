@@ -146,4 +146,5 @@ const double kVerucchiCoreCost = (double)ConfigParameters["kVerucchiCoreCost"];
 
 double kCplexInequalityThreshold = (double)ConfigParameters["kCplexInequalityThreshold"];
 
-const int doScheduleOptimization = (int)ConfigParameters["doScheduleOptimization"];
+int doScheduleOptimization = (int)ConfigParameters["doScheduleOptimization"];
+int considerSensorFusion = (int)ConfigParameters["considerSensorFusion"];

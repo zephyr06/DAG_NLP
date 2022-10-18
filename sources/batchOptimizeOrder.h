@@ -45,9 +45,9 @@ void BatchOptimizeOrder()
 
             for (int batchTestMethod = 0; batchTestMethod < TotalMethodUnderComparison; batchTestMethod++)
             {
-                if (weightSF_factor != 0 && batchTestMethod == 2)
+                if (considerSensorFusion != 0 && batchTestMethod == 2)
                     continue;
-                else if (weightSF_factor == 0 && batchTestMethod == 3)
+                else if (considerSensorFusion == 0 && batchTestMethod == 3)
                     continue;
                 double obj;
                 int schedulable;
@@ -61,10 +61,6 @@ void BatchOptimizeOrder()
                     auto start = chrono::high_resolution_clock::now();
                     if (batchTestMethod == 0)
                     {
-                        if (weightSF_factor == 0)
-                            sensorFusionTolerance = 1e9;
-                        if (RtdaWeight == 0)
-                            FreshTol = 1e9;
                         res = OrderOptDAG_SPACE::ScheduleDAGLS_LFT(dagTasks, coreNumberAva, sensorFusionTolerance, FreshTol);
                     }
                     else if (batchTestMethod == 1)

@@ -6,6 +6,7 @@ TotalMethodUnderComparison: 4
 testDataSetName: test_n5_v79
 debugMode: 0
 doScheduleOptimization: 1
+considerSensorFusion: 0
 #*************************************************************
 # Get away from local optimal setting
 RandomAccept: 0 # chance to take a possibly better solution
