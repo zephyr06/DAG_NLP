@@ -89,8 +89,7 @@ namespace OrderOptDAG_SPACE
         indexVertexMap indexesBGL_;
         std::vector<std::vector<int>> chains_;
 
-        DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev) : tasks(tasks),
-                                                       mapPrev(mapPrev)
+        DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev) : tasks(tasks), mapPrev(mapPrev)
         {
             std::tie(graph_, indexesBGL_) = GenerateGraphForTaskSet();
             chains_ = GetRandomChains(NumCauseEffectChain);
@@ -99,10 +98,14 @@ namespace OrderOptDAG_SPACE
         }
 
         DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev, double sfBound, double rtdaBound)
-            : tasks(tasks), mapPrev(mapPrev), sfBound_(sfBound), rtdaBound_(rtdaBound)
+            : tasks(tasks), mapPrev(mapPrev)
         {
+            tasks = tasks;
+            mapPrev = mapPrev;
             std::tie(graph_, indexesBGL_) = GenerateGraphForTaskSet();
             chains_ = GetRandomChains(NumCauseEffectChain);
+            sfBound_ = sfBound;
+            rtdaBound_ = rtdaBound;
         }
 
         pair<Graph, indexVertexMap> GenerateGraphForTaskSet()
