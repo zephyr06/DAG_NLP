@@ -2,20 +2,23 @@
 
 # ***************************************************
 # ************** Adjust settings there **************
-title="RTDASingleCorePerformance"
+title="RTDA2CoresPerformance"
 MinTaskNumber=3
-MaxTaskNumber=3
+MaxTaskNumber=10
 ## no separator '/' at the end of the path
 #ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
 ROOT_PATH="/home/dong/workspace/DAG_NLP"
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks"
-keep_current_result=1
-methods_result_file_name=( "Initial_Res" "OptOrder_Res" "Verucchi_Res" "NLP_Res" )
-coreNumberAva=1
+# methods_dir_name=( "Initial_Res" "OptOrder_Res" "Verucchi_Res" "NLP_Res" )
+methods_dir_name=( "Initial_Res" "OptOrder_Res" "Verucchi_Res" )
+makeProgressTimeLimit=20
+kVerucchiTimeLimit=20
+coreNumberAva=2
+keep_current_result=False
+## setting for generating task sets
 TaskSetType=1
-makeProgressTimeLimit=10
-kVerucchiTimeLimit=10
+taskSetNumber=20
+randomSeed=-1 # negative means time seed
 # ***************************************************
 # ***************************************************
 
-$ROOT_PATH/release/tests/GenerateTaskSet --N 10 --NumberOfProcessor 3

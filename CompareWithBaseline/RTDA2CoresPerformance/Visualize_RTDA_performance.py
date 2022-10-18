@@ -15,8 +15,8 @@ def read_data(minTaskNumber, maxTaskNumber):
         folderName = method + "_Res"
         taskNumber_result_dict = {}
         for task_number in range(minTaskNumber, maxTaskNumber + 1):
-            file_path = root_path + "/CompareWithBaseline/" + title + \
-                "/" + folderName + "/N" + str(task_number) + ".txt"
+            file_path = result_file_path + "/" + \
+                folderName + "/N" + str(task_number) + ".txt"
             file = open(file_path, "r")
             lines = file.readlines()
             schedulable = []
@@ -56,7 +56,8 @@ def plot_figure(data_to_plot, ylabel_name):
     optimizer_name = methods_name
     dataset_pd.insert(0, "index", np.linspace(
         minTaskNumber, maxTaskNumber, maxTaskNumber - minTaskNumber + 1))
-    for i in {0, 1, 2, 3}:
+    for i in range(len(data_to_plot)):
+
         dataset_pd.insert(0, optimizer_name[i], data_to_plot[i])
         splot = sns.lineplot(data=dataset_pd, x="index", y=optimizer_name[i], marker=marker_list[i],
                              color=color_list[i], markersize=8)
@@ -75,17 +76,17 @@ def plot_figure(data_to_plot, ylabel_name):
 parser = argparse.ArgumentParser()
 parser.add_argument('--minTaskNumber', type=int, default=3,
                     help='Nmin')
-parser.add_argument('--maxTaskNumber', type=int, default=5,
+parser.add_argument('--maxTaskNumber', type=int, default=10,
                     help='Nmax')
 parser.add_argument('--methodsNum', type=int, default=4,
                     help='number of optimizers to compare')
 parser.add_argument('--data_source', type=str, default="Initial_res",
                     help='data source folder, Time or EnergySaveRatio')
-parser.add_argument('--title', type=str, default="RTDASingleCorePerformance",
+parser.add_argument('--title', type=str, default="RTDA2CoresPerformance",
                     help='tilte in produced figure')
-parser.add_argument('--root_path', type=str, default="/home/dong/workspace/DAG_NLP",
-                    help='project root path')
-# parser.add_argument('--root_path', type=str, default="/home/zephyr/Programming/DAG_NLP",
+parser.add_argument('--result_file_path', type=str, default="/home/dong/workspace/DAG_NLP/CompareWithBaseline/RTDA2CoresPerformance",
+                    help='top directory of result files')
+# parser.add_argument('--result_file_path', type=str, default="/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/RTDA2CoresPerformance",
 #                     help='project root path')
 args = parser.parse_args()
 minTaskNumber = args.minTaskNumber
@@ -93,8 +94,8 @@ maxTaskNumber = args.maxTaskNumber
 methodsNum = args.methodsNum
 title = args.title
 data_source = args.data_source
-root_path = args.root_path
-methods_name = ("Initial", "NLP", "OptOrder", "Verucchi")
+result_file_path = args.result_file_path
+methods_name = ("Initial", "OptOrder", "Verucchi")
 marker_list = ["o", "v", "s", "D"]  #
 color_list = ["#0084DB", "r", "y", "limegreen"]  #
 

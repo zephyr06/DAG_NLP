@@ -16,7 +16,8 @@ Visualize/currGraph.gv
 .vscode
 .editorconfig
 CompareWithBaseline_deprecated/
-**/Initial_Res/**/dag-set*
-**/NLP_Res/**/dag-set*
-**/OptOrder_Res/**/dag-set*
-**/Verucchi_Res/**/dag-set*
+**/Initial_Res
+**/NLP_Res
+**/OptOrder_Res
+**/Verucchi_Res
+**/dagTasks
