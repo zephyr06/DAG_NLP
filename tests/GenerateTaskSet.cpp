@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
         .help("type of tasksets, 0 means implicit, 1 means random")
         .scan<'i', int>();
     program.add_argument("--taskSetType")
-        .default_value(2)
+        .default_value(3)
         .help("type of taskset period generation method, 1 means normal, 2 means automobile method, 3 means automobile with WATERS distribution")
         .scan<'i', int>();
     program.add_argument("--coreRequireMax")
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
     }
     for (size_t i = 0; i < DAG_taskSetNumber; i++)
     {
-        if (taskType == 0)
+        if (taskType == 0) // normal task set
         {
             TaskSet tasks = GenerateTaskSet(N, totalUtilization,
                                             numberOfProcessor,
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
             myfile.open(outDirectory + fileName);
             WriteTaskSets(myfile, tasks);
         }
-        else if (taskType == 1)
+        else if (taskType == 1) // DAG task set
         {
             while (true)
             {

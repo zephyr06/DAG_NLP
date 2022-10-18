@@ -81,6 +81,7 @@ namespace OrderOptDAG_SPACE
     private:
         double sfBound_;
         double rtdaBound_;
+
     public:
         TaskSet tasks;
         MAP_Prev mapPrev;
@@ -90,6 +91,15 @@ namespace OrderOptDAG_SPACE
 
         DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev) : tasks(tasks),
                                                        mapPrev(mapPrev)
+        {
+            std::tie(graph_, indexesBGL_) = GenerateGraphForTaskSet();
+            chains_ = GetRandomChains(NumCauseEffectChain);
+            sfBound_ = -1;
+            rtdaBound_ = -1;
+        }
+
+        DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev, double sfBound, double rtdaBound)
+            : tasks(tasks), mapPrev(mapPrev), sfBound_(sfBound), rtdaBound_(rtdaBound)
         {
             std::tie(graph_, indexesBGL_) = GenerateGraphForTaskSet();
             chains_ = GetRandomChains(NumCauseEffectChain);
@@ -169,6 +179,11 @@ namespace OrderOptDAG_SPACE
         {
             return tasks;
         }
+
+        inline double GetSfBound() { return sfBound_; }
+        inline void setSfBound(double sfBound) { sfBound_ = sfBound; }
+        inline double GetRtdaBound() { return rtdaBound_; }
+        inline void setRtdaBound(double rtdaBound) { rtdaBound_ = rtdaBound; }
 
         int edgeNumber()
         {

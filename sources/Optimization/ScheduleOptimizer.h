@@ -27,8 +27,8 @@ namespace OrderOptDAG_SPACE
             reset();
             setScheduleResult(result);
             setDagTasks(dagTasks);
-            TaskSetInfoDerived taskInfo(dagTasks.tasks);
-            setTaskInfo(taskInfo);
+            TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+            setTasksInfo(tasksInfo);
             AddVariables();
             AddDBFConstraints();
             AddDDLConstraints();
@@ -305,7 +305,7 @@ namespace OrderOptDAG_SPACE
             p_dagTasks_ = &dagTasks;
         }
 
-        void setTaskInfo(TaskSetInfoDerived &info)
+        void setTasksInfo(TaskSetInfoDerived &info)
         {
             tasksInfo_ = info;
         }

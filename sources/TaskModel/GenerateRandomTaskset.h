@@ -19,29 +19,29 @@ const vector<int> PeriodPDFWaters = {3, 2, 2, 25, 25, 3, 20, 1, 4};
 const vector<int> PeriodCDFWaters = {3, 5, 7, 32, 57, 60, 80, 81, 85};
 
 std::vector<double> Uunifast(int N, double utilAll, bool boundU = true)
+{
+    double sumU = utilAll;
+    std::vector<double> utilVec(N, 0);
+
+    double nextU;
+    for (int i = 1; i < N; i++)
     {
-        double sumU = utilAll;
-        std::vector<double> utilVec(N, 0);
 
-        double nextU;
-        for (int i = 1; i < N; i++)
+        nextU = sumU * pow(double(rand()) / RAND_MAX, 1.0 / (N - 1));
+        if (boundU)
         {
-
-            nextU = sumU * pow(double(rand()) / RAND_MAX, 1.0 / (N - 1));
-            if (boundU)
-            {
-                utilVec[i - 1] = std::min(1.0, sumU - nextU);
-                nextU += std::max(0.0, sumU - nextU - 1.0);
-            }
-            else
-            {
-                utilVec[i - 1] = sumU - nextU;
-            }
-            sumU = nextU;
+            utilVec[i - 1] = std::min(1.0, sumU - nextU);
+            nextU += std::max(0.0, sumU - nextU - 1.0);
         }
-        utilVec[N - 1] = nextU;
-        return utilVec;
+        else
+        {
+            utilVec[i - 1] = sumU - nextU;
+        }
+        sumU = nextU;
     }
+    utilVec[N - 1] = nextU;
+    return utilVec;
+}
 
 TaskSet GenerateTaskSet(int N, double totalUtilization,
                         int numberOfProcessor, int periodMin,
@@ -58,7 +58,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
         int periodCurr = 0;
         int processorId = rand() % numberOfProcessor;
         int coreRequire = 1 + rand() % (coreRequireMax);
-        if (taskSetType == 1)
+        if (taskSetType == 1) // fully random task set
         {
             periodCurr = (1 + rand() % periodMaxRatio) * periodMin;
             double deadline = periodCurr;
@@ -70,7 +70,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
                       processorId, coreRequire);
             tasks.push_back(task);
         }
-        else if (taskSetType == 2)
+        else if (taskSetType == 2) // random choice from AutoMobile set 'PeriodSetAM'
         {
             periodCurr = int(PeriodSetAM[rand() % PeriodSetAM.size()] * timeScaleFactor);
             double deadline = periodCurr;
@@ -82,7 +82,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
                       processorId, coreRequire);
             tasks.push_back(task);
         }
-        else if (taskSetType == 3)
+        else if (taskSetType == 3) // automobile periods with WATERS distribution
         {
             int probability = rand() % PeriodCDFWaters.back();
             int period_idx = 0;
@@ -141,6 +141,22 @@ DAG_Model GenerateDAG(int N, double totalUtilization,
             }
         }
     }
+    // set SF bound and RTDA bound randomly
+    TaskSetInfoDerived tasksInfo(tasks);
+    double max_execution_time_in_task_set = 0;
+    for (auto &task : tasks)
+    {
+        if (task.executionTime > max_execution_time_in_task_set)
+        {
+            max_execution_time_in_task_set = task.executionTime;
+        }
+    }
+    double min_sf_bound = max_execution_time_in_task_set;
+    double min_rtda_bound = max_execution_time_in_task_set;
+    double sf_range = N * max_execution_time_in_task_set;
+    double rtda_range = N * tasksInfo.hyperPeriod;
+    dagModel.setSfBound(std::floor(min_sf_bound + (double(rand()) / RAND_MAX) * sf_range));
+    dagModel.setRtdaBound(std::floor(min_rtda_bound + (double(rand()) / RAND_MAX) * rtda_range));
     return dagModel;
 }
 
@@ -152,4 +168,6 @@ void WriteDAG(ofstream &file, DAG_Model &tasksDAG)
         for (uint i = 0; i < itr->second.size(); i++)
             file << "*" << (itr->first) << "," << ((itr->second)[i].id) << "\n";
     }
+    file << "@SF_Bound:" << tasksDAG.GetSfBound() << "\n";
+    file << "@RTDA_Bound:" << tasksDAG.GetRtdaBound() << "\n";
 }
