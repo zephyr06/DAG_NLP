@@ -89,18 +89,16 @@ void BatchOptimizeOrder()
                 }
                 std::cout << "Schedulable? " << res.schedulable_ << std::endl;
 
+                if (res.schedulable_ == false && batchTestMethod != 0) // If optimized schedule is not schedulable, use list scheduling instead
+                {
+                    res.obj_ = objsAll[0].back();
+                    errorFiles.push_back(file);
+                }
                 WriteToResultFile(pathDataset, file, res, batchTestMethod);
 
                 runTimeAll[batchTestMethod].push_back(res.timeTaken_);
                 schedulableAll[batchTestMethod].push_back((res.schedulable_ ? 1 : 0));
                 objsAll[batchTestMethod].push_back(res.obj_);
-
-                if (res.schedulable_ == false)
-                {
-                    objsAll[batchTestMethod][objsAll[batchTestMethod].size() - 1] = (objsAll[0].back()); // If optimized schedule is not schedulable, use list scheduling instead
-
-                    errorFiles.push_back(file);
-                }
             }
             if (objsAll[2].size() > 0 && objsAll[1].back() > objsAll[2].back())
             {
