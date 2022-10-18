@@ -139,17 +139,17 @@ int main(int argc, char *argv[])
          << "totalUtilization(--totalUtilization): " << totalUtilization << endl
          << "aveUtilization(--aveUtilization): " << aveUtilization << endl
          << "whether use random utilization(--useRandomUtilization): " << useRandomUtilization << endl
-         << "minimum utilization per core(--minUtilizationPerCore), only work in random utilization mode: " << minUtilizationPerCore << endl
-         << "maximum utilization per core(--maxUtilizationPerCore), only work in random utilization mode: " << maxUtilizationPerCore << endl
-         << "periodMin(--periodMin): " << periodMin << endl
-         << "periodMax(--periodMax): " << periodMax << endl
+         << "minimum utilization per core, only work in random utilization mode(--minUtilizationPerCore): " << minUtilizationPerCore << endl
+         << "maximum utilization per core, only work in random utilization mode(--maxUtilizationPerCore): " << maxUtilizationPerCore << endl
+         << "periodMin, only work in normal(random) taskSetType(--periodMin), : " << periodMin << endl
+         << "periodMax, only work in normal(random) taskSetType(--periodMax): " << periodMax << endl
          << "taskType(--taskType), 0 means normal, 1 means DAG: " << taskType << endl
          << "deadlineType(--deadlineType), 1 means random, 0 means implicit: " << deadlineType << endl
          << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile, 3 means automobile with WATERS distribution: " << taskSetType << endl
          << "coreRequireMax(--coreRequireMax): " << coreRequireMax << endl
          << "excludeUnschedulable(--excludeUnschedulable): " << excludeUnschedulable << endl
          << "excludeEmptyEdgeDag(--excludeEmptyEdgeDag): " << excludeEmptyEdgeDag << endl
-         << "randomSeed(--randomSeed), negative will use current time, otherwise use the given seed: " << randomSeed << endl
+         << "randomSeed, negative will use current time, otherwise use the given seed(--randomSeed): " << randomSeed << endl
          << endl;
 
     string outDirectory = PROJECT_PATH + "TaskData/dagTasks/";

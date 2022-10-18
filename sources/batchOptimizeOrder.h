@@ -86,7 +86,7 @@ void BatchOptimizeOrder()
                     }
                     else if (batchTestMethod == 4)
                     {
-                        if (resOrderOptWithoutScheduleOpt.obj_ > 0)
+                        if (useOrderOptResultInNoScheduleOpt == 1 && resOrderOptWithoutScheduleOpt.obj_ > 0)
                         {
                             res = resOrderOptWithoutScheduleOpt;
                         }
