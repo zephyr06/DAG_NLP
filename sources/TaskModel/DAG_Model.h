@@ -283,24 +283,44 @@ namespace OrderOptDAG_SPACE
         if (file.is_open())
         {
             string line;
+            double sf_bound = 0;
+            double rtda_bound = 0;
             while (getline(file, line))
             {
-                if (line[0] != '*')
+                if (line[0] != '*' && line[0] != '@')
                     continue;
-                line = line.substr(1, int(line.size()) - 1);
-                vector<int> dataInLine;
-                while ((pos = line.find(delimiter)) != string::npos)
+                if (line[0] == '*')
                 {
-                    token = line.substr(0, pos);
-                    int temp = atoi(token.c_str());
-                    dataInLine.push_back(temp);
-                    line.erase(0, pos + delimiter.length());
+                    line = line.substr(1, int(line.size()) - 1);
+                    vector<int> dataInLine;
+                    while ((pos = line.find(delimiter)) != string::npos)
+                    {
+                        token = line.substr(0, pos);
+                        int temp = atoi(token.c_str());
+                        dataInLine.push_back(temp);
+                        line.erase(0, pos + delimiter.length());
+                    }
+                    dataInLine.push_back(atoi(line.c_str()));
+                    mapPrev[dataInLine[1]].push_back(tasks[dataInLine[0]]);
                 }
-                dataInLine.push_back(atoi(line.c_str()));
-                mapPrev[dataInLine[1]].push_back(tasks[dataInLine[0]]);
+                else if (line[0] == '@')
+                {
+                    if ((pos = line.find(":")) != std::string::npos)
+                    {
+                        token = line.substr(pos + 1);
+                        if (line.find("SF_Bound") != std::string::npos)
+                        {
+                            sf_bound = atoi(token.c_str());
+                        }
+                        else if (line.find("RTDA_Bound") != std::string::npos)
+                        {
+                            rtda_bound = atoi(token.c_str());
+                        }
+                    }
+                }
             }
 
-            DAG_Model ttt(tasks, mapPrev);
+            DAG_Model ttt(tasks, mapPrev, sf_bound, rtda_bound);
             return ttt;
         }
         else
