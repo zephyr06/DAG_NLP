@@ -21,6 +21,10 @@ int main(int argc, char *argv[])
         .default_value(10)
         .help("the number DAGs to create")
         .scan<'i', int>();
+    program.add_argument("--NumberOfProcessor")
+        .default_value(2)
+        .help("the NumberOfProcessor of tasks in DAG")
+        .scan<'i', int>();
     program.add_argument("--totalUtilization")
         .default_value(0.4)
         .help("the total utilization of tasks in each DAG")
@@ -29,17 +33,25 @@ int main(int argc, char *argv[])
         .default_value(0.0)
         .help("the average utilization of tasks in each core")
         .scan<'f', double>();
-    program.add_argument("--NumberOfProcessor")
-        .default_value(2)
-        .help("the NumberOfProcessor of tasks in DAG")
+    program.add_argument("--useRandomUtilization")
+        .default_value(1)
+        .help("if 1, a random utilization in range [0.3 * numberOfProcessor, 0.8 * numberOfProcessor] will be used")
         .scan<'i', int>();
+    program.add_argument("--minUtilizationPerCore")
+        .default_value(0.3)
+        .help("only used when --useRandomUtilization is 1")
+        .scan<'f', double>();
+    program.add_argument("--maxUtilizationPerCore")
+        .default_value(0.8)
+        .help("only used when --useRandomUtilization is 1")
+        .scan<'f', double>();
     program.add_argument("--periodMin")
         .default_value(100)
-        .help("the minimum period of tasks in DAG")
+        .help("the minimum period of tasks in DAG, used only when taskType is 0")
         .scan<'i', int>();
     program.add_argument("--periodMax")
         .default_value(500)
-        .help("the maximum period of tasks in DAG")
+        .help("the maximum period of tasks in DAG, used only when taskType is 0")
         .scan<'i', int>();
     program.add_argument("--taskType")
         .default_value(1)
@@ -91,42 +103,18 @@ int main(int argc, char *argv[])
     int numberOfProcessor = program.get<int>("--NumberOfProcessor");
     double totalUtilization;
     double aveUtilization = program.get<double>("--aveUtilization");
-    if (aveUtilization != 0)
-    {
-        totalUtilization = aveUtilization * numberOfProcessor;
-    }
-    else
-        totalUtilization = program.get<double>("--totalUtilization");
-
+    int useRandomUtilization = program.get<int>("--useRandomUtilization");
+    double minUtilizationPerCore = program.get<double>("--minUtilizationPerCore");
+    double maxUtilizationPerCore = program.get<double>("--maxUtilizationPerCore");
     int periodMin = program.get<int>("--periodMin");
     int periodMax = program.get<int>("--periodMax");
     int taskType = program.get<int>("--taskType");
     int deadlineType = program.get<int>("--deadlineType");
-    int coreRequireMax = program.get<int>("--coreRequireMax");
     int taskSetType = program.get<int>("--taskSetType");
+    int coreRequireMax = program.get<int>("--coreRequireMax");
     int excludeUnschedulable = program.get<int>("--excludeUnschedulable");
     int excludeEmptyEdgeDag = program.get<int>("--excludeEmptyEdgeDag");
     int randomSeed = program.get<int>("--randomSeed");
-    cout << "Task configuration: " << endl
-         << "the number of tasks in DAG(--N): " << N << endl
-         << "DAG_taskSetNumber(--taskSetNumber): " << DAG_taskSetNumber << endl
-         << "excludeUnschedulable(--excludeUnschedulable): " << excludeUnschedulable << endl
-         << "excludeEmptyEdgeDag(--excludeEmptyEdgeDag): " << excludeEmptyEdgeDag << endl
-         << "totalUtilization(--totalUtilization): " << totalUtilization << endl
-         << "aveUtilization(--aveUtilization): " << aveUtilization << endl
-         << "NumberOfProcessor(--NumberOfProcessor): " << numberOfProcessor << endl
-         << "periodMin(--periodMin): " << periodMin << endl
-         << "periodMax(--periodMax): " << periodMax << endl
-         << "taskType(--taskType), 0 means normal, 1 means DAG: " << taskType << endl
-         << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile, 3 means automobile with WATERS distribution: " << taskSetType << endl
-         << "deadlineType(--deadlineType), 1 means random, 0 means implicit: " << deadlineType << endl
-         << "coreRequireMax(--coreRequireMax): " << coreRequireMax << endl
-         << "randomSeed(--randomSeed), negative will use current time, otherwise use the given seed: " << randomSeed << endl
-         << endl;
-
-    string outDirectory = PROJECT_PATH + "TaskData/dagTasks/";
-    // string outDirectory = PROJECT_PATH + "Energy_Opt_NLP/TaskData/task_number/";
-    deleteDirectoryContents(outDirectory);
     if (randomSeed < 0)
     {
         srand(time(0));
@@ -135,8 +123,45 @@ int main(int argc, char *argv[])
     {
         srand(randomSeed);
     }
+    if (aveUtilization != 0)
+    {
+        totalUtilization = aveUtilization * numberOfProcessor;
+    }
+    else
+    {
+        totalUtilization = program.get<double>("--totalUtilization");
+    }
+
+    cout << "Task configuration: " << endl
+         << "the number of tasks in DAG(--N): " << N << endl
+         << "DAG_taskSetNumber(--taskSetNumber): " << DAG_taskSetNumber << endl
+         << "NumberOfProcessor(--NumberOfProcessor): " << numberOfProcessor << endl
+         << "totalUtilization(--totalUtilization): " << totalUtilization << endl
+         << "aveUtilization(--aveUtilization): " << aveUtilization << endl
+         << "whether use random utilization(--useRandomUtilization): " << useRandomUtilization << endl
+         << "minimum utilization per core(--minUtilizationPerCore), only work in random utilization mode: " << minUtilizationPerCore << endl
+         << "maximum utilization per core(--maxUtilizationPerCore), only work in random utilization mode: " << maxUtilizationPerCore << endl
+         << "periodMin(--periodMin): " << periodMin << endl
+         << "periodMax(--periodMax): " << periodMax << endl
+         << "taskType(--taskType), 0 means normal, 1 means DAG: " << taskType << endl
+         << "deadlineType(--deadlineType), 1 means random, 0 means implicit: " << deadlineType << endl
+         << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile, 3 means automobile with WATERS distribution: " << taskSetType << endl
+         << "coreRequireMax(--coreRequireMax): " << coreRequireMax << endl
+         << "excludeUnschedulable(--excludeUnschedulable): " << excludeUnschedulable << endl
+         << "excludeEmptyEdgeDag(--excludeEmptyEdgeDag): " << excludeEmptyEdgeDag << endl
+         << "randomSeed(--randomSeed), negative will use current time, otherwise use the given seed: " << randomSeed << endl
+         << endl;
+
+    string outDirectory = PROJECT_PATH + "TaskData/dagTasks/";
+    // string outDirectory = PROJECT_PATH + "Energy_Opt_NLP/TaskData/task_number/";
+    deleteDirectoryContents(outDirectory);
+
     for (size_t i = 0; i < DAG_taskSetNumber; i++)
     {
+        if (useRandomUtilization)
+        {
+            totalUtilization = numberOfProcessor * (minUtilizationPerCore + (double(rand()) / RAND_MAX) * (maxUtilizationPerCore - minUtilizationPerCore));
+        }
         if (taskType == 0) // normal task set
         {
             TaskSet tasks = GenerateTaskSet(N, totalUtilization,
