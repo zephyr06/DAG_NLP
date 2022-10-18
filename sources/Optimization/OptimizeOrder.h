@@ -89,7 +89,9 @@ namespace OrderOptDAG_SPACE
     }
 
     template <class SchedulingAlgorithm>
-    ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, int processorNum = coreNumberAva)
+    ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks,
+                                    boost::optional<ScheduleResult &> resOrderOptWithoutScheduleOpt = boost::none,
+                                    int processorNum = coreNumberAva)
     {
         // srand(RandomDrawWeightMaxLoop);
         if (dagTasks.chains_.size() == 0)
@@ -211,6 +213,9 @@ namespace OrderOptDAG_SPACE
 
         ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.maxRtda_};
         auto no_thing = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_); // get the processor assignment
+        if (resOrderOptWithoutScheduleOpt)
+            *resOrderOptWithoutScheduleOpt = scheduleRes;
+
         if (doScheduleOptimization)
         {
             ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();

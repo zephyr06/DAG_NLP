@@ -20,7 +20,7 @@ namespace OrderOptDAG_SPACE
         double timeTaken_;
         std::vector<uint> processorJobVec_;
 
-        ScheduleResult() {}
+        ScheduleResult() {obj_ = -1;}
         ScheduleResult(JobOrder jobOrder,
                        VectorDynamic startTimeVector,
                        bool schedulable,
