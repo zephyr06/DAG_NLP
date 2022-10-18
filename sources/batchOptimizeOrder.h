@@ -40,6 +40,11 @@ void BatchOptimizeOrder()
             std::cout << file << endl;
             string path = PROJECT_PATH + "TaskData/dagTasks/" + file;
             OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(path, priorityMode);
+            if (dagTasks.GetSfBound() > 0)
+                sensorFusionTolerance = dagTasks.GetSfBound();
+            if (dagTasks.GetRtdaBound() > 0)
+                FreshTol = dagTasks.GetRtdaBound();
+
             // int N = dagTasks.tasks.size();
             AssertBool(true, dagTasks.chains_.size() > 0, __LINE__);
 
@@ -65,6 +70,7 @@ void BatchOptimizeOrder()
                     }
                     else if (batchTestMethod == 1)
                     {
+                        doScheduleOptimization = 1;
                         if (processorAssignmentMode == 0)
                             res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
                         else if (processorAssignmentMode == 1)
@@ -77,6 +83,14 @@ void BatchOptimizeOrder()
                     else if (batchTestMethod == 3)
                     {
                         res = OrderOptDAG_SPACE::ScheduleRTSS21IC(dagTasks, sensorFusionTolerance, FreshTol);
+                    }
+                    else if (batchTestMethod == 4)
+                    {
+                        doScheduleOptimization = 0;
+                        if (processorAssignmentMode == 0)
+                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
+                        else if (processorAssignmentMode == 1)
+                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
                     }
                     else
                     {
@@ -115,6 +129,7 @@ void BatchOptimizeOrder()
 
         vt.addRow("Initial", Average(schedulableAll[0]), Average(objsAll[0]), Average(runTimeAll[0]));
         vt.addRow("OrderOpt", Average(schedulableAll[1]), Average(objsAll[1]), Average(runTimeAll[1]));
+        vt.addRow("OrderOptWithoutScheudleOpt", Average(schedulableAll[4]), Average(objsAll[4]), Average(runTimeAll[4]));
         vt.addRow("Verucchi20RTAS", Average(schedulableAll[2]), Average(objsAll[2]), Average(runTimeAll[2]));
         vt.addRow("Wang21RTSS_IC", Average(schedulableAll[3]), Average(objsAll[3]), Average(runTimeAll[3]));
         // vt.addRow("Initial", Average(objsAll[0]), Average(runTimeAll[0]));
