@@ -132,25 +132,39 @@ namespace OrderOptDAG_SPACE
 
         auto start_time = std::chrono::system_clock::now();
         auto curr_time = std::chrono::system_clock::now();
-        int64_t seconds = makeProgressTimeLimit;
-        if (seconds < 0)
+        int64_t time_limit_in_seconds = makeProgressTimeLimit;
+        if (time_limit_in_seconds < 0)
         {
-            seconds = INT64_MAX;
+            time_limit_in_seconds = INT64_MAX;
         }
+        bool time_out_flag = false;
+
+        auto CheckTimeOut = [&]()
+        {
+            curr_time = std::chrono::system_clock::now();
+            if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= time_limit_in_seconds)
+            {
+                std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << time_limit_in_seconds << " seconds.\n\n";
+                time_out_flag = true;
+                return true;
+            }
+            return false;
+        };
 
         while (findNewUpdate)
         {
-            curr_time = std::chrono::system_clock::now();
-            if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= seconds)
-            {
-                std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << seconds << " seconds.\n\n";
+            if (time_out_flag)
                 break;
-            }
+
             findNewUpdate = false;
             for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
             {
+                if (time_out_flag)
+                    break;
                 for (LLint j = 0; j < static_cast<LLint>(jobOrderRef.size()); j++)
                 {
+                    if (CheckTimeOut())
+                        break;
                     JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
                     if (WhetherSkipSwitch(tasksInfo, jobOrderCurr[i], jobOrderCurr[j]))
                         continue;
@@ -165,8 +179,12 @@ namespace OrderOptDAG_SPACE
                 {
                     for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
                     {
+                        if (time_out_flag)
+                            break;
                         for (LLint j = 0; j < static_cast<LLint>(jobOrderRef.size()); j++)
                         {
+                            if (CheckTimeOut())
+                                break;
                             JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
                             if (WhetherSkipSwitch(tasksInfo, jobOrderCurr[i], jobOrderCurr[j]))
                                 continue;
@@ -181,6 +199,8 @@ namespace OrderOptDAG_SPACE
                 {
                     for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
                     {
+                        if (CheckTimeOut())
+                            break;
                         JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
                         jobOrderCurr.jobOrderSerial_[i] = !jobOrderCurr.jobOrderSerial_[i];
                         ExamAndApplyUpdate(jobOrderCurr); // update outside variables
