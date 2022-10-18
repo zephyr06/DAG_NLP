@@ -23,7 +23,7 @@ std::vector<double> Uunifast(int N, double utilAll, bool boundU = true)
     double sumU = utilAll;
     std::vector<double> utilVec(N, 0);
 
-    double nextU;
+    double nextU = 0;
     for (int i = 1; i < N; i++)
     {
 

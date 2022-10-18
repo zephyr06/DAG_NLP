@@ -89,9 +89,8 @@ namespace OrderOptDAG_SPACE
     }
 
     template <class SchedulingAlgorithm>
-    ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks,
-                                    boost::optional<ScheduleResult &> resOrderOptWithoutScheduleOpt = boost::none,
-                                    int processorNum = coreNumberAva)
+    ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, int processorNum = coreNumberAva,
+                                    boost::optional<ScheduleResult &> resOrderOptWithoutScheduleOpt = boost::none)
     {
         // srand(RandomDrawWeightMaxLoop);
         if (dagTasks.chains_.size() == 0)

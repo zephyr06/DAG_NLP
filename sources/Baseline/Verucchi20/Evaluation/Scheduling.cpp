@@ -217,7 +217,7 @@ bool scheduling::scheduleDAG(const DAG &dag, const unsigned nProc, const std::st
     std::vector<double> processorUsage(nProc, 0);
 
     double epsilon = 1e-5;
-    double delta;
+    double delta = 0;
 
     for (double t = 0; t < dag.getPeriod() && !(ready.empty() && nodesToSched.empty()); t +=
                                                                                         delta)
@@ -310,7 +310,7 @@ scheduling::getScheduleFromDAG(const DAG &dag, const unsigned nProc, const std::
     std::vector<double> processorUsage(nProc, 0);
 
     double epsilon = 1e-5;
-    double delta;
+    double delta = 0;
 
     for (double t = 0; t < dag.getPeriod() && !(ready.empty() && nodesToSched.empty()); t +=
                                                                                         delta)

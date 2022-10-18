@@ -133,7 +133,7 @@ void DAG::toTikz(std::string filename) const
 	cur_groupId = -1;
 
 	float l_max = distance * (max_inst->second + 1);
-	float cur_distance;
+	float cur_distance = 0;
 
 	for (auto node : nodes_)
 	{
