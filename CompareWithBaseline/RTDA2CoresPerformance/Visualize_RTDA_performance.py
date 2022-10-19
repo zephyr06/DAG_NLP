@@ -59,15 +59,15 @@ def plot_figure(data_to_plot, ylabel_name):
     for i in range(len(data_to_plot)):
 
         dataset_pd.insert(0, optimizer_name[i], data_to_plot[i])
-        splot = sns.lineplot(data=dataset_pd, x="index", y=optimizer_name[i], marker=marker_list[i],
-                             color=color_list[i], markersize=8)
+        splot = sns.lineplot(data=dataset_pd, x="index", y=optimizer_name[i], marker=marker_list[i % len(marker_list)],
+                             color=color_list[i % len(color_list)], markersize=8)
     splot.set(xlabel="Task Number", ylabel=ylabel_name)
     # splot.set_ylim([0.95, 2.0])
     # splot.set(yscale="log")
     # splot.set_ylim(1e-4, 1e3)
     plt.legend(labels=optimizer_name)
     plt.grid(linestyle="--")
-    plt.savefig("Compare_" + ylabel_name + "_" + title + ".pdf", format='pdf')
+    plt.savefig(ylabel_name + "_" + title + ".pdf", format='pdf')
     plt.show(block=False)
     plt.pause(1)
     plt.clf()
@@ -78,8 +78,6 @@ parser.add_argument('--minTaskNumber', type=int, default=3,
                     help='Nmin')
 parser.add_argument('--maxTaskNumber', type=int, default=10,
                     help='Nmax')
-parser.add_argument('--methodsNum', type=int, default=4,
-                    help='number of optimizers to compare')
 parser.add_argument('--data_source', type=str, default="Initial_res",
                     help='data source folder, Time or EnergySaveRatio')
 parser.add_argument('--title', type=str, default="RTDA2CoresPerformance",
@@ -91,11 +89,11 @@ parser.add_argument('--result_file_path', type=str, default="/home/dong/workspac
 args = parser.parse_args()
 minTaskNumber = args.minTaskNumber
 maxTaskNumber = args.maxTaskNumber
-methodsNum = args.methodsNum
 title = args.title
 data_source = args.data_source
 result_file_path = args.result_file_path
-methods_name = ("Initial", "OptOrder", "Verucchi")
+methods_name = ("Initial", "OrderOpt", "Verucchi",
+                "OrderOptWithoutScheudleOpt")
 marker_list = ["o", "v", "s", "D"]  #
 color_list = ["#0084DB", "r", "y", "limegreen"]  #
 

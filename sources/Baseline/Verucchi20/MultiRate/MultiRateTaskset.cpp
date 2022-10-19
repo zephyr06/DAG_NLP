@@ -149,12 +149,14 @@ MultiRateTaskset::createDAGs()
 		if (edge.jitter == 0)
 			if (edge.from->getUtilization() + edge.to->getUtilization() > 1.0)
 			{
-				std::cout << "Utilization overusage" << std::endl;
-				std::cout << "Edge from " << edge.from->name << " to " << edge.to->name << ":" << std::endl;
-				std::cout << "Jitter is 0 but total utilization is " << edge.from->getUtilization() + edge.to->getUtilization() << std::endl;
-				std::cout << "Taskset not schedulable." << std::endl;
-				std::cout << dags_.size() << " valid DAGs were created" << std::endl;
-
+				if (debugMode)
+				{
+					std::cout << "Utilization overusage" << std::endl;
+					std::cout << "Edge from " << edge.from->name << " to " << edge.to->name << ":" << std::endl;
+					std::cout << "Jitter is 0 but total utilization is " << edge.from->getUtilization() + edge.to->getUtilization() << std::endl;
+					std::cout << "Taskset not schedulable." << std::endl;
+					std::cout << dags_.size() << " valid DAGs were created" << std::endl;
+				}
 				return dags_;
 			}
 
@@ -267,9 +269,10 @@ MultiRateTaskset::createDAGs(std::chrono::_V2::system_clock::time_point start_ti
 	int cyclicDags = 0;
 	int wcetFailure = 0;
 	int jitterFailure = 0;
-	
+
 	int maxPermutations = INT32_MAX >> 10;
-	if (numPermutations < 0 || numPermutations > maxPermutations) {
+	if (numPermutations < 0 || numPermutations > maxPermutations)
+	{
 		numPermutations = maxPermutations;
 	}
 	if (debugMode)

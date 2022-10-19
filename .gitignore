@@ -18,6 +18,7 @@ Visualize/currGraph.gv
 CompareWithBaseline_deprecated/
 **/Initial_Res
 **/NLP_Res
-**/OptOrder_Res
+**/OrderOpt_Res
+**/OrderOptWithoutScheudleOpt_Res
 **/Verucchi_Res
 **/dagTasks

@@ -4,21 +4,21 @@
 # ************** Adjust settings there **************
 title="RTDA2CoresPerformance"
 MinTaskNumber=3
-MaxTaskNumber=5
+MaxTaskNumber=10
 ## no separator '/' at the end of the path
 #ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
 ROOT_PATH="/home/dong/workspace/DAG_NLP"
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks"
-# methods_dir_name=( "Initial_Res" "OptOrder_Res" "Verucchi_Res" "NLP_Res" )
-methods_dir_name=( "Initial_Res" "OptOrder_Res" "Verucchi_Res" )
-makeProgressTimeLimit=10
-kVerucchiTimeLimit=10
+methods_dir_name=( "Initial_Res" "OrderOpt_Res" "Verucchi_Res" "OrderOptWithoutScheudleOpt_Res" ) # exclude NLP_Res in RTDA part
+makeProgressTimeLimit=60
+kVerucchiTimeLimit=60
 coreNumberAva=2
-keep_current_result_and_only_plot=0
-history_result_directory="$ROOT_PATH/CompareWithBaseline/RTDA2CoresPerformance"
+useOrderOptResultInNoScheduleOpt=1 # 0 will rerun order opt without schedule opt (time consuming)
+keep_current_result_and_only_plot=0 # if true, will plot result files in $history_result_directory
+history_result_directory="$ROOT_PATH/CompareWithBaseline/RTDA2CoresPerformance" 
 ## setting for generating task sets
-TaskSetType=1
-taskSetNumber=2
+taskSetType=3
+taskSetNumber=10
 randomSeed=-1 # negative means time seed
 # ***************************************************
 # ***************************************************
@@ -40,15 +40,19 @@ done
 if [[ -d dagTasks ]]; then rm -rf dagTasks; fi
   mkdir dagTasks
 
-cp parameters.yaml $ROOT_PATH/sources/parameters.yaml
+# set parameters, backup parameters and scripts parameters
+cp parameters.yaml $ROOT_PATH/sources/parameters.yamlpython $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "coreNumberAva" --value $coreNumberAva
+python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "TaskSetType" --value $taskSetType
+python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "makeProgressTimeLimit" --value $makeProgressTimeLimit
+python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "kVerucchiTimeLimit" --value $kVerucchiTimeLimit
+python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "considerSensorFusion" --value 0
+python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "useOrderOptResultInNoScheduleOpt" --value $useOrderOptResultInNoScheduleOpt
+cp $ROOT_PATH/sources/parameters.yaml $ROOT_PATH/CompareWithBaseline/$title/dagTasks
+cp $ROOT_PATH/CompareWithBaseline/$title/Compare$title.sh $ROOT_PATH/CompareWithBaseline/$title/dagTasks
+
 # build the project
 cd ..
 if [[ ! -d $ROOT_PATH/release ]]; then ./build_release_target.sh; fi
-
-python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "coreNumberAva" --value $coreNumberAva
-python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "TaskSetType" --value $TaskSetType
-python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "makeProgressTimeLimit" --value $makeProgressTimeLimit
-python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "kVerucchiTimeLimit" --value $kVerucchiTimeLimit
 
 perform_optimization() {
   # Optimize energy consumption
@@ -62,16 +66,13 @@ perform_optimization() {
 for (( jobNumber=$MinTaskNumber; jobNumber<=$MaxTaskNumber; jobNumber++ ))
 do
 	# generate task set
-  $ROOT_PATH/release/tests/GenerateTaskSet --N $jobNumber --taskSetNumber $taskSetNumber --NumberOfProcessor $coreNumberAva --randomSeed $randomSeed
+  $ROOT_PATH/release/tests/GenerateTaskSet --N $jobNumber --taskSetType $taskSetType \
+    --taskSetNumber $taskSetNumber --NumberOfProcessor $coreNumberAva \
+    --randomSeed $randomSeed --useRandomUtilization 1
 	
 	echo "$title iteration is: $jobNumber"
 	# initial, order optimization, verucchi
-	python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "weightSF_factor" --value 0
 	perform_optimization
-
-	# # wang_21rtssIC
-	# python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "weightSF_factor" --value 1
-	# perform_optimization
 	
   #copy results to corresponding folder
 	taskset_folder_name="N$jobNumber"
@@ -85,7 +86,6 @@ do
   done
   if [[ ! -d dagTasks/$taskset_folder_name ]]; then mkdir dagTasks/$taskset_folder_name; fi
   cp $RESULTS_PATH/*.csv dagTasks/$taskset_folder_name/
-
 done
 
 # visualize the result
