@@ -110,7 +110,7 @@ minTaskNumber = args.minTaskNumber
 maxTaskNumber = args.maxTaskNumber
 title = args.title
 result_file_path = args.result_file_path
-methods_name = ("Initial", "OrderOpt", "Verucchi",
+methods_name = ("Initial", "OrderOpt", "NLP",
                 "OrderOptWithoutScheudleOpt")
 marker_list = ["o", "v", "s", "D"]  #
 color_list = ["#0084DB", "r", "y", "limegreen"]  #
