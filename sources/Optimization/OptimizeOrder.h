@@ -213,7 +213,10 @@ namespace OrderOptDAG_SPACE
         ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.maxRtda_};
         auto no_thing = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_); // get the processor assignment
         if (resOrderOptWithoutScheduleOpt)
+        {
+            scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
             *resOrderOptWithoutScheduleOpt = scheduleRes;
+        }
 
         if (doScheduleOptimization)
         {
