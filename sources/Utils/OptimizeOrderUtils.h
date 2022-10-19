@@ -20,7 +20,7 @@ namespace OrderOptDAG_SPACE
         double timeTaken_;
         std::vector<uint> processorJobVec_;
 
-        ScheduleResult() {obj_ = -1;}
+        ScheduleResult() { obj_ = -1; }
         ScheduleResult(JobOrder jobOrder,
                        VectorDynamic startTimeVector,
                        bool schedulable,
@@ -54,12 +54,12 @@ namespace OrderOptDAG_SPACE
         return 0 == err;
     }
 
-    // Exams DBF constraints
-    bool ExamDBF_Feasibility(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum)
+    std::vector<std::vector<Interval>> ExtractJobsPerProcessor(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum)
     {
-        if (processorNum <= 0)
-            return false;
+
         std::vector<std::vector<Interval>> jobsPerProcessor(processorNum);
+        if (processorNum <= 0)
+            return jobsPerProcessor;
         int index = 0;
         for (uint i = 0; i < dagTasks.tasks.size(); i++)
         {
@@ -67,16 +67,48 @@ namespace OrderOptDAG_SPACE
             {
                 JobCEC job(i, j);
                 Interval v(GetStartTime(job, startTimeVector, tasksInfo), tasksInfo.tasks[i].executionTime);
-                if (v.start < tasksInfo.tasks[i].period * j)
-                    return false;
-                else if (v.start + v.length > tasksInfo.tasks[i].period * j + tasksInfo.tasks[i].deadline)
-                    return false;
                 if (processorJobVec[index] >= jobsPerProcessor.size())
-                    return false;
-                jobsPerProcessor[processorJobVec[index]].push_back(v);
+                {
+                    CoutWarning("Wrong processorNum in ExtractJobsPerProcessor!");
+                    // jobsPerProcessor.resize(processorJobVec[index] + 1);
+                    while (jobsPerProcessor.size() < processorJobVec[index] + 1)
+                    {
+                        std::vector<Interval> ttt;
+                        jobsPerProcessor.push_back(ttt);
+                    }
+                    jobsPerProcessor[processorJobVec[index]].push_back(v);
+                }
+                else
+                    jobsPerProcessor[processorJobVec[index]].push_back(v);
                 index++;
             }
         }
+        return jobsPerProcessor;
+    }
+
+    double DBF_Error(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum)
+    {
+        if (processorNum <= 0)
+            return 0;
+        if (processorJobVec.size() == 0)
+            CoutError("Empty processorJobVecin DBF_Error!");
+        std::vector<std::vector<Interval>> jobsPerProcessor = ExtractJobsPerProcessor(dagTasks, tasksInfo, startTimeVector, processorJobVec, processorNum);
+        double overallError = 0;
+        for (int i = 0; i < processorNum; i++)
+        {
+            overallError += IntervalOverlapError(jobsPerProcessor[i]);
+        }
+        return overallError;
+    }
+
+    // Exams DBF constraints
+    bool ExamDBF_Feasibility(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum)
+    {
+        if (processorNum <= 0)
+            return false;
+        std::vector<std::vector<Interval>> jobsPerProcessor = ExtractJobsPerProcessor(dagTasks, tasksInfo, startTimeVector, processorJobVec, processorNum);
+        if (static_cast<int>(jobsPerProcessor.size()) > processorNum)
+            return false;
         for (int i = 0; i < processorNum; i++)
         {
             if (IntervalOverlapError(jobsPerProcessor[i]) > 0)
