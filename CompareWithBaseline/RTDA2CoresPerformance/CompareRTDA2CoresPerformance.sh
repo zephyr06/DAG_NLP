@@ -18,7 +18,7 @@ keep_current_result_and_only_plot=0 # if true, will plot result files in $histor
 history_result_directory="$ROOT_PATH/CompareWithBaseline/RTDA2CoresPerformance" 
 ## setting for generating task sets
 taskSetType=3
-taskSetNumber=30
+taskSetNumber=7
 randomSeed=-1 # negative means time seed
 # ***************************************************
 # ***************************************************
@@ -28,7 +28,8 @@ if [[ $keep_current_result_and_only_plot == 1 || $keep_current_result_and_only_p
   echo "Plot from history in directory: $history_result_directory"
   # visualize history result
   python $ROOT_PATH/CompareWithBaseline/$title/Visualize_RTDA_performance.py --minTaskNumber $MinTaskNumber \
-    --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $history_result_directory
+    --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $history_result_directory \
+    --useOrderOptResultInNoScheduleOpt $useOrderOptResultInNoScheduleOpt
   exit
 fi
 
@@ -94,4 +95,5 @@ done
 
 # visualize the result
 python $ROOT_PATH/CompareWithBaseline/$title/Visualize_RTDA_performance.py --minTaskNumber $MinTaskNumber \
-  --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $ROOT_PATH/CompareWithBaseline/$title
+  --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $ROOT_PATH/CompareWithBaseline/$title \
+  --useOrderOptResultInNoScheduleOpt $useOrderOptResultInNoScheduleOpt
