@@ -6,14 +6,14 @@ TotalMethodUnderComparison: 5 # 0: LS initial, 1: optimize order & schedule, 2: 
 testDataSetName: test_n5_v79
 debugMode: 0
 doScheduleOptimization: 1
-considerSensorFusion: 1 
+considerSensorFusion: 0 
 #*************************************************************
 # Get away from local optimal setting
 RandomAccept: 0 # chance to take a possibly better solution
 #*************************************************************
 
 # batch optimize settings
-useOrderOptResultInNoScheduleOpt: 1 # if 1, skip batchTestMethod-4 if it can get result directly from orderOpt, will lose running time result for batchTestMethod-4
+useOrderOptResultInNoScheduleOpt: 0 # if 1, skip batchTestMethod-4 if it can get result directly from orderOpt, will lose running time result for batchTestMethod-4
 
 # task-set settings
 coreNumberAva: 2 

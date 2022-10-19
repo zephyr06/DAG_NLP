@@ -132,7 +132,7 @@ if __name__ == "__main__":
         all_data_dict, minTaskNumber, maxTaskNumber, "Time")
     normalized_objective_data_2d = normalize_data(objective_data_2d)
 
-    plot_figure(schedulable_data_2d, "Schedulability")
+    plot_figure(schedulable_data_2d, "Schedulable Ratio (%)")
     plot_figure(objective_data_2d, "RTDA")
     plot_figure(time_data_2d, "Time")
     plot_figure(normalized_objective_data_2d, "Normalized_RTDA")

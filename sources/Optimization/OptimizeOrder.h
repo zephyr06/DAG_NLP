@@ -33,6 +33,8 @@ namespace OrderOptDAG_SPACE
         {
             // startTimeVector_ = ListSchedulingGivenOrder(dagTasks, tasksInfo, jobOrder_);
             startTimeVector_ = SchedulingAlgorithm::Schedule(dagTasks, tasksInfo, processorNum_, jobOrder_);
+            // TODO add a LP optimization, update (startTimeVector_  jobOrder_)
+
             rtdaVec_ = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector_);
             maxRtda_ = GetMaxRTDA(rtdaVec_);
             // objVal_ = ObjRTDA(maxRtda_);
