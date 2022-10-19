@@ -701,7 +701,8 @@ TEST(ExamDBF_Feasibility, v2)
     EXPECT(!ExamDBF_Feasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
     initial(0) = 0;
     initial(1) = 99;
-    EXPECT(!ExamDBF_Feasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
+    EXPECT(ExamDBF_Feasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
+    EXPECT(!ExamDDL_Feasibility(dagTasks, tasksInfo, initial));
     initial(1) = 100;
     initial(4) = 30;
     EXPECT(ExamDBF_Feasibility(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
@@ -782,6 +783,22 @@ TEST(sensorFusion, v1_no_fork)
     // cout << sth << endl;
     initial << 3, 5, 1, 6, 7;
     EXPECT_LONGS_EQUAL(0, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(0));
+}
+
+TEST(DBF_error, v1)
+{
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    int processorNum = 1;
+    std::vector<uint> processorJobVec;
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, std::nullopt, processorJobVec);
+    PrintSchedule(tasksInfo, initial);
+    EXPECT_LONGS_EQUAL(0, DBF_Error(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
+    initial << 0, 0, 0;
+    EXPECT_LONGS_EQUAL(4, DBF_Error(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
 }
 
 int main()

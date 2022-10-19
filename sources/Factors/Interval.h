@@ -155,6 +155,8 @@ pair<double, double> OverlapGradient(Interval v1, Interval v2)
 
 double IntervalOverlapError(vector<Interval> &intervalVec)
 {
+    if (intervalVec.size() <= 1)
+        return 0;
     sort(intervalVec.begin(), intervalVec.end(), compare);
 
     double overlapAll = 0;
