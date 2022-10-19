@@ -31,7 +31,7 @@ weightInMpRTDA: 0.5
 weightInMpSf: 1
 weightInMpSfPunish: 10
 weightInMpRTDAPunish: 10
-makeProgressTimeLimit: 6 # seconds, -1 means unlimited time
+makeProgressTimeLimit: 60 # seconds, -1 means unlimited time
 
 #*************************************************************
 # factors to be included
@@ -56,7 +56,7 @@ temperatureSA: 100000000
 SA_iteration: 100000
 #*************************************************************
 # Verucchi20 settings
-kVerucchiTimeLimit: 6 # seconds, -1 means unlimited time
+kVerucchiTimeLimit: 60 # seconds, -1 means unlimited time
 kVerucchiReactionCost: 15.0
 kVerucchiMaxReaction: 400000.0
 kVerucchiDataAgeCost: 15.0

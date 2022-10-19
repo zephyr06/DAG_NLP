@@ -72,11 +72,11 @@ def normalize_data(data_2d):
 
 def plot_figure(data_to_plot, ylabel_name):
     dataset_pd = pd.DataFrame()
-    optimizer_name = methods_name
+    optimizer_name = list(methods_name)
     dataset_pd.insert(0, "index", np.linspace(
         minTaskNumber, maxTaskNumber, maxTaskNumber - minTaskNumber + 1))
     for i in range(len(data_to_plot)):
-        if (ylabel_name == "Time" and i == 3):
+        if (ylabel_name == "Time" and optimizer_name[i] == "OrderOptWithoutScheudleOpt"):
             continue
         dataset_pd.insert(0, optimizer_name[i], data_to_plot[i])
         splot = sns.lineplot(data=dataset_pd, x="index", y=optimizer_name[i], marker=marker_list[i % len(marker_list)],
@@ -86,6 +86,8 @@ def plot_figure(data_to_plot, ylabel_name):
     # if (ylabel_name == "Time"):
     #     splot.set(yscale="log")
     # splot.set_ylim(1e-4, 1e3)
+    if (ylabel_name == "Time"):
+        optimizer_name.remove("OrderOptWithoutScheudleOpt")
     plt.legend(labels=optimizer_name)
     plt.grid(linestyle="--")
     plt.savefig(ylabel_name + "_" + title + ".pdf", format='pdf')
@@ -110,10 +112,10 @@ minTaskNumber = args.minTaskNumber
 maxTaskNumber = args.maxTaskNumber
 title = args.title
 result_file_path = args.result_file_path
-methods_name = ("Initial", "OrderOpt", "Verucchi",
-                "OrderOptWithoutScheudleOpt")
+methods_name = ("Initial", "OrderOptWithoutScheudleOpt", "Verucchi",
+                "OrderOpt")
 marker_list = ["o", "v", "s", "D"]  #
-color_list = ["#0084DB", "r", "y", "limegreen"]  #
+color_list = ["#0084DB", "limegreen", "y", "r"]  #
 
 if __name__ == "__main__":
     all_data_dict = read_data(minTaskNumber, maxTaskNumber)
