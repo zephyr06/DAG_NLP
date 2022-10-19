@@ -80,19 +80,29 @@ def plot_figure(data_to_plot, ylabel_name):
             continue
         dataset_pd.insert(0, optimizer_name[i], data_to_plot[i])
         splot = sns.lineplot(data=dataset_pd, x="index", y=optimizer_name[i], marker=marker_list[i % len(marker_list)],
-                             color=color_list[i % len(color_list)], markersize=8)
+                             color=color_list[i % len(color_list)], markersize=8)  # , alpha=0.8)
     splot.set(xlabel="Task Number", ylabel=ylabel_name)
     # splot.set_ylim([0.95, 2.0])
-    # if (ylabel_name == "Time"):
-    #     splot.set(yscale="log")
     # splot.set_ylim(1e-4, 1e3)
     if (useOrderOptResultInNoScheduleOpt == 1 and ylabel_name == "Time"):
         optimizer_name.remove("OrderOptWithoutScheudleOpt")
+    l_bound = minTaskNumber - 1
+    r_bound = maxTaskNumber + 1
+    if (l_bound % 2 == 1):
+        l_bound -= 1
+    if (r_bound % 2 == 0):
+        r_bound += 1
+    plt.xticks(range(l_bound, r_bound, 2))
     plt.legend(labels=optimizer_name)
     plt.grid(linestyle="--")
     plt.savefig(ylabel_name + "_" + title + ".pdf", format='pdf')
     plt.show(block=False)
     plt.pause(1)
+    if (ylabel_name == "Time"):
+        splot.set(yscale="log")
+        plt.savefig("Time_log_scale_" + title + ".pdf", format='pdf')
+        plt.show(block=False)
+        plt.pause(1)
     plt.clf()
 
 
@@ -118,7 +128,7 @@ result_file_path = args.result_file_path
 useOrderOptResultInNoScheduleOpt = args.useOrderOptResultInNoScheduleOpt
 methods_name = ("Initial", "OrderOptWithoutScheudleOpt", "NLP",
                 "OrderOpt")
-marker_list = ["o", "v", "s", "D"]  #
+marker_list = ["o", "s", "D", "v"]  #
 color_list = ["#0084DB", "limegreen", "y", "r"]  #
 
 if __name__ == "__main__":
