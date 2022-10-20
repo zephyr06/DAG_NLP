@@ -840,6 +840,18 @@ TEST(ScheduleDAGLS_LFT, v1)
     // About expect: there are two chains, each chain has a max data age and a max reaction time
     EXPECT_LONGS_EQUAL(364 * 2 + 375 * 2, res.obj_);
 }
+
+TEST(optimize_schedule_when_search_job_order_, v1)
+{
+    using namespace OrderOptDAG_SPACE;
+    NumCauseEffectChain = 1;
+    int processorNum = 2;
+    considerSensorFusion = 0;
+    weightInMpRTDA = 0.5;
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig"); // single-rate dag
+    ScheduleResult res = ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, processorNum);
+    EXPECT_LONGS_EQUAL(5 + 4, res.obj_);
+}
 int main()
 {
     TestResult tr;

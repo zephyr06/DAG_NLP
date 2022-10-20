@@ -23,6 +23,7 @@ namespace OrderOptDAG_SPACE
         JobOrderMultiCore jobOrder_;
         int processorNum_;
         VectorDynamic startTimeVector_;
+        std::vector<uint> processorJobVec_;
         std::vector<std::vector<RTDA>> rtdaVec_; // for each chain
         std::vector<RTDA> maxRtda_;              // for each chain
         // double objVal_;
@@ -32,8 +33,21 @@ namespace OrderOptDAG_SPACE
         IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const JobOrderMultiCore &jobOrder, int processorNum) : dagTasks_(dagTasks), jobOrder_(jobOrder), processorNum_(processorNum)
         {
             // startTimeVector_ = ListSchedulingGivenOrder(dagTasks, tasksInfo, jobOrder_);
-            startTimeVector_ = SchedulingAlgorithm::Schedule(dagTasks, tasksInfo, processorNum_, jobOrder_);
+            startTimeVector_ = SchedulingAlgorithm::Schedule(dagTasks, tasksInfo, processorNum_, jobOrder_, processorJobVec_);
             // TODO add a LP optimization, update (startTimeVector_  jobOrder_)
+            // if (doScheduleOptimization)
+            // {
+            //     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
+            //     ScheduleResult result_after_optimization;
+            //     schedule_optimizer.Optimize(dagTasks, result_after_optimization);
+            //     result_after_optimization = schedule_optimizer.getOptimizedResult();
+            //     startTimeVector_ = result_after_optimization.startTimeVector_;
+
+            //     if (!ExamAll_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum))
+            //     {
+            //         CoutError("Found one unschedulable case after optimization!");
+            //     }
+            // }
 
             for (uint i = 0; i < dagTasks.chains_.size(); i++)
             {

@@ -106,7 +106,7 @@ void BatchOptimizeOrder()
                     auto stop = chrono::high_resolution_clock::now();
                     auto duration = duration_cast<microseconds>(stop - start);
                     res.timeTaken_ = double(duration.count()) / 1e6;
-                    res.rtda_.print();
+                    // res.rtda_.print();
                 }
                 std::cout << "Schedulable? " << res.schedulable_ << std::endl;
 
