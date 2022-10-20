@@ -4,7 +4,7 @@
 # ************** Adjust settings there **************
 title="RTDA2CoresPerformance"
 MinTaskNumber=3
-MaxTaskNumber=20
+MaxTaskNumber=10
 ## no separator '/' at the end of the path
 #ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
 ROOT_PATH="/home/dong/workspace/DAG_NLP"
@@ -13,7 +13,7 @@ methods_dir_name=( "Initial_Res" "OrderOpt_Res" "Verucchi_Res" "OrderOptWithoutS
 makeProgressTimeLimit=60
 kVerucchiTimeLimit=60
 coreNumberAva=2
-useOrderOptResultInNoScheduleOpt=0 # 0 will re-run order opt without schedule opt (time consuming); otherwise 1 will lose time informaction for no-schedule-opt mode
+useOrderOptResultInNoScheduleOpt=1 # 0 will re-run order opt without schedule opt (time consuming); otherwise 1 will lose time informaction for no-schedule-opt mode
 keep_current_result_and_only_plot=1 # if true, will plot result files in $history_result_directory
 history_result_directory="$ROOT_PATH/CompareWithBaseline/RTDA2CoresPerformance" 
 ## setting for generating task sets
@@ -30,6 +30,7 @@ if [[ $keep_current_result_and_only_plot == 1 || $keep_current_result_and_only_p
   python $ROOT_PATH/CompareWithBaseline/$title/Visualize_RTDA_performance.py --minTaskNumber $MinTaskNumber \
     --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $history_result_directory \
     --useOrderOptResultInNoScheduleOpt $useOrderOptResultInNoScheduleOpt
+  cp $ROOT_PATH/CompareWithBaseline/$title/*.pdf $ROOT_PATH/CompareWithBaseline/$title/dagTasks/
   exit
 fi
 
@@ -97,3 +98,4 @@ done
 python $ROOT_PATH/CompareWithBaseline/$title/Visualize_RTDA_performance.py --minTaskNumber $MinTaskNumber \
   --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $ROOT_PATH/CompareWithBaseline/$title \
   --useOrderOptResultInNoScheduleOpt $useOrderOptResultInNoScheduleOpt
+cp $ROOT_PATH/CompareWithBaseline/$title/*.pdf $ROOT_PATH/CompareWithBaseline/$title/dagTasks/

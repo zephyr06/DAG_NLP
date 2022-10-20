@@ -30,6 +30,7 @@ if [[ $keep_current_result_and_only_plot == 1 || $keep_current_result_and_only_p
   python $ROOT_PATH/CompareWithBaseline/$title/Visualize_SensorFusion_performance.py --minTaskNumber $MinTaskNumber \
     --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $history_result_directory \
     --useOrderOptResultInNoScheduleOpt $useOrderOptResultInNoScheduleOpt
+  cp $ROOT_PATH/CompareWithBaseline/$title/*.pdf $ROOT_PATH/CompareWithBaseline/$title/dagTasks/
   exit
 fi
 
@@ -97,3 +98,4 @@ done
 python $ROOT_PATH/CompareWithBaseline/$title/Visualize_SensorFusion_performance.py --minTaskNumber $MinTaskNumber \
   --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $ROOT_PATH/CompareWithBaseline/$title \
   --useOrderOptResultInNoScheduleOpt $useOrderOptResultInNoScheduleOpt
+cp $ROOT_PATH/CompareWithBaseline/$title/*.pdf $ROOT_PATH/CompareWithBaseline/$title/dagTasks/
