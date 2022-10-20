@@ -35,34 +35,33 @@ namespace OrderOptDAG_SPACE
             // startTimeVector_ = ListSchedulingGivenOrder(dagTasks, tasksInfo, jobOrder_);
             processorJobVec_.clear();
             startTimeVector_ = SchedulingAlgorithm::Schedule(dagTasks, tasksInfo, processorNum_, jobOrder_, processorJobVec_);
-            // TODO add a LP optimization, update (startTimeVector_  jobOrder_)
-            // if (doScheduleOptimization)
-            // {
-            //     ScheduleResult scheduleResBeforeOpt{jobOrder_, startTimeVector_, schedulable_, maxRtda_, processorJobVec_};
-            //     ScheduleOptimizer scheduleOptimizer = ScheduleOptimizer();
-            //     ScheduleResult resultAfterOptimization;
-            //     scheduleOptimizer.Optimize(dagTasks, scheduleResBeforeOpt);
-            //     resultAfterOptimization = scheduleOptimizer.getOptimizedResult();
-            //     if (!ExamAll_Feasibility(dagTasks, tasksInfo, resultAfterOptimization.startTimeVector_, resultAfterOptimization.processorJobVec_, processorNum))
-            //     {
-            //         CoutWarning("Found one unschedulable case after optimization!");
-            //     }
 
-            // }
-            
             for (uint i = 0; i < dagTasks.chains_.size(); i++)
             {
                 auto rtdaVecTemp = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[i], startTimeVector_);
                 rtdaVec_.push_back(rtdaVecTemp);
                 maxRtda_.push_back(GetMaxRTDA(rtdaVecTemp));
             }
-
             if (considerSensorFusion)
             {
                 sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
                 // objVal_ += ObjSF(sfVec_);
             }
-            schedulable_ = ExamDDL_Feasibility(dagTasks, tasksInfo, startTimeVector_);
+            schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
+
+            // TODO add a LP optimization, update (startTimeVector_  jobOrder_)
+            if (doScheduleOptimization)
+            {
+                ScheduleResult scheduleResBeforeOpt{jobOrder_, startTimeVector_, schedulable_, ReadObj(), processorJobVec_};
+                ScheduleResult resultAfterOptimization;
+                ScheduleOptimizer scheduleOptimizer = ScheduleOptimizer();
+                scheduleOptimizer.Optimize(dagTasks, scheduleResBeforeOpt);
+                resultAfterOptimization = scheduleOptimizer.getOptimizedResult();
+                if (debugMode && !resultAfterOptimization.schedulable_)
+                {
+                    std::cout << "Found one unschedulable case after optimization!\n";
+                }
+            }
         }
         double ReadObj()
         {
