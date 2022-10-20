@@ -103,6 +103,13 @@ namespace OrderOptDAG_SPACE
     {
         return rtda.reactionTime + rtda.dataAge;
     }
+    double ObjRTDA(const std::vector<RTDA> &rtdaVec)
+    {
+        double res = 0;
+        for (auto &r : rtdaVec)
+            res += ObjRTDA(r);
+        return res;
+    }
 
     void AddWholeRTDAFactor(NonlinearFactorGraph &graph,
                             TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain)

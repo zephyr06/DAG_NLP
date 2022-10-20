@@ -465,7 +465,7 @@ namespace OrderOptDAG_SPACE
     {
     public:
         // If used, this function needs to be carefully checked!
-        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, JobOrderMultiCore &jobOrder,
+        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,
                                       boost::optional<std::vector<uint> &> processorIdVec = boost::none)
         {
             return ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder, processorIdVec);
@@ -476,7 +476,7 @@ namespace OrderOptDAG_SPACE
     class LSchedulingFreeTA : public SchedulingAlgorithm
     {
     public:
-        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, JobOrderMultiCore &jobOrder,
+        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,
                                       boost::optional<std::vector<uint> &> processorIdVec = boost::none)
         {
             return ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, jobOrder, processorIdVec);

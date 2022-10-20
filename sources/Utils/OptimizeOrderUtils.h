@@ -15,25 +15,25 @@ namespace OrderOptDAG_SPACE
         JobOrder jobOrder_;
         VectorDynamic startTimeVector_;
         bool schedulable_;
-        RTDA rtda_;
+        // RTDA rtda_;
         double obj_;
         double timeTaken_;
         std::vector<uint> processorJobVec_;
 
         ScheduleResult() { obj_ = -1; }
-        ScheduleResult(JobOrder jobOrder, VectorDynamic startTimeVector, bool schedulable, RTDA rtda)
-            : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), rtda_(rtda)
+        ScheduleResult(JobOrder jobOrder,
+                       VectorDynamic startTimeVector,
+                       bool schedulable,
+                       double obj) : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), obj_(obj) //, rtda_(rtda)
         {
-            obj_ = ObjRTDA(rtda_);
+            // obj_ = ObjRTDA(rtda_);
             timeTaken_ = 0;
-            processorJobVec_.clear();
         }
         ScheduleResult(JobOrder jobOrder, VectorDynamic startTimeVector, bool schedulable,
-                       RTDA rtda, std::vector<uint> processorJobVec)
+                       double obj, std::vector<uint> processorJobVec)
             : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable),
-              rtda_(rtda), processorJobVec_(processorJobVec)
+              obj_(obj), processorJobVec_(processorJobVec)
         {
-            obj_ = ObjRTDA(rtda_);
             timeTaken_ = 0;
         }
     };
@@ -163,11 +163,18 @@ namespace OrderOptDAG_SPACE
         std::vector<uint> processorJobVec;
         VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, std::nullopt, processorJobVec);
         JobOrder jobOrderRef(tasksInfo, initialSTV);
-        RTDA rtda = GetMaxRTDA(tasksInfo, dagTasks.chains_[0], initialSTV);
+        std::vector<RTDA> maxRtdaVec;
+        // double obj = 0;
+        for (uint i = 0; i < dagTasks.chains_.size(); i++)
+        {
+            RTDA rtda = GetMaxRTDA(tasksInfo, dagTasks.chains_[i], initialSTV);
+            maxRtdaVec.push_back(rtda);
+        }
+
         ScheduleResult res{
             jobOrderRef,
             initialSTV,
-            true, rtda};
+            true, ObjRTDA(maxRtdaVec)};
         res.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, initialSTV, processorJobVec, processorNum, sfBound, freshnessBound);
 
         return res;
