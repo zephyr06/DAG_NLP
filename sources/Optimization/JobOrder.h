@@ -101,13 +101,30 @@ namespace OrderOptDAG_SPACE
         }
 
     public:
-        JobOrderMultiCore(TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector) : JobOrder(tasksInfo, startTimeVector)
+        JobOrderMultiCore(TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector)
         {
-            jobOrderSerial_.reserve(jobOrder_.size());
-            for (size_t i = 0; i < size(); i++)
+            tasksInfo_ = tasksInfo;
+            std::vector<std::pair<std::pair<double, double>, JobCEC>> timeJobVector = ObtainAllJobSchedule(tasksInfo, startTimeVector);
+            timeJobVector = SortJobSchedule(timeJobVector);
+            jobOrder_.reserve(timeJobVector.size());
+            jobOrderSerial_.reserve(timeJobVector.size());
+
+            // Update jobOrderSerial_ with the longest chain
+            double cur_serial_finish_time = -1;
+            for (LLint i = 0; i < static_cast<LLint>(timeJobVector.size()); i++)
             {
-                jobOrderSerial_.push_back(false);
+                jobOrder_.push_back(timeJobVector[i].second);
+                if (timeJobVector[i].first.first >= cur_serial_finish_time)
+                { // serial order is empty, add curjob to serial order, update serial finish time
+                    cur_serial_finish_time = timeJobVector[i].first.second;
+                    jobOrderSerial_.push_back(true);
+                }
+                else
+                {
+                    jobOrderSerial_.push_back(false);
+                }
             }
+            UpdateIndexMap();
         }
 
         // newPosition<0 means remove jobIndex
@@ -119,7 +136,8 @@ namespace OrderOptDAG_SPACE
          * @param jobIndex
          * @param newPosition
          */
-        void ChangeJobOrder(LLint jobIndex, LLint newPosition)
+        void
+        ChangeJobOrder(LLint jobIndex, LLint newPosition)
         {
             ChangeJobStartOrder(jobIndex, newPosition);
 

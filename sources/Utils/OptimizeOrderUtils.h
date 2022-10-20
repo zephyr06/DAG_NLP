@@ -21,14 +21,20 @@ namespace OrderOptDAG_SPACE
         std::vector<uint> processorJobVec_;
 
         ScheduleResult() { obj_ = -1; }
-        ScheduleResult(JobOrder jobOrder,
-                       VectorDynamic startTimeVector,
-                       bool schedulable,
-                       RTDA rtda) : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), rtda_(rtda)
+        ScheduleResult(JobOrder jobOrder, VectorDynamic startTimeVector, bool schedulable, RTDA rtda)
+            : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), rtda_(rtda)
         {
             obj_ = ObjRTDA(rtda_);
             timeTaken_ = 0;
             processorJobVec_.clear();
+        }
+        ScheduleResult(JobOrder jobOrder, VectorDynamic startTimeVector, bool schedulable,
+                       RTDA rtda, std::vector<uint> processorJobVec)
+            : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable),
+              rtda_(rtda), processorJobVec_(processorJobVec)
+        {
+            obj_ = ObjRTDA(rtda_);
+            timeTaken_ = 0;
         }
     };
 

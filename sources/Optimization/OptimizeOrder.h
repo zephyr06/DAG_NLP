@@ -28,12 +28,27 @@ namespace OrderOptDAG_SPACE
         // double objVal_;
         bool schedulable_;
         VectorDynamic sfVec_;
+        std::vector<uint> processorJobVec_;
 
         IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const JobOrderMultiCore &jobOrder, int processorNum) : dagTasks_(dagTasks), jobOrder_(jobOrder), processorNum_(processorNum)
         {
             // startTimeVector_ = ListSchedulingGivenOrder(dagTasks, tasksInfo, jobOrder_);
-            startTimeVector_ = SchedulingAlgorithm::Schedule(dagTasks, tasksInfo, processorNum_, jobOrder_);
+            processorJobVec_.clear();
+            startTimeVector_ = SchedulingAlgorithm::Schedule(dagTasks, tasksInfo, processorNum_, jobOrder_, processorJobVec_);
             // TODO add a LP optimization, update (startTimeVector_  jobOrder_)
+            // if (doScheduleOptimization)
+            // {
+            //     ScheduleResult scheduleResBeforeOpt{jobOrder_, startTimeVector_, schedulable_, maxRtda_, processorJobVec_};
+            //     ScheduleOptimizer scheduleOptimizer = ScheduleOptimizer();
+            //     ScheduleResult resultAfterOptimization;
+            //     scheduleOptimizer.Optimize(dagTasks, scheduleResBeforeOpt);
+            //     resultAfterOptimization = scheduleOptimizer.getOptimizedResult();
+            //     if (!ExamAll_Feasibility(dagTasks, tasksInfo, resultAfterOptimization.startTimeVector_, resultAfterOptimization.processorJobVec_, processorNum))
+            //     {
+            //         CoutWarning("Found one unschedulable case after optimization!");
+            //     }
+
+            // }
 
             rtdaVec_ = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector_);
             maxRtda_ = GetMaxRTDA(rtdaVec_);
@@ -212,7 +227,7 @@ namespace OrderOptDAG_SPACE
             }
         }
 
-        ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.maxRtda_};
+        ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.maxRtda_, statusPrev.processorJobVec_};
         auto no_thing = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_); // get the processor assignment
         if (resOrderOptWithoutScheduleOpt)
         {
@@ -229,7 +244,7 @@ namespace OrderOptDAG_SPACE
             scheduleRes = result_after_optimization;
             if (!ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum))
             {
-                CoutError("Found one unschedulable case after optimization!");
+                CoutWarning("Found one unschedulable case after optimization!");
             }
         }
 

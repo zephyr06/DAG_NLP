@@ -323,6 +323,10 @@ namespace OrderOptDAG_SPACE
         for (uint i = 0; i < jobOrder.jobIndexMap_.at(jobCurr); i++)
         {
             const JobCEC &jobPrec = jobOrder.jobOrder_.at(i);
+            if (jobOrder.HaveSerialConstraint(jobPrec) == false)
+            {
+                continue;
+            }
             LLint jobPrecIndex = jobOrder.jobIndexMap_.at(jobPrec);
             if (jobScheduled[jobPrecIndex] == -1 || jobScheduled[jobPrecIndex] + tasksInfo.tasks[jobPrec.taskId].executionTime > currTime)
                 return false;
@@ -461,9 +465,10 @@ namespace OrderOptDAG_SPACE
     {
     public:
         // If used, this function needs to be carefully checked!
-        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, JobOrderMultiCore &jobOrder)
+        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, JobOrderMultiCore &jobOrder,
+                                      boost::optional<std::vector<uint> &> processorIdVec = boost::none)
         {
-            return ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder);
+            return ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder, processorIdVec);
         }
     };
 
@@ -471,9 +476,10 @@ namespace OrderOptDAG_SPACE
     class LSchedulingFreeTA : public SchedulingAlgorithm
     {
     public:
-        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, JobOrderMultiCore &jobOrder)
+        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, JobOrderMultiCore &jobOrder,
+                                      boost::optional<std::vector<uint> &> processorIdVec = boost::none)
         {
-            return ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, jobOrder);
+            return ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, jobOrder, processorIdVec);
         }
     };
 } // namespace OrderOptDAG_SPACE

@@ -52,8 +52,12 @@ namespace OrderOptDAG_SPACE
                     std::cout << "Values are :" << values_optimized << "\n";
                     std::cout << status << " solution found: " << cplex_solver_.getObjValue() << "\n";
                 }
+                GenerateOptimizedResult(values_optimized);
             }
-            GenerateOptimizedResult(values_optimized);
+            else
+            {
+                result_after_optimization_ = result_to_be_optimized_;
+            }
         }
 
         void print()

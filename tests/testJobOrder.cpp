@@ -354,7 +354,7 @@ TEST(changeOrderNP, ListSchedulingLFTPA_MultiCore)
 
     initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, jobOrder);
     VectorDynamic expected = initial;
-    expected << 20, 0, 0;
+    expected << 30, 0, 0;
     EXPECT(assert_equal(expected, initial));
 
     PrintSchedule(tasksInfo, initial);
@@ -377,7 +377,7 @@ TEST(changeOrderNP, ListSchedulingLFTPA_MultiCore_v2)
 
     initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, jobOrder);
     VectorDynamic expected = initial;
-    expected << 0, 0, 10;
+    expected << 0, 0, 20;
     EXPECT(assert_equal(expected, initial));
 
     PrintSchedule(tasksInfo, initial);
@@ -402,7 +402,7 @@ TEST(changeOrderNP, ListSchedulingLFTPA_MultiCore_v3)
     initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, jobOrder);
     PrintSchedule(tasksInfo, initial);
     VectorDynamic expected = initial;
-    expected << 0, 100, 110, 100, 0;
+    expected << 0, 100, 110, 110, 0;
     EXPECT(assert_equal(expected, initial));
 }
 
