@@ -29,7 +29,7 @@ TEST(ScheduleOptimizer, RunSingle)
     auto result_after_optimization = schedule_optimizer.getOptimizedResult();
     EndTimer("schedule_optimizer");
     dagTasks.printChains();
-    result_after_optimization.rtda_.print();
+    result_after_optimization.print();
     PrintTimer();
 }
 

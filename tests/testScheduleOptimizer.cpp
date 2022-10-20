@@ -56,12 +56,11 @@ TEST(ScheduleOptimizer, single_core_optimization)
     ScheduleResult result_after_optimization;
 
     result_to_be_optimized.startTimeVector_ = initialEstimate;
-    result_to_be_optimized.rtda_ = resM;
+    result_to_be_optimized.obj_ = ObjRTDA(resM);
     schedule_optimizer.Optimize(dagTasks, result_to_be_optimized);
     result_after_optimization = schedule_optimizer.getOptimizedResult();
-    result_after_optimization.rtda_.print();
-    EXPECT_LONGS_EQUAL(22, result_after_optimization.rtda_.reactionTime);
-    EXPECT_LONGS_EQUAL(11, result_after_optimization.rtda_.dataAge);
+    result_after_optimization.print();
+    EXPECT_LONGS_EQUAL(33, result_after_optimization.obj_);
 }
 
 TEST(ScheduleOptimizer, multi_core_optimization)
@@ -94,14 +93,13 @@ TEST(ScheduleOptimizer, multi_core_optimization)
     ScheduleResult result_after_optimization;
 
     result_to_be_optimized.startTimeVector_ = initial;
-    result_to_be_optimized.rtda_ = resM;
+    result_to_be_optimized.obj_ = ObjRTDA(resM);
     result_to_be_optimized.processorJobVec_ = processorJobVec;
     schedule_optimizer.Optimize(dagTasks, result_to_be_optimized);
     result_after_optimization = schedule_optimizer.getOptimizedResult();
     PrintSchedule(tasksInfo, result_after_optimization.startTimeVector_);
-    result_after_optimization.rtda_.print();
-    EXPECT_LONGS_EQUAL(250, result_after_optimization.rtda_.reactionTime);
-    EXPECT_LONGS_EQUAL(240, result_after_optimization.rtda_.dataAge);
+    result_after_optimization.print();
+    EXPECT_LONGS_EQUAL(490, result_after_optimization.obj_);
 }
 
 TEST(ScheduleOptimizer, single_core_sensor_fusion)
@@ -127,12 +125,11 @@ TEST(ScheduleOptimizer, single_core_sensor_fusion)
     ScheduleResult result_after_optimization;
 
     result_to_be_optimized.startTimeVector_ = initialEstimate;
-    result_to_be_optimized.rtda_ = resM;
+    result_to_be_optimized.obj_ = ObjRTDA(resM);
     schedule_optimizer.Optimize(dagTasks, result_to_be_optimized);
     result_after_optimization = schedule_optimizer.getOptimizedResult();
-    result_after_optimization.rtda_.print();
-    EXPECT_LONGS_EQUAL(36, result_after_optimization.rtda_.reactionTime);
-    EXPECT_LONGS_EQUAL(47, result_after_optimization.rtda_.dataAge);
+    result_after_optimization.print();
+    EXPECT_LONGS_EQUAL(83, result_after_optimization.obj_);
     EXPECT(result_after_optimization.startTimeVector_(3) - result_after_optimization.startTimeVector_(4) <= sensorFusionTolerance);
     EXPECT(result_after_optimization.startTimeVector_(4) - result_after_optimization.startTimeVector_(3) <= sensorFusionTolerance);
 
@@ -146,10 +143,10 @@ TEST(ScheduleOptimizer, single_core_sensor_fusion)
 
     sensorFusionTolerance = 20;
     result_to_be_optimized.startTimeVector_ = initialEstimate;
-    result_to_be_optimized.rtda_ = resM;
+    result_to_be_optimized.obj_ = ObjRTDA(resM);
     schedule_optimizer.Optimize(dagTasks, result_to_be_optimized);
     result_after_optimization = schedule_optimizer.getOptimizedResult();
-    result_after_optimization.rtda_.print();
+    result_after_optimization.print();
     EXPECT(result_after_optimization.startTimeVector_(3) - result_after_optimization.startTimeVector_(4) <= sensorFusionTolerance);
     EXPECT(result_after_optimization.startTimeVector_(4) - result_after_optimization.startTimeVector_(3) <= sensorFusionTolerance);
 
@@ -157,7 +154,7 @@ TEST(ScheduleOptimizer, single_core_sensor_fusion)
     ScheduleResult result_after_optimization_with_strong_constraints;
     schedule_optimizer.Optimize(dagTasks, result_to_be_optimized);
     result_after_optimization_with_strong_constraints = schedule_optimizer.getOptimizedResult();
-    result_after_optimization_with_strong_constraints.rtda_.print();
+    result_after_optimization_with_strong_constraints.print();
     EXPECT_LONGS_EQUAL(54, result_after_optimization.obj_);
     EXPECT_LONGS_EQUAL(58, result_after_optimization_with_strong_constraints.obj_);
     EXPECT(result_after_optimization.obj_ < result_after_optimization_with_strong_constraints.obj_);

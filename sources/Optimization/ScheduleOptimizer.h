@@ -267,6 +267,7 @@ namespace OrderOptDAG_SPACE
         void GenerateOptimizedResult(IloNumArray &values_optimized)
         {
             result_after_optimization_ = result_to_be_optimized_;
+            result_after_optimization_.schedulable_ = true; // feasible solution found
             VectorDynamic start_time(num_variables_);
             for (int i = 0; i < num_variables_; i++)
             {
@@ -285,17 +286,12 @@ namespace OrderOptDAG_SPACE
                 }
                 rtda_vector.push_back(resM);
             }
-            RTDA rtda_optimized(0, 0);
-            for (auto rtda : rtda_vector)
+            if (ObjRTDA(rtda_vector) < result_after_optimization_.obj_)
             {
-                rtda_optimized.reactionTime += rtda.reactionTime;
-                rtda_optimized.dataAge += rtda.dataAge;
-            }
-            if (ObjRTDA(rtda_optimized) < result_after_optimization_.obj_)
-            {
-                // result_after_optimization_.rtda_ = rtda_optimized;
-                result_after_optimization_.obj_ = ObjRTDA(rtda_optimized);
+                result_after_optimization_.obj_ = ObjRTDA(rtda_vector);
                 result_after_optimization_.startTimeVector_ = start_time;
+                JobOrderMultiCore jobOrderRef(tasksInfo_, start_time);
+                result_after_optimization_.jobOrder_ = jobOrderRef;
             }
         }
 

@@ -239,8 +239,6 @@ TEST(Schedule, jobOrder)
     OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     ScheduleResult res = ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
     EXPECT(99 * 2 >= res.obj_);
-    // EXPECT_LONGS_EQUAL(99, res.rtda_.reactionTime);
-    // EXPECT_LONGS_EQUAL(99, res.rtda_.dataAge);
 }
 
 TEST(ListSchedulingGivenOrder, strict_job_order)
