@@ -23,8 +23,8 @@ namespace OrderOptDAG_SPACE
         JobOrderMultiCore jobOrder_;
         int processorNum_;
         VectorDynamic startTimeVector_;
-        std::vector<RTDA> rtdaVec_;
-        RTDA maxRtda_;
+        std::vector<std::vector<RTDA>> rtdaVec_; // for each chain
+        std::vector<RTDA> maxRtda_;              // for each chain
         // double objVal_;
         bool schedulable_;
         VectorDynamic sfVec_;
@@ -35,9 +35,13 @@ namespace OrderOptDAG_SPACE
             startTimeVector_ = SchedulingAlgorithm::Schedule(dagTasks, tasksInfo, processorNum_, jobOrder_);
             // TODO add a LP optimization, update (startTimeVector_  jobOrder_)
 
-            rtdaVec_ = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector_);
-            maxRtda_ = GetMaxRTDA(rtdaVec_);
-            // objVal_ = ObjRTDA(maxRtda_);
+            for (uint i = 0; i < dagTasks.chains_.size(); i++)
+            {
+                auto rtdaVecTemp = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector_);
+                rtdaVec_.push_back(rtdaVecTemp);
+                maxRtda_.push_back(GetMaxRTDA(rtdaVecTemp));
+            }
+
             if (considerSensorFusion)
             {
                 sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
@@ -54,8 +58,9 @@ namespace OrderOptDAG_SPACE
             double res = ObjRTDA(maxRtda_) + overallRTDA * weightInMpRTDA;
             if (considerSensorFusion != 0) // only used in RTSS21IC experiment
             {
-                res += sfOverall * weightInMpSf + Barrier(sensorFusionTolerance - sfVec_.maxCoeff()) * weightInMpSfPunish +
-                       Barrier(FreshTol - ObjRTDA(maxRtda_)) * weightInMpRTDAPunish;
+                res += sfOverall * weightInMpSf + Barrier(sensorFusionTolerance - sfVec_.maxCoeff()) * weightInMpSfPunish;
+                for (uint i = 0; i < rtdaVec_.size(); i++)
+                    res += Barrier(FreshTol - ObjRTDA(maxRtda_[i])) * weightInMpRTDAPunish;
             }
             return res;
         }

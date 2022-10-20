@@ -801,6 +801,24 @@ TEST(DBF_error, v1)
     EXPECT_LONGS_EQUAL(4, DBF_Error(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
 }
 
+TEST(CauseAffect_multi, v1)
+{
+    using namespace OrderOptDAG_SPACE;
+    NumCauseEffectChain = 2;
+    int processorNum = 1;
+    considerSensorFusion = 0;
+    weightInMpRTDA = 0.5;
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig"); // single-rate dag
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    dagTasks.printChains();
+
+    VectorDynamic initial = GenerateVectorDynamic(5);
+    initial << 1, 2, 3, 4, 5;
+    JobOrderMultiCore jobOrder(tasksInfo, initial);
+    IterationStatus<LSchedulingFreeTA> status(dagTasks, tasksInfo, jobOrder, processorNum);
+    EXPECT_LONGS_EQUAL(418 + 417 + 0.5 * (418 + 417), status.ObjWeighted());
+}
 int main()
 {
     TestResult tr;
