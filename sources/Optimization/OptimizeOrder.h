@@ -26,7 +26,7 @@ namespace OrderOptDAG_SPACE
         std::vector<std::vector<RTDA>> rtdaVec_; // for each chain
         std::vector<RTDA> maxRtda_;              // for each chain
         // double objVal_;
-        bool schedulable_;
+        bool schedulable_; // only basic schedulability
         VectorDynamic sfVec_;
 
         IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const JobOrderMultiCore &jobOrder, int processorNum) : dagTasks_(dagTasks), jobOrder_(jobOrder), processorNum_(processorNum)
@@ -37,7 +37,7 @@ namespace OrderOptDAG_SPACE
 
             for (uint i = 0; i < dagTasks.chains_.size(); i++)
             {
-                auto rtdaVecTemp = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector_);
+                auto rtdaVecTemp = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[i], startTimeVector_);
                 rtdaVec_.push_back(rtdaVecTemp);
                 maxRtda_.push_back(GetMaxRTDA(rtdaVecTemp));
             }
@@ -49,13 +49,18 @@ namespace OrderOptDAG_SPACE
             }
             schedulable_ = ExamDDL_Feasibility(dagTasks, tasksInfo, startTimeVector_);
         }
+        double ReadObj()
+        {
+            double res = ObjRTDA(maxRtda_);
+            return res;
+        }
         double ObjWeighted()
         {
             double overallRTDA = 0;
             for (uint i = 0; i < rtdaVec_.size(); i++)
                 overallRTDA += ObjRTDA(rtdaVec_[i]);
             double sfOverall = sfVec_.sum();
-            double res = ObjRTDA(maxRtda_) + overallRTDA * weightInMpRTDA;
+            double res = ReadObj() + overallRTDA * weightInMpRTDA;
             if (considerSensorFusion != 0) // only used in RTSS21IC experiment
             {
                 res += sfOverall * weightInMpSf + Barrier(sensorFusionTolerance - sfVec_.maxCoeff()) * weightInMpSfPunish;
@@ -217,7 +222,7 @@ namespace OrderOptDAG_SPACE
             }
         }
 
-        ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.maxRtda_};
+        ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.ReadObj()};
         auto no_thing = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_); // get the processor assignment
         if (resOrderOptWithoutScheduleOpt)
         {

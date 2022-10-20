@@ -287,9 +287,9 @@ namespace OrderOptDAG_SPACE
                 rtda_optimized.reactionTime += rtda.reactionTime;
                 rtda_optimized.dataAge += rtda.dataAge;
             }
-            if (ObjRTDA(rtda_optimized) < ObjRTDA(result_after_optimization_.rtda_))
+            if (ObjRTDA(rtda_optimized) < result_after_optimization_.obj_)
             {
-                result_after_optimization_.rtda_ = rtda_optimized;
+                // result_after_optimization_.rtda_ = rtda_optimized;
                 result_after_optimization_.obj_ = ObjRTDA(rtda_optimized);
                 result_after_optimization_.startTimeVector_ = start_time;
             }

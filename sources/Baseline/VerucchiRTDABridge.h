@@ -226,9 +226,9 @@ OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     DAG bestDAG = FindTheBestDag(allDags, tasksVecVeru, causeEffectChains, processorsAvailable,
                                  reactCost, maxReact, ageCost, maxAge, coreCost);
 
-    res.rtda_ = GetRTDAFromBestDag(bestDAG, causeEffectChains, processorsAvailable);
+    RTDA rtdaOpt = GetRTDAFromBestDag(bestDAG, causeEffectChains, processorsAvailable);
     res.startTimeVector_ = GetInitialEstimate(bestDAG, processorsAvailable);
-    if (res.rtda_.reactionTime < 0 || res.rtda_.dataAge < 0)
+    if (rtdaOpt.reactionTime <= 0 || rtdaOpt.dataAge <= 0)
     {
         res.schedulable_ = false;
     }
@@ -236,7 +236,7 @@ OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     {
         res.schedulable_ = true;
     }
-    res.obj_ = ObjRTDA(res.rtda_);
+    res.obj_ = ObjRTDA(rtdaOpt);
     return res;
 }
 

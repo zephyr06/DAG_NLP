@@ -238,8 +238,7 @@ TEST(Schedule, jobOrder)
     coreNumberAva = 1;
     OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     ScheduleResult res = ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
-    EXPECT(99 >= res.rtda_.reactionTime);
-    EXPECT(99 >= res.rtda_.dataAge);
+    EXPECT(99 * 2 >= res.obj_);
     // EXPECT_LONGS_EQUAL(99, res.rtda_.reactionTime);
     // EXPECT_LONGS_EQUAL(99, res.rtda_.dataAge);
 }
@@ -817,7 +816,29 @@ TEST(CauseAffect_multi, v1)
     initial << 1, 2, 3, 4, 5;
     JobOrderMultiCore jobOrder(tasksInfo, initial);
     IterationStatus<LSchedulingFreeTA> status(dagTasks, tasksInfo, jobOrder, processorNum);
-    EXPECT_LONGS_EQUAL(418 + 417 + 0.5 * (418 + 417), status.ObjWeighted());
+    // start Time Vector is : 0 10 21 33 46
+    // About expect: there are two chains, each chain has a max data age and a max reaction time
+    EXPECT_LONGS_EQUAL(60 * 2 + 50 * 2 + 0.5 * (60 * 4 + 50 * 4), status.ObjWeighted());
+    EXPECT_LONGS_EQUAL(60 * 2 + 50 * 2, status.ReadObj());
+}
+
+TEST(ScheduleDAGLS_LFT, v1)
+{
+    using namespace OrderOptDAG_SPACE;
+    NumCauseEffectChain = 2;
+    int processorNum = 1;
+    considerSensorFusion = 0;
+    weightInMpRTDA = 0.5;
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig"); // single-rate dag
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    dagTasks.printChains();
+
+    ScheduleResult res = ScheduleDAGLS_LFT(dagTasks, processorNum, 1e4, 1e4);
+    PrintSchedule(tasksInfo, res.startTimeVector_);
+    // start Time Vector is : 0 10 21 33 46
+    // About expect: there are two chains, each chain has a max data age and a max reaction time
+    EXPECT_LONGS_EQUAL(364 * 2 + 375 * 2, res.obj_);
 }
 int main()
 {
