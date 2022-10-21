@@ -853,5 +853,7 @@ TEST(optimize_schedule_when_search_job_order_, v1)
 int main()
 {
     TestResult tr;
+    // make sure all tests have the correct setting
+    NumCauseEffectChain = 1;
     return TestRegistry::runAllTests(tr);
 }
