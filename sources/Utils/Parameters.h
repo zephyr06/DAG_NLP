@@ -102,7 +102,7 @@ int whetherRandomNoiseModelSigma = (int)ConfigParameters["whetherRandomNoiseMode
 int whether_ls = (int)ConfigParameters["whether_ls"];
 
 int whether_shuffle_CE_chain = (int)ConfigParameters["whether_shuffle_CE_chain"];
- int NumCauseEffectChain = (int)ConfigParameters["NumCauseEffectChain"];
+int NumCauseEffectChain = (int)ConfigParameters["NumCauseEffectChain"];
 
 const int maxIterations = (int)ConfigParameters["maxIterations"];
 const int saveGraph = (int)ConfigParameters["saveGraph"];
