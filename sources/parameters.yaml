@@ -41,7 +41,7 @@ weightSF_factor: 0
 RtdaWeight: 1e0
 DataAgeThreshold: 1e3
 ReactionTimeThreshold: 1e3
-NumCauseEffectChain: 1
+NumCauseEffectChain: 2
 whether_shuffle_CE_chain: 0
 makespanWeight: 0
 sensorFusionTolerance: 100

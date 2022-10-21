@@ -83,6 +83,7 @@ namespace OrderOptDAG_SPACE
             result_after_optimization_ = ScheduleResult();
             tasksInfo_ = TaskSetInfoDerived();
             p_dagTasks_ = nullptr;
+            cplex_solver_.setOut(env_.getNullStream());
         }
 
         void AddVariables()
