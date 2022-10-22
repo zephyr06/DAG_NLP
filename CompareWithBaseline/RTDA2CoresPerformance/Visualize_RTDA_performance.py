@@ -51,21 +51,21 @@ def extract_average_data_2d(all_data_dict, minTaskNumber, maxTaskNumber, target_
     return data_2d
 
 
-def normalize_data(data_2d):
+def normalize_data(data_2d, reference_method="Verucchi"):
     normalized_data = copy.deepcopy(data_2d)
-    initial_method_idx = 0
+    reference_method_idx = 0
     for i in range(len(methods_name)):
-        if (methods_name[i] == "Initial"):
-            initial_method_idx = i
+        if (methods_name[i] == reference_method):
+            reference_method_idx = i
             break
     for i in range(len(methods_name)):
-        if (i != initial_method_idx):
+        if (i != reference_method_idx):
             for j in range(len(normalized_data[i])):
                 normalized_data[i][j] /= (
-                    normalized_data[initial_method_idx][j] + 0.0)
+                    normalized_data[reference_method_idx][j] + 0.0)
                 # normalized_data[i][j] = min(1.0, normalized_data[i][j])
-    for j in range(len(normalized_data[initial_method_idx])):
-        normalized_data[initial_method_idx][j] = 1.0
+    for j in range(len(normalized_data[reference_method_idx])):
+        normalized_data[reference_method_idx][j] = 1.0
 
     return normalized_data
 
