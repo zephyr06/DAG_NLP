@@ -2,6 +2,7 @@
 #include "sources/Utils/argparse.hpp"
 #include "sources/Optimization/OptimizeOrder.h"
 #include "sources/Baseline/RTSS21IC.h"
+#include "sources/RTA/RTA_DAG_Model.h"
 
 void deleteDirectoryContents(const std::string &dir_path)
 {
@@ -181,23 +182,6 @@ int main(int argc, char *argv[])
                                               numberOfProcessor,
                                               periodMin,
                                               periodMax, coreRequireMax, taskSetType, deadlineType);
-                if (excludeUnschedulable == 1)
-                {
-                    TaskSet &taskSet = tasks.tasks;
-                    TaskSetInfoDerived tasksInfo(taskSet);
-                    std::vector<uint> processorJobVec;
-                    std::optional<JobOrderMultiCore> emptyOrder;
-                    VectorDynamic initialSTV = ListSchedulingLFTPA(tasks, tasksInfo, numberOfProcessor, emptyOrder, processorJobVec);
-                    if ((considerSensorFusion == 0 && (!ExamAll_Feasibility(tasks, tasksInfo, initialSTV, processorJobVec, numberOfProcessor))) ||
-                        (considerSensorFusion != 0 && (!ExamBasicFeasibilityRTSS21IC(tasks))))
-                    {
-                        if (debugMode)
-                        {
-                            std::cout << "Un feasible case, skipped.\n";
-                        }
-                        continue;
-                    }
-                }
                 if (excludeEmptyEdgeDag == 1)
                 {
                     bool whether_empty_edges = true;
@@ -211,6 +195,26 @@ int main(int argc, char *argv[])
                     }
                     if (whether_empty_edges)
                     {
+                        continue;
+                    }
+                }
+                if (excludeUnschedulable == 1)
+                {
+                    rt_num_opt::RTA_DAG_Model rta(tasks);
+                    std::cout << rta.CheckSchedulability() << std::endl;
+
+                    TaskSet &taskSet = tasks.tasks;
+                    TaskSetInfoDerived tasksInfo(taskSet);
+                    std::vector<uint> processorJobVec;
+                    std::optional<JobOrderMultiCore> emptyOrder;
+                    VectorDynamic initialSTV = ListSchedulingLFTPA(tasks, tasksInfo, numberOfProcessor, emptyOrder, processorJobVec);
+                    if ((considerSensorFusion == 0 && (!ExamAll_Feasibility(tasks, tasksInfo, initialSTV, processorJobVec, numberOfProcessor))) ||
+                        (considerSensorFusion != 0 && (!ExamBasicFeasibilityRTSS21IC(tasks))))
+                    {
+                        if (debugMode)
+                        {
+                            std::cout << "Un feasible case, skipped.\n";
+                        }
                         continue;
                     }
                 }
