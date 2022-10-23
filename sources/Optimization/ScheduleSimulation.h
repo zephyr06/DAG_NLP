@@ -8,6 +8,7 @@
 #include "sources/Optimization/JobGroups.h"
 #include "sources/Utils/JobCEC.h"
 #include "sources/Optimization/JobOrder.h"
+#include "sources/Tools/profilier.h"
 
 namespace OrderOptDAG_SPACE
 {
@@ -340,6 +341,7 @@ namespace OrderOptDAG_SPACE
     RunQueue::ID_INSTANCE_PAIR PopTaskLS(RunQueue &runQueue, const JobOrderMultiCore &jobOrder,
                                          LLint timeNow, std::vector<LLint> &jobScheduled, const TaskSetInfoDerived &tasksInfo)
     {
+        BeginTimerAppInProfiler;
         std::vector<RunQueue::ID_INSTANCE_PAIR> &taskQueue = runQueue.taskQueue;
         if (taskQueue.empty())
             CoutError("TaskQueue is empty!");
@@ -368,6 +370,8 @@ namespace OrderOptDAG_SPACE
         }
         jobPop = taskQueue[leastIndexJobInQueue];
         taskQueue.erase(taskQueue.begin() + leastIndexJobInQueue);
+
+        EndTimerAppInProfiler;
         return jobPop;
     };
 
@@ -376,7 +380,7 @@ namespace OrderOptDAG_SPACE
                                       TaskSetInfoDerived &tasksInfo, int processorNum, const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,
                                       boost::optional<std::vector<uint> &> processorIdVec = boost::none)
     {
-
+        BeginTimerAppInProfiler;
         const TaskSet &tasks = dagTasks.tasks;
         VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
 
@@ -448,6 +452,7 @@ namespace OrderOptDAG_SPACE
         {
             initial = GenerateVectorDynamic(tasksInfo.variableDimension);
         }
+        EndTimerAppInProfiler;
         return initial;
     }
 
