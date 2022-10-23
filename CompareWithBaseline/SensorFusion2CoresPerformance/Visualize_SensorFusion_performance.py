@@ -63,9 +63,10 @@ def normalize_data(data_2d, reference_method="Verucchi"):
             for j in range(len(normalized_data[i])):
                 normalized_data[i][j] /= (
                     normalized_data[reference_method_idx][j] + 0.0)
+                normalized_data[i][j] *= 100.0
                 # normalized_data[i][j] = min(1.0, normalized_data[i][j])
     for j in range(len(normalized_data[reference_method_idx])):
-        normalized_data[reference_method_idx][j] = 1.0
+        normalized_data[reference_method_idx][j] = 100.0
 
     return normalized_data
 
@@ -145,4 +146,4 @@ if __name__ == "__main__":
     plot_figure(schedulable_data_2d, "Schedulable Ratio")
     plot_figure(objective_data_2d, "RTDA")
     plot_figure(time_data_2d, "Time")
-    plot_figure(normalized_objective_data_2d, "Normalized RTDA")
+    plot_figure(normalized_objective_data_2d, "Normalized RTDA %")
