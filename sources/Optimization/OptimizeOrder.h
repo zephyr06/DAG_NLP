@@ -99,6 +99,7 @@ namespace OrderOptDAG_SPACE
         return false;
     }
 
+    // exams whether switching j1 to the back of j2 is unschedulable
     bool WhetherSkipSwitch(const TaskSetInfoDerived &tasksInfo, const JobCEC &j1, const JobCEC &j2)
     {
         if (j1 == j2)
@@ -109,7 +110,15 @@ namespace OrderOptDAG_SPACE
             return true;
         Interval v1(tasksInfo.tasks[j1.taskId].period * j1.jobId, tasksInfo.tasks[j1.taskId].period);
         Interval v2(tasksInfo.tasks[j2.taskId].period * j2.jobId, tasksInfo.tasks[j2.taskId].period);
-        if (v2.start > v1.start + v1.length)
+        if (v2.start > v1.start + v1.length) //  - tasksInfo.tasks[j1.taskId].executionTime - tasksInfo.tasks[j2.taskId].executionTime
+            return true;
+        double c1 = tasksInfo.tasks[j1.taskId].executionTime;
+        double c2 = tasksInfo.tasks[j2.taskId].executionTime;
+        double d1 = tasksInfo.tasks[j1.taskId].deadline;
+
+        double startTimeJ1Min = v2.start + c2;
+        // schedulability requires satisfying this constraint: sMin + c1 <= s1+c1 <= D1
+        if (startTimeJ1Min + c1 > v1.start + d1)
             return true;
         return false;
     }

@@ -850,6 +850,34 @@ TEST(optimize_schedule_when_search_job_order_, v1)
     ScheduleResult res = ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, processorNum);
     EXPECT_LONGS_EQUAL(5 + 4, res.obj_);
 }
+
+TEST(WhetherSkipSwitch, v2)
+{
+    using namespace OrderOptDAG_SPACE;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v19.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
+    PrintSchedule(tasksInfo, initial);
+    JobOrderMultiCore jobOrder(tasksInfo, initial);
+    JobCEC j00(0, 0);
+    JobCEC j01(0, 1);
+    JobCEC j10(1, 0);
+    JobCEC j11(1, 1);
+    JobCEC j20(2, 0);
+    EXPECT(WhetherSkipSwitch(tasksInfo, j00, j20));
+    EXPECT(!WhetherSkipSwitch(tasksInfo, j20, j00));
+    EXPECT(!WhetherSkipSwitch(tasksInfo, j00, j10));
+    EXPECT(!WhetherSkipSwitch(tasksInfo, j10, j00));
+    EXPECT(WhetherSkipSwitch(tasksInfo, j10, j11));
+    // EXPECT(WhetherSkipSwitch(tasksInfo, j20, j21));
+    // EXPECT(WhetherSkipSwitch(tasksInfo, j21, j20));
+    // EXPECT(WhetherSkipSwitch(tasksInfo, j00, j00));
+    // EXPECT(WhetherSkipSwitch(tasksInfo, j00, j21));
+    // EXPECT(!WhetherSkipSwitch(tasksInfo, j00, j20));
+    // EXPECT(!WhetherSkipSwitch(tasksInfo, j01, j20));
+}
 int main()
 {
     TestResult tr;
