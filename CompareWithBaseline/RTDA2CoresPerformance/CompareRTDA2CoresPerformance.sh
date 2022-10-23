@@ -4,7 +4,7 @@
 # ************** Adjust settings there **************
 title="RTDA2CoresPerformance"
 MinTaskNumber=3
-MaxTaskNumber=10
+MaxTaskNumber=30
 ## no separator '/' at the end of the path
 #ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
 ROOT_PATH="/home/dong/workspace/DAG_NLP"
@@ -13,8 +13,8 @@ methods_dir_name=( "Initial_Res" "OrderOpt_Res" "Verucchi_Res" "OrderOptWithoutS
 makeProgressTimeLimit=60
 kVerucchiTimeLimit=60
 coreNumberAva=2
-useOrderOptResultInNoScheduleOpt=1 # 0 will re-run order opt without schedule opt (time consuming); otherwise 1 will lose time informaction for no-schedule-opt mode
-keep_current_result_and_only_plot=1 # if true, will plot result files in $history_result_directory
+useOrderOptResultInNoScheduleOpt=0 # 0 will re-run order opt without schedule opt (time consuming); otherwise 1 will lose time informaction for no-schedule-opt mode
+keep_current_result_and_only_plot=0 # if true, will plot result files in $history_result_directory
 history_result_directory="$ROOT_PATH/CompareWithBaseline/RTDA2CoresPerformance" 
 ## setting for generating task sets
 taskSetType=3
