@@ -200,9 +200,8 @@ int main(int argc, char *argv[])
                 }
                 if (excludeUnschedulable == 1)
                 {
-                    rt_num_opt::RTA_DAG_Model rta(tasks);
-                    std::cout << rta.CheckSchedulability() << std::endl;
-
+                    // rt_num_opt::RTA_DAG_Model rta(tasks);
+                    // std::cout << rta.CheckSchedulability() << std::endl;
                     TaskSet &taskSet = tasks.tasks;
                     TaskSetInfoDerived tasksInfo(taskSet);
                     std::vector<uint> processorJobVec;
