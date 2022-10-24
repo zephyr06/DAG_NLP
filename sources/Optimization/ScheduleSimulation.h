@@ -376,11 +376,13 @@ namespace OrderOptDAG_SPACE
     };
 
     // TODO: when two jobs have same priority, choose the one with higher precedence priority
+    // TODO: when the schedule is infeasible, terminate early
     VectorDynamic ListSchedulingLFTPA(DAG_Model &dagTasks,
                                       TaskSetInfoDerived &tasksInfo, int processorNum, const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,
                                       boost::optional<std::vector<uint> &> processorIdVec = boost::none)
     {
         BeginTimerAppInProfiler;
+        int maxRunQueueSize = 0;
         const TaskSet &tasks = dagTasks.tasks;
         VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
 
@@ -400,6 +402,7 @@ namespace OrderOptDAG_SPACE
         for (LLint timeNow = timeInitial; timeNow < tasksInfo.hyperPeriod;)
         {
             AddTasksToRunQueue(runQueue, tasks, timeNow, eventPool);
+            maxRunQueueSize = std::max((int)(runQueue.size()), maxRunQueueSize);
 
             for (int processorId = 0; processorId < processorNum; processorId++)
             {
@@ -453,6 +456,7 @@ namespace OrderOptDAG_SPACE
             initial = GenerateVectorDynamic(tasksInfo.variableDimension);
         }
         EndTimerAppInProfiler;
+        std::cout << "Max runqueue size: " << maxRunQueueSize << " Final runqueue size: " << runQueue.size() << std::endl;
         return initial;
     }
 

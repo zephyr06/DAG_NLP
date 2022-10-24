@@ -20,7 +20,7 @@ namespace OrderOptDAG_SPACE
     struct IterationStatus
     {
         DAG_Model dagTasks_;
-        JobOrderMultiCore jobOrder_;
+        JobOrderSerialPair jobOrder_;
         int processorNum_;
         VectorDynamic startTimeVector_;
         std::vector<uint> processorJobVec_;
@@ -30,7 +30,7 @@ namespace OrderOptDAG_SPACE
         bool schedulable_; // only basic schedulability
         VectorDynamic sfVec_;
 
-        IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const JobOrderMultiCore &jobOrder, int processorNum) : dagTasks_(dagTasks), jobOrder_(jobOrder), processorNum_(processorNum)
+        IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const JobOrderSerialPair &jobOrder, int processorNum) : dagTasks_(dagTasks), jobOrder_(jobOrder), processorNum_(processorNum)
         {
             // startTimeVector_ = ListSchedulingGivenOrder(dagTasks, tasksInfo, jobOrder_);
             processorJobVec_.clear();
@@ -140,7 +140,7 @@ namespace OrderOptDAG_SPACE
             PrintSchedule(tasksInfo, initialSTV);
         }
 
-        JobOrderMultiCore jobOrderRef(tasksInfo, initialSTV);
+        JobOrderSerialPair jobOrderRef(tasksInfo, initialSTV);
         IterationStatus<SchedulingAlgorithm> statusPrev(dagTasks, tasksInfo, jobOrderRef, processorNum);
         if (!statusPrev.schedulable_)
         {
@@ -149,7 +149,7 @@ namespace OrderOptDAG_SPACE
 
         bool findNewUpdate = true;
 
-        auto ExamAndApplyUpdate = [&](JobOrderMultiCore jobOrderCurr)
+        auto ExamAndApplyUpdate = [&](JobOrderSerialPair jobOrderCurr)
         {
             IterationStatus<SchedulingAlgorithm> statusCurr(dagTasks, tasksInfo, jobOrderCurr, processorNum);
 
@@ -201,46 +201,22 @@ namespace OrderOptDAG_SPACE
                 {
                     if (CheckTimeOut())
                         break;
-                    JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
+                    JobOrderSerialPair jobOrderCurr = statusPrev.jobOrder_;
                     if (WhetherSkipSwitch(tasksInfo, jobOrderCurr[i], jobOrderCurr[j]))
                         continue;
-                    jobOrderCurr.ChangeJobStartOrder(i, j);
+                    // jobOrderCurr.ChangeJobStartOrder(i, j);
+                    JobCEC jobCurr = jobOrderCurr.Remove(i);
+                    jobOrderCurr.Insert(jobCurr, j);
+                    // iterate through possible permutations for jobCurr
+                    double startTime = 0;
+                    if (j > 0)
+                    {
+                        start = GetStartTime(jobOrderCurr[j - 1], statusPrev.startTimeVector_, tasksInfo);
+                    }
+                    double finishTime = GetDeadline(jobCurr, tasksInfo);
+                    if (j < tasksInfo.length - 1)
+                        finishTime = min(finishTime, GetStartTime(jobOrderCurr[j + 1], statusPrev.startTimeVector_, tasksInfo));
                     ExamAndApplyUpdate(jobOrderCurr);
-                }
-            }
-            if (processorNum > 1)
-            {
-                // Initialize it with a pair of jobs
-                if (statusPrev.jobOrder_.sizeSerial() == 0)
-                {
-                    for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
-                    {
-                        if (time_out_flag)
-                            break;
-                        for (LLint j = 0; j < static_cast<LLint>(jobOrderRef.size()); j++)
-                        {
-                            if (CheckTimeOut())
-                                break;
-                            JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
-                            if (WhetherSkipSwitch(tasksInfo, jobOrderCurr[i], jobOrderCurr[j]))
-                                continue;
-                            jobOrderCurr.insertNP(i);
-                            jobOrderCurr.insertNP(j);
-                            jobOrderCurr.ChangeJobOrder(i, j);
-                            ExamAndApplyUpdate(jobOrderCurr); // update outside variables
-                        }
-                    }
-                }
-                else
-                {
-                    for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
-                    {
-                        if (CheckTimeOut())
-                            break;
-                        JobOrderMultiCore jobOrderCurr = statusPrev.jobOrder_;
-                        jobOrderCurr.jobOrderSerial_[i] = !jobOrderCurr.jobOrderSerial_[i];
-                        ExamAndApplyUpdate(jobOrderCurr); // update outside variables
-                    }
                 }
             }
         }

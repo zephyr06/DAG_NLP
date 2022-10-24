@@ -75,6 +75,7 @@ namespace OrderOptDAG_SPACE
         return GetStartTime(jobCEC, x, tasksInfo) + tasksInfo.tasks[jobCEC.taskId].executionTime;
     }
 
+    // time_pair: start_time, finish_time
     std::vector<std::pair<std::pair<double, double>, JobCEC>> ObtainAllJobSchedule(TaskSetInfoDerived &tasksInfo, VectorDynamic &x)
     {
         // souted start time

@@ -148,4 +148,65 @@ namespace OrderOptDAG_SPACE
 
         // size_t sizeNP() const { return jobOrderNonParall_.size(); }
     };
+
+    class JobOrderSerialPair : public JobOrder
+    {
+        std::unordered_map<JobCEC, JobCEC> firstSerialJobMap_;
+
+    public:
+        // O(N^2)
+        JobOrderSerialPair(TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector)
+        {
+            tasksInfo_ = tasksInfo;
+            std::vector<std::pair<std::pair<double, double>, JobCEC>> timeJobVector = ObtainAllJobSchedule(tasksInfo, startTimeVector);
+            timeJobVector = SortJobSchedule(timeJobVector);
+            jobOrder_.reserve(timeJobVector.size());
+            firstSerialJobMap_.reserve(timeJobVector.size());
+
+            for (LLint i = 0; i < static_cast<LLint>(timeJobVector.size()); i++)
+            {
+                jobOrder_.push_back(timeJobVector[i].second);
+                double cur_job_finish_time = timeJobVector[i].first.first;
+                for (LLint j = i + 1; j < static_cast<LLint>(timeJobVector.size()); j++)
+                {
+                    if (timeJobVector[j].first.first >= cur_job_finish_time)
+                    {
+                        firstSerialJobMap_[timeJobVector[i].second] = timeJobVector[j].second;
+                    }
+                }
+            }
+            UpdateIndexMap();
+        }
+
+        void Remove(JobCEC &job)
+        {
+            LLint position = jobIndexMap_[job];
+            Remove(position);
+        }
+        JobCEC Remove(LLint position)
+        {
+            JobCEC job = jobOrder_[position];
+            jobOrder_.erase(jobOrder_.begin() + position);
+            for (LLint i = 0; i < position; i++)
+            {
+                if (firstSerialJobMap_[jobOrder_[i]] == job)
+                    firstSerialJobMap_[jobOrder_[i]] = firstSerialJobMap_[jobOrder_[i + 1]];
+            }
+            //  probably can be merged with InsertToJobOrder
+            UpdateIndexMap();
+            return job;
+        }
+        // simply insert jobCurr to jobOrder_ without affecting firstSerialJobMap_
+        void InsertToJobOrder(JobCEC &job, LLint newPosition)
+        {
+            jobOrder_.insert(jobOrder_.begin() + newPosition, job);
+            UpdateIndexMap();
+        }
+
+        JobCEC ObtainFirstFinishJob(JobCEC job)
+        {
+            return firstSerialJobMap_[job];
+        }
+    };
+
 } // namespace OrderOptDAG_SPACE
