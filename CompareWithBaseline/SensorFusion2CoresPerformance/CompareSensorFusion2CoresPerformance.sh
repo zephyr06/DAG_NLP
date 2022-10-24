@@ -5,20 +5,21 @@
 title="SensorFusion2CoresPerformance"
 MinTaskNumber=3
 MaxTaskNumber=20
+TaskNumberArray=(30)
 ## no separator '/' at the end of the path
 #ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
 ROOT_PATH="/home/dong/workspace/DAG_NLP"
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks"
 methods_dir_name=( "Initial_Res" "OrderOpt_Res" "NLP_Res" "OrderOptWithoutScheudleOpt_Res" ) # exclude Verucchi_Res in sensor fusion part
-makeProgressTimeLimit=60
-kVerucchiTimeLimit=60
+makeProgressTimeLimit=100
+kVerucchiTimeLimit=100
 coreNumberAva=2
 useOrderOptResultInNoScheduleOpt=0 # 0 will rerun order opt without schedule opt (time consuming); otherwise 1 will lose time informaction for no-schedule-opt mode
-keep_current_result_and_only_plot=1 # if true, will plot result files in $history_result_directory
+keep_current_result_and_only_plot=0 # if true, will plot result files in $history_result_directory
 history_result_directory="$ROOT_PATH/CompareWithBaseline/SensorFusion2CoresPerformance" 
 ## setting for generating task sets
 taskSetType=3
-taskSetNumber=7
+taskSetNumber=3
 randomSeed=-1 # negative means time seed
 # ***************************************************
 # ***************************************************
@@ -48,6 +49,7 @@ cp parameters.yaml $ROOT_PATH/sources/parameters.yaml
 # major parameter
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "considerSensorFusion" --value 1
 
+# python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "debugMode" --value 1
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "coreNumberAva" --value $coreNumberAva
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "TaskSetType" --value $taskSetType
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "makeProgressTimeLimit" --value $makeProgressTimeLimit
@@ -69,7 +71,8 @@ perform_optimization() {
   sleep 1
 }
 
-for (( jobNumber=$MinTaskNumber; jobNumber<=$MaxTaskNumber; jobNumber++ ))
+# for (( jobNumber=$MinTaskNumber; jobNumber<=$MaxTaskNumber; jobNumber++ ))
+for jobNumber in ${TaskNumberArray[@]}
 do
 	# generate task set
   $ROOT_PATH/release/tests/GenerateTaskSet --N $jobNumber --taskSetType $taskSetType \
