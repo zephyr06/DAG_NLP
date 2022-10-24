@@ -169,9 +169,11 @@ namespace OrderOptDAG_SPACE
         bool findNewUpdate = true;
 
         LLint countMakeProgress = 0;
+        LLint countCplexOpt = 0;
         auto ExamAndApplyUpdate = [&](JobOrderMultiCore jobOrderCurr)
         {
             IterationStatus<SchedulingAlgorithm> statusCurr(dagTasks, tasksInfo, jobOrderCurr, processorNum);
+            countCplexOpt++;
 
             // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
             if (MakeProgress<SchedulingAlgorithm>(statusPrev, statusCurr))
@@ -285,13 +287,14 @@ namespace OrderOptDAG_SPACE
             scheduleRes = result_after_optimization;
             if (!ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum))
             {
-                CoutWarning("Found one unschedulable case after optimization!");
+                CoutError("Found one unschedulable case after optimization!");
             }
         }
 
         scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
         std::cout << "Outermost while loop count: " << countOutermostWhileLoop << std::endl;
         std::cout << "Make progress count: " << countMakeProgress << std::endl;
+        std::cout << "Cplex optimization count: " << countCplexOpt << std::endl;
         return scheduleRes;
     }
 
