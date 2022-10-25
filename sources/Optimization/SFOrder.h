@@ -91,6 +91,15 @@ namespace OrderOptDAG_SPACE
             }
         }
 
+        LLint GetJobStartInstancePosition(JobCEC &job)
+        {
+            return jobSFMap_[job].startInstanceIndex;
+        }
+        LLint GetJobFinishInstancePosition(JobCEC &job)
+        {
+            return jobSFMap_[job].finishInstanceIndex;
+        }
+
         JobCEC RemoveJob(JobCEC job);
 
         void InsertStart(JobCEC job, LLint position);
