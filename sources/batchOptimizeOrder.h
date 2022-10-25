@@ -13,7 +13,8 @@
 #include "sources/Baseline/OptimizeSA.h"
 #include "sources/Baseline/VerucchiScheduling.h"
 #include "sources/Baseline/RTSS21IC.h"
-#include "sources/Optimization/OptimizeOrder.h"
+// #include "sources/Optimization/OptimizeOrder.h"
+#include "sources/Optimization/OptimizeSFOrder.h"
 // #include "sources/batchOptimize.h"
 #include "sources/Utils/BatchUtils.h"
 #include "sources/Baseline/VerucchiRTDABridge.h"
@@ -71,10 +72,12 @@ void BatchOptimizeOrder()
                     else if (batchTestMethod == 1)
                     {
                         doScheduleOptimization = 1;
-                        if (processorAssignmentMode == 0)
-                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks, coreNumberAva, resOrderOptWithoutScheduleOpt);
-                        else if (processorAssignmentMode == 1)
-                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, coreNumberAva, resOrderOptWithoutScheduleOpt);
+                        // if (processorAssignmentMode == 0)
+                        //     res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks, coreNumberAva, resOrderOptWithoutScheduleOpt);
+                        // else if (processorAssignmentMode == 1)
+                        //     res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, coreNumberAva, resOrderOptWithoutScheduleOpt);
+
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva, resOrderOptWithoutScheduleOpt);
                     }
                     else if (batchTestMethod == 2)
                     {

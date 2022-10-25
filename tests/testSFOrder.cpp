@@ -5,6 +5,7 @@
 #include "sources/Optimization/ScheduleSimulation.h"
 
 using namespace OrderOptDAG_SPACE;
+using namespace OrderOptDAG_SPACE::OptimizeSF;
 
 TEST(SFOrder, constructor_v1)
 {
