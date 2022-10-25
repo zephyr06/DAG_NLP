@@ -16,9 +16,6 @@
 
 namespace OrderOptDAG_SPACE
 {
-    VectorDynamic ScheduleWithSFOrder(DAG_Model &dagTasks,
-                                      TaskSetInfoDerived &tasksInfo, int processorNum, const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,
-                                      boost::optional<std::vector<uint> &> processorIdVec = boost::none);
     struct IterationStatus
     {
         DAG_Model dagTasks_;
@@ -36,7 +33,7 @@ namespace OrderOptDAG_SPACE
         {
             // startTimeVector_ = ListSchedulingGivenOrder(dagTasks, tasksInfo, jobOrder_);
             processorJobVec_.clear();
-            startTimeVector_ = ScheduleWithSFOrder(dagTasks, tasksInfo, processorNum_, jobOrder_, processorJobVec_);
+            startTimeVector_ = SFOrderScheduling(dagTasks, tasksInfo, processorNum_, jobOrder_, processorJobVec_);
 
             for (uint i = 0; i < dagTasks.chains_.size(); i++)
             {
@@ -116,7 +113,7 @@ namespace OrderOptDAG_SPACE
 
         TaskSet &tasks = dagTasks.tasks;
         TaskSetInfoDerived tasksInfo(tasks);
-        VectorDynamic initialSTV = ScheduleWithSFOrder(dagTasks, tasksInfo, processorNum);
+        VectorDynamic initialSTV = SFOrderScheduling(dagTasks, tasksInfo, processorNum);
         if (debugMode == 1)
         {
             std::cout << "Initial schedule: " << std::endl;
@@ -197,7 +194,7 @@ namespace OrderOptDAG_SPACE
         }
 
         ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.ReadObj(), statusPrev.processorJobVec_};
-        auto no_thing = ScheduleWithSFOrder(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_); // get the processor assignment
+        auto no_thing = SFOrderScheduling(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_); // get the processor assignment
         if (resOrderOptWithoutScheduleOpt)
         {
             scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
