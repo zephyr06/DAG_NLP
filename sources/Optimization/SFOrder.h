@@ -14,8 +14,8 @@ namespace OrderOptDAG_SPACE
     struct TimeInstance
     {
         char type; // 's' or 'f'
-        double time;
         JobCEC job;
+        double time;
 
         double getTime()
         {
@@ -27,47 +27,68 @@ namespace OrderOptDAG_SPACE
         }
     };
 
-    struct SFPair
-    {
-        TimeInstance startInstance;
-        TimeInstance startFinishInstance;
-    };
-
     class SFOrder
     {
+    private:
         TaskSetInfoDerived tasksInfo_;
-        std::vector<TimeInstance> instanceOrder_;
-        std::unordered_map<TimeInstance, LLint> instanceIndexMap_;
+        struct SFPair
+        {
+            LLint startInstanceIndex;
+            LLint finishInstanceIndex;
+        };
         std::unordered_map<JobCEC, SFPair> jobSFMap_;
 
     public:
+        std::vector<TimeInstance> instanceOrder_;
         SFOrder() {}
+
         // O(n log(n))
         SFOrder(TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector) : tasksInfo_(tasksInfo)
         {
             instanceOrder_.reserve(tasksInfo.length * 2);
+            instanceIndexMap_.reserve(tasksInfo.length * 2);
+            jobSFMap_.reserve(tasksInfo.length);
             for (int i = 0; i < tasksInfo.N; i++)
             {
                 for (uint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
                 {
                     JobCEC job(i, j);
-                    instanceOrder_.push_back(TimeInstance('s', GetStartTime(jobc, startTimeVector, tasksInfo), job));
-                    instanceOrder_.push_back(TimeInstance('f', GetFinishTime(jobc, startTimeVector, tasksInfo), job));
+                    instanceOrder_.push_back(TimeInstance('s', job, GetStartTime(jobc, startTimeVector, tasksInfo)));
+                    instanceOrder_.push_back(TimeInstance('f', job, GetFinishTime(jobc, startTimeVector, tasksInfo)));
                 }
             }
             std::sort(instanceOrder_.begin(), instanceOrder_.end(), TimeInstance::compare);
 
-            for (uint i = 0; i < instanceOrder_.size(); i++)
+            EstablishJobSFMap();
+        }
+
+        // O(n^2), could be improved to be O(n)
+        void EstablishJobSFMap()
+        {
+            jobSFMap_.reserve(tasksInfo.length);
+            for (int i = 0; i < tasksInfo.N; i++)
             {
+                for (uint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
+                {
+                    JobCEC job(i, j);
+                    SFPair sfPair;
+                    for (LLint i = 0; i < tasksInfo.length * 2; i++)
+                    {
+                        TimeInstance &inst = instanceOrder_[i];
+                        if (inst.job == job)
+                        {
+                            if (inst.type == 's')
+                                sfPair.startInstanceIndex = i;
+                            else if (inst.type == 'f')
+                            {
+                                sfPair.finishInstanceIndex = i;
+                                jobSFMap_[job] = sfPair;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
-            // std::vector<std::pair<std::pair<double, double>, JobCEC>> timeJobVector = ObtainAllJobSchedule(tasksInfo, startTimeVector);
-            // timeJobVector = SortJobSchedule(timeJobVector);
-            // jobOrder_.reserve(timeJobVector.size());
-            // for (LLint i = 0; i < static_cast<LLint>(timeJobVector.size()); i++)
-            // {
-            //     jobOrder_.push_back(timeJobVector[i].second);
-            // }
-            // UpdateIndexMap();
         }
 
         JobCEC RemoveJob(JobCEC job);
