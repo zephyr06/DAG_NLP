@@ -40,7 +40,7 @@ namespace OrderOptDAG_SPACE
             AddDBFConstraints();
             AddDDLConstraints();
             AddCauseEffectiveChainConstraints();
-            if (considerSensorFusion > 0)
+            if (considerSensorFusion)
             {
                 AddSensorFusionConstraints();
             }
@@ -305,7 +305,8 @@ namespace OrderOptDAG_SPACE
                 }
                 rtda_vector.push_back(resM);
             }
-            if (ObjRTDA(rtda_vector) < result_after_optimization_.obj_)
+            if ((considerSensorFusion && !result_to_be_optimized_.schedulable_) ||
+                ObjRTDA(rtda_vector) < result_after_optimization_.obj_)
             {
                 result_after_optimization_.obj_ = ObjRTDA(rtda_vector);
                 result_after_optimization_.startTimeVector_ = start_time;

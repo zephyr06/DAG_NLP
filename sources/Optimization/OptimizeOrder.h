@@ -47,7 +47,7 @@ namespace OrderOptDAG_SPACE
                 sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
                 // objVal_ += ObjSF(sfVec_);
             }
-            schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
+            schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_, sensorFusionTolerance, FreshTol);
 
             // TODO add a LP optimization, update (startTimeVector_  jobOrder_)
             if (doScheduleOptimization)
@@ -77,7 +77,7 @@ namespace OrderOptDAG_SPACE
                         sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
                         // objVal_ += ObjSF(sfVec_);
                     }
-                    schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
+                    schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_, sensorFusionTolerance, FreshTol);
                     jobOrder_ = JobOrderMultiCore(tasksInfo, startTimeVector_);
                 }
             }
@@ -271,10 +271,10 @@ namespace OrderOptDAG_SPACE
         }
 
         ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.ReadObj(), statusPrev.processorJobVec_};
+        scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
         auto no_thing = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_); // get the processor assignment
         if (resOrderOptWithoutScheduleOpt)
         {
-            scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
             *resOrderOptWithoutScheduleOpt = scheduleRes;
         }
 
@@ -285,9 +285,9 @@ namespace OrderOptDAG_SPACE
             schedule_optimizer.Optimize(dagTasks, scheduleRes);
             result_after_optimization = schedule_optimizer.getOptimizedResult();
             scheduleRes = result_after_optimization;
-            if (!ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum))
+            if (!ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol))
             {
-                CoutError("Found one unschedulable case after optimization!");
+                CoutWarning("Found one unschedulable case after optimization!");
             }
         }
 
