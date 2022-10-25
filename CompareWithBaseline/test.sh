@@ -24,6 +24,8 @@ randomSeed=-1 # negative means time seed
 
 TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
 
-for num in ${TaskNumberArray[@]} ; do
-  echo $num
-done
+# for num in ${TaskNumberArray[@]} ; do
+#   echo $num
+# done
+echo ${TaskNumberArray}
+echo ${TaskNumberArray[@]}

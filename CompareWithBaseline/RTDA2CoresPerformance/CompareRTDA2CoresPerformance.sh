@@ -5,7 +5,7 @@
 title="RTDA2CoresPerformance"
 MinTaskNumber=3
 MaxTaskNumber=30
-TaskNumberArray=(30)
+TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
 ## no separator '/' at the end of the path
 #ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
 ROOT_PATH="/home/dong/workspace/DAG_NLP"
@@ -15,10 +15,10 @@ makeProgressTimeLimit=100
 kVerucchiTimeLimit=100
 coreNumberAva=2
 keep_current_result_and_only_plot=0 # if true, will plot result files in $history_result_directory
-history_result_directory="$ROOT_PATH/CompareWithBaseline/RTDA2CoresPerformance" 
+history_result_directory="$ROOT_PATH/CompareWithBaseline/RTDA2CoresPerformance/backup/N3_10_30_20221023" 
 ## setting for generating task sets
 taskSetType=3
-taskSetNumber=3
+taskSetNumber=5
 randomSeed=-1 # negative means time seed
 # ***************************************************
 # ***************************************************
@@ -28,7 +28,8 @@ if [[ $keep_current_result_and_only_plot == 1 || $keep_current_result_and_only_p
   echo "Plot from history in directory: $history_result_directory"
   # visualize history result
   python $ROOT_PATH/CompareWithBaseline/$title/Visualize_RTDA_performance.py --minTaskNumber $MinTaskNumber \
-    --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $history_result_directory
+    --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $history_result_directory \
+    --taskNumberList ${TaskNumberArray[@]}
   cp $ROOT_PATH/CompareWithBaseline/$title/*.pdf $ROOT_PATH/CompareWithBaseline/$title/dagTasks/
   exit
 fi
@@ -47,6 +48,7 @@ cp parameters.yaml $ROOT_PATH/sources/parameters.yaml
 # major parameter
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "considerSensorFusion" --value 0
 
+# python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "debugMode" --value 1
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "coreNumberAva" --value $coreNumberAva
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "TaskSetType" --value $taskSetType
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "makeProgressTimeLimit" --value $makeProgressTimeLimit
@@ -61,7 +63,7 @@ if [[ ! -d $ROOT_PATH/release ]]; then ./build_release_target.sh; fi
 perform_optimization() {
   # Optimize energy consumption
   cd $ROOT_PATH/release
-  cmake --build . --config Release -- -j 8
+  cmake --build . --config Release -- -j 6
   ./tests/tBatch1
   cd $ROOT_PATH/CompareWithBaseline/$title
   sleep 1
@@ -95,5 +97,6 @@ done
 
 # visualize the result
 python $ROOT_PATH/CompareWithBaseline/$title/Visualize_RTDA_performance.py --minTaskNumber $MinTaskNumber \
-  --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $ROOT_PATH/CompareWithBaseline/$title
+  --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $ROOT_PATH/CompareWithBaseline/$title \
+    --taskNumberList ${TaskNumberArray[@]}
 cp $ROOT_PATH/CompareWithBaseline/$title/*.pdf $ROOT_PATH/CompareWithBaseline/$title/dagTasks/

@@ -9,12 +9,12 @@ import argparse
 sys.path.append("./")
 
 
-def read_data(minTaskNumber, maxTaskNumber):
+def read_data(taskNumberList):
     all_data_dict = {}
     for method in methods_name:
         folderName = method + "_Res"
         taskNumber_result_dict = {}
-        for task_number in range(minTaskNumber, maxTaskNumber + 1):
+        for task_number in taskNumberList:
             file_path = result_file_path + "/" + \
                 folderName + "/N" + str(task_number) + ".txt"
             file = open(file_path, "r")
@@ -40,11 +40,11 @@ def Average(lst):
     return sum(lst) / len(lst)
 
 
-def extract_average_data_2d(all_data_dict, minTaskNumber, maxTaskNumber, target_obj):
+def extract_average_data_2d(all_data_dict, taskNumberList, target_obj):
     data_2d = []
     for method in methods_name:
         target_data = []
-        for task_number in range(minTaskNumber, maxTaskNumber + 1):
+        for task_number in taskNumberList:
             raw_data = all_data_dict[method][task_number][target_obj]
             target_data.append(Average(raw_data))
         data_2d.append(target_data)
@@ -71,11 +71,10 @@ def normalize_data(data_2d, reference_method="Verucchi"):
     return normalized_data
 
 
-def plot_figure(data_to_plot, ylabel_name):
+def plot_figure(data_to_plot, taskNumberList, ylabel_name):
     dataset_pd = pd.DataFrame()
     optimizer_name = list(methods_name)
-    dataset_pd.insert(0, "index", np.linspace(
-        minTaskNumber, maxTaskNumber, maxTaskNumber - minTaskNumber + 1))
+    dataset_pd.insert(0, "index", taskNumberList)
     for i in range(len(data_to_plot)):
         dataset_pd.insert(0, optimizer_name[i], data_to_plot[i])
         splot = sns.lineplot(data=dataset_pd, x="index", y=optimizer_name[i], marker=marker_list[i % len(marker_list)],
@@ -114,10 +113,18 @@ parser.add_argument('--result_file_path', type=str, default="/home/dong/workspac
                     help='top directory of result files')
 # parser.add_argument('--result_file_path', type=str, default="/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/RTDA2CoresPerformance",
 #                     help='project root path')
+parser.add_argument('--taskNumberList', type=int, nargs='+', default=[],  # [3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30],
+                    help='The actual task number list in the result files')
 
 args = parser.parse_args()
 minTaskNumber = args.minTaskNumber
 maxTaskNumber = args.maxTaskNumber
+taskNumberList = args.taskNumberList
+if (len(taskNumberList) > 0):
+    minTaskNumber = taskNumberList[0]
+    maxTaskNumber = taskNumberList[-1]
+else:
+    taskNumberList = list(range(minTaskNumber, maxTaskNumber+1))
 title = args.title
 result_file_path = args.result_file_path
 methods_name = ("Initial", "OrderOptWithoutScheudleOpt", "NLP",
@@ -126,17 +133,17 @@ marker_list = ["o", "s", "D", "v"]  #
 color_list = ["#0084DB", "limegreen", "y", "r"]  #
 
 if __name__ == "__main__":
-    all_data_dict = read_data(minTaskNumber, maxTaskNumber)
+    all_data_dict = read_data(taskNumberList)
 
     schedulable_data_2d = extract_average_data_2d(
-        all_data_dict, minTaskNumber, maxTaskNumber, "Schedulable")
+        all_data_dict, taskNumberList, "Schedulable")
     objective_data_2d = extract_average_data_2d(
-        all_data_dict, minTaskNumber, maxTaskNumber, "Objective")
+        all_data_dict, taskNumberList, "Objective")
     time_data_2d = extract_average_data_2d(
-        all_data_dict, minTaskNumber, maxTaskNumber, "Time")
+        all_data_dict, taskNumberList, "Time")
     normalized_objective_data_2d = normalize_data(objective_data_2d)
 
-    plot_figure(schedulable_data_2d, "Schedulable Ratio")
-    plot_figure(objective_data_2d, "RTDA")
-    plot_figure(time_data_2d, "Time")
-    plot_figure(normalized_objective_data_2d, "Normalized RTDA %")
+    plot_figure(schedulable_data_2d, taskNumberList, "Schedulable Ratio")
+    plot_figure(objective_data_2d, taskNumberList, "RTDA")
+    plot_figure(time_data_2d, taskNumberList, "Time")
+    plot_figure(normalized_objective_data_2d, taskNumberList, "Normalized RTDA %")
