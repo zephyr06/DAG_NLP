@@ -20,6 +20,7 @@ namespace OrderOptDAG_SPACE
         char type; // 's' or 'f'
         JobCEC job;
         TimeInstance(char type, JobCEC j, double t) : time(t), type(type), job(j) {}
+        TimeInstance(char type, JobCEC j) : time(-1), type(type), job(j) {}
         double getTime()
         {
             return time;
@@ -113,19 +114,38 @@ namespace OrderOptDAG_SPACE
             return jobSFMap_.at(job).finishInstanceIndex;
         }
 
+        void RangeCheck(LLint index, bool allowEnd = false)
+        {
+            if (allowEnd && (index < 0 || index > size()))
+            {
+                CoutError("Index error in RemoveJob");
+            }
+            if (index < 0 || index >= size())
+                CoutError("Index error in RemoveJob");
+        }
+
         void RemoveJob(JobCEC job)
         {
-            CoutWarning("Please provide implementation!");
+            LLint startIndex = GetJobStartInstancePosition(job);
+            LLint finishIndex = GetJobFinishInstancePosition(job);
+            RangeCheck(startIndex);
+            RangeCheck(finishIndex);
+            instanceOrder_.erase(instanceOrder_.begin() + finishIndex);
+            instanceOrder_.erase(instanceOrder_.begin() + startIndex);
         }
 
         void InsertStart(JobCEC job, LLint position)
         {
-            CoutWarning("Please provide implementation!");
+            RangeCheck(position, true);
+            TimeInstance inst('s', job);
+            instanceOrder_.insert(instanceOrder_.begin() + position, inst);
         }
 
-        void InsertFinish(JobCEC, LLint position)
+        void InsertFinish(JobCEC job, LLint position)
         {
-            CoutWarning("Please provide implementation!");
+            RangeCheck(position, true);
+
+            instanceOrder_.insert(instanceOrder_.begin() + position, TimeInstance('f', job));
         }
     };
 } // namespace OrderOptDAG_SPACE

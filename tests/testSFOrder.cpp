@@ -51,6 +51,26 @@ TEST(SFOrder, sched_v1)
     PrintSchedule(tasksInfo, initialSTV);
 }
 
+TEST(SFOrder, insert_erase)
+{
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    int processorNum = 1;
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    SFOrder sfOrder(tasksInfo, initial);
+
+    JobCEC j00(0, 0);
+    JobCEC j10(1, 0);
+    JobCEC j20(2, 0);
+    sfOrder.RemoveJob(j00);
+    EXPECT_LONGS_EQUAL(4, sfOrder.size());
+    sfOrder.InsertStart(j00, 2);
+    sfOrder.InsertFinish(j00, 3);
+    VectorDynamic initialSTV = SFOrderScheduling(dagTasks, tasksInfo, processorNum, sfOrder);
+    EXPECT(assert_equal(initial, initialSTV));
+}
 TEST(WhetherSkipInsertStart_finish, v1)
 {
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
