@@ -121,19 +121,31 @@ TEST(WhetherSkipInsertStart_finish, v1)
     TaskSetInfoDerived tasksInfo(tasks);
     int processorNum = 1;
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
-    SFOrder sfOrder(tasksInfo, initial);
+    // SFOrder sfOrder(tasksInfo, initial);
     JobCEC j00(0, 0);
     JobCEC j10(1, 0);
     JobCEC j20(2, 0);
     for (uint i = 0; i < 6; i++)
     {
         std::cout << "Test i: " << i << std::endl;
-        EXPECT(!WhetherSkipInsertStart(j00, i, tasksInfo, sfOrder));
-        EXPECT(!WhetherSkipInsertFinish(j00, i, tasksInfo, sfOrder));
-        EXPECT(!WhetherSkipInsertStart(j10, i, tasksInfo, sfOrder));
-        EXPECT(!WhetherSkipInsertFinish(j10, i, tasksInfo, sfOrder));
-        EXPECT(!WhetherSkipInsertStart(j20, i, tasksInfo, sfOrder));
-        EXPECT(!WhetherSkipInsertFinish(j20, i, tasksInfo, sfOrder));
+        {
+            SFOrder sfOrder(tasksInfo, initial);
+            sfOrder.RemoveJob(j00);
+            EXPECT(!WhetherSkipInsertStart(j00, i, tasksInfo, sfOrder));
+            EXPECT(!WhetherSkipInsertFinish(j00, i, tasksInfo, sfOrder));
+        }
+        {
+            SFOrder sfOrder(tasksInfo, initial);
+            sfOrder.RemoveJob(j10);
+            EXPECT(!WhetherSkipInsertStart(j10, i, tasksInfo, sfOrder));
+            EXPECT(!WhetherSkipInsertFinish(j10, i, tasksInfo, sfOrder));
+        }
+        {
+            SFOrder sfOrder(tasksInfo, initial);
+            sfOrder.RemoveJob(j20);
+            EXPECT(!WhetherSkipInsertStart(j20, i, tasksInfo, sfOrder));
+            EXPECT(!WhetherSkipInsertFinish(j20, i, tasksInfo, sfOrder));
+        }
     }
 }
 TEST(WhetherSkipInsertStart_finish, v2)
@@ -151,6 +163,7 @@ TEST(WhetherSkipInsertStart_finish, v2)
     JobCEC j03(0, 3);
     JobCEC j11(1, 1);
     JobCEC j20(2, 0);
+    sfOrder.RemoveJob(j00);
     EXPECT(!WhetherSkipInsertStart(j00, 0, tasksInfo, sfOrder));
     // EXPECT(WhetherSkipInsertStart(j00, 6, tasksInfo, sfOrder));
     EXPECT(WhetherSkipInsertStart(j00, 7, tasksInfo, sfOrder));
@@ -254,6 +267,36 @@ TEST(Schedule, jobOrder)
     ScheduleResult res = ScheduleDAGModel(dagTasks, processorNum);
     EXPECT(99 * 2 >= res.obj_);
 }
+
+TEST(WhetherSkipInsertStart_finish, v3)
+{
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v20.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    int processorNum = 1;
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    PrintSchedule(tasksInfo, initial);
+    SFOrder sfOrder(tasksInfo, initial);
+    sfOrder.print();
+    JobCEC j00(0, 0);
+    JobCEC j01(0, 1);
+    JobCEC j04(0, 4); // 80-100
+    JobCEC j03(0, 3);
+    JobCEC j11(1, 1);
+    JobCEC j20(2, 0);
+    sfOrder.RemoveJob(j04);
+    EXPECT(WhetherSkipInsertStart(j04, 0, tasksInfo, sfOrder));
+    EXPECT(WhetherSkipInsertStart(j04, 2, tasksInfo, sfOrder));
+    EXPECT(!WhetherSkipInsertStart(j04, 4, tasksInfo, sfOrder));
+    // EXPECT(!WhetherSkipInsertStart(j00, 0, tasksInfo, sfOrder));
+
+    // EXPECT(WhetherSkipInsertStart(j00, 7, tasksInfo, sfOrder));
+    // EXPECT(WhetherSkipInsertStart(j00, 8, tasksInfo, sfOrder));
+    // // EXPECT(WhetherSkipInsertFinish(j00, 6, tasksInfo, sfOrder));
+    // // EXPECT(WhetherSkipInsertFinish(j00, 7, tasksInfo, sfOrder));
+    // EXPECT(WhetherSkipInsertFinish(j00, 9, tasksInfo, sfOrder));
+}
+
 int main()
 {
     TestResult tr;

@@ -44,6 +44,10 @@ namespace OrderOptDAG_SPACE
                     rtdaVec_.push_back(rtdaVecTemp);
                     maxRtda_.push_back(GetMaxRTDA(rtdaVecTemp));
                 }
+                // if (debugMode == 1)
+                // {
+                //     PrintSchedule(tasksInfo, startTimeVector_);
+                // }
                 if (considerSensorFusion)
                 {
                     sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
@@ -200,23 +204,31 @@ namespace OrderOptDAG_SPACE
                         JobCEC jobRelocate(i, j);
                         for (LLint startP = 0; startP < static_cast<LLint>(statusPrev.jobOrder_.size() - 1); startP++)
                         {
-                            // if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, statusPrev.jobOrder_))
-                            //     break;
+                            SFOrder jobOrderCurrForStart = statusPrev.jobOrder_;
+                            jobOrderCurrForStart.RemoveJob(jobRelocate);
+                            if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, jobOrderCurrForStart))
+                                continue;
+                            jobOrderCurrForStart.InsertStart(jobRelocate, startP); // must insert start first
                             for (LLint finishP = startP + 1; finishP < static_cast<LLint>(statusPrev.jobOrder_.size()); finishP++)
                             {
-                                // if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, statusPrev.jobOrder_))
-                                //     break;
+                                if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, statusPrev.jobOrder_))
+                                    continue;
 
-                                SFOrder jobOrderCurr = statusPrev.jobOrder_;
-                                jobOrderCurr.RemoveJob(jobRelocate);
-                                jobOrderCurr.InsertStart(jobRelocate, startP); // must insert start first
-                                jobOrderCurr.InsertFinish(jobRelocate, finishP);
-                                if (debugMode == 1)
-                                    jobOrderCurr.print();
-                                ExamAndApplyUpdate(jobOrderCurr);
+                                SFOrder jobOrderCurrForFinish = jobOrderCurrForStart;
+                                jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
+                                // if (debugMode == 1)
+                                //     jobOrderCurrForFinish.print();
+
+                                IterationStatus statusCurrABC(dagTasks, tasksInfo, jobOrderCurrForFinish, processorNum);
+                                ExamAndApplyUpdate(jobOrderCurrForFinish);
                             }
                         }
                     }
+                std::cout << "Finish one big while loop!" << std::endl;
+            }
+            if (!statusPrev.schedulable_)
+            {
+                CoutError("Return with unschedulable result!");
             }
             ScheduleResult scheduleRes;
             scheduleRes.startTimeVector_ = statusPrev.startTimeVector_;
