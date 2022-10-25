@@ -19,16 +19,7 @@ namespace OrderOptDAG_SPACE
     public:
         ScheduleOptimizer()
         {
-            // env_ = IloEnv();
-            // model_ = IloModel(env_);
-            // cplex_solver_ = IloCplex(env_);
-            // num_variables_ = 0;
-            // var_array_ = IloNumVarArray(env_, num_variables_, 0, tasksInfo_.hyperPeriod, IloNumVar::Float);
-            // result_to_be_optimized_ = ScheduleResult();
-            // result_after_optimization_ = ScheduleResult();
-            // tasksInfo_ = TaskSetInfoDerived();
-            // p_dagTasks_ = nullptr;
-            // cplex_solver_.setOut(env_.getNullStream());
+            env_.end();
         }
 
         void Optimize(DAG_Model &dagTasks, ScheduleResult &result)
