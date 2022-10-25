@@ -23,7 +23,17 @@ namespace OrderOptDAG_SPACE
         }
         static bool compare(const TimeInstance &i1, const TimeInstance &i2)
         {
-            return (i1.time < i2.time);
+            if (i1.time != i2.time)
+                return (i1.time < i2.time);
+            else
+            {
+                if (i1.type == 'f')
+                    return true;
+                else if (i2.type == 'f')
+                    return false;
+                else
+                    return true;
+            }
         }
     };
 
@@ -46,15 +56,13 @@ namespace OrderOptDAG_SPACE
         SFOrder(TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector) : tasksInfo_(tasksInfo)
         {
             instanceOrder_.reserve(tasksInfo.length * 2);
-            instanceIndexMap_.reserve(tasksInfo.length * 2);
-            jobSFMap_.reserve(tasksInfo.length);
             for (int i = 0; i < tasksInfo.N; i++)
             {
                 for (uint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
                 {
                     JobCEC job(i, j);
-                    instanceOrder_.push_back(TimeInstance('s', job, GetStartTime(jobc, startTimeVector, tasksInfo)));
-                    instanceOrder_.push_back(TimeInstance('f', job, GetFinishTime(jobc, startTimeVector, tasksInfo)));
+                    instanceOrder_.push_back(TimeInstance{'s', job, GetStartTime(job, startTimeVector, tasksInfo)});
+                    instanceOrder_.push_back(TimeInstance{'f', job, GetFinishTime(job, startTimeVector, tasksInfo)});
                 }
             }
             std::sort(instanceOrder_.begin(), instanceOrder_.end(), TimeInstance::compare);
@@ -65,14 +73,14 @@ namespace OrderOptDAG_SPACE
         // O(n^2), could be improved to be O(n)
         void EstablishJobSFMap()
         {
-            jobSFMap_.reserve(tasksInfo.length);
-            for (int i = 0; i < tasksInfo.N; i++)
+            jobSFMap_.reserve(tasksInfo_.length);
+            for (int i = 0; i < tasksInfo_.N; i++)
             {
-                for (uint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
+                for (uint j = 0; j < tasksInfo_.sizeOfVariables[i]; j++)
                 {
                     JobCEC job(i, j);
                     SFPair sfPair;
-                    for (LLint i = 0; i < tasksInfo.length * 2; i++)
+                    for (LLint i = 0; i < tasksInfo_.length * 2; i++)
                     {
                         TimeInstance &inst = instanceOrder_[i];
                         if (inst.job == job)
