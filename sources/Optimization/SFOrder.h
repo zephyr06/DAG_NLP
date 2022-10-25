@@ -75,31 +75,32 @@ namespace OrderOptDAG_SPACE
             EstablishJobSFMap();
         }
 
-        // O(n^2), could be improved to be O(n)
+        // O(n)
         void EstablishJobSFMap()
         {
             jobSFMap_.reserve(tasksInfo_.length);
-            for (int i = 0; i < tasksInfo_.N; i++)
+            for (size_t i = 0; i < instanceOrder_.size(); i++)
             {
-                for (uint j = 0; j < tasksInfo_.sizeOfVariables[i]; j++)
+                TimeInstance &inst = instanceOrder_[i];
+                if (jobSFMap_.find(inst.job) == jobSFMap_.end())
                 {
-                    JobCEC job(i, j);
                     SFPair sfPair;
-                    for (LLint i = 0; i < static_cast<LLint>(instanceOrder_.size()); i++)
-                    {
-                        TimeInstance &inst = instanceOrder_[i];
-                        if (inst.job == job)
-                        {
-                            if (inst.type == 's')
-                                sfPair.startInstanceIndex = i;
-                            else if (inst.type == 'f')
-                            {
-                                sfPair.finishInstanceIndex = i;
-                                jobSFMap_[job] = sfPair;
-                                break;
-                            }
-                        }
-                    }
+                    if (inst.type == 's')
+                        sfPair.startInstanceIndex = i;
+                    else if (inst.type == 'f')
+                        sfPair.finishInstanceIndex = i;
+                    else
+                        CoutError("Wrong type in TimeInstance!");
+                    jobSFMap_[inst.job] = sfPair;
+                }
+                else
+                {
+                    if (inst.type == 's')
+                        jobSFMap_[inst.job].startInstanceIndex = i;
+                    else if (inst.type == 'f')
+                        jobSFMap_[inst.job].finishInstanceIndex = i;
+                    else
+                        CoutError("Wrong type in TimeInstance!");
                 }
             }
         }

@@ -173,19 +173,19 @@ TEST(WhetherSkipInsertStart_finish, v2)
     EXPECT(WhetherSkipInsertFinish(j00, 9, tasksInfo, sfOrder));
 }
 
-// TEST(SFOrder, opt_v1)
-// {
-//     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
-//     TaskSet tasks = dagTasks.tasks;
-//     TaskSetInfoDerived tasksInfo(tasks);
+TEST(SFOrder, opt_v1)
+{
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
 
-//     int processorNum = 1;
-//     ScheduleResult sRes = ScheduleDAGModel(dagTasks, processorNum);
-//     PrintSchedule(tasksInfo, sRes.startTimeVector_);
-//     VectorDynamic expect = sRes.startTimeVector_;
-//     expect << 0, 2, 3;
-//     EXPECT(assert_equal(expect, sRes.startTimeVector_));
-// }
+    int processorNum = 1;
+    ScheduleResult sRes = ScheduleDAGModel(dagTasks, processorNum);
+    PrintSchedule(tasksInfo, sRes.startTimeVector_);
+    VectorDynamic expect = sRes.startTimeVector_;
+    expect << 0, 2, 3;
+    EXPECT(assert_equal(expect, sRes.startTimeVector_));
+}
 
 TEST(sched, v2)
 {
@@ -288,13 +288,6 @@ TEST(WhetherSkipInsertStart_finish, v3)
     EXPECT(WhetherSkipInsertStart(j04, 0, tasksInfo, sfOrder));
     EXPECT(WhetherSkipInsertStart(j04, 2, tasksInfo, sfOrder));
     EXPECT(!WhetherSkipInsertStart(j04, 4, tasksInfo, sfOrder));
-    // EXPECT(!WhetherSkipInsertStart(j00, 0, tasksInfo, sfOrder));
-
-    // EXPECT(WhetherSkipInsertStart(j00, 7, tasksInfo, sfOrder));
-    // EXPECT(WhetherSkipInsertStart(j00, 8, tasksInfo, sfOrder));
-    // // EXPECT(WhetherSkipInsertFinish(j00, 6, tasksInfo, sfOrder));
-    // // EXPECT(WhetherSkipInsertFinish(j00, 7, tasksInfo, sfOrder));
-    // EXPECT(WhetherSkipInsertFinish(j00, 9, tasksInfo, sfOrder));
 }
 
 int main()
