@@ -79,28 +79,46 @@ namespace OrderOptDAG_SPACE
         return false;
     }
 
-    // TODO: work with SFOrder
-    // exams whether switching j1 to the back of j2 is unschedulable
-    bool WhetherSkipSwitch(const TaskSetInfoDerived &tasksInfo, const JobCEC &j1, const JobCEC &j2)
+    bool WhetherSkipInsertStart(JobCEC &jobRelocate, LLint startP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
     {
-        if (j1 == j2)
-            return true;
-
-        // Such switch always returns infeasible results
-        if (j1.taskId == j2.taskId)
-            return true;
-        Interval v1(tasksInfo.tasks[j1.taskId].period * j1.jobId, tasksInfo.tasks[j1.taskId].period);
-        Interval v2(tasksInfo.tasks[j2.taskId].period * j2.jobId, tasksInfo.tasks[j2.taskId].period);
-        if (v2.start > v1.start + v1.length) //  - tasksInfo.tasks[j1.taskId].executionTime - tasksInfo.tasks[j2.taskId].executionTime
-            return true;
-        double c1 = tasksInfo.tasks[j1.taskId].executionTime;
-        double c2 = tasksInfo.tasks[j2.taskId].executionTime;
-        double d1 = tasksInfo.tasks[j1.taskId].deadline;
-
-        double startTimeJ1Min = v2.start + c2;
-        // schedulability requires satisfying this constraint: sMin + c1 <= s1+c1 <= D1
-        if (startTimeJ1Min + c1 > v1.start + d1)
-            return true;
+        if (startP > 0)
+        {
+            TimeInstance instancePrev = jobOrderCurr.instanceOrder_[startP - 1];
+            // jP.ActivationTime <= jR.start <= jR.deadline - jR.executionTime
+            if (GetActivationTime(instancePrev.job, tasksInfo) > GetDeadline(jobRelocate, tasksInfo) - tasksInfo.tasks[jobRelocate.taskId].executionTime)
+                return true;
+        }
+        if (startP < tasksInfo.length * 2 - 1)
+        {
+            TimeInstance instanceAfter = jobOrderCurr.instanceOrder_[startP + 1];
+            //  jR.ActivationTime <= jR.start <= nextJ.Deadline
+            double nextInstanceLeastFinishTime = GetDeadline(instanceAfter.job, tasksInfo);
+            if (instanceAfter.type == 's')
+                nextInstanceLeastFinishTime -= tasksInfo.tasks[instanceAfter.job.taskId].executionTime;
+            if (GetActivationTime(jobRelocate, tasksInfo) > nextInstanceLeastFinishTime)
+                return true;
+        }
+        return false;
+    }
+    bool WhetherSkipInsertFinish(JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
+    {
+        if (finishP > 0)
+        {
+            TimeInstance instancePrev = jobOrderCurr.instanceOrder_[finishP - 1];
+            // jP.ActivationTime <= jR.finish <= jR.deadline
+            if (GetActivationTime(instancePrev.job, tasksInfo) > GetDeadline(jobRelocate, tasksInfo))
+                return true;
+        }
+        if (finishP < tasksInfo.length * 2 - 1)
+        {
+            TimeInstance instanceAfter = jobOrderCurr.instanceOrder_[finishP + 1];
+            //  jR.ActivationTime <= jR.finish <= nextJ.Deadline
+            double nextInstanceLeastFinishTime = GetDeadline(instanceAfter.job, tasksInfo);
+            if (instanceAfter.type == 's')
+                nextInstanceLeastFinishTime -= tasksInfo.tasks[instanceAfter.job.taskId].executionTime;
+            if (GetActivationTime(jobRelocate, tasksInfo) > nextInstanceLeastFinishTime)
+                return true;
+        }
         return false;
     }
 
@@ -113,7 +131,8 @@ namespace OrderOptDAG_SPACE
 
         TaskSet &tasks = dagTasks.tasks;
         TaskSetInfoDerived tasksInfo(tasks);
-        VectorDynamic initialSTV = SFOrderScheduling(dagTasks, tasksInfo, processorNum);
+        // VectorDynamic initialSTV = SFOrderScheduling(dagTasks, tasksInfo, processorNum);
+        VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
         if (debugMode == 1)
         {
             std::cout << "Initial schedule: " << std::endl;
@@ -174,17 +193,21 @@ namespace OrderOptDAG_SPACE
             findNewUpdate = false;
             for (int i = 0; i < tasksInfo.N; i++)
             {
-                for (LLint j = 0; j < tasksInfo.sizeOfVariable[i]; j++)
+                for (LLint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
                 {
                     JobCEC jobRelocate(i, j);
                     SFOrder jobOrderCurr = statusPrev.jobOrder_;
-                    jobOrderCurr.Remove(jobRelocate);
+                    jobOrderCurr.RemoveJob(jobRelocate);
                     // TODO: limit the range of possible choices
                     for (LLint startP = 0; startP < static_cast<LLint>(jobOrderCurr.size()); startP++)
                     {
+                        if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, jobOrderCurr))
+                            break;
                         jobOrderCurr.InsertStart(jobRelocate, startP);
                         for (LLint finishP = startP; finishP < static_cast<LLint>(jobOrderCurr.size()); finishP++)
                         {
+                            if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, jobOrderCurr))
+                                break;
                             jobOrderCurr.InsertFinish(jobRelocate, finishP);
                             ExamAndApplyUpdate(jobOrderCurr);
                         }
@@ -192,29 +215,30 @@ namespace OrderOptDAG_SPACE
                 }
             }
         }
+        ScheduleResult scheduleRes;
+        scheduleRes.startTimeVector_ = statusPrev.startTimeVector_;
+        // ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.ReadObj(), statusPrev.processorJobVec_};
+        // auto no_thing = SFOrderScheduling(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_); // get the processor assignment
+        // if (resOrderOptWithoutScheduleOpt)
+        // {
+        //     scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
+        //     *resOrderOptWithoutScheduleOpt = scheduleRes;
+        // }
 
-        ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.ReadObj(), statusPrev.processorJobVec_};
-        auto no_thing = SFOrderScheduling(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_); // get the processor assignment
-        if (resOrderOptWithoutScheduleOpt)
-        {
-            scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
-            *resOrderOptWithoutScheduleOpt = scheduleRes;
-        }
+        // if (doScheduleOptimization)
+        // {
+        //     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
+        //     ScheduleResult result_after_optimization;
+        //     schedule_optimizer.Optimize(dagTasks, scheduleRes);
+        //     result_after_optimization = schedule_optimizer.getOptimizedResult();
+        //     scheduleRes = result_after_optimization;
+        //     if (!ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum))
+        //     {
+        //         CoutWarning("Found one unschedulable case after optimization!");
+        //     }
+        // }
 
-        if (doScheduleOptimization)
-        {
-            ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
-            ScheduleResult result_after_optimization;
-            schedule_optimizer.Optimize(dagTasks, scheduleRes);
-            result_after_optimization = schedule_optimizer.getOptimizedResult();
-            scheduleRes = result_after_optimization;
-            if (!ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum))
-            {
-                CoutWarning("Found one unschedulable case after optimization!");
-            }
-        }
-
-        scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
+        // scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
         return scheduleRes;
     }
 

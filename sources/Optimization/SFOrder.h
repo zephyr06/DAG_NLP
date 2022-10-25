@@ -11,12 +11,15 @@
 namespace OrderOptDAG_SPACE
 {
 
-    struct TimeInstance
+    class TimeInstance
     {
-        char type; // 's' or 'f'
-        JobCEC job;
+    private:
         double time;
 
+    public:
+        char type; // 's' or 'f'
+        JobCEC job;
+        TimeInstance(char type, JobCEC j, double t) : time(t), type(type), job(j) {}
         double getTime()
         {
             return time;
@@ -61,8 +64,8 @@ namespace OrderOptDAG_SPACE
                 for (uint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
                 {
                     JobCEC job(i, j);
-                    instanceOrder_.push_back(TimeInstance{'s', job, GetStartTime(job, startTimeVector, tasksInfo)});
-                    instanceOrder_.push_back(TimeInstance{'f', job, GetFinishTime(job, startTimeVector, tasksInfo)});
+                    instanceOrder_.push_back(TimeInstance('s', job, GetStartTime(job, startTimeVector, tasksInfo)));
+                    instanceOrder_.push_back(TimeInstance('f', job, GetFinishTime(job, startTimeVector, tasksInfo)));
                 }
             }
             std::sort(instanceOrder_.begin(), instanceOrder_.end(), TimeInstance::compare);
@@ -103,17 +106,26 @@ namespace OrderOptDAG_SPACE
 
         LLint GetJobStartInstancePosition(JobCEC &job) const
         {
-            return jobSFMap.at(job).startInstanceIndex;
+            return jobSFMap_.at(job).startInstanceIndex;
         }
         LLint GetJobFinishInstancePosition(JobCEC &job) const
         {
-            return jobSFMap.at(job).finishInstanceIndex;
+            return jobSFMap_.at(job).finishInstanceIndex;
         }
 
-        void RemoveJob(JobCEC job);
+        void RemoveJob(JobCEC job)
+        {
+            CoutWarning("Please provide implementation!");
+        }
 
-        void InsertStart(JobCEC job, LLint position);
+        void InsertStart(JobCEC job, LLint position)
+        {
+            CoutWarning("Please provide implementation!");
+        }
 
-        void InsertFinish(JobCEC, LLint position);
+        void InsertFinish(JobCEC, LLint position)
+        {
+            CoutWarning("Please provide implementation!");
+        }
     };
 } // namespace OrderOptDAG_SPACE
