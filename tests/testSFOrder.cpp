@@ -4,7 +4,7 @@
 
 using namespace OrderOptDAG_SPACE;
 
-TEST(SFOrder, constructor)
+TEST(SFOrder, constructor_v1)
 {
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
@@ -33,6 +33,7 @@ TEST(SFOrder, constructor)
     EXPECT_LONGS_EQUAL(4, sfOrder.GetJobStartInstancePosition(j10));
     EXPECT_LONGS_EQUAL(5, sfOrder.GetJobFinishInstancePosition(j10));
 }
+
 int main()
 {
     TestResult tr;

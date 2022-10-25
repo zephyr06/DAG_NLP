@@ -99,16 +99,18 @@ namespace OrderOptDAG_SPACE
             }
         }
 
-        LLint GetJobStartInstancePosition(JobCEC &job)
+        LLint size() const { return instanceOrder_.size(); }
+
+        LLint GetJobStartInstancePosition(JobCEC &job) const
         {
-            return jobSFMap_[job].startInstanceIndex;
+            return jobSFMap.at(job).startInstanceIndex;
         }
-        LLint GetJobFinishInstancePosition(JobCEC &job)
+        LLint GetJobFinishInstancePosition(JobCEC &job) const
         {
-            return jobSFMap_[job].finishInstanceIndex;
+            return jobSFMap.at(job).finishInstanceIndex;
         }
 
-        JobCEC RemoveJob(JobCEC job);
+        void RemoveJob(JobCEC job);
 
         void InsertStart(JobCEC job, LLint position);
 
