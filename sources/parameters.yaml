@@ -4,7 +4,7 @@
 batchTestMethod: 1 # 0 means initial, 1 means proposed optimization, 2 means Verucchi20, 3 means NLP, SA is not considered, 4 means only optimize order
 TotalMethodUnderComparison: 5 # 0: LS initial, 1: optimize order & schedule, 2: Verucchi20, 3: NLP, 4: only optimize order
 testDataSetName: test_n10_v4
-debugMode: 0
+debugMode: 1
 doScheduleOptimization: 1
 considerSensorFusion: 0 
 #*************************************************************

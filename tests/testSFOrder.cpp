@@ -117,6 +117,17 @@ TEST(WhetherSkipInsertStart_finish, v2)
     EXPECT(WhetherSkipInsertFinish(j00, 9, tasksInfo, sfOrder));
 }
 
+TEST(SFOrder, opt_v1)
+{
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    int processorNum = 1;
+    ScheduleResult sRes = ScheduleDAGModel(dagTasks, processorNum);
+    PrintSchedule(tasksInfo, sRes.startTimeVector_);
+}
+
 int main()
 {
     TestResult tr;

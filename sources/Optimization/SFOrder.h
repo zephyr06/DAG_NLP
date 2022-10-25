@@ -118,10 +118,10 @@ namespace OrderOptDAG_SPACE
         {
             if (allowEnd && (index < 0 || index > size()))
             {
-                CoutError("Index error in RemoveJob");
+                CoutError("Index error in SFOrder");
             }
-            if (index < 0 || index >= size())
-                CoutError("Index error in RemoveJob");
+            if (!allowEnd && (index < 0 || index >= size()))
+                CoutError("Index error in SFOrder");
         }
 
         void RemoveJob(JobCEC job)

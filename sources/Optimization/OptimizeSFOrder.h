@@ -192,28 +192,26 @@ namespace OrderOptDAG_SPACE
 
             findNewUpdate = false;
             for (int i = 0; i < tasksInfo.N; i++)
-            {
                 for (LLint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
                 {
                     JobCEC jobRelocate(i, j);
-                    SFOrder jobOrderCurr = statusPrev.jobOrder_;
-                    jobOrderCurr.RemoveJob(jobRelocate);
-                    // TODO: limit the range of possible choices
-                    for (LLint startP = 0; startP < static_cast<LLint>(jobOrderCurr.size()); startP++)
+                    for (LLint startP = 0; startP < static_cast<LLint>(statusPrev.jobOrder_.size() - 1); startP++)
                     {
-                        if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, jobOrderCurr))
+                        if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, statusPrev.jobOrder_))
                             break;
-                        jobOrderCurr.InsertStart(jobRelocate, startP);
-                        for (LLint finishP = startP; finishP < static_cast<LLint>(jobOrderCurr.size()); finishP++)
+                        for (LLint finishP = startP; finishP < static_cast<LLint>(statusPrev.jobOrder_.size()); finishP++)
                         {
-                            if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, jobOrderCurr))
+                            if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, statusPrev.jobOrder_))
                                 break;
+
+                            SFOrder jobOrderCurr = statusPrev.jobOrder_;
+                            jobOrderCurr.RemoveJob(jobRelocate);
+                            jobOrderCurr.InsertStart(jobRelocate, startP);
                             jobOrderCurr.InsertFinish(jobRelocate, finishP);
                             ExamAndApplyUpdate(jobOrderCurr);
                         }
                     }
                 }
-            }
         }
         ScheduleResult scheduleRes;
         scheduleRes.startTimeVector_ = statusPrev.startTimeVector_;
