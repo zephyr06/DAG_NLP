@@ -148,7 +148,7 @@ namespace OrderOptDAG_SPACE
 
         bool findNewUpdate = true;
 
-        auto ExamAndApplyUpdate = [&](SFOrder jobOrderCurr)
+        auto ExamAndApplyUpdate = [&](SFOrder &jobOrderCurr)
         {
             IterationStatus statusCurr(dagTasks, tasksInfo, jobOrderCurr, processorNum);
 
@@ -195,19 +195,21 @@ namespace OrderOptDAG_SPACE
                 for (LLint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
                 {
                     JobCEC jobRelocate(i, j);
-                    for (LLint startP = 0; startP < static_cast<LLint>(statusPrev.jobOrder_.size() - 1); startP++)
+                    for (LLint startP = 0; startP < static_cast<LLint>(statusPrev.jobOrder_.size()); startP++)
                     {
-                        if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, statusPrev.jobOrder_))
-                            break;
-                        for (LLint finishP = startP; finishP < static_cast<LLint>(statusPrev.jobOrder_.size()); finishP++)
+                        // if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, statusPrev.jobOrder_))
+                        //     break;
+                        for (LLint finishP = startP; finishP < static_cast<LLint>(statusPrev.jobOrder_.size() - 1); finishP++)
                         {
-                            if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, statusPrev.jobOrder_))
-                                break;
+                            // if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, statusPrev.jobOrder_))
+                            //     break;
 
                             SFOrder jobOrderCurr = statusPrev.jobOrder_;
                             jobOrderCurr.RemoveJob(jobRelocate);
-                            jobOrderCurr.InsertStart(jobRelocate, startP);
                             jobOrderCurr.InsertFinish(jobRelocate, finishP);
+                            jobOrderCurr.InsertStart(jobRelocate, startP);
+                            if (debugMode == 1)
+                                jobOrderCurr.print();
                             ExamAndApplyUpdate(jobOrderCurr);
                         }
                     }
