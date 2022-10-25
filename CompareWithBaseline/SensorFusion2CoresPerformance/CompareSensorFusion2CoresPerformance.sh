@@ -9,16 +9,17 @@ TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
 ## no separator '/' at the end of the path
 #ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
 ROOT_PATH="/home/dong/workspace/DAG_NLP"
-RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks"
+# ROOT_PATH="/home/dong/workspace/DAG_batch_test/sf_test/DAG_NLP" # for final batch test
+RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks" # tBatch1's result path
 methods_dir_name=( "Initial_Res" "OrderOpt_Res" "NLP_Res" "OrderOptWithoutScheudleOpt_Res" ) # exclude Verucchi_Res in sensor fusion part
 makeProgressTimeLimit=100
 kVerucchiTimeLimit=100
 coreNumberAva=2
-keep_current_result_and_only_plot=0 # if true, will plot result files in $history_result_directory
-history_result_directory="$ROOT_PATH/CompareWithBaseline/SensorFusion2CoresPerformance/backup/N3_N10_20221018" 
+keep_current_result_and_only_plot=1 # if true, will plot result files in $history_result_directory
+history_result_directory="$ROOT_PATH/CompareWithBaseline/SensorFusion2CoresPerformance" 
 ## setting for generating task sets
 taskSetType=3
-taskSetNumber=5
+taskSetNumber=3
 randomSeed=-1 # negative means time seed
 # ***************************************************
 # ***************************************************
@@ -30,7 +31,7 @@ if [[ $keep_current_result_and_only_plot == 1 || $keep_current_result_and_only_p
   python $ROOT_PATH/CompareWithBaseline/$title/Visualize_SensorFusion_performance.py --minTaskNumber $MinTaskNumber \
     --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $history_result_directory \
     --taskNumberList ${TaskNumberArray[@]}
-  cp $ROOT_PATH/CompareWithBaseline/$title/*.pdf $ROOT_PATH/CompareWithBaseline/$title/dagTasks/
+  cp $ROOT_PATH/CompareWithBaseline/$title/*.pdf $ROOT_PATH/CompareWithBaseline/$title/scripts_and_figures_backup/
   exit
 fi
 
@@ -41,6 +42,8 @@ for dir_name in ${methods_dir_name[@]}; do
 done
 if [[ -d dagTasks ]]; then rm -rf dagTasks; fi
 mkdir dagTasks
+if [[ -d scripts_and_figures_backup ]]; then rm -rf scripts_and_figures_backup; fi
+mkdir scripts_and_figures_backup
 
 # set parameters, backup parameters and scripts parameters
 cp parameters.yaml $ROOT_PATH/sources/parameters.yaml
@@ -53,8 +56,8 @@ python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "coreNumberAva" --val
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "TaskSetType" --value $taskSetType
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "makeProgressTimeLimit" --value $makeProgressTimeLimit
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "kVerucchiTimeLimit" --value $kVerucchiTimeLimit
-cp $ROOT_PATH/sources/parameters.yaml $ROOT_PATH/CompareWithBaseline/$title/dagTasks
-cp $ROOT_PATH/CompareWithBaseline/$title/Compare$title.sh $ROOT_PATH/CompareWithBaseline/$title/dagTasks
+cp $ROOT_PATH/sources/parameters.yaml $ROOT_PATH/CompareWithBaseline/$title/scripts_and_figures_backup/
+cp $ROOT_PATH/CompareWithBaseline/$title/Compare$title.sh $ROOT_PATH/CompareWithBaseline/$title/scripts_and_figures_backup/
 
 # build the project
 cd ..
@@ -99,4 +102,4 @@ done
 python $ROOT_PATH/CompareWithBaseline/$title/Visualize_SensorFusion_performance.py --minTaskNumber $MinTaskNumber \
   --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $ROOT_PATH/CompareWithBaseline/$title \
     --taskNumberList ${TaskNumberArray[@]}
-cp $ROOT_PATH/CompareWithBaseline/$title/*.pdf $ROOT_PATH/CompareWithBaseline/$title/dagTasks/
+cp $ROOT_PATH/CompareWithBaseline/$title/*.pdf $ROOT_PATH/CompareWithBaseline/$title/scripts_and_figures_backup/
