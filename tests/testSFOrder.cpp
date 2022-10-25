@@ -194,13 +194,7 @@ TEST(sched, v2)
     EXPECT_LONGS_EQUAL(0, processorJobVec_[3]);
     EXPECT(ExamAll_Feasibility(dagTasks, tasksInfo, initialSTV, processorJobVec_, processorNum));
 }
-// TEST(Schedule, jobOrder)
-// {
-//     coreNumberAva = 1;
-//     OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
-//     ScheduleResult res = ScheduleDAGModel(dagTasks);
-//     EXPECT(99 * 2 >= res.obj_);
-// }
+
 TEST(SFOrder, insert_erase_v2)
 {
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
@@ -249,9 +243,15 @@ TEST(optimize_schedule_when_search_job_order_, v1)
     TaskSetInfoDerived tasksInfo(tasks);
     ScheduleResult sRes = ScheduleDAGModel(dagTasks, processorNum);
     PrintSchedule(tasksInfo, sRes.startTimeVector_);
-    // VectorDynamic expect = sRes.startTimeVector_;
-    // expect << 0, 17, 18, 1;
-    // EXPECT(assert_equal(expect, sRes.startTimeVector_));
+    std::cout << "Obj: " << sRes.obj_ << std::endl;
+    EXPECT(sRes.obj_ <= 16);
+}
+TEST(Schedule, jobOrder)
+{
+    int processorNum = 1;
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    ScheduleResult res = ScheduleDAGModel(dagTasks, processorNum);
+    EXPECT(99 * 2 >= res.obj_);
 }
 int main()
 {

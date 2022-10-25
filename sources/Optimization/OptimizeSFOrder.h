@@ -197,12 +197,12 @@ namespace OrderOptDAG_SPACE
                     JobCEC jobRelocate(i, j);
                     for (LLint startP = 0; startP < static_cast<LLint>(statusPrev.jobOrder_.size()); startP++)
                     {
-                        // if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, statusPrev.jobOrder_))
-                        //     break;
+                        if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, statusPrev.jobOrder_))
+                            break;
                         for (LLint finishP = startP; finishP < static_cast<LLint>(statusPrev.jobOrder_.size() - 1); finishP++)
                         {
-                            // if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, statusPrev.jobOrder_))
-                            //     break;
+                            if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, statusPrev.jobOrder_))
+                                break;
 
                             SFOrder jobOrderCurr = statusPrev.jobOrder_;
                             jobOrderCurr.RemoveJob(jobRelocate);
@@ -217,6 +217,9 @@ namespace OrderOptDAG_SPACE
         }
         ScheduleResult scheduleRes;
         scheduleRes.startTimeVector_ = statusPrev.startTimeVector_;
+        scheduleRes.obj_ = statusPrev.ReadObj();
+        if (debugMode == 1)
+            statusPrev.jobOrder_.print();
         // ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.ReadObj(), statusPrev.processorJobVec_};
         // auto no_thing = SFOrderScheduling(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_); // get the processor assignment
         // if (resOrderOptWithoutScheduleOpt)
