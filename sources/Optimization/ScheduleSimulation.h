@@ -9,6 +9,7 @@
 #include "sources/Utils/JobCEC.h"
 #include "sources/Optimization/JobOrder.h"
 #include "sources/Tools/profilier.h"
+#include "sources/Optimization/SFOrder.h"
 
 namespace OrderOptDAG_SPACE
 {
@@ -487,4 +488,74 @@ namespace OrderOptDAG_SPACE
             return ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, jobOrder, processorIdVec);
         }
     };
+
+    VectorDynamic SFOrderScheduling(DAG_Model &dagTasks,
+                                    TaskSetInfoDerived &tasksInfo, int processorNum, SFOrder &jobOrder,
+                                    boost::optional<std::vector<uint> &> processorIdVec = boost::none)
+    {
+        const TaskSet &tasks = dagTasks.tasks;
+        std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
+
+        VectorDynamic startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
+        vector<bool> busy(processorNum, false);
+        vector<LLint> nextFree(processorNum, -1);
+        vector<LLint> scheduledFinishTime(tasksInfo.variableDimension, -1);
+
+        if (processorIdVec)
+            *processorIdVec = Eigen2Vector<uint>(startTimeVector);
+
+        LLint timeNow = 0;
+        for (auto &currentInstance : instanceOrder)
+        {
+            if (currentInstance.type == 'f')
+            {
+                if (scheduledFinishTime[GetJobUniqueId(currentInstance.job, tasksInfo)] < timeNow)
+                {
+                    startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
+                    break;
+                }
+                else
+                {
+                    timeNow = scheduledFinishTime[GetJobUniqueId(currentInstance.job, tasksInfo)];
+                }
+            }
+            else if (currentInstance.type == 's')
+            {
+                if (timeNow < GetActivationTime(currentInstance.job, tasksInfo))
+                {
+                    timeNow = GetActivationTime(currentInstance.job, tasksInfo);
+                }
+                for (int processorId = 0; processorId < processorNum; processorId++)
+                {
+                    if (timeNow >= nextFree[processorId])
+                    {
+                        busy[processorId] = false;
+                    }
+                    if (!busy[processorId])
+                    {
+                        LLint uniqueJobId = GetJobUniqueId(currentInstance.job, tasksInfo);
+                        startTimeVector(uniqueJobId, 0) = timeNow;
+                        nextFree[processorId] = timeNow + tasks[currentInstance.job.taskId].executionTime;
+                        scheduledFinishTime[uniqueJobId] = nextFree[processorId];
+                        busy[processorId] = true;
+                        if (processorIdVec)
+                        {
+                            (*processorIdVec)[uniqueJobId] = processorId;
+                        }
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                if (debugMode)
+                {
+                    std::cout << "Failed to schedule SFOrder: Unknown TimeInstance type.\n";
+                }
+                startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
+                break;
+            }
+        }
+        return startTimeVector;
+    }
 } // namespace OrderOptDAG_SPACE
