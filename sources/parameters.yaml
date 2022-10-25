@@ -6,14 +6,11 @@ TotalMethodUnderComparison: 5 # 0: LS initial, 1: optimize order & schedule, 2: 
 testDataSetName: test_n5_v79
 debugMode: 0
 doScheduleOptimization: 1
-considerSensorFusion: 0 
+considerSensorFusion: 1
 #*************************************************************
 # Get away from local optimal setting
 RandomAccept: 0 # chance to take a possibly better solution
 #*************************************************************
-
-# batch optimize settings
-useOrderOptResultInNoScheduleOpt: 0 # if 1, skip batchTestMethod-4 if it can get result directly from orderOpt, will lose running time result for batchTestMethod-4
 
 # task-set settings
 coreNumberAva: 2 
@@ -31,7 +28,7 @@ weightInMpRTDA: 0.5
 weightInMpSf: 1
 weightInMpSfPunish: 10
 weightInMpRTDAPunish: 10
-makeProgressTimeLimit: 60 # seconds, -1 means unlimited time
+makeProgressTimeLimit: 100 # seconds, -1 means unlimited time
 
 #*************************************************************
 # factors to be included
@@ -56,7 +53,7 @@ temperatureSA: 100000000
 SA_iteration: 100000
 #*************************************************************
 # Verucchi20 settings
-kVerucchiTimeLimit: 1 # seconds, -1 means unlimited time
+kVerucchiTimeLimit: 100 # seconds, -1 means unlimited time
 kVerucchiReactionCost: 15.0
 kVerucchiMaxReaction: 400000.0
 kVerucchiDataAgeCost: 15.0

@@ -14,7 +14,6 @@ methods_dir_name=( "Initial_Res" "OrderOpt_Res" "Verucchi_Res" "OrderOptWithoutS
 makeProgressTimeLimit=100
 kVerucchiTimeLimit=100
 coreNumberAva=2
-useOrderOptResultInNoScheduleOpt=0 # 0 will re-run order opt without schedule opt (time consuming); otherwise 1 will lose time informaction for no-schedule-opt mode
 keep_current_result_and_only_plot=0 # if true, will plot result files in $history_result_directory
 history_result_directory="$ROOT_PATH/CompareWithBaseline/RTDA2CoresPerformance" 
 ## setting for generating task sets
@@ -29,8 +28,7 @@ if [[ $keep_current_result_and_only_plot == 1 || $keep_current_result_and_only_p
   echo "Plot from history in directory: $history_result_directory"
   # visualize history result
   python $ROOT_PATH/CompareWithBaseline/$title/Visualize_RTDA_performance.py --minTaskNumber $MinTaskNumber \
-    --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $history_result_directory \
-    --useOrderOptResultInNoScheduleOpt $useOrderOptResultInNoScheduleOpt
+    --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $history_result_directory
   cp $ROOT_PATH/CompareWithBaseline/$title/*.pdf $ROOT_PATH/CompareWithBaseline/$title/dagTasks/
   exit
 fi
@@ -53,7 +51,6 @@ python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "coreNumberAva" --val
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "TaskSetType" --value $taskSetType
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "makeProgressTimeLimit" --value $makeProgressTimeLimit
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "kVerucchiTimeLimit" --value $kVerucchiTimeLimit
-python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "useOrderOptResultInNoScheduleOpt" --value $useOrderOptResultInNoScheduleOpt
 cp $ROOT_PATH/sources/parameters.yaml $ROOT_PATH/CompareWithBaseline/$title/dagTasks
 cp $ROOT_PATH/CompareWithBaseline/$title/Compare$title.sh $ROOT_PATH/CompareWithBaseline/$title/dagTasks
 
@@ -98,6 +95,5 @@ done
 
 # visualize the result
 python $ROOT_PATH/CompareWithBaseline/$title/Visualize_RTDA_performance.py --minTaskNumber $MinTaskNumber \
-  --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $ROOT_PATH/CompareWithBaseline/$title \
-  --useOrderOptResultInNoScheduleOpt $useOrderOptResultInNoScheduleOpt
+  --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $ROOT_PATH/CompareWithBaseline/$title
 cp $ROOT_PATH/CompareWithBaseline/$title/*.pdf $ROOT_PATH/CompareWithBaseline/$title/dagTasks/

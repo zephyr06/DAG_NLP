@@ -77,16 +77,12 @@ def plot_figure(data_to_plot, ylabel_name):
     dataset_pd.insert(0, "index", np.linspace(
         minTaskNumber, maxTaskNumber, maxTaskNumber - minTaskNumber + 1))
     for i in range(len(data_to_plot)):
-        if (useOrderOptResultInNoScheduleOpt == 1 and ylabel_name == "Time" and optimizer_name[i] == "OrderOptWithoutScheudleOpt"):
-            continue
         dataset_pd.insert(0, optimizer_name[i], data_to_plot[i])
         splot = sns.lineplot(data=dataset_pd, x="index", y=optimizer_name[i], marker=marker_list[i % len(marker_list)],
                              color=color_list[i % len(color_list)], markersize=8)  # , alpha=0.8)
     splot.set(xlabel="Task Number", ylabel=ylabel_name)
     # splot.set_ylim([0.95, 2.0])
     # splot.set_ylim(1e-4, 1e3)
-    if (useOrderOptResultInNoScheduleOpt == 1 and ylabel_name == "Time"):
-        optimizer_name.remove("OrderOptWithoutScheudleOpt")
     l_bound = minTaskNumber - 1
     r_bound = maxTaskNumber + 1
     if (l_bound % 2 == 1):
@@ -118,15 +114,12 @@ parser.add_argument('--result_file_path', type=str, default="/home/dong/workspac
                     help='top directory of result files')
 # parser.add_argument('--result_file_path', type=str, default="/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/RTDA2CoresPerformance",
 #                     help='project root path')
-parser.add_argument('--useOrderOptResultInNoScheduleOpt', type=int, default=0,
-                    help='whether used OrderOpt Result In NoScheduleOpt mode, if so, will not plot time curve for OrderOptWithoutScheudleOpt')
 
 args = parser.parse_args()
 minTaskNumber = args.minTaskNumber
 maxTaskNumber = args.maxTaskNumber
 title = args.title
 result_file_path = args.result_file_path
-useOrderOptResultInNoScheduleOpt = args.useOrderOptResultInNoScheduleOpt
 methods_name = ("Initial", "OrderOptWithoutScheudleOpt", "NLP",
                 "OrderOpt")
 marker_list = ["o", "s", "D", "v"]  #

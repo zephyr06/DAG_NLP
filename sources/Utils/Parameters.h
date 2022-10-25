@@ -148,4 +148,3 @@ double kCplexInequalityThreshold = (double)ConfigParameters["kCplexInequalityThr
 
 int doScheduleOptimization = (int)ConfigParameters["doScheduleOptimization"];
 int considerSensorFusion = (int)ConfigParameters["considerSensorFusion"];
-int useOrderOptResultInNoScheduleOpt = (int)ConfigParameters["useOrderOptResultInNoScheduleOpt"];
