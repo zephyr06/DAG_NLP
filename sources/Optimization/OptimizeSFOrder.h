@@ -175,23 +175,6 @@ namespace OrderOptDAG_SPACE
                 break;
 
             findNewUpdate = false;
-            // for (LLint i = 0; i < static_cast<LLint>(jobOrderRef.size()); i++)
-            // {
-            //     if (time_out_flag)
-            //         break;
-
-            //     SFOrder jobOrderCurr = statusPrev.jobOrder_;
-            //     jobOrderCurr.Remove();
-            //     for (LLint j = 0; j < static_cast<LLint>(jobOrderRef.size()); j++)
-            //     {
-            //         if (CheckTimeOut())
-            //             break;
-            //         if (WhetherSkipSwitch(tasksInfo, jobOrderCurr[i], jobOrderCurr[j]))
-            //             continue;
-            //         jobOrderCurr.ChangeJobStartOrder(i, j);
-            //         ExamAndApplyUpdate(jobOrderCurr);
-            //     }
-            // }
             for (int i = 0; i < tasksInfo.N; i++)
             {
                 for (LLint j = 0; j < tasksInfo.sizeOfVariable[i]; j++)
@@ -199,11 +182,11 @@ namespace OrderOptDAG_SPACE
                     JobCEC jobRelocate(i, j);
                     SFOrder jobOrderCurr = statusPrev.jobOrder_;
                     jobOrderCurr.Remove(jobRelocate);
-
+                    // TODO: limit the range of possible choices
                     for (LLint startP = 0; startP < static_cast<LLint>(jobOrderCurr.size()); startP++)
                     {
                         jobOrderCurr.InsertStart(jobRelocate, startP);
-                        for (LLint finishP = 0; finishP < static_cast<LLint>(jobOrderCurr.size()); finishP++)
+                        for (LLint finishP = startP; finishP < static_cast<LLint>(jobOrderCurr.size()); finishP++)
                         {
                             jobOrderCurr.InsertFinish(jobRelocate, finishP);
                             ExamAndApplyUpdate(jobOrderCurr);
