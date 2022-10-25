@@ -106,6 +106,7 @@ namespace OrderOptDAG_SPACE
         }
 
         LLint size() const { return instanceOrder_.size(); }
+        TimeInstance operator[](LLint index) { return instanceOrder_[index]; }
 
         LLint GetJobStartInstancePosition(JobCEC &job) const
         {

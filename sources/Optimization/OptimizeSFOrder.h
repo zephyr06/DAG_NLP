@@ -13,6 +13,7 @@
 #include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Optimization/SFOrder.h"
+#include "sources/Tools/profilier.h"
 
 namespace OrderOptDAG_SPACE
 {
@@ -204,10 +205,14 @@ namespace OrderOptDAG_SPACE
                         JobCEC jobRelocate(i, j);
                         for (LLint startP = 0; startP < static_cast<LLint>(statusPrev.jobOrder_.size() - 1); startP++)
                         {
+                            if (statusPrev.jobOrder_[startP].job.taskId == i && statusPrev.jobOrder_[startP].job.jobId > j)
+                                break;
+
                             SFOrder jobOrderCurrForStart = statusPrev.jobOrder_;
                             jobOrderCurrForStart.RemoveJob(jobRelocate);
                             if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, jobOrderCurrForStart))
                                 continue;
+
                             jobOrderCurrForStart.InsertStart(jobRelocate, startP); // must insert start first
                             for (LLint finishP = startP + 1; finishP < static_cast<LLint>(statusPrev.jobOrder_.size()); finishP++)
                             {
@@ -219,12 +224,11 @@ namespace OrderOptDAG_SPACE
                                 // if (debugMode == 1)
                                 //     jobOrderCurrForFinish.print();
 
-                                IterationStatus statusCurrABC(dagTasks, tasksInfo, jobOrderCurrForFinish, processorNum);
                                 ExamAndApplyUpdate(jobOrderCurrForFinish);
                             }
                         }
                     }
-                std::cout << "Finish one big while loop!" << std::endl;
+                // std::cout << "Finish one big while loop!" << std::endl;
             }
             if (!statusPrev.schedulable_)
             {
