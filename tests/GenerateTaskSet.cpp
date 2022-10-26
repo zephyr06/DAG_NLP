@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
                         continue;
                     }
                 }
-                string fileName = "dag-set-" + string(3 - to_string(i).size(), '0') + to_string(i) + "-syntheticJobs" + ".csv";
+                string fileName = "dag-set-N" + to_string(N) + "-" + string(3 - to_string(i).size(), '0') + to_string(i) + "-syntheticJobs" + ".csv";
                 ofstream myfile;
                 myfile.open(outDirectory + fileName);
                 WriteDAG(myfile, tasks);
