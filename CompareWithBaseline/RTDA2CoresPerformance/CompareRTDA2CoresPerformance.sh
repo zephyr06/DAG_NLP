@@ -7,16 +7,10 @@ MinTaskNumber=3
 MaxTaskNumber=30
 TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
 ## no separator '/' at the end of the path
-<<<<<<< HEAD
-ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
-# ROOT_PATH="/home/dong/workspace/DAG_NLP"
-RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks"
-=======
 #ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
 ROOT_PATH="/home/dong/workspace/DAG_NLP"
 # ROOT_PATH="/home/dong/workspace/DAG_batch_test/rtda_test/DAG_NLP" # for final batch test
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks" # tBatch1's result path
->>>>>>> 23b437c294a5fdb2af503c4240e21df31090fe54
 methods_dir_name=( "Initial_Res" "OrderOpt_Res" "Verucchi_Res" "OrderOptWithoutScheudleOpt_Res" ) # exclude NLP_Res in RTDA part
 makeProgressTimeLimit=100
 kVerucchiTimeLimit=100

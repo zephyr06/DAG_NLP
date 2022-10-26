@@ -4,13 +4,6 @@
 # ************** Adjust settings there **************
 title="SensorFusion2CoresPerformance"
 MinTaskNumber=3
-<<<<<<< HEAD
-MaxTaskNumber=30
-## no separator '/' at the end of the path
-ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
-# ROOT_PATH="/home/dong/workspace/DAG_NLP"
-RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks"
-=======
 MaxTaskNumber=20
 TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
 ## no separator '/' at the end of the path
@@ -18,18 +11,12 @@ TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
 ROOT_PATH="/home/dong/workspace/DAG_NLP"
 # ROOT_PATH="/home/dong/workspace/DAG_batch_test/sf_test/DAG_NLP" # for final batch test
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks" # tBatch1's result path
->>>>>>> 23b437c294a5fdb2af503c4240e21df31090fe54
 methods_dir_name=( "Initial_Res" "OrderOpt_Res" "NLP_Res" "OrderOptWithoutScheudleOpt_Res" ) # exclude Verucchi_Res in sensor fusion part
 makeProgressTimeLimit=100
 kVerucchiTimeLimit=100
 kWangRtss21IcNlpTimeLimit=100
 coreNumberAva=2
-<<<<<<< HEAD
-useOrderOptResultInNoScheduleOpt=0 # 0 will rerun order opt without schedule opt (time consuming); otherwise 1 will lose time informaction for no-schedule-opt mode
-keep_current_result_and_only_plot=0 # if true, will plot result files in $history_result_directory
-=======
 keep_current_result_and_only_plot=1 # if true, will plot result files in $history_result_directory
->>>>>>> 23b437c294a5fdb2af503c4240e21df31090fe54
 history_result_directory="$ROOT_PATH/CompareWithBaseline/SensorFusion2CoresPerformance" 
 ## setting for generating task sets
 taskSetType=3
