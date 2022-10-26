@@ -144,8 +144,9 @@ const double kVerucchiDataAgeCost = (double)ConfigParameters["kVerucchiDataAgeCo
 const double kVerucchiMaxDataAge = (double)ConfigParameters["kVerucchiMaxDataAge"];
 const double kVerucchiCoreCost = (double)ConfigParameters["kVerucchiCoreCost"];
 
+const int64_t kWangRtss21IcNlpTimeLimit = (int)ConfigParameters["kWangRtss21IcNlpTimeLimit"];
+
 double kCplexInequalityThreshold = (double)ConfigParameters["kCplexInequalityThreshold"];
 
 int doScheduleOptimization = (int)ConfigParameters["doScheduleOptimization"];
 int considerSensorFusion = (int)ConfigParameters["considerSensorFusion"];
-int useOrderOptResultInNoScheduleOpt = (int)ConfigParameters["useOrderOptResultInNoScheduleOpt"];
