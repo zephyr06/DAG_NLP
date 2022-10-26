@@ -203,7 +203,19 @@ namespace OrderOptDAG_SPACE
                     for (LLint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
                     {
                         JobCEC jobRelocate(i, j);
-                        for (LLint startP = 0; startP < static_cast<LLint>(statusPrev.jobOrder_.size() - 1); startP++)
+                        LLint prevJobIndex = 0, nextJobIndex = static_cast<LLint>(statusPrev.jobOrder_.size() - 1);
+                        if (j > 0)
+                        {
+                            JobCEC prevJob(i, j - 1);
+                            prevJobIndex = statusPrev.jobOrder_.GetJobFinishInstancePosition(prevJob);
+                        }
+                        if (j < tasksInfo.sizeOfVariables[i] - 1)
+                        {
+                            JobCEC nextJob(i, j + 1);
+                            nextJobIndex = statusPrev.jobOrder_.GetJobStartInstancePosition(nextJob);
+                        }
+
+                        for (LLint startP = prevJobIndex; startP < nextJobIndex; startP++)
                         {
                             if (statusPrev.jobOrder_[startP].job.taskId == i && statusPrev.jobOrder_[startP].job.jobId > j)
                                 break;
