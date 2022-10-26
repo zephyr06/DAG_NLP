@@ -212,7 +212,7 @@ namespace OrderOptDAG_SPACE
                         if (j < tasksInfo.sizeOfVariables[i] - 1)
                         {
                             JobCEC nextJob(i, j + 1);
-                            nextJobIndex = statusPrev.jobOrder_.GetJobStartInstancePosition(nextJob);
+                            nextJobIndex = std::min(statusPrev.jobOrder_.GetJobStartInstancePosition(nextJob) + 1, nextJobIndex); // actually, I'm not sure why do we need this "+1", but it doesn't hurt to search for a few more
                         }
 
                         for (LLint startP = prevJobIndex; startP < nextJobIndex; startP++)
@@ -226,7 +226,7 @@ namespace OrderOptDAG_SPACE
                                 continue;
 
                             jobOrderCurrForStart.InsertStart(jobRelocate, startP); // must insert start first
-                            for (LLint finishP = startP + 1; finishP < static_cast<LLint>(statusPrev.jobOrder_.size()); finishP++)
+                            for (LLint finishP = startP + 1; finishP < nextJobIndex + 1; finishP++)
                             {
                                 if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, statusPrev.jobOrder_))
                                     continue;
