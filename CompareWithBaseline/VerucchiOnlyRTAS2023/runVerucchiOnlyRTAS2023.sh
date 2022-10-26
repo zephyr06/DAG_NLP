@@ -21,7 +21,7 @@ keep_current_result_and_only_plot=0 # if true, will plot result files in $histor
 history_result_directory="$ROOT_PATH/CompareWithBaseline/VerucchiOnlyRTAS2023/" 
 ## setting for generating task sets
 taskSetType=3
-taskSetNumber=5
+taskSetNumber=500
 randomSeed=-1 # negative means time seed
 # ***************************************************
 # ***************************************************
