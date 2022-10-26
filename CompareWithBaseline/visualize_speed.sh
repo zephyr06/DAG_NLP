@@ -9,7 +9,7 @@ time_file="ResultFiles/time_$title.txt"
 > $time_file
 
 cd ../release
-make -j8
+make -j4
 cd ../compare
 for taskNumber in {6..10}
 do

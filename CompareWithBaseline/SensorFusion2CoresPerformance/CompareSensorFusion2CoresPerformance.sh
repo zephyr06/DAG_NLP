@@ -4,17 +4,17 @@
 # ************** Adjust settings there **************
 title="SensorFusion2CoresPerformance"
 MinTaskNumber=3
-MaxTaskNumber=20
+MaxTaskNumber=30
 ## no separator '/' at the end of the path
-#ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
-ROOT_PATH="/home/dong/workspace/DAG_NLP"
+ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
+# ROOT_PATH="/home/dong/workspace/DAG_NLP"
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks"
 methods_dir_name=( "Initial_Res" "OrderOpt_Res" "NLP_Res" "OrderOptWithoutScheudleOpt_Res" ) # exclude Verucchi_Res in sensor fusion part
 makeProgressTimeLimit=60
 kVerucchiTimeLimit=60
 coreNumberAva=2
 useOrderOptResultInNoScheduleOpt=0 # 0 will rerun order opt without schedule opt (time consuming); otherwise 1 will lose time informaction for no-schedule-opt mode
-keep_current_result_and_only_plot=1 # if true, will plot result files in $history_result_directory
+keep_current_result_and_only_plot=0 # if true, will plot result files in $history_result_directory
 history_result_directory="$ROOT_PATH/CompareWithBaseline/SensorFusion2CoresPerformance" 
 ## setting for generating task sets
 taskSetType=3

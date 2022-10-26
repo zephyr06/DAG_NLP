@@ -6,8 +6,8 @@ title="RTDA2CoresPerformance"
 MinTaskNumber=3
 MaxTaskNumber=30
 ## no separator '/' at the end of the path
-#ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
-ROOT_PATH="/home/dong/workspace/DAG_NLP"
+ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
+# ROOT_PATH="/home/dong/workspace/DAG_NLP"
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks"
 methods_dir_name=( "Initial_Res" "OrderOpt_Res" "Verucchi_Res" "OrderOptWithoutScheudleOpt_Res" ) # exclude NLP_Res in RTDA part
 makeProgressTimeLimit=60
