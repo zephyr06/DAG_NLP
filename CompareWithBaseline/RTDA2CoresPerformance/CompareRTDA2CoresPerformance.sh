@@ -14,6 +14,7 @@ RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks" # tBatch1's result path
 methods_dir_name=( "Initial_Res" "OrderOpt_Res" "Verucchi_Res" "OrderOptWithoutScheudleOpt_Res" ) # exclude NLP_Res in RTDA part
 makeProgressTimeLimit=100
 kVerucchiTimeLimit=100
+kWangRtss21IcNlpTimeLimit=100
 coreNumberAva=2
 keep_current_result_and_only_plot=1 # if true, will plot result files in $history_result_directory
 history_result_directory="$ROOT_PATH/CompareWithBaseline/RTDA2CoresPerformance/" 
@@ -56,6 +57,7 @@ python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "coreNumberAva" --val
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "TaskSetType" --value $taskSetType
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "makeProgressTimeLimit" --value $makeProgressTimeLimit
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "kVerucchiTimeLimit" --value $kVerucchiTimeLimit
+python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "kWangRtss21IcNlpTimeLimit" --value $kWangRtss21IcNlpTimeLimit
 cp $ROOT_PATH/sources/parameters.yaml $ROOT_PATH/CompareWithBaseline/$title/scripts_and_figures_backup
 cp $ROOT_PATH/CompareWithBaseline/$title/Compare$title.sh $ROOT_PATH/CompareWithBaseline/$title/scripts_and_figures_backup
 

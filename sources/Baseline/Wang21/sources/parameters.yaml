@@ -13,7 +13,7 @@ debugMode: 0
 deltaInitialDogleg: 1e5
 deltaOptimizer: 1e-1
 exactJacobian: 0
-initialLambda: 1e0
+initialLambda: 1e0 # suggest 1e0
 lowerLambda: 1e-15
 noiseModelSigma: 1
 AcceptSchedulError: 1e0
@@ -26,7 +26,7 @@ readTaskMode: orig
 withAddedSensorFusionError: 1
 ElimnateLoop_Max: 50
 zeroJacobianDetectTol: 1e-7
-maxIterations: 1000
+maxIterations: 100 # set to 100 ude to unexpected time out, suggest 1000
 moreElimination: 0
 weightPrior_factor: 0
 initializeMethod: 2
@@ -34,7 +34,7 @@ timeScaleFactor: 1e2
 stepJacobianIteration: 1.5
 maxJacobianIteration: 25
 priorityMode: RM
-relativeErrorTolerance: 1e-5
+relativeErrorTolerance: 1e-2 # suggest 1e-5, don't use values less than 1e-2
 runMode: compare
 SA_iteration: 100000
 temperatureSA: 100000000

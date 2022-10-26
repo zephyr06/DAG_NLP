@@ -6,7 +6,7 @@ TotalMethodUnderComparison: 5 # 0: LS initial, 1: optimize order & schedule, 2: 
 testDataSetName: test_n5_v79
 debugMode: 0
 doScheduleOptimization: 1
-considerSensorFusion: 1
+considerSensorFusion: 1 
 #*************************************************************
 # Get away from local optimal setting
 RandomAccept: 0 # chance to take a possibly better solution
@@ -59,6 +59,11 @@ kVerucchiMaxReaction: 400000.0
 kVerucchiDataAgeCost: 15.0
 kVerucchiMaxDataAge: 400000.0
 kVerucchiCoreCost: 0.0
+#*************************************************************
+#*************************************************************
+# Wang RTSS21IC_NLP settings
+kWangRtss21IcNlpTimeLimit: 100 # seconds, -1 means unlimited time
+
 #*************************************************************
 
 # Cplex settings
