@@ -521,28 +521,45 @@ namespace OrderOptDAG_SPACE
             }
             else if (currentInstance.type == 's')
             {
-                if (timeNow < GetActivationTime(currentInstance.job, tasksInfo))
+                bool currentJobScheduled = false;
+                while (!currentJobScheduled)
                 {
-                    timeNow = GetActivationTime(currentInstance.job, tasksInfo);
-                }
-                for (int processorId = 0; processorId < processorNum; processorId++)
-                {
-                    if (timeNow >= nextFree[processorId])
+                    if (timeNow < GetActivationTime(currentInstance.job, tasksInfo))
                     {
-                        busy[processorId] = false;
+                        timeNow = GetActivationTime(currentInstance.job, tasksInfo);
                     }
-                    if (!busy[processorId])
+                    for (int processorId = 0; processorId < processorNum; processorId++)
                     {
-                        LLint uniqueJobId = GetJobUniqueId(currentInstance.job, tasksInfo);
-                        startTimeVector(uniqueJobId, 0) = timeNow;
-                        nextFree[processorId] = timeNow + tasks[currentInstance.job.taskId].executionTime;
-                        scheduledFinishTime[uniqueJobId] = nextFree[processorId];
-                        busy[processorId] = true;
-                        if (processorIdVec)
+                        if (timeNow >= nextFree[processorId])
                         {
-                            (*processorIdVec)[uniqueJobId] = processorId;
+                            busy[processorId] = false;
                         }
-                        break;
+                        if (!busy[processorId])
+                        {
+                            LLint uniqueJobId = GetJobUniqueId(currentInstance.job, tasksInfo);
+                            startTimeVector(uniqueJobId, 0) = timeNow;
+                            nextFree[processorId] = timeNow + tasks[currentInstance.job.taskId].executionTime;
+                            scheduledFinishTime[uniqueJobId] = nextFree[processorId];
+                            busy[processorId] = true;
+                            if (processorIdVec)
+                            {
+                                (*processorIdVec)[uniqueJobId] = processorId;
+                            }
+                            currentJobScheduled = true;
+                            break;
+                        }
+                    }
+                    if (!currentJobScheduled)
+                    { // cant't find available processor, wait to earliest available time
+                        LLint leastAvailableProcessorTime = LLONG_MAX;
+                        for (int processorId = 0; processorId < processorNum; processorId++)
+                        {
+                            if (leastAvailableProcessorTime > nextFree[processorId]) 
+                            {
+                                leastAvailableProcessorTime = nextFree[processorId];
+                            }
+                        }
+                        timeNow = leastAvailableProcessorTime;
                     }
                 }
             }
