@@ -7,3 +7,5 @@
 
 ### runVerucchiOnlyRTAS2023 settings
 * Update `ROOT_PATH` in `CompareWithBaseline/VerucchiOnlyRTAS2023/runVerucchiOnlyRTAS2023.sh` for verucchi only tests
+* Update `TaskNumberArray` in `CompareWithBaseline/VerucchiOnlyRTAS2023/runVerucchiOnlyRTAS2023.sh` for verucchi only tests
+* Make sure you are using RTDATasksets in `TASKSETS_PATH` of `runVerucchiOnlyRTAS2023.sh`
