@@ -19,6 +19,7 @@ kWangRtss21IcNlpTimeLimit=100
 coreNumberAva=2
 keep_current_result_and_only_plot=0 # if true, will plot result files in $history_result_directory
 history_result_directory="$ROOT_PATH/CompareWithBaseline/VerucchiOnlyRTAS2023/" 
+keep_current_result_and_continue_previous_running=1 # 0 will delete all current results and rerun, 1 will attach results to current result files
 ## setting for generating task sets
 taskSetType=3
 taskSetNumber=500
@@ -37,15 +38,23 @@ randomSeed=-1 # negative means time seed
 #   exit
 # fi
 
-echo "Clearing all current results."
-for dir_name in ${methods_dir_name[@]}; do
-  if [[ -d $dir_name ]]; then rm -rf $dir_name; fi
-  mkdir $dir_name
-done
-if [[ -d dagTasks ]]; then rm -rf dagTasks; fi
-mkdir dagTasks
-if [[ -d scripts_and_figures_backup ]]; then rm -rf scripts_and_figures_backup; fi
-mkdir scripts_and_figures_backup
+if [[ $keep_current_result_and_continue_previous_running == 1 ]]; then
+  for dir_name in ${methods_dir_name[@]}; do
+    if [[ ! -d $dir_name ]]; then mkdir $dir_name; fi
+  done
+  if [[ ! -d dagTasks ]]; then mkdir dagTasks; fi
+  if [[ ! -d scripts_and_figures_backup ]]; then mkdir scripts_and_figures_backup; fi
+else
+  echo "Clearing all current results."
+  for dir_name in ${methods_dir_name[@]}; do
+    if [[ -d $dir_name ]]; then rm -rf $dir_name; fi
+    mkdir $dir_name
+  done
+  if [[ -d dagTasks ]]; then rm -rf dagTasks; fi
+  mkdir dagTasks
+  if [[ -d scripts_and_figures_backup ]]; then rm -rf scripts_and_figures_backup; fi
+  mkdir scripts_and_figures_backup
+fi
 
 # set parameters, backup parameters and scripts parameters
 cp parameters.yaml $ROOT_PATH/sources/parameters.yaml
@@ -61,7 +70,6 @@ python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "kVerucchiTimeLimit" 
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "kWangRtss21IcNlpTimeLimit" --value $kWangRtss21IcNlpTimeLimit
 cp $ROOT_PATH/sources/parameters.yaml $ROOT_PATH/CompareWithBaseline/$title/scripts_and_figures_backup
 cp $ROOT_PATH/CompareWithBaseline/$title/run$title.sh $ROOT_PATH/CompareWithBaseline/$title/scripts_and_figures_backup
-
 # build the project
 cd ..
 if [[ ! -d $ROOT_PATH/release ]]; then ./build_release_target.sh; fi
@@ -101,6 +109,7 @@ do
     cd $dir_name
     if [[ ! -d $taskset_folder_name ]]; then mkdir $taskset_folder_name; fi
     cp $RESULTS_PATH/*$dir_name.txt ./$taskset_folder_name/
+    rm $taskset_result_summary_file_name
     cat ./$taskset_folder_name/* >> $taskset_result_summary_file_name
     cd $ROOT_PATH/CompareWithBaseline/$title
   done
