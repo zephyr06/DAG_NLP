@@ -10,7 +10,6 @@
 #include "sources/Optimization/JobOrder.h"
 #include "sources/Tools/profilier.h"
 #include "sources/Optimization/SFOrder.h"
-
 namespace OrderOptDAG_SPACE
 {
 
@@ -493,6 +492,7 @@ namespace OrderOptDAG_SPACE
                                     TaskSetInfoDerived &tasksInfo, int processorNum, SFOrder &jobOrder,
                                     boost::optional<std::vector<uint> &> processorIdVec = boost::none)
     {
+        BeginTimerAppInProfiler;
         const TaskSet &tasks = dagTasks.tasks;
         std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
 
@@ -556,6 +556,8 @@ namespace OrderOptDAG_SPACE
                 break;
             }
         }
+
+        EndTimerAppInProfiler;
         return startTimeVector;
     }
 } // namespace OrderOptDAG_SPACE

@@ -11,12 +11,16 @@
 namespace OrderOptDAG_SPACE
 {
 
-    struct TimeInstance
+    class TimeInstance
     {
-        char type; // 's' or 'f'
-        JobCEC job;
+    private:
         double time;
 
+    public:
+        char type; // 's' or 'f'
+        JobCEC job;
+        TimeInstance(char type, JobCEC j, double t) : time(t), type(type), job(j) {}
+        TimeInstance(char type, JobCEC j) : time(-1), type(type), job(j) {}
         double getTime()
         {
             return time;
@@ -45,6 +49,7 @@ namespace OrderOptDAG_SPACE
         {
             LLint startInstanceIndex;
             LLint finishInstanceIndex;
+            SFPair() : startInstanceIndex(-1), finishInstanceIndex(-1) {}
         };
         std::unordered_map<JobCEC, SFPair> jobSFMap_;
 
@@ -61,8 +66,8 @@ namespace OrderOptDAG_SPACE
                 for (uint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
                 {
                     JobCEC job(i, j);
-                    instanceOrder_.push_back(TimeInstance{'s', job, GetStartTime(job, startTimeVector, tasksInfo)});
-                    instanceOrder_.push_back(TimeInstance{'f', job, GetFinishTime(job, startTimeVector, tasksInfo)});
+                    instanceOrder_.push_back(TimeInstance('s', job, GetStartTime(job, startTimeVector, tasksInfo)));
+                    instanceOrder_.push_back(TimeInstance('f', job, GetFinishTime(job, startTimeVector, tasksInfo)));
                 }
             }
             std::sort(instanceOrder_.begin(), instanceOrder_.end(), TimeInstance::compare);
@@ -70,48 +75,114 @@ namespace OrderOptDAG_SPACE
             EstablishJobSFMap();
         }
 
-        // O(n^2), could be improved to be O(n)
+        // O(n)
         void EstablishJobSFMap()
         {
             jobSFMap_.reserve(tasksInfo_.length);
-            for (int i = 0; i < tasksInfo_.N; i++)
+            for (size_t i = 0; i < instanceOrder_.size(); i++)
             {
-                for (uint j = 0; j < tasksInfo_.sizeOfVariables[i]; j++)
+                TimeInstance &inst = instanceOrder_[i];
+                if (jobSFMap_.find(inst.job) == jobSFMap_.end())
                 {
-                    JobCEC job(i, j);
                     SFPair sfPair;
-                    for (LLint i = 0; i < tasksInfo_.length * 2; i++)
-                    {
-                        TimeInstance &inst = instanceOrder_[i];
-                        if (inst.job == job)
-                        {
-                            if (inst.type == 's')
-                                sfPair.startInstanceIndex = i;
-                            else if (inst.type == 'f')
-                            {
-                                sfPair.finishInstanceIndex = i;
-                                jobSFMap_[job] = sfPair;
-                                break;
-                            }
-                        }
-                    }
+                    if (inst.type == 's')
+                        sfPair.startInstanceIndex = i;
+                    else if (inst.type == 'f')
+                        sfPair.finishInstanceIndex = i;
+                    else
+                        CoutError("Wrong type in TimeInstance!");
+                    jobSFMap_[inst.job] = sfPair;
+                }
+                else
+                {
+                    if (inst.type == 's')
+                        jobSFMap_[inst.job].startInstanceIndex = i;
+                    else if (inst.type == 'f')
+                        jobSFMap_[inst.job].finishInstanceIndex = i;
+                    else
+                        CoutError("Wrong type in TimeInstance!");
                 }
             }
         }
 
-        LLint GetJobStartInstancePosition(JobCEC &job)
+        LLint size() const { return instanceOrder_.size(); }
+        TimeInstance operator[](LLint index) { return instanceOrder_[index]; }
+
+        LLint GetJobStartInstancePosition(JobCEC &job) const
         {
-            return jobSFMap_[job].startInstanceIndex;
+            return jobSFMap_.at(job).startInstanceIndex;
         }
-        LLint GetJobFinishInstancePosition(JobCEC &job)
+        LLint GetJobFinishInstancePosition(JobCEC &job) const
         {
-            return jobSFMap_[job].finishInstanceIndex;
+            return jobSFMap_.at(job).finishInstanceIndex;
         }
 
-        JobCEC RemoveJob(JobCEC job);
+        void RangeCheck(LLint index, bool allowEnd = false)
+        {
+            if (allowEnd && (index < 0 || index > size()))
+            {
+                CoutError("Index error in SFOrder");
+            }
+            if (!allowEnd && (index < 0 || index >= size()))
+                CoutError("Index error in SFOrder");
+        }
 
-        void InsertStart(JobCEC job, LLint position);
+        void RemoveJob(JobCEC job)
+        {
+            LLint startIndex = GetJobStartInstancePosition(job);
+            LLint finishIndex = GetJobFinishInstancePosition(job);
+            RangeCheck(startIndex);
+            RangeCheck(finishIndex);
+            instanceOrder_.erase(instanceOrder_.begin() + finishIndex);
+            instanceOrder_.erase(instanceOrder_.begin() + startIndex);
+            jobSFMap_.erase(job);
+            EstablishJobSFMap();
+        }
 
-        void InsertFinish(JobCEC, LLint position);
+        void InsertStart(JobCEC job, LLint position)
+        {
+            RangeCheck(position, true);
+            TimeInstance inst('s', job);
+            instanceOrder_.insert(instanceOrder_.begin() + position, inst);
+
+            // if (jobSFMap_.find(job) == jobSFMap_.end())
+            // {
+            //     SFPair sfP;
+            //     sfP.startInstanceIndex = position;
+            //     jobSFMap_[job] = sfP;
+            // }
+            // else
+            // {
+            //     jobSFMap_[job].startInstanceIndex = position;
+            // }
+            EstablishJobSFMap();
+        }
+
+        void InsertFinish(JobCEC job, LLint position)
+        {
+            RangeCheck(position, true);
+            instanceOrder_.insert(instanceOrder_.begin() + position, TimeInstance('f', job));
+
+            // if (jobSFMap_.find(job) == jobSFMap_.end())
+            // {
+            //     SFPair sfP;
+            //     sfP.finishInstanceIndex = position;
+            //     jobSFMap_[job] = sfP;
+            // }
+            // else
+            // {
+            //     jobSFMap_[job].finishInstanceIndex = position;
+            // }
+            EstablishJobSFMap();
+        }
+
+        void print()
+        {
+            std::cout << "instanceOrder_:" << std::endl;
+            for (uint i = 0; i < instanceOrder_.size(); i++)
+            {
+                std::cout << instanceOrder_[i].job.taskId << ", " << instanceOrder_[i].job.jobId << ", " << instanceOrder_[i].type << std::endl;
+            }
+        }
     };
 } // namespace OrderOptDAG_SPACE
