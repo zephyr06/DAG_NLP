@@ -229,6 +229,13 @@ namespace RTSS21IC_NLP
          */
         OptimizeResult OptimizeScheduling(OrderOptDAG_SPACE::DAG_Model &dagTasks, VectorDynamic initialUser = GenerateVectorDynamic(1))
         {
+            auto start_time = std::chrono::system_clock::now();
+            auto curr_time = std::chrono::system_clock::now();
+            int64_t time_limit_in_seconds = kWangRtss21IcNlpTimeLimit;
+            if (time_limit_in_seconds < 0)
+            {
+                time_limit_in_seconds = INT64_MAX;
+            }
             TaskSet tasks = dagTasks.tasks;
             int N = tasks.size();
             LLint hyperPeriod = HyperPeriod(tasks);
@@ -313,6 +320,15 @@ namespace RTSS21IC_NLP
                 {
                     CoutWarning("Loop number Warning in OptimizeScheduling");
                     // cannot use mapIndex to recover, because mapIndex has already been changed at this point
+                    trueResult = startTimeComplete;
+                    break;
+                }
+
+                // time out NLP but make sure to have at least one NLP loop
+                curr_time = std::chrono::system_clock::now();
+                if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= time_limit_in_seconds)
+                {
+                    std::cout << "\nTime out when running Wang's RTSS21-IC NLP. Maximum time is " << time_limit_in_seconds << " seconds.\n\n";
                     trueResult = startTimeComplete;
                     break;
                 }

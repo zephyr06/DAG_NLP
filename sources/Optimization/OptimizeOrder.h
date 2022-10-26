@@ -47,7 +47,7 @@ namespace OrderOptDAG_SPACE
                 sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
                 // objVal_ += ObjSF(sfVec_);
             }
-            schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
+            schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_, sensorFusionTolerance, FreshTol);
 
             // TODO add a LP optimization, update (startTimeVector_  jobOrder_)
             if (doScheduleOptimization)
@@ -57,9 +57,28 @@ namespace OrderOptDAG_SPACE
                 ScheduleOptimizer scheduleOptimizer = ScheduleOptimizer();
                 scheduleOptimizer.Optimize(dagTasks, scheduleResBeforeOpt);
                 resultAfterOptimization = scheduleOptimizer.getOptimizedResult();
-                if (debugMode && !resultAfterOptimization.schedulable_)
+                // if (debugMode && !resultAfterOptimization.schedulable_)
+                // {
+                //     std::cout << "Found one unschedulable case after optimization!\n";
+                // }
+                if (resultAfterOptimization.schedulable_)
                 {
-                    std::cout << "Found one unschedulable case after optimization!\n";
+                    startTimeVector_ = resultAfterOptimization.startTimeVector_;
+                    rtdaVec_.clear();
+                    maxRtda_.clear();
+                    for (uint i = 0; i < dagTasks.chains_.size(); i++)
+                    {
+                        auto rtdaVecTemp = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[i], startTimeVector_);
+                        rtdaVec_.push_back(rtdaVecTemp);
+                        maxRtda_.push_back(GetMaxRTDA(rtdaVecTemp));
+                    }
+                    if (considerSensorFusion)
+                    {
+                        sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
+                        // objVal_ += ObjSF(sfVec_);
+                    }
+                    schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_, sensorFusionTolerance, FreshTol);
+                    jobOrder_ = JobOrderMultiCore(tasksInfo, startTimeVector_);
                 }
             }
         }
@@ -124,8 +143,7 @@ namespace OrderOptDAG_SPACE
     }
 
     template <class SchedulingAlgorithm>
-    ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, int processorNum = coreNumberAva,
-                                    boost::optional<ScheduleResult &> resOrderOptWithoutScheduleOpt = boost::none)
+    ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, int processorNum = coreNumberAva)
     {
         // srand(RandomDrawWeightMaxLoop);
         if (dagTasks.chains_.size() == 0)
@@ -149,9 +167,12 @@ namespace OrderOptDAG_SPACE
 
         bool findNewUpdate = true;
 
+        LLint countMakeProgress = 0;
+        LLint countCplexOpt = 0;
         auto ExamAndApplyUpdate = [&](JobOrderMultiCore jobOrderCurr)
         {
             IterationStatus<SchedulingAlgorithm> statusCurr(dagTasks, tasksInfo, jobOrderCurr, processorNum);
+            countCplexOpt++;
 
             // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
             if (MakeProgress<SchedulingAlgorithm>(statusPrev, statusCurr))
@@ -163,6 +184,7 @@ namespace OrderOptDAG_SPACE
                     std::cout << "Make progress!" << std::endl;
                     PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
                 }
+                countMakeProgress++;
             }
         };
 
@@ -187,8 +209,10 @@ namespace OrderOptDAG_SPACE
             return false;
         };
 
+        LLint countOutermostWhileLoop = 0;
         while (findNewUpdate)
         {
+            countOutermostWhileLoop++;
             if (time_out_flag)
                 break;
 
@@ -246,12 +270,8 @@ namespace OrderOptDAG_SPACE
         }
 
         ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.ReadObj(), statusPrev.processorJobVec_};
+        scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
         auto no_thing = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_); // get the processor assignment
-        if (resOrderOptWithoutScheduleOpt)
-        {
-            scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
-            *resOrderOptWithoutScheduleOpt = scheduleRes;
-        }
 
         if (doScheduleOptimization)
         {
@@ -260,13 +280,16 @@ namespace OrderOptDAG_SPACE
             schedule_optimizer.Optimize(dagTasks, scheduleRes);
             result_after_optimization = schedule_optimizer.getOptimizedResult();
             scheduleRes = result_after_optimization;
-            if (!ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum))
+            if (!ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol))
             {
                 CoutWarning("Found one unschedulable case after optimization!");
             }
         }
 
         scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
+        std::cout << "Outermost while loop count: " << countOutermostWhileLoop << std::endl;
+        std::cout << "Make progress count: " << countMakeProgress << std::endl;
+        std::cout << "Cplex optimization count: " << countCplexOpt << std::endl;
         return scheduleRes;
     }
 
