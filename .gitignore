@@ -15,6 +15,10 @@ Visualize/currGraph.gv.pdf
 Visualize/currGraph.gv
 .vscode
 .editorconfig
+*/currGraph.gv.pdf
+*/currGraph.gv
+
+# ignore temporary batch results
 CompareWithBaseline_deprecated/
 **/Initial_Res
 **/NLP_Res
@@ -22,5 +26,4 @@ CompareWithBaseline_deprecated/
 **/OrderOptWithoutScheudleOpt_Res
 **/Verucchi_Res
 **/dagTasks
-*/currGraph.gv.pdf
-*/currGraph.gv
+**/scripts_and_figures_backup

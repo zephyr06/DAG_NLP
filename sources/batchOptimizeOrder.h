@@ -47,7 +47,6 @@ void BatchOptimizeOrder()
 
             // int N = dagTasks.tasks.size();
             AssertBool(true, dagTasks.chains_.size() > 0, __LINE__);
-            OrderOptDAG_SPACE::ScheduleResult resOrderOptWithoutScheduleOpt;
             for (int batchTestMethod = 0; batchTestMethod < TotalMethodUnderComparison; batchTestMethod++)
             {
                 if (considerSensorFusion != 0 && batchTestMethod == 2)
@@ -72,9 +71,9 @@ void BatchOptimizeOrder()
                     {
                         doScheduleOptimization = 1;
                         if (processorAssignmentMode == 0)
-                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks, coreNumberAva, resOrderOptWithoutScheduleOpt);
+                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks, coreNumberAva);
                         else if (processorAssignmentMode == 1)
-                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, coreNumberAva, resOrderOptWithoutScheduleOpt);
+                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, coreNumberAva);
                     }
                     else if (batchTestMethod == 2)
                     {
@@ -86,18 +85,11 @@ void BatchOptimizeOrder()
                     }
                     else if (batchTestMethod == 4)
                     {
-                        if (useOrderOptResultInNoScheduleOpt == 1 && resOrderOptWithoutScheduleOpt.obj_ > 0)
-                        {
-                            res = resOrderOptWithoutScheduleOpt;
-                        }
-                        else
-                        {
-                            doScheduleOptimization = 0;
-                            if (processorAssignmentMode == 0)
-                                res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
-                            else if (processorAssignmentMode == 1)
-                                res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
-                        }
+                        doScheduleOptimization = 0;
+                        if (processorAssignmentMode == 0)
+                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
+                        else if (processorAssignmentMode == 1)
+                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
                     }
                     else
                     {

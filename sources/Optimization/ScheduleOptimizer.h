@@ -19,12 +19,19 @@ namespace OrderOptDAG_SPACE
     public:
         ScheduleOptimizer()
         {
-            reset();
+            env_.end();
         }
 
         void Optimize(DAG_Model &dagTasks, ScheduleResult &result)
         {
-            reset();
+            // reset();
+            // new environment, model, variables and solver
+            env_ = IloEnv();
+            model_ = IloModel(env_);
+            cplex_solver_ = IloCplex(env_);
+            p_dagTasks_ = nullptr;
+            cplex_solver_.setOut(env_.getNullStream());
+
             setScheduleResult(result);
             setDagTasks(dagTasks);
             TaskSetInfoDerived tasksInfo(dagTasks.tasks);
@@ -33,7 +40,7 @@ namespace OrderOptDAG_SPACE
             AddDBFConstraints();
             AddDDLConstraints();
             AddCauseEffectiveChainConstraints();
-            if (considerSensorFusion > 0)
+            if (considerSensorFusion)
             {
                 AddSensorFusionConstraints();
             }
@@ -58,6 +65,12 @@ namespace OrderOptDAG_SPACE
             {
                 result_after_optimization_ = result_to_be_optimized_;
             }
+
+            // release memory
+            cplex_solver_.end();
+            var_array_.end();
+            model_.end();
+            env_.end();
         }
 
         void print()
@@ -73,11 +86,16 @@ namespace OrderOptDAG_SPACE
     protected:
         void reset()
         {
+            // release memory
+            cplex_solver_.end();
+            var_array_.end();
+            model_.end();
+            env_.end();
+            // new environment, model, variables and solver
             env_ = IloEnv();
             model_ = IloModel(env_);
             cplex_solver_ = IloCplex(env_);
             num_variables_ = 0;
-            num_hyper_periods_ = 0;
             var_array_ = IloNumVarArray(env_, num_variables_, 0, tasksInfo_.hyperPeriod, IloNumVar::Float);
             result_to_be_optimized_ = ScheduleResult();
             result_after_optimization_ = ScheduleResult();
@@ -287,7 +305,8 @@ namespace OrderOptDAG_SPACE
                 }
                 rtda_vector.push_back(resM);
             }
-            if (ObjRTDA(rtda_vector) < result_after_optimization_.obj_)
+            if ((considerSensorFusion && !result_to_be_optimized_.schedulable_) ||
+                ObjRTDA(rtda_vector) < result_after_optimization_.obj_)
             {
                 result_after_optimization_.obj_ = ObjRTDA(rtda_vector);
                 result_after_optimization_.startTimeVector_ = start_time;
@@ -321,7 +340,6 @@ namespace OrderOptDAG_SPACE
         TaskSetInfoDerived tasksInfo_;
         DAG_Model *p_dagTasks_;
         int num_variables_;
-        int num_hyper_periods_;
     };
 } // namespace OrderOptDAG_SPACE
 #endif // OPTIMIZATION_SCHEDULE_OPTIMIZER_H_

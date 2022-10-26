@@ -22,16 +22,10 @@ randomSeed=-1 # negative means time seed
 # ***************************************************
 # ***************************************************
 
-for DIR in `find $ROOT_PATH -type d -name backup` ; do
-  # echo $DIR
-  cd $DIR
-  files=`ls`
-  for file in $files ; do
-    if [[ ${file:(-4):4} != ".tar" ]] ; then
-      if [[ ! ${files[*]} =~ $file.tar ]]; then
-        echo "Make tar ball of directory: $DIR/$file"
-        tar -cf $file.tar $file
-      fi
-    fi
-  done
-done
+TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
+
+# for num in ${TaskNumberArray[@]} ; do
+#   echo $num
+# done
+echo ${TaskNumberArray}
+echo ${TaskNumberArray[@]}

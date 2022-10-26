@@ -36,14 +36,14 @@ int main(int argc, char *argv[])
         .scan<'f', double>();
     program.add_argument("--useRandomUtilization")
         .default_value(1)
-        .help("if 1, a random utilization in range [0.3 * numberOfProcessor, 0.8 * numberOfProcessor] will be used")
+        .help("if 1, a random utilization in range [0.3 * numberOfProcessor, 0.9 * numberOfProcessor] will be used")
         .scan<'i', int>();
     program.add_argument("--minUtilizationPerCore")
         .default_value(0.3)
         .help("only used when --useRandomUtilization is 1")
         .scan<'f', double>();
     program.add_argument("--maxUtilizationPerCore")
-        .default_value(0.8)
+        .default_value(0.9)
         .help("only used when --useRandomUtilization is 1")
         .scan<'f', double>();
     program.add_argument("--periodMin")
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
                     std::optional<JobOrderMultiCore> emptyOrder;
                     VectorDynamic initialSTV = ListSchedulingLFTPA(tasks, tasksInfo, numberOfProcessor, emptyOrder, processorJobVec);
                     if ((considerSensorFusion == 0 && (!ExamAll_Feasibility(tasks, tasksInfo, initialSTV, processorJobVec, numberOfProcessor))) ||
-                        (considerSensorFusion != 0 && (!ExamBasicFeasibilityRTSS21IC(tasks))))
+                        (considerSensorFusion != 0 && (!ExamDDL_Feasibility(tasks, tasksInfo, initialSTV))))
                     {
                         if (debugMode)
                         {
