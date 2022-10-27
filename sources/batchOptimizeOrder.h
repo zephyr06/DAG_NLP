@@ -63,7 +63,7 @@ void BatchOptimizeOrder()
                 else
                 {
                     auto start = chrono::high_resolution_clock::now();
-                    if (batchTestMethod == 0)
+                    if (batchTestMethod == 0 || batchTestMethod == 2 || batchTestMethod == 3) // use initial result for verucchi or WangNLP
                     {
                         res = OrderOptDAG_SPACE::ScheduleDAGLS_LFT(dagTasks, coreNumberAva, sensorFusionTolerance, FreshTol);
                     }
@@ -101,6 +101,7 @@ void BatchOptimizeOrder()
                     // res.rtda_.print();
                 }
                 std::cout << "Schedulable? " << res.schedulable_ << std::endl;
+                std::cout << "Obj: " << res.obj_ << std::endl;
 
                 if (res.schedulable_ == false && batchTestMethod != 0) // If optimized schedule is not schedulable, use list scheduling instead
                 {

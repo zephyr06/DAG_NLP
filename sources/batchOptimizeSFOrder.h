@@ -106,6 +106,7 @@ void BatchOptimizeOrder()
                     // res.rtda_.print();
                 }
                 std::cout << "Schedulable? " << res.schedulable_ << std::endl;
+                std::cout << "Obj: " << res.obj_ << std::endl;
 
                 if (res.schedulable_ == false && batchTestMethod != 0) // If optimized schedule is not schedulable, use list scheduling instead
                 {
