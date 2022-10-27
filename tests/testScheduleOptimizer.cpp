@@ -4,7 +4,6 @@
 #include "sources/Utils/JobCEC.h"
 #include "sources/Optimization/OptimizeOrder.h"
 #include "sources/Optimization/ScheduleOptimizer.h"
-#include "sources/Tools/profilier.h"
 
 using namespace OrderOptDAG_SPACE;
 
@@ -105,7 +104,7 @@ TEST(ScheduleOptimizer, multi_core_optimization)
 TEST(ScheduleOptimizer, single_core_sensor_fusion)
 {
     considerSensorFusion = 1;
-    
+
     std::cout << "\n\n#############  New Test  ##############\n\n";
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
     OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v16.csv", "orig");
@@ -201,14 +200,14 @@ TEST(ScheduleOptimizer, multi_core_multi_chains_optimization)
     ScheduleResult result_after_optimization;
 
     result_to_be_optimized.startTimeVector_ = initial;
-    result_to_be_optimized.obj_ = ObjRTDA({resM0,resM1});
+    result_to_be_optimized.obj_ = ObjRTDA({resM0, resM1});
     result_to_be_optimized.processorJobVec_ = processorJobVec;
     schedule_optimizer.Optimize(dagTasks, result_to_be_optimized);
     result_after_optimization = schedule_optimizer.getOptimizedResult();
     PrintSchedule(tasksInfo, result_after_optimization.startTimeVector_);
     result_after_optimization.print();
     EXPECT_LONGS_EQUAL(20, result_after_optimization.obj_);
-    
+
     NumCauseEffectChain = originNumCauseEffectChain;
 }
 

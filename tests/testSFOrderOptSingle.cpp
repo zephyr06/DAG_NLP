@@ -1,10 +1,9 @@
 
 #include "sources/Optimization/OptimizeSFOrder.h"
-#include "sources/Tools/profilier.h"
 #include "sources/Tools/testMy.h"
 TEST(DAG_Optimize_schedule, v1)
 {
-    BeginTimer("main");
+    // BeginTimer("main");
     using namespace OrderOptDAG_SPACE;
     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
 
@@ -13,8 +12,8 @@ TEST(DAG_Optimize_schedule, v1)
     sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva);
     PrintResultAnalyzation(sth, dagTasks);
     std::cout << "Schedulable? " << sth.schedulable_ << std::endl;
-    EndTimer("main");
-    PrintTimer();
+    // EndTimer("main");
+    // PrintTimer();
 }
 // TEST(SensorFusionDiscrete, v1)
 // {
