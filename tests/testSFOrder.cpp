@@ -289,7 +289,34 @@ TEST(WhetherSkipInsertStart_finish, v3)
     EXPECT(WhetherSkipInsertStart(j04, 2, tasksInfo, sfOrder));
     EXPECT(!WhetherSkipInsertStart(j04, 4, tasksInfo, sfOrder));
 }
-
+TEST(WhetherStartFinishTooLong, v1)
+{
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v20.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    int processorNum = 1;
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    PrintSchedule(tasksInfo, initial);
+    SFOrder sfOrder(tasksInfo, initial);
+    sfOrder.print();
+    JobCEC j00(0, 0);
+    JobCEC j01(0, 1);
+    JobCEC j04(0, 4); // 80-100
+    JobCEC j03(0, 3);
+    JobCEC j11(1, 1);
+    JobCEC j20(2, 0);
+    sfOrder.RemoveJob(j00);
+    LLint startP = 0;
+    sfOrder.InsertStart(j00, startP);
+    double accumLengthMin = 0;
+    EXPECT(!WhetherStartFinishTooLong(accumLengthMin, j00, 1, tasksInfo, sfOrder, startP));
+    EXPECT(!WhetherStartFinishTooLong(accumLengthMin, j00, 2, tasksInfo, sfOrder, startP));
+    EXPECT(WhetherStartFinishTooLong(accumLengthMin, j00, 3, tasksInfo, sfOrder, startP));
+    std::cout << "After inserting finish at 3: " << std::endl;
+    sfOrder.InsertFinish(j00, 3);
+    sfOrder.print();
+    EXPECT(WhetherStartFinishTooLong(accumLengthMin, j00, 4, tasksInfo, sfOrder, startP));
+}
 int main()
 {
     TestResult tr;

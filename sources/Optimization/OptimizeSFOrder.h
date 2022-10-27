@@ -160,7 +160,15 @@ namespace OrderOptDAG_SPACE
             }
             return false;
         }
-
+        bool WhetherStartFinishTooLong(double &accumLengthMin, JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurrForStart, LLint startP)
+        {
+            if (accumLengthMin >= tasksInfo.tasks[jobRelocate.taskId].executionTime)
+                return true;
+            TimeInstance jobPrevInsertInst = jobOrderCurrForStart.at(finishP);
+            if (jobPrevInsertInst.type == 'f' && jobOrderCurrForStart.GetJobStartInstancePosition(jobPrevInsertInst.job) > startP)
+                accumLengthMin += tasksInfo.tasks[jobPrevInsertInst.job.taskId].executionTime;
+            return false;
+        }
         ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, int processorNum = coreNumberAva,
                                         boost::optional<ScheduleResult &> resOrderOptWithoutScheduleOpt = boost::none)
         {
@@ -266,12 +274,15 @@ namespace OrderOptDAG_SPACE
                                 continue;
 
                             jobOrderCurrForStart.InsertStart(jobRelocate, startP); // must insert start first
+                            double accumLengthMin = 0;
                             for (LLint finishP = startP + 1; finishP < nextJobIndex + 1; finishP++)
                             {
                                 if (CheckTimeOut())
                                     break;
                                 if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, statusPrev.jobOrder_))
                                     continue;
+                                if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart, startP))
+                                    break;
 
                                 SFOrder jobOrderCurrForFinish = jobOrderCurrForStart;
                                 jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
