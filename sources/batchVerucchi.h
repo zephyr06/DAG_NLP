@@ -24,7 +24,7 @@ void BatchOptimizeOrder()
 {
     std::string dirStr = PROJECT_PATH + "TaskData/dagTasks/";
     const char *pathDataset = (dirStr).c_str();
-    std::cout << "Dataset Directory: " << pathDataset << std::endl;
+    // std::cout << "Dataset Directory: " << pathDataset << std::endl;
     std::vector<std::vector<double>> runTimeAll(TotalMethodUnderComparison);
     std::vector<std::vector<double>> objsAll(TotalMethodUnderComparison);
     std::vector<std::vector<int>> schedulableAll(TotalMethodUnderComparison); // values could only be 0 / 1
@@ -132,21 +132,21 @@ void BatchOptimizeOrder()
         VariadicTable<std::string, double, double, double> vt({"Method", "Schedulable ratio", "Obj (Only used in RTDA experiment)", "TimeTaken"}, 10);
 
         vt.addRow("Initial", Average(schedulableAll[0]), Average(objsAll[0]), Average(runTimeAll[0]));
-        vt.addRow("OrderOpt", Average(schedulableAll[1]), Average(objsAll[1]), Average(runTimeAll[1]));
-        vt.addRow("OrderOptWithoutScheudleOpt", Average(schedulableAll[4]), Average(objsAll[4]), Average(runTimeAll[4]));
+        // vt.addRow("OrderOpt", Average(schedulableAll[1]), Average(objsAll[1]), Average(runTimeAll[1]));
+        // vt.addRow("OrderOptWithoutScheudleOpt", Average(schedulableAll[4]), Average(objsAll[4]), Average(runTimeAll[4]));
         vt.addRow("Verucchi20RTAS", Average(schedulableAll[2]), Average(objsAll[2]), Average(runTimeAll[2]));
-        vt.addRow("Wang21RTSS_IC", Average(schedulableAll[3]), Average(objsAll[3]), Average(runTimeAll[3]));
+        // vt.addRow("Wang21RTSS_IC", Average(schedulableAll[3]), Average(objsAll[3]), Average(runTimeAll[3]));
         // vt.addRow("Initial", Average(objsAll[0]), Average(runTimeAll[0]));
 
         vt.print(std::cout);
     }
 
-    std::cout << "The number of error files: " << errorFiles.size() << std::endl;
-    for (string file : errorFiles)
-        std::cout << file << std::endl;
+    // std::cout << "The number of error files: " << errorFiles.size() << std::endl;
+    // for (string file : errorFiles)
+    //     std::cout << file << std::endl;
 
-    std::cout << "The number of files where OrderOpt performs worse: " << worseFiles.size() << std::endl;
-    for (string file : worseFiles)
-        std::cout << file << std::endl;
+    // std::cout << "The number of files where OrderOpt performs worse: " << worseFiles.size() << std::endl;
+    // for (string file : worseFiles)
+    //     std::cout << file << std::endl;
     return;
 }

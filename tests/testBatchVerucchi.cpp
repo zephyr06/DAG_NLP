@@ -1,10 +1,10 @@
 #include "sources/batchVerucchi.h"
-TEST(parameters, a1)
+TEST(batchVerucchi, verucchi)
 {
-    BeginTimer("main");
+    // BeginTimer("main");
     BatchOptimizeOrder();
-    EndTimer("main");
-    PrintTimer();
+    // EndTimer("main");
+    // PrintTimer();
 }
 int main()
 {
