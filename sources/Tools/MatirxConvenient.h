@@ -4,7 +4,6 @@
 #include <Eigen/SparseCore>
 
 #include "sources/Tools/testMy.h"
-#include "sources/Tools/profilier.h"
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixDynamic;
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> VectorDynamic;

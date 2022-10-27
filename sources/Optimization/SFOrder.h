@@ -78,7 +78,7 @@ namespace OrderOptDAG_SPACE
                     instanceOrder_.push_back(instF);
                 }
             }
-            std::cout << instanceOrder_.size() << std::endl;
+
             std::sort(instanceOrder_.begin(), instanceOrder_.end(), compareTimeInstance);
 
             EstablishJobSFMap();

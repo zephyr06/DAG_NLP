@@ -26,7 +26,6 @@
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/Tools/colormod.h"
 #include "sources/Tools/testMy.h"
-#include "sources/Tools/profilier.h"
 
 using namespace std;
 using namespace gtsam;

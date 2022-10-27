@@ -8,7 +8,7 @@
 #include "sources/Optimization/JobGroups.h"
 #include "sources/Utils/JobCEC.h"
 #include "sources/Optimization/JobOrder.h"
-#include "sources/Tools/profilier.h"
+// #include "sources/Tools/profilier.h"
 #include "sources/Optimization/SFOrder.h"
 namespace OrderOptDAG_SPACE
 {
@@ -554,7 +554,7 @@ namespace OrderOptDAG_SPACE
                         LLint leastAvailableProcessorTime = LLONG_MAX;
                         for (int processorId = 0; processorId < processorNum; processorId++)
                         {
-                            if (leastAvailableProcessorTime > nextFree[processorId]) 
+                            if (leastAvailableProcessorTime > nextFree[processorId])
                             {
                                 leastAvailableProcessorTime = nextFree[processorId];
                             }
