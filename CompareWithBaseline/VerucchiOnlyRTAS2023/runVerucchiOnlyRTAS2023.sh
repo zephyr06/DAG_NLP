@@ -125,10 +125,10 @@ do
         cat ./$taskset_folder_name/dag-set-N3-$padded_id-syntheticJobs.csv_*$dir_name.txt >> $taskset_result_summary_file_name
         cd $ROOT_PATH/CompareWithBaseline/$title
       done
+      if [[ ! -d dagTasks/$taskset_folder_name ]]; then mkdir dagTasks/$taskset_folder_name; fi
+      cp $RESULTS_PATH/*.csv dagTasks/$taskset_folder_name/
     fi
   done
-  if [[ ! -d dagTasks/$taskset_folder_name ]]; then mkdir dagTasks/$taskset_folder_name; fi
-  cp $RESULTS_PATH/*.csv dagTasks/$taskset_folder_name/
 done
 
 # visualize the result
