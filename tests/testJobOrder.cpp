@@ -235,6 +235,7 @@ TEST(Schedule_optimize, MakeProgress)
 
 TEST(Schedule, jobOrder)
 {
+    doScheduleOptimization = 1;
     coreNumberAva = 1;
     OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     ScheduleResult res = ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
@@ -586,6 +587,7 @@ TEST(JobOrderMultiCore, optimize)
     VectorDynamic actual = initial;
     actual << 0, 0, 0;
     assert_equal(actual, initial);
+    doScheduleOptimization = 1;
     ScheduleResult res = ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, 3);
     PrintSchedule(tasksInfo, res.startTimeVector_);
     EXPECT_LONGS_EQUAL(12, res.obj_);
@@ -847,6 +849,7 @@ TEST(optimize_schedule_when_search_job_order_, v1)
     considerSensorFusion = 0;
     weightInMpRTDA = 0.5;
     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig"); // single-rate dag
+    doScheduleOptimization = 1;
     ScheduleResult res = ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, processorNum);
     EXPECT_LONGS_EQUAL(5 + 4, res.obj_);
 }

@@ -89,10 +89,12 @@ void BatchOptimizeOrder()
                     else if (batchTestMethod == 4)
                     {
                         doScheduleOptimization = 0;
-                        if (processorAssignmentMode == 0)
-                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
-                        else if (processorAssignmentMode == 1)
-                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
+                        // if (processorAssignmentMode == 0)
+                        //     res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks, coreNumberAva);
+                        // else if (processorAssignmentMode == 1)
+                        //     res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, coreNumberAva);
+
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva);
                     }
                     else
                     {

@@ -6,6 +6,7 @@
 #include "sources/Factors/RTDA_Factor.h"
 #include "sources/Optimization/JobOrder.h"
 #include "sources/Factors/SensorFusionFactor.h"
+#include "sources/Optimization/SFOrder.h"
 
 namespace OrderOptDAG_SPACE
 {
@@ -13,6 +14,7 @@ namespace OrderOptDAG_SPACE
     struct ScheduleResult
     {
         JobOrder jobOrder_;
+        SFOrder sfOrder_;
         VectorDynamic startTimeVector_;
         bool schedulable_;
         // RTDA rtda_;
@@ -26,7 +28,6 @@ namespace OrderOptDAG_SPACE
                        bool schedulable,
                        double obj) : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), obj_(obj) //, rtda_(rtda)
         {
-            // obj_ = ObjRTDA(rtda_);
             timeTaken_ = 0;
         }
         ScheduleResult(JobOrder jobOrder, VectorDynamic startTimeVector, bool schedulable,
@@ -36,6 +37,21 @@ namespace OrderOptDAG_SPACE
         {
             timeTaken_ = 0;
         }
+        ScheduleResult(SFOrder sfOrder,
+                       VectorDynamic startTimeVector,
+                       bool schedulable,
+                       double obj) : sfOrder_(sfOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), obj_(obj) //, rtda_(rtda)
+        {
+            timeTaken_ = 0;
+        }
+        ScheduleResult(SFOrder sfOrder, VectorDynamic startTimeVector, bool schedulable,
+                       double obj, std::vector<uint> processorJobVec)
+            : sfOrder_(sfOrder), startTimeVector_(startTimeVector), schedulable_(schedulable),
+              obj_(obj), processorJobVec_(processorJobVec)
+        {
+            timeTaken_ = 0;
+        }
+        
         void print()
         {
             std::cout << "Objective is: " << obj_ << std::endl;
