@@ -163,10 +163,13 @@ namespace OrderOptDAG_SPACE
         if (considerSensorFusion)
         {
             // Exam RTDA
-            std::vector<OrderOptDAG_SPACE::RTDA> rtdaVec = OrderOptDAG_SPACE::GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector);
-            OrderOptDAG_SPACE::RTDA rtda = GetMaxRTDA(rtdaVec);
-            if (rtda.dataAge > freshnessBound || rtda.reactionTime > freshnessBound)
-                return false;
+            for (auto chain : dagTasks.chains_)
+            {
+                std::vector<OrderOptDAG_SPACE::RTDA> rtdaVec = OrderOptDAG_SPACE::GetRTDAFromSingleJob(tasksInfo, chain, startTimeVector);
+                OrderOptDAG_SPACE::RTDA rtda = GetMaxRTDA(rtdaVec);
+                if (rtda.dataAge > freshnessBound || rtda.reactionTime > freshnessBound)
+                    return false;
+            }
 
             // Exam SF
             VectorDynamic sfError = OrderOptDAG_SPACE::ObtainSensorFusionError(dagTasks, tasksInfo, startTimeVector);
