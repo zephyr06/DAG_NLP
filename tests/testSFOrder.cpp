@@ -222,7 +222,7 @@ TEST(sched, v2)
     EXPECT_LONGS_EQUAL(0, processorJobVec_[1]);
     EXPECT_LONGS_EQUAL(0, processorJobVec_[2]);
     EXPECT_LONGS_EQUAL(1, processorJobVec_[3]);
-    EXPECT(ExamAll_Feasibility(dagTasks, tasksInfo, initialSTV, processorJobVec_, processorNum));
+    EXPECT(ExamBasic_Feasibility(dagTasks, tasksInfo, initialSTV, processorJobVec_, processorNum));
 }
 
 TEST(SFOrder, insert_erase_v2)
