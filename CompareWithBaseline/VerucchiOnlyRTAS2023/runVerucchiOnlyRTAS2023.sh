@@ -108,11 +108,11 @@ do
   for ((taskset_id = 0 ; taskset_id < taskSetNumber ; taskset_id++)); do
     printf -v padded_id "%03d" $taskset_id
 
-    if [[ ! -e ./Verucchi_Res/$taskset_folder_name/dag-set-N3-$padded_id-syntheticJobs.csv_Verucchi_Res.txt ]]; then
+    if [[ ! -e ./Verucchi_Res/$taskset_folder_name/dag-set-$taskset_folder_name-$padded_id-syntheticJobs.csv_Verucchi_Res.txt ]]; then
       # instead of generate new task set, copy current tasksets into the RESULTS_PATH path
       cd $RESULTS_PATH
       rm *
-      cp $TASKSETS_PATH/$taskset_folder_name/dag-set-N3-$padded_id-syntheticJobs.csv .
+      cp $TASKSETS_PATH/$taskset_folder_name/dag-set-$taskset_folder_name-$padded_id-syntheticJobs.csv .
       cd $ROOT_PATH/CompareWithBaseline/$title
       perform_optimization
       
@@ -120,9 +120,9 @@ do
       taskset_result_summary_file_name="N$jobNumber.txt"
       for dir_name in ${methods_dir_name[@]}; do
         cd $dir_name
-        cp $RESULTS_PATH/dag-set-N3-$padded_id-syntheticJobs.csv_*$dir_name.txt ./$taskset_folder_name/
+        cp $RESULTS_PATH/dag-set-$taskset_folder_name-$padded_id-syntheticJobs.csv_*$dir_name.txt ./$taskset_folder_name/
         # rm $taskset_result_summary_file_name
-        cat ./$taskset_folder_name/dag-set-N3-$padded_id-syntheticJobs.csv_*$dir_name.txt >> $taskset_result_summary_file_name
+        cat ./$taskset_folder_name/dag-set-$taskset_folder_name-$padded_id-syntheticJobs.csv_*$dir_name.txt >> $taskset_result_summary_file_name
         cd $ROOT_PATH/CompareWithBaseline/$title
       done
       if [[ ! -d dagTasks/$taskset_folder_name ]]; then mkdir dagTasks/$taskset_folder_name; fi
