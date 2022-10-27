@@ -54,7 +54,7 @@ namespace OrderOptDAG_SPACE
                     sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
                     // objVal_ += ObjSF(sfVec_);
                 }
-                schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
+                schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
                 if (doScheduleOptimization)
                 {
                     ScheduleResult scheduleResBeforeOpt{jobOrder_, startTimeVector_, schedulable_, ReadObj(), processorJobVec_};
@@ -82,7 +82,7 @@ namespace OrderOptDAG_SPACE
                             sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
                             // objVal_ += ObjSF(sfVec_);
                         }
-                        schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_, sensorFusionTolerance, FreshTol);
+                        schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
                         jobOrder_ = SFOrder(tasksInfo, startTimeVector_);
                     }
                 }
