@@ -1,4 +1,4 @@
-#include "sources/batchVerucchi.h"
+#include "sources/batchVerucchiOnly.h"
 TEST(batchVerucchi, verucchi)
 {
     // BeginTimer("main");

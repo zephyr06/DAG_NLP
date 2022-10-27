@@ -1,4 +1,4 @@
-#include "sources/batchWangNLP.h"
+#include "sources/batchWangNLPOnly.h"
 TEST(batchWangNLP, verucchi)
 {
     // BeginTimer("main");
