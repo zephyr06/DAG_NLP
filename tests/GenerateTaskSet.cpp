@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
                     std::vector<uint> processorJobVec;
                     std::optional<JobOrderMultiCore> emptyOrder;
                     VectorDynamic initialSTV = ListSchedulingLFTPA(tasks, tasksInfo, numberOfProcessor, emptyOrder, processorJobVec);
-                    if ((considerSensorFusion == 0 && (!ExamAll_Feasibility(tasks, tasksInfo, initialSTV, processorJobVec, numberOfProcessor))) ||
+                    if ((considerSensorFusion == 0 && (!ExamBasic_Feasibility(tasks, tasksInfo, initialSTV, processorJobVec, numberOfProcessor))) ||
                         (considerSensorFusion != 0 && (!ExamDDL_Feasibility(tasks, tasksInfo, initialSTV))))
                     {
                         if (debugMode)
