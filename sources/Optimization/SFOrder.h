@@ -21,25 +21,31 @@ namespace OrderOptDAG_SPACE
         JobCEC job;
         TimeInstance(char type, JobCEC j, double t) : time(t), type(type), job(j) {}
         TimeInstance(char type, JobCEC j) : time(-1), type(type), job(j) {}
-        double getTime()
+        double getTime() const
         {
             return time;
         }
-        static bool compare(const TimeInstance &i1, const TimeInstance &i2)
+        char getType() const
         {
-            if (i1.time != i2.time)
-                return (i1.time < i2.time);
-            else
-            {
-                if (i1.type == 'f')
-                    return true;
-                else if (i2.type == 'f')
-                    return false;
-                else
-                    return true;
-            }
+            return type;
         }
     };
+    bool compareTimeInstance(const TimeInstance i1, const TimeInstance i2)
+    {
+        if (i1.getTime() != i2.getTime())
+            return (i1.getTime() < i2.getTime());
+        else
+        {
+            if (i1.type != i2.type)
+            {
+                return i1.type == 'f';
+            }
+            else
+            {
+                return i1.job.taskId < i2.job.taskId;
+            }
+        }
+    }
 
     class SFOrder
     {
@@ -66,11 +72,14 @@ namespace OrderOptDAG_SPACE
                 for (uint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
                 {
                     JobCEC job(i, j);
-                    instanceOrder_.push_back(TimeInstance('s', job, GetStartTime(job, startTimeVector, tasksInfo)));
-                    instanceOrder_.push_back(TimeInstance('f', job, GetFinishTime(job, startTimeVector, tasksInfo)));
+                    TimeInstance instS('s', job, GetStartTime(job, startTimeVector, tasksInfo));
+                    instanceOrder_.push_back(instS);
+                    TimeInstance instF('f', job, GetFinishTime(job, startTimeVector, tasksInfo));
+                    instanceOrder_.push_back(instF);
                 }
             }
-            std::sort(instanceOrder_.begin(), instanceOrder_.end(), TimeInstance::compare);
+            std::cout << instanceOrder_.size() << std::endl;
+            std::sort(instanceOrder_.begin(), instanceOrder_.end(), compareTimeInstance);
 
             EstablishJobSFMap();
         }
