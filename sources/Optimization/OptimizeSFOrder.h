@@ -97,13 +97,28 @@ namespace OrderOptDAG_SPACE
                 double overallRTDA = 0;
                 for (uint i = 0; i < rtdaVec_.size(); i++)
                     overallRTDA += ObjRTDA(rtdaVec_[i]);
-                double sfOverall = sfVec_.sum();
-                double res = ReadObj() + overallRTDA * weightInMpRTDA;
-                if (considerSensorFusion != 0) // only used in RTSS21IC experiment
+                double res = overallRTDA * weightInMpRTDA;
+                if (considerSensorFusion == 0)
+                { // Optmize RTDA: obj = max_RTs + max_DAs + overallRTDA * weightInMpRTDA
+                    res += ReadObj();
+                }
+                else
                 {
+                    // only used in RTSS21IC experiment
+                    // Optimize Sensor Fusion: obj = overallRTDA * someWeight + overallSensorFusion * someWeight +
+                    // Barrier(max(RT)) * w_punish + Barrier(max(DA)) * w_punish + Barrier(max(SensorFusion)) * w_punish
+                    double sfOverall = sfVec_.sum();
+                    double maxReactionTime = 0;
+                    double maxDataAge = 0;
+                    for (uint i = 0; i < maxRtda_.size(); i++)
+                    {
+                        if (maxRtda_[i].reactionTime > maxReactionTime)
+                            maxReactionTime = maxRtda_[i].reactionTime;
+                        if (maxRtda_[i].dataAge > maxDataAge)
+                            maxDataAge = maxRtda_[i].dataAge;
+                    }
                     res += sfOverall * weightInMpSf + Barrier(sensorFusionTolerance - sfVec_.maxCoeff()) * weightInMpSfPunish;
-                    for (uint i = 0; i < rtdaVec_.size(); i++)
-                        res += Barrier(FreshTol - ObjRTDA(maxRtda_[i])) * weightInMpRTDAPunish;
+                    res += Barrier(FreshTol - maxReactionTime) * weightInMpRTDAPunish + Barrier(FreshTol - maxDataAge) * weightInMpRTDAPunish;
                 }
                 return res;
             }
