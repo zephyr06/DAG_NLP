@@ -317,6 +317,40 @@ TEST(WhetherStartFinishTooLong, v1)
     sfOrder.print();
     EXPECT(WhetherStartFinishTooLong(accumLengthMin, j00, 4, tasksInfo, sfOrder, startP));
 }
+
+TEST(SFOrder, constructor_v2)
+{
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v24.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    int processorNum = 2;
+    std::vector<uint> processorJobVec;
+    VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    PrintSchedule(tasksInfo, initialSTV);
+    SFOrder sfOrder(tasksInfo, initialSTV);
+    sfOrder.print();
+    VectorDynamic initial2 = SFOrderScheduling(dagTasks, tasksInfo, processorNum, sfOrder);
+    PrintSchedule(tasksInfo, initial2);
+    EXPECT(gtsam::assert_equal(initialSTV, initial2));
+}
+
+TEST(SFOrder, constructor_v3)
+{
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v24.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    int processorNum = 2;
+    std::vector<uint> processorJobVec;
+    VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    initialSTV << 440, 0, 3560, 5560, 7560, 9560, 1047, 3047, 5047, 7047,
+        9047;
+    PrintSchedule(tasksInfo, initialSTV);
+    SFOrder sfOrder(tasksInfo, initialSTV);
+    sfOrder.print();
+}
+
 int main()
 {
     TestResult tr;

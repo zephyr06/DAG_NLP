@@ -54,7 +54,7 @@ namespace OrderOptDAG_SPACE
                     sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
                     // objVal_ += ObjSF(sfVec_);
                 }
-                schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_, sensorFusionTolerance, FreshTol);
+                schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
                 if (doScheduleOptimization)
                 {
                     ScheduleResult scheduleResBeforeOpt{jobOrder_, startTimeVector_, schedulable_, ReadObj(), processorJobVec_};
@@ -184,9 +184,15 @@ namespace OrderOptDAG_SPACE
             {
                 std::cout << "Initial schedule: " << std::endl;
                 PrintSchedule(tasksInfo, initialSTV);
+                std::cout << initialSTV << std::endl;
             }
 
             SFOrder jobOrderRef(tasksInfo, initialSTV);
+            if (debugMode == 1)
+            {
+                std::cout << "Initial SF order: " << std::endl;
+                jobOrderRef.print();
+            }
             IterationStatus statusPrev(dagTasks, tasksInfo, jobOrderRef, processorNum);
             if (!statusPrev.schedulable_)
             {
@@ -307,7 +313,7 @@ namespace OrderOptDAG_SPACE
 
             ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.ReadObj(), statusPrev.processorJobVec_};
             scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
-            
+
             if (doScheduleOptimization)
             {
                 ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();

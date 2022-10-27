@@ -51,7 +51,7 @@ namespace OrderOptDAG_SPACE
         {
             timeTaken_ = 0;
         }
-        
+
         void print()
         {
             std::cout << "Objective is: " << obj_ << std::endl;
