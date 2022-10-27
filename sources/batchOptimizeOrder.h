@@ -72,11 +72,11 @@ void BatchOptimizeOrder()
                     {
                         doScheduleOptimization = 1;
                         // if (processorAssignmentMode == 0)
-                        //     res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks, coreNumberAva, resOrderOptWithoutScheduleOpt);
+                        //     res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks, coreNumberAva);
                         // else if (processorAssignmentMode == 1)
-                        //     res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, coreNumberAva, resOrderOptWithoutScheduleOpt);
+                        //     res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, coreNumberAva);
 
-                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva, resOrderOptWithoutScheduleOpt);
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva);
                     }
                     else if (batchTestMethod == 2)
                     {
