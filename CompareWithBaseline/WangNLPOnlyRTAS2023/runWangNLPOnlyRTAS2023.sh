@@ -2,24 +2,24 @@
 
 # ***************************************************
 # ************** Adjust settings there **************
-title="VerucchiOnlyRTAS2023"
+title="WangNLPOnlyRTAS2023"
 MinTaskNumber=3
 MaxTaskNumber=30
-# TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
-TaskNumberArray=(6 7 8 9 10)
+TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
+# TaskNumberArray=(6 7 8 9 10)
 ## no separator '/' at the end of the path
 # ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
-# ROOT_PATH="/home/dong/workspace/DAG_NLP"
-ROOT_PATH="/home/zephyr/Programming/batch_test_DAG_NLP/VerucchiOnly/N3_10" # for final batch test
+ROOT_PATH="/home/dong/workspace/DAG_NLP"
+# ROOT_PATH="/home/zephyr/Programming/batch_test_DAG_NLP/VerucchiOnly/N3_10" # for final batch test
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks" # tBatch1's result path
-methods_dir_name=( "Initial_Res" "Verucchi_Res" ) # only do Initial and Verucchi
-TASKSETS_PATH="$ROOT_PATH/CompareWithBaseline/TasksetsForRTAS2023/RTDATasksets"
+methods_dir_name=( "Initial_Res" "NLP_Res" ) # only do Initial and Verucchi
+TASKSETS_PATH="$ROOT_PATH/CompareWithBaseline/TasksetsForRTAS2023/SensorFusionTasksets"
 makeProgressTimeLimit=100
 kVerucchiTimeLimit=100
 kWangRtss21IcNlpTimeLimit=100
 coreNumberAva=2
 keep_current_result_and_only_plot=0 # if true, will plot result files in $history_result_directory
-history_result_directory="$ROOT_PATH/CompareWithBaseline/VerucchiOnlyRTAS2023/" 
+history_result_directory="$ROOT_PATH/CompareWithBaseline/WangNLPOnlyRTAS2023/" 
 keep_current_result_and_continue_previous_running=1 # 0 will delete all current results and rerun, 1 will attach results to current result files
 ## setting for generating task sets
 taskSetType=3
@@ -72,7 +72,7 @@ done
 cp parameters.yaml $ROOT_PATH/sources/parameters.yaml
 
 # major parameter
-python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "considerSensorFusion" --value 0
+python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "considerSensorFusion" --value 1
 
 # python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "debugMode" --value 1
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "coreNumberAva" --value $coreNumberAva
@@ -89,7 +89,7 @@ if [[ ! -d $ROOT_PATH/release ]]; then ./build_release_target.sh; fi
 perform_optimization() {
   # Optimize energy consumption
   cd $ROOT_PATH/release
-  ./tests/tBatchVerucchi # only test verucchi
+  ./tests/tBatchWangNLP # only test WangNLP
   cd $ROOT_PATH/CompareWithBaseline/$title
 }
 

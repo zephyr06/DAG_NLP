@@ -1,5 +1,5 @@
-#include "sources/batchVerucchi.h"
-TEST(batchVerucchi, verucchi)
+#include "sources/batchWangNLP.h"
+TEST(batchWangNLP, verucchi)
 {
     // BeginTimer("main");
     BatchOptimizeOrder();

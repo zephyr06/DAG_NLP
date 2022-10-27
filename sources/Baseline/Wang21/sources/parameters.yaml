@@ -34,7 +34,7 @@ timeScaleFactor: 1e2
 stepJacobianIteration: 1.5
 maxJacobianIteration: 25
 priorityMode: RM
-relativeErrorTolerance: 1e-2 # suggest 1e-5, don't use values less than 1e-2
+relativeErrorTolerance: 1e-3 # suggest 1e-5, don't use values less than 1e-2
 runMode: compare
 SA_iteration: 100000
 temperatureSA: 100000000

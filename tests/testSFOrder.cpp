@@ -322,5 +322,6 @@ int main()
     TestResult tr;
     // make sure all tests have the correct setting
     NumCauseEffectChain = 1;
+    doScheduleOptimization = 0;
     return TestRegistry::runAllTests(tr);
 }

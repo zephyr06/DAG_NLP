@@ -341,7 +341,7 @@ namespace OrderOptDAG_SPACE
     RunQueue::ID_INSTANCE_PAIR PopTaskLS(RunQueue &runQueue, const JobOrderMultiCore &jobOrder,
                                          LLint timeNow, std::vector<LLint> &jobScheduled, const TaskSetInfoDerived &tasksInfo)
     {
-        BeginTimerAppInProfiler;
+        // BeginTimerAppInProfiler;
         std::vector<RunQueue::ID_INSTANCE_PAIR> &taskQueue = runQueue.taskQueue;
         if (taskQueue.empty())
             CoutError("TaskQueue is empty!");
@@ -371,7 +371,7 @@ namespace OrderOptDAG_SPACE
         jobPop = taskQueue[leastIndexJobInQueue];
         taskQueue.erase(taskQueue.begin() + leastIndexJobInQueue);
 
-        EndTimerAppInProfiler;
+        // EndTimerAppInProfiler;
         return jobPop;
     };
 
@@ -380,7 +380,7 @@ namespace OrderOptDAG_SPACE
                                       TaskSetInfoDerived &tasksInfo, int processorNum, const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,
                                       boost::optional<std::vector<uint> &> processorIdVec = boost::none)
     {
-        BeginTimerAppInProfiler;
+        // BeginTimerAppInProfiler;
         const TaskSet &tasks = dagTasks.tasks;
         VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
 
@@ -452,7 +452,7 @@ namespace OrderOptDAG_SPACE
         {
             initial = GenerateVectorDynamic(tasksInfo.variableDimension);
         }
-        EndTimerAppInProfiler;
+        // EndTimerAppInProfiler;
         return initial;
     }
 
@@ -492,7 +492,7 @@ namespace OrderOptDAG_SPACE
                                     TaskSetInfoDerived &tasksInfo, int processorNum, SFOrder &jobOrder,
                                     boost::optional<std::vector<uint> &> processorIdVec = boost::none)
     {
-        BeginTimerAppInProfiler;
+        // BeginTimerAppInProfiler;
         const TaskSet &tasks = dagTasks.tasks;
         std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
 
@@ -574,7 +574,7 @@ namespace OrderOptDAG_SPACE
             }
         }
 
-        EndTimerAppInProfiler;
+        // EndTimerAppInProfiler;
         return startTimeVector;
     }
 } // namespace OrderOptDAG_SPACE

@@ -2,7 +2,7 @@
 
 # ***************************************************
 # ************** Adjust settings there **************
-title="RTDA2CoresPerformance"
+title="RTDA2CoresPerformanceSFOrder"
 MinTaskNumber=3
 MaxTaskNumber=30
 TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
@@ -17,7 +17,7 @@ kVerucchiTimeLimit=100
 kWangRtss21IcNlpTimeLimit=100
 coreNumberAva=2
 keep_current_result_and_only_plot=0 # if true, will plot result files in $history_result_directory
-history_result_directory="$ROOT_PATH/CompareWithBaseline/RTDA2CoresPerformance/" 
+history_result_directory="$ROOT_PATH/CompareWithBaseline/RTDA2CoresPerformanceSFOrder/" 
 ## setting for generating task sets
 taskSetType=3
 taskSetNumber=10
@@ -69,7 +69,7 @@ perform_optimization() {
   # Optimize energy consumption
   cd $ROOT_PATH/release
   # cmake --build . --config Release -- -j 6
-  ./tests/tBatchOldJobOrder
+  ./tests/tBatch1
   cd $ROOT_PATH/CompareWithBaseline/$title
   sleep 1
 }

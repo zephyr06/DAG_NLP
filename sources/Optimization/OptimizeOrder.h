@@ -49,7 +49,6 @@ namespace OrderOptDAG_SPACE
             }
             schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_, sensorFusionTolerance, FreshTol);
 
-            // TODO add a LP optimization, update (startTimeVector_  jobOrder_)
             if (doScheduleOptimization)
             {
                 ScheduleResult scheduleResBeforeOpt{jobOrder_, startTimeVector_, schedulable_, ReadObj(), processorJobVec_};
@@ -168,11 +167,11 @@ namespace OrderOptDAG_SPACE
         bool findNewUpdate = true;
 
         LLint countMakeProgress = 0;
-        LLint countCplexOpt = 0;
+        LLint countIterationStatus = 0;
         auto ExamAndApplyUpdate = [&](JobOrderMultiCore jobOrderCurr)
         {
             IterationStatus<SchedulingAlgorithm> statusCurr(dagTasks, tasksInfo, jobOrderCurr, processorNum);
-            countCplexOpt++;
+            countIterationStatus++;
 
             // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
             if (MakeProgress<SchedulingAlgorithm>(statusPrev, statusCurr))
@@ -271,7 +270,7 @@ namespace OrderOptDAG_SPACE
 
         ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.ReadObj(), statusPrev.processorJobVec_};
         scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
-        auto no_thing = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_); // get the processor assignment
+        // auto no_thing = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_); // get the processor assignment
 
         if (doScheduleOptimization)
         {
@@ -289,7 +288,7 @@ namespace OrderOptDAG_SPACE
         scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
         std::cout << "Outermost while loop count: " << countOutermostWhileLoop << std::endl;
         std::cout << "Make progress count: " << countMakeProgress << std::endl;
-        std::cout << "Cplex optimization count: " << countCplexOpt << std::endl;
+        std::cout << "Candidate Iteration Status count: " << countIterationStatus << std::endl;
         return scheduleRes;
     }
 
