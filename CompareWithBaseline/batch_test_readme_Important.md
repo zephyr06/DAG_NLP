@@ -9,3 +9,7 @@
 * Update `ROOT_PATH` in `CompareWithBaseline/VerucchiOnlyRTAS2023/runVerucchiOnlyRTAS2023.sh` for verucchi only tests
 * Update `TaskNumberArray` in `CompareWithBaseline/VerucchiOnlyRTAS2023/runVerucchiOnlyRTAS2023.sh` for verucchi only tests
 * Make sure you are using RTDATasksets in `TASKSETS_PATH` of `runVerucchiOnlyRTAS2023.sh`
+
+### WangNLP settings
+* Make sure GTASM NLP timeout is 3
+* Use 1e-3 as relativeErrorTolerance in `sources/Baseline/Wang21/sources/parameters.yaml`
