@@ -13,7 +13,8 @@
 #include "sources/Baseline/OptimizeSA.h"
 #include "sources/Baseline/VerucchiScheduling.h"
 #include "sources/Baseline/RTSS21IC.h"
-#include "sources/Optimization/OptimizeOrder.h"
+// #include "sources/Optimization/OptimizeOrder.h"
+#include "sources/Optimization/OptimizeSFOrder.h"
 // #include "sources/batchOptimize.h"
 #include "sources/Utils/BatchUtils.h"
 #include "sources/Baseline/VerucchiRTDABridge.h"
@@ -70,10 +71,12 @@ void BatchOptimizeOrder()
                     else if (batchTestMethod == 1)
                     {
                         doScheduleOptimization = 1;
-                        if (processorAssignmentMode == 0)
-                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks, coreNumberAva);
-                        else if (processorAssignmentMode == 1)
-                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, coreNumberAva);
+                        // if (processorAssignmentMode == 0)
+                        //     res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks, coreNumberAva);
+                        // else if (processorAssignmentMode == 1)
+                        //     res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, coreNumberAva);
+
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva);
                     }
                     else if (batchTestMethod == 2)
                     {
@@ -86,10 +89,12 @@ void BatchOptimizeOrder()
                     else if (batchTestMethod == 4)
                     {
                         doScheduleOptimization = 0;
-                        if (processorAssignmentMode == 0)
-                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks, coreNumberAva);
-                        else if (processorAssignmentMode == 1)
-                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, coreNumberAva);
+                        // if (processorAssignmentMode == 0)
+                        //     res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks, coreNumberAva);
+                        // else if (processorAssignmentMode == 1)
+                        //     res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, coreNumberAva);
+
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva);
                     }
                     else
                     {
