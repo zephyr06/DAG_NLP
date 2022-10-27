@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ROOT_PATH="/home/dong/workspace/DAG_NLP"
+ROOT_PATH="/home/zephyr/Programming/batch_test_DAG_NLP/VerucchiOnly/N3_10"
 backup_dir="backup"
 # ***************************************************
 
