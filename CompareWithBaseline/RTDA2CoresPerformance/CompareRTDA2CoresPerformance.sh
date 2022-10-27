@@ -16,7 +16,7 @@ makeProgressTimeLimit=100
 kVerucchiTimeLimit=100
 kWangRtss21IcNlpTimeLimit=100
 coreNumberAva=2
-keep_current_result_and_only_plot=0 # if true, will plot result files in $history_result_directory
+keep_current_result_and_only_plot=1 # if true, will plot result files in $history_result_directory
 history_result_directory="$ROOT_PATH/CompareWithBaseline/RTDA2CoresPerformance/" 
 ## setting for generating task sets
 taskSetType=3
