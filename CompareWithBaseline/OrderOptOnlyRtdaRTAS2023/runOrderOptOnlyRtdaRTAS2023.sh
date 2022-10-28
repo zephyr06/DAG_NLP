@@ -11,8 +11,9 @@ TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
 # ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
 ROOT_PATH="/home/dong/workspace/DAG_NLP"
 # ROOT_PATH="/home/zephyr/Programming/batch_test_DAG_NLP/VerucchiOnly/N3_10" # for final batch test
-RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks" # tBatch1's result path
-methods_dir_name=( "Initial_Res" "OrderOpt_Res" ) # only do Initial and Verucchi
+RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks" # tBatch's result path
+methods_dir_name=( "Initial_Res" "OrderOpt_Res" ) # only do Initial and OrderOpt
+target_method_res_name="OrderOpt_Res"
 TASKSETS_PATH="$ROOT_PATH/CompareWithBaseline/TasksetsForRTAS2023/RTDATasksets"
 makeProgressTimeLimit=100
 kVerucchiTimeLimit=100
@@ -95,7 +96,7 @@ do
   for ((taskset_id = 0 ; taskset_id < taskSetNumber ; taskset_id++)); do
     printf -v padded_id "%03d" $taskset_id
 
-    if [[ ! -e ./Verucchi_Res/$taskset_folder_name/dag-set-$taskset_folder_name-$padded_id-syntheticJobs.csv_Verucchi_Res.txt ]]; then
+    if [[ ! -e ./$target_method_res_name/$taskset_folder_name/dag-set-$taskset_folder_name-$padded_id-syntheticJobs.csv_$target_method_res_name.txt ]]; then
       # instead of generate new task set, copy current tasksets into the RESULTS_PATH path
       cd $RESULTS_PATH
       rm *
