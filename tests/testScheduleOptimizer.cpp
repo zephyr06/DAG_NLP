@@ -249,17 +249,20 @@ TEST(ScheduleOptimizer, optimize_weighted_obj)
 
     ScheduleResult result_to_be_optimized;
     ScheduleResult result_after_optimization;
-
+    int originConsiderSensorFusion = considerSensorFusion;
+    considerSensorFusion = 0;
     result_to_be_optimized.startTimeVector_ = initial;
     result_to_be_optimized.obj_ = ObjRTDA({resM0, resM1});
     result_to_be_optimized.processorJobVec_ = processorJobVec;
+    result_to_be_optimized.objWeighted_=1e100;
     schedule_optimizer.OptimizeObjWeighted(dagTasks, result_to_be_optimized);
     result_after_optimization = schedule_optimizer.getOptimizedResult();
     PrintSchedule(tasksInfo, result_after_optimization.startTimeVector_);
     result_after_optimization.print();
-    EXPECT_LONGS_EQUAL(20, result_after_optimization.obj_);
+    EXPECT_LONGS_EQUAL(45, result_after_optimization.objWeighted_);
 
     NumCauseEffectChain = originNumCauseEffectChain;
+    considerSensorFusion = originConsiderSensorFusion;
 }
 
 int main()

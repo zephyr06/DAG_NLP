@@ -19,6 +19,7 @@ namespace OrderOptDAG_SPACE
         bool schedulable_;
         // RTDA rtda_;
         double obj_;
+        double objWeighted_;
         double timeTaken_;
         std::vector<uint> processorJobVec_;
 

@@ -47,6 +47,7 @@ namespace OrderOptDAG_SPACE
             // double objVal_;
             bool schedulable_; // only basic schedulability
             VectorDynamic sfVec_;
+            double objWeighted_;
 
             IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, int processorNum) : dagTasks_(dagTasks), jobOrder_(jobOrder), processorNum_(processorNum)
             {
@@ -65,18 +66,17 @@ namespace OrderOptDAG_SPACE
                     sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
                 }
                 schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
+                objWeighted_ = ObjWeighted();
                 if (doScheduleOptimization)
                 {
                     ScheduleResult scheduleResBeforeOpt{jobOrder_, startTimeVector_, schedulable_, ReadObj(), processorJobVec_};
+                    scheduleResBeforeOpt.objWeighted_ = objWeighted_;
+
                     ScheduleResult resultAfterOptimization;
                     ScheduleOptimizer scheduleOptimizer = ScheduleOptimizer();
-                    scheduleOptimizer.Optimize(dagTasks, scheduleResBeforeOpt);
+                    scheduleOptimizer.OptimizeObjWeighted(dagTasks, scheduleResBeforeOpt);
                     resultAfterOptimization = scheduleOptimizer.getOptimizedResult();
-                    // if (debugMode && !resultAfterOptimization.schedulable_)
-                    // {
-                    //     std::cout << "Found one unschedulable case after optimization!\n";
-                    // }
-                    if (resultAfterOptimization.schedulable_)
+                    if (resultAfterOptimization.objWeighted_ < scheduleResBeforeOpt.objWeighted_)
                     {
                         startTimeVector_ = resultAfterOptimization.startTimeVector_;
                         rtdaVec_.clear();
@@ -90,10 +90,10 @@ namespace OrderOptDAG_SPACE
                         if (considerSensorFusion)
                         {
                             sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
-                            // objVal_ += ObjSF(sfVec_);
                         }
                         schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
                         jobOrder_ = SFOrder(tasksInfo, startTimeVector_);
+                        objWeighted_ = ObjWeighted();
                     }
                 }
             }
@@ -158,7 +158,7 @@ namespace OrderOptDAG_SPACE
         {
             if (!statusCurr.schedulable_)
                 return false;
-            if (statusCurr.ObjWeighted() < statusPrev.ObjWeighted())
+            if (statusCurr.objWeighted_ < statusPrev.objWeighted_)
                 return true;
             return false;
         }
@@ -361,21 +361,39 @@ namespace OrderOptDAG_SPACE
                 CoutWarning("Optimize SFOrder return with unschedulable result!");
             }
 
-            // if (debugMode == 1)
-            // {
-            //     statusPrev.jobOrder_.print();
-            // }
-
             ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.ReadObj(), statusPrev.processorJobVec_};
             scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
+            scheduleRes.objWeighted_ = statusPrev.objWeighted_;
 
             if (doScheduleOptimization)
             {
-                ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
-                ScheduleResult result_after_optimization;
-                schedule_optimizer.Optimize(dagTasks, scheduleRes);
-                result_after_optimization = schedule_optimizer.getOptimizedResult();
-                scheduleRes = result_after_optimization;
+                if (!considerSensorFusion || !scheduleRes.schedulable_)
+                {
+                    ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
+                    ScheduleResult result_after_optimization;
+                    if (considerSensorFusion)
+                    {
+                        schedule_optimizer.OptimizeObjWeighted(dagTasks, scheduleRes);
+                        result_after_optimization = schedule_optimizer.getOptimizedResult();
+                        if (result_after_optimization.objWeighted_ < scheduleRes.objWeighted_)
+                        {
+                            scheduleRes = result_after_optimization;
+                            std::vector<RTDA> rtda_vector;
+                            for (auto chain : dagTasks.chains_)
+                            {                    
+                                auto res = GetRTDAFromSingleJob(tasksInfo, chain, scheduleRes.startTimeVector_);
+                                RTDA resM = GetMaxRTDA(res);
+                                rtda_vector.push_back(resM);
+                            }
+                            scheduleRes.obj_ = ObjRTDA(rtda_vector);
+                        }
+                    }
+                    else
+                    {
+                        schedule_optimizer.Optimize(dagTasks, scheduleRes);
+                        scheduleRes = schedule_optimizer.getOptimizedResult();
+                    }
+                }
             }
 
             scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);

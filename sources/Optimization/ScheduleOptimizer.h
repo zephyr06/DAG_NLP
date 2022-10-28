@@ -22,6 +22,7 @@ namespace OrderOptDAG_SPACE
             env_.end();
         }
 
+        // function Optimize() will optimize RTDA
         void Optimize(DAG_Model &dagTasks, ScheduleResult &result)
         {
             // new environment, model, variables and solver
@@ -47,6 +48,7 @@ namespace OrderOptDAG_SPACE
             cplex_solver_.extract(model_);
             bool found_feasible_solution = cplex_solver_.solve();
 
+            result_after_optimization_ = result_to_be_optimized_;
             IloNumArray values_optimized(env_, num_variables_);
             if (found_feasible_solution)
             {
@@ -57,11 +59,12 @@ namespace OrderOptDAG_SPACE
                     std::cout << "Values are :" << values_optimized << "\n";
                     std::cout << status << " solution found: " << cplex_solver_.getObjValue() << "\n";
                 }
-                GenerateOptimizedResult(values_optimized);
-            }
-            else
-            {
-                result_after_optimization_ = result_to_be_optimized_;
+                double optimized_obj = cplex_solver_.getObjValue();
+                if (optimized_obj < result_to_be_optimized_.obj_)
+                {
+                    result_after_optimization_.obj_ = optimized_obj;
+                    UpdateOptimizedResult(values_optimized);
+                }
             }
 
             // release memory
@@ -70,7 +73,8 @@ namespace OrderOptDAG_SPACE
             model_.end();
             env_.end();
         }
-
+        
+        // function OptimizeObjWeighted() will optimize weighted objectives
         void OptimizeObjWeighted(DAG_Model &dagTasks, ScheduleResult &result)
         {
             // new environment, model, variables and solver
@@ -94,6 +98,7 @@ namespace OrderOptDAG_SPACE
             cplex_solver_.extract(model_);
             bool found_feasible_solution = cplex_solver_.solve();
 
+            result_after_optimization_ = result_to_be_optimized_;
             IloNumArray values_optimized(env_, num_variables_);
             if (found_feasible_solution)
             {
@@ -104,11 +109,12 @@ namespace OrderOptDAG_SPACE
                     std::cout << "Values are :" << values_optimized << "\n";
                     std::cout << status << " solution found: " << cplex_solver_.getObjValue() << "\n";
                 }
-                GenerateOptimizedResult(values_optimized);
-            }
-            else
-            {
-                result_after_optimization_ = result_to_be_optimized_;
+                double optimized_obj_weighted = cplex_solver_.getObjValue();
+                if (optimized_obj_weighted < result_to_be_optimized_.objWeighted_)
+                {
+                    result_after_optimization_.objWeighted_ = optimized_obj_weighted;
+                    UpdateOptimizedResult(values_optimized);
+                }
             }
 
             // release memory
@@ -442,36 +448,19 @@ namespace OrderOptDAG_SPACE
             return GetStartTimeExpression(jobCEC) + GetExecutionTime(jobCEC, tasksInfo_);
         }
 
-        void GenerateOptimizedResult(IloNumArray &values_optimized)
+        void UpdateOptimizedResult(IloNumArray &values_optimized)
         {
-            result_after_optimization_ = result_to_be_optimized_;
-            result_after_optimization_.schedulable_ = true; // feasible solution found
             VectorDynamic start_time(num_variables_);
             for (int i = 0; i < num_variables_; i++)
             {
                 start_time(i) = values_optimized[i];
             }
 
-            Values initialEstimateFG = GenerateInitialFG(start_time, tasksInfo_);
-            std::vector<RTDA> rtda_vector;
-            for (auto chain : p_dagTasks_->chains_)
-            {
-                auto res = GetRTDAFromSingleJob(tasksInfo_, chain, initialEstimateFG);
-                RTDA resM = GetMaxRTDA(res);
-                if (resM.reactionTime == -1 || resM.dataAge == -1)
-                {
-                    return;
-                }
-                rtda_vector.push_back(resM);
-            }
-            if ((considerSensorFusion && !result_to_be_optimized_.schedulable_) ||
-                ObjRTDA(rtda_vector) < result_after_optimization_.obj_)
-            {
-                result_after_optimization_.obj_ = ObjRTDA(rtda_vector);
-                result_after_optimization_.startTimeVector_ = start_time;
-                JobOrderMultiCore jobOrderRef(tasksInfo_, start_time);
-                result_after_optimization_.jobOrder_ = jobOrderRef;
-            }
+            JobOrderMultiCore jobOrderRef(tasksInfo_, start_time);
+            SFOrder sfOrder(tasksInfo_, start_time);
+            result_after_optimization_.startTimeVector_ = start_time;
+            result_after_optimization_.jobOrder_ = jobOrderRef;
+            result_after_optimization_.sfOrder_ = sfOrder;
         }
 
         void setScheduleResult(ScheduleResult &res)
