@@ -124,6 +124,18 @@ namespace OrderOptDAG_SPACE
             }
         };
 
+        std::vector<int> FindLongestChainJobIndex(IterationStatus &status)
+        {
+            std::vector<int> index(status.rtdaVec_.size(), 0);
+            for (uint i = 0; i < status.rtdaVec_.size(); i++) // for each chain
+            {
+                std::vector<RTDA> &rtdaVec = status.rtdaVec_[i];
+                auto ite = std::max_element(rtdaVec.begin(), rtdaVec.end(), [](RTDA r1, RTDA r2)
+                                            { return ObjRTDA(r1) < ObjRTDA(r2); });
+                index[i] = std::distance(rtdaVec.begin(), ite);
+            }
+            return index;
+        }
         bool MakeProgress(IterationStatus &statusPrev, IterationStatus &statusCurr)
         {
             if (!statusCurr.schedulable_)
@@ -326,10 +338,10 @@ namespace OrderOptDAG_SPACE
                 CoutWarning("Optimize SFOrder return with unschedulable result!");
             }
 
-            if (debugMode == 1)
-            {
-                statusPrev.jobOrder_.print();
-            }
+            // if (debugMode == 1)
+            // {
+            //     statusPrev.jobOrder_.print();
+            // }
 
             ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.ReadObj(), statusPrev.processorJobVec_};
             scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);

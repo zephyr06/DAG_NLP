@@ -350,6 +350,29 @@ TEST(SFOrder, constructor_v2)
     PrintSchedule(tasksInfo, initial2);
     EXPECT(gtsam::assert_equal(initialSTV, initial2));
 }
+TEST(Obj, RTDA_v1)
+{
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    int processorNum = 2;
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    initial << 0, 10, 1, 1;
+    SFOrder sfOrder(tasksInfo, initial);
+    sfOrder.print();
+
+    IterationStatus status(dagTasks, tasksInfo, sfOrder, processorNum);
+    considerSensorFusion = 0;
+    EXPECT_LONGS_EQUAL(18, status.ReadObj());
+    EXPECT_LONGS_EQUAL(33, status.ObjWeighted());
+    EXPECT_LONGS_EQUAL(0, status.ObjBarrier());
+
+    considerSensorFusion = 1;
+    EXPECT_LONGS_EQUAL(18, status.ReadObj());
+    EXPECT_LONGS_EQUAL(33, status.ObjWeighted());
+    EXPECT_LONGS_EQUAL(0, status.ObjBarrier());
+}
 
 int main()
 {

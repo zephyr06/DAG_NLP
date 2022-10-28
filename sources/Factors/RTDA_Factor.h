@@ -101,6 +101,9 @@ namespace OrderOptDAG_SPACE
 
     double ObjRTDA(const RTDA &rtda)
     {
+        // if (rtda.dataAge == -1)
+        //     return rtda.reactionTime;
+        // else
         return rtda.reactionTime + rtda.dataAge;
     }
     double ObjRTDA(const std::vector<RTDA> &rtdaVec)
