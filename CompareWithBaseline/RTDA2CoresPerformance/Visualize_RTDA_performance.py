@@ -127,8 +127,7 @@ else:
     taskNumberList = list(range(minTaskNumber, maxTaskNumber+1))
 title = args.title
 result_file_path = args.result_file_path
-methods_name = ("Initial", "OrderOptWithoutScheudleOpt", "Verucchi",
-                "OrderOpt")
+methods_name = ("Initial", "OrderOpt", "Verucchi", "TOM")
 marker_list = ["o", "s", "D", "v"]  #
 color_list = ["#0084DB", "limegreen", "y", "r"]  #
 

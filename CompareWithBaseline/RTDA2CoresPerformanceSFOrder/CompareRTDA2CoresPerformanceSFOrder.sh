@@ -11,13 +11,13 @@ TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
 ROOT_PATH="/home/dong/workspace/DAG_NLP"
 # ROOT_PATH="/home/dong/workspace/DAG_batch_test/rtda_test/DAG_NLP" # for final batch test
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks" # tBatch1's result path
-methods_dir_name=( "Initial_Res" "OrderOpt_Res" "Verucchi_Res" "OrderOptWithoutScheudleOpt_Res" ) # exclude NLP_Res in RTDA part
+methods_dir_name=( "Initial_Res" "TOM_Res" "Verucchi_Res" "OrderOpt_Res" ) # exclude NLP_Res in RTDA part
 makeProgressTimeLimit=100
 kVerucchiTimeLimit=100
 kWangRtss21IcNlpTimeLimit=100
 coreNumberAva=2
-keep_current_result_and_only_plot=0 # if true, will plot result files in $history_result_directory
-history_result_directory="$ROOT_PATH/CompareWithBaseline/RTDA2CoresPerformanceSFOrder/" 
+keep_current_result_and_only_plot=1 # if true, will plot result files in $history_result_directory
+history_result_directory="$ROOT_PATH/CompareWithBaseline/RTDA2CoresPerformanceSFOrder/backup/N3_10_30_x10_20221027_Compare_old_and_new_order" 
 ## setting for generating task sets
 taskSetType=3
 taskSetNumber=10

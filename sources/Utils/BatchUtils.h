@@ -16,7 +16,7 @@ namespace OrderOptDAG_SPACE
         }
         else if (batchTestMethod_ == 1)
         {
-            property = "_OrderOpt_Res.txt";
+            property = "_TOM_Res.txt";
         }
         else if (batchTestMethod_ == 2)
         {
@@ -28,7 +28,7 @@ namespace OrderOptDAG_SPACE
         }
         else if (batchTestMethod_ == 4)
         {
-            property = "_OrderOptWithoutScheudleOpt_Res.txt";
+            property = "_OrderOpt_Res.txt";
         }
         return pathDataset + file + property;
     }
