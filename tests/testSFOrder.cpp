@@ -393,6 +393,32 @@ TEST(FindLongestChainJobIndex, v1)
     IterationStatus status2(dagTasks, tasksInfo, sfOrder2, processorNum);
     EXPECT_LONGS_EQUAL(0, FindLongestChainJobIndex(status2)[0]);
 }
+
+TEST(GetTaskIdWithChainOrder, v1)
+{
+
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    std::vector<int> taskIdSet = GetTaskIdWithChainOrder(dagTasks);
+    EXPECT_LONGS_EQUAL(0, taskIdSet[0]);
+    EXPECT_LONGS_EQUAL(2, taskIdSet[1]);
+    EXPECT_LONGS_EQUAL(1, taskIdSet[2]);
+}
+TEST(GetTaskIdWithChainOrder, v2)
+{
+
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v79.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    std::vector<int> taskIdSet = GetTaskIdWithChainOrder(dagTasks);
+    EXPECT_LONGS_EQUAL(3, taskIdSet[0]);
+    EXPECT_LONGS_EQUAL(2, taskIdSet[1]);
+    EXPECT_LONGS_EQUAL(1, taskIdSet[2]);
+    EXPECT_LONGS_EQUAL(0, taskIdSet[3]);
+    EXPECT_LONGS_EQUAL(4, taskIdSet[4]);
+}
+
 int main()
 {
     TestResult tr;

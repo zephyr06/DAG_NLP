@@ -19,7 +19,22 @@ namespace OrderOptDAG_SPACE
 {
     namespace OptimizeSF
     {
+        std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks)
+        {
+            unordered_set<int> idSet;
+            std::vector<int> idVecChainFirst = dagTasks.chains_[0];
+            for (uint i = 0; i < dagTasks.chains_[0].size(); i++)
+                idSet.insert(dagTasks.chains_[0][i]);
 
+            std::vector<int> idVec = dagTasks.chains_[0];
+            idVec.reserve(dagTasks.tasks.size());
+            for (uint i = 0; i < dagTasks.tasks.size(); i++)
+            {
+                if (idSet.find(i) == idSet.end())
+                    idVec.push_back(i);
+            }
+            return idVec;
+        }
         struct IterationStatus
         {
             DAG_Model dagTasks_;
@@ -274,7 +289,6 @@ namespace OrderOptDAG_SPACE
                 return false;
             };
             int jobWithMaxChain = FindLongestChainJobIndex(statusPrev)[0];
-            int startTask = dagTasks.chains_[0][0];
 
             LLint countOutermostWhileLoop = 0;
             while (findNewUpdate)
@@ -284,12 +298,16 @@ namespace OrderOptDAG_SPACE
                     break;
 
                 findNewUpdate = false;
-                for (int i = startTask; i < startTask + tasksInfo.N; i++)
+
+                // search the tasks related to task chain at first
+                std::vector<int> taskIdSet = GetTaskIdWithChainOrder(dagTasks);
+
+                for (int i : taskIdSet)
                     for (LLint j = jobWithMaxChain; j < jobWithMaxChain + tasksInfo.sizeOfVariables[i]; j++)
                     {
                         if (time_out_flag || foundOptimal)
                             break;
-                        JobCEC jobRelocate(i % tasksInfo.N, j % tasksInfo.sizeOfVariables[i]);
+                        JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
                         LLint prevJobIndex = 0, nextJobIndex = static_cast<LLint>(statusPrev.jobOrder_.size() - 1);
                         if (j > 0)
                         {
