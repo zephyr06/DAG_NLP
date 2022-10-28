@@ -94,14 +94,15 @@ namespace OrderOptDAG_SPACE
                     overallRTDA += ObjRTDA(rtdaVec_[i]);
                 double res = overallRTDA * weightInMpRTDA;
                 if (considerSensorFusion == 0)
-                { // Optmize RTDA: obj = max_RTs + max_DAs + overallRTDA * weightInMpRTDA
+                {
+                    // Optmize RTDA: obj = max_RTs + max_DAs + overallRTDA * weightInMpRTDA
                     res += ReadObj();
                 }
                 else
                 {
                     // only used in RTSS21IC experiment
                     // Optimize Sensor Fusion: obj = overallRTDA * someWeight + overallSensorFusion * someWeight +
-                    // Barrier(max(RT)) * w_punish + Barrier(max(DA)) * w_punish + Barrier(max(SensorFusion)) * w_punish
+                    // {Barrier(max(RT)) * w_punish + Barrier(max(DA)) * w_punish}**for_every_chain + Barrier(max(SensorFusion)) * w_punish
                     double sfOverall = sfVec_.sum();
                     res += sfOverall * weightInMpSf;
                     res += ObjBarrier();

@@ -211,6 +211,57 @@ TEST(ScheduleOptimizer, multi_core_multi_chains_optimization)
     NumCauseEffectChain = originNumCauseEffectChain;
 }
 
+
+TEST(ScheduleOptimizer, optimize_weighted_obj)
+{
+    std::cout << "\n\n#############  New Test  ##############\n\n";
+    int originNumCauseEffectChain = NumCauseEffectChain;
+    NumCauseEffectChain = 2;
+
+    ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
+
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v17.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
+    dagTasks.printChains();
+    PrintSchedule(tasksInfo, initial);
+    JobOrderMultiCore jobOrder(tasksInfo, initial);
+
+    std::vector<uint> processorJobVec;
+
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, jobOrder, processorJobVec);
+    VectorDynamic actualAssignment = Vector2Eigen<uint>(processorJobVec);
+    VectorDynamic expected = actualAssignment;
+    expected << 0, 0, 1;
+    EXPECT(assert_equal(expected, actualAssignment));
+    Values initialEstimateFG = GenerateInitialFG(initial, tasksInfo);
+    auto res0 = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], initialEstimateFG);
+    RTDA resM0 = GetMaxRTDA(res0);
+    resM0.print();
+    EXPECT_LONGS_EQUAL(103, resM0.reactionTime);
+    EXPECT_LONGS_EQUAL(103, resM0.dataAge);
+    auto res1 = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[1], initialEstimateFG);
+    RTDA resM1 = GetMaxRTDA(res1);
+    resM1.print();
+    EXPECT_LONGS_EQUAL(101, resM1.reactionTime);
+    EXPECT_LONGS_EQUAL(101, resM1.dataAge);
+
+    ScheduleResult result_to_be_optimized;
+    ScheduleResult result_after_optimization;
+
+    result_to_be_optimized.startTimeVector_ = initial;
+    result_to_be_optimized.obj_ = ObjRTDA({resM0, resM1});
+    result_to_be_optimized.processorJobVec_ = processorJobVec;
+    schedule_optimizer.OptimizeObjWeighted(dagTasks, result_to_be_optimized);
+    result_after_optimization = schedule_optimizer.getOptimizedResult();
+    PrintSchedule(tasksInfo, result_after_optimization.startTimeVector_);
+    result_after_optimization.print();
+    EXPECT_LONGS_EQUAL(20, result_after_optimization.obj_);
+
+    NumCauseEffectChain = originNumCauseEffectChain;
+}
+
 int main()
 {
     TestResult tr;
