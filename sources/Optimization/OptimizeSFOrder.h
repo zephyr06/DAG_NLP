@@ -309,14 +309,14 @@ namespace OrderOptDAG_SPACE
                             break;
                         JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
                         LLint prevJobIndex = 0, nextJobIndex = static_cast<LLint>(statusPrev.jobOrder_.size() - 1);
-                        if (j > 0)
+                        if (jobRelocate.jobId > 0)
                         {
-                            JobCEC prevJob(i, j - 1);
+                            JobCEC prevJob(jobRelocate.taskId, jobRelocate.jobId - 1);
                             prevJobIndex = statusPrev.jobOrder_.GetJobFinishInstancePosition(prevJob);
                         }
-                        if (j < tasksInfo.sizeOfVariables[i] - 1)
+                        if (jobRelocate.jobId < tasksInfo.sizeOfVariables[jobRelocate.taskId] - 1)
                         {
-                            JobCEC nextJob(i, j + 1);
+                            JobCEC nextJob(jobRelocate.taskId, jobRelocate.jobId + 1);
                             nextJobIndex = std::min(statusPrev.jobOrder_.GetJobStartInstancePosition(nextJob) + 1, nextJobIndex); // actually, I'm not sure why do we need this "+1", but it doesn't hurt to search for a few more
                         }
 
@@ -324,7 +324,7 @@ namespace OrderOptDAG_SPACE
                         {
                             if (time_out_flag || foundOptimal)
                                 break;
-                            if (statusPrev.jobOrder_[startP].job.taskId == i && statusPrev.jobOrder_[startP].job.jobId > j)
+                            if (statusPrev.jobOrder_[startP].job.taskId == jobRelocate.taskId && statusPrev.jobOrder_[startP].job.jobId > jobRelocate.jobId)
                                 break;
 
                             SFOrder jobOrderCurrForStart = statusPrev.jobOrder_;
