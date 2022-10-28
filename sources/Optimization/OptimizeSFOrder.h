@@ -288,7 +288,8 @@ namespace OrderOptDAG_SPACE
                 }
                 return false;
             };
-            int jobWithMaxChain = FindLongestChainJobIndex(statusPrev)[0];
+            // int jobWithMaxChain = FindLongestChainJobIndex(statusPrev)[0];
+            int jobWithMaxChain = 0;
 
             LLint countOutermostWhileLoop = 0;
             while (findNewUpdate)
