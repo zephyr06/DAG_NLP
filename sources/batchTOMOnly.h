@@ -13,7 +13,8 @@
 #include "sources/Baseline/OptimizeSA.h"
 #include "sources/Baseline/VerucchiScheduling.h"
 #include "sources/Baseline/RTSS21IC.h"
-#include "sources/Optimization/OptimizeOrder.h"
+// #include "sources/Optimization/OptimizeOrder.h"
+#include "sources/Optimization/OptimizeSFOrder.h"
 // #include "sources/batchOptimize.h"
 #include "sources/Utils/BatchUtils.h"
 #include "sources/Baseline/VerucchiRTDABridge.h"
@@ -49,8 +50,8 @@ void BatchOptimizeOrder()
             AssertBool(true, dagTasks.chains_.size() > 0, __LINE__);
             for (int batchTestMethod = 0; batchTestMethod < TotalMethodUnderComparison; batchTestMethod++)
             {
-                // only do initial and WangNLP, pass other methods
-                if (batchTestMethod == 1 || batchTestMethod == 2 || batchTestMethod == 4)
+                // only do initial and TOM, pass other methods
+                if (batchTestMethod == 2 || batchTestMethod == 3 || batchTestMethod == 4)
                     continue;
 
                 if (considerSensorFusion != 0 && batchTestMethod == 2)
@@ -74,10 +75,7 @@ void BatchOptimizeOrder()
                     else if (batchTestMethod == 1)
                     {
                         doScheduleOptimization = 1;
-                        if (processorAssignmentMode == 0)
-                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks, coreNumberAva);
-                        else if (processorAssignmentMode == 1)
-                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, coreNumberAva);
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva);
                     }
                     else if (batchTestMethod == 2)
                     {
@@ -90,10 +88,7 @@ void BatchOptimizeOrder()
                     else if (batchTestMethod == 4)
                     {
                         doScheduleOptimization = 0;
-                        if (processorAssignmentMode == 0)
-                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingKnownTA>(dagTasks);
-                        else if (processorAssignmentMode == 1)
-                            res = OrderOptDAG_SPACE::ScheduleDAGModel<LSchedulingFreeTA>(dagTasks);
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva);
                     }
                     else
                     {
@@ -132,10 +127,10 @@ void BatchOptimizeOrder()
         VariadicTable<std::string, double, double, double> vt({"Method", "Schedulable ratio", "Obj (Only used in RTDA experiment)", "TimeTaken"}, 10);
 
         vt.addRow("Initial", Average(schedulableAll[0]), Average(objsAll[0]), Average(runTimeAll[0]));
-        // vt.addRow("TOM", Average(schedulableAll[1]), Average(objsAll[1]), Average(runTimeAll[1]));
+        vt.addRow("TOM", Average(schedulableAll[1]), Average(objsAll[1]), Average(runTimeAll[1]));
         // vt.addRow("OrderOpt", Average(schedulableAll[4]), Average(objsAll[4]), Average(runTimeAll[4]));
         // vt.addRow("Verucchi20RTAS", Average(schedulableAll[2]), Average(objsAll[2]), Average(runTimeAll[2]));
-        vt.addRow("Wang21RTSS_IC", Average(schedulableAll[3]), Average(objsAll[3]), Average(runTimeAll[3]));
+        // vt.addRow("Wang21RTSS_IC", Average(schedulableAll[3]), Average(objsAll[3]), Average(runTimeAll[3]));
         // vt.addRow("Initial", Average(objsAll[0]), Average(runTimeAll[0]));
 
         vt.print(std::cout);
