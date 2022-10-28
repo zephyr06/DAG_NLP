@@ -373,6 +373,8 @@ TEST(Obj, RTDA_v1)
     EXPECT_LONGS_EQUAL(18, status.ReadObj());
     EXPECT_LONGS_EQUAL(180, status.ObjBarrier());
     EXPECT_DOUBLES_EQUAL(194.5, status.ObjWeighted(), 0.1);
+    FreshTol = 100;
+    EXPECT_LONGS_EQUAL(0, status.ObjBarrier());
 }
 TEST(FindLongestChainJobIndex, v1)
 {
