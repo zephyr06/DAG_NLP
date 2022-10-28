@@ -114,7 +114,9 @@ namespace OrderOptDAG_SPACE
                     return ReadObj();
                 else
                 {
-                    double error = Barrier(sensorFusionTolerance - sfVec_.maxCoeff()) * weightInMpSfPunish;
+                    double error = 0;
+                    if (sfVec_.rows() > 0)
+                        error = Barrier(sensorFusionTolerance - sfVec_.maxCoeff()) * weightInMpSfPunish;
                     for (uint i = 0; i < dagTasks_.chains_.size(); i++)
                     {
                         error += Barrier(FreshTol - maxRtda_[i].reactionTime) * weightInMpRTDAPunish + Barrier(FreshTol - maxRtda_[i].dataAge) * weightInMpRTDAPunish;

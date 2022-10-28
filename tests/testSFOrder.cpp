@@ -365,15 +365,32 @@ TEST(Obj, RTDA_v1)
     IterationStatus status(dagTasks, tasksInfo, sfOrder, processorNum);
     considerSensorFusion = 0;
     EXPECT_LONGS_EQUAL(18, status.ReadObj());
-    EXPECT_LONGS_EQUAL(33, status.ObjWeighted());
-    EXPECT_LONGS_EQUAL(0, status.ObjBarrier());
+    EXPECT_DOUBLES_EQUAL(32.5, status.ObjWeighted(), 0.1);
+    EXPECT_LONGS_EQUAL(18, status.ObjBarrier());
 
     considerSensorFusion = 1;
+    FreshTol = 0;
     EXPECT_LONGS_EQUAL(18, status.ReadObj());
-    EXPECT_LONGS_EQUAL(33, status.ObjWeighted());
-    EXPECT_LONGS_EQUAL(0, status.ObjBarrier());
+    EXPECT_LONGS_EQUAL(180, status.ObjBarrier());
+    EXPECT_DOUBLES_EQUAL(194.5, status.ObjWeighted(), 0.1);
 }
+TEST(FindLongestChainJobIndex, v1)
+{
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
 
+    int processorNum = 2;
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    initial << 0, 10, 1, 1;
+    SFOrder sfOrder(tasksInfo, initial);
+    IterationStatus status(dagTasks, tasksInfo, sfOrder, processorNum);
+    EXPECT_LONGS_EQUAL(1, FindLongestChainJobIndex(status)[0]);
+    initial << 0, 10, 1, 11;
+    SFOrder sfOrder2(tasksInfo, initial);
+    IterationStatus status2(dagTasks, tasksInfo, sfOrder2, processorNum);
+    EXPECT_LONGS_EQUAL(0, FindLongestChainJobIndex(status2)[0]);
+}
 int main()
 {
     TestResult tr;
