@@ -65,8 +65,7 @@ cp $ROOT_PATH/CompareWithBaseline/$title/Compare$title.sh $ROOT_PATH/CompareWith
 cd ..
 if [[ ! -d $ROOT_PATH/release ]]; then ./build_release_target.sh; fi
 
-perform_optimization() {
-  # Optimize energy consumption
+call_the_executable() {
   cd $ROOT_PATH/release
   # cmake --build . --config Release -- -j 6
   ./tests/tBatchOldJobOrder
@@ -84,7 +83,7 @@ do
 	
 	echo "$title iteration is: $jobNumber"
 	# initial, order optimization, verucchi
-	perform_optimization
+	call_the_executable
 	
   #copy results to corresponding folder
 	taskset_folder_name="N$jobNumber"

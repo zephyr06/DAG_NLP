@@ -18,8 +18,6 @@ makeProgressTimeLimit=100
 kVerucchiTimeLimit=100
 kWangRtss21IcNlpTimeLimit=100
 coreNumberAva=2
-keep_current_result_and_only_plot=0 # if true, will plot result files in $history_result_directory
-history_result_directory="$ROOT_PATH/CompareWithBaseline/WangNLPOnlyRTAS2023/" 
 keep_current_result_and_continue_previous_running=1 # 0 will delete all current results and rerun, 1 will attach results to current result files
 ## setting for generating task sets
 taskSetType=3
@@ -28,16 +26,11 @@ randomSeed=-1 # negative means time seed
 # ***************************************************
 # ***************************************************
 
-# if [[ $keep_current_result_and_only_plot == 1 || $keep_current_result_and_only_plot == true \
-#   || $keep_current_result_and_only_plot == True || $keep_current_result_and_only_plot == TRUE ]]; then
-#   echo "Plot from history in directory: $history_result_directory"
-#   # visualize history result
-#   python $ROOT_PATH/CompareWithBaseline/$title/Visualize_RTDA_performance.py --minTaskNumber $MinTaskNumber \
-#     --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $history_result_directory \
-#     --taskNumberList ${TaskNumberArray[@]}
-#   cp $ROOT_PATH/CompareWithBaseline/$title/*.pdf $ROOT_PATH/CompareWithBaseline/$title/scripts_and_figures_backup/
-#   exit
-# fi
+call_the_executable() {
+  cd $ROOT_PATH/release
+  ./tests/tBatchWangNLP # only test WangNLP
+  cd $ROOT_PATH/CompareWithBaseline/$title
+}
 
 if [[ $keep_current_result_and_continue_previous_running == 1 ]]; then
   for dir_name in ${methods_dir_name[@]}; do
@@ -86,13 +79,6 @@ cp $ROOT_PATH/CompareWithBaseline/$title/run$title.sh $ROOT_PATH/CompareWithBase
 cd ..
 if [[ ! -d $ROOT_PATH/release ]]; then ./build_release_target.sh; fi
 
-perform_optimization() {
-  # Optimize energy consumption
-  cd $ROOT_PATH/release
-  ./tests/tBatchWangNLP # only test WangNLP
-  cd $ROOT_PATH/CompareWithBaseline/$title
-}
-
 # for (( jobNumber=$MinTaskNumber; jobNumber<=$MaxTaskNumber; jobNumber++ ))
 for jobNumber in ${TaskNumberArray[@]}
 do
@@ -115,7 +101,7 @@ do
       rm *
       cp $TASKSETS_PATH/$taskset_folder_name/dag-set-$taskset_folder_name-$padded_id-syntheticJobs.csv .
       cd $ROOT_PATH/CompareWithBaseline/$title
-      perform_optimization
+      call_the_executable
       
       #copy results to corresponding folder
       taskset_result_summary_file_name="N$jobNumber.txt"
@@ -131,9 +117,3 @@ do
     fi
   done
 done
-
-# visualize the result
-# python $ROOT_PATH/CompareWithBaseline/$title/Visualize_RTDA_performance.py --minTaskNumber $MinTaskNumber \
-#   --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $ROOT_PATH/CompareWithBaseline/$title \
-#     --taskNumberList ${TaskNumberArray[@]}
-# cp $ROOT_PATH/CompareWithBaseline/$title/*.pdf $ROOT_PATH/CompareWithBaseline/$title/scripts_and_figures_backup/

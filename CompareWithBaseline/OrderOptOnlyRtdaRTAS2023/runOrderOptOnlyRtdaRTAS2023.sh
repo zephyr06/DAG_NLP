@@ -2,17 +2,17 @@
 
 # ***************************************************
 # ************** Adjust settings there **************
-title="VerucchiOnlyRTAS2023"
+title="OrderOptOnlyRtdaRTAS2023"
 MinTaskNumber=3
 MaxTaskNumber=30
-# TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
-TaskNumberArray=(6 7 8 9 10)
+TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
+# TaskNumberArray=(6 7 8 9 10)
 ## no separator '/' at the end of the path
 # ROOT_PATH="/home/zephyr/Programming/DAG_NLP" 
-# ROOT_PATH="/home/dong/workspace/DAG_NLP"
-ROOT_PATH="/home/zephyr/Programming/batch_test_DAG_NLP/VerucchiOnly/N3_10" # for final batch test
+ROOT_PATH="/home/dong/workspace/DAG_NLP"
+# ROOT_PATH="/home/zephyr/Programming/batch_test_DAG_NLP/VerucchiOnly/N3_10" # for final batch test
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks" # tBatch1's result path
-methods_dir_name=( "Initial_Res" "Verucchi_Res" ) # only do Initial and Verucchi
+methods_dir_name=( "Initial_Res" "OrderOpt_Res" ) # only do Initial and Verucchi
 TASKSETS_PATH="$ROOT_PATH/CompareWithBaseline/TasksetsForRTAS2023/RTDATasksets"
 makeProgressTimeLimit=100
 kVerucchiTimeLimit=100
@@ -28,7 +28,7 @@ randomSeed=-1 # negative means time seed
 
 call_the_executable() {
   cd $ROOT_PATH/release
-  ./tests/tBatchVerucchi # only test verucchi
+  ./tests/tBatchOrderOpt # only test OrderOpt
   cd $ROOT_PATH/CompareWithBaseline/$title
 }
 
