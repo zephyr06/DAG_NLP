@@ -272,6 +272,8 @@ namespace OrderOptDAG_SPACE
                 }
                 return false;
             };
+            int jobWithMaxChain = FindLongestChainJobIndex(statusPrev)[0];
+            int startTask = dagTasks.chains_[0][0];
 
             LLint countOutermostWhileLoop = 0;
             while (findNewUpdate)
@@ -281,12 +283,12 @@ namespace OrderOptDAG_SPACE
                     break;
 
                 findNewUpdate = false;
-                for (int i = 0; i < tasksInfo.N; i++)
-                    for (LLint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
+                for (int i = startTask; i < startTask + tasksInfo.N; i++)
+                    for (LLint j = jobWithMaxChain; j < jobWithMaxChain + tasksInfo.sizeOfVariables[i]; j++)
                     {
                         if (time_out_flag || foundOptimal)
                             break;
-                        JobCEC jobRelocate(i, j);
+                        JobCEC jobRelocate(i % tasksInfo.N, j % tasksInfo.sizeOfVariables[i]);
                         LLint prevJobIndex = 0, nextJobIndex = static_cast<LLint>(statusPrev.jobOrder_.size() - 1);
                         if (j > 0)
                         {
