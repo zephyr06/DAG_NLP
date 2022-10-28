@@ -45,14 +45,9 @@ namespace OrderOptDAG_SPACE
                     rtdaVec_.push_back(rtdaVecTemp);
                     maxRtda_.push_back(GetMaxRTDA(rtdaVecTemp));
                 }
-                // if (debugMode == 1)
-                // {
-                //     PrintSchedule(tasksInfo, startTimeVector_);
-                // }
                 if (considerSensorFusion)
                 {
                     sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
-                    // objVal_ += ObjSF(sfVec_);
                 }
                 schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
                 if (doScheduleOptimization)
@@ -108,19 +103,24 @@ namespace OrderOptDAG_SPACE
                     // Optimize Sensor Fusion: obj = overallRTDA * someWeight + overallSensorFusion * someWeight +
                     // Barrier(max(RT)) * w_punish + Barrier(max(DA)) * w_punish + Barrier(max(SensorFusion)) * w_punish
                     double sfOverall = sfVec_.sum();
-                    double maxReactionTime = 0;
-                    double maxDataAge = 0;
-                    for (uint i = 0; i < maxRtda_.size(); i++)
-                    {
-                        if (maxRtda_[i].reactionTime > maxReactionTime)
-                            maxReactionTime = maxRtda_[i].reactionTime;
-                        if (maxRtda_[i].dataAge > maxDataAge)
-                            maxDataAge = maxRtda_[i].dataAge;
-                    }
-                    res += sfOverall * weightInMpSf + Barrier(sensorFusionTolerance - sfVec_.maxCoeff()) * weightInMpSfPunish;
-                    res += Barrier(FreshTol - maxReactionTime) * weightInMpRTDAPunish + Barrier(FreshTol - maxDataAge) * weightInMpRTDAPunish;
+                    res += sfOverall * weightInMpSf;
+                    res += ObjBarrier();
                 }
                 return res;
+            }
+            double ObjBarrier()
+            {
+                if (considerSensorFusion == 0)
+                    return ReadObj();
+                else
+                {
+                    double error = Barrier(sensorFusionTolerance - sfVec_.maxCoeff()) * weightInMpSfPunish;
+                    for (uint i = 0; i < dagTasks_.chains_.size(); i++)
+                    {
+                        error += Barrier(FreshTol - maxRtda_[i].reactionTime) * weightInMpRTDAPunish + Barrier(FreshTol - maxRtda_[i].dataAge) * weightInMpRTDAPunish;
+                    }
+                    return error;
+                }
             }
         };
 
@@ -217,6 +217,7 @@ namespace OrderOptDAG_SPACE
             bool findNewUpdate = true;
             LLint countMakeProgress = 0;
             LLint countIterationStatus = 0;
+            bool foundOptimal = false;
 
             auto ExamAndApplyUpdate = [&](SFOrder &jobOrderCurr)
             {
@@ -232,6 +233,8 @@ namespace OrderOptDAG_SPACE
                         PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
                     }
                     countMakeProgress++;
+                    if (statusCurr.ObjBarrier() == 0)
+                        foundOptimal = true;
                 }
             };
 
@@ -267,7 +270,7 @@ namespace OrderOptDAG_SPACE
                 for (int i = 0; i < tasksInfo.N; i++)
                     for (LLint j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
                     {
-                        if (time_out_flag)
+                        if (time_out_flag || foundOptimal)
                             break;
                         JobCEC jobRelocate(i, j);
                         LLint prevJobIndex = 0, nextJobIndex = static_cast<LLint>(statusPrev.jobOrder_.size() - 1);
@@ -284,7 +287,7 @@ namespace OrderOptDAG_SPACE
 
                         for (LLint startP = prevJobIndex; startP < nextJobIndex; startP++)
                         {
-                            if (time_out_flag)
+                            if (time_out_flag || foundOptimal)
                                 break;
                             if (statusPrev.jobOrder_[startP].job.taskId == i && statusPrev.jobOrder_[startP].job.jobId > j)
                                 break;
@@ -311,6 +314,8 @@ namespace OrderOptDAG_SPACE
                                 //     jobOrderCurrForFinish.print();
 
                                 ExamAndApplyUpdate(jobOrderCurrForFinish);
+                                if (foundOptimal)
+                                    break;
                             }
                         }
                     }
