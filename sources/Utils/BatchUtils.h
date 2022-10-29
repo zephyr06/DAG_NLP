@@ -34,6 +34,10 @@ namespace OrderOptDAG_SPACE
         {
             property = "_OrderOpt1LP_Res.txt";
         }
+        else
+        {
+            property = "";
+        }
         return pathDataset + file + property;
     }
     // TOTEST: read & write
@@ -46,6 +50,16 @@ namespace OrderOptDAG_SPACE
         outfileWrite << res.obj_ << std::endl;
         outfileWrite << res.timeTaken_ << std::endl;
         outfileWrite.close();
+        if (batchTestMethod_ == 1 || batchTestMethod_ == 4 || batchTestMethod_ == 5)
+        {
+            resFile = resFile.substr(0, resFile.length()-4);
+            resFile += "_LoopCount.txt";
+            outfileWrite.open(resFile, std::ofstream::out | std::ofstream::trunc); // std::ios_base::app
+            outfileWrite << res.countOutermostWhileLoop_ << std::endl;
+            outfileWrite << res.countMakeProgress_ << std::endl;
+            outfileWrite << res.countIterationStatus_ << std::endl;
+            outfileWrite.close();
+        }
     }
 
     OrderOptDAG_SPACE::ScheduleResult ReadFromResultFile(const std::string &pathDataset, const std::string &file, int batchTestMethod_)
