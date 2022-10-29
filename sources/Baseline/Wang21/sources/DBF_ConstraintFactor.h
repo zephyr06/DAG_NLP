@@ -52,6 +52,46 @@ namespace RTSS21IC_NLP
                 return 0;
         }
 
+        // import function from OptimizeOrderUtils.h
+        std::vector<std::vector<Interval>> ExtractJobsPerProcessorIC(TaskSet &tasks,
+                                                                     vector<LLint> &sizeOfVariables,
+                                                                     VectorDynamic &startTimeVector,
+                                                                     std::vector<uint> &processorJobVec,
+                                                                     int processorNum)
+        {
+            std::vector<std::vector<Interval>> jobsPerProcessor(processorNum);
+            if (processorNum <= 0)
+                return jobsPerProcessor;
+            int index = 0;
+            for (uint i = 0; i < tasks.size(); i++)
+            {
+                for (uint j = 0; j < sizeOfVariables[i]; j++)
+                {
+                    // JobCEC job(i, j);
+                    // Interval v(GetStartTime(job, startTimeVector, tasksInfo), dagTasks.tasks[i].executionTime);
+                    LLint indexStartTimeBig = IndexTran_Instance2Overall(i, j, sizeOfVariables);
+
+                    double startTime = startTimeVector(indexStartTimeBig);
+                    Interval v(startTime, tasks[i].executionTime);
+                    if (processorJobVec[index] >= jobsPerProcessor.size())
+                    {
+                        CoutWarning("Wrong processorNum in ExtractJobsPerProcessor!");
+                        // jobsPerProcessor.resize(processorJobVec[index] + 1);
+                        while (jobsPerProcessor.size() < processorJobVec[index] + 1)
+                        {
+                            std::vector<Interval> ttt;
+                            jobsPerProcessor.push_back(ttt);
+                        }
+                        jobsPerProcessor[processorJobVec[index]].push_back(v);
+                    }
+                    else
+                        jobsPerProcessor[processorJobVec[index]].push_back(v);
+                    index++;
+                }
+            }
+            return jobsPerProcessor;
+        }
+
         class DBF_ConstraintFactor : public NoiseModelFactor1<VectorDynamic>
         {
         public:
@@ -424,10 +464,20 @@ namespace RTSS21IC_NLP
                 VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
                                                                        maskForEliminate, mapIndex);
 
-                int indexPro = 0;
-                for (auto itr = processorTasks.begin(); itr != processorTasks.end(); itr++)
+                // int indexPro = 0;
+                // for (auto itr = processorTasks.begin(); itr != processorTasks.end(); itr++)
+                // {
+                //     res(indexPro++, 0) = DbfIntervalOverlapError(startTimeVector, itr->first);
+                // }
+                std::vector<std::vector<Interval>> jobsPerProcessor =
+                    ExtractJobsPerProcessorIC(tasks, sizeOfVariables,
+                                              startTimeVector, processorIdVecGlobal, processorNumGlobal);
+
+                for (int i = 0; i < processorNumGlobal; i++)
                 {
-                    res(indexPro++, 0) = DbfIntervalOverlapError(startTimeVector, itr->first);
+                    res(i) = IntervalOverlapError(jobsPerProcessor[i]);
+                    // if (res(i) != 0)
+                    //     int a = 1;
                 }
 
                 return res;

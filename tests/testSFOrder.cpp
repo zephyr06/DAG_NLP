@@ -419,6 +419,16 @@ TEST(GetTaskIdWithChainOrder, v2)
     EXPECT_LONGS_EQUAL(4, taskIdSet[4]);
 }
 
+TEST(RTSSIC, Wang21_DBF)
+{
+
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v79.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    std::vector<uint> processorIdVec;
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, std::nullopt, processorIdVec);
+}
+
 int main()
 {
     TestResult tr;

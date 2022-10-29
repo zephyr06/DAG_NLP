@@ -133,6 +133,8 @@ namespace RTSS21IC_NLP
                     res(i) = Barrier(RTSS21IC_NLP::sensorFusionTolerance - sfError(i));
                 res(errorDimension - 2) = Barrier(RTSS21IC_NLP::FreshTol - rtda.reactionTime);
                 res(errorDimension - 1) = Barrier(RTSS21IC_NLP::FreshTol - rtda.dataAge);
+                // if (res.norm() != 0)
+                //     int a = 1;
                 return res;
             };
         };

@@ -3,7 +3,7 @@
 # optimization seettings
 TotalMethodUnderComparison: 6 # 0: LS initial, 1: optimize order & schedule, 2: Verucchi20, 3: NLP, 4: only optimize order
                               # 5: only do one schedule optmization after the end of order optmization
-testDataSetName: test_n5_v79
+testDataSetName: test_n3_v6
 debugMode: 0
 doScheduleOptimization: 0
 doScheduleOptimizationOnlyOnce: 1

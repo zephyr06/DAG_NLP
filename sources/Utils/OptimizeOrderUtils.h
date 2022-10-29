@@ -156,7 +156,9 @@ namespace OrderOptDAG_SPACE
         return true;
     }
 
-    bool ExamAll_Feasibility(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum, double sfBound, double freshnessBound)
+    bool ExamAll_Feasibility(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                             VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec,
+                             int processorNum, double sfBound, double freshnessBound)
     {
         if (!ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec, processorNum))
             return false;

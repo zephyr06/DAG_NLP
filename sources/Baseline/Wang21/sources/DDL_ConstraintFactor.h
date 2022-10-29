@@ -74,6 +74,8 @@ namespace RTSS21IC_NLP
                     cout << Color::red << "The errorDimension is set wrong!" << Color::def << endl;
                     throw;
                 }
+                // if (res.norm() != 0)
+                //     int a = 1;
                 return res;
             };
             SM_Dynamic JacobianAnalytic(const VectorDynamic &startTimeVectorOrig) const

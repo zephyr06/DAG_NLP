@@ -7,7 +7,8 @@
 #include "sources/Utils/Parameters.h"
 namespace RTSS21IC_NLP
 {
-
+    std::vector<uint> processorIdVecGlobal; // global variable
+    int processorNumGlobal = 2;             // global variable
     const std::string PROJECT_PATH_IC = PROJECT_PATH + "sources/Baseline/Wang21/";
     // const std::string PROJECT_PATH = "/home/dong/workspace/DAG_NLP/";
     //  std::string path = PROJECT_PATH + "sources/parameters.yaml";
