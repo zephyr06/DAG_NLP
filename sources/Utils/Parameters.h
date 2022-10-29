@@ -91,7 +91,6 @@ int processorAssignmentMode = (int)ConfigParameters["processorAssignmentMode"];
 int PrintInitial = (int)ConfigParameters["PrintInitial"];
 int debugMode = (int)ConfigParameters["debugMode"];
 const int exactJacobian = (int)ConfigParameters["exactJacobian"];
-const int batchTestMethod = (int)ConfigParameters["batchTestMethod"];
 const int optimizerType = (int)ConfigParameters["optimizerType"];
 const int randomInitialize = (int)ConfigParameters["randomInitialize"];
 const int SA_iteration = (int)ConfigParameters["SA_iteration"];
