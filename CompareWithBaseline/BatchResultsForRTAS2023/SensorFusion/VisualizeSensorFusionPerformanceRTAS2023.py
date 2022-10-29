@@ -146,8 +146,8 @@ title = args.title
 result_file_path = args.result_file_path
 # methods_name = ["Initial", "OrderOpt", "Verucchi", "TOM"] # used to read result files
 # legends_name = ["Initial", "OrderOpt", "Verucchi20", "TOM"] # "Wang21"
-methods_name = ["Initial", "OrderOpt", "NLP", "Initial"] # result files' directory name
-legends_name = ["Initial", "OrderOpt", "Wang21", "Initial"] # "Verucchi20"
+methods_name = ["Initial", "OrderOpt", "NLP", "TOM"] # result files' directory name
+legends_name = ["Initial", "OrderOpt", "Wang21", "TOM"] # "Verucchi20"
 marker_list = ["o", "s", "D", "v"]  #
 color_list = ["#0084DB", "limegreen", "y", "r"]  #
 
