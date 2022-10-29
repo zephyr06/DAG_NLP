@@ -1,6 +1,6 @@
 #!/bin/bash
 
-methods_dir_name=( "Initial_Res" "OrderOpt_Res" "Verucchi_Res" "TOM_Res")
+methods_dir_name=( "Initial_Res" "OrderOpt_Res" "Verucchi_Res" "TOM_Res" "OrderOpt1LP_Res")
 TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
 
 for jobNumber in ${TaskNumberArray[@]}

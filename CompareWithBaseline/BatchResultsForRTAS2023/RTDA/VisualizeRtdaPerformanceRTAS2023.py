@@ -91,7 +91,7 @@ def extract_relative_gap(data_2d, reference_method="Verucchi"):
 def plot_figure(data_to_plot, taskNumberList, ylabel_name):
     dataset_pd = pd.DataFrame()
     dataset_pd.insert(0, "index", taskNumberList)
-    optimizer_name = ["Initial", "OrderOpt", "Verucchi", "TOM"] # used to name pandas data frame
+    optimizer_name = ["Initial", "OrderOpt", "Verucchi", "TOM", "Only1LP"] # used to name pandas data frame
     for i in range(len(data_to_plot)):
         dataset_pd.insert(0, optimizer_name[i], data_to_plot[i])
         splot = sns.lineplot(data=dataset_pd, x="index", y=optimizer_name[i], marker=marker_list[i % len(marker_list)],
@@ -146,10 +146,10 @@ title = args.title
 result_file_path = args.result_file_path
 # methods_name = ["Initial", "OrderOpt", "Verucchi", "TOM"] # used to read result files
 # legends_name = ["Initial", "OrderOpt", "Verucchi20", "TOM"] # "Wang21"
-methods_name = ["Initial", "OrderOpt", "Verucchi", "TOM"] # used to read result files
-legends_name = ["Initial", "OrderOpt", "Verucchi20", "TOM"] # "Wang21"
-marker_list = ["o", "s", "D", "v"]  #
-color_list = ["#0084DB", "limegreen", "y", "r"]  #
+methods_name = ["Initial", "OrderOpt", "Verucchi", "TOM", "OrderOpt1LP"] # used to read result files
+legends_name = ["Initial", "OrderOpt", "Verucchi20", "TOM", "Only1LP"] # "Wang21"
+marker_list = ["o", "s", "D", "v", "*"]  #
+color_list = ["#0084DB", "limegreen", "y", "r", "#333333"]  #
 
 if __name__ == "__main__":
     all_data_dict = read_data(taskNumberList)
