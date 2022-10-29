@@ -243,12 +243,13 @@ namespace OrderOptDAG_SPACE
             {
                 CoutWarning("Initial schedule is not schedulable!!!");
             }
-
+            bool foundOptimal = false;
             bool findNewUpdate = true;
             LLint countMakeProgress = 0;
             LLint countIterationStatus = 0;
-            bool foundOptimal = false;
 
+            if (statusPrev.ObjBarrier() == 0)
+                foundOptimal = true;
             auto ExamAndApplyUpdate = [&](SFOrder &jobOrderCurr)
             {
                 IterationStatus statusCurr(dagTasks, tasksInfo, jobOrderCurr, processorNum);
@@ -295,7 +296,7 @@ namespace OrderOptDAG_SPACE
             while (findNewUpdate)
             {
                 countOutermostWhileLoop++;
-                if (time_out_flag)
+                if (time_out_flag || foundOptimal)
                     break;
 
                 findNewUpdate = false;
@@ -366,7 +367,7 @@ namespace OrderOptDAG_SPACE
             scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
             scheduleRes.objWeighted_ = statusPrev.objWeighted_;
 
-            if (doScheduleOptimization)
+            if (doScheduleOptimization && !foundOptimal)
             {
                 if (!considerSensorFusion || !scheduleRes.schedulable_)
                 {
