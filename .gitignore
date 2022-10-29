@@ -15,8 +15,8 @@ Visualize/currGraph.gv.pdf
 Visualize/currGraph.gv
 .vscode
 .editorconfig
-*/currGraph.gv.pdf
-*/currGraph.gv
+**/currGraph.gv.pdf
+**/currGraph.gv
 
 # ignore temporary batch results
 CompareWithBaseline_deprecated/

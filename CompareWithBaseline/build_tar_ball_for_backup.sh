@@ -11,11 +11,11 @@ for DIR in `find $ROOT_PATH -type d -name $backup_dir` ; do
   cd $DIR
   files=`ls`
   for file in $files ; do
-    if [[ ${file:(-4):4} != ".tar" ]] ; then
-      if [[ ! ${files[*]} =~ $file.tar ]]; then
+    if [[ ${file:(-7):7} != ".tar.gz" ]] ; then
+      if [[ ! ${files[*]} =~ $file.tar.gz ]]; then
         echo "Make tar ball of directory: $DIR/$file"
-        tar -cf $file.tar $file
-        current_backup_files+=("$DIR/$file.tar")
+        tar -czf $file.tar.gz $file
+        current_backup_files+=("$DIR/$file.tar.gz")
       fi
     else
       current_backup_files+=("$DIR/$file")
