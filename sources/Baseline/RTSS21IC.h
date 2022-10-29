@@ -12,7 +12,6 @@ namespace OrderOptDAG_SPACE
         RTSS21IC_NLP::sensorFusionTolerance = sfTolerance;
         RTSS21IC_NLP::FreshTol = freshTol;
         RegularTaskSystem::TaskSetInfoDerived tasksInfo(dagTasks.tasks);
-        std::vector<uint> processorIdVec;
         // VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, std::nullopt, processorIdVec);
 
         // VectorDynamic initial = SimulateFixedPrioritySched(dagTasks, tasksInfo);
