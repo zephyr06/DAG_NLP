@@ -12,7 +12,7 @@ TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
 ROOT_PATH="/home/dong/workspace/DAG_NLP"
 # ROOT_PATH="/home/zephyr/Programming/batch_test_DAG_NLP/VerucchiOnly/N3_10" # for final batch test
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks" # tBatch's result path
-methods_dir_name=( "Initial_Res" "OrderOpt_Res" ) # only do Initial and OrderOpt
+methods_result_dir_name=( "Initial_Res" "OrderOpt_Res" "OrderOpt_Res_LoopCount" ) # only do Initial and OrderOpt
 target_method_res_name="OrderOpt_Res"
 TASKSETS_PATH="$ROOT_PATH/CompareWithBaseline/TasksetsForRTAS2023/RTDATasksets"
 makeProgressTimeLimit=100
@@ -34,14 +34,14 @@ call_the_executable() {
 }
 
 if [[ $keep_current_result_and_continue_previous_running == 1 ]]; then
-  for dir_name in ${methods_dir_name[@]}; do
+  for dir_name in ${methods_result_dir_name[@]}; do
     if [[ ! -d $dir_name ]]; then mkdir $dir_name; fi
   done
   if [[ ! -d dagTasks ]]; then mkdir dagTasks; fi
   if [[ ! -d scripts_and_figures_backup ]]; then mkdir scripts_and_figures_backup; fi
 else
   echo "Clearing all current results."
-  for dir_name in ${methods_dir_name[@]}; do
+  for dir_name in ${methods_result_dir_name[@]}; do
     if [[ -d $dir_name ]]; then rm -rf $dir_name; fi
     mkdir $dir_name
   done
@@ -54,7 +54,7 @@ fi
 cd $ROOT_PATH/CompareWithBaseline/$title
 for jobNumber in ${TaskNumberArray[@]}; do
 	taskset_folder_name="N$jobNumber"
-  for dir_name in ${methods_dir_name[@]}; do
+  for dir_name in ${methods_result_dir_name[@]}; do
     cd $dir_name
     if [[ ! -d $taskset_folder_name ]]; then mkdir $taskset_folder_name; fi
     cd ..
@@ -106,7 +106,7 @@ do
       
       #copy results to corresponding folder
       taskset_result_summary_file_name="N$jobNumber.txt"
-      for dir_name in ${methods_dir_name[@]}; do
+      for dir_name in ${methods_result_dir_name[@]}; do
         cd $dir_name
         cp $RESULTS_PATH/dag-set-$taskset_folder_name-$padded_id-syntheticJobs.csv_*$dir_name.txt ./$taskset_folder_name/
         # rm $taskset_result_summary_file_name
