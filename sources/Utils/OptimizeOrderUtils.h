@@ -22,6 +22,9 @@ namespace OrderOptDAG_SPACE
         double objWeighted_;
         double timeTaken_;
         std::vector<uint> processorJobVec_;
+        LLint countOutermostWhileLoop_;
+        LLint countMakeProgress_;
+        LLint countIterationStatus_;
 
         ScheduleResult() { obj_ = -1; }
         ScheduleResult(JobOrder jobOrder,
@@ -30,6 +33,9 @@ namespace OrderOptDAG_SPACE
                        double obj) : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), obj_(obj) //, rtda_(rtda)
         {
             timeTaken_ = 0;
+            countOutermostWhileLoop_ = 0;
+            countMakeProgress_ = 0;
+            countIterationStatus_ = 0;
         }
         ScheduleResult(JobOrder jobOrder, VectorDynamic startTimeVector, bool schedulable,
                        double obj, std::vector<uint> processorJobVec)
@@ -37,6 +43,9 @@ namespace OrderOptDAG_SPACE
               obj_(obj), processorJobVec_(processorJobVec)
         {
             timeTaken_ = 0;
+            countOutermostWhileLoop_ = 0;
+            countMakeProgress_ = 0;
+            countIterationStatus_ = 0;
         }
         ScheduleResult(SFOrder sfOrder,
                        VectorDynamic startTimeVector,
@@ -44,6 +53,9 @@ namespace OrderOptDAG_SPACE
                        double obj) : sfOrder_(sfOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), obj_(obj) //, rtda_(rtda)
         {
             timeTaken_ = 0;
+            countOutermostWhileLoop_ = 0;
+            countMakeProgress_ = 0;
+            countIterationStatus_ = 0;
         }
         ScheduleResult(SFOrder sfOrder, VectorDynamic startTimeVector, bool schedulable,
                        double obj, std::vector<uint> processorJobVec)
@@ -51,6 +63,9 @@ namespace OrderOptDAG_SPACE
               obj_(obj), processorJobVec_(processorJobVec)
         {
             timeTaken_ = 0;
+            countOutermostWhileLoop_ = 0;
+            countMakeProgress_ = 0;
+            countIterationStatus_ = 0;
         }
 
         void print()

@@ -31,3 +31,6 @@ CompareWithBaseline_deprecated/
 **/RTDATasksets
 **/TOM_Res
 **/OrderOpt1LP_Res
+**/OrderOpt_Res_LoopCount
+**/OrderOpt1LP_Res_LoopCount
+**/TOM_Res_LoopCount

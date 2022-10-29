@@ -11,7 +11,7 @@ TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
 ROOT_PATH="/home/dong/workspace/DAG_NLP"
 # ROOT_PATH="/home/dong/workspace/DAG_batch_test/sf_test/DAG_NLP" # for final batch test
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks" # tBatch1's result path
-methods_dir_name=( "Initial_Res" "TOM_Res" "NLP_Res" "OrderOpt_Res" ) # exclude Verucchi_Res in sensor fusion part
+methods_result_dir_name=( "Initial_Res" "TOM_Res" "NLP_Res" "OrderOpt_Res" ) # exclude Verucchi_Res in sensor fusion part
 makeProgressTimeLimit=100
 kVerucchiTimeLimit=100
 kWangRtss21IcNlpTimeLimit=100
@@ -37,7 +37,7 @@ if [[ $keep_current_result_and_only_plot == 1 || $keep_current_result_and_only_p
 fi
 
 echo "Clearing all current results."
-for dir_name in ${methods_dir_name[@]}; do
+for dir_name in ${methods_result_dir_name[@]}; do
   if [[ -d $dir_name ]]; then rm -rf $dir_name; fi
   mkdir $dir_name
 done
@@ -88,7 +88,7 @@ do
   #copy results to corresponding folder
 	taskset_folder_name="N$jobNumber"
   taskset_result_summary_file_name="N$jobNumber.txt"
-  for dir_name in ${methods_dir_name[@]}; do
+  for dir_name in ${methods_result_dir_name[@]}; do
     cd $dir_name
     if [[ ! -d $taskset_folder_name ]]; then mkdir $taskset_folder_name; fi
     cp $RESULTS_PATH/*$dir_name.txt ./$taskset_folder_name/

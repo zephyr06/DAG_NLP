@@ -7,7 +7,7 @@ testDataSetName: test_n3_v6
 debugMode: 0
 doScheduleOptimization: 0
 doScheduleOptimizationOnlyOnce: 1
-considerSensorFusion: 0
+considerSensorFusion: 0 
 #*************************************************************
 # Get away from local optimal setting
 RandomAccept: 0 # chance to take a possibly better solution
