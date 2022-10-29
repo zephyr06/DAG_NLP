@@ -71,6 +71,7 @@ void BatchOptimizeOrder()
                     else if (batchTestMethod == 1)
                     {
                         doScheduleOptimization = 1;
+                        doScheduleOptimizationOnlyOnce = 0;
                         res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva);
                     }
                     else if (batchTestMethod == 2)
@@ -84,6 +85,12 @@ void BatchOptimizeOrder()
                     else if (batchTestMethod == 4)
                     {
                         doScheduleOptimization = 0;
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva);
+                    }
+                    else if (batchTestMethod == 5)
+                    {
+                        doScheduleOptimization = 1;
+                        doScheduleOptimizationOnlyOnce = 1;
                         res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva);
                     }
                     else
@@ -125,6 +132,7 @@ void BatchOptimizeOrder()
         vt.addRow("Initial", Average(schedulableAll[0]), Average(objsAll[0]), Average(runTimeAll[0]));
         vt.addRow("TOM", Average(schedulableAll[1]), Average(objsAll[1]), Average(runTimeAll[1]));
         vt.addRow("OrderOpt", Average(schedulableAll[4]), Average(objsAll[4]), Average(runTimeAll[4]));
+        vt.addRow("OrderOpt1LP", Average(schedulableAll[5]), Average(objsAll[5]), Average(runTimeAll[5]));
         vt.addRow("Verucchi20RTAS", Average(schedulableAll[2]), Average(objsAll[2]), Average(runTimeAll[2]));
         vt.addRow("Wang21RTSS_IC", Average(schedulableAll[3]), Average(objsAll[3]), Average(runTimeAll[3]));
         // vt.addRow("Initial", Average(objsAll[0]), Average(runTimeAll[0]));

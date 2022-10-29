@@ -67,7 +67,7 @@ namespace OrderOptDAG_SPACE
                 }
                 schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
                 objWeighted_ = ObjWeighted();
-                if (doScheduleOptimization)
+                if (doScheduleOptimization && !doScheduleOptimizationOnlyOnce)
                 {
                     ScheduleResult scheduleResBeforeOpt{jobOrder_, startTimeVector_, schedulable_, ReadObj(), processorJobVec_};
                     scheduleResBeforeOpt.objWeighted_ = objWeighted_;

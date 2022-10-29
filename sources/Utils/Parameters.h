@@ -7,8 +7,8 @@
 #include "sources/Tools/testMy.h"
 using namespace std;
 
-const std::string PROJECT_PATH = "/home/zephyr/Programming/DAG_NLP/";
-// const std::string PROJECT_PATH = "/home/dong/workspace/DAG_NLP/";
+// const std::string PROJECT_PATH = "/home/zephyr/Programming/DAG_NLP/";
+const std::string PROJECT_PATH = "/home/dong/workspace/DAG_NLP/";
 // const std::string PROJECT_PATH = "/home/zephyr/Programming/batch_test_DAG_NLP/VerucchiOnly/N3_10/";
 //  std::string path = PROJECT_PATH + "sources/parameters.yaml";
 cv::FileStorage ConfigParameters(PROJECT_PATH + "sources/parameters.yaml", cv::FileStorage::READ);
@@ -151,3 +151,4 @@ double kCplexInequalityThreshold = (double)ConfigParameters["kCplexInequalityThr
 
 int doScheduleOptimization = (int)ConfigParameters["doScheduleOptimization"];
 int considerSensorFusion = (int)ConfigParameters["considerSensorFusion"];
+int doScheduleOptimizationOnlyOnce = (int)ConfigParameters["doScheduleOptimizationOnlyOnce"];

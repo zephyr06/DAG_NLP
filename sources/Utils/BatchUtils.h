@@ -30,6 +30,10 @@ namespace OrderOptDAG_SPACE
         {
             property = "_OrderOpt_Res.txt";
         }
+        else if (batchTestMethod_ == 5)
+        {
+            property = "_OrderOpt1LP_Res.txt";
+        }
         return pathDataset + file + property;
     }
     // TOTEST: read & write

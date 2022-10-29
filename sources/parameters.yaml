@@ -2,10 +2,11 @@
 
 # optimization seettings
 batchTestMethod: 1 # 0 means initial, 1 means proposed optimization, 2 means Verucchi20, 3 means NLP, SA is not considered, 4 means only optimize order
-TotalMethodUnderComparison: 5 # 0: LS initial, 1: optimize order & schedule, 2: Verucchi20, 3: NLP, 4: only optimize order
+TotalMethodUnderComparison: 6 # 0: LS initial, 1: optimize order & schedule, 2: Verucchi20, 3: NLP, 4: only optimize order, 5: only do one schedule optmization after the end of order optmization
 testDataSetName: test_n5_v79
 debugMode: 0
 doScheduleOptimization: 0
+doScheduleOptimizationOnlyOnce: 1
 considerSensorFusion: 0
 #*************************************************************
 # Get away from local optimal setting
