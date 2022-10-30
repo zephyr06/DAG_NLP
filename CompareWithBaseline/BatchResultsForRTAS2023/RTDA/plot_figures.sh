@@ -22,6 +22,10 @@ python $ROOT_PATH/CompareWithBaseline/BatchResultsForRTAS2023/$title/VisualizeRt
     --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $RESULTS_PATH \
     --taskNumberList ${TaskNumberArray[@]}
 
+python $ROOT_PATH/CompareWithBaseline/BatchResultsForRTAS2023/$title/VisualizeOrderOptLoopCount.py --minTaskNumber $MinTaskNumber \
+    --title $title --maxTaskNumber $MaxTaskNumber --result_file_path $RESULTS_PATH \
+    --taskNumberList ${TaskNumberArray[@]}
+
 cp $ROOT_PATH/CompareWithBaseline/BatchResultsForRTAS2023/$title/*.pdf $ROOT_PATH/CompareWithBaseline/BatchResultsForRTAS2023/$title/scripts_and_figures_backup/
 cp $ROOT_PATH/CompareWithBaseline/BatchResultsForRTAS2023/$title/*.sh $ROOT_PATH/CompareWithBaseline/BatchResultsForRTAS2023/$title/scripts_and_figures_backup/
 cp $ROOT_PATH/CompareWithBaseline/BatchResultsForRTAS2023/$title/*.py $ROOT_PATH/CompareWithBaseline/BatchResultsForRTAS2023/$title/scripts_and_figures_backup/
