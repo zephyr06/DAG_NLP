@@ -6,8 +6,8 @@ TotalMethodUnderComparison: 6 # 0: LS initial, 1: optimize order & schedule, 2: 
 testDataSetName: test_n3_v6
 debugMode: 0
 doScheduleOptimization: 0
-doScheduleOptimizationOnlyOnce: 1
-considerSensorFusion: 0 
+doScheduleOptimizationOnlyOnce: 0
+considerSensorFusion: 1 
 #*************************************************************
 # Get away from local optimal setting
 RandomAccept: 0 # chance to take a possibly better solution
@@ -26,9 +26,9 @@ timeScaleFactor: 100 # used to scale minimum period to 1 or larger, as currently
 #*************************************************************
 # MakeProgress's weight parameters
 weightInMpRTDA: 0.5
-weightInMpSf: 1
-weightInMpSfPunish: 10
-weightInMpRTDAPunish: 10
+weightInMpSf: 0.5
+weightInMpSfPunish: 1
+weightInMpRTDAPunish: 1
 makeProgressTimeLimit: 100 # seconds, -1 means unlimited time
 
 #*************************************************************
