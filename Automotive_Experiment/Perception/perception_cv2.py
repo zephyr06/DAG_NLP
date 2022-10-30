@@ -19,8 +19,9 @@ BLACK = (0, 0, 0)
 fonts = cv2.FONT_HERSHEY_COMPLEX
 
 # face detector object
-face_detector = cv2.CascadeClassifier("aaa") # haarcascade_frontalface_default.xml
-
+# face_detector = cv2.CascadeClassifier("haarcascade_frontalface_default.xml") # haarcascade_frontalface_default.xml
+face_detector = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+# eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
 
 # focal length finder function
 def Focal_Length_Finder(measured_distance, real_width, width_in_rf_image):
@@ -32,26 +33,21 @@ def Focal_Length_Finder(measured_distance, real_width, width_in_rf_image):
 # distance estimation function
 def Distance_finder(Focal_Length, real_face_width, face_width_in_frame):
     distance = (real_face_width * Focal_Length) / face_width_in_frame
-
     # return the distance
     return distance
 
 
 def face_data(image):
     face_width = 0  # making face width to zero
-
     # converting color image to gray scale image
     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
     # detecting face in the image
     faces = face_detector.detectMultiScale(gray_image, 1.3, 5)
-
     # looping through the faces detect in the image
     # getting coordinates x, y , width and height
     for (x, y, h, w) in faces:
         # draw the rectangle on the face
         cv2.rectangle(image, (x, y), (x + w, y + h), GREEN, 2)
-
         # getting face width in the pixels
         face_width = w
 
@@ -59,7 +55,6 @@ def face_data(image):
     return face_width
 
 def distance_measure(ref_image):
-
 
     tic = time.perf_counter()
 
@@ -81,7 +76,9 @@ def distance_measure(ref_image):
     # print(Distance)
 
     toc = time.perf_counter()
+    print("Time cost (ms): ", (toc-tic)*1000)
     # print(f"Downloaded the tutorial in {toc - tic:0.4f} seconds")
+    return Distance
 
 def camera_safety_check_human_face(ref_image):
     if distance_measure(ref_image) < 1e3:
@@ -91,5 +88,7 @@ def camera_safety_check_human_face(ref_image):
 if __name__ == '__main__':
 
     # reading reference_image from directory
-    ref_image = cv2.imread("Ref_image.png")
-    camera_safety_check_human_face(ref_image)
+    ref_image = cv2.imread('Ref_image.png')
+    # cv2.imshow('img',ref_image)
+    # cv2.waitKey(0)
+    print(camera_safety_check_human_face(ref_image))
