@@ -46,7 +46,10 @@ def extract_average_data_2d(all_data_dict, taskNumberList, target_obj):
         target_data = []
         for task_number in taskNumberList:
             raw_data = all_data_dict[method][task_number][target_obj]
-            target_data.append(Average(raw_data))
+            if (target_obj == "Schedulable"):
+                target_data.append(Average(raw_data)*100.0)
+            else:
+                target_data.append(Average(raw_data))
         data_2d.append(target_data)
     return data_2d
 
@@ -161,9 +164,12 @@ if __name__ == "__main__":
     time_data_2d = extract_average_data_2d(
         all_data_dict, taskNumberList, "Time")
     obj_relative_gap = extract_relative_gap(objective_data_2d, "Verucchi")
+    schedulable_ratio_gap = extract_relative_gap(schedulable_data_2d, "Initial")
 
     plot_figure(schedulable_data_2d, taskNumberList, "Schedulable Ratio (%)")
     plot_figure(objective_data_2d, taskNumberList, "Original RTDA")
     plot_figure(time_data_2d, taskNumberList, "Run-Time (s)")
     plot_figure(obj_relative_gap,
-                taskNumberList, "Performance Relative Gap")
+                taskNumberList, "Performance Relative Gap (%)")
+    plot_figure(schedulable_ratio_gap,
+                taskNumberList, "Schedulable Ratio Gap")
