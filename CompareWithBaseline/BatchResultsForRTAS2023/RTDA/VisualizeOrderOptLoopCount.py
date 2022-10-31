@@ -179,5 +179,5 @@ if __name__ == "__main__":
     makeProgressRatio_data_2d = extract_average_ratio(
         all_data_dict, taskNumberList, "MakeProgressCount", "StatusCount")
 
-    plot_figure(whileCount_data_2d, taskNumberList, "Outermost Loop Count")
+    plot_figure(whileCount_data_2d, taskNumberList, "Average Number of Iterations")
     plot_figure(makeProgressRatio_data_2d, taskNumberList, "Make Progress Ratio (%)")
