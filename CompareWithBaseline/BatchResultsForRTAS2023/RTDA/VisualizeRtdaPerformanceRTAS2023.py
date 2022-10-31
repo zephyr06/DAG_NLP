@@ -150,7 +150,7 @@ result_file_path = args.result_file_path
 # methods_name = ["Initial", "OrderOpt", "Verucchi", "TOM"] # used to read result files
 # legends_name = ["Initial", "OrderOpt", "Verucchi20", "TOM"] # "Wang21"
 methods_name = ["Initial", "OrderOpt", "Verucchi", "TOM", "OrderOpt1LP"] # used to read result files
-legends_name = ["Initial", "OrderOpt", "Verucchi20", "TOM", "Only1LP"] # "Wang21"
+legends_name = ["Initial", "TOM_fast", "Verucchi20", "TOM", "TOM_fast_LP"] # "Wang21"
 marker_list = ["o", "s", "D", "v", "*"]  #
 color_list = ["#0084DB", "limegreen", "y", "r", "#333333"]  #
 
