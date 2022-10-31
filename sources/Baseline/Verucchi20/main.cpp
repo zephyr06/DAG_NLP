@@ -260,7 +260,48 @@ int multiTaskset2()
 	return 0;
 }
 
+int multiTaskset_auto()
+{
+	time_t tstart, tend;
+	tstart = time(0);
+	VariableTaskSet taskSet;
+
+	auto task1 = taskSet.addTask(66, 35, "cameras");
+	auto task2 = taskSet.addTask(50, 23, "lidar");
+	auto task3 = taskSet.addTask(100, 12, "planning");
+	auto task4 = taskSet.addTask(50, 12, "control");
+	auto task5 = taskSet.addTask(100, 14, "misc");
+
+	taskSet.addDataEdge(task1, task3, {0, 1, 2});
+	taskSet.addDataEdge(task2, task3, {0, 1, 2});
+	taskSet.addDataEdge(task3, task4, {0, 1, 2});
+
+	taskSet.createBaselineTaskset();
+
+	auto &allDags = taskSet.createDAGs();
+
+	std::cout << allDags.size() << " total valid DAGs were created" << std::endl;
+
+	Evaluation eval;
+	eval.addLatency({task1, task3, task4}, LatencyCost(15, 15), LatencyConstraint(4000, 4000));
+	eval.addLatency({task2, task3, task4}, LatencyCost(15, 15), LatencyConstraint(4000, 4000));
+	eval.addScheduling(SchedulingCost(20), SchedulingConstraint(2));
+
+	const auto &bestDAG = eval.evaluate(allDags);
+
+	// bestDAG.toTikz("fusion.tex");
+	// bestDAG.getOriginatingTaskset()->toTikz("fusion_multi.tex");
+	std::cout << bestDAG.getNodeInfo() << std::endl;
+	// bestDAG.getLatencyInfo({1,1,2,3,4});
+	scheduling::scheduleDAG(bestDAG, 2, "schedule_test.tex", true);
+
+	tend = time(0);
+	std::cout << "It took " << difftime(tend, tstart) << " second(s)." << std::endl;
+
+	return 0;
+}
+
 int main()
 {
-	return multiTaskset_fusion();
+	return multiTaskset_auto();
 }
