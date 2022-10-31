@@ -111,6 +111,7 @@ void BatchOptimizeOrder()
                     errorFiles.push_back(file);
                 }
                 WriteToResultFile(pathDataset, file, res, batchTestMethod);
+                WriteScheduleToFile(pathDataset, file, dagTasks, res, batchTestMethod);
 
                 runTimeAll[batchTestMethod].push_back(res.timeTaken_);
                 schedulableAll[batchTestMethod].push_back((res.schedulable_ ? 1 : 0));

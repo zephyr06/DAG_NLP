@@ -52,7 +52,7 @@ namespace OrderOptDAG_SPACE
         outfileWrite.close();
         if (batchTestMethod_ == 1 || batchTestMethod_ == 4 || batchTestMethod_ == 5)
         {
-            resFile = resFile.substr(0, resFile.length()-4);
+            resFile = resFile.substr(0, resFile.length() - 4);
             resFile += "_LoopCount.txt";
             outfileWrite.open(resFile, std::ofstream::out | std::ofstream::trunc); // std::ios_base::app
             outfileWrite << res.countOutermostWhileLoop_ << std::endl;
@@ -60,6 +60,38 @@ namespace OrderOptDAG_SPACE
             outfileWrite << res.countIterationStatus_ << std::endl;
             outfileWrite.close();
         }
+    }
+
+    void WriteScheduleToFile(const std::string &pathDataset, const std::string &file, DAG_Model &dagTasks, ScheduleResult &res, int batchTestMethod_)
+    {
+        TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+        auto timeJobVector = ObtainAllJobSchedule(tasksInfo, res.startTimeVector_);
+        timeJobVector = SortJobSchedule(timeJobVector);
+
+        std::string resFile = GetResFileName(pathDataset, file, batchTestMethod_);
+        resFile = resFile.substr(0, resFile.length() - 4);
+        resFile += "_Schedule.txt";
+        std::ofstream outfileWrite;
+        outfileWrite.open(resFile, std::ofstream::out | std::ofstream::trunc); // std::ios_base::app
+
+        outfileWrite << coreNumberAva << std::endl;
+        outfileWrite << tasksInfo.hyperPeriod << std::endl;
+        outfileWrite << tasksInfo.variableDimension << std::endl;
+        outfileWrite << NumCauseEffectChain << std::endl;
+        for (auto chain : dagTasks.chains_)
+        {
+            for (auto task_id : chain)
+            {
+                outfileWrite << task_id << ", ";
+            }
+            outfileWrite << std::endl;
+        }
+        for (auto time_job_pair : timeJobVector)
+        {
+            outfileWrite << time_job_pair.first.first << std::endl;
+            outfileWrite << time_job_pair.second.taskId << std::endl;
+        }
+        outfileWrite.close();
     }
 
     OrderOptDAG_SPACE::ScheduleResult ReadFromResultFile(const std::string &pathDataset, const std::string &file, int batchTestMethod_)
