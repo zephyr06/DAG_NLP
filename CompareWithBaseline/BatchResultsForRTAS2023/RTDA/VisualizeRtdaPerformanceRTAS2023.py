@@ -149,10 +149,10 @@ title = args.title
 result_file_path = args.result_file_path
 # methods_name = ["Initial", "OrderOpt", "Verucchi", "TOM"] # used to read result files
 # legends_name = ["Initial", "OrderOpt", "Verucchi20", "TOM"] # "Wang21"
-methods_name = ["Initial", "OrderOpt", "Verucchi", "TOM", "OrderOpt1LP"] # used to read result files
-legends_name = ["Initial", "TOM_fast", "Verucchi20", "TOM", "TOM_fast_LP"] # "Wang21"
-marker_list = ["o", "s", "D", "v", "*"]  #
-color_list = ["#0084DB", "limegreen", "y", "r", "#333333"]  #
+methods_name = ["Initial", "Verucchi", "TOM", "OrderOpt", "OrderOpt1LP"] # used to read result files
+legends_name = ["Initial", "Verucchi20", "TOM", "TOM_fast", "TOM_fast_LP"] # "Wang21"
+marker_list = ["o", "D", "v", "s", "*"]  #
+color_list = ["#0084DB", "y", "r", "limegreen", "#333333"]  #
 
 if __name__ == "__main__":
     all_data_dict = read_data(taskNumberList)
