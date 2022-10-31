@@ -77,6 +77,7 @@ namespace OrderOptDAG_SPACE
         outfileWrite << coreNumberAva << std::endl;
         outfileWrite << tasksInfo.hyperPeriod << std::endl;
         outfileWrite << tasksInfo.variableDimension << std::endl;
+        outfileWrite << 10 << std::endl; // total hyperperiods to run
         outfileWrite << NumCauseEffectChain << std::endl;
         for (auto chain : dagTasks.chains_)
         {
