@@ -1,0 +1,15 @@
+JobID,Offset,Period,Overhead,ExecutionTime,DeadLine,processorId
+# 2 cores
+# camera [33--100]
+0,0,67,0,31,67,1
+# lidar [25--100]
+1,0,50,0,21,50,1
+# planning
+2,0,100,0,12,100,1
+# control
+3,0,50,0,12,50,1
+# misc
+4,0,1000,0,14,1000,1
+*0,2
+*1,2
+*2,3

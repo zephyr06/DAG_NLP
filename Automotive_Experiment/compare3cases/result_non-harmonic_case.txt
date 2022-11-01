@@ -1,0 +1,41 @@
+----------------------------------------------------------------------------------------
+|     Method     | Schedulable ratio | Obj (Only used in RTDA experiment) |  TimeTaken |
+----------------------------------------------------------------------------------------
+| Initial        |                 1 |                                715 |   0.207714 |
+| TOM            |                 1 |                                664 |    101.422 |
+| OrderOpt       |                 1 |                                715 |    100.748 |
+| OrderOpt1LP    |                 1 |                                664 |    100.364 |
+| Verucchi20RTAS |                 0 |                                715 |    215.379 |
+| Wang21RTSS_IC  |                -1 |                                 -1 |         -1 |
+----------------------------------------------------------------------------------------
+
+
+############# experiment results #############
+
+method, RTDA_test1, RTDA_test2, RTDA_test3
+Initial, 
+TOM, 
+Verucchi, 
+OrderOpt, 
+OrderOpt1LP,
+
+
+
+
+############# task set #############
+
+JobID,Offset,Period,Overhead,ExecutionTime,DeadLine,processorId
+# 2 cores
+# camera [33--100]
+0,0,67,0,31,67,1
+# lidar [25--100]
+1,0,50,0,21,50,1
+# planning
+2,0,100,0,12,100,1
+# control
+3,0,50,0,12,50,1
+# misc
+4,0,1000,0,14,1000,1
+*0,2
+*1,2
+*2,3
