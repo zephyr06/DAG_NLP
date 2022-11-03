@@ -30,14 +30,14 @@ public:
     Vector evaluateError(const VectorDynamic &x,
                          boost::optional<Matrix &> H = boost::none) const override
     {
-        BeginTimer("InequalityFactor1D");
+        // BeginTimer("InequalityFactor1D");
         // AssertEqualScalar(1, x.rows(), 1e-6, __LINE__);
         VectorDynamic err = f(x);
         if (H)
         {
             *H = NumericalDerivativeDynamic(f, x, deltaOptimizer, err.rows());
         }
-        EndTimer("InequalityFactor1D");
+        // EndTimer("InequalityFactor1D");
         return err;
     }
 };
