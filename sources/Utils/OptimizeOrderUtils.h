@@ -89,11 +89,24 @@ namespace OrderOptDAG_SPACE
 
     bool CheckDDLConstraint(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
     {
-        gtsam::NonlinearFactorGraph graph;
-        AddDDL_Factor(graph, tasksInfo);
-        gtsam::Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
-        double err = graph.error(initialEstimateFG);
-        return 0 == err;
+        // gtsam::NonlinearFactorGraph graph;
+        // AddDDL_Factor(graph, tasksInfo);
+        // gtsam::Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
+        // double err = graph.error(initialEstimateFG);
+        // return 0 == err;
+
+        for (int i = 0; i < tasksInfo.N; i++)
+        {
+            for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
+            {
+                JobCEC job(i, j);
+                double start = GetStartTime(job, startTimeVector, tasksInfo);
+                if (start < GetActivationTime(job, tasksInfo) ||
+                    start + GetExecutionTime(job, tasksInfo) > GetDeadline(job, tasksInfo))
+                    return false;
+            }
+        }
+        return true;
     }
 
     std::vector<std::vector<Interval>> ExtractJobsPerProcessor(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum)
