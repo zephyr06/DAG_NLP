@@ -52,6 +52,7 @@ namespace OrderOptDAG_SPACE
             IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, int processorNum) : dagTasks_(dagTasks), jobOrder_(jobOrder), processorNum_(processorNum)
             {
                 // startTimeVector_ = ListSchedulingGivenOrder(dagTasks, tasksInfo, jobOrder_);
+                BeginTimerAppInProfiler;
                 processorJobVec_.clear();
                 startTimeVector_ = SFOrderScheduling(dagTasks, tasksInfo, processorNum_, jobOrder_, processorJobVec_);
 
@@ -96,6 +97,7 @@ namespace OrderOptDAG_SPACE
                         objWeighted_ = ObjWeighted();
                     }
                 }
+                EndTimerAppInProfiler;
             }
             double ReadObj()
             {
@@ -210,7 +212,7 @@ namespace OrderOptDAG_SPACE
             if (accumLengthMin >= tasksInfo.tasks[jobRelocate.taskId].executionTime)
                 return true;
             TimeInstance jobPrevInsertInst = jobOrderCurrForStart.at(finishP);
-            if (jobPrevInsertInst.type == 'f' && jobOrderCurrForStart.GetJobStartInstancePosition(jobPrevInsertInst.job) > startP)
+            if (jobPrevInsertInst.type == 'f') // && jobOrderCurrForStart.GetJobStartInstancePosition(jobPrevInsertInst.job) > startP
                 accumLengthMin += tasksInfo.tasks[jobPrevInsertInst.job.taskId].executionTime;
             return false;
         }
@@ -382,7 +384,7 @@ namespace OrderOptDAG_SPACE
                             scheduleRes = result_after_optimization;
                             std::vector<RTDA> rtda_vector;
                             for (auto chain : dagTasks.chains_)
-                            {                    
+                            {
                                 auto res = GetRTDAFromSingleJob(tasksInfo, chain, scheduleRes.startTimeVector_);
                                 RTDA resM = GetMaxRTDA(res);
                                 rtda_vector.push_back(resM);

@@ -7,7 +7,7 @@ TotalMethodUnderComparison: 6 # 0: LS initial, 1: optimize order & schedule, 2: 
 testDataSetName: test_n3_v6
 debugMode: 0
 doScheduleOptimization: 0
-doScheduleOptimizationOnlyOnce: 1
+doScheduleOptimizationOnlyOnce: 0
 considerSensorFusion: 0
 #*************************************************************
 # Get away from local optimal setting
