@@ -370,6 +370,8 @@ TEST(Obj, RTDA_v1)
 
     considerSensorFusion = 1;
     FreshTol = 0;
+    weightInMpSfPunish = 1;
+    weightInMpRTDAPunish = 1;
     EXPECT_LONGS_EQUAL(18, status.ReadObj());
     EXPECT_LONGS_EQUAL(18, status.ObjBarrier());
     EXPECT_DOUBLES_EQUAL(32.5, status.ObjWeighted(), 0.1);
