@@ -429,6 +429,25 @@ TEST(RTSSIC, Wang21_DBF)
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, std::nullopt, processorIdVec);
 }
 
+TEST(CheckDDLConstraint, v1)
+{
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    int processorNum = 2;
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    PrintSchedule(tasksInfo, initial);
+    EXPECT(CheckDDLConstraint(dagTasks, tasksInfo, initial));
+    initial << 0, 0, 0, 0;
+    EXPECT(!CheckDDLConstraint(dagTasks, tasksInfo, initial));
+    initial << 0, 9, 0, 0;
+    EXPECT(!CheckDDLConstraint(dagTasks, tasksInfo, initial));
+    initial << 10, 10, 0, 0;
+    EXPECT(!CheckDDLConstraint(dagTasks, tasksInfo, initial));
+    initial << 9.9, 10, 0, 0;
+    EXPECT(!CheckDDLConstraint(dagTasks, tasksInfo, initial));
+}
+
 int main()
 {
     TestResult tr;
