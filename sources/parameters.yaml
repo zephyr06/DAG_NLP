@@ -3,10 +3,10 @@
 # optimization seettings
 TotalMethodUnderComparison: 6 # 0: LS initial, 1: optimize order & schedule, 2: Verucchi20, 3: NLP, 4: only optimize order
                               # 5: only do one schedule optmization after the end of order optmization
-testDataSetName: test_n3_v6
+testDataSetName: test_n5_v79
 debugMode: 0
 doScheduleOptimization: 0
-doScheduleOptimizationOnlyOnce: 0
+doScheduleOptimizationOnlyOnce: 1
 considerSensorFusion: 0
 #*************************************************************
 # Get away from local optimal setting
@@ -26,9 +26,9 @@ timeScaleFactor: 100 # used to scale minimum period to 1 or larger, as currently
 #*************************************************************
 # MakeProgress's weight parameters
 weightInMpRTDA: 0.5
-weightInMpSf: 0.5
-weightInMpSfPunish: 1
-weightInMpRTDAPunish: 1
+weightInMpSf: 1
+weightInMpSfPunish: 10
+weightInMpRTDAPunish: 10
 makeProgressTimeLimit: 100 # seconds, -1 means unlimited time
 
 #*************************************************************
@@ -39,7 +39,7 @@ weightSF_factor: 0
 RtdaWeight: 1e0
 DataAgeThreshold: 1e3
 ReactionTimeThreshold: 1e3
-NumCauseEffectChain: 2
+NumCauseEffectChain: 1
 whether_shuffle_CE_chain: 0
 makespanWeight: 0
 sensorFusionTolerance: 100

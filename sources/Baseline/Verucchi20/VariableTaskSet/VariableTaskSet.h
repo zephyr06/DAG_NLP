@@ -43,8 +43,16 @@ public:
 	const std::vector<DAG> &
 	createDAGsWithTimeLimit(int64_t seconds = INT64_MAX); // default to unlimited time
 
-	float
-	getUtilization() const;
+	inline MultiRateTaskset &getBaseLineTaskSet()
+	{
+		return baselineTaskset_;
+	}
+	inline std::vector<VariableMultiEdge> &getEdges()
+	{
+		return edges_;
+	}
+
+	float getUtilization() const;
 
 private:
 	std::vector<std::shared_ptr<MultiNode>> nodes_;

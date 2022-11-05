@@ -29,15 +29,19 @@ public:
 	const DAG &
 	evaluateWithRTDA(const std::vector<DAG> &dags);
 
+	void evaluateWithRTDAandUpdate(const std::vector<DAG> &dags,
+						  std::optional<std::reference_wrapper<DAG>> bestDag  = std::nullopt,
+						  std::optional<std::reference_wrapper<float>> minCost  = std::nullopt);
+
 	LatencyInfo getLatencyInfoRTDA(const DAG &dag, std::vector<unsigned> chain);
 
 	std::vector<unsigned>
 	taskChainToNum(const Chain &chain);
 
-private:
 	void
 	printChain(const Chain &chain);
 
+private:
 	SchedulingInfo
 	getSchedulingInfo(const DAG &dag, const SchedulingConstraint &constraint);
 
