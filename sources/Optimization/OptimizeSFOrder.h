@@ -405,6 +405,7 @@ namespace OrderOptDAG_SPACE
                                 if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart, startP))
                                     break;
 
+                                // TODO: avoid this copy
                                 BeginTimer("SFOrderConstructor");
                                 SFOrder jobOrderCurrForFinish = jobOrderCurrForStart;
                                 EndTimer("SFOrderConstructor");
@@ -412,7 +413,25 @@ namespace OrderOptDAG_SPACE
                                 // if (debugMode == 1)
                                 //     jobOrderCurrForFinish.print();
 
-                                ExamAndApplyUpdate(jobOrderCurrForFinish);
+                                // ExamAndApplyUpdate(jobOrderCurrForFinish);
+                                BeginTimer("IterationStatusCreate");
+                                IterationStatus statusCurr(dagTasks, tasksInfo, jobOrderCurrForFinish, processorNum);
+                                EndTimer("IterationStatusCreate");
+
+                                countIterationStatus++;
+                                if (MakeProgress(statusPrev, statusCurr))
+                                {
+                                    findNewUpdate = true;
+                                    statusPrev = statusCurr;
+                                    if (debugMode == 1)
+                                    {
+                                        std::cout << "Make progress!" << std::endl;
+                                        PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
+                                    }
+                                    countMakeProgress++;
+                                    if (statusCurr.ObjBarrier() == 0)
+                                        foundOptimal = true;
+                                }
                                 if (foundOptimal)
                                     break;
                             }
