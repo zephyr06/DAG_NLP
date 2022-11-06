@@ -306,27 +306,6 @@ namespace OrderOptDAG_SPACE
 
             if (statusPrev.ObjBarrier() == 0)
                 foundOptimal = true;
-            auto ExamAndApplyUpdate = [&](SFOrder &jobOrderCurr)
-            {
-                BeginTimer("IterationStatusCreate");
-                IterationStatus statusCurr(dagTasks, tasksInfo, jobOrderCurr, processorNum);
-                EndTimer("IterationStatusCreate");
-
-                countIterationStatus++;
-                if (MakeProgress(statusPrev, statusCurr))
-                {
-                    findNewUpdate = true;
-                    statusPrev = statusCurr;
-                    if (debugMode == 1)
-                    {
-                        std::cout << "Make progress!" << std::endl;
-                        PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
-                    }
-                    countMakeProgress++;
-                    if (statusCurr.ObjBarrier() == 0)
-                        foundOptimal = true;
-                }
-            };
 
             auto start_time = std::chrono::system_clock::now();
             auto curr_time = std::chrono::system_clock::now();
@@ -405,20 +384,11 @@ namespace OrderOptDAG_SPACE
                                 if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart, startP))
                                     break;
 
-                                // TODO: avoid this copy
-                                // BeginTimer("SFOrderConstructor");
-                                // SFOrder jobOrderCurrForFinish = jobOrderCurrForStart;
-                                // EndTimer("SFOrderConstructor");
                                 SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart;
                                 jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
-                                // if (debugMode == 1)
-                                //     jobOrderCurrForFinish.print();
-
-                                // ExamAndApplyUpdate(jobOrderCurrForFinish);
                                 BeginTimer("IterationStatusCreate");
                                 IterationStatus statusCurr(dagTasks, tasksInfo, jobOrderCurrForFinish, processorNum);
                                 EndTimer("IterationStatusCreate");
-
                                 countIterationStatus++;
                                 if (MakeProgress(statusPrev, statusCurr))
                                 {
@@ -436,8 +406,7 @@ namespace OrderOptDAG_SPACE
                                 else
                                 {
                                     // restore jobOrderCurrForStart for next iteration
-                                    jobOrderCurrForFinish.RemoveJob(jobRelocate);
-                                    jobOrderCurrForFinish.InsertStart(jobRelocate, startP);
+                                    jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
                                 }
                                 if (foundOptimal)
                                     break;

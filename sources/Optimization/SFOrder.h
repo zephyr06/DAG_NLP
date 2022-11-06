@@ -200,6 +200,16 @@ namespace OrderOptDAG_SPACE
 
             EndTimerAppInProfiler;
         }
+        void RemoveFinish(JobCEC job, LLint position)
+        {
+            BeginTimerAppInProfiler;
+            RangeCheck(position, true);
+            instanceOrder_.erase(instanceOrder_.begin() + position);
+            // EstablishJobSFMap();
+            whetherSFMapNeedUpdate = true;
+
+            EndTimerAppInProfiler;
+        }
 
         void print()
         {
