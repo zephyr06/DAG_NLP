@@ -38,7 +38,7 @@ namespace OrderOptDAG_SPACE
         struct IterationStatus
         {
             DAG_Model dagTasks_;
-            SFOrder jobOrder_;
+            SFOrder &jobOrder_;
             int processorNum_;
             VectorDynamic startTimeVector_;
             std::vector<uint> processorJobVec_;
@@ -49,7 +49,7 @@ namespace OrderOptDAG_SPACE
             VectorDynamic sfVec_;
             double objWeighted_;
 
-            IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, int processorNum) : dagTasks_(dagTasks), jobOrder_(jobOrder), processorNum_(processorNum)
+            IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, int processorNum) : dagTasks_(dagTasks), jobOrder_(jobOrder), processorNum_(processorNum)
             {
                 // startTimeVector_ = ListSchedulingGivenOrder(dagTasks, tasksInfo, jobOrder_);
                 BeginTimerAppInProfiler;
@@ -93,12 +93,29 @@ namespace OrderOptDAG_SPACE
                             sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
                         }
                         schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
+                        // TODO: remove this?
                         jobOrder_ = SFOrder(tasksInfo, startTimeVector_);
                         objWeighted_ = ObjWeighted();
                     }
                 }
                 EndTimerAppInProfiler;
             }
+
+            IterationStatus& operator=(IterationStatus &status)
+            {
+                dagTasks_ = status.dagTasks_;
+                jobOrder_ = status.jobOrder_;
+                processorNum_ = status.processorNum_;
+                startTimeVector_ = status.startTimeVector_;
+                processorJobVec_ = status.processorJobVec_;
+                rtdaVec_ = status.rtdaVec_;
+                maxRtda_ = status.maxRtda_;
+                schedulable_ = status.schedulable_;
+                sfVec_ = status.sfVec_;
+                objWeighted_ = status.objWeighted_;
+                return *this;
+            }
+
             double ReadObj()
             {
                 double res = ObjRTDA(maxRtda_);

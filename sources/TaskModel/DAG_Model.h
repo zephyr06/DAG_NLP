@@ -89,6 +89,7 @@ namespace OrderOptDAG_SPACE
         indexVertexMap indexesBGL_;
         std::vector<std::vector<int>> chains_;
 
+        DAG_Model() : sfBound_(-1), rtdaBound_(-1) {}
         DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev) : tasks(tasks), mapPrev(mapPrev)
         {
             std::tie(graph_, indexesBGL_) = GenerateGraphForTaskSet();
