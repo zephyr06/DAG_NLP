@@ -7,6 +7,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include <unistd.h> // only effective with Linux, "windows.h" works with Windows
+
 #include "sources/Tools/colormod.h"
 #include "sources/Tools/testMy.h"
 
@@ -29,7 +31,8 @@ struct ProfilerData
     }
 };
 
-static std::unordered_map<std::string, ProfilerData> profilerMap;
+std::unordered_map<std::string, ProfilerData> profilerMap;
+int AAA;
 
 void BeginTimer(std::string funcName)
 {
@@ -51,7 +54,7 @@ void EndTimer(std::string funcName, bool print = false)
     auto itr = profilerMap.find(funcName);
     if (itr == profilerMap.end())
     {
-        CoutError("Timer cannot find entry!");
+        CoutError("Timer cannot find entry: " + funcName);
     }
     profilerMap[funcName].end = CurrentTimeInProfiler;
     profilerMap[funcName].UpdateAccum();

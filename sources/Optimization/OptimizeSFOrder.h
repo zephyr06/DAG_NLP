@@ -38,7 +38,7 @@ namespace OrderOptDAG_SPACE
         struct IterationStatus
         {
             DAG_Model dagTasks_;
-            SFOrder jobOrder_;
+            SFOrder &jobOrder_;
             int processorNum_;
             VectorDynamic startTimeVector_;
             std::vector<uint> processorJobVec_;
@@ -49,7 +49,7 @@ namespace OrderOptDAG_SPACE
             VectorDynamic sfVec_;
             double objWeighted_;
 
-            IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, int processorNum) : dagTasks_(dagTasks), jobOrder_(jobOrder), processorNum_(processorNum)
+            IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, int processorNum) : dagTasks_(dagTasks), jobOrder_(jobOrder), processorNum_(processorNum)
             {
                 // startTimeVector_ = ListSchedulingGivenOrder(dagTasks, tasksInfo, jobOrder_);
                 BeginTimerAppInProfiler;
@@ -93,12 +93,29 @@ namespace OrderOptDAG_SPACE
                             sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
                         }
                         schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
+                        // TODO: remove this?
                         jobOrder_ = SFOrder(tasksInfo, startTimeVector_);
                         objWeighted_ = ObjWeighted();
                     }
                 }
                 EndTimerAppInProfiler;
             }
+
+            IterationStatus& operator=(IterationStatus &status)
+            {
+                dagTasks_ = status.dagTasks_;
+                jobOrder_ = status.jobOrder_;
+                processorNum_ = status.processorNum_;
+                startTimeVector_ = status.startTimeVector_;
+                processorJobVec_ = status.processorJobVec_;
+                rtdaVec_ = status.rtdaVec_;
+                maxRtda_ = status.maxRtda_;
+                schedulable_ = status.schedulable_;
+                sfVec_ = status.sfVec_;
+                objWeighted_ = status.objWeighted_;
+                return *this;
+            }
+
             double ReadObj()
             {
                 double res = ObjRTDA(maxRtda_);
@@ -254,7 +271,10 @@ namespace OrderOptDAG_SPACE
                 foundOptimal = true;
             auto ExamAndApplyUpdate = [&](SFOrder &jobOrderCurr)
             {
+                BeginTimer("IterationStatusCreate");
                 IterationStatus statusCurr(dagTasks, tasksInfo, jobOrderCurr, processorNum);
+                EndTimer("IterationStatusCreate");
+
                 countIterationStatus++;
                 if (MakeProgress(statusPrev, statusCurr))
                 {
@@ -305,7 +325,7 @@ namespace OrderOptDAG_SPACE
 
                 // search the tasks related to task chain at first
                 std::vector<int> taskIdSet = GetTaskIdWithChainOrder(dagTasks);
-
+                BeginTimer("inner_for_job");
                 for (int i : taskIdSet)
                     for (LLint j = jobWithMaxChain; j < jobWithMaxChain + tasksInfo.sizeOfVariables[i]; j++)
                     {
@@ -326,6 +346,7 @@ namespace OrderOptDAG_SPACE
 
                         for (LLint startP = prevJobIndex; startP < nextJobIndex; startP++)
                         {
+                            BeginTimer("inner_for_start");
                             if (time_out_flag || foundOptimal)
                                 break;
                             if (statusPrev.jobOrder_[startP].job.taskId == jobRelocate.taskId && statusPrev.jobOrder_[startP].job.jobId > jobRelocate.jobId)
@@ -347,7 +368,9 @@ namespace OrderOptDAG_SPACE
                                 if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart, startP))
                                     break;
 
+                                BeginTimer("SFOrderConstructor");
                                 SFOrder jobOrderCurrForFinish = jobOrderCurrForStart;
+                                EndTimer("SFOrderConstructor");
                                 jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
                                 // if (debugMode == 1)
                                 //     jobOrderCurrForFinish.print();
@@ -356,9 +379,11 @@ namespace OrderOptDAG_SPACE
                                 if (foundOptimal)
                                     break;
                             }
+                            EndTimer("inner_for_start");
                         }
                     }
                 // std::cout << "Finish one big while loop!" << std::endl;
+                EndTimer("inner_for_job");
             }
             if (!statusPrev.schedulable_)
             {
