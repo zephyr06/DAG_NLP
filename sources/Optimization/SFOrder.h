@@ -154,7 +154,7 @@ namespace OrderOptDAG_SPACE
 
         void RemoveJob(JobCEC job)
         {
-            // BeginTimerAppInProfiler;
+            BeginTimerAppInProfiler;
             LLint startIndex = GetJobStartInstancePosition(job);
             LLint finishIndex = GetJobFinishInstancePosition(job);
             RangeCheck(startIndex);

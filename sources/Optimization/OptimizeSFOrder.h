@@ -254,7 +254,9 @@ namespace OrderOptDAG_SPACE
                 foundOptimal = true;
             auto ExamAndApplyUpdate = [&](SFOrder &jobOrderCurr)
             {
+                BeginTimer("IterationStatusCreate");
                 IterationStatus statusCurr(dagTasks, tasksInfo, jobOrderCurr, processorNum);
+                EndTimer("IterationStatusCreate");
 
                 countIterationStatus++;
                 if (MakeProgress(statusPrev, statusCurr))
@@ -349,7 +351,9 @@ namespace OrderOptDAG_SPACE
                                 if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart, startP))
                                     break;
 
+                                BeginTimer("SFOrderConstructor");
                                 SFOrder jobOrderCurrForFinish = jobOrderCurrForStart;
+                                EndTimer("SFOrderConstructor");
                                 jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
                                 // if (debugMode == 1)
                                 //     jobOrderCurrForFinish.print();

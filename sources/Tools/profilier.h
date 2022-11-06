@@ -54,7 +54,7 @@ void EndTimer(std::string funcName, bool print = false)
     auto itr = profilerMap.find(funcName);
     if (itr == profilerMap.end())
     {
-        CoutError("Timer cannot find entry!");
+        CoutError("Timer cannot find entry: " + funcName);
     }
     profilerMap[funcName].end = CurrentTimeInProfiler;
     profilerMap[funcName].UpdateAccum();
