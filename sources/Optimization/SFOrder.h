@@ -154,6 +154,7 @@ namespace OrderOptDAG_SPACE
 
         void RemoveJob(JobCEC job)
         {
+            // BeginTimerAppInProfiler;
             LLint startIndex = GetJobStartInstancePosition(job);
             LLint finishIndex = GetJobFinishInstancePosition(job);
             RangeCheck(startIndex);
@@ -163,10 +164,12 @@ namespace OrderOptDAG_SPACE
             jobSFMap_.erase(job);
             // EstablishJobSFMap();
             whetherSFMapNeedUpdate = true;
+            EndTimerAppInProfiler;
         }
 
         void InsertStart(JobCEC job, LLint position)
         {
+            BeginTimerAppInProfiler;
             RangeCheck(position, true);
             TimeInstance inst('s', job);
             instanceOrder_.insert(instanceOrder_.begin() + position, inst);
@@ -183,6 +186,8 @@ namespace OrderOptDAG_SPACE
             // }
             // EstablishJobSFMap();
             whetherSFMapNeedUpdate = true;
+
+            EndTimerAppInProfiler;
         }
 
         void InsertFinish(JobCEC job, LLint position)

@@ -255,6 +255,7 @@ namespace OrderOptDAG_SPACE
             auto ExamAndApplyUpdate = [&](SFOrder &jobOrderCurr)
             {
                 IterationStatus statusCurr(dagTasks, tasksInfo, jobOrderCurr, processorNum);
+
                 countIterationStatus++;
                 if (MakeProgress(statusPrev, statusCurr))
                 {
@@ -305,7 +306,7 @@ namespace OrderOptDAG_SPACE
 
                 // search the tasks related to task chain at first
                 std::vector<int> taskIdSet = GetTaskIdWithChainOrder(dagTasks);
-
+                BeginTimer("inner_for_job");
                 for (int i : taskIdSet)
                     for (LLint j = jobWithMaxChain; j < jobWithMaxChain + tasksInfo.sizeOfVariables[i]; j++)
                     {
@@ -326,6 +327,7 @@ namespace OrderOptDAG_SPACE
 
                         for (LLint startP = prevJobIndex; startP < nextJobIndex; startP++)
                         {
+                            BeginTimer("inner_for_start");
                             if (time_out_flag || foundOptimal)
                                 break;
                             if (statusPrev.jobOrder_[startP].job.taskId == jobRelocate.taskId && statusPrev.jobOrder_[startP].job.jobId > jobRelocate.jobId)
@@ -356,9 +358,11 @@ namespace OrderOptDAG_SPACE
                                 if (foundOptimal)
                                     break;
                             }
+                            EndTimer("inner_for_start");
                         }
                     }
                 // std::cout << "Finish one big while loop!" << std::endl;
+                EndTimer("inner_for_job");
             }
             if (!statusPrev.schedulable_)
             {
