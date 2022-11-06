@@ -167,7 +167,7 @@ namespace OrderOptDAG_SPACE
     {
         return tasksInfo.tasks[GetJobCECFromUniqueId(id, tasksInfo).taskId].executionTime;
     }
-    double GetExecutionTime(JobCEC &jobCEC, const TaskSetInfoDerived &tasksInfo)
+    double GetExecutionTime(const JobCEC &jobCEC, const TaskSetInfoDerived &tasksInfo)
     {
         return tasksInfo.tasks[GetJobCECFromUniqueId(GetJobUniqueId(jobCEC, tasksInfo), tasksInfo).taskId].executionTime;
     }

@@ -203,44 +203,59 @@ namespace OrderOptDAG_SPACE
                 return true;
             return false;
         }
+        // the time that the instance happens must be larger than the return value
+        double GetInstanceLeastStartTime(const TimeInstance &instance, const TaskSetInfoDerived &tasksInfo)
+        {
+            double prevInstanceLeastFinishTime = GetActivationTime(instance.job, tasksInfo);
+            if (instance.type == 'f')
+                prevInstanceLeastFinishTime += GetExecutionTime(instance.job, tasksInfo);
+            return prevInstanceLeastFinishTime;
+        }
 
+        // the time that the instance happens must be smaller than the return value
+        double GetInstanceMaxFinishTime(const TimeInstance &instance, const TaskSetInfoDerived &tasksInfo)
+        {
+            double nextInstanceLeastFinishTime = GetDeadline(instance.job, tasksInfo);
+            if (instance.type == 's')
+                nextInstanceLeastFinishTime -= tasksInfo.tasks[instance.job.taskId].executionTime;
+            return nextInstanceLeastFinishTime;
+        }
         bool WhetherSkipInsertStart(JobCEC &jobRelocate, LLint startP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
         {
             if (startP > 0)
             {
                 TimeInstance instancePrev = jobOrderCurr.instanceOrder_[startP - 1];
                 // jP.ActivationTime <= jR.start <= jR.deadline - jR.executionTime
-                if (GetActivationTime(instancePrev.job, tasksInfo) > GetDeadline(jobRelocate, tasksInfo) - tasksInfo.tasks[jobRelocate.taskId].executionTime)
+                double prevInstanceLeastFinishTime = GetInstanceLeastStartTime(instancePrev, tasksInfo);
+                if (prevInstanceLeastFinishTime > GetDeadline(jobRelocate, tasksInfo) - tasksInfo.tasks[jobRelocate.taskId].executionTime)
                     return true;
             }
             if (startP < tasksInfo.length * 2 - 1)
             {
                 TimeInstance instanceAfter = jobOrderCurr.instanceOrder_[startP + 1];
                 //  jR.ActivationTime <= jR.start <= nextJ.Deadline
-                double nextInstanceLeastFinishTime = GetDeadline(instanceAfter.job, tasksInfo);
-                if (instanceAfter.type == 's')
-                    nextInstanceLeastFinishTime -= tasksInfo.tasks[instanceAfter.job.taskId].executionTime;
+                double nextInstanceLeastFinishTime = GetInstanceMaxFinishTime(instanceAfter, tasksInfo);
                 if (GetActivationTime(jobRelocate, tasksInfo) > nextInstanceLeastFinishTime)
                     return true;
             }
             return false;
         }
+
         bool WhetherSkipInsertFinish(JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
         {
             if (finishP > 0)
             {
                 TimeInstance instancePrev = jobOrderCurr.instanceOrder_[finishP - 1];
                 // jP.ActivationTime <= jR.finish <= jR.deadline
-                if (GetActivationTime(instancePrev.job, tasksInfo) > GetDeadline(jobRelocate, tasksInfo))
+                double prevInstanceLeastFinishTime = GetInstanceLeastStartTime(instancePrev, tasksInfo);
+                if (prevInstanceLeastFinishTime > GetDeadline(jobRelocate, tasksInfo))
                     return true;
             }
             if (finishP < tasksInfo.length * 2 - 1)
             {
                 TimeInstance instanceAfter = jobOrderCurr.instanceOrder_[finishP + 1];
                 //  jR.ActivationTime <= jR.finish <= nextJ.Deadline
-                double nextInstanceLeastFinishTime = GetDeadline(instanceAfter.job, tasksInfo);
-                if (instanceAfter.type == 's')
-                    nextInstanceLeastFinishTime -= tasksInfo.tasks[instanceAfter.job.taskId].executionTime;
+                double nextInstanceLeastFinishTime = GetInstanceMaxFinishTime(instanceAfter, tasksInfo);
                 if (GetActivationTime(jobRelocate, tasksInfo) > nextInstanceLeastFinishTime)
                     return true;
             }
