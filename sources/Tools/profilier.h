@@ -7,6 +7,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include <unistd.h> // only effective with Linux, "windows.h" works with Windows
+
 #include "sources/Tools/colormod.h"
 #include "sources/Tools/testMy.h"
 
@@ -29,7 +31,8 @@ struct ProfilerData
     }
 };
 
-static std::unordered_map<std::string, ProfilerData> profilerMap;
+std::unordered_map<std::string, ProfilerData> profilerMap;
+int AAA;
 
 void BeginTimer(std::string funcName)
 {
