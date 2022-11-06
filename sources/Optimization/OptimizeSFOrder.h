@@ -406,9 +406,10 @@ namespace OrderOptDAG_SPACE
                                     break;
 
                                 // TODO: avoid this copy
-                                BeginTimer("SFOrderConstructor");
-                                SFOrder jobOrderCurrForFinish = jobOrderCurrForStart;
-                                EndTimer("SFOrderConstructor");
+                                // BeginTimer("SFOrderConstructor");
+                                // SFOrder jobOrderCurrForFinish = jobOrderCurrForStart;
+                                // EndTimer("SFOrderConstructor");
+                                SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart;
                                 jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
                                 // if (debugMode == 1)
                                 //     jobOrderCurrForFinish.print();
@@ -431,6 +432,12 @@ namespace OrderOptDAG_SPACE
                                     countMakeProgress++;
                                     if (statusCurr.ObjBarrier() == 0)
                                         foundOptimal = true;
+                                }
+                                else
+                                {
+                                    // restore jobOrderCurrForStart for next iteration
+                                    jobOrderCurrForFinish.RemoveJob(jobRelocate);
+                                    jobOrderCurrForFinish.InsertStart(jobRelocate, startP);
                                 }
                                 if (foundOptimal)
                                     break;
