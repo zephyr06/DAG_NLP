@@ -196,6 +196,7 @@ TEST(SFOrder, opt_v1)
     TaskSetInfoDerived tasksInfo(tasks);
 
     int processorNum = 1;
+    // enableFastSearch = 0;
     ScheduleResult sRes = ScheduleDAGModel(dagTasks, processorNum);
     PrintSchedule(tasksInfo, sRes.startTimeVector_);
     VectorDynamic expect = sRes.startTimeVector_;
@@ -268,6 +269,8 @@ TEST(optimize_schedule_when_search_job_order_, v1)
     int processorNum = 2;
     considerSensorFusion = 0;
     weightInMpRTDA = 0.5;
+
+    // enableFastSearch = 0;
     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
@@ -279,6 +282,7 @@ TEST(optimize_schedule_when_search_job_order_, v1)
 TEST(Schedule, jobOrder)
 {
     int processorNum = 1;
+    // enableFastSearch = 0;
     OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     ScheduleResult res = ScheduleDAGModel(dagTasks, processorNum);
     EXPECT(99 * 2 >= res.obj_);
@@ -398,14 +402,19 @@ TEST(FindLongestChainJobIndex, v1)
 
 TEST(GetTaskIdWithChainOrder, v1)
 {
-
+    NumCauseEffectChain = 1;
     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     std::vector<int> taskIdSet = GetTaskIdWithChainOrder(dagTasks);
     EXPECT_LONGS_EQUAL(0, taskIdSet[0]);
     EXPECT_LONGS_EQUAL(2, taskIdSet[1]);
-    EXPECT_LONGS_EQUAL(1, taskIdSet[2]);
+    if (enableFastSearch == 0)
+    {
+        EXPECT_LONGS_EQUAL(1, taskIdSet[2]);
+    }
+    else
+        EXPECT_LONGS_EQUAL(2, taskIdSet.size());
 }
 TEST(GetTaskIdWithChainOrder, v2)
 {
@@ -418,7 +427,12 @@ TEST(GetTaskIdWithChainOrder, v2)
     EXPECT_LONGS_EQUAL(2, taskIdSet[1]);
     EXPECT_LONGS_EQUAL(1, taskIdSet[2]);
     EXPECT_LONGS_EQUAL(0, taskIdSet[3]);
-    EXPECT_LONGS_EQUAL(4, taskIdSet[4]);
+    if (enableFastSearch == 0)
+    {
+        EXPECT_LONGS_EQUAL(4, taskIdSet[4]);
+    }
+    else
+        EXPECT_LONGS_EQUAL(4, taskIdSet.size());
 }
 
 TEST(RTSSIC, Wang21_DBF)

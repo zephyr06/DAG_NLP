@@ -1,4 +1,7 @@
 #pragma once
+#include <algorithm> // for copy() and assign()
+#include <iterator>  // for back_inserter
+
 #include "sources/Tools/MatirxConvenient.h"
 #include "sources/Utils/Parameters.h"
 #include "sources/TaskModel/DAG_Model.h"
@@ -21,13 +24,22 @@ namespace OrderOptDAG_SPACE
     {
         std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks)
         {
+            std::vector<int> idVec;
+            idVec.reserve(dagTasks.tasks.size());
+            if (dagTasks.chains_.size() == 0)
+            {
+                return idVec;
+            }
+            for (uint i = 0; i < dagTasks.chains_.size(); i++)
+                std::copy(dagTasks.chains_[i].begin(), dagTasks.chains_[i].end(), back_inserter(idVec));
+            if (enableFastSearch)
+                return idVec;
+
             unordered_set<int> idSet;
             std::vector<int> idVecChainFirst = dagTasks.chains_[0];
             for (uint i = 0; i < dagTasks.chains_[0].size(); i++)
                 idSet.insert(dagTasks.chains_[0][i]);
 
-            std::vector<int> idVec = dagTasks.chains_[0];
-            idVec.reserve(dagTasks.tasks.size());
             for (uint i = 0; i < dagTasks.tasks.size(); i++)
             {
                 if (idSet.find(i) == idSet.end())
@@ -101,7 +113,7 @@ namespace OrderOptDAG_SPACE
                 EndTimerAppInProfiler;
             }
 
-            IterationStatus& operator=(IterationStatus &status)
+            IterationStatus &operator=(IterationStatus &status)
             {
                 dagTasks_ = status.dagTasks_;
                 jobOrder_ = status.jobOrder_;
@@ -173,10 +185,20 @@ namespace OrderOptDAG_SPACE
             }
             return index;
         }
+        int infeasibleCount = 0;
         bool MakeProgress(IterationStatus &statusPrev, IterationStatus &statusCurr)
         {
             if (!statusCurr.schedulable_)
+            {
+                if (debugMode == 1)
+                {
+                    TaskSetInfoDerived tasksInfo(statusCurr.dagTasks_.tasks);
+                    std::cout << "Infeasible schedule #:" << infeasibleCount++ << std::endl;
+                    // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
+                    statusCurr.jobOrder_.print();
+                }
                 return false;
+            }
             if (statusCurr.objWeighted_ < statusPrev.objWeighted_)
                 return true;
             return false;
