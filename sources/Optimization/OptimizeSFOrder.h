@@ -67,20 +67,33 @@ namespace OrderOptDAG_SPACE
                 BeginTimerAppInProfiler;
                 processorJobVec_.clear();
                 startTimeVector_ = SFOrderScheduling(dagTasks, tasksInfo, processorNum_, jobOrder_, processorJobVec_);
-
-                for (uint i = 0; i < dagTasks.chains_.size(); i++)
-                {
-                    auto rtdaVecTemp = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[i], startTimeVector_);
-                    rtdaVec_.push_back(rtdaVecTemp);
-                    maxRtda_.push_back(GetMaxRTDA(rtdaVecTemp));
-                }
-                if (considerSensorFusion)
-                {
-                    sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
-                }
                 schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
+                if (!schedulable_)
+                {
+                    RTDA temp(1e9, 1e9);
+                    for (uint i = 0; i < dagTasks.chains_.size(); i++)
+                    {
+                        maxRtda_.push_back(temp);
+                        rtdaVec_.push_back(maxRtda_);
+                    }
+                    if (considerSensorFusion)
+                        sfVec_ = GenerateVectorDynamic1D(1e9);
+                }
+                else
+                {
+                    for (uint i = 0; i < dagTasks.chains_.size(); i++)
+                    {
+                        auto rtdaVecTemp = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[i], startTimeVector_);
+                        rtdaVec_.push_back(rtdaVecTemp);
+                        maxRtda_.push_back(GetMaxRTDA(rtdaVecTemp));
+                    }
+                    if (considerSensorFusion)
+                    {
+                        sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
+                    }
+                }
                 objWeighted_ = ObjWeighted();
-                if (doScheduleOptimization && !doScheduleOptimizationOnlyOnce)
+                if (schedulable_ && doScheduleOptimization && !doScheduleOptimizationOnlyOnce)
                 {
                     ScheduleResult scheduleResBeforeOpt{jobOrder_, startTimeVector_, schedulable_, ReadObj(), processorJobVec_};
                     scheduleResBeforeOpt.objWeighted_ = objWeighted_;
