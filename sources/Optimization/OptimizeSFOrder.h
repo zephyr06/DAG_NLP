@@ -506,6 +506,7 @@ namespace OrderOptDAG_SPACE
             std::cout << "Outermost while loop count: " << countOutermostWhileLoop << std::endl;
             std::cout << "Make progress count: " << countMakeProgress << std::endl;
             std::cout << "Candidate Iteration Status count: " << countIterationStatus << std::endl;
+            std::cout << "infeasibleCount: " << infeasibleCount << std::endl;
             scheduleRes.countOutermostWhileLoop_ = countOutermostWhileLoop;
             scheduleRes.countMakeProgress_ = countMakeProgress;
             scheduleRes.countIterationStatus_ = countIterationStatus;
