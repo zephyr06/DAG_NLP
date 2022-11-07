@@ -512,7 +512,9 @@ namespace OrderOptDAG_SPACE
             {
                 if (scheduledFinishTime[GetJobUniqueId(currentInstance.job, tasksInfo)] < timeNow)
                 {
+                    // TODO: jobOrder.size()/2
                     startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
+                    startTimeVector(0) = -1;
                     break;
                 }
                 else
@@ -571,6 +573,7 @@ namespace OrderOptDAG_SPACE
                     std::cout << "Failed to schedule SFOrder: Unknown TimeInstance type.\n";
                 }
                 startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
+                startTimeVector(0) = -1;
                 break;
             }
         }

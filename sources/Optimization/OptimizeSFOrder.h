@@ -279,10 +279,16 @@ namespace OrderOptDAG_SPACE
             if (accumLengthMin >= tasksInfo.tasks[jobRelocate.taskId].executionTime)
                 return true;
             TimeInstance jobPrevInsertInst = jobOrderCurrForStart.at(finishP);
-            if (jobPrevInsertInst.type == 'f') // && jobOrderCurrForStart.GetJobStartInstancePosition(jobPrevInsertInst.job) > startP
+            if (jobPrevInsertInst.type == 'f')
                 accumLengthMin += tasksInfo.tasks[jobPrevInsertInst.job.taskId].executionTime;
             return false;
         }
+        struct JobGroupRange
+        {
+            JobGroupRange(int mi, int ma) : minIndex(mi), maxIndex(ma) {}
+            int minIndex;
+            int maxIndex;
+        };
         ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, int processorNum = coreNumberAva,
                                         boost::optional<ScheduleResult &> resOrderOptWithoutScheduleOpt = boost::none)
         {
@@ -373,13 +379,15 @@ namespace OrderOptDAG_SPACE
                             nextJobIndex = std::min(statusPrev.jobOrder_.GetJobStartInstancePosition(nextJob) + 1, nextJobIndex); // actually, I'm not sure why do we need this "+1", but it doesn't hurt to search for a few more
                         }
 
+                        JobGroupRange jobGroup(prevJobIndex, prevJobIndex);
                         for (LLint startP = prevJobIndex; startP < nextJobIndex; startP++)
                         {
                             BeginTimer("inner_for_start");
                             if (time_out_flag || foundOptimal)
                                 break;
-                            if (statusPrev.jobOrder_[startP].job.taskId == jobRelocate.taskId && statusPrev.jobOrder_[startP].job.jobId > jobRelocate.jobId)
-                                break;
+
+                            jobGroup.minIndex = startP;
+
                             // TODO: this part can be optimized, though not very necessary
                             BeginTimer("SFOrderCopy");
                             SFOrder jobOrderCurrForStart = statusPrev.jobOrder_;
@@ -401,6 +409,28 @@ namespace OrderOptDAG_SPACE
 
                                 SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart;
                                 jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
+
+                                // check whether the small job order under influence is unschedulable
+                                if (enableSmallJobGroupCheck)
+                                {
+                                    BeginTimer("FindUnschedulableSmallJobOrder");
+                                    JobCEC jobNewlyAdded = jobOrderCurrForFinish[finishP - 1].job;
+                                    jobGroup.minIndex = min(jobGroup.minIndex, statusPrev.jobOrder_.GetJobStartInstancePosition(jobNewlyAdded) - 4);
+                                    jobGroup.minIndex = max(jobGroup.minIndex, 0);
+
+                                    jobGroup.maxIndex = max(jobGroup.maxIndex, finishP);
+                                    jobGroup.maxIndex = max(jobGroup.maxIndex, statusPrev.jobOrder_.GetJobFinishInstancePosition(jobNewlyAdded) + 4);
+                                    jobGroup.maxIndex = min(jobGroup.maxIndex, statusPrev.jobOrder_.size());
+
+                                    std::vector<TimeInstance> instanceOrderSmall(jobOrderCurrForFinish.instanceOrder_.begin() + jobGroup.minIndex, jobOrderCurrForFinish.instanceOrder_.begin() + jobGroup.maxIndex);
+                                    EndTimer("FindUnschedulableSmallJobOrder");
+                                    SFOrder jobOrderSmall(tasksInfo, instanceOrderSmall);
+                                    if (debugMode == 1)
+                                        jobOrderSmall.print();
+                                    if (SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderSmall)(0) == -1)
+                                        break;
+                                }
+
                                 BeginTimer("IterationStatusCreate");
                                 IterationStatus statusCurr(dagTasks, tasksInfo, jobOrderCurrForFinish, processorNum);
                                 EndTimer("IterationStatusCreate");

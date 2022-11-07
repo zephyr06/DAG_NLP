@@ -30,6 +30,11 @@ struct Interval
     {
         return start <= x.start && x.start + x.length <= start + length;
     }
+    void UpdateSF(double startI, double finish)
+    {
+        start = startI;
+        length = finish - start;
+    }
 };
 bool compare(Interval &i1, Interval &i2)
 {

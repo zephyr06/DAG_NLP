@@ -71,7 +71,8 @@ int numericalJaobian = (int)ConfigParameters["numericalJaobian"];
 const int setUseFixedLambdaFactor = (int)ConfigParameters["setUseFixedLambdaFactor"];
 const int setDiagonalDamping = (int)ConfigParameters["setDiagonalDamping"];
 const int RandomDrawWeightMaxLoop = (int)ConfigParameters["RandomDrawWeightMaxLoop"];
- int enableFastSearch = (int)ConfigParameters["enableFastSearch"];
+int enableFastSearch = (int)ConfigParameters["enableFastSearch"];
+int enableSmallJobGroupCheck = (int)ConfigParameters["enableSmallJobGroupCheck"];
 
 InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initializeMethod"]);
 double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"];

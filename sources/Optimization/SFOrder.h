@@ -89,6 +89,12 @@ namespace OrderOptDAG_SPACE
             EndTimerAppInProfiler;
         }
 
+        SFOrder(TaskSetInfoDerived &tasksInfo, std::vector<TimeInstance> &instanceOrder) : tasksInfo_(tasksInfo)
+        {
+            instanceOrder_ = instanceOrder;
+            whetherSFMapNeedUpdate = true;
+        }
+
         // O(n)
         void EstablishJobSFMap()
         {
