@@ -197,7 +197,6 @@ namespace OrderOptDAG_SPACE
             instanceOrder_.insert(instanceOrder_.begin() + position, TimeInstance('f', job));
             // EstablishJobSFMap();
             whetherSFMapNeedUpdate = true;
-
             EndTimerAppInProfiler;
         }
         void RemoveFinish(JobCEC job, LLint position)
@@ -207,7 +206,6 @@ namespace OrderOptDAG_SPACE
             instanceOrder_.erase(instanceOrder_.begin() + position);
             // EstablishJobSFMap();
             whetherSFMapNeedUpdate = true;
-
             EndTimerAppInProfiler;
         }
 

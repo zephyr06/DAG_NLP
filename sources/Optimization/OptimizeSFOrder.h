@@ -367,8 +367,10 @@ namespace OrderOptDAG_SPACE
                                 break;
                             if (statusPrev.jobOrder_[startP].job.taskId == jobRelocate.taskId && statusPrev.jobOrder_[startP].job.jobId > jobRelocate.jobId)
                                 break;
-
+                            // TODO: this part can be optimized, though not very necessary
+                            BeginTimer("SFOrderCopy");
                             SFOrder jobOrderCurrForStart = statusPrev.jobOrder_;
+                            EndTimer("SFOrderCopy");
                             jobOrderCurrForStart.RemoveJob(jobRelocate);
                             if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, jobOrderCurrForStart))
                                 continue;
