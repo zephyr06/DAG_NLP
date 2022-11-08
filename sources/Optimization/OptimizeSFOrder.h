@@ -48,7 +48,6 @@ namespace OrderOptDAG_SPACE
             }
             return idVec;
         }
-       
 
         std::vector<int> FindLongestChainJobIndex(IterationStatus &status)
         {
@@ -329,10 +328,8 @@ namespace OrderOptDAG_SPACE
                                 else
                                 {
                                     BeginTimer("PrevSchedulabilityCheck");
-                                    bool bigFail = false;
                                     if (SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderCurrForFinish)(0) == -1)
                                     {
-                                        bigFail = true;
                                         break;
                                     }
                                     EndTimer("PrevSchedulabilityCheck");
