@@ -13,19 +13,24 @@ void TestProfilerFunc1(double interval = 1)
 }
 void TestProfilerFunc(double interval = 1)
 {
-    BeginTimerAppInProfiler;
-    TestProfilerFunc1(interval);
-    TestProfilerFunc1(interval);
+    for (uint k = 0; k < 2; k++)
+    {
+        BeginTimerAppInProfiler;
+        TestProfilerFunc1(interval);
+        TestProfilerFunc1(interval);
 
-    for (int i = 0; i < 3; i++)
-        TestProfilerFunc3(interval);
+        for (int i = 0; i < 3; i++)
+            TestProfilerFunc3(interval);
 
-    std::cout << "TestProfilerFunc: " << AAA << std::endl;
-    TestProfilerFunc1(interval);
-    for (int i = 0; i < 3; i++)
-        TestProfilerFunc4(interval);
-    std::cout << "TestProfilerFunc: " << AAA << std::endl;
-    EndTimerAppInProfiler;
+        std::cout << "TestProfilerFunc: " << AAA << std::endl;
+        TestProfilerFunc1(interval);
+        BeginTimer("meddle");
+        for (int i = 0; i < 3; i++)
+            TestProfilerFunc4(interval);
+        EndTimer("meddle");
+        std::cout << "TestProfilerFunc: " << AAA << std::endl;
+        EndTimerAppInProfiler;
+    }
 }
 
 TEST(profiler, v1)
