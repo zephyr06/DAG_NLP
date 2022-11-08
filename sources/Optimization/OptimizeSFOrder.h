@@ -295,7 +295,8 @@ namespace OrderOptDAG_SPACE
         };
         std::vector<TimeInstance> ExtractSubInstances(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobGroup)
         {
-            BeginTimerAppInProfiler;
+            BeginTimer("ExtractSubInstances");
+            // BeginTimerAppInProfiler;
             struct JobInstanceInfo
             {
                 int start;
@@ -343,7 +344,8 @@ namespace OrderOptDAG_SPACE
                 // else
                 //     int a = 1;
             }
-            EndTimerAppInProfiler;
+            // EndTimerAppInProfiler;
+            EndTimer("ExtractSubInstances", true);
             return instanceOrderSmall;
         }
         ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, int processorNum = coreNumberAva,
@@ -498,10 +500,10 @@ namespace OrderOptDAG_SPACE
                                     //         jobOrderSmall.print();
                                     //     CoutWarning("One mismatched group check!");
                                     // }
+
+                                    EndTimer("FindUnschedulableSmallJobOrder", true);
                                     if (smallFail)
                                         break;
-
-                                    EndTimer("FindUnschedulableSmallJobOrder");
                                 }
 
                                 BeginTimer("IterationStatusCreate");
