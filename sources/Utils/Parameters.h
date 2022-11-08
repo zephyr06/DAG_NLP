@@ -64,6 +64,8 @@ const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetec
 double FreshTol = (double)ConfigParameters["FreshTol"];
 const double stepJacobianIteration = (double)ConfigParameters["stepJacobianIteration"];
 
+int printSchedule = (int)ConfigParameters["printSchedule"];
+int bigJobGroupCheck = (int)ConfigParameters["bigJobGroupCheck"];
 const int PrintOutput = (int)ConfigParameters["PrintOutput"];
 const int ResetInnerWeightLoopMax = (int)ConfigParameters["ResetInnerWeightLoopMax"];
 int coreNumberAva = (int)ConfigParameters["coreNumberAva"];

@@ -203,10 +203,11 @@ namespace OrderOptDAG_SPACE
         {
             if (!statusCurr.schedulable_)
             {
+                infeasibleCount++;
                 if (debugMode == 1)
                 {
                     TaskSetInfoDerived tasksInfo(statusCurr.dagTasks_.tasks);
-                    std::cout << "Infeasible schedule #:" << infeasibleCount++ << std::endl;
+                    std::cout << "Infeasible schedule #:" << infeasibleCount << std::endl;
                     // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
                     statusCurr.jobOrder_.print();
                 }
@@ -278,17 +279,73 @@ namespace OrderOptDAG_SPACE
         {
             if (accumLengthMin >= tasksInfo.tasks[jobRelocate.taskId].executionTime)
                 return true;
-            TimeInstance jobPrevInsertInst = jobOrderCurrForStart.at(finishP);
-            if (jobPrevInsertInst.type == 'f')
-                accumLengthMin += tasksInfo.tasks[jobPrevInsertInst.job.taskId].executionTime;
+            if (finishP < jobOrderCurrForStart.size())
+            {
+                TimeInstance jobPrevInsertInst = jobOrderCurrForStart.at(finishP);
+                if (jobPrevInsertInst.type == 'f')
+                    accumLengthMin += tasksInfo.tasks[jobPrevInsertInst.job.taskId].executionTime;
+            }
             return false;
         }
-        struct JobGroupRange
+        struct JobGroupRange // include the minIndex, but not the maxIndex
         {
             JobGroupRange(int mi, int ma) : minIndex(mi), maxIndex(ma) {}
             int minIndex;
             int maxIndex;
         };
+        std::vector<TimeInstance> ExtractSubInstances(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobGroup)
+        {
+            BeginTimerAppInProfiler;
+            struct JobInstanceInfo
+            {
+                int start;
+                int finish;
+                JobInstanceInfo() : start(-1), finish(-1) {}
+                bool valid() const { return start != -1 && finish != -1; }
+            };
+            std::unordered_map<JobCEC, JobInstanceInfo> jobMap;
+
+            size_t minIndex = jobGroup.minIndex;
+            size_t maxIndex = jobGroup.maxIndex;
+            //  first loop, establish jobMap
+            std::unordered_set<JobCEC> instSet;
+            for (size_t i = minIndex; i < maxIndex; i++)
+            {
+
+                TimeInstance instCurr = jobOrderCurrForFinish[i];
+                JobCEC jobCurr = instCurr.job;
+                JobInstanceInfo info;
+                auto itr = jobMap.find(jobCurr);
+                if (itr != jobMap.end())
+                {
+                    info = itr->second;
+                }
+
+                if (instCurr.type == 's')
+                    info.start = i;
+                else if (instCurr.type == 'f')
+                    info.finish = i;
+                else
+                    CoutError("ExtractSubInstances: unrecognized type in TimeInstance!");
+
+                jobMap[jobCurr] = info;
+            }
+
+            // second loop, obtain instanceOrderSmall based on jobMap
+            std::vector<TimeInstance> instanceOrderSmall;
+            instanceOrderSmall.reserve(jobGroup.maxIndex - jobGroup.minIndex);
+            for (size_t i = minIndex; i < maxIndex; i++)
+            {
+                TimeInstance instCurr = jobOrderCurrForFinish[i];
+                JobCEC &jobCurr = instCurr.job;
+                if (jobMap[jobCurr].valid())
+                    instanceOrderSmall.push_back(instCurr);
+                // else
+                //     int a = 1;
+            }
+            EndTimerAppInProfiler;
+            return instanceOrderSmall;
+        }
         ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, int processorNum = coreNumberAva,
                                         boost::optional<ScheduleResult &> resOrderOptWithoutScheduleOpt = boost::none)
         {
@@ -422,19 +479,41 @@ namespace OrderOptDAG_SPACE
                                     jobGroup.maxIndex = max(jobGroup.maxIndex, statusPrev.jobOrder_.GetJobFinishInstancePosition(jobNewlyAdded) + 4);
                                     jobGroup.maxIndex = min(jobGroup.maxIndex, statusPrev.jobOrder_.size());
 
-                                    std::vector<TimeInstance> instanceOrderSmall(jobOrderCurrForFinish.instanceOrder_.begin() + jobGroup.minIndex, jobOrderCurrForFinish.instanceOrder_.begin() + jobGroup.maxIndex);
-                                    EndTimer("FindUnschedulableSmallJobOrder");
+                                    std::vector<TimeInstance> instanceOrderSmall = ExtractSubInstances(jobOrderCurrForFinish, jobGroup);
+
+                                    // bool bigFail = false;
+                                    // if (bigJobGroupCheck)
+                                    // {
+                                    //     if (SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderCurrForFinish)(0) == -1)
+                                    //         bigFail = true;
+                                    //     // break;
+                                    // }
+
                                     SFOrder jobOrderSmall(tasksInfo, instanceOrderSmall);
-                                    if (debugMode == 1)
-                                        jobOrderSmall.print();
-                                    if (SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderSmall)(0) == -1)
+
+                                    bool smallFail = SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderSmall)(0) == -1;
+                                    // if (bigFail == false && smallFail == true)
+                                    // {
+                                    //     if (debugMode == 1)
+                                    //         jobOrderSmall.print();
+                                    //     CoutWarning("One mismatched group check!");
+                                    // }
+                                    if (smallFail)
                                         break;
+
+                                    EndTimer("FindUnschedulableSmallJobOrder");
                                 }
 
                                 BeginTimer("IterationStatusCreate");
                                 IterationStatus statusCurr(dagTasks, tasksInfo, jobOrderCurrForFinish, processorNum);
                                 EndTimer("IterationStatusCreate");
                                 countIterationStatus++;
+
+                                // if (smallFail == true && statusCurr.schedulable_)
+                                // {
+                                //     CoutWarning("One mismatched group check Below!");
+                                // }
+
                                 if (MakeProgress(statusPrev, statusCurr))
                                 {
                                     findNewUpdate = true;

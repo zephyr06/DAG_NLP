@@ -53,6 +53,42 @@ TEST(SFOrder, constructor_v1)
     EXPECT_LONGS_EQUAL(5, sfOrder.GetJobFinishInstancePosition(j10));
 }
 
+TEST(ExtractSubInstances, v1)
+{
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+    int processorNum = 2;
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    initial << 0, 10, 1, 1;
+    SFOrder sfOrder(tasksInfo, initial);
+    sfOrder.print();
+
+    JobGroupRange range(0, 2);
+    std::vector<TimeInstance> instVec1 = ExtractSubInstances(sfOrder, range);
+    EXPECT_LONGS_EQUAL(2, instVec1.size());
+
+    range = {0, 4};
+    instVec1 = ExtractSubInstances(sfOrder, range);
+    EXPECT_LONGS_EQUAL(2, instVec1.size());
+
+    range = {0, 5};
+    instVec1 = ExtractSubInstances(sfOrder, range);
+    EXPECT_LONGS_EQUAL(4, instVec1.size());
+
+    range = {1, 5};
+    instVec1 = ExtractSubInstances(sfOrder, range);
+    EXPECT_LONGS_EQUAL(2, instVec1.size());
+    EXPECT_LONGS_EQUAL(1, instVec1[0].job.taskId);
+    EXPECT_LONGS_EQUAL(1, instVec1[1].job.taskId);
+
+    range = {1, 7};
+    instVec1 = ExtractSubInstances(sfOrder, range);
+    EXPECT_LONGS_EQUAL(4, instVec1.size());
+    EXPECT_LONGS_EQUAL(1, instVec1[0].job.taskId);
+    EXPECT_LONGS_EQUAL(2, instVec1[1].job.taskId);
+}
+
 TEST(SFOrder, sched_v1)
 {
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");

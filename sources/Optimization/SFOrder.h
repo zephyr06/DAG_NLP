@@ -131,9 +131,14 @@ namespace OrderOptDAG_SPACE
         }
 
         LLint size() const { return instanceOrder_.size(); }
-        TimeInstance operator[](LLint index) { return instanceOrder_[index]; }
+        TimeInstance operator[](LLint index)
+        {
+            RangeCheck(index);
+            return instanceOrder_[index];
+        }
         TimeInstance at(LLint index) const
         {
+            RangeCheck(index);
             TimeInstance inst = instanceOrder_[index];
             return inst;
         }
@@ -148,7 +153,7 @@ namespace OrderOptDAG_SPACE
             return jobSFMap_.at(job).finishInstanceIndex;
         }
 
-        void RangeCheck(LLint index, bool allowEnd = false)
+        void RangeCheck(LLint index, bool allowEnd = false) const
         {
             if (allowEnd && (index < 0 || index > size()))
             {
