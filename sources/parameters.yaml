@@ -4,7 +4,7 @@
 TotalMethodUnderComparison: 6 # 0: LS initial, 1: optimize order & schedule, 2: Verucchi20, 3: NLP, 4: only optimize order
                               # 5: only do one schedule optmization after the end of order optmization
 # test_n3_v6 test_n5_v79 test_n10_v4 test_n15_v1 test_n30_v1
-testDataSetName: test_n3_v6
+testDataSetName: test_n30_v1
 printSchedule: 0
 debugMode: 0
 doScheduleOptimization: 0
@@ -33,8 +33,9 @@ weightInMpSfPunish: 10
 weightInMpRTDAPunish: 10
 makeProgressTimeLimit: 1000 # seconds, -1 means unlimited time
 enableFastSearch: 0
-enableSmallJobGroupCheck: 1
-bigJobGroupCheck: 1
+enableSmallJobGroupCheck: 0
+bigJobGroupCheck: 0
+subJobGroupMaxSize: 10
 
 #*************************************************************
 # factors to be included

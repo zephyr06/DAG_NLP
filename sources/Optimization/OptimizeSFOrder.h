@@ -345,12 +345,14 @@ namespace OrderOptDAG_SPACE
                 //     int a = 1;
             }
             // EndTimerAppInProfiler;
-            EndTimer("ExtractSubInstances", true);
+            EndTimer("ExtractSubInstances");
             return instanceOrderSmall;
         }
         ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, int processorNum = coreNumberAva,
                                         boost::optional<ScheduleResult &> resOrderOptWithoutScheduleOpt = boost::none)
         {
+
+            std::vector<int> countSubJobOrderLength;
             // srand(RandomDrawWeightMaxLoop);
             if (dagTasks.chains_.size() == 0)
                 CoutWarning("No chain is provided for the given dag!");
@@ -474,34 +476,39 @@ namespace OrderOptDAG_SPACE
                                 {
                                     BeginTimer("FindUnschedulableSmallJobOrder");
                                     JobCEC jobNewlyAdded = jobOrderCurrForFinish[finishP - 1].job;
-                                    jobGroup.minIndex = min(jobGroup.minIndex, statusPrev.jobOrder_.GetJobStartInstancePosition(jobNewlyAdded) - 4);
-                                    jobGroup.minIndex = max(jobGroup.minIndex, 0);
+                                    jobGroup.minIndex = min(jobGroup.minIndex, statusPrev.jobOrder_.GetJobStartInstancePosition(jobNewlyAdded));
 
                                     jobGroup.maxIndex = max(jobGroup.maxIndex, finishP);
-                                    jobGroup.maxIndex = max(jobGroup.maxIndex, statusPrev.jobOrder_.GetJobFinishInstancePosition(jobNewlyAdded) + 4);
+                                    jobGroup.maxIndex = max(jobGroup.maxIndex, statusPrev.jobOrder_.GetJobFinishInstancePosition(jobNewlyAdded) + 1);
                                     jobGroup.maxIndex = min(jobGroup.maxIndex, statusPrev.jobOrder_.size());
-
+                                    jobGroup.minIndex = max(jobGroup.minIndex, jobGroup.maxIndex - subJobGroupMaxSize);
+                                    jobGroup.minIndex = max(jobGroup.minIndex, 0);
+                                    countSubJobOrderLength.push_back(jobGroup.maxIndex - jobGroup.minIndex);
                                     std::vector<TimeInstance> instanceOrderSmall = ExtractSubInstances(jobOrderCurrForFinish, jobGroup);
 
-                                    // bool bigFail = false;
-                                    // if (bigJobGroupCheck)
-                                    // {
-                                    //     if (SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderCurrForFinish)(0) == -1)
-                                    //         bigFail = true;
-                                    //     // break;
-                                    // }
+                                    BeginTimer("PrevSchedulabilityCheck");
+                                    bool bigFail = false;
+                                    if (SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderCurrForFinish)(0) == -1)
+                                    {
+                                        bigFail = true;
+                                        if (bigJobGroupCheck)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    EndTimer("PrevSchedulabilityCheck");
 
                                     SFOrder jobOrderSmall(tasksInfo, instanceOrderSmall);
 
                                     bool smallFail = SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderSmall)(0) == -1;
-                                    // if (bigFail == false && smallFail == true)
-                                    // {
-                                    //     if (debugMode == 1)
-                                    //         jobOrderSmall.print();
-                                    //     CoutWarning("One mismatched group check!");
-                                    // }
+                                    if (bigFail == false && smallFail == true)
+                                    {
+                                        if (debugMode == 1)
+                                            jobOrderSmall.print();
+                                        // CoutWarning("One mismatched group check!");
+                                    }
 
-                                    EndTimer("FindUnschedulableSmallJobOrder", true);
+                                    EndTimer("FindUnschedulableSmallJobOrder");
                                     if (smallFail)
                                         break;
                                 }
@@ -510,11 +517,6 @@ namespace OrderOptDAG_SPACE
                                 IterationStatus statusCurr(dagTasks, tasksInfo, jobOrderCurrForFinish, processorNum);
                                 EndTimer("IterationStatusCreate");
                                 countIterationStatus++;
-
-                                // if (smallFail == true && statusCurr.schedulable_)
-                                // {
-                                //     CoutWarning("One mismatched group check Below!");
-                                // }
 
                                 if (MakeProgress(statusPrev, statusCurr))
                                 {
@@ -588,9 +590,13 @@ namespace OrderOptDAG_SPACE
             std::cout << "Make progress count: " << countMakeProgress << std::endl;
             std::cout << "Candidate Iteration Status count: " << countIterationStatus << std::endl;
             std::cout << "infeasibleCount: " << infeasibleCount << std::endl;
+            // std::cout << "Average sub-job group length: " << Average(countSubJobOrderLength) << std::endl;
+            // std::cout << "Maximum sub-job group length: " << *std::max_element(countSubJobOrderLength.begin(), countSubJobOrderLength.end()) << std::endl;
+            std::cout << "Total number of variables: " << tasksInfo.length << std::endl;
             scheduleRes.countOutermostWhileLoop_ = countOutermostWhileLoop;
             scheduleRes.countMakeProgress_ = countMakeProgress;
             scheduleRes.countIterationStatus_ = countIterationStatus;
+
             return scheduleRes;
         }
     } // namespace OptimizeSF
