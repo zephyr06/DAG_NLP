@@ -1,7 +1,7 @@
 #include <CppUnitLite/TestHarness.h>
 #include "sources/Tools/testMy.h"
-// #include "sources/Utils/BatchUtils.h"
-#include "sources/Optimization/ScheduleOptimizer.h"
+#include "sources/Utils/OptimizeOrderUtils.h"
+// #include "sources/Optimization/ScheduleOptimizer.h"
 
 int main()
 {

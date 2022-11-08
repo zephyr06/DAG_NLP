@@ -489,7 +489,7 @@ namespace OrderOptDAG_SPACE
     };
 
     VectorDynamic SFOrderScheduling(DAG_Model &dagTasks,
-                                    TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder,
+                                    const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder,
                                     boost::optional<std::vector<uint> &> processorIdVec = boost::none)
     {
         BeginTimerAppInProfiler;

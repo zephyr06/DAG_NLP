@@ -16,6 +16,7 @@
 #include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Optimization/SFOrder.h"
+#include "sources/Optimization/IterationStatus.h"
 // #include "sources/Tools/profilier.h"
 
 namespace OrderOptDAG_SPACE
@@ -47,144 +48,7 @@ namespace OrderOptDAG_SPACE
             }
             return idVec;
         }
-        struct IterationStatus
-        {
-            DAG_Model dagTasks_;
-            SFOrder &jobOrder_;
-            int processorNum_;
-            VectorDynamic startTimeVector_;
-            std::vector<uint> processorJobVec_;
-            std::vector<std::vector<RTDA>> rtdaVec_; // for each chain
-            std::vector<RTDA> maxRtda_;              // for each chain
-            // double objVal_;
-            bool schedulable_; // only basic schedulability
-            VectorDynamic sfVec_;
-            double objWeighted_;
-
-            IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, int processorNum) : dagTasks_(dagTasks), jobOrder_(jobOrder), processorNum_(processorNum)
-            {
-                // startTimeVector_ = ListSchedulingGivenOrder(dagTasks, tasksInfo, jobOrder_);
-                BeginTimerAppInProfiler;
-                processorJobVec_.clear();
-                startTimeVector_ = SFOrderScheduling(dagTasks, tasksInfo, processorNum_, jobOrder_, processorJobVec_);
-                schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
-                if (!schedulable_)
-                {
-                    RTDA temp(1e9, 1e9);
-                    for (uint i = 0; i < dagTasks.chains_.size(); i++)
-                    {
-                        maxRtda_.push_back(temp);
-                        rtdaVec_.push_back(maxRtda_);
-                    }
-                    if (considerSensorFusion)
-                        sfVec_ = GenerateVectorDynamic1D(1e9);
-                }
-                else
-                {
-                    for (uint i = 0; i < dagTasks.chains_.size(); i++)
-                    {
-                        auto rtdaVecTemp = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[i], startTimeVector_);
-                        rtdaVec_.push_back(rtdaVecTemp);
-                        maxRtda_.push_back(GetMaxRTDA(rtdaVecTemp));
-                    }
-                    if (considerSensorFusion)
-                    {
-                        sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
-                    }
-                }
-                objWeighted_ = ObjWeighted();
-                if (schedulable_ && doScheduleOptimization && !doScheduleOptimizationOnlyOnce)
-                {
-                    ScheduleResult scheduleResBeforeOpt{jobOrder_, startTimeVector_, schedulable_, ReadObj(), processorJobVec_};
-                    scheduleResBeforeOpt.objWeighted_ = objWeighted_;
-
-                    ScheduleResult resultAfterOptimization;
-                    ScheduleOptimizer scheduleOptimizer = ScheduleOptimizer();
-                    scheduleOptimizer.OptimizeObjWeighted(dagTasks, scheduleResBeforeOpt);
-                    resultAfterOptimization = scheduleOptimizer.getOptimizedResult();
-                    if (resultAfterOptimization.objWeighted_ < scheduleResBeforeOpt.objWeighted_)
-                    {
-                        startTimeVector_ = resultAfterOptimization.startTimeVector_;
-                        rtdaVec_.clear();
-                        maxRtda_.clear();
-                        for (uint i = 0; i < dagTasks.chains_.size(); i++)
-                        {
-                            auto rtdaVecTemp = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[i], startTimeVector_);
-                            rtdaVec_.push_back(rtdaVecTemp);
-                            maxRtda_.push_back(GetMaxRTDA(rtdaVecTemp));
-                        }
-                        if (considerSensorFusion)
-                        {
-                            sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
-                        }
-                        schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
-                        // TODO: remove this?
-                        jobOrder_ = SFOrder(tasksInfo, startTimeVector_);
-                        objWeighted_ = ObjWeighted();
-                    }
-                }
-                EndTimerAppInProfiler;
-            }
-
-            IterationStatus &operator=(IterationStatus &status)
-            {
-                dagTasks_ = status.dagTasks_;
-                jobOrder_ = status.jobOrder_;
-                processorNum_ = status.processorNum_;
-                startTimeVector_ = status.startTimeVector_;
-                processorJobVec_ = status.processorJobVec_;
-                rtdaVec_ = status.rtdaVec_;
-                maxRtda_ = status.maxRtda_;
-                schedulable_ = status.schedulable_;
-                sfVec_ = status.sfVec_;
-                objWeighted_ = status.objWeighted_;
-                return *this;
-            }
-
-            double ReadObj()
-            {
-                double res = ObjRTDA(maxRtda_);
-                return res;
-            }
-            double ObjWeighted()
-            {
-                double overallRTDA = 0;
-                for (uint i = 0; i < rtdaVec_.size(); i++)
-                    overallRTDA += ObjRTDA(rtdaVec_[i]);
-                double res = overallRTDA * weightInMpRTDA;
-                if (considerSensorFusion == 0)
-                {
-                    // Optmize RTDA: obj = max_RTs + max_DAs + overallRTDA * weightInMpRTDA
-                    res += ReadObj();
-                }
-                else
-                {
-                    // only used in RTSS21IC experiment
-                    // Optimize Sensor Fusion: obj = overallRTDA * someWeight + overallSensorFusion * someWeight +
-                    // {Barrier(max(RT)) * w_punish + Barrier(max(DA)) * w_punish}**for_every_chain + Barrier(max(SensorFusion)) * w_punish
-                    double sfOverall = sfVec_.sum();
-                    res += sfOverall * weightInMpSf;
-                    res += ObjBarrier();
-                }
-                return res;
-            }
-            double ObjBarrier()
-            {
-                if (considerSensorFusion == 0)
-                    return ReadObj();
-                else
-                {
-                    double error = 0;
-                    if (sfVec_.rows() > 0)
-                        error = Barrier(sensorFusionTolerance - sfVec_.maxCoeff()) * weightInMpSfPunish;
-                    for (uint i = 0; i < dagTasks_.chains_.size(); i++)
-                    {
-                        error += Barrier(FreshTol - maxRtda_[i].reactionTime) * weightInMpRTDAPunish + Barrier(FreshTol - maxRtda_[i].dataAge) * weightInMpRTDAPunish;
-                    }
-                    return error;
-                }
-            }
-        };
+       
 
         std::vector<int> FindLongestChainJobIndex(IterationStatus &status)
         {
@@ -287,67 +151,53 @@ namespace OrderOptDAG_SPACE
             }
             return false;
         }
-        struct JobGroupRange // include the minIndex, but not the maxIndex
+
+        bool SubGroupSchedulabilityCheck(JobGroupRange &jobGroup, IterationStatus &statusPrev, SFOrder &jobOrderCurrForFinish, LLint finishP, DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum)
         {
-            JobGroupRange(int mi, int ma) : minIndex(mi), maxIndex(ma) {}
-            int minIndex;
-            int maxIndex;
-        };
-        std::vector<TimeInstance> ExtractSubInstances(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobGroup)
-        {
-            BeginTimer("ExtractSubInstances");
-            // BeginTimerAppInProfiler;
-            struct JobInstanceInfo
+            if (enableSmallJobGroupCheck)
             {
-                int start;
-                int finish;
-                JobInstanceInfo() : start(-1), finish(-1) {}
-                bool valid() const { return start != -1 && finish != -1; }
-            };
-            std::unordered_map<JobCEC, JobInstanceInfo> jobMap;
+                BeginTimer("FindUnschedulableSmallJobOrder");
+                JobCEC jobNewlyAdded = jobOrderCurrForFinish[finishP - 1].job;
+                jobGroup.minIndex = min(jobGroup.minIndex, statusPrev.jobOrder_.GetJobStartInstancePosition(jobNewlyAdded));
 
-            size_t minIndex = jobGroup.minIndex;
-            size_t maxIndex = jobGroup.maxIndex;
-            //  first loop, establish jobMap
-            std::unordered_set<JobCEC> instSet;
-            for (size_t i = minIndex; i < maxIndex; i++)
-            {
+                jobGroup.maxIndex = max(jobGroup.maxIndex, finishP);
+                jobGroup.maxIndex = max(jobGroup.maxIndex, statusPrev.jobOrder_.GetJobFinishInstancePosition(jobNewlyAdded) + 1);
+                jobGroup.maxIndex = min(jobGroup.maxIndex, statusPrev.jobOrder_.size());
+                jobGroup.minIndex = max(jobGroup.minIndex, jobGroup.maxIndex - subJobGroupMaxSize);
+                jobGroup.minIndex = max(jobGroup.minIndex, 0);
+                // countSubJobOrderLength.push_back(jobGroup.maxIndex - jobGroup.minIndex);
+                std::vector<TimeInstance> instanceOrderSmall = ExtractSubInstances(jobOrderCurrForFinish, jobGroup);
 
-                TimeInstance instCurr = jobOrderCurrForFinish[i];
-                JobCEC jobCurr = instCurr.job;
-                JobInstanceInfo info;
-                auto itr = jobMap.find(jobCurr);
-                if (itr != jobMap.end())
-                {
-                    info = itr->second;
-                }
+                // BeginTimer("PrevSchedulabilityCheck");
+                // bool bigFail = false;
+                // if (SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderCurrForFinish)(0) == -1)
+                // {
+                //     bigFail = true;
+                //     if (bigJobGroupCheck)
+                //     {
+                //         break;
+                //     }
+                // }
+                // EndTimer("PrevSchedulabilityCheck");
 
-                if (instCurr.type == 's')
-                    info.start = i;
-                else if (instCurr.type == 'f')
-                    info.finish = i;
-                else
-                    CoutError("ExtractSubInstances: unrecognized type in TimeInstance!");
+                SFOrder jobOrderSmall(tasksInfo, instanceOrderSmall);
 
-                jobMap[jobCurr] = info;
+                bool smallFail = SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderSmall)(0) == -1;
+                // if (bigFail == false && smallFail == true)
+                // {
+                //     if (debugMode == 1)
+                //         jobOrderSmall.print();
+                //     // CoutWarning("One mismatched group check!");
+                // }
+
+                EndTimer("FindUnschedulableSmallJobOrder");
+                if (smallFail)
+                    return true;
             }
 
-            // second loop, obtain instanceOrderSmall based on jobMap
-            std::vector<TimeInstance> instanceOrderSmall;
-            instanceOrderSmall.reserve(jobGroup.maxIndex - jobGroup.minIndex);
-            for (size_t i = minIndex; i < maxIndex; i++)
-            {
-                TimeInstance instCurr = jobOrderCurrForFinish[i];
-                JobCEC &jobCurr = instCurr.job;
-                if (jobMap[jobCurr].valid())
-                    instanceOrderSmall.push_back(instCurr);
-                // else
-                //     int a = 1;
-            }
-            // EndTimerAppInProfiler;
-            EndTimer("ExtractSubInstances");
-            return instanceOrderSmall;
+            return false;
         }
+
         ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, int processorNum = coreNumberAva,
                                         boost::optional<ScheduleResult &> resOrderOptWithoutScheduleOpt = boost::none)
         {
@@ -472,45 +322,20 @@ namespace OrderOptDAG_SPACE
                                 jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
                                 // check whether the small job order under influence is unschedulable
-                                if (enableSmallJobGroupCheck)
+                                if (SubGroupSchedulabilityCheck(jobGroup, statusPrev, jobOrderCurrForFinish, finishP, dagTasks, tasksInfo, processorNum))
                                 {
-                                    BeginTimer("FindUnschedulableSmallJobOrder");
-                                    JobCEC jobNewlyAdded = jobOrderCurrForFinish[finishP - 1].job;
-                                    jobGroup.minIndex = min(jobGroup.minIndex, statusPrev.jobOrder_.GetJobStartInstancePosition(jobNewlyAdded));
-
-                                    jobGroup.maxIndex = max(jobGroup.maxIndex, finishP);
-                                    jobGroup.maxIndex = max(jobGroup.maxIndex, statusPrev.jobOrder_.GetJobFinishInstancePosition(jobNewlyAdded) + 1);
-                                    jobGroup.maxIndex = min(jobGroup.maxIndex, statusPrev.jobOrder_.size());
-                                    jobGroup.minIndex = max(jobGroup.minIndex, jobGroup.maxIndex - subJobGroupMaxSize);
-                                    jobGroup.minIndex = max(jobGroup.minIndex, 0);
-                                    countSubJobOrderLength.push_back(jobGroup.maxIndex - jobGroup.minIndex);
-                                    std::vector<TimeInstance> instanceOrderSmall = ExtractSubInstances(jobOrderCurrForFinish, jobGroup);
-
+                                    break;
+                                }
+                                else
+                                {
                                     BeginTimer("PrevSchedulabilityCheck");
                                     bool bigFail = false;
                                     if (SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderCurrForFinish)(0) == -1)
                                     {
                                         bigFail = true;
-                                        if (bigJobGroupCheck)
-                                        {
-                                            break;
-                                        }
+                                        break;
                                     }
                                     EndTimer("PrevSchedulabilityCheck");
-
-                                    SFOrder jobOrderSmall(tasksInfo, instanceOrderSmall);
-
-                                    bool smallFail = SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderSmall)(0) == -1;
-                                    if (bigFail == false && smallFail == true)
-                                    {
-                                        if (debugMode == 1)
-                                            jobOrderSmall.print();
-                                        // CoutWarning("One mismatched group check!");
-                                    }
-
-                                    EndTimer("FindUnschedulableSmallJobOrder");
-                                    if (smallFail)
-                                        break;
                                 }
 
                                 BeginTimer("IterationStatusCreate");

@@ -3,10 +3,10 @@
 #include "sources/Utils/Parameters.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Factors/DDL_ConstraintFactor.h"
+#include "sources/Optimization/SFOrder.h"
 #include "sources/Factors/RTDA_Factor.h"
 #include "sources/Optimization/JobOrder.h"
 #include "sources/Factors/SensorFusionFactor.h"
-#include "sources/Optimization/SFOrder.h"
 
 namespace OrderOptDAG_SPACE
 {
@@ -14,7 +14,7 @@ namespace OrderOptDAG_SPACE
     struct ScheduleResult
     {
         JobOrder jobOrder_;
-        SFOrder sfOrder_;
+        OrderOptDAG_SPACE::SFOrder sfOrder_;
         VectorDynamic startTimeVector_;
         bool schedulable_;
         // RTDA rtda_;
