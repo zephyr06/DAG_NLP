@@ -67,12 +67,15 @@ namespace OrderOptDAG_SPACE
                 objWeighted_ = ObjWeighted();
                 if (schedulable_ && doScheduleOptimization && !doScheduleOptimizationOnlyOnce)
                 {
+                    BeginTimer("LP_Iterations");
                     ScheduleResult scheduleResBeforeOpt{jobOrder_, startTimeVector_, schedulable_, ReadObj(), processorJobVec_};
                     scheduleResBeforeOpt.objWeighted_ = objWeighted_;
 
                     ScheduleResult resultAfterOptimization;
                     ScheduleOptimizer scheduleOptimizer = ScheduleOptimizer();
+                    BeginTimer("LP_Optimization");
                     scheduleOptimizer.OptimizeObjWeighted(dagTasks, scheduleResBeforeOpt);
+                    EndTimer("LP_Optimization");
                     resultAfterOptimization = scheduleOptimizer.getOptimizedResult();
                     if (resultAfterOptimization.objWeighted_ < scheduleResBeforeOpt.objWeighted_)
                     {
@@ -90,10 +93,10 @@ namespace OrderOptDAG_SPACE
                             sfVec_ = ObtainSensorFusionError(dagTasks_, tasksInfo, startTimeVector_);
                         }
                         schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, processorNum_);
-                        // TODO: remove this?
-                        jobOrder_ = SFOrder(tasksInfo, startTimeVector_);
+                        jobOrder_ = SFOrder(tasksInfo, startTimeVector_); // jobOrder_ will be accessed later
                         objWeighted_ = ObjWeighted();
                     }
+                    EndTimer("LP_Iterations");
                 }
                 EndTimerAppInProfiler;
             }

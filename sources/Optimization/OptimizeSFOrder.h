@@ -410,7 +410,7 @@ namespace OrderOptDAG_SPACE
             scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
             std::cout << "Outermost while loop count: " << countOutermostWhileLoop << std::endl;
             std::cout << "Make progress count: " << countMakeProgress << std::endl;
-            std::cout << "Candidate Iteration Status count: " << countIterationStatus << std::endl;
+            std::cout << Color::blue << "Candidate Iteration Status count: " << countIterationStatus << Color::def << std::endl;
             std::cout << "infeasibleCount: " << infeasibleCount << std::endl;
             // std::cout << "Average sub-job group length: " << Average(countSubJobOrderLength) << std::endl;
             // std::cout << "Maximum sub-job group length: " << *std::max_element(countSubJobOrderLength.begin(), countSubJobOrderLength.end()) << std::endl;

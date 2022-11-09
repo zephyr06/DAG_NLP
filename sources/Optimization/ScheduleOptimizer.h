@@ -73,7 +73,7 @@ namespace OrderOptDAG_SPACE
             model_.end();
             env_.end();
         }
-        
+
         // function OptimizeObjWeighted() will optimize weighted objectives
         void OptimizeObjWeighted(DAG_Model &dagTasks, ScheduleResult &result)
         {
@@ -95,8 +95,10 @@ namespace OrderOptDAG_SPACE
             // Sensor Fusion is added as part of weighted objs
             AddWeightedObjectives();
 
+            BeginTimer("LP_Solve");
             cplex_solver_.extract(model_);
             bool found_feasible_solution = cplex_solver_.solve();
+            EndTimer("LP_Solve");
 
             result_after_optimization_ = result_to_be_optimized_;
             IloNumArray values_optimized(env_, num_variables_);
