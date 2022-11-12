@@ -17,7 +17,7 @@ namespace OrderOptDAG_SPACE
     {
         // startTimeVector_ = SFOrderScheduling(dagTasks, tasksInfo, processorNum_, jobOrder_, processorJobVec_);
         OrderScheduler() {}
-        static VectorDynamic schedule(DAG_MODEL &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder, const std::vector<uint> processorJobVe)
+        static VectorDynamic schedule(DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder, const std::vector<uint> processorJobVe)
         {
             CoutError("Never call base function!");
             return GenerateVectorDynamic1D(0);
@@ -26,7 +26,8 @@ namespace OrderOptDAG_SPACE
 
     class SimpleOrderScheduler : public OrderScheduler
     {
-        static VectorDynamic schedule(DAG_MODEL &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder, const std::vector<uint> &processorJobVe)
+        // processorJobVe will be assigned values
+        static VectorDynamic schedule(DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder, std::vector<uint> &processorJobVe)
         {
             return SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrder, processorJobVe);
         }
@@ -35,7 +36,7 @@ namespace OrderOptDAG_SPACE
     // TODO(Dong): make this function work
     class LPOrderScheduler : public OrderScheduler
     {
-        static VectorDynamic schedule(DAG_MODEL &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder, const std::vector<uint> &processorJobVe)
+        static VectorDynamic schedule(DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder, std::vector<uint> &processorJobVe)
         {
             // BeginTimer("LPOrderScheduler");
             // ScheduleResult scheduleResBeforeOpt{jobOrder, startTimeVector_, schedulable_, ReadObj(), processorJobVec_};
@@ -49,5 +50,5 @@ namespace OrderOptDAG_SPACE
 
             return SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrder, processorJobVe);
         }
-
-    } // namespace OrderOptDAG_SPACE
+    };
+} // namespace OrderOptDAG_SPACE

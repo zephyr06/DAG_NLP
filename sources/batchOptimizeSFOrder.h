@@ -72,7 +72,7 @@ void BatchOptimizeOrder()
                     {
                         doScheduleOptimization = 1;
                         doScheduleOptimizationOnlyOnce = 0;
-                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva);
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, coreNumberAva);
                     }
                     else if (batchTestMethod == 2)
                     {
@@ -85,13 +85,13 @@ void BatchOptimizeOrder()
                     else if (batchTestMethod == 4)
                     {
                         doScheduleOptimization = 0;
-                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva);
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, coreNumberAva);
                     }
                     else if (batchTestMethod == 5)
                     {
                         doScheduleOptimization = 1;
                         doScheduleOptimizationOnlyOnce = 1;
-                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva);
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, coreNumberAva);
                     }
                     else
                     {

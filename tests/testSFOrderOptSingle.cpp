@@ -9,7 +9,7 @@ TEST(DAG_Optimize_schedule, v1)
 
     ScheduleResult sth;
 
-    sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel(dagTasks, coreNumberAva);
+    sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, coreNumberAva);
     PrintResultAnalyzation(sth, dagTasks);
     std::cout << "Schedulable? " << sth.schedulable_ << std::endl;
     EndTimer("main");

@@ -19,6 +19,8 @@ namespace OrderOptDAG_SPACE
 {
     namespace OptimizeSF
     {
+
+        int infeasibleCount = 0;
         template <typename OrderScheduler>
         struct IterationStatus
         {

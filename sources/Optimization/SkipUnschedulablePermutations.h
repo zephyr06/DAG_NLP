@@ -12,7 +12,8 @@
 
 namespace OrderOptDAG_SPACE
 {
-
+  namespace OptimizeSF
+    {
     template <typename OrderScheduler>
     std::vector<int> FindLongestChainJobIndex(IterationStatus<OrderScheduler> &status)
     {
@@ -26,7 +27,6 @@ namespace OrderOptDAG_SPACE
         }
         return index;
     }
-    int infeasibleCount = 0;
 
     // the time that the instance happens must be larger than the return value
     double GetInstanceLeastStartTime(const TimeInstance &instance, const TaskSetInfoDerived &tasksInfo)
@@ -145,5 +145,5 @@ namespace OrderOptDAG_SPACE
 
         return false;
     }
-
+    } // namespace OptimizeSF
 } // namespace OrderOptDAG_SPACE

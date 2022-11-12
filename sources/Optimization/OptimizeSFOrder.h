@@ -23,10 +23,9 @@
 
 namespace OrderOptDAG_SPACE
 {
-    template <typename OrderScheduler>
-    class OptimizeSF
+    // template <typename OrderScheduler>
+    namespace OptimizeSF
     {
-    public:
         std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks)
         {
             std::vector<int> idVec;
