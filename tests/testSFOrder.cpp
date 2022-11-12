@@ -499,7 +499,22 @@ TEST(CheckDDLConstraint, v1)
     initial << 9.9, 10, 0, 0;
     EXPECT(!CheckDDLConstraint(dagTasks, tasksInfo, initial));
 }
+TEST(IterationStatus, SchedulabilityCheck)
+{
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v26.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
 
+    // doScheduleOptimization = 1;
+
+    // int processorNum = 2;
+    // VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    // initial << 0, 10, 1, 1;
+    // SFOrder sfOrder(tasksInfo, initial);
+    // IterationStatus status(dagTasks, tasksInfo, sfOrder, processorNum);
+    // VectorDynamic stv = status.startTimeVector_;
+    // EXPECT(initial, stv);
+}
 int main()
 {
     TestResult tr;

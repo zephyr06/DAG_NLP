@@ -75,6 +75,7 @@ namespace OrderOptDAG_SPACE
         }
 
         // function OptimizeObjWeighted() will optimize weighted objectives
+        // TODO(Dong): the primary job of ScheduleOptimizer is taking a job order and return a startTimeVector, constructing a ScheduleResult struct is confusing for other users because they don't know how to construct it properly
         void OptimizeObjWeighted(DAG_Model &dagTasks, ScheduleResult &result)
         {
             // new environment, model, variables and solver
@@ -131,6 +132,7 @@ namespace OrderOptDAG_SPACE
             std::cout << "ScheduleOptimizer print something!!!\n";
         }
 
+        // TODO(Dong): similar as above, it should not return ScheduleResult unless there's a good reason
         ScheduleResult getOptimizedResult()
         {
             return result_after_optimization_;

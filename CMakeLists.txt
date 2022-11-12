@@ -50,6 +50,18 @@ else()
   list(FILTER sources EXCLUDE REGEX "^.*ScheduleOptimizer.h|^.*other_files_to_be_ignored.h")
 endif()
 
+# google test
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+# find_package(GTest REQUIRED)
+# include(GoogleTest)
+
 add_library(${CONVENIENCE_LIB_NAME} SHARED ${sources})
 
 # linking with dependencies
@@ -59,6 +71,7 @@ target_link_libraries(${CONVENIENCE_LIB_NAME} CppUnitLite)
 target_link_libraries(${CONVENIENCE_LIB_NAME} ${OpenCV_LIBS} )
 target_link_libraries(${CONVENIENCE_LIB_NAME} yaml-cpp)
 target_link_libraries(${CONVENIENCE_LIB_NAME} "stdc++fs")
+target_link_libraries(${CONVENIENCE_LIB_NAME} gtest_main)
 find_package(Eigen3 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
 if (CPLEX_FOUND)
@@ -68,3 +81,6 @@ endif()
 add_subdirectory(tests)
 add_subdirectory(sources)
 add_subdirectory(${CMAKE_SOURCE_DIR}/sources/Baseline/Verucchi20)
+
+# include(GoogleTest)
+# gtest_discover_tests(MultiRateDAGOpt)

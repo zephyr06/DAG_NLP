@@ -19,6 +19,7 @@ namespace OrderOptDAG_SPACE
 {
     namespace OptimizeSF
     {
+        template <typename OrderScheduler>
         struct IterationStatus
         {
             DAG_Model dagTasks_;
@@ -65,6 +66,7 @@ namespace OrderOptDAG_SPACE
                     }
                 }
                 objWeighted_ = ObjWeighted();
+                // TODO(Dong): this part of code does too many things, and is confusing for Sen to read and understand
                 if (schedulable_ && doScheduleOptimization && !doScheduleOptimizationOnlyOnce)
                 {
                     BeginTimer("LP_Iterations");
@@ -160,5 +162,25 @@ namespace OrderOptDAG_SPACE
                 }
             }
         };
+
+        template <typename OrderScheduler>
+        bool MakeProgress(IterationStatus<OrderScheduler> &statusPrev, IterationStatus<OrderScheduler> &statusCurr)
+        {
+            if (!statusCurr.schedulable_)
+            {
+                infeasibleCount++;
+                if (debugMode == 1)
+                {
+                    TaskSetInfoDerived tasksInfo(statusCurr.dagTasks_.tasks);
+                    std::cout << "Infeasible schedule #:" << infeasibleCount << std::endl;
+                    // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
+                    statusCurr.jobOrder_.print();
+                }
+                return false;
+            }
+            if (statusCurr.objWeighted_ < statusPrev.objWeighted_)
+                return true;
+            return false;
+        }
     }
 }
