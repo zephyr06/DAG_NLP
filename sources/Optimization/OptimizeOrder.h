@@ -97,7 +97,7 @@ namespace OrderOptDAG_SPACE
             {
                 res += sfOverall * weightInMpSf + Barrier(sensorFusionTolerance - sfVec_.maxCoeff()) * weightInMpSfPunish;
                 for (uint i = 0; i < rtdaVec_.size(); i++)
-                    res += Barrier(FreshTol - ObjRTDA(maxRtda_[i])) * weightInMpRTDAPunish;
+                    res += Barrier(freshTol - ObjRTDA(maxRtda_[i])) * weightInMpRTDAPunish;
             }
             return res;
         }
@@ -269,7 +269,7 @@ namespace OrderOptDAG_SPACE
         }
 
         ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.ReadObj(), statusPrev.processorJobVec_};
-        scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
+        scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, freshTol);
         // auto no_thing = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, statusPrev.jobOrder_, scheduleRes.processorJobVec_); // get the processor assignment
 
         if (doScheduleOptimization)
@@ -279,13 +279,13 @@ namespace OrderOptDAG_SPACE
             schedule_optimizer.Optimize(dagTasks, scheduleRes);
             result_after_optimization = schedule_optimizer.getOptimizedResult();
             scheduleRes = result_after_optimization;
-            if (!ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol))
+            if (!ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, freshTol))
             {
                 CoutWarning("Found one unschedulable case after optimization!");
             }
         }
 
-        scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
+        scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, freshTol);
         std::cout << "Outermost while loop count: " << countOutermostWhileLoop << std::endl;
         std::cout << "Make progress count: " << countMakeProgress << std::endl;
         std::cout << "Candidate Iteration Status count: " << countIterationStatus << std::endl;

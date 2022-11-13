@@ -55,7 +55,7 @@ TEST(sensorFusion, v2)
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     EliminationForest forestInfo(tasksInfo);
-    double freshtolCurr = FreshTol;
+    double freshtolCurr = freshTol;
 
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -94,7 +94,7 @@ TEST(sensorFusion, v2)
 
     double defaultSF = sensorFusionTolerance;
     sensorFusionTolerance = 2;
-    FreshTol = 10000;
+    freshTol = 10000;
     auto sth = factor.evaluateError(initial);
 
     AssertEqualScalar(27, sth(0, 0)); // Node 0-1
@@ -115,7 +115,7 @@ TEST(sensorFusion, v2)
     AssertEqualScalar(2, sth(1, 0));  // Node 0
     AssertEqualScalar(30, sth(2, 0)); // Node 1
     sensorFusionTolerance = defaultSF;
-    FreshTol = freshtolCurr;
+    freshTol = freshtolCurr;
     withAddedSensorFusionError = sthh;
 }
 
@@ -169,71 +169,71 @@ TEST(sensorFusion, v3)
     sensorFusionTolerance = defaultSF;
 }
 
-TEST(sensorFusion_AnalyticJacobian, v1)
-{
-    using namespace OrderOptDAG_SPACE;
-    using namespace RegularTaskSystem;
-    auto sthh = withAddedSensorFusionError;
-    withAddedSensorFusionError = 1;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
-    TaskSet tasks = dagTasks.tasks;
-    int N = tasks.size();
-    LLint hyperPeriod = HyperPeriod(tasks);
+// TEST(sensorFusion_AnalyticJacobian, v1)
+// {
+//     using namespace OrderOptDAG_SPACE;
+//     using namespace RegularTaskSystem;
+//     auto sthh = withAddedSensorFusionError;
+//     withAddedSensorFusionError = 1;
+//     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
+//     TaskSet tasks = dagTasks.tasks;
+//     int N = tasks.size();
+//     LLint hyperPeriod = HyperPeriod(tasks);
 
-    // declare variables
-    vector<LLint> sizeOfVariables;
-    int variableDimension = 0;
-    for (int i = 0; i < N; i++)
-    {
+//     // declare variables
+//     vector<LLint> sizeOfVariables;
+//     int variableDimension = 0;
+//     for (int i = 0; i < N; i++)
+//     {
 
-        LLint size = hyperPeriod / tasks[i].period;
-        sizeOfVariables.push_back(size);
-        variableDimension += size;
-    }
+//         LLint size = hyperPeriod / tasks[i].period;
+//         sizeOfVariables.push_back(size);
+//         variableDimension += size;
+//     }
 
-    Symbol key('a', 0);
-    LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
-    AssertEqualScalar(3, errorDimensionSF);
-    MAP_Index2Data mapIndex;
-    for (LLint i = 0; i < variableDimension; i++)
-    {
-        MappingDataStruct m{i, 0};
-        mapIndex[i] = m;
-    }
-    vector<bool> maskForEliminate(variableDimension, false);
-    auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
-    TaskSetInfoDerived tasksInfo(tasks);
-    EliminationForest forestInfo(tasksInfo);
-    SensorFusion_ConstraintFactor factor(key, dagTasks, tasksInfo, forestInfo,
-                                         errorDimensionSF, sensorFusionTolerance,
-                                         model);
-    VectorDynamic initialEstimate = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
+//     Symbol key('a', 0);
+//     LLint errorDimensionSF = CountSFError(dagTasks, sizeOfVariables);
+//     AssertEqualScalar(3, errorDimensionSF);
+//     MAP_Index2Data mapIndex;
+//     for (LLint i = 0; i < variableDimension; i++)
+//     {
+//         MappingDataStruct m{i, 0};
+//         mapIndex[i] = m;
+//     }
+//     vector<bool> maskForEliminate(variableDimension, false);
+//     auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
+//     TaskSetInfoDerived tasksInfo(tasks);
+//     EliminationForest forestInfo(tasksInfo);
+//     SensorFusion_ConstraintFactor factor(key, dagTasks, tasksInfo, forestInfo,
+//                                          errorDimensionSF, sensorFusionTolerance,
+//                                          model);
+//     VectorDynamic initialEstimate = GenerateInitialForDAG_IndexMode(dagTasks, sizeOfVariables, variableDimension);
 
-    VectorDynamic initial;
-    initial.resize(8, 1);
-    initial << 6, 107, 5, 3, 104, 2, 0, 101;
+//     VectorDynamic initial;
+//     initial.resize(8, 1);
+//     initial << 6, 107, 5, 3, 104, 2, 0, 101;
 
-    double defaultSF = sensorFusionTolerance;
-    sensorFusionTolerance = 2;
-    auto expect = NumericalDerivativeDynamic(factor.f, initial, deltaOptimizer, errorDimensionSF);
-    auto actual = factor.JacobianAnalytic(initial);
-    assert_equal(expect, actual);
-    sensorFusionTolerance = 0;
-    expect = NumericalDerivativeDynamic(factor.f, initial, deltaOptimizer, errorDimensionSF);
-    actual = factor.JacobianAnalytic(initial);
-    assert_equal(expect, actual);
+//     double defaultSF = sensorFusionTolerance;
+//     sensorFusionTolerance = 2;
+//     auto expect = NumericalDerivativeDynamic(factor.f, initial, deltaOptimizer, errorDimensionSF);
+//     auto actual = factor.JacobianAnalytic(initial);
+//     assert_equal(expect, actual);
+//     sensorFusionTolerance = 0;
+//     expect = NumericalDerivativeDynamic(factor.f, initial, deltaOptimizer, errorDimensionSF);
+//     actual = factor.JacobianAnalytic(initial);
+//     assert_equal(expect, actual);
 
-    initial << 6, 107, 5, 3, 104, 2, 0, 101;
-    expect = NumericalDerivativeDynamic(factor.f, initial, deltaOptimizer, errorDimensionSF);
-    actual = factor.JacobianAnalytic(initial);
-    assert_equal(expect, actual);
-    initial << 16, 107, 5, 3, 104, 2, 0, 101;
-    expect = NumericalDerivativeDynamic(factor.f, initial, deltaOptimizer, errorDimensionSF);
-    actual = factor.JacobianAnalytic(initial);
-    assert_equal(expect, actual);
-    sensorFusionTolerance = defaultSF;
-    withAddedSensorFusionError = sthh;
-}
+//     initial << 6, 107, 5, 3, 104, 2, 0, 101;
+//     expect = NumericalDerivativeDynamic(factor.f, initial, deltaOptimizer, errorDimensionSF);
+//     actual = factor.JacobianAnalytic(initial);
+//     assert_equal(expect, actual);
+//     initial << 16, 107, 5, 3, 104, 2, 0, 101;
+//     expect = NumericalDerivativeDynamic(factor.f, initial, deltaOptimizer, errorDimensionSF);
+//     actual = factor.JacobianAnalytic(initial);
+//     assert_equal(expect, actual);
+//     sensorFusionTolerance = defaultSF;
+//     withAddedSensorFusionError = sthh;
+// }
 TEST(sensorFusion_AnalyticJacobian, v2)
 {
     using namespace OrderOptDAG_SPACE;
@@ -372,8 +372,10 @@ TEST(AddSF_Factor, v1)
     double defaultSF = sensorFusionTolerance;
     sensorFusionTolerance = 2;
     Values initialFG = GenerateInitialFG(initial, tasksInfo);
-    auto sth = pow(graph.error(initialFG) * 2, 0.5);
-    AssertEqualScalar(1, sth); // 9 before
+    // double ttt = graph.error(initialFG);
+    double sth = pow(graph.error(initialFG) * 2, 0.5);
+    // AssertEqualScalar(1, sth); // 9 before
+    EXPECT_DOUBLES_EQUAL(1, sth, 0.1);
 
     sensorFusionTolerance = defaultSF;
     withAddedSensorFusionError = sthh;
@@ -381,8 +383,8 @@ TEST(AddSF_Factor, v1)
 
 int main()
 {
-    weightSF_factor = 1;
     considerSensorFusion = 1;
+    weightSF_factor = 1;
     TestResult tr;
     return TestRegistry::runAllTests(tr);
 }

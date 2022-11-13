@@ -127,7 +127,6 @@ TEST(TaskSetInfoDerived, v1)
 
 TEST(GetRandomChains, DAG_Model)
 {
-
     string path = PROJECT_PATH + "TaskData/test_n5_v74.csv";
     DAG_Model dagTasks = ReadDAG_Tasks(path, "orig");
     EXPECT(dagTasks.chains_.size() > 0);

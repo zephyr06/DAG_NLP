@@ -18,7 +18,7 @@ using namespace std;
 
 typedef std::map<int, std::vector<int>> ProcessorTaskSet;
 
-bool CompareStringNoCase(std::string &s1, std::string s2)
+bool CompareStringNoCase(const std::string &s1, const std::string s2)
 {
     return strcasecmp(s1.c_str(), s2.c_str()) == 0;
 }
@@ -39,6 +39,7 @@ namespace RegularTaskSystem
         int coreRequire;
         int taskType;
         int priority_; // its value needs to be assigned by other functions before usage
+        std::string priorityType_;
 
         // initializer
 
@@ -53,6 +54,7 @@ namespace RegularTaskSystem
             id = -1;
             processorId = -1;
             coreRequire = 1;
+            priorityType_ = priorityMode;
         }
         Task(int offset, int period, int overhead, double executionTime,
              int deadline, int id, int processorId) : offset(offset), period(period),
@@ -62,6 +64,7 @@ namespace RegularTaskSystem
                                                       processorId(processorId), taskType(0)
         {
             coreRequire = 1;
+            priorityType_ = priorityMode;
         }
         Task(int offset, int period, int overhead, double executionTime,
              int deadline, int id, int processorId,
@@ -69,7 +72,7 @@ namespace RegularTaskSystem
                                 overhead(overhead), executionTime(executionTime),
                                 deadline(deadline), id(id),
                                 processorId(processorId),
-                                coreRequire(coreRequire), taskType(0) {}
+                                coreRequire(coreRequire), taskType(0) { priorityType_ = priorityMode; }
         Task(int offset, int period, int overhead, double executionTime,
              int deadline, int id, int processorId,
              int coreRequire, int taskType) : offset(offset), period(period),
@@ -77,20 +80,21 @@ namespace RegularTaskSystem
                                               deadline(deadline), id(id),
                                               processorId(processorId),
                                               coreRequire(coreRequire),
-                                              taskType(taskType) {}
+                                              taskType(taskType) { priorityType_ = priorityMode; }
 
+        // modify public member priorityType_ to change how to calculate the value: priority_
         double priority()
         {
-            if (CompareStringNoCase(priorityMode, "RM"))
+            if (CompareStringNoCase(priorityType_, "RM"))
             {
                 if (period > 0)
                     return 1.0 / period;
                 else
                     CoutError("Period parameter less or equal to 0!");
             }
-            else if (CompareStringNoCase(priorityMode, "orig"))
+            else if (CompareStringNoCase(priorityType_, "orig"))
                 return id;
-            else if (CompareStringNoCase(priorityMode, "assigned"))
+            else if (CompareStringNoCase(priorityType_, "assigned"))
                 return priority_;
             else
                 CoutError("Priority settings not recognized!");
@@ -141,7 +145,7 @@ namespace RegularTaskSystem
         }
     };
 
-    typedef vector<RegularTaskSystem::Task> TaskSet;
+    typedef std::vector<RegularTaskSystem::Task> TaskSet;
     void Print(TaskSet &tasks)
     {
         cout << "The task set is printed as follows" << endl;
@@ -271,6 +275,7 @@ namespace RegularTaskSystem
         }
     }
 
+    // should not be used anymore
     TaskSet Reorder(TaskSet tasks, string priorityType)
     {
         if (CompareStringNoCase(priorityType, "RM"))
@@ -327,11 +332,12 @@ namespace RegularTaskSystem
                 dataInLine.push_back(atoi(line.c_str()));
                 // dataInLine.erase(dataInLine.begin());
                 Task taskCurr(dataInLine);
+                taskCurr.priorityType_ = priorityType;
                 taskSet.push_back(taskCurr);
             }
 
             TaskSet ttt(taskSet);
-            ttt = Reorder(ttt, priorityType);
+            // ttt = Reorder(ttt, priorityType);
             return ttt;
         }
         else

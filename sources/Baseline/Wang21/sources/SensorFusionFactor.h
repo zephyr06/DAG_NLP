@@ -131,8 +131,8 @@ namespace RTSS21IC_NLP
                 OrderOptDAG_SPACE::RTDA rtda = GetMaxRTDA(rtdaVec);
                 for (uint i = 0; i < errorDimension - 2; i++)
                     res(i) = Barrier(RTSS21IC_NLP::sensorFusionTolerance - sfError(i));
-                res(errorDimension - 2) = Barrier(RTSS21IC_NLP::FreshTol - rtda.reactionTime);
-                res(errorDimension - 1) = Barrier(RTSS21IC_NLP::FreshTol - rtda.dataAge);
+                res(errorDimension - 2) = Barrier(RTSS21IC_NLP::freshTol - rtda.reactionTime);
+                res(errorDimension - 1) = Barrier(RTSS21IC_NLP::freshTol - rtda.dataAge);
                 // if (res.norm() != 0)
                 //     int a = 1;
                 return res;

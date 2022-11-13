@@ -369,9 +369,9 @@ namespace OrderOptDAG_SPACE
                     auto barrier_da = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, var_name.str().c_str());
                     var_name.str("");
                     model_.add(barrier_rt >= 0);
-                    model_.add(barrier_rt >= theta_rt - FreshTol);
+                    model_.add(barrier_rt >= theta_rt - freshTol);
                     model_.add(barrier_da >= 0);
-                    model_.add(barrier_da >= theta_da - FreshTol);
+                    model_.add(barrier_da >= theta_da - freshTol);
                     obj_weighted_expr += barrier_rt * weightInMpRTDAPunish;
                     obj_weighted_expr += barrier_da * weightInMpRTDAPunish;
                 }

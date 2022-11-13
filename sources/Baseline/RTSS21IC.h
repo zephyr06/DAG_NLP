@@ -10,7 +10,7 @@ namespace OrderOptDAG_SPACE
     ScheduleResult ScheduleRTSS21IC(DAG_Model &dagTasks, double sfTolerance, double freshTol)
     {
         RTSS21IC_NLP::sensorFusionTolerance = sfTolerance;
-        RTSS21IC_NLP::FreshTol = freshTol;
+        RTSS21IC_NLP::freshTol = freshTol;
         RegularTaskSystem::TaskSetInfoDerived tasksInfo(dagTasks.tasks);
         // VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, std::nullopt, processorIdVec);
 

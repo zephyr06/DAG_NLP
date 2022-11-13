@@ -26,6 +26,7 @@ namespace OrderOptDAG_SPACE
     // template <typename OrderScheduler>
     namespace OptimizeSF
     {
+
         std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks)
         {
             std::vector<int> idVec;
@@ -53,8 +54,7 @@ namespace OrderOptDAG_SPACE
         }
 
         template <typename OrderScheduler>
-        ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, int processorNum = coreNumberAva,
-                                        boost::optional<ScheduleResult &> resOrderOptWithoutScheduleOpt = boost::none)
+        ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, const ScheduleOptions &schedultOptions, boost::optional<ScheduleResult &> resOrderOptWithoutScheduleOpt = boost::none)
         {
 
             std::vector<int> countSubJobOrderLength;
@@ -65,7 +65,7 @@ namespace OrderOptDAG_SPACE
             TaskSet &tasks = dagTasks.tasks;
             TaskSetInfoDerived tasksInfo(tasks);
             // VectorDynamic initialSTV = SFOrderScheduling(dagTasks, tasksInfo, processorNum);
-            VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+            VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, schedultOptions.processorNum_);
             if (debugMode == 1)
             {
                 std::cout << "Initial schedule: " << std::endl;
@@ -79,7 +79,7 @@ namespace OrderOptDAG_SPACE
                 std::cout << "Initial SF order: " << std::endl;
                 jobOrderRef.print();
             }
-            IterationStatus<OrderScheduler> statusPrev(dagTasks, tasksInfo, jobOrderRef, processorNum);
+            IterationStatus<OrderScheduler> statusPrev(dagTasks, tasksInfo, jobOrderRef, schedultOptions);
             if (!statusPrev.schedulable_)
             {
                 CoutWarning("Initial schedule is not schedulable!!!");
@@ -177,14 +177,14 @@ namespace OrderOptDAG_SPACE
                                 jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
                                 // check whether the small job order under influence is unschedulable
-                                if (SubGroupSchedulabilityCheck(jobGroup, statusPrev, jobOrderCurrForFinish, finishP, dagTasks, tasksInfo, processorNum))
+                                if (SubGroupSchedulabilityCheck(jobGroup, statusPrev, jobOrderCurrForFinish, finishP, dagTasks, tasksInfo, schedultOptions.processorNum_))
                                 {
                                     break;
                                 }
                                 else
                                 {
                                     BeginTimer("PrevSchedulabilityCheck");
-                                    if (SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderCurrForFinish)(0) == -1)
+                                    if (SFOrderScheduling(dagTasks, tasksInfo, schedultOptions.processorNum_, jobOrderCurrForFinish)(0) == -1)
                                     {
                                         break;
                                     }
@@ -192,7 +192,7 @@ namespace OrderOptDAG_SPACE
                                 }
 
                                 BeginTimer("IterationStatusCreate");
-                                IterationStatus<OrderScheduler> statusCurr(dagTasks, tasksInfo, jobOrderCurrForFinish, processorNum);
+                                IterationStatus<OrderScheduler> statusCurr(dagTasks, tasksInfo, jobOrderCurrForFinish, schedultOptions);
                                 EndTimer("IterationStatusCreate");
                                 countIterationStatus++;
 
@@ -229,7 +229,7 @@ namespace OrderOptDAG_SPACE
             }
 
             ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.ReadObj(), statusPrev.processorJobVec_};
-            scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
+            scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, schedultOptions.processorNum_, sensorFusionTolerance, freshTol);
             scheduleRes.objWeighted_ = statusPrev.objWeighted_;
 
             if (doScheduleOptimization && !foundOptimal)
@@ -263,7 +263,7 @@ namespace OrderOptDAG_SPACE
                 }
             }
 
-            scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, processorNum, sensorFusionTolerance, FreshTol);
+            scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, schedultOptions.processorNum_, sensorFusionTolerance, freshTol);
             std::cout << "Outermost while loop count: " << countOutermostWhileLoop << std::endl;
             std::cout << "Make progress count: " << countMakeProgress << std::endl;
             std::cout << Color::blue << "Candidate Iteration Status count: " << countIterationStatus << Color::def << std::endl;

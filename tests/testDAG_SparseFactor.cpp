@@ -7,7 +7,7 @@ using namespace OrderOptDAG_SPACE;
 TEST(testDAG, v1)
 {
     whetherRandomNoiseModelSigma = 0;
-    weightDAG_factor = 1;
+    // weightDAG_factor = 1;
     using namespace OrderOptDAG_SPACE;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
@@ -15,7 +15,7 @@ TEST(testDAG, v1)
     EliminationForest forestInfo(tasksInfo);
 
     NonlinearFactorGraph graph;
-    AddDAG_Factor(graph, dagTasks, tasksInfo);
+    AddDAG_Factor(graph, dagTasks, tasksInfo, 1);
 
     VectorDynamic startTimeVector;
     startTimeVector.resize(8, 1);

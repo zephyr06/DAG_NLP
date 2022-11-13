@@ -404,24 +404,24 @@ namespace OrderOptDAG_SPACE
             // convergence check,
             double currError = GraphErrorEvaluation(dagTasks, startTimeComplete);
             currAction.currError = currError;
-            if (recordActionValue > 0)
-            {
-                std::string path = pathFolder + "record" + std::to_string(recordRLFileCount) + ".txt";
-                std::ifstream myfile;
-                myfile.open(path);
-                if (!myfile) // create the file
-                {
-                    std::ofstream myfile;
-                    myfile.open(path, fstream::in | fstream::out | fstream::trunc);
-                    std::string info = ResizeStr("CurrError") + ResizeStr("VanishGrad") + ResizeStr("ResetWeight") + ResizeStr("ChangeInitial") + ResizeStr("RelocateInterval") + "\n";
-                    myfile << info;
-                    myfile.close();
-                }
-                std::ofstream myfileOutput;
-                myfileOutput.open(path, std::ios_base::app);
-                myfileOutput << currAction.to_string();
-                myfileOutput.close();
-            }
+            // if (recordActionValue > 0)
+            // {
+            //     std::string path = pathFolder + "record" + std::to_string(recordRLFileCount) + ".txt";
+            //     std::ifstream myfile;
+            //     myfile.open(path);
+            //     if (!myfile) // create the file
+            //     {
+            //         std::ofstream myfile;
+            //         myfile.open(path, fstream::in | fstream::out | fstream::trunc);
+            //         std::string info = ResizeStr("CurrError") + ResizeStr("VanishGrad") + ResizeStr("ResetWeight") + ResizeStr("ChangeInitial") + ResizeStr("RelocateInterval") + "\n";
+            //         myfile << info;
+            //         myfile.close();
+            //     }
+            //     std::ofstream myfileOutput;
+            //     myfileOutput.open(path, std::ios_base::app);
+            //     myfileOutput << currAction.to_string();
+            //     myfileOutput.close();
+            // }
             if (currError < 1e-3)
             {
                 bestResultFound = startTimeComplete;
@@ -482,15 +482,15 @@ namespace OrderOptDAG_SPACE
     OptimizeResult OptimizeSchedulingResetSeed(DAG_Model &dagTasks)
     {
 
-        if (recordActionValue > 0)
-        {
-            std::filesystem::path p1{PROJECT_PATH + "RL/"};
-            for (auto &p : std::filesystem::directory_iterator(p1))
-            {
-                recordRLFileCount++;
-                donothing(p);
-            }
-        }
+        // if (recordActionValue > 0)
+        // {
+        //     std::filesystem::path p1{PROJECT_PATH + "RL/"};
+        //     for (auto &p : std::filesystem::directory_iterator(p1))
+        //     {
+        //         recordRLFileCount++;
+        //         donothing(p);
+        //     }
+        // }
 
         OptimizeResult sth;
         for (int i = 100; i < 100 + RandomDrawWeightMaxLoop; i++)

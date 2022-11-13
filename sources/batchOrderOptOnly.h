@@ -44,7 +44,7 @@ void BatchOptimizeOrder()
             if (dagTasks.GetSfBound() > 0)
                 sensorFusionTolerance = dagTasks.GetSfBound();
             if (dagTasks.GetRtdaBound() > 0)
-                FreshTol = dagTasks.GetRtdaBound();
+                freshTol = dagTasks.GetRtdaBound();
 
             // int N = dagTasks.tasks.size();
             AssertBool(true, dagTasks.chains_.size() > 0, __LINE__);
@@ -70,7 +70,7 @@ void BatchOptimizeOrder()
                     auto start = chrono::high_resolution_clock::now();
                     if (batchTestMethod == 0)
                     {
-                        res = OrderOptDAG_SPACE::ScheduleDAGLS_LFT(dagTasks, coreNumberAva, sensorFusionTolerance, FreshTol);
+                        res = OrderOptDAG_SPACE::ScheduleDAGLS_LFT(dagTasks, coreNumberAva, sensorFusionTolerance, freshTol);
                     }
                     else if (batchTestMethod == 1)
                     {
@@ -84,7 +84,7 @@ void BatchOptimizeOrder()
                     }
                     else if (batchTestMethod == 3)
                     {
-                        res = OrderOptDAG_SPACE::ScheduleRTSS21IC(dagTasks, sensorFusionTolerance, FreshTol);
+                        res = OrderOptDAG_SPACE::ScheduleRTSS21IC(dagTasks, sensorFusionTolerance, freshTol);
                     }
                     else if (batchTestMethod == 4)
                     {

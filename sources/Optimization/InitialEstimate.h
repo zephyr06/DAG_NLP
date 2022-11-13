@@ -79,24 +79,24 @@ namespace OrderOptDAG_SPACE
 
     // This method is not suitable to compare with Verucchi20 because it focus more on dependency, but less on schedulability (FT<Deadline), and RTDA.
     // TODO(Sen): fix this issue
-    VectorDynamic GenerateInitial_Custom_DAG(DAG_Model &dagTasks,
-                                             vector<LLint> &sizeOfVariables,
-                                             int variableDimension, LLint currTime = 0)
-    {
-        priorityMode = "Assigned";
-        // Assign priority for the task sets
-        int N = dagTasks.tasks.size();
-        TaskSet &tasks = dagTasks.tasks;
-        TaskSetInfoDerived tasksInfo(tasks);
-        // vector<int> order = FindDependencyOrderDFS(dagTasks);
-        std::vector<int> order = TopologicalSortMulti(dagTasks)[3]; //"DM"
-        for (int i = 0; i < N; i++)
-        {
-            tasks[i].priority_ = N - order[i];
-        }
+    // VectorDynamic GenerateInitial_Custom_DAG(DAG_Model &dagTasks,
+    //                                          vector<LLint> &sizeOfVariables,
+    //                                          int variableDimension, LLint currTime = 0)
+    // {
+    //     priorityMode = "Assigned";
+    //     // Assign priority for the task sets
+    //     int N = dagTasks.tasks.size();
+    //     TaskSet &tasks = dagTasks.tasks;
+    //     TaskSetInfoDerived tasksInfo(tasks);
+    //     // vector<int> order = FindDependencyOrderDFS(dagTasks);
+    //     std::vector<int> order = TopologicalSortMulti(dagTasks)[3]; //"DM"
+    //     for (int i = 0; i < N; i++)
+    //     {
+    //         tasks[i].priority_ = N - order[i];
+    //     }
 
-        return SimulateFixedPrioritySched(dagTasks, tasksInfo, 0);
-    }
+    //     return SimulateFixedPrioritySched(dagTasks, tasksInfo, 0);
+    // }
     /**
      * @brief Warning! All the tasks's processorId must begin with 0, otherwise it reports Segmentation error.
      *
@@ -252,11 +252,11 @@ namespace OrderOptDAG_SPACE
                                                            sizeOfVariables,
                                                            variableDimension);
             break;
-        case Custom_DAG:
-            initialEstimate = GenerateInitial_Custom_DAG(dagTasks,
-                                                         sizeOfVariables,
-                                                         variableDimension);
-            break;
+            // case Custom_DAG:
+            //     initialEstimate = GenerateInitial_Custom_DAG(dagTasks,
+            //                                                  sizeOfVariables,
+            //                                                  variableDimension);
+            //     break;
 
         case ListScheduling:
             initialEstimate = ListSchedulingLFTPA(dagTasks,

@@ -177,7 +177,8 @@ namespace OrderOptDAG_SPACE
     }
 
     void AddWholeRTDAFactor(NonlinearFactorGraph &graph,
-                            TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain)
+                            TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain, double rtdaWeight = RtdaWeight, double dataAgeBound = DataAgeThreshold,
+                            double reactionBound = ReactionTimeThreshold)
     {
         if (RtdaWeight == 0)
             return;
@@ -192,18 +193,18 @@ namespace OrderOptDAG_SPACE
             }
         }
 
-        LambdaMultiKey f = [keysAll, tasksInfo, causeEffectChain](const Values &x)
+        LambdaMultiKey f = [keysAll, tasksInfo, causeEffectChain, dataAgeBound, reactionBound](const Values &x)
         {
             auto RTDAVec = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, x);
             RTDA finalResult = GetMaxRTDA(RTDAVec);
             VectorDynamic res = GenerateVectorDynamic(1 * 2);
             if (!whether_ls)
             {
-                res << std::pow(Barrier(DataAgeThreshold - finalResult.dataAge), 0.5), std::pow(Barrier(ReactionTimeThreshold - finalResult.reactionTime), 0.5);
+                res << std::pow(Barrier(dataAgeBound - finalResult.dataAge), 0.5), std::pow(Barrier(reactionBound - finalResult.reactionTime), 0.5);
             }
             else
             {
-                res << Barrier(DataAgeThreshold - finalResult.dataAge), Barrier(ReactionTimeThreshold - finalResult.reactionTime);
+                res << Barrier(dataAgeBound - finalResult.dataAge), Barrier(reactionBound - finalResult.reactionTime);
             }
 
             return res;

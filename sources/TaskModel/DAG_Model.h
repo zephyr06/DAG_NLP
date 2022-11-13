@@ -90,21 +90,21 @@ namespace OrderOptDAG_SPACE
         std::vector<std::vector<int>> chains_;
 
         DAG_Model() : sfBound_(-1), rtdaBound_(-1) {}
-        DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev) : tasks(tasks), mapPrev(mapPrev)
+        DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev, int numCauseEffectChain = 1) : tasks(tasks), mapPrev(mapPrev)
         {
             std::tie(graph_, indexesBGL_) = GenerateGraphForTaskSet();
-            chains_ = GetRandomChains(NumCauseEffectChain);
+            chains_ = GetRandomChains(numCauseEffectChain);
             sfBound_ = -1;
             rtdaBound_ = -1;
         }
 
-        DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev, double sfBound, double rtdaBound)
+        DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev, double sfBound, double rtdaBound, int numCauseEffectChain = 1)
             : tasks(tasks), mapPrev(mapPrev)
         {
             tasks = tasks;
             mapPrev = mapPrev;
             std::tie(graph_, indexesBGL_) = GenerateGraphForTaskSet();
-            chains_ = GetRandomChains(NumCauseEffectChain);
+            chains_ = GetRandomChains(numCauseEffectChain);
             sfBound_ = sfBound;
             rtdaBound_ = rtdaBound;
         }
@@ -270,8 +270,8 @@ namespace OrderOptDAG_SPACE
             return res;
         }
     };
-    // it seems like only 'orig' priority type is allowed
-    DAG_Model ReadDAG_Tasks(string path, string priorityType = "orig")
+
+    DAG_Model ReadDAG_Tasks(string path, string priorityType = "orig", int chainNum = 1)
     {
         TaskSet tasks = ReadTaskSet(path, priorityType);
         // some default parameters in this function
@@ -324,7 +324,7 @@ namespace OrderOptDAG_SPACE
                 }
             }
 
-            DAG_Model ttt(tasks, mapPrev, sf_bound, rtda_bound);
+            DAG_Model ttt(tasks, mapPrev, sf_bound, rtda_bound, chainNum);
             return ttt;
         }
         else

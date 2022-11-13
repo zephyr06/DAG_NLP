@@ -24,7 +24,7 @@ TEST(GenerateInitialForDAG, V2)
     VectorDynamic expected;
     expected.resize(8, 1);
     expected << 6, 107, 5, 3, 104, 2, 0, 101;
-    assert_equal(expected, actual);
+    EXPECT(assert_equal(expected, actual));
 }
 TEST(GenerateInitialForDAG, V3)
 {
@@ -47,7 +47,7 @@ TEST(GenerateInitialForDAG, V3)
     VectorDynamic expected;
     expected.resize(9, 1);
     expected << 7, 108, 6, 4, 105, 2, 103, 0, 101;
-    assert_equal(expected, actual);
+    EXPECT(assert_equal(expected, actual));
 }
 
 TEST(GenerateInitialForDAG_RelativeStart, v1)
@@ -71,14 +71,14 @@ TEST(GenerateInitialForDAG_RelativeStart, v1)
     VectorDynamic expected;
     expected.resize(8, 1);
     expected << 50, 150, 39, 27, 127, 14, 0, 100;
-    assert_equal(expected, actual);
+    EXPECT(assert_equal(expected, actual));
 }
 
 TEST(RunQueue, V1)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v10.csv", "orig");
-    priorityMode = "RM";
+    // priorityMode = "RM";
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v10.csv", "RM");
     TaskSet tasks = dagTasks.tasks;
 
     Task tasknew = tasks[4];
@@ -126,7 +126,7 @@ TEST(GenerateInitialForDAG_RM_DAG, v1)
     expected.resize(5, 1);
     // order from DAG dependency : 4,3,2,1,0
     expected << 21, 13, 12, 8, 0;
-    assert_equal(expected, initial);
+    EXPECT(assert_equal(expected, initial));
 }
 TEST(GenerateInitialForDAG_RM_DAG, v2)
 {
@@ -149,12 +149,12 @@ TEST(GenerateInitialForDAG_RM_DAG, v2)
     expected.resize(6, 1);
     // order from DAG dependency : 4,3,2,1,0
     expected << 21, 13, 12, 100, 8, 0;
-    assert_equal(expected, initial);
+    EXPECT(assert_equal(expected, initial));
 }
 TEST(GenerateInitialForDAG_RM_DAG, v3)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "RM");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -173,7 +173,7 @@ TEST(GenerateInitialForDAG_RM_DAG, v3)
     // order from DAG dependency : 4,3,2,1,0
     // detection order at 100: 2,4,0
     expected << 50, 126, 39, 27, 100, 14, 0, 112;
-    assert_equal(expected, initial);
+    EXPECT(assert_equal(expected, initial));
 }
 
 TEST(GenerateInitialForDAG_RM_DAG, MultiProcessor_v1)
@@ -198,12 +198,12 @@ TEST(GenerateInitialForDAG_RM_DAG, MultiProcessor_v1)
     // order from DAG dependency : 4,3,2,1,0
     // detection order at 100: 2,4,0
     expected << 50, 114, 39, 27, 100, 14, 0, 100;
-    assert_equal(expected, initial);
+    EXPECT(assert_equal(expected, initial));
 }
 TEST(GenerateInitialForDAG, Multi_v2)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v33.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v33.csv", "RM");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
@@ -221,7 +221,7 @@ TEST(GenerateInitialForDAG, Multi_v2)
     VectorDynamic expected;
     expected.resize(8, 1);
     expected << 50, 126, 39, 27, 100, 14, 0, 112;
-    assert_equal(expected, actual);
+    EXPECT(assert_equal(expected, actual));
 }
 TEST(GenerateInitialForDAG, Multi_v3_processorMap)
 {
@@ -248,7 +248,7 @@ TEST(GenerateInitialForDAG, Multi_v3_processorMap)
         31, 200,
         28, 100, 200, 300,
         0, 200;
-    assert_equal(expected, actual, 1e-2);
+    EXPECT(assert_equal(expected, actual, 1e-2));
 }
 TEST(SimulateFixedPrioritySched, Multi_v1)
 {
@@ -276,12 +276,12 @@ TEST(SimulateFixedPrioritySched, Multi_v1)
         0, 200,
         0, 100, 200, 300,
         0, 200;
-    assert_equal(expected, actual);
+    EXPECT(assert_equal(expected, actual));
 }
 TEST(SimulateFixedPrioritySched, Multi_v2)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v29.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v29.csv", "RM");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     int N = tasks.size();
@@ -304,7 +304,7 @@ TEST(SimulateFixedPrioritySched, Multi_v2)
         0, 100,
         12,
         0, 100;
-    assert_equal(expected, actual);
+    EXPECT(assert_equal(expected, actual));
 }
 // this test is removed because float-point data file is no longer supported
 // TEST(GenerateInitialForDAG_RM_DAG, v4)
@@ -338,7 +338,7 @@ TEST(SimulateFixedPrioritySched, Multi_v2)
 TEST(SimulateFixedPrioritySched, v3)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v3.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v3.csv", "RM");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     int N = tasks.size();
@@ -357,13 +357,13 @@ TEST(SimulateFixedPrioritySched, v3)
     VectorDynamic expected;
     expected.resize(17, 1);
     expected << 0, 195, 200, 300, 400, 500, 671, 700, 800, 900, 1, 201, 401, 672, 801, 25, 501;
-    assert_equal(expected, actual);
+    EXPECT(assert_equal(expected, actual));
 }
 
 TEST(SimulateFixedPrioritySchedDAG, v6)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v3.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v3.csv", "RM");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     int N = tasks.size();
@@ -382,7 +382,7 @@ TEST(SimulateFixedPrioritySchedDAG, v6)
     VectorDynamic expected;
     expected.resize(17, 1);
     expected << 194, 100, 200, 300, 400, 500, 671, 700, 800, 900, 170, 201, 401, 672, 801, 0, 501;
-    assert_equal(expected, actual);
+    EXPECT(assert_equal(expected, actual));
 }
 
 // TEST(UpdateInitialVector, v1)
@@ -496,88 +496,88 @@ TEST(get_random_chain, v1)
     std::cout << std::endl;
 }
 
-TEST(GenerateInitial_Custom_DAG, v1)
-{
-    using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v14.csv", "orig");
-    TaskSet tasks = dagTasks.tasks;
-    TaskSetInfoDerived tasksInfo(tasks);
-    VectorDynamic inital = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
-    // for (uint i = 0; i < dagTasks.tasks.size(); i++)
-    // {
-    //     std::cout << dagTasks.tasks[i].priority_ << std::endl;
-    // }
-    EXPECT_LONGS_EQUAL(2, dagTasks.tasks[0].priority_);
-    EXPECT_LONGS_EQUAL(4, dagTasks.tasks[4].priority_);
-    EXPECT_LONGS_EQUAL(5, dagTasks.tasks[2].priority_);
-    EXPECT_LONGS_EQUAL(3, dagTasks.tasks[3].priority_);
-    EXPECT_LONGS_EQUAL(1, dagTasks.tasks[1].priority_);
-    std::cout << std::endl;
-}
+// TEST(GenerateInitial_Custom_DAG, v1)
+// {
+//     using namespace OrderOptDAG_SPACE;
+//     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v14.csv", "orig");
+//     TaskSet tasks = dagTasks.tasks;
+//     TaskSetInfoDerived tasksInfo(tasks);
+//     VectorDynamic inital = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+//     // for (uint i = 0; i < dagTasks.tasks.size(); i++)
+//     // {
+//     //     std::cout << dagTasks.tasks[i].priority_ << std::endl;
+//     // }
+//     EXPECT_LONGS_EQUAL(2, dagTasks.tasks[0].priority_);
+//     EXPECT_LONGS_EQUAL(4, dagTasks.tasks[4].priority_);
+//     EXPECT_LONGS_EQUAL(5, dagTasks.tasks[2].priority_);
+//     EXPECT_LONGS_EQUAL(3, dagTasks.tasks[3].priority_);
+//     EXPECT_LONGS_EQUAL(1, dagTasks.tasks[1].priority_);
+//     std::cout << std::endl;
+// }
 
-TEST(GenerateInitial_Custom_DAG, v2)
-{
-    using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v40.csv", "orig");
-    TaskSet tasks = dagTasks.tasks;
-    TaskSetInfoDerived tasksInfo(tasks);
-    VectorDynamic inital = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
-    // for (uint i = 0; i < dagTasks.tasks.size(); i++)
-    // {
-    //     std::cout << dagTasks.tasks[i].priority_ << std::endl;
-    // }
-    EXPECT_LONGS_EQUAL(5, dagTasks.tasks[0].priority_);
-    EXPECT_LONGS_EQUAL(4, dagTasks.tasks[4].priority_);
-    EXPECT_LONGS_EQUAL(3, dagTasks.tasks[2].priority_);
-    EXPECT_LONGS_EQUAL(2, dagTasks.tasks[3].priority_);
-    EXPECT_LONGS_EQUAL(1, dagTasks.tasks[1].priority_);
-}
+// TEST(GenerateInitial_Custom_DAG, v2)
+// {
+//     using namespace OrderOptDAG_SPACE;
+//     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v40.csv", "orig");
+//     TaskSet tasks = dagTasks.tasks;
+//     TaskSetInfoDerived tasksInfo(tasks);
+//     VectorDynamic inital = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+//     // for (uint i = 0; i < dagTasks.tasks.size(); i++)
+//     // {
+//     //     std::cout << dagTasks.tasks[i].priority_ << std::endl;
+//     // }
+//     EXPECT_LONGS_EQUAL(5, dagTasks.tasks[0].priority_);
+//     EXPECT_LONGS_EQUAL(4, dagTasks.tasks[4].priority_);
+//     EXPECT_LONGS_EQUAL(3, dagTasks.tasks[2].priority_);
+//     EXPECT_LONGS_EQUAL(2, dagTasks.tasks[3].priority_);
+//     EXPECT_LONGS_EQUAL(1, dagTasks.tasks[1].priority_);
+// }
 
-TEST(GenerateInitial_Custom_DAG, initial)
-{
-    using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v4.csv", "orig");
-    TaskSet tasks = dagTasks.tasks;
-    TaskSetInfoDerived tasksInfo(tasks);
-    VectorDynamic initial = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
-    // std::cout << initial << std::endl;
-    VectorDynamic expected = initial;
-    expected << 0, 100, 200, 300, 400, 500, 10, 210, 410, 21, 310;
-    assert_equal(expected, initial);
-    cout << std::endl;
-}
+// TEST(GenerateInitial_Custom_DAG, initial)
+// {
+//     using namespace OrderOptDAG_SPACE;
+//     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v4.csv", "orig");
+//     TaskSet tasks = dagTasks.tasks;
+//     TaskSetInfoDerived tasksInfo(tasks);
+//     VectorDynamic initial = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+//     // std::cout << initial << std::endl;
+//     VectorDynamic expected = initial;
+//     expected << 0, 100, 200, 300, 400, 500, 10, 210, 410, 21, 310;
+//     assert_equal(expected, initial);
+//     cout << std::endl;
+// }
 
-TEST(GenerateInitial_Custom_DAG, n6v1)
-{
-    using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
-    TaskSet tasks = dagTasks.tasks;
-    TaskSetInfoDerived tasksInfo(tasks);
-    VectorDynamic initial = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
-    std::cout << initial << std::endl;
-    VectorDynamic expected = initial;
-    expected << 0, 45, 68, 5, 50, 60, 73, 85, 80, 75;
-    assert_equal(expected, initial);
-}
+// TEST(GenerateInitial_Custom_DAG, n6v1)
+// {
+//     using namespace OrderOptDAG_SPACE;
+//     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+//     TaskSet tasks = dagTasks.tasks;
+//     TaskSetInfoDerived tasksInfo(tasks);
+//     VectorDynamic initial = GenerateInitial_Custom_DAG(dagTasks, tasksInfo.sizeOfVariables, tasksInfo.variableDimension, 0);
+//     std::cout << initial << std::endl;
+//     VectorDynamic expected = initial;
+//     expected << 0, 45, 68, 5, 50, 60, 73, 85, 80, 75;
+//     assert_equal(expected, initial);
+// }
 
 TEST(list_scheduling, least_finish_time)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "RM");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
     std::cout << initial << std::endl;
     PrintSchedule(tasksInfo, initial);
     VectorDynamic expected = initial;
-    expected << 5, 50, 83, 10, 60, 70, 88, 0, 55, 78;
-    assert_equal(expected, initial);
+    expected << 5, 55, 83, 10, 60, 70, 88, 0, 50, 78;
+    EXPECT(assert_equal(expected, initial));
 }
 
 TEST(PrintSchedule, SortJobSchedule)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "RM");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
@@ -588,8 +588,8 @@ TEST(PrintSchedule, SortJobSchedule)
     EXPECT(JobCEC(5, 0) == timeJobVector[0].second);
     EXPECT(JobCEC(0, 0) == timeJobVector[1].second);
     EXPECT(JobCEC(1, 0) == timeJobVector[2].second);
-    EXPECT(JobCEC(0, 1) == timeJobVector[3].second);
-    EXPECT(JobCEC(5, 1) == timeJobVector[4].second);
+    EXPECT(JobCEC(5, 1) == timeJobVector[3].second);
+    EXPECT(JobCEC(0, 1) == timeJobVector[4].second);
     EXPECT(JobCEC(2, 0) == timeJobVector[5].second);
     EXPECT(JobCEC(3, 0) == timeJobVector[6].second);
     EXPECT(JobCEC(5, 2) == timeJobVector[7].second);

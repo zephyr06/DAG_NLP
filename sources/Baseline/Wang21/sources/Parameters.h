@@ -55,7 +55,7 @@ namespace RTSS21IC_NLP
     const double upperLambda = (double)ConfigParameters["upperLambda"];
     const double weightLogBarrier = (double)ConfigParameters["weightLogBarrier"];
     const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetectTol"];
-    double FreshTol = (double)ConfigParameters["FreshTol"];
+    double freshTol = (double)ConfigParameters["freshTol"];
     const double stepJacobianIteration = (double)ConfigParameters["stepJacobianIteration"];
 
     const int moreElimination = (int)ConfigParameters["moreElimination"];

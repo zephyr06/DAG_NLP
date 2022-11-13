@@ -15,7 +15,7 @@ TEST(SF, error_v1)
 
     using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
-    RTSS21IC_NLP::FreshTol = 0;
+    RTSS21IC_NLP::freshTol = 0;
     RTSS21IC_NLP::sensorFusionTolerance = 0;
 
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
@@ -52,7 +52,7 @@ TEST(SF, error_v2)
 
     using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
-    RTSS21IC_NLP::FreshTol = 0;
+    RTSS21IC_NLP::freshTol = 0;
     RTSS21IC_NLP::sensorFusionTolerance = 0;
 
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v17.csv", "orig");

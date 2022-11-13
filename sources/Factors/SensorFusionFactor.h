@@ -141,8 +141,8 @@ namespace OrderOptDAG_SPACE
     void AddSF_Factor(gtsam::NonlinearFactorGraph &graph, DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo)
     {
 
-        if (weightSF_factor == 0)
-            return;
+        // if (weightSF_factor == 0)
+        //     return;
         LLint errorDimensionSF = CountSFError(dagTasks, tasksInfo.sizeOfVariables);
         if (errorDimensionSF == 0)
             return;
@@ -278,7 +278,7 @@ namespace OrderOptDAG_SPACE
                                 }
                             }
                             // this error is not well tested yet
-                            double sensorFreshError = Barrier(FreshTol - (startTimeCurr -
+                            double sensorFreshError = Barrier(freshTol - (startTimeCurr -
                                                                           *min_element(sourceFinishTime.begin(),
                                                                                        sourceFinishTime.end())));
                             // double sensorFreshError = 0;
@@ -378,7 +378,7 @@ namespace OrderOptDAG_SPACE
                                 }
                             }
                             // this error is not well tested yet
-                            double sensorFreshError = Barrier(FreshTol - (startTimeCurr +
+                            double sensorFreshError = Barrier(freshTol - (startTimeCurr +
                                                                           tasksInfo.tasks[indexCurr].executionTime -
                                                                           *min_element(sourceFinishTime.begin(),
                                                                                        sourceFinishTime.end())));

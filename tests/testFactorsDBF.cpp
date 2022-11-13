@@ -4,7 +4,7 @@
 
 TEST(Overlap, v1)
 {
-    coreNumberAva = 1;
+    // coreNumberAva = 1;
     Interval v1(0, 10), v2(11, 10);
     AssertEqualScalar(0, Overlap(v1, v2));
 
@@ -31,7 +31,7 @@ TEST(Overlap, v1)
 
 TEST(testDBF, v1)
 {
-    coreNumberAva = 1;
+    // coreNumberAva = 1;
     using namespace OrderOptDAG_SPACE;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig");
     TaskSet tasks = dagTasks.tasks;

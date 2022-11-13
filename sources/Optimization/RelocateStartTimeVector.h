@@ -176,10 +176,10 @@ namespace OrderOptDAG_SPACE
             {
                 continue;
             }
-            double deltaOptimizerRef = deltaOptimizer;
-            deltaOptimizer = 1e-6;
+            // double deltaOptimizerRef = deltaOptimizer;
+            // deltaOptimizer = 1e-6;
             auto pp = ite->get()->linearize(initialEstimateFG)->jacobian();
-            deltaOptimizer = deltaOptimizerRef;
+            // deltaOptimizer = deltaOptimizerRef;
             MatrixDynamic jacobian = pp.first;
             if (jacobian.norm() / pow(err * 2, 0.5) < zeroJacobianDetectTol)
             {

@@ -44,12 +44,15 @@ void BatchOptimizeOrder()
             if (dagTasks.GetSfBound() > 0)
                 sensorFusionTolerance = dagTasks.GetSfBound();
             if (dagTasks.GetRtdaBound() > 0)
-                FreshTol = dagTasks.GetRtdaBound();
+                freshTol = dagTasks.GetRtdaBound();
 
             // int N = dagTasks.tasks.size();
             AssertBool(true, dagTasks.chains_.size() > 0, __LINE__);
             for (int batchTestMethod = 0; batchTestMethod < TotalMethodUnderComparison; batchTestMethod++)
             {
+                if (BatchTestOnlyOneMethod != -1 && BatchTestOnlyOneMethod != batchTestMethod)
+                    continue;
+
                 if (considerSensorFusion != 0 && batchTestMethod == 2)
                     continue;
                 else if (considerSensorFusion == 0 && batchTestMethod == 3)
@@ -57,6 +60,8 @@ void BatchOptimizeOrder()
                 double obj;
                 int schedulable;
                 OrderOptDAG_SPACE::ScheduleResult res;
+                OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOptions;
+                scheduleOptions.LoadParametersYaml();
                 if (VerifyResFileExist(pathDataset, file, batchTestMethod))
                 {
                     res = ReadFromResultFile(pathDataset, file, batchTestMethod);
@@ -64,34 +69,36 @@ void BatchOptimizeOrder()
                 else
                 {
                     auto start = chrono::high_resolution_clock::now();
-                    if (batchTestMethod == 0)
+                    if (batchTestMethod == 0) // Initial method
                     {
-                        res = OrderOptDAG_SPACE::ScheduleDAGLS_LFT(dagTasks, coreNumberAva, sensorFusionTolerance, FreshTol);
+                        res = OrderOptDAG_SPACE::ScheduleDAGLS_LFT(dagTasks, coreNumberAva, sensorFusionTolerance, freshTol);
                     }
-                    else if (batchTestMethod == 1)
+                    else if (batchTestMethod == 1) // Verucchi20
                     {
-                        doScheduleOptimization = 1;
-                        doScheduleOptimizationOnlyOnce = 0;
-                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, coreNumberAva);
-                    }
-                    else if (batchTestMethod == 2)
-                    {
+
                         res = ScheduleVerucchiRTDA(dagTasks, dagTasks.chains_, coreNumberAva, 15.0, 400000.0, 15.0, 400000.0, 15.0);
                     }
-                    else if (batchTestMethod == 3)
+                    else if (batchTestMethod == 2) // Wang21
                     {
-                        res = OrderOptDAG_SPACE::ScheduleRTSS21IC(dagTasks, sensorFusionTolerance, FreshTol);
+                        res = OrderOptDAG_SPACE::ScheduleRTSS21IC(dagTasks, sensorFusionTolerance, freshTol);
                     }
-                    else if (batchTestMethod == 4)
+                    else if (batchTestMethod == 3) // TOM
                     {
-                        doScheduleOptimization = 0;
-                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, coreNumberAva);
+                        scheduleOptions.doScheduleOptimization_ = 1;
+                        scheduleOptions.doScheduleOptimizationOnlyOnce_ = 0;
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, scheduleOptions);
                     }
-                    else if (batchTestMethod == 5)
+                    else if (batchTestMethod == 4) // TOM_Fast
                     {
-                        doScheduleOptimization = 1;
-                        doScheduleOptimizationOnlyOnce = 1;
-                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, coreNumberAva);
+                        scheduleOptions.doScheduleOptimization_ = 0;
+                        scheduleOptions.doScheduleOptimizationOnlyOnce_ = 0;
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, scheduleOptions);
+                    }
+                    else if (batchTestMethod == 5) // TOM_FastLP
+                    {
+                        scheduleOptions.doScheduleOptimization_ = 0;
+                        scheduleOptions.doScheduleOptimizationOnlyOnce_ = 1;
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, scheduleOptions);
                     }
                     else
                     {
@@ -132,13 +139,11 @@ void BatchOptimizeOrder()
         VariadicTable<std::string, double, double, double> vt({"Method", "Schedulable ratio", "Obj (Only used in RTDA experiment)", "TimeTaken"}, 10);
 
         vt.addRow("Initial", Average(schedulableAll[0]), Average(objsAll[0]), Average(runTimeAll[0]));
-        vt.addRow("TOM", Average(schedulableAll[1]), Average(objsAll[1]), Average(runTimeAll[1]));
-        vt.addRow("OrderOpt", Average(schedulableAll[4]), Average(objsAll[4]), Average(runTimeAll[4]));
-        vt.addRow("OrderOpt1LP", Average(schedulableAll[5]), Average(objsAll[5]), Average(runTimeAll[5]));
-        vt.addRow("Verucchi20RTAS", Average(schedulableAll[2]), Average(objsAll[2]), Average(runTimeAll[2]));
-        vt.addRow("Wang21RTSS_IC", Average(schedulableAll[3]), Average(objsAll[3]), Average(runTimeAll[3]));
-        // vt.addRow("Initial", Average(objsAll[0]), Average(runTimeAll[0]));
-
+        vt.addRow("Verucchi20", Average(schedulableAll[1]), Average(objsAll[1]), Average(runTimeAll[1]));
+        vt.addRow("Wang21", Average(schedulableAll[2]), Average(objsAll[2]), Average(runTimeAll[2]));
+        vt.addRow("TOM", Average(schedulableAll[3]), Average(objsAll[3]), Average(runTimeAll[3]));
+        vt.addRow("TOM_Fast", Average(schedulableAll[4]), Average(objsAll[4]), Average(runTimeAll[4]));
+        vt.addRow("TOM_FastLP", Average(schedulableAll[5]), Average(objsAll[5]), Average(runTimeAll[5]));
         vt.print(std::cout);
     }
 

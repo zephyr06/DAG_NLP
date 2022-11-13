@@ -33,12 +33,13 @@ namespace RTSS21IC_NLP
             int deadline;
             int id;
             int processorId;
+            std::string priorityType;
 
             // initializer
 
             Task() : offset(0), period(0),
                      overhead(0), executionTime(0.0),
-                     deadline(0) {}
+                     deadline(0) { priorityType = priorityMode; }
             Task(int offset, int period, int overhead, double executionTime,
                  int deadline) : offset(offset), period(period),
                                  overhead(overhead), executionTime(executionTime),
@@ -46,22 +47,23 @@ namespace RTSS21IC_NLP
             {
                 id = -1;
                 processorId = -1;
+                priorityType = priorityMode;
             }
             Task(int offset, int period, int overhead, double executionTime,
                  int deadline, int id, int processorId) : offset(offset), period(period),
                                                           overhead(overhead), executionTime(executionTime),
                                                           deadline(deadline), id(id),
-                                                          processorId(processorId) {}
+                                                          processorId(processorId) { priorityType = priorityMode; }
             double priority()
             {
-                if (priorityMode == "RM")
+                if (priorityType == "RM")
                 {
                     if (period > 0)
                         return 1.0 / period;
                     else
                         CoutError("Period parameter less or equal to 0!");
                 }
-                else if (priorityMode == "orig")
+                else if (priorityType == "orig")
                     return id;
                 else
                     CoutError("Priority settings not recognized!");

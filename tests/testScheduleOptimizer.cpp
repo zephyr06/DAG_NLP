@@ -164,12 +164,12 @@ TEST(ScheduleOptimizer, single_core_sensor_fusion)
 TEST(ScheduleOptimizer, multi_core_multi_chains_optimization)
 {
     std::cout << "\n\n#############  New Test  ##############\n\n";
-    int originNumCauseEffectChain = NumCauseEffectChain;
-    NumCauseEffectChain = 2;
+    // int originNumCauseEffectChain = NumCauseEffectChain;
+    // NumCauseEffectChain = 2;
 
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
 
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v17.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v17.csv", "orig", 2);
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
@@ -208,19 +208,18 @@ TEST(ScheduleOptimizer, multi_core_multi_chains_optimization)
     result_after_optimization.print();
     EXPECT_LONGS_EQUAL(20, result_after_optimization.obj_);
 
-    NumCauseEffectChain = originNumCauseEffectChain;
+    // NumCauseEffectChain = originNumCauseEffectChain;
 }
-
 
 TEST(ScheduleOptimizer, optimize_weighted_obj)
 {
     std::cout << "\n\n#############  New Test  ##############\n\n";
-    int originNumCauseEffectChain = NumCauseEffectChain;
-    NumCauseEffectChain = 2;
+    // int originNumCauseEffectChain = NumCauseEffectChain;
+    // NumCauseEffectChain = 2;
 
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
 
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v17.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v17.csv", "orig", 2);
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
@@ -254,14 +253,14 @@ TEST(ScheduleOptimizer, optimize_weighted_obj)
     result_to_be_optimized.startTimeVector_ = initial;
     result_to_be_optimized.obj_ = ObjRTDA({resM0, resM1});
     result_to_be_optimized.processorJobVec_ = processorJobVec;
-    result_to_be_optimized.objWeighted_=1e100;
+    result_to_be_optimized.objWeighted_ = 1e100;
     schedule_optimizer.OptimizeObjWeighted(dagTasks, result_to_be_optimized);
     result_after_optimization = schedule_optimizer.getOptimizedResult();
     PrintSchedule(tasksInfo, result_after_optimization.startTimeVector_);
     result_after_optimization.print();
     EXPECT_LONGS_EQUAL(45, result_after_optimization.objWeighted_);
 
-    NumCauseEffectChain = originNumCauseEffectChain;
+    // NumCauseEffectChain = originNumCauseEffectChain;
     considerSensorFusion = originConsiderSensorFusion;
 }
 

@@ -286,8 +286,8 @@ TEST(sparse, matrix)
 TEST(relocateIncludedInterval, moveSmallTask)
 {
     whetherRandomNoiseModelSigma = 0;
-    noiseModelSigma = 1;
-    weightDAG_factor = 1;
+    // noiseModelSigma = 1;
+    // weightDAG_factor = 1;
     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v37.csv", "orig");
     TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     EliminationForest forestInfo(tasksInfo);
@@ -300,7 +300,7 @@ TEST(relocateIncludedInterval, moveSmallTask)
         8.359, 100.012, 200.019, 304.026, 406.058, 500,
         0.008, 306.039;
     NonlinearFactorGraph graph;
-    AddDAG_Factor(graph, dagTasks, tasksInfo);
+    AddDAG_Factor(graph, dagTasks, tasksInfo, 1);
     AddDBF_Factor(graph, tasksInfo);
     AddDDL_Factor(graph, tasksInfo);
     Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);

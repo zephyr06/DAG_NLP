@@ -162,9 +162,9 @@ TEST(CA_facroe, v1)
 {
     using namespace OrderOptDAG_SPACE;
     whether_ls = 1;
-    ReactionTimeThreshold = 0;
-    DataAgeThreshold = 0;
-    RtdaWeight = 1;
+    // ReactionTimeThreshold = 0;
+    // DataAgeThreshold = 0;
+    // RtdaWeight = 1;
 
     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v4.csv", "orig"); // single-rate dag
     TaskSet tasks = dagTasks.tasks;
@@ -176,7 +176,7 @@ TEST(CA_facroe, v1)
     Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
 
     NonlinearFactorGraph graph;
-    AddWholeRTDAFactor(graph, tasksInfo, causeEffectChain);
+    AddWholeRTDAFactor(graph, tasksInfo, causeEffectChain, 1, 0, 0);
 
     double errActual = graph.error(initialEstimateFG);
     std::cout << "Actual error is " << errActual << std::endl;

@@ -5,11 +5,11 @@
 
 using namespace RegularTaskSystem;
 using namespace OrderOptDAG_SPACE;
-void AddDAG_Factor(NonlinearFactorGraph &graph, DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, bool ifPreemptive = false)
+void AddDAG_Factor(NonlinearFactorGraph &graph, DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, double weight = weightDAG_factor, bool ifPreemptive = false)
 {
 
     LLint errorDimensionDBF = 1;
-    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma / weightDAG_factor);
+    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma / weight);
     for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
     {
         const TaskSet &tasksPrev = itr->second;

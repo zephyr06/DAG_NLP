@@ -4,7 +4,7 @@
 
 weightDDL_factor: 1.0
 sensorFusionTolerance: 10000
-FreshTol: 10000
+freshTol: 10000
 
 makespanWeight: 0
 barrierBase: 100
