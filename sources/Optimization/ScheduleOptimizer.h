@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/OptimizeOrderUtils.h" // ScheduleResult
-#include "sources/Optimization/JobOrder.h"
+// #include "sources/Optimization/JobOrder.h"
 #include "sources/Factors/RTDA_Factor.h"
 #include "sources/Factors/SensorFusionFactor.h"
 #include "ilcplex/cplex.h"
@@ -460,10 +460,10 @@ namespace OrderOptDAG_SPACE
                 start_time(i) = values_optimized[i];
             }
 
-            JobOrderMultiCore jobOrderRef(tasksInfo_, start_time);
+            // JobOrderMultiCore jobOrderRef(tasksInfo_, start_time);
             SFOrder sfOrder(tasksInfo_, start_time);
             result_after_optimization_.startTimeVector_ = start_time;
-            result_after_optimization_.jobOrder_ = jobOrderRef;
+            // result_after_optimization_.jobOrder_ = jobOrderRef;
             result_after_optimization_.sfOrder_ = sfOrder;
         }
 

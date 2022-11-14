@@ -12,7 +12,7 @@ TEST(RTSSIC, Wang21_DBF)
     TaskSetInfoDerived tasksInfo(tasks);
     std::vector<uint> processorIdVec;
     int processorNum = 2;
-    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, std::nullopt, processorIdVec);
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorIdVec);
     PrintSchedule(tasksInfo, initial);
     RTSS21IC_NLP::processorIdVecGlobal = processorIdVec;
     RTSS21IC_NLP::processorNumGlobal = processorNum;

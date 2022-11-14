@@ -239,7 +239,7 @@ TEST(DBF_error, v1)
 
     int processorNum = 1;
     std::vector<uint> processorJobVec;
-    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, std::nullopt, processorJobVec);
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
     PrintSchedule(tasksInfo, initial);
     EXPECT_LONGS_EQUAL(0, DBF_Error(dagTasks, tasksInfo, initial, processorJobVec, processorNum));
     initial << 0, 0, 0;
@@ -543,7 +543,7 @@ TEST(RTSSIC, Wang21_DBF)
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     std::vector<uint> processorIdVec;
-    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, std::nullopt, processorIdVec);
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, processorIdVec);
 }
 
 TEST(CheckDDLConstraint, v1)

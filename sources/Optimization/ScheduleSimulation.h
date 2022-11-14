@@ -304,80 +304,81 @@ namespace OrderOptDAG_SPACE
     }
 
     // exam all the jobs in jobOrder_ have been dispatched
-    bool ExamPrecedenceJobSatisfied(JobCEC jobCurr, std::vector<LLint> &jobScheduled, const JobOrderMultiCore &jobOrder)
-    {
-        for (uint i = 0; i < jobOrder.jobIndexMap_.at(jobCurr); i++)
-        {
-            if (jobScheduled[i] == -1) // prior job has not been dispatched yet
-            {
-                return false;
-            }
-        }
-        return true;
-    }
+    // bool ExamPrecedenceJobSatisfied(JobCEC jobCurr, std::vector<LLint> &jobScheduled, const JobOrderMultiCore &jobOrder)
+    // {
+    //     for (uint i = 0; i < jobOrder.jobIndexMap_.at(jobCurr); i++)
+    //     {
+    //         if (jobScheduled[i] == -1) // prior job has not been dispatched yet
+    //         {
+    //             return false;
+    //         }
+    //     }
+    //     return true;
+    // }
 
     // exam all the jobs in strictPrecedenceMap_ have been finished
-    bool ExamPrecedenceJobSatisfiedNP(JobCEC jobCurr, LLint currTime, const JobOrderMultiCore &jobOrder, std::vector<LLint> &jobScheduled, const TaskSetInfoDerived &tasksInfo)
-    {
-        if (jobOrder.HaveSerialConstraint(jobCurr) == false)
-            return true;
-        for (uint i = 0; i < jobOrder.jobIndexMap_.at(jobCurr); i++)
-        {
-            const JobCEC &jobPrec = jobOrder.jobOrder_.at(i);
-            if (jobOrder.HaveSerialConstraint(jobPrec) == false)
-            {
-                continue;
-            }
-            LLint jobPrecIndex = jobOrder.jobIndexMap_.at(jobPrec);
-            if (jobScheduled[jobPrecIndex] == -1 || jobScheduled[jobPrecIndex] + tasksInfo.tasks[jobPrec.taskId].executionTime > currTime)
-                return false;
-        }
-        return true;
-    }
+    // bool ExamPrecedenceJobSatisfiedNP(JobCEC jobCurr, LLint currTime, const JobOrderMultiCore &jobOrder, std::vector<LLint> &jobScheduled, const TaskSetInfoDerived &tasksInfo)
+    // {
+    //     if (jobOrder.HaveSerialConstraint(jobCurr) == false)
+    //         return true;
+    //     for (uint i = 0; i < jobOrder.jobIndexMap_.at(jobCurr); i++)
+    //     {
+    //         const JobCEC &jobPrec = jobOrder.jobOrder_.at(i);
+    //         if (jobOrder.HaveSerialConstraint(jobPrec) == false)
+    //         {
+    //             continue;
+    //         }
+    //         LLint jobPrecIndex = jobOrder.jobIndexMap_.at(jobPrec);
+    //         if (jobScheduled[jobPrecIndex] == -1 || jobScheduled[jobPrecIndex] + tasksInfo.tasks[jobPrec.taskId].executionTime > currTime)
+    //             return false;
+    //     }
+    //     return true;
+    // }
 
-    /**
-     * @brief
-     */
-    RunQueue::ID_INSTANCE_PAIR PopTaskLS(RunQueue &runQueue, const JobOrderMultiCore &jobOrder,
-                                         LLint timeNow, std::vector<LLint> &jobScheduled, const TaskSetInfoDerived &tasksInfo)
-    {
-        // BeginTimerAppInProfiler;
-        std::vector<RunQueue::ID_INSTANCE_PAIR> &taskQueue = runQueue.taskQueue;
-        if (taskQueue.empty())
-            CoutError("TaskQueue is empty!");
+    // /**
+    //  * @brief
+    //  */
+    // RunQueue::ID_INSTANCE_PAIR PopTaskLS(RunQueue &runQueue, const JobOrderMultiCore &jobOrder,
+    //                                      LLint timeNow, std::vector<LLint> &jobScheduled, const TaskSetInfoDerived &tasksInfo)
+    // {
+    //     // BeginTimerAppInProfiler;
+    //     std::vector<RunQueue::ID_INSTANCE_PAIR> &taskQueue = runQueue.taskQueue;
+    //     if (taskQueue.empty())
+    //         CoutError("TaskQueue is empty!");
 
-        double leastIndex = std::numeric_limits<double>::max();
-        LLint leastIndexJobInQueue = -1;
-        // take all the tasks:
-        std::unordered_set<JobCEC> set;
-        for (uint i = 0; i < taskQueue.size(); i++)
-        {
-            JobCEC jobCurr(taskQueue[i].first, taskQueue[i].second);
-            if (ExamPrecedenceJobSatisfiedNP(jobCurr, timeNow, jobOrder, jobScheduled, tasksInfo) && ExamPrecedenceJobSatisfied(jobCurr, jobScheduled, jobOrder))
-            {
-                LLint priority = jobOrder.jobIndexMap_.at(jobCurr);
-                if (priority < leastIndex)
-                {
-                    leastIndex = priority;
-                    leastIndexJobInQueue = i;
-                }
-            }
-        }
-        RunQueue::ID_INSTANCE_PAIR jobPop = std::make_pair(-1, -1);
-        if (leastIndexJobInQueue == -1)
-        {
-            return jobPop;
-        }
-        jobPop = taskQueue[leastIndexJobInQueue];
-        taskQueue.erase(taskQueue.begin() + leastIndexJobInQueue);
+    //     double leastIndex = std::numeric_limits<double>::max();
+    //     LLint leastIndexJobInQueue = -1;
+    //     // take all the tasks:
+    //     std::unordered_set<JobCEC> set;
+    //     for (uint i = 0; i < taskQueue.size(); i++)
+    //     {
+    //         JobCEC jobCurr(taskQueue[i].first, taskQueue[i].second);
+    //         if (ExamPrecedenceJobSatisfiedNP(jobCurr, timeNow, jobOrder, jobScheduled, tasksInfo) && ExamPrecedenceJobSatisfied(jobCurr, jobScheduled, jobOrder))
+    //         {
+    //             LLint priority = jobOrder.jobIndexMap_.at(jobCurr);
+    //             if (priority < leastIndex)
+    //             {
+    //                 leastIndex = priority;
+    //                 leastIndexJobInQueue = i;
+    //             }
+    //         }
+    //     }
+    //     RunQueue::ID_INSTANCE_PAIR jobPop = std::make_pair(-1, -1);
+    //     if (leastIndexJobInQueue == -1)
+    //     {
+    //         return jobPop;
+    //     }
+    //     jobPop = taskQueue[leastIndexJobInQueue];
+    //     taskQueue.erase(taskQueue.begin() + leastIndexJobInQueue);
 
-        // EndTimerAppInProfiler;
-        return jobPop;
-    };
+    //     // EndTimerAppInProfiler;
+    //     return jobPop;
+    // };
 
     // TODO: when two jobs have same priority, choose the one with higher precedence priority
     VectorDynamic ListSchedulingLFTPA(DAG_Model &dagTasks,
-                                      TaskSetInfoDerived &tasksInfo, int processorNum, const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,
+                                      TaskSetInfoDerived &tasksInfo, int processorNum,
+                                      //   const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,
                                       boost::optional<std::vector<uint> &> processorIdVec = boost::none)
     {
         // BeginTimerAppInProfiler;
@@ -390,7 +391,7 @@ namespace OrderOptDAG_SPACE
         vector<bool> busy(processorNum, false);
         vector<LLint> nextFree(processorNum, -1);
 
-        std::vector<LLint> jobScheduled(jobOrder ? ((*jobOrder).size()) : 0, -1); // order is the same as JobOrder's jobs
+        // std::vector<LLint> jobScheduled(jobOrder ? ((*jobOrder).size()) : 0, -1); // order is the same as JobOrder's jobs
         EventPool eventPool;
         eventPool.Insert(0);
         LLint timeInitial = eventPool.PopMinEvent();
@@ -411,29 +412,10 @@ namespace OrderOptDAG_SPACE
                 {
                     RunQueue::ID_INSTANCE_PAIR p;
                     bool findTaskToSchedule;
-                    if (jobOrder)
-                    {
-                        findTaskToSchedule = false;
-                        while (!findTaskToSchedule && runQueue.taskQueue.size() > 0)
-                        {
-                            p = PopTaskLS(runQueue, *jobOrder, timeNow, jobScheduled, tasksInfo);
-                            if (p.first == -1)
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                JobCEC jobCurr(p.first, p.second);
-                                jobScheduled[jobOrder->jobIndexMap_.at(jobCurr)] = timeNow;
-                                findTaskToSchedule = true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        p = runQueue.popLeastFinishTime(tasksInfo);
-                        findTaskToSchedule = true;
-                    }
+
+                    p = runQueue.popLeastFinishTime(tasksInfo);
+                    findTaskToSchedule = true;
+
                     if (findTaskToSchedule)
                     {
                         UpdateSTVAfterPopTask(p, initial, timeNow, nextFree, tasks, busy, processorId, tasksInfo.sizeOfVariables);
@@ -456,37 +438,37 @@ namespace OrderOptDAG_SPACE
         return initial;
     }
 
-    class SchedulingAlgorithm
-    {
-    public:
-        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, JobOrderMultiCore &jobOrder)
-        {
-            CoutError("Base function in SchedulingAlgorithm must be overwritten!");
-            return GenerateVectorDynamic1D(0);
-        }
-    };
-    // list scheduling with known task assignment
-    class LSchedulingKnownTA : public SchedulingAlgorithm
-    {
-    public:
-        // If used, this function needs to be carefully checked!
-        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,
-                                      boost::optional<std::vector<uint> &> processorIdVec = boost::none)
-        {
-            return ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder, processorIdVec);
-        }
-    };
+    // class SchedulingAlgorithm
+    // {
+    // public:
+    //     static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, JobOrderMultiCore &jobOrder)
+    //     {
+    //         CoutError("Base function in SchedulingAlgorithm must be overwritten!");
+    //         return GenerateVectorDynamic1D(0);
+    //     }
+    // };
+    // // list scheduling with known task assignment
+    // class LSchedulingKnownTA : public SchedulingAlgorithm
+    // {
+    // public:
+    //     // If used, this function needs to be carefully checked!
+    //     static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,
+    //                                   boost::optional<std::vector<uint> &> processorIdVec = boost::none)
+    //     {
+    //         return ListSchedulingLFTPA(dagTasks, tasksInfo, 1, jobOrder, processorIdVec);
+    //     }
+    // };
 
-    // list scheduling whose task assignment is decided by scheduling algorithms
-    class LSchedulingFreeTA : public SchedulingAlgorithm
-    {
-    public:
-        static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,
-                                      boost::optional<std::vector<uint> &> processorIdVec = boost::none)
-        {
-            return ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, jobOrder, processorIdVec);
-        }
-    };
+    // // list scheduling whose task assignment is decided by scheduling algorithms
+    // class LSchedulingFreeTA : public SchedulingAlgorithm
+    // {
+    // public:
+    //     static VectorDynamic Schedule(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, int processorNum, const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,
+    //                                   boost::optional<std::vector<uint> &> processorIdVec = boost::none)
+    //     {
+    //         return ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, jobOrder, processorIdVec);
+    //     }
+    // };
 
     VectorDynamic SFOrderScheduling(DAG_Model &dagTasks,
                                     const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder,

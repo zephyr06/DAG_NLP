@@ -16,7 +16,7 @@ namespace OrderOptDAG_SPACE
 
         // VectorDynamic initial = SimulateFixedPrioritySched(dagTasks, tasksInfo);
         std::vector<uint> processorIdVec;
-        VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, std::nullopt, processorIdVec);
+        VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, processorIdVec);
         RTSS21IC_NLP::processorIdVecGlobal = processorIdVec;
         RTSS21IC_NLP::processorNumGlobal = coreNumberAva;
         auto sth = RTSS21IC_NLP::DAG_SPACE::OptimizeScheduling(dagTasks, initial);

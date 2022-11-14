@@ -216,7 +216,7 @@ namespace OrderOptDAG_SPACE
         TaskSet &tasks = dagTasks.tasks;
         RegularTaskSystem::TaskSetInfoDerived tasksInfo(tasks);
         std::vector<uint> processorJobVec;
-        VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, std::nullopt, processorJobVec);
+        VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
         JobOrder jobOrderRef(tasksInfo, initialSTV);
         std::vector<RTDA> maxRtdaVec;
         // double obj = 0;

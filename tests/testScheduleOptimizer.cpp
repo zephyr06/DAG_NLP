@@ -76,7 +76,7 @@ TEST(ScheduleOptimizer, multi_core_optimization)
 
     std::vector<uint> processorJobVec;
 
-    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, jobOrder, processorJobVec);
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, processorJobVec);
     VectorDynamic actualAssignment = Vector2Eigen<uint>(processorJobVec);
     VectorDynamic expected = actualAssignment;
     expected << 0, 0, 1, 1, 0;
@@ -179,7 +179,7 @@ TEST(ScheduleOptimizer, multi_core_multi_chains_optimization)
 
     std::vector<uint> processorJobVec;
 
-    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, jobOrder, processorJobVec);
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, processorJobVec);
     VectorDynamic actualAssignment = Vector2Eigen<uint>(processorJobVec);
     VectorDynamic expected = actualAssignment;
     expected << 0, 0, 1;
@@ -229,7 +229,7 @@ TEST(ScheduleOptimizer, optimize_weighted_obj)
 
     std::vector<uint> processorJobVec;
 
-    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, jobOrder, processorJobVec);
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2, processorJobVec);
     VectorDynamic actualAssignment = Vector2Eigen<uint>(processorJobVec);
     VectorDynamic expected = actualAssignment;
     expected << 0, 0, 1;
