@@ -3,7 +3,20 @@
 #include <chrono>
 #include <cmath>
 #include <time.h>
-#include "sources/Optimization/Optimize.h"
+#include "sources/TaskModel/RegularTasks.h"
+#include "sources/TaskModel/DAG_Model.h"
+// #include "sources/Factors/DBF_ConstraintFactorNonPreemptive_Multi.h"
+#include "sources/Factors/DBF_ConstraintFactorNonPreemptive.h"
+#include "sources/Factors/MakeSpanFactor.h"
+#include "sources/Factors/DAG_ConstraintFactor.h"
+#include "sources/Factors/DDL_ConstraintFactor.h"
+#include "sources/Factors/SensorFusionFactor.h"
+#include "sources/Factors/RTDA_Factor.h"
+#include "sources/Optimization/EliminationForest_utils.h"
+#include "sources/Optimization/InitialEstimate.h"
+#include "sources/Optimization/RelocateStartTimeVector.h"
+#include "sources/Optimization/JobGroups.h"
+#include "sources/Tools/colormod.h"
 #include "../includeMoe/moe/moe.hpp"
 
 namespace OrderOptDAG_SPACE

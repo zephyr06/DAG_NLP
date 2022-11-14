@@ -5,7 +5,6 @@
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/Optimization/TopologicalSort.h"
 #include "sources/Tools/colormod.h"
-#include "sources/Optimization/JobGroups.h"
 #include "sources/Utils/JobCEC.h"
 // #include "sources/Optimization/JobOrder.h"
 // #include "sources/Tools/profilier.h"

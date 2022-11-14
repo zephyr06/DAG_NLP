@@ -45,7 +45,8 @@ namespace RegularTaskSystem
 
         Task() : offset(0), period(0),
                  overhead(0), executionTime(0.0),
-                 deadline(0), coreRequire(1), id(-1), taskType(0) {}
+                 deadline(0), id(-1),
+            processorId(-1), coreRequire(1), taskType(0), priority_(-1) {}
         Task(int offset, int period, int overhead, double executionTime,
              int deadline) : offset(offset), period(period),
                              overhead(overhead), executionTime(executionTime),
@@ -61,7 +62,7 @@ namespace RegularTaskSystem
                                                       overhead(overhead),
                                                       executionTime(executionTime),
                                                       deadline(deadline), id(id),
-                                                      processorId(processorId), taskType(0)
+                                                      processorId(processorId), taskType(0), priority_(-1)
         {
             coreRequire = 1;
             priorityType_ = priorityMode;
@@ -72,7 +73,7 @@ namespace RegularTaskSystem
                                 overhead(overhead), executionTime(executionTime),
                                 deadline(deadline), id(id),
                                 processorId(processorId),
-                                coreRequire(coreRequire), taskType(0) { priorityType_ = priorityMode; }
+                                coreRequire(coreRequire), taskType(0), priority_(-1) { priorityType_ = priorityMode; }
         Task(int offset, int period, int overhead, double executionTime,
              int deadline, int id, int processorId,
              int coreRequire, int taskType) : offset(offset), period(period),
@@ -80,7 +81,7 @@ namespace RegularTaskSystem
                                               deadline(deadline), id(id),
                                               processorId(processorId),
                                               coreRequire(coreRequire),
-                                              taskType(taskType) { priorityType_ = priorityMode; }
+                                              taskType(taskType), priority_(-1) { priorityType_ = priorityMode; }
 
         // modify public member priorityType_ to change how to calculate the value: priority_
         double priority()

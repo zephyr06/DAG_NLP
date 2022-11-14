@@ -8,14 +8,11 @@
 
 #include "sources/Tools/VariadicTable.h"
 
-#include "sources/Optimization/Optimize.h"
+// #include "sources/Optimization/Optimize.h"
 #include "sources/Optimization/InitialEstimate.h"
-#include "sources/Baseline/OptimizeSA.h"
 #include "sources/Baseline/VerucchiScheduling.h"
 #include "sources/Baseline/RTSS21IC.h"
-// #include "sources/Optimization/OptimizeOrder.h"
 #include "sources/Optimization/OptimizeSFOrder.h"
-// #include "sources/batchOptimize.h"
 #include "sources/Utils/BatchUtils.h"
 #include "sources/Baseline/VerucchiRTDABridge.h"
 

@@ -18,22 +18,8 @@
 #include "sources/Optimization/JobGroups.h"
 #include "sources/Tools/colormod.h"
 
-VectorDynamic CollectUnitOptResult(Values &result, TaskSetInfoDerived &tasksInfo)
-{
-    VectorDynamic stvAfter = GenerateVectorDynamic(tasksInfo.variableDimension);
-    for (int i = 0; i < tasksInfo.N; i++)
-    {
-        for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
-        {
-            LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
-            Symbol key = GenerateKey(i, j);
-            VectorDynamic aaa = result.at<VectorDynamic>(key);
-            stvAfter(index_overall, 0) = result.at<VectorDynamic>(key)(0, 0);
-        }
-    }
-    return stvAfter;
-}
 using namespace RegularTaskSystem;
+
 // -------------------------------------------------------- from previous optimization begins
 
 // -------------------------------------------------------- from previous optimization ends
@@ -41,6 +27,21 @@ using namespace RegularTaskSystem;
 namespace OrderOptDAG_SPACE
 {
 
+    VectorDynamic CollectUnitOptResult(Values &result, TaskSetInfoDerived &tasksInfo)
+    {
+        VectorDynamic stvAfter = GenerateVectorDynamic(tasksInfo.variableDimension);
+        for (int i = 0; i < tasksInfo.N; i++)
+        {
+            for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
+            {
+                LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
+                Symbol key = GenerateKey(i, j);
+                VectorDynamic aaa = result.at<VectorDynamic>(key);
+                stvAfter(index_overall, 0) = result.at<VectorDynamic>(key)(0, 0);
+            }
+        }
+        return stvAfter;
+    }
     void BuildFactorGraph(DAG_Model &dagTasks, NonlinearFactorGraph &graph,
                           TaskSetInfoDerived &tasksInfo)
     {

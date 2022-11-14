@@ -6,12 +6,32 @@
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/Optimization/TopologicalSort.h"
 #include "sources/Tools/colormod.h"
-#include "sources/Optimization/JobGroups.h"
 #include "sources/Optimization/ScheduleSimulation.h"
 
 using namespace RegularTaskSystem;
 namespace OrderOptDAG_SPACE
 {
+
+    gtsam::Values GenerateInitialFG(const VectorDynamic &startTimeVector, const TaskSetInfoDerived &tasksInfo)
+    {
+        gtsam::Values initialEstimateFG;
+        gtsam::Symbol key('a', 0); // just declare the variable
+
+        for (int i = 0; i < tasksInfo.N; i++)
+        {
+            for (int j = 0; j < int(tasksInfo.sizeOfVariables.at(i)); j++)
+            {
+                // LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
+
+                gtsam::Symbol key = GenerateKey(i, j);
+                VectorDynamic v = GenerateVectorDynamic(1);
+                v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j);
+
+                initialEstimateFG.insert(key, v);
+            }
+        }
+        return initialEstimateFG;
+    }
 
     /**
      * @brief Generate initial solution for the whole optimization

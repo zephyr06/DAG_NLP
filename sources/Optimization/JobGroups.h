@@ -11,40 +11,6 @@
 namespace OrderOptDAG_SPACE
 {
 
-    gtsam::Values GenerateInitialFG(const VectorDynamic &startTimeVector, const TaskSetInfoDerived &tasksInfo)
-    {
-        gtsam::Values initialEstimateFG;
-        gtsam::Symbol key('a', 0); // just declare the variable
-
-        for (int i = 0; i < tasksInfo.N; i++)
-        {
-            for (int j = 0; j < int(tasksInfo.sizeOfVariables.at(i)); j++)
-            {
-                // LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
-
-                gtsam::Symbol key = GenerateKey(i, j);
-                VectorDynamic v = GenerateVectorDynamic(1);
-                v << ExtractVariable(startTimeVector, tasksInfo.sizeOfVariables, i, j);
-
-                initialEstimateFG.insert(key, v);
-            }
-        }
-        return initialEstimateFG;
-    }
-
-    VectorDynamic AlignVariablesF2I(VectorDynamic &x, double threshold)
-    {
-        VectorDynamic y = x;
-        for (long int i = 0; i < y.rows(); i++)
-        {
-            if (std::abs(y(i) - round(y(i))) < threshold)
-            {
-                y(i) = round(y(i));
-            }
-        }
-        return y;
-    }
-
     void PrintKeyVector(gtsam::KeyVector &vec)
     {
         for (uint i = 0; i < vec.size(); i++)
@@ -66,7 +32,18 @@ namespace OrderOptDAG_SPACE
         }
         return res;
     }
-
+    VectorDynamic AlignVariablesF2I(VectorDynamic &x, double threshold)
+    {
+        VectorDynamic y = x;
+        for (long int i = 0; i < y.rows(); i++)
+        {
+            if (std::abs(y(i) - round(y(i))) < threshold)
+            {
+                y(i) = round(y(i));
+            }
+        }
+        return y;
+    }
     std::vector<std::vector<JobCEC>> FindJobIndexWithError(VectorDynamic &startTimeVector, TaskSetInfoDerived &tasksInfo, NonlinearFactorGraph &graph)
     {
         Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
@@ -292,5 +269,4 @@ namespace OrderOptDAG_SPACE
 
         return initialEstimate;
     }
-
 } // namespace OrderOptDAG_SPACE
