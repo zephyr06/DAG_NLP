@@ -5,7 +5,7 @@
 #include "sources/Factors/DDL_ConstraintFactor.h"
 #include "sources/Optimization/SFOrder.h"
 #include "sources/Factors/RTDA_Factor.h"
-#include "sources/Optimization/JobOrder.h"
+// #include "sources/Optimization/JobOrder.h"
 #include "sources/Factors/SensorFusionFactor.h"
 
 namespace OrderOptDAG_SPACE
@@ -13,7 +13,7 @@ namespace OrderOptDAG_SPACE
 
     struct ScheduleResult
     {
-        JobOrder jobOrder_;
+        // JobOrder jobOrder_;
         OrderOptDAG_SPACE::SFOrder sfOrder_;
         VectorDynamic startTimeVector_;
         bool schedulable_;
@@ -27,26 +27,26 @@ namespace OrderOptDAG_SPACE
         LLint countIterationStatus_;
 
         ScheduleResult() { obj_ = -1; }
-        ScheduleResult(JobOrder jobOrder,
-                       VectorDynamic startTimeVector,
-                       bool schedulable,
-                       double obj) : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), obj_(obj) //, rtda_(rtda)
-        {
-            timeTaken_ = 0;
-            countOutermostWhileLoop_ = 0;
-            countMakeProgress_ = 0;
-            countIterationStatus_ = 0;
-        }
-        ScheduleResult(JobOrder jobOrder, VectorDynamic startTimeVector, bool schedulable,
-                       double obj, std::vector<uint> processorJobVec)
-            : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable),
-              obj_(obj), processorJobVec_(processorJobVec)
-        {
-            timeTaken_ = 0;
-            countOutermostWhileLoop_ = 0;
-            countMakeProgress_ = 0;
-            countIterationStatus_ = 0;
-        }
+        // ScheduleResult(JobOrder jobOrder,
+        //                VectorDynamic startTimeVector,
+        //                bool schedulable,
+        //                double obj) : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), obj_(obj) //, rtda_(rtda)
+        // {
+        //     timeTaken_ = 0;
+        //     countOutermostWhileLoop_ = 0;
+        //     countMakeProgress_ = 0;
+        //     countIterationStatus_ = 0;
+        // }
+        // ScheduleResult(JobOrder jobOrder, VectorDynamic startTimeVector, bool schedulable,
+        //                double obj, std::vector<uint> processorJobVec)
+        //     : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable),
+        //       obj_(obj), processorJobVec_(processorJobVec)
+        // {
+        //     timeTaken_ = 0;
+        //     countOutermostWhileLoop_ = 0;
+        //     countMakeProgress_ = 0;
+        //     countIterationStatus_ = 0;
+        // }
         ScheduleResult(SFOrder sfOrder,
                        VectorDynamic startTimeVector,
                        bool schedulable,
@@ -217,7 +217,7 @@ namespace OrderOptDAG_SPACE
         RegularTaskSystem::TaskSetInfoDerived tasksInfo(tasks);
         std::vector<uint> processorJobVec;
         VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
-        JobOrder jobOrderRef(tasksInfo, initialSTV);
+        // JobOrder jobOrderRef(tasksInfo, initialSTV);
         std::vector<RTDA> maxRtdaVec;
         // double obj = 0;
         for (uint i = 0; i < dagTasks.chains_.size(); i++)
@@ -226,11 +226,14 @@ namespace OrderOptDAG_SPACE
             maxRtdaVec.push_back(rtda);
         }
 
-        ScheduleResult res{
-            jobOrderRef,
-            initialSTV,
-            true, ObjRTDA(maxRtdaVec)};
+        ScheduleResult res;
+        // {
+        //     jobOrderRef,
+        //     initialSTV,
+        //     true, ObjRTDA(maxRtdaVec)};
+        res.startTimeVector_ = initialSTV;
         res.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, initialSTV, processorJobVec, processorNum, sfBound, freshnessBound);
+        res.obj_ = ObjRTDA(maxRtdaVec);
 
         return res;
     }

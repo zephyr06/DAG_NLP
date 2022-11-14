@@ -45,7 +45,7 @@ namespace RegularTaskSystem
 
         Task() : offset(0), period(0),
                  overhead(0), executionTime(0.0),
-                 deadline(0), coreRequire(1), taskType(0) {}
+                 deadline(0), coreRequire(1), id(-1), taskType(0) {}
         Task(int offset, int period, int overhead, double executionTime,
              int deadline) : offset(offset), period(period),
                              overhead(overhead), executionTime(executionTime),

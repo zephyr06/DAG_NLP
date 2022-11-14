@@ -57,8 +57,8 @@ void BatchOptimizeOrder()
                     continue;
                 else if (considerSensorFusion == 0 && batchTestMethod == 3)
                     continue;
-                double obj;
-                int schedulable;
+                // double obj;
+                // int schedulable;
                 OrderOptDAG_SPACE::ScheduleResult res;
                 OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOptions;
                 scheduleOptions.LoadParametersYaml();

@@ -1,6 +1,6 @@
 #include "sources/TaskModel/GenerateRandomTaskset.h"
 #include "sources/Utils/argparse.hpp"
-#include "sources/Optimization/OptimizeOrder.h"
+// #include "sources/Optimization/OptimizeOrder.h"
 #include "sources/Baseline/RTSS21IC.h"
 // #include "sources/RTA/RTA_DAG_Model.h"
 
@@ -205,8 +205,8 @@ int main(int argc, char *argv[])
                     TaskSet &taskSet = tasks.tasks;
                     TaskSetInfoDerived tasksInfo(taskSet);
                     std::vector<uint> processorJobVec;
-                    std::optional<JobOrderMultiCore> emptyOrder;
-                    VectorDynamic initialSTV = ListSchedulingLFTPA(tasks, tasksInfo, numberOfProcessor, emptyOrder, processorJobVec);
+                    // std::optional<JobOrderMultiCore> emptyOrder;
+                    VectorDynamic initialSTV = ListSchedulingLFTPA(tasks, tasksInfo, numberOfProcessor, processorJobVec);
                     if ((considerSensorFusion == 0 && (!ExamBasic_Feasibility(tasks, tasksInfo, initialSTV, processorJobVec, numberOfProcessor))) ||
                         (considerSensorFusion != 0 && (!ExamDDL_Feasibility(tasks, tasksInfo, initialSTV))))
                     {

@@ -9,7 +9,10 @@
 #include "sources/Baseline/Verucchi20/DAG/DAG.h"
 #include "sources/Baseline/Verucchi20/Evaluation/Scheduling.h"
 #include "sources/Baseline/Verucchi20/VariableTaskSet/VariableTaskSet.h"
-#include "sources/Optimization/OptimizeOrder.h"
+#include "sources/Baseline/Verucchi20/Evaluation/Evaluation.h"
+#include "sources/Utils/OptimizeOrderUtils.h"
+
+// #include "sources/Optimization/OptimizeOrder.h"
 
 TaskSet GetTaskSet(DAG dag)
 {
