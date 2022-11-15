@@ -4,7 +4,7 @@
 
 #include "unordered_map"
 
-#include "gtsam/base/Value.h"
+// #include "gtsam/base/Value.h"
 
 #include "sources/TaskModel/RegularTasks.h"
 
@@ -33,46 +33,46 @@ namespace OrderOptDAG_SPACE
         }
     };
 
-    double GetStartTime(JobCEC jobCEC, const Values &x, const TaskSetInfoDerived &tasksInfo);
+    double GetStartTime(JobCEC jobCEC, const Values &x, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
 
-    inline double GetDeadline(JobCEC job, const TaskSetInfoDerived &tasksInfo)
+    inline double GetDeadline(JobCEC job, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
         return tasksInfo.tasks[job.taskId].period * job.jobId + tasksInfo.tasks[job.taskId].deadline;
     }
 
-    inline double GetActivationTime(JobCEC job, const TaskSetInfoDerived &tasksInfo)
+    inline double GetActivationTime(JobCEC job, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
         return tasksInfo.tasks[job.taskId].period * job.jobId;
     }
 
-    double GetStartTime(JobCEC jobCEC, const VectorDynamic &x, const TaskSetInfoDerived &tasksInfo);
+    double GetStartTime(JobCEC jobCEC, const VectorDynamic &x, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
 
-    inline double GetFinishTime(JobCEC jobCEC, const Values &x, const TaskSetInfoDerived &tasksInfo)
+    inline double GetFinishTime(JobCEC jobCEC, const Values &x, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
         return GetStartTime(jobCEC, x, tasksInfo) + tasksInfo.tasks[jobCEC.taskId].executionTime;
     }
-    inline double GetFinishTime(JobCEC jobCEC, const VectorDynamic &x, const TaskSetInfoDerived &tasksInfo)
+    inline double GetFinishTime(JobCEC jobCEC, const VectorDynamic &x, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
         return GetStartTime(jobCEC, x, tasksInfo) + tasksInfo.tasks[jobCEC.taskId].executionTime;
     }
 
-    std::vector<std::pair<std::pair<double, double>, JobCEC>> ObtainAllJobSchedule(TaskSetInfoDerived &tasksInfo, VectorDynamic &x);
+    std::vector<std::pair<std::pair<double, double>, JobCEC>> ObtainAllJobSchedule(RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &x);
 
     std::vector<std::pair<std::pair<double, double>, JobCEC>> SortJobSchedule(
         std::vector<std::pair<std::pair<double, double>, JobCEC>> &timeJobVector);
 
-    void PrintSchedule(TaskSetInfoDerived &tasksInfo, VectorDynamic &x);
+    void PrintSchedule(RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &x);
 
     // map the job to the first hyper period and return job's unique id
-    LLint GetJobUniqueId(const JobCEC &jobCEC, const TaskSetInfoDerived &tasksInfo);
+    LLint GetJobUniqueId(const JobCEC &jobCEC, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
 
-    JobCEC GetJobCECFromUniqueId(LLint id, const TaskSetInfoDerived &tasksInfo);
+    JobCEC GetJobCECFromUniqueId(LLint id, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
 
-    inline double GetExecutionTime(LLint id, const TaskSetInfoDerived &tasksInfo)
+    inline double GetExecutionTime(LLint id, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
         return tasksInfo.tasks[GetJobCECFromUniqueId(id, tasksInfo).taskId].executionTime;
     }
-    inline double GetExecutionTime(const JobCEC &jobCEC, const TaskSetInfoDerived &tasksInfo)
+    inline double GetExecutionTime(const JobCEC &jobCEC, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
         return tasksInfo.tasks[GetJobCECFromUniqueId(GetJobUniqueId(jobCEC, tasksInfo), tasksInfo).taskId].executionTime;
     }

@@ -1,6 +1,6 @@
 #include "sources/TaskModel/GenerateRandomTaskset.h"
 
-std::vector<double> Uunifast(int N, double utilAll, bool boundU = true)
+std::vector<double> Uunifast(int N, double utilAll, bool boundU)
 {
     double sumU = utilAll;
     std::vector<double> utilVec(N, 0);

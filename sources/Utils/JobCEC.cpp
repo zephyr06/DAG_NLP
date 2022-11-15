@@ -3,7 +3,7 @@
 namespace OrderOptDAG_SPACE
 {
 
-    double GetStartTime(JobCEC jobCEC, const Values &x, const TaskSetInfoDerived &tasksInfo)
+    double GetStartTime(JobCEC jobCEC, const Values &x, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
         if (jobCEC.taskId < 0 || jobCEC.taskId >= tasksInfo.N)
         {
@@ -15,7 +15,7 @@ namespace OrderOptDAG_SPACE
         return res;
     }
 
-    double GetStartTime(JobCEC jobCEC, const VectorDynamic &x, const TaskSetInfoDerived &tasksInfo)
+    double GetStartTime(JobCEC jobCEC, const VectorDynamic &x, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
         if (jobCEC.taskId < 0 || jobCEC.taskId >= tasksInfo.N)
         {
@@ -27,7 +27,7 @@ namespace OrderOptDAG_SPACE
         return res;
     }
 
-    std::vector<std::pair<std::pair<double, double>, JobCEC>> ObtainAllJobSchedule(TaskSetInfoDerived &tasksInfo, VectorDynamic &x)
+    std::vector<std::pair<std::pair<double, double>, JobCEC>> ObtainAllJobSchedule(RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &x)
     {
         // souted start time
         std::vector<std::pair<std::pair<double, double>, JobCEC>> timeJobVector;
@@ -60,7 +60,7 @@ namespace OrderOptDAG_SPACE
         return timeJobVector;
     }
 
-    void PrintSchedule(TaskSetInfoDerived &tasksInfo, VectorDynamic &x)
+    void PrintSchedule(RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &x)
     {
         auto timeJobVector = ObtainAllJobSchedule(tasksInfo, x);
         timeJobVector = SortJobSchedule(timeJobVector);
@@ -83,7 +83,7 @@ namespace OrderOptDAG_SPACE
     }
 
     // map the job to the first hyper period and return job's unique id
-    LLint GetJobUniqueId(const JobCEC &jobCEC, const TaskSetInfoDerived &tasksInfo)
+    LLint GetJobUniqueId(const JobCEC &jobCEC, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
         LLint id = jobCEC.jobId % tasksInfo.sizeOfVariables[jobCEC.taskId];
         for (int i = 0; i < jobCEC.taskId; i++)
@@ -93,7 +93,7 @@ namespace OrderOptDAG_SPACE
         return id;
     }
 
-    JobCEC GetJobCECFromUniqueId(LLint id, const TaskSetInfoDerived &tasksInfo)
+    JobCEC GetJobCECFromUniqueId(LLint id, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
         if (id < 0 || id >= tasksInfo.variableDimension)
         {

@@ -179,7 +179,7 @@ double RandRange(double a, double b)
     return a + (b - a) * double(rand()) / RAND_MAX;
 }
 
-std::string ResizeStr(std::string s, uint size = 20)
+std::string ResizeStr(std::string s, uint size)
 {
     if (s.size() > size)
     {

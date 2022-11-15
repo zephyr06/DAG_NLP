@@ -11,6 +11,22 @@ typedef Eigen::SparseMatrix<double, Eigen::ColMajor> SM_Dynamic;
 typedef long long int LLint;
 extern std::mutex mtx;
 
+inline double min(double a, double b)
+{
+    if (a <= b)
+        return a;
+    else
+        return b;
+    return 0;
+}
+inline double max(double a, double b)
+{
+    if (a >= b)
+        return a;
+    else
+        return b;
+    return 0;
+}
 void swap(VectorDynamic &x, LLint i, LLint j);
 
 MatrixDynamic GenerateMatrixDynamic(int m, int n);
