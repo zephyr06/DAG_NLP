@@ -12,7 +12,7 @@ const std::string PROJECT_PATH = "/home/zephyr/Programming/DAG_NLP/";
 // const std::string PROJECT_PATH = "/home/dong/workspace/DAG_NLP/";
 // const std::string PROJECT_PATH = "/home/zephyr/Programming/batch_test_DAG_NLP/VerucchiOnly/N3_10/";
 //  std::string path = PROJECT_PATH + "sources/parameters.yaml";
-cv::FileStorage ConfigParameters(PROJECT_PATH + "sources/parameters.yaml", cv::FileStorage::READ);
+static cv::FileStorage ConfigParameters(PROJECT_PATH + "sources/parameters.yaml", cv::FileStorage::READ);
 
 enum InitializeMethod
 {
@@ -23,7 +23,7 @@ enum InitializeMethod
     Custom_DAG,
     ListScheduling
 };
-InitializeMethod Transform_enum(int a)
+inline InitializeMethod Transform_enum(int a)
 {
     if (a == 0)
         return IndexMode;
@@ -44,92 +44,92 @@ InitializeMethod Transform_enum(int a)
     }
 }
 
-const double barrierBase = (double)ConfigParameters["barrierBase"];
-const double coolingRateSA = (double)ConfigParameters["coolingRateSA"];
-const double deltaInitialDogleg = (double)ConfigParameters["deltaInitialDogleg"];
-double deltaOptimizer = (double)ConfigParameters["deltaOptimizer"]; // not used in the main SF optimization program
-const int timeScaleFactor = (int)ConfigParameters["timeScaleFactor"];
+static const double barrierBase = (double)ConfigParameters["barrierBase"];
+static const double coolingRateSA = (double)ConfigParameters["coolingRateSA"];
+static const double deltaInitialDogleg = (double)ConfigParameters["deltaInitialDogleg"];
+static double deltaOptimizer = (double)ConfigParameters["deltaOptimizer"]; // not used in the main SF optimization program
+static const int timeScaleFactor = (int)ConfigParameters["timeScaleFactor"];
 
-const double initialLambda = (double)ConfigParameters["initialLambda"];
-const double lowerLambda = (double)ConfigParameters["lowerLambda"];
-double makespanWeight = (double)ConfigParameters["makespanWeight"];   // not used in the main SF optimization program
-double noiseModelSigma = (double)ConfigParameters["noiseModelSigma"]; // not used in the main SF optimization program
-const double AcceptSchedulError = (double)ConfigParameters["AcceptSchedulError"];
-const double parallelFactor = (double)ConfigParameters["parallelFactor"];
-const double relativeErrorTolerance = (double)ConfigParameters["relativeErrorTolerance"];
+static const double initialLambda = (double)ConfigParameters["initialLambda"];
+static const double lowerLambda = (double)ConfigParameters["lowerLambda"];
+static double makespanWeight = (double)ConfigParameters["makespanWeight"];   // not used in the main SF optimization program
+static double noiseModelSigma = (double)ConfigParameters["noiseModelSigma"]; // not used in the main SF optimization program
+static const double AcceptSchedulError = (double)ConfigParameters["AcceptSchedulError"];
+static const double parallelFactor = (double)ConfigParameters["parallelFactor"];
+static const double relativeErrorTolerance = (double)ConfigParameters["relativeErrorTolerance"];
 
-const double toleranceEliminator = (double)ConfigParameters["toleranceEliminator"];
-const double upperLambda = (double)ConfigParameters["upperLambda"];
-const double weightLogBarrier = (double)ConfigParameters["weightLogBarrier"];
-const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetectTol"];
-const double stepJacobianIteration = (double)ConfigParameters["stepJacobianIteration"];
+static const double toleranceEliminator = (double)ConfigParameters["toleranceEliminator"];
+static const double upperLambda = (double)ConfigParameters["upperLambda"];
+static const double weightLogBarrier = (double)ConfigParameters["weightLogBarrier"];
+static const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetectTol"];
+static const double stepJacobianIteration = (double)ConfigParameters["stepJacobianIteration"];
 
-int printSchedule = (int)ConfigParameters["printSchedule"];
-int bigJobGroupCheck = (int)ConfigParameters["bigJobGroupCheck"];
-const int PrintOutput = (int)ConfigParameters["PrintOutput"];
-const int ResetInnerWeightLoopMax = (int)ConfigParameters["ResetInnerWeightLoopMax"];
-const int coreNumberAva = (int)ConfigParameters["coreNumberAva"];
-int numericalJaobian = (int)ConfigParameters["numericalJaobian"]; // not used in the main SF optimization program
-const int setUseFixedLambdaFactor = (int)ConfigParameters["setUseFixedLambdaFactor"];
-const int setDiagonalDamping = (int)ConfigParameters["setDiagonalDamping"];
-const int RandomDrawWeightMaxLoop = (int)ConfigParameters["RandomDrawWeightMaxLoop"];
+static int printSchedule = (int)ConfigParameters["printSchedule"];
+static int bigJobGroupCheck = (int)ConfigParameters["bigJobGroupCheck"];
+static const int PrintOutput = (int)ConfigParameters["PrintOutput"];
+static const int ResetInnerWeightLoopMax = (int)ConfigParameters["ResetInnerWeightLoopMax"];
+static const int coreNumberAva = (int)ConfigParameters["coreNumberAva"];
+static int numericalJaobian = (int)ConfigParameters["numericalJaobian"]; // not used in the main SF optimization program
+static const int setUseFixedLambdaFactor = (int)ConfigParameters["setUseFixedLambdaFactor"];
+static const int setDiagonalDamping = (int)ConfigParameters["setDiagonalDamping"];
+static const int RandomDrawWeightMaxLoop = (int)ConfigParameters["RandomDrawWeightMaxLoop"];
 
 // ********************* Under experiment or not useful
-int enableFastSearch = (int)ConfigParameters["enableFastSearch"];
-int enableSmallJobGroupCheck = (int)ConfigParameters["enableSmallJobGroupCheck"];
-const int subJobGroupMaxSize = (int)ConfigParameters["subJobGroupMaxSize"];
+static int enableFastSearch = (int)ConfigParameters["enableFastSearch"];
+static int enableSmallJobGroupCheck = (int)ConfigParameters["enableSmallJobGroupCheck"];
+static const int subJobGroupMaxSize = (int)ConfigParameters["subJobGroupMaxSize"];
 
 // ********************* TO-FIX:
-double sensorFusionTolerance = (double)ConfigParameters["sensorFusionTolerance"] * timeScaleFactor;
-double freshTol = (double)ConfigParameters["freshTol"];
+static double sensorFusionTolerance = (double)ConfigParameters["sensorFusionTolerance"] * timeScaleFactor;
+static double freshTol = (double)ConfigParameters["freshTol"];
 
-InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initializeMethod"]);
-double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"]; // not used in the main SF optimization program
-double weightDAG_factor = (double)ConfigParameters["weightDAG_factor"]; // not used in the main SF optimization program
-const double weightInMpRTDA = (double)ConfigParameters["weightInMpRTDA"];
-const double weightInMpSf = (double)ConfigParameters["weightInMpSf"];
-const double weightInMpSfPunish = (double)ConfigParameters["weightInMpSfPunish"];
-const double weightInMpRTDAPunish = (double)ConfigParameters["weightInMpRTDAPunish"];
-const int64_t makeProgressTimeLimit = (int)ConfigParameters["makeProgressTimeLimit"];
+static InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initializeMethod"]);
+static double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"]; // not used in the main SF optimization program
+static double weightDAG_factor = (double)ConfigParameters["weightDAG_factor"]; // not used in the main SF optimization program
+static const double weightInMpRTDA = (double)ConfigParameters["weightInMpRTDA"];
+static const double weightInMpSf = (double)ConfigParameters["weightInMpSf"];
+static const double weightInMpSfPunish = (double)ConfigParameters["weightInMpSfPunish"];
+static const double weightInMpRTDAPunish = (double)ConfigParameters["weightInMpRTDAPunish"];
+static const int64_t makeProgressTimeLimit = (int)ConfigParameters["makeProgressTimeLimit"];
 
-const double RtdaWeight = (double)ConfigParameters["RtdaWeight"];
+static const double RtdaWeight = (double)ConfigParameters["RtdaWeight"];
 // const double RandomAccept = (double)ConfigParameters["RandomAccept"];
 
-const double ResetRandomWeightThreshold = (double)ConfigParameters["ResetRandomWeightThreshold"];
-double weightSF_factor = (double)ConfigParameters["weightSF_factor"]; // not used in the main SF optimization program
-const int TotalMethodUnderComparison = (int)ConfigParameters["TotalMethodUnderComparison"];
-const int processorAssignmentMode = (int)ConfigParameters["processorAssignmentMode"];
-const int PrintInitial = (int)ConfigParameters["PrintInitial"];
-int debugMode = (int)ConfigParameters["debugMode"]; // why can't it be const?
+static const double ResetRandomWeightThreshold = (double)ConfigParameters["ResetRandomWeightThreshold"];
+static double weightSF_factor = (double)ConfigParameters["weightSF_factor"]; // not used in the main SF optimization program
+static const int TotalMethodUnderComparison = (int)ConfigParameters["TotalMethodUnderComparison"];
+static const int processorAssignmentMode = (int)ConfigParameters["processorAssignmentMode"];
+static const int PrintInitial = (int)ConfigParameters["PrintInitial"];
+static int debugMode = (int)ConfigParameters["debugMode"]; // why can't it be const?
 // int debugMode=0;
-const int exactJacobian = (int)ConfigParameters["exactJacobian"];
-const int optimizerType = (int)ConfigParameters["optimizerType"];
-const int randomInitialize = (int)ConfigParameters["randomInitialize"];
-const int SA_iteration = (int)ConfigParameters["SA_iteration"];
-const int TaskSetType = (int)ConfigParameters["TaskSetType"];
-const int temperatureSA = (int)ConfigParameters["temperatureSA"];
-int tightEliminate = (int)ConfigParameters["tightEliminate"];                             // not used in the main SF optimization program
-int withAddedSensorFusionError = (int)ConfigParameters["withAddedSensorFusionError"];     // not used in the main SF optimization program
-int whetherRandomNoiseModelSigma = (int)ConfigParameters["whetherRandomNoiseModelSigma"]; // not used in the main SF optimization program
-int whether_ls = (int)ConfigParameters["whether_ls"];                                     // not used in the main SF optimization program
+static const int exactJacobian = (int)ConfigParameters["exactJacobian"];
+static const int optimizerType = (int)ConfigParameters["optimizerType"];
+static const int randomInitialize = (int)ConfigParameters["randomInitialize"];
+static const int SA_iteration = (int)ConfigParameters["SA_iteration"];
+static const int TaskSetType = (int)ConfigParameters["TaskSetType"];
+static const int temperatureSA = (int)ConfigParameters["temperatureSA"];
+static int tightEliminate = (int)ConfigParameters["tightEliminate"];                             // not used in the main SF optimization program
+static int withAddedSensorFusionError = (int)ConfigParameters["withAddedSensorFusionError"];     // not used in the main SF optimization program
+static int whetherRandomNoiseModelSigma = (int)ConfigParameters["whetherRandomNoiseModelSigma"]; // not used in the main SF optimization program
+static int whether_ls = (int)ConfigParameters["whether_ls"];                                     // not used in the main SF optimization program
 
-const int whether_shuffle_CE_chain = (int)ConfigParameters["whether_shuffle_CE_chain"];
-const int NumCauseEffectChain = (int)ConfigParameters["NumCauseEffectChain"];
+static const int whether_shuffle_CE_chain = (int)ConfigParameters["whether_shuffle_CE_chain"];
+static const int NumCauseEffectChain = (int)ConfigParameters["NumCauseEffectChain"];
 
-const int maxIterations = (int)ConfigParameters["maxIterations"];
-const int saveGraph = (int)ConfigParameters["saveGraph"];
-const int recordActionValue = (int)ConfigParameters["recordActionValue"];
+static const int maxIterations = (int)ConfigParameters["maxIterations"];
+static const int saveGraph = (int)ConfigParameters["saveGraph"];
+static const int recordActionValue = (int)ConfigParameters["recordActionValue"];
 // int recordRLFileCount = 0;
-const int MaxEliminateDetectIterations = (int)ConfigParameters["MaxEliminateDetectIterations"];
-const string priorityMode = (string)ConfigParameters["priorityMode"];
-const string runMode = (string)ConfigParameters["runMode"];
-const string testDataSetName = (string)ConfigParameters["testDataSetName"];
-const double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
-const double DataAgeThreshold = (double)ConfigParameters["DataAgeThreshold"];
-const double ReactionTimeThreshold = (double)ConfigParameters["ReactionTimeThreshold"];
-const double RoundingThreshold = (double)ConfigParameters["RoundingThreshold"];
+static const int MaxEliminateDetectIterations = (int)ConfigParameters["MaxEliminateDetectIterations"];
+static const string priorityMode = (string)ConfigParameters["priorityMode"];
+static const string runMode = (string)ConfigParameters["runMode"];
+static const string testDataSetName = (string)ConfigParameters["testDataSetName"];
+static const double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
+static const double DataAgeThreshold = (double)ConfigParameters["DataAgeThreshold"];
+static const double ReactionTimeThreshold = (double)ConfigParameters["ReactionTimeThreshold"];
+static const double RoundingThreshold = (double)ConfigParameters["RoundingThreshold"];
 
-const std::string verbosityLM = (std::string)ConfigParameters["verbosityLM"];
+static const std::string verbosityLM = (std::string)ConfigParameters["verbosityLM"];
 // code below is only used to show how to read vectors, but is not actually used in this project
 // vector<int> readVector(string filename)
 // {
@@ -149,18 +149,18 @@ const std::string verbosityLM = (std::string)ConfigParameters["verbosityLM"];
 // }
 // vector<int> CA_CHAIN = readVector(PROJECT_PATH + "sources/parameters.yaml");
 
-const int64_t kVerucchiTimeLimit = (int)ConfigParameters["kVerucchiTimeLimit"];
-const double kVerucchiReactionCost = (double)ConfigParameters["kVerucchiReactionCost"];
-const double kVerucchiMaxReaction = (double)ConfigParameters["kVerucchiMaxReaction"];
-const double kVerucchiDataAgeCost = (double)ConfigParameters["kVerucchiDataAgeCost"];
-const double kVerucchiMaxDataAge = (double)ConfigParameters["kVerucchiMaxDataAge"];
-const double kVerucchiCoreCost = (double)ConfigParameters["kVerucchiCoreCost"];
+static const int64_t kVerucchiTimeLimit = (int)ConfigParameters["kVerucchiTimeLimit"];
+static const double kVerucchiReactionCost = (double)ConfigParameters["kVerucchiReactionCost"];
+static const double kVerucchiMaxReaction = (double)ConfigParameters["kVerucchiMaxReaction"];
+static const double kVerucchiDataAgeCost = (double)ConfigParameters["kVerucchiDataAgeCost"];
+static const double kVerucchiMaxDataAge = (double)ConfigParameters["kVerucchiMaxDataAge"];
+static const double kVerucchiCoreCost = (double)ConfigParameters["kVerucchiCoreCost"];
 
-const int64_t kWangRtss21IcNlpTimeLimit = (int)ConfigParameters["kWangRtss21IcNlpTimeLimit"];
+static const int64_t kWangRtss21IcNlpTimeLimit = (int)ConfigParameters["kWangRtss21IcNlpTimeLimit"];
 
-const double kCplexInequalityThreshold = (double)ConfigParameters["kCplexInequalityThreshold"];
+static const double kCplexInequalityThreshold = (double)ConfigParameters["kCplexInequalityThreshold"];
 
-const int doScheduleOptimization = (int)ConfigParameters["doScheduleOptimization"];
-int considerSensorFusion = (int)ConfigParameters["considerSensorFusion"]; // previous code heavily depended on its value, but we must treat it as a const int in the future
-const int doScheduleOptimizationOnlyOnce = (int)ConfigParameters["doScheduleOptimizationOnlyOnce"];
-const int BatchTestOnlyOneMethod = (int)ConfigParameters["BatchTestOnlyOneMethod"];
+static const int doScheduleOptimization = (int)ConfigParameters["doScheduleOptimization"];
+static int considerSensorFusion = (int)ConfigParameters["considerSensorFusion"]; // previous code heavily depended on its value, but we must treat it as a const int in the future
+static const int doScheduleOptimizationOnlyOnce = (int)ConfigParameters["doScheduleOptimizationOnlyOnce"];
+static const int BatchTestOnlyOneMethod = (int)ConfigParameters["BatchTestOnlyOneMethod"];

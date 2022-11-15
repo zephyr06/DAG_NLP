@@ -9,73 +9,24 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixDynamic;
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> VectorDynamic;
 typedef Eigen::SparseMatrix<double, Eigen::ColMajor> SM_Dynamic;
 typedef long long int LLint;
-std::mutex mtx;
+extern std::mutex mtx;
 
-double min(double a, double b)
-{
-    if (a <= b)
-        return a;
-    else
-        return b;
-    return 0;
-}
-double max(double a, double b)
-{
-    if (a >= b)
-        return a;
-    else
-        return b;
-    return 0;
-}
+double min(double a, double b);
 
-void swap(VectorDynamic &x, LLint i, LLint j)
-{
-    double t = x(i);
-    x(i) = x(j);
-    x(j) = t;
-}
+double max(double a, double b);
 
-inline MatrixDynamic GenerateMatrixDynamic(int m, int n)
-{
-    MatrixDynamic M;
-    M.resize(m, n);
-    M.setZero();
-    return M;
-}
-MatrixDynamic GenerateOneMatrix(int m, int n)
-{
-    MatrixDynamic M;
-    M.resize(m, n);
-    M.setZero();
-    for (int i = 0; i < m; i++)
-    {
-        for (int j = 0; j < n; j++)
-            M(i, j) = 1;
-    }
-    return M;
-}
+void swap(VectorDynamic &x, LLint i, LLint j);
+
+inline MatrixDynamic GenerateMatrixDynamic(int m, int n);
+
+MatrixDynamic GenerateOneMatrix(int m, int n);
 
 template <class T>
-std::vector<T> Eigen2Vector(const VectorDynamic &input)
-{
-    std::vector<T> res;
-    LLint len = input.rows();
-    res.reserve(len);
-    for (LLint i = 0; i < len; i++)
-        res.push_back(input.coeff(i, 0));
-    return res;
-}
-template <class T>
-VectorDynamic Vector2Eigen(const std::vector<T> &input)
-{
+std::vector<T> Eigen2Vector(const VectorDynamic &input);
 
-    LLint len = input.size();
-    VectorDynamic res;
-    res.resize(len, 1);
-    for (LLint i = 0; i < len; i++)
-        res(i, 0) = input.at(i);
-    return res;
-}
+template <class T>
+VectorDynamic Vector2Eigen(const std::vector<T> &input);
+
 inline VectorDynamic GenerateVectorDynamic(LLint N)
 {
     VectorDynamic v;

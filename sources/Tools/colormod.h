@@ -25,8 +25,9 @@ namespace Color
             return os << "\033[" << mod.code << "m";
         }
     };
-    Color::Modifier red(Color::FG_RED);
-    Color::Modifier green(Color::FG_GREEN);
-    Color::Modifier blue(Color::FG_BLUE);
-    Color::Modifier def(Color::FG_DEFAULT);
+    extern Color::Modifier red;
+    extern Color::Modifier green;
+    extern Color::Modifier blue;
+    extern Color::Modifier def;
+
 }

@@ -21,7 +21,7 @@ namespace RTSS21IC_NLP
         RM,
         RM_DAG
     };
-    InitializeMethod Transform_enum(int a)
+    inline InitializeMethod Transform_enum(int a)
     {
         if (a == 0)
             return IndexMode;
@@ -63,7 +63,7 @@ namespace RTSS21IC_NLP
 
     int numericalJaobian = (int)ConfigParameters["numericalJaobian"];
     const int setUseFixedLambdaFactor = (int)ConfigParameters["setUseFixedLambdaFactor"];
-    InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initializeMethod"]);
+    static InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initializeMethod"]);
     const double weightPrior_factor = (double)ConfigParameters["weightPrior_factor"];
     const double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"];
     int debugMode = (int)ConfigParameters["debugMode"];
