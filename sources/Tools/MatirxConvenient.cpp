@@ -2,23 +2,6 @@
 
 std::mutex mtx;
 
-double min(double a, double b)
-{
-    if (a <= b)
-        return a;
-    else
-        return b;
-    return 0;
-}
-double max(double a, double b)
-{
-    if (a >= b)
-        return a;
-    else
-        return b;
-    return 0;
-}
-
 void swap(VectorDynamic &x, LLint i, LLint j)
 {
     double t = x(i);
