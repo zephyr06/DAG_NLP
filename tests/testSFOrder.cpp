@@ -363,6 +363,7 @@ TEST(optimize_schedule_when_search_job_order_, v1)
 }
 TEST(Schedule, jobOrder)
 {
+    // TODO: add precondition assretions to help achieve 99 * 2 objective functions
     ScheduleOptions scheduleOptions;
     scheduleOptions.causeEffectChainNumber_ = 1;
     scheduleOptions.processorNum_ = 1;
