@@ -373,7 +373,7 @@ OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
                                                                processorsAvailable, reactCost, maxReact, ageCost,
                                                                maxAge, coreCost, kVerucchiTimeLimit);
 
-    RTDA rtdaOpt = GetRTDAFromBestDag(bestDAG, tasksInfo, causeEffectChains, processorsAvailable);
+    OrderOptDAG_SPACE::RTDA rtdaOpt = GetRTDAFromBestDag(bestDAG, tasksInfo, causeEffectChains, processorsAvailable);
     res.startTimeVector_ = GetInitialEstimate(bestDAG, processorsAvailable, tasksInfo);
     if (rtdaOpt.reactionTime <= 0 || rtdaOpt.dataAge <= 0)
     {
