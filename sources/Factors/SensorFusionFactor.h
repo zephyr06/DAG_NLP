@@ -11,6 +11,7 @@
 #pragma once
 
 #include "sources/Utils/DeclareDAG.h"
+#include "sources/TaskModel/DAG_Model.h"
 #include "sources/TaskModel/RegularTasks.h"
 #include "sources/Utils/JobCEC.h"
 

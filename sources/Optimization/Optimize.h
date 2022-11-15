@@ -12,7 +12,6 @@
 #include "sources/Factors/DDL_ConstraintFactor.h"
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Factors/RTDA_Factor.h"
-#include "sources/Optimization/EliminationForest_utils.h"
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Optimization/RelocateStartTimeVector.h"
 #include "sources/Optimization/JobGroups.h"

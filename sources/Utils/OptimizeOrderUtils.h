@@ -5,7 +5,7 @@
 // #include "sources/Factors/DDL_ConstraintFactor.h"
 #include "sources/Optimization/SFOrder.h"
 #include "sources/Factors/RTDA_Factor.h"
-// #include "sources/Optimization/JobOrder.h"
+#include "sources/Factors/Interval.h"
 #include "sources/Factors/SensorFusionFactor.h"
 
 namespace OrderOptDAG_SPACE

@@ -1,5 +1,4 @@
 #include "sources/Optimization/Optimize.h"
-#include "sources/Optimization/EliminationForest_utils.h"
 #include "sources/Tools/profilier.h"
 #include "sources/Tools/testMy.h"
 TEST(DAG_Optimize_schedule, v1)
