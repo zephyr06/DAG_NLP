@@ -42,7 +42,7 @@ namespace OrderOptDAG_SPACE
         return make_pair(maxIndex, minIndex);
     }
 
-    VectorDynamic ObtainSensorFusionError(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector)
+    VectorDynamic ObtainSensorFusionError(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
     {
         VectorDynamic res;
         LLint errorDimension = CountSFError(dagTasks, tasksInfo.sizeOfVariables);

@@ -12,47 +12,15 @@
 #include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Optimization/SFOrder.h"
+#include "sources/Optimization/ScheduleOptions.h"
 
 namespace OrderOptDAG_SPACE
 {
     namespace OptimizeSF
     {
-        struct ScheduleOptions
-        {
-            int causeEffectChainNumber_;
-            bool considerSensorFusion_;
-            bool doScheduleOptimization_;
-            bool doScheduleOptimizationOnlyOnce_;
-            int processorNum_;
 
-            // some weights used in objective function evaluation
-            double freshTol_;
-            double sensorFusionTolerance_;
-
-            double weightInMpRTDA_;
-            double weightInMpSf_;
-            double weightPunish_;
-
-            ScheduleOptions() : causeEffectChainNumber_(1), considerSensorFusion_(0), doScheduleOptimization_(0), doScheduleOptimizationOnlyOnce_(0), processorNum_(2), freshTol_(100), sensorFusionTolerance_(100),
-                                weightInMpRTDA_(0.5), weightInMpSf_(0.5), weightPunish_(10) {}
-
-            void LoadParametersYaml()
-            {
-                causeEffectChainNumber_ = NumCauseEffectChain;
-                considerSensorFusion_ = considerSensorFusion;
-                doScheduleOptimization_ = doScheduleOptimization;
-                doScheduleOptimizationOnlyOnce_ = doScheduleOptimizationOnlyOnce;
-                processorNum_ = coreNumberAva;
-
-                freshTol_ = freshTol;
-                sensorFusionTolerance_ = sensorFusionTolerance;
-                weightInMpRTDA_ = weightInMpRTDA;
-                weightInMpSf_ = weightInMpSf;
-                weightPunish_ = weightInMpRTDAPunish;
-            }
-        };
         static int infeasibleCount = 0;
-        extern int infeasibleCount;
+
         template <typename OrderScheduler>
         struct IterationStatus
         {
@@ -70,10 +38,9 @@ namespace OrderOptDAG_SPACE
 
             IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const ScheduleOptions &schedultOptions) : dagTasks_(dagTasks), jobOrder_(jobOrder), scheduleOptions_(schedultOptions)
             {
-                // startTimeVector_ = ListSchedulingGivenOrder(dagTasks, tasksInfo, jobOrder_);
                 BeginTimerAppInProfiler;
                 processorJobVec_.clear();
-                startTimeVector_ = SFOrderScheduling(dagTasks, tasksInfo, scheduleOptions_.processorNum_, jobOrder_, processorJobVec_);
+                startTimeVector_ = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions_.processorNum_, jobOrder_, processorJobVec_);
                 schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec_, scheduleOptions_.processorNum_);
                 if (!schedulable_)
                 {

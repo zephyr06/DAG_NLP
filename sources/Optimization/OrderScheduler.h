@@ -15,6 +15,7 @@ namespace OrderOptDAG_SPACE
 {
     class OrderScheduler
     {
+    public:
         // startTimeVector_ = SFOrderScheduling(dagTasks, tasksInfo, processorNum_, jobOrder_, processorJobVec_);
         OrderScheduler() {}
         static VectorDynamic schedule(DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder, const std::vector<uint> processorJobVe)
@@ -26,6 +27,7 @@ namespace OrderOptDAG_SPACE
 
     class SimpleOrderScheduler : public OrderScheduler
     {
+    public:
         // processorJobVe will be assigned values
         static VectorDynamic schedule(DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder, std::vector<uint> &processorJobVe)
         {
@@ -36,6 +38,7 @@ namespace OrderOptDAG_SPACE
     // TODO(Dong): make this function work
     class LPOrderScheduler : public OrderScheduler
     {
+    public:
         static VectorDynamic schedule(DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder, std::vector<uint> &processorJobVe)
         {
             // BeginTimer("LPOrderScheduler");

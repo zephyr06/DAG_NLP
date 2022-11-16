@@ -3,10 +3,10 @@
 namespace OrderOptDAG_SPACE
 {
 
-    RTDA GetMaxRTDA(std::vector<RTDA> &resVec)
+    RTDA GetMaxRTDA(const std::vector<RTDA> &resVec)
     {
         RTDA maxRTDA;
-        for (auto &item : resVec)
+        for (const RTDA &item : resVec)
         {
             maxRTDA.reactionTime = std::max(item.reactionTime, maxRTDA.reactionTime);
             maxRTDA.dataAge = std::max(item.dataAge, maxRTDA.dataAge);

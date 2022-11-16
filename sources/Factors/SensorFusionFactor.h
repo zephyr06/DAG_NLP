@@ -34,7 +34,7 @@ namespace OrderOptDAG_SPACE
                *min_element(sourceFinishTime.begin(), sourceFinishTime.end());
     }
 
-    VectorDynamic ObtainSensorFusionError(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector);
+    VectorDynamic ObtainSensorFusionError(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector);
 
     std::unordered_map<JobCEC, std::vector<JobCEC>> GetSensorMapFromSingleJob(
         const TaskSetInfoDerived &tasksInfo, int task_id, TaskSet &precede_tasks, const VectorDynamic &x);
