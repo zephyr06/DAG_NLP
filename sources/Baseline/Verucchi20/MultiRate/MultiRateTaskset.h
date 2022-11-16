@@ -14,6 +14,7 @@
 #include "sources/Baseline/Verucchi20/DAG/DAG.h"
 #include "sources/Baseline/Verucchi20/MultiRate/DummyNodes.h"
 #include "sources/Baseline/Verucchi20/MultiRate/MultiEdge.h"
+#include "sources/Utils/Parameters.h"
 
 struct MultiNode;
 

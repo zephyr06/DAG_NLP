@@ -12,7 +12,7 @@
 #include <numeric>
 #include <chrono>
 
-extern int debugMode;
+// extern int debugMode;
 
 MultiRateTaskset::MultiRateTaskset() : dummyNodes_(std::make_shared<DummyNodes>()), hyperPeriod_(0)
 {

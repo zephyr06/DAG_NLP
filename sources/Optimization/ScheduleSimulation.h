@@ -1,8 +1,10 @@
 #pragma once
 #include "unordered_map"
 
+#include "sources/Utils/Parameters.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/DeclareDAG.h"
+#include "sources/Tools/MatirxConvenient.h"
 #include "sources/Optimization/TopologicalSort.h"
 #include "sources/Tools/colormod.h"
 #include "sources/Utils/JobCEC.h"

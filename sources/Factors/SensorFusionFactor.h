@@ -9,7 +9,7 @@
  *
  */
 #pragma once
-
+#include "sources/Utils/Parameters.h"
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/TaskModel/RegularTasks.h"

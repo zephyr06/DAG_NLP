@@ -9,7 +9,7 @@
 #include <iostream>
 #include <chrono>
 
-extern int debugMode;
+// extern int debugMode;
 
 std::shared_ptr<MultiNode>
 VariableTaskSet::addTask(unsigned period, float wcet, float deadline, const std::string &name)

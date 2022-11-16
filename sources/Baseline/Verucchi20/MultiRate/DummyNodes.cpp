@@ -10,7 +10,7 @@
 #include <iostream>
 #include <map>
 
-extern int debugMode;
+// extern int debugMode;
 
 void DummyNodes::addToDAG(DAG &dag, unsigned hyperperiod)
 {

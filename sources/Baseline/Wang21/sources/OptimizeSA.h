@@ -6,6 +6,7 @@
 #include <time.h>
 #include "Optimize.h"
 #include "includeMoe/moe/moe.hpp"
+#include "DeclareDAG.h"
 
 namespace RTSS21IC_NLP
 {

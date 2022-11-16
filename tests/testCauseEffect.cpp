@@ -158,31 +158,6 @@ TEST(CA, v3)
     EXPECT_LONGS_EQUAL(312, resM.dataAge);
 }
 
-TEST(CA_facroe, v1)
-{
-    using namespace OrderOptDAG_SPACE;
-    whether_ls = 1;
-    // ReactionTimeThreshold = 0;
-    // DataAgeThreshold = 0;
-    // RtdaWeight = 1;
-
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v4.csv", "orig"); // single-rate dag
-    TaskSet tasks = dagTasks.tasks;
-    TaskSetInfoDerived tasksInfo(tasks);
-    std::vector<int> causeEffectChain = {0, 1, 2};
-
-    VectorDynamic initialEstimate = GenerateVectorDynamic(11);
-    initialEstimate << 1, 101, 202, 303, 404, 505, 2, 204, 406, 3, 306;
-    Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
-
-    NonlinearFactorGraph graph;
-    AddWholeRTDAFactor(graph, tasksInfo, causeEffectChain, 1, 0, 0);
-
-    double errActual = graph.error(initialEstimateFG);
-    std::cout << "Actual error is " << errActual << std::endl;
-    EXPECT_LONGS_EQUAL(180770, errActual);
-}
-
 TEST(CA_customize, v1)
 {
     using namespace OrderOptDAG_SPACE;

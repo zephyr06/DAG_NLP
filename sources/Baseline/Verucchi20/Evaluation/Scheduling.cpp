@@ -1,6 +1,6 @@
 #include "Scheduling.h"
 
-extern int debugMode;
+// extern int debugMode;
 
 bool scheduling::compareSchedulingInfo(const std::shared_ptr<ScheduleInfo> a, const std::shared_ptr<ScheduleInfo> b)
 {

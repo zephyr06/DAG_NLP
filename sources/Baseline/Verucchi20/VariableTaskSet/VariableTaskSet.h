@@ -9,6 +9,7 @@
 #define VARIABLETASKSET_VARIABLETASKSET_H_
 #include <sources/Baseline/Verucchi20/MultiRate/MultiRateTaskset.h>
 #include <sources/Baseline/Verucchi20/VariableTaskSet/VariableMultiEdge.h>
+#include "sources/Utils/Parameters.h"
 #include <vector>
 // #include "sources/Utils/Parameters.h"
 

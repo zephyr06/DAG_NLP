@@ -3,13 +3,10 @@
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
 
-#include "sources/Tools/testMy.h"
-
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixDynamic;
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> VectorDynamic;
 typedef Eigen::SparseMatrix<double, Eigen::ColMajor> SM_Dynamic;
 typedef long long int LLint;
-extern std::mutex mtx;
 
 inline double min(double a, double b)
 {
@@ -33,9 +30,20 @@ MatrixDynamic GenerateMatrixDynamic(int m, int n);
 
 MatrixDynamic GenerateOneMatrix(int m, int n);
 
-template <class T>
-std::vector<T> Eigen2Vector(const VectorDynamic &input);
+// template <class T>
+// std::vector<T> Eigen2Vector(const VectorDynamic &input);
 
+// TODO: figure out why can't separate it to .cpp
+template <class T>
+inline std::vector<T> Eigen2Vector(const VectorDynamic &input)
+{
+    std::vector<T> res;
+    LLint len = input.rows();
+    res.reserve(len);
+    for (LLint i = 0; i < len; i++)
+        res.push_back(input.coeff(i, 0));
+    return res;
+}
 template <class T>
 VectorDynamic Vector2Eigen(const std::vector<T> &input);
 

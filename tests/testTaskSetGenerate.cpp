@@ -1,6 +1,5 @@
 #include "sources/TaskModel/GenerateRandomTaskset.h"
 #include "sources/Tools/testMy.h"
-#include "sources/Optimization/Optimize.h"
 
 TEST(ExtractVariable, v1)
 {
@@ -79,40 +78,6 @@ TEST(ReadDAG_Tasks, v7)
     dm.print();
     for (int i = 0; i < 3; i++)
         AssertEqualScalar(0, dm.tasks[i].taskType);
-}
-
-TEST(ProcessorTaskSet, add)
-{
-    using namespace OrderOptDAG_SPACE;
-    auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v28.csv", "orig");
-    TaskSet tasks = dagTasks.tasks;
-    TaskSetInfoDerived tasksInfo(tasks);
-    EliminationForest forestInfo(tasksInfo);
-    int N = tasks.size();
-    LLint hyperPeriod = HyperPeriod(tasks);
-
-    // declare variables
-    vector<LLint> sizeOfVariables;
-    int variableDimension = 0;
-    for (int i = 0; i < N; i++)
-    {
-        LLint size = hyperPeriod / tasks[i].period;
-        sizeOfVariables.push_back(size);
-        variableDimension += size;
-    }
-
-    vector<bool> maskForEliminate(variableDimension, false);
-    MAP_Index2Data mapIndex;
-    for (int i = 0; i < variableDimension; i++)
-        mapIndex[i] = MappingDataStruct{i, 0};
-
-    Symbol key('a', 0);
-    ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
-    LLint errorDimensionDBF = processorTaskSet.size();
-    auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-
-    AssertEqualVectorNoRepeat<int>({0, 2, 3}, tasksInfo.processorTaskSet[0]);
-    AssertEqualVectorNoRepeat<int>({1, 4}, tasksInfo.processorTaskSet[1]);
 }
 
 TEST(TaskSetInfoDerived, v1)

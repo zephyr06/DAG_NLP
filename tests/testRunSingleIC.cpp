@@ -1,4 +1,7 @@
-#include "sources/Optimization/Optimize.h"
+// #include "sources/Optimization/Optimize.h"
+// #include "sources/Optimization/OptimizeWithElimination.h"
+#include "sources/TaskModel/DAG_Model.h"
+#include "sources/Optimization/ScheduleSimulation.h"
 #include "sources/Baseline/RTSS21IC.h"
 #include "sources/Tools/profilier.h"
 #include "sources/Tools/testMy.h"
@@ -7,13 +10,13 @@ TEST(RTSSIC, Wang21_DBF)
 {
     RTSS21IC_NLP::sensorFusionTolerance = 1e8;
     RTSS21IC_NLP::freshTol = 1e8;
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v25.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v25.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     std::vector<uint> processorIdVec;
     int processorNum = 2;
-    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorIdVec);
-    PrintSchedule(tasksInfo, initial);
+    VectorDynamic initial = OrderOptDAG_SPACE::ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorIdVec);
+    OrderOptDAG_SPACE::PrintSchedule(tasksInfo, initial);
     RTSS21IC_NLP::processorIdVecGlobal = processorIdVec;
     RTSS21IC_NLP::processorNumGlobal = processorNum;
     EXPECT(processorIdVec.size() > 0);
