@@ -33,7 +33,7 @@ MatrixDynamic GenerateOneMatrix(int m, int n);
 // template <class T>
 // std::vector<T> Eigen2Vector(const VectorDynamic &input);
 
-// TODO: figure out why can't separate it to .cpp
+// Templated function can't be put inito source files
 template <class T>
 inline std::vector<T> Eigen2Vector(const VectorDynamic &input)
 {

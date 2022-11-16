@@ -1,3 +1,4 @@
+
 #include "MatirxConvenient.h"
 
 void swap(VectorDynamic &x, LLint i, LLint j)
@@ -30,6 +31,7 @@ MatrixDynamic GenerateOneMatrix(int m, int n)
 //         res.push_back(input.coeff(i, 0));
 //     return res;
 // }
+
 template <class T>
 VectorDynamic Vector2Eigen(const std::vector<T> &input)
 {
