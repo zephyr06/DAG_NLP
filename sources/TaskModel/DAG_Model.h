@@ -39,10 +39,10 @@ struct first_name_t
 static constexpr Vertex NIL = -1;
 std::vector<int> shortest_paths(Vertex root, Vertex target, Graph const &g);
 
-void PrintChains(std::vector<std::vector<int>> &chains);
-
 namespace OrderOptDAG_SPACE
 {
+
+    void PrintChains(std::vector<std::vector<int>> &chains);
     // *2, 1 means task 2 depend on task 1, or task 1 must execute before task 2;
     // 1 would be the first in MAP_Prev, while 2 is one task in TaskSet
     // MAP_Prev maps one task to all the tasks it depends on

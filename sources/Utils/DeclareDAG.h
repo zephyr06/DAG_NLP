@@ -211,5 +211,21 @@ inline void AddEntry(std::string pathRes, std::string s)
 
 std::string ResizeStr(std::string s, uint size = 20);
 
+// template <typename T>
+// double Average(std::vector<T> &data);
+
 template <typename T>
-double Average(std::vector<T> &data);
+double Average(std::vector<T> &data)
+{
+    if (data.size())
+    {
+        T sum = 0;
+        for (int i = 0; i < int(data.size()); i++)
+            sum += data[i];
+        return double(sum) / data.size();
+    }
+    else
+    {
+        return -1;
+    }
+}

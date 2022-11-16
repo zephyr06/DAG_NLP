@@ -1,6 +1,8 @@
-#include "sources/Optimization/Optimize.h"
+
+#include "sources/Utils/Parameters.h"
+#include "sources/TaskModel/DAG_Model.h"
+#include "sources/Optimization/InitialEstimate.h"
 #include "sources/Tools/testMy.h"
-#include "sources/Optimization/EliminationForest_utils.h"
 #include "sources/Optimization/InitialEstimate.h"
 
 TEST(GenerateInitialForDAG, V2)
@@ -385,23 +387,6 @@ TEST(SimulateFixedPrioritySchedDAG, v6)
     EXPECT(assert_equal(expected, actual));
 }
 
-// TEST(UpdateInitialVector, v1)
-// {
-//     using namespace OrderOptDAG_SPACE;
-//     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
-//     TaskSet tasks = dagTasks.tasks;
-//     TaskSetInfoDerived tasksInfo(tasks);
-//     EliminationForest forestInfo(tasksInfo);
-
-//     auto initialSTV = GenerateVectorDynamic(tasksInfo.variableDimension);
-//     initialSTV << 3, 107, 5, 3, 104, 2, 0, 102;
-//     forestInfo.AddLinearEliminate(5, 2, -3);
-//     VectorDynamic actual = UpdateInitialVector(initialSTV, tasksInfo, forestInfo);
-//     auto expect = GenerateVectorDynamic(tasksInfo.variableDimension - 1);
-//     expect << 3, 107, 5, 3, 104, 0, 102;
-//     AssertEigenEqualVector(expect, actual, __LINE__);
-// }
-
 TEST(toplogical, sortv1)
 {
     using namespace OrderOptDAG_SPACE;
@@ -490,8 +475,8 @@ TEST(get_random_chain, v1)
 {
     using namespace OrderOptDAG_SPACE;
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v40.csv", "orig");
-    auto chains = dagTasks.GetRandomChains(2);
-    PrintChains(chains);
+    std::vector<std::vector<int>> chains = dagTasks.GetRandomChains(2);
+    OrderOptDAG_SPACE::PrintChains(chains);
     EXPECT_LONGS_EQUAL(2, chains.size());
     std::cout << std::endl;
 }

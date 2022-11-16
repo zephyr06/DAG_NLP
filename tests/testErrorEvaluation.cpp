@@ -87,7 +87,6 @@ TEST(sensorFusion, v1)
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
-    EliminationForest forestInfo(tasksInfo);
 
     VectorDynamic initial;
     initial.resize(5, 1);
@@ -107,7 +106,6 @@ TEST(sensorFusion, multi_rate)
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
-    EliminationForest forestInfo(tasksInfo);
 
     VectorDynamic initial;
     initial.resize(8, 1);

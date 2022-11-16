@@ -20,6 +20,7 @@ using namespace std::chrono;
 
 void BatchOptimizeOrder()
 {
+    using namespace OrderOptDAG_SPACE;
     std::string dirStr = PROJECT_PATH + "TaskData/dagTasks/";
     const char *pathDataset = (dirStr).c_str();
     std::cout << "Dataset Directory: " << pathDataset << std::endl;

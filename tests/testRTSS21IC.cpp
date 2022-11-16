@@ -21,7 +21,6 @@ TEST(SF, error_v1)
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
-    EliminationForest forestInfo(tasksInfo);
 
     VectorDynamic initial;
     initial.resize(3, 1);
@@ -58,8 +57,6 @@ TEST(SF, error_v2)
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
-    EliminationForest forestInfo(tasksInfo);
-
     VectorDynamic initial;
     initial.resize(3, 1);
     initial << 0, 2, 3;

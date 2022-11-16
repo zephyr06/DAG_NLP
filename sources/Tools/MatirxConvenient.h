@@ -26,7 +26,13 @@ inline double max(double a, double b)
 }
 void swap(VectorDynamic &x, LLint i, LLint j);
 
-MatrixDynamic GenerateMatrixDynamic(int m, int n);
+inline MatrixDynamic GenerateMatrixDynamic(int m, int n)
+{
+    MatrixDynamic M;
+    M.resize(m, n);
+    M.setZero();
+    return M;
+}
 
 MatrixDynamic GenerateOneMatrix(int m, int n);
 

@@ -145,6 +145,13 @@ namespace RTSS21IC_NLP
         v.setZero();
         return v;
     }
+    inline MatrixDynamic GenerateMatrixDynamic(int m, int n)
+    {
+        MatrixDynamic M;
+        M.resize(m, n);
+        M.setZero();
+        return M;
+    }
 
     template <class T>
     vector<T> Eigen2Vector(const VectorDynamic &input)

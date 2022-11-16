@@ -195,19 +195,3 @@ std::string ResizeStr(std::string s, uint size)
         return res + s;
     }
 }
-
-template <typename T>
-double Average(std::vector<T> &data)
-{
-    if (data.size())
-    {
-        T sum = 0;
-        for (int i = 0; i < int(data.size()); i++)
-            sum += data[i];
-        return double(sum) / data.size();
-    }
-    else
-    {
-        return -1;
-    }
-}

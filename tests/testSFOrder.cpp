@@ -253,7 +253,6 @@ TEST(sensorFusion, v1_no_fork)
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v10.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
-    EliminationForest forestInfo(tasksInfo);
 
     VectorDynamic initial;
     initial.resize(5, 1);
