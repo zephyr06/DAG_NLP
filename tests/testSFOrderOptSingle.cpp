@@ -1,6 +1,6 @@
 
 #include "sources/Optimization/OptimizeSFOrder.h"
-#include "sources/Tools/testMy.h"
+#include "sources/Utils/testMy.h"
 TEST(DAG_Optimize_schedule, v1)
 {
     BeginTimer("main");

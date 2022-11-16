@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <chrono>
 
-#include "sources/Tools/VariadicTable.h"
+#include "sources/Utils/VariadicTable.h"
 
 // #include "sources/Optimization/Optimize.h"
 #include "sources/Optimization/InitialEstimate.h"

@@ -2,7 +2,7 @@
 #include <algorithm> // for copy() and assign()
 #include <iterator>  // for back_inserter
 
-#include "sources/Tools/MatirxConvenient.h"
+#include "sources/Utils/MatirxConvenient.h"
 #include "sources/Utils/Parameters.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Optimization/InitialEstimate.h"
@@ -17,7 +17,7 @@
 #include "sources/Optimization/IterationStatus.h"
 #include "sources/Optimization/SkipUnschedulablePermutations.h"
 #include "sources/Optimization/OrderScheduler.h"
-// #include "sources/Tools/profilier.h"
+// #include "sources/Utils/profilier.h"
 
 namespace OrderOptDAG_SPACE
 {

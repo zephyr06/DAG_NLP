@@ -1,8 +1,8 @@
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Optimization/ScheduleSimulation.h"
 #include "sources/Baseline/RTSS21IC.h"
-#include "sources/Tools/profilier.h"
-#include "sources/Tools/testMy.h"
+#include "sources/Utils/profilier.h"
+#include "sources/Utils/testMy.h"
 
 TEST(RTSSIC, Wang21_DBF)
 {

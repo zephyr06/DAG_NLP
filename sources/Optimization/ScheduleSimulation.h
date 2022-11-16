@@ -4,12 +4,12 @@
 #include "sources/Utils/Parameters.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/DeclareDAG.h"
-#include "sources/Tools/MatirxConvenient.h"
+#include "sources/Utils/MatirxConvenient.h"
 #include "sources/Optimization/TopologicalSort.h"
-#include "sources/Tools/colormod.h"
+#include "sources/Utils/colormod.h"
 #include "sources/Utils/JobCEC.h"
 // #include "sources/Optimization/JobOrder.h"
-// #include "sources/Tools/profilier.h"
+// #include "sources/Utils/profilier.h"
 #include "sources/Optimization/SFOrder.h"
 namespace OrderOptDAG_SPACE
 {

@@ -5,7 +5,7 @@
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/Optimization/TopologicalSort.h"
-#include "sources/Tools/colormod.h"
+#include "sources/Utils/colormod.h"
 #include "sources/Optimization/ScheduleSimulation.h"
 
 using namespace RegularTaskSystem;
@@ -22,7 +22,6 @@ namespace OrderOptDAG_SPACE
      * @return VectorDynamic size (N+1), first N is start time for nodes, the last one is r.h.s.
      */
     VectorDynamic GenerateInitialForDAG_IndexMode(DAG_Model &dagTasks, vector<LLint> &sizeOfVariables, int variableDimension);
-
 
     VectorDynamic GenerateInitialForDAG_RelativeStart(DAG_Model &dagTasks,
                                                       vector<LLint> &sizeOfVariables,

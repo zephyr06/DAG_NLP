@@ -9,8 +9,8 @@
 
 #include <unistd.h> // only effective with Linux, "windows.h" works with Windows
 
-#include "sources/Tools/colormod.h"
-#include "sources/Tools/testMy.h"
+#include "sources/Utils/colormod.h"
+#include "sources/Utils/testMy.h"
 
 #define CurrentTimeInProfiler std::chrono::high_resolution_clock::now()
 #define BeginTimerAppInProfiler BeginTimer(__FUNCTION__);

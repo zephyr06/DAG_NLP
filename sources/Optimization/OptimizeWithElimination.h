@@ -11,7 +11,7 @@
 #include "sources/Baseline/Wang21/sources/DDL_ConstraintFactor.h"
 #include "sources/Baseline/Wang21/sources/SensorFusionFactor.h"
 #include "sources/Optimization/InitialEstimate.h"
-#include "sources/Tools/colormod.h"
+#include "sources/Utils/colormod.h"
 
 namespace RTSS21IC_NLP
 {

@@ -1,6 +1,6 @@
 #pragma once
 #include "sources/Utils/DeclareDAG.h"
-#include "sources/Tools/colormod.h"
+#include "sources/Utils/colormod.h"
 
 struct Interval
 {

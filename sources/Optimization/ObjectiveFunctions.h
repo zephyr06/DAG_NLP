@@ -1,10 +1,10 @@
 #pragma once
 #include "sources/Utils/Parameters.h"
-#include "sources/Tools/MatirxConvenient.h"
+#include "sources/Utils/MatirxConvenient.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Factors/RTDA_Factor.h"
 #include "sources/Utils/JobCEC.h"
-#include "sources/Tools/testMy.h"
+#include "sources/Utils/testMy.h"
 
 namespace OrderOptDAG_SPACE
 {

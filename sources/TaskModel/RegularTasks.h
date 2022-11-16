@@ -9,11 +9,11 @@
 #include <boost/function.hpp>
 #include <CppUnitLite/TestHarness.h>
 
-#include "sources/Tools/colormod.h"
+#include "sources/Utils/colormod.h"
 
 #include "sources/Utils/Parameters.h"
 #include "sources/Utils/DeclareDAG.h"
-#include "sources/Tools/testMy.h"
+#include "sources/Utils/testMy.h"
 using namespace std;
 
 typedef std::map<int, std::vector<int>> ProcessorTaskSet;

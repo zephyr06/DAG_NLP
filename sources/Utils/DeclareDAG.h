@@ -23,10 +23,10 @@
 #include <boost/function.hpp>
 
 #include "sources/Utils/Parameters.h"
-#include "sources/Tools/colormod.h"
-#include "sources/Tools/testMy.h"
-#include "sources/Tools/profilier.h"
-#include "sources/Tools/MatirxConvenient.h"
+#include "sources/Utils/colormod.h"
+#include "sources/Utils/testMy.h"
+#include "sources/Utils/profilier.h"
+#include "sources/Utils/MatirxConvenient.h"
 
 using namespace std;
 // TODO: remove using namespace

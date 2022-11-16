@@ -2,7 +2,7 @@
 #include "sources/Utils/Parameters.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Optimization/InitialEstimate.h"
-#include "sources/Tools/testMy.h"
+#include "sources/Utils/testMy.h"
 #include "sources/Optimization/InitialEstimate.h"
 
 TEST(GenerateInitialForDAG, V2)

@@ -6,7 +6,7 @@
 #include "gtsam/inference/Symbol.h"
 
 #include "sources/Utils/Parameters.h"
-#include "sources/Tools/MatirxConvenient.h"
+#include "sources/Utils/MatirxConvenient.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/JobCEC.h"
 // #include "sources/Optimization/InitialEstimate.h"

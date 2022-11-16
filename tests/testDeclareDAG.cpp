@@ -2,7 +2,7 @@
 #include <CppUnitLite/TestHarness.h>
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/Optimization/InitialEstimate.h"
-#include "sources/Tools/testMy.h"
+#include "sources/Utils/testMy.h"
 
 TEST(ExtractVariable, v1)
 {
