@@ -14,7 +14,7 @@ cd build
 make check.UnitTests -j2
 ```
 
-# Run the scripts for experiments
+# Run the scripts for large-scale experiments
 ```
 cd build
 make check.scripts -j2
