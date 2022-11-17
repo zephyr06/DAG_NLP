@@ -87,7 +87,7 @@ TEST(Obj, RTDA_v1)
 
     int processorNum = 2;
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
-    initial << 0, 10, 1, 1;
+    initial << 0, 10, 1, 1; // 3 job-level chains, whose RTDA are (4, 4), (14, -1), (4, 4)
 
     ScheduleOptions scheduleOptions;
     scheduleOptions.causeEffectChainNumber_ = 1;
