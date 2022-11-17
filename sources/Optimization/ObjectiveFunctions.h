@@ -19,7 +19,6 @@ namespace OrderOptDAG_SPACE
 
         double GetOverallRtda(const std::vector<std::vector<RTDA>> &rtdaVec);
 
-        // Used for IterationStatus only
         class ObjectiveFunctionBase
         {
         public:

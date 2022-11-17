@@ -2,7 +2,7 @@
 
 LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const vector<LLint> &sizeOfVariables)
 {
-    // BeginTimerAppInProfiler;
+    // BeginTimer(__FUNCTION__);
     if (instance_i < 0 || instance_i > sizeOfVariables[i])
         CoutError("Instance Index out of boundary in IndexTran_Instance2Overall");
     if (i < 0 || i > (LLint)sizeOfVariables.size())
@@ -10,7 +10,7 @@ LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const vector<LLint> 
     LLint index = 0;
     for (size_t k = 0; k < (size_t)i; k++)
         index += sizeOfVariables[k];
-    // EndTimerAppInProfiler;
+    // EndTimer(__FUNCTION__);
     return index + instance_i;
 }
 

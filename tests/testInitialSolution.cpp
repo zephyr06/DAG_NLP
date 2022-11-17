@@ -1,4 +1,4 @@
-
+#include <CppUnitLite/TestHarness.h>
 #include "sources/Utils/Parameters.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Optimization/InitialEstimate.h"

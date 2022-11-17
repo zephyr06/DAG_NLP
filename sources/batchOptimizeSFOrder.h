@@ -84,19 +84,19 @@ void BatchOptimizeOrder()
                     {
                         scheduleOptions.doScheduleOptimization_ = 1;
                         scheduleOptions.doScheduleOptimizationOnlyOnce_ = 0;
-                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, scheduleOptions);
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::RTDAExperimentObj>(dagTasks, scheduleOptions);
                     }
                     else if (batchTestMethod == 4) // TOM_Fast
                     {
                         scheduleOptions.doScheduleOptimization_ = 0;
                         scheduleOptions.doScheduleOptimizationOnlyOnce_ = 0;
-                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, scheduleOptions);
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::RTDAExperimentObj>(dagTasks, scheduleOptions);
                     }
                     else if (batchTestMethod == 5) // TOM_FastLP
                     {
                         scheduleOptions.doScheduleOptimization_ = 0;
                         scheduleOptions.doScheduleOptimizationOnlyOnce_ = 1;
-                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, scheduleOptions);
+                        res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::RTDAExperimentObj>(dagTasks, scheduleOptions);
                     }
                     else
                     {

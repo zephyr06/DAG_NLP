@@ -7,7 +7,7 @@
 // #include <filesystem>
 #include <boost/integer/common_factor.hpp>
 #include <boost/function.hpp>
-#include <CppUnitLite/TestHarness.h>
+// #include <CppUnitLite/TestHarness.h>
 
 #include "colormod.h"
 

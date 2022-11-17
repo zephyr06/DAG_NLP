@@ -20,11 +20,10 @@ namespace OrderOptDAG_SPACE
         }
     }
 
-
     std::vector<TimeInstance> ExtractSubInstances(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobGroup)
     {
         BeginTimer("ExtractSubInstances");
-        // BeginTimerAppInProfiler;
+        // BeginTimer(__FUNCTION__);
         struct JobInstanceInfo
         {
             int start;
@@ -72,7 +71,7 @@ namespace OrderOptDAG_SPACE
             // else
             //     int a = 1;
         }
-        // EndTimerAppInProfiler;
+        // EndTimer(__FUNCTION__);
         EndTimer("ExtractSubInstances");
         return instanceOrderSmall;
     }

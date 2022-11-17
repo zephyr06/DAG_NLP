@@ -1,3 +1,4 @@
+#include <CppUnitLite/TestHarness.h>
 #include "sources/TaskModel/GenerateRandomTaskset.h"
 #include "sources/Utils/testMy.h"
 

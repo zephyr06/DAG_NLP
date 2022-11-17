@@ -14,19 +14,18 @@ namespace OrderOptDAG_SPACE
 {
     namespace OptimizeSF
     {
-        template <typename OrderScheduler>
-        std::vector<int> FindLongestChainJobIndex(IterationStatus<OrderScheduler> &status)
-        {
-            std::vector<int> index(status.rtdaVec_.size(), 0);
-            for (uint i = 0; i < status.rtdaVec_.size(); i++) // for each chain
-            {
-                std::vector<RTDA> &rtdaVec = status.rtdaVec_[i];
-                auto ite = std::max_element(rtdaVec.begin(), rtdaVec.end(), [](RTDA r1, RTDA r2)
-                                            { return ObjRTDA(r1) < ObjRTDA(r2); });
-                index[i] = std::distance(rtdaVec.begin(), ite);
-            }
-            return index;
-        }
+        // std::vector<int> FindLongestChainJobIndex(const std::vector<RTDA> &rtdaVec)
+        // {
+        //     std::vector<int> index(rtdaVec.size(), 0);
+        //     for (uint i = 0; i < rtdaVec.size(); i++) // for each chain
+        //     {
+        //         std::vector<RTDA> &rtdaVec = rtdaVec[i];
+        //         auto ite = std::max_element(rtdaVec.begin(), rtdaVec.end(), [](RTDA r1, RTDA r2)
+        //                                     { return ObjRTDA(r1) < ObjRTDA(r2); });
+        //         index[i] = std::distance(rtdaVec.begin(), ite);
+        //     }
+        //     return index;
+        // }
 
         // the time that the instance happens must be larger than the return value
         double GetInstanceLeastStartTime(const TimeInstance &instance, const TaskSetInfoDerived &tasksInfo)
@@ -99,8 +98,8 @@ namespace OrderOptDAG_SPACE
             return false;
         }
 
-        template <typename OrderScheduler>
-        bool SubGroupSchedulabilityCheck(JobGroupRange &jobGroup, IterationStatus<OrderScheduler> &statusPrev, SFOrder &jobOrderCurrForFinish, LLint finishP, DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum)
+        template <typename OrderScheduler, typename ObjectiveFunctionBase>
+        bool SubGroupSchedulabilityCheck(JobGroupRange &jobGroup, IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusPrev, SFOrder &jobOrderCurrForFinish, LLint finishP, DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum)
         {
             if (enableSmallJobGroupCheck)
             {

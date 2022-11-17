@@ -1,3 +1,4 @@
+#include <CppUnitLite/TestHarness.h>
 #include "sources/batchOptimizeSFOrder.h"
 TEST(parameters, a1)
 {

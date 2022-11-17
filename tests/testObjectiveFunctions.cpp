@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Optimization/ObjectiveFunctions.h"
+#include "sources/Optimization/IterationStatus.h"
+#include "sources/Optimization/OrderScheduler.h"
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
 
@@ -49,6 +51,65 @@ TEST_F(ObjExperimentObjTest1, SFEvaluate1)
     EXPECT_EQ(RTSS21ICObj::Evaluate(dagTasks, tasksInfo, initialEstimate, scheduleOptions), 42 + 9108);
 }
 
+TEST(aaa, nonWorkConserveCase)
+{
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    int processorNum = 2;
+    ScheduleOptions scheduleOptions;
+    scheduleOptions.causeEffectChainNumber_ = 1;
+    scheduleOptions.processorNum_ = 2;
+
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    initial << 0, 17, 18, 1;
+    SFOrder sfOrder(tasksInfo, initial);
+
+    VectorDynamic initialSTV = SFOrderScheduling(dagTasks, tasksInfo, processorNum, sfOrder);
+    PrintSchedule(tasksInfo, initialSTV);
+    VectorDynamic expect = GenerateVectorDynamic(4);
+    expect << 0, 10, 11, 1;
+    EXPECT_TRUE(assert_equal(expect, initialSTV));
+    EXPECT_EQ(RTDAExperimentObj::Evaluate(dagTasks, tasksInfo, initialSTV, scheduleOptions), (4 + 14) + (4 + 4 + 14 - 1 + 4 + 4) * 0.5);
+
+    initial << 2, 10, 0, 0;
+    PrintSchedule(tasksInfo, initial);
+    SFOrder sfOrder2(tasksInfo, initial);
+    sfOrder2.print();
+    EXPECT_EQ(RTDAExperimentObj::Evaluate(dagTasks, tasksInfo, initial, scheduleOptions), (21 + 13) + (21 + -1 + 13 + 13 + 21 + -1) * 0.5);
+}
+TEST(Obj, RTDA_v1)
+{
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
+
+    int processorNum = 2;
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    initial << 0, 10, 1, 1;
+
+    ScheduleOptions scheduleOptions;
+    scheduleOptions.causeEffectChainNumber_ = 1;
+    scheduleOptions.processorNum_ = 2;
+    scheduleOptions.weightInMpRTDA_ = 0.5;
+    scheduleOptions.weightInMpSf_ = 0.5;
+    scheduleOptions.weightPunish_ = 10;
+    scheduleOptions.freshTol_ = 0;
+
+    EXPECT_EQ(RTDAExperimentObj::Evaluate(dagTasks, tasksInfo, initial, scheduleOptions), 32.5);
+    EXPECT_EQ(RTSS21ICObj::Evaluate(dagTasks, tasksInfo, initial, scheduleOptions), 180 + 29 * 0.5);
+
+    // EXPECT_LONGS_EQUAL(18, status.ReadObj());
+    // EXPECT_DOUBLES_EQUAL(32.5, status.ObjWeighted(), 0.1);
+    // EXPECT_LONGS_EQUAL(18, status.ObjBarrier());
+
+    // EXPECT_LONGS_EQUAL(18, status2.ReadObj());
+    // EXPECT_LONGS_EQUAL(18, status2.ObjBarrier());
+    // EXPECT_DOUBLES_EQUAL(32.5, status2.ObjWeighted(), 0.1);
+    scheduleOptions.freshTol_ = 100;
+    EXPECT_EQ(RTDAExperimentObj::Evaluate(dagTasks, tasksInfo, initial, scheduleOptions), 32.5);
+}
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

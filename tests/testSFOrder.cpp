@@ -4,6 +4,7 @@
 #include "sources/Optimization/SFOrder.h"
 #include "sources/Optimization/OptimizeSFOrder.h"
 #include "sources/Optimization/ScheduleSimulation.h"
+#include "sources/Optimization/ObjectiveFunctions.h"
 
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
@@ -23,7 +24,27 @@ TEST(SFOrder, constructor_v3)
     SFOrder sfOrder(tasksInfo, initialSTV);
     sfOrder.print();
 }
+TEST(SFOrder, constructor_v4)
+{
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    TaskSet tasks = dagTasks.tasks;
+    TaskSetInfoDerived tasksInfo(tasks);
 
+    int processorNum = 2;
+
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    initial << 0, 17, 18, 1;
+    SFOrder sfOrder(tasksInfo, initial);
+    sfOrder.print();
+    EXPECT_LONGS_EQUAL(0, sfOrder.instanceOrder_[0].job.taskId);
+    EXPECT_LONGS_EQUAL(0, sfOrder.instanceOrder_[1].job.taskId);
+    EXPECT_LONGS_EQUAL(2, sfOrder.instanceOrder_[2].job.taskId);
+    EXPECT_LONGS_EQUAL(2, sfOrder.instanceOrder_[3].job.taskId);
+    EXPECT_LONGS_EQUAL(0, sfOrder.instanceOrder_[4].job.taskId);
+    EXPECT_LONGS_EQUAL(0, sfOrder.instanceOrder_[5].job.taskId);
+    EXPECT_LONGS_EQUAL(1, sfOrder.instanceOrder_[6].job.taskId);
+    EXPECT_LONGS_EQUAL(1, sfOrder.instanceOrder_[7].job.taskId);
+}
 TEST(SFOrder, constructor_v1)
 {
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
@@ -103,46 +124,6 @@ TEST(SFOrder, sched_v1)
     SFOrder sfOrder(tasksInfo, initial);
     VectorDynamic initialSTV = SFOrderScheduling(dagTasks, tasksInfo, processorNum, sfOrder);
     PrintSchedule(tasksInfo, initialSTV);
-}
-TEST(SFOrder, ReadObj)
-{
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
-    TaskSet tasks = dagTasks.tasks;
-    TaskSetInfoDerived tasksInfo(tasks);
-
-    int processorNum = 2;
-
-    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
-    initial << 0, 17, 18, 1;
-    SFOrder sfOrder(tasksInfo, initial);
-    sfOrder.print();
-    EXPECT_LONGS_EQUAL(0, sfOrder.instanceOrder_[0].job.taskId);
-    EXPECT_LONGS_EQUAL(0, sfOrder.instanceOrder_[1].job.taskId);
-    EXPECT_LONGS_EQUAL(2, sfOrder.instanceOrder_[2].job.taskId);
-    EXPECT_LONGS_EQUAL(2, sfOrder.instanceOrder_[3].job.taskId);
-    EXPECT_LONGS_EQUAL(0, sfOrder.instanceOrder_[4].job.taskId);
-    EXPECT_LONGS_EQUAL(0, sfOrder.instanceOrder_[5].job.taskId);
-    EXPECT_LONGS_EQUAL(1, sfOrder.instanceOrder_[6].job.taskId);
-    EXPECT_LONGS_EQUAL(1, sfOrder.instanceOrder_[7].job.taskId);
-
-    ScheduleOptions scheduleOptions;
-    scheduleOptions.causeEffectChainNumber_ = 1;
-    scheduleOptions.processorNum_ = 2;
-
-    VectorDynamic initialSTV = SFOrderScheduling(dagTasks, tasksInfo, processorNum, sfOrder);
-    PrintSchedule(tasksInfo, initialSTV);
-    VectorDynamic expect = initialSTV;
-    expect << 0, 10, 11, 1;
-    EXPECT(assert_equal(expect, initialSTV));
-    IterationStatus<SimpleOrderScheduler> statusPrev(dagTasks, tasksInfo, sfOrder, scheduleOptions);
-    EXPECT_LONGS_EQUAL(4 + 14, statusPrev.ReadObj());
-
-    initial << 2, 10, 0, 0;
-    PrintSchedule(tasksInfo, initial);
-    SFOrder sfOrder2(tasksInfo, initial);
-    sfOrder2.print();
-    IterationStatus<SimpleOrderScheduler> statusPrev2(dagTasks, tasksInfo, sfOrder2, scheduleOptions);
-    EXPECT_LONGS_EQUAL(21 + 13, statusPrev2.ReadObj());
 }
 TEST(SFOrder, insert_erase)
 {
@@ -276,7 +257,7 @@ TEST(SFOrder, opt_v1)
     scheduleOptions.considerSensorFusion_ = 0;
 
     // enableFastSearch = 0;
-    ScheduleResult sRes = ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, scheduleOptions);
+    ScheduleResult sRes = ScheduleDAGModel<SimpleOrderScheduler, RTDAExperimentObj>(dagTasks, scheduleOptions);
     PrintSchedule(tasksInfo, sRes.startTimeVector_);
     VectorDynamic expect = sRes.startTimeVector_;
     expect << 0, 2, 3;
@@ -383,7 +364,7 @@ TEST(optimize_schedule_when_search_job_order_, v1)
     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
-    ScheduleResult sRes = ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, scheduleOptions);
+    ScheduleResult sRes = ScheduleDAGModel<SimpleOrderScheduler, RTDAExperimentObj>(dagTasks, scheduleOptions);
     PrintSchedule(tasksInfo, sRes.startTimeVector_);
     std::cout << "Obj: " << sRes.obj_ << std::endl;
     EXPECT(sRes.obj_ <= 18);
@@ -396,7 +377,7 @@ TEST(Schedule, jobOrder)
     scheduleOptions.processorNum_ = 1;
     scheduleOptions.considerSensorFusion_ = 0;
     OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
-    ScheduleResult res = ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, scheduleOptions);
+    ScheduleResult res = ScheduleDAGModel<SimpleOrderScheduler, RTDAExperimentObj>(dagTasks, scheduleOptions);
     EXPECT(99 * 2 >= res.obj_);
 }
 
@@ -466,68 +447,29 @@ TEST(SFOrder, constructor_v2)
     PrintSchedule(tasksInfo, initial2);
     EXPECT(gtsam::assert_equal(initialSTV, initial2));
 }
-TEST(Obj, RTDA_v1)
-{
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
-    TaskSet tasks = dagTasks.tasks;
-    TaskSetInfoDerived tasksInfo(tasks);
 
-    int processorNum = 2;
-    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
-    initial << 0, 10, 1, 1;
-    SFOrder sfOrder(tasksInfo, initial);
-    sfOrder.print();
+// TEST(FindLongestChainJobIndex, v1)
+// {
+//     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+//     TaskSet tasks = dagTasks.tasks;
+//     TaskSetInfoDerived tasksInfo(tasks);
 
-    ScheduleOptions scheduleOptions;
-    scheduleOptions.causeEffectChainNumber_ = 1;
-    scheduleOptions.processorNum_ = 2;
-    scheduleOptions.considerSensorFusion_ = 0;
-    scheduleOptions.weightInMpRTDA_ = 0.5;
-    scheduleOptions.weightInMpSf_ = 0.5;
-    scheduleOptions.weightPunish_ = 1;
+//     int processorNum = 2;
+//     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+//     initial << 0, 10, 1, 1;
+//     SFOrder sfOrder(tasksInfo, initial);
 
-    IterationStatus<SimpleOrderScheduler> status(dagTasks, tasksInfo, sfOrder, scheduleOptions);
-    EXPECT_LONGS_EQUAL(18, status.ReadObj());
-    EXPECT_DOUBLES_EQUAL(32.5, status.ObjWeighted(), 0.1);
-    EXPECT_LONGS_EQUAL(18, status.ObjBarrier());
+//     ScheduleOptions scheduleOptions;
+//     scheduleOptions.causeEffectChainNumber_ = 1;
+//     scheduleOptions.processorNum_ = 2;
 
-    scheduleOptions.considerSensorFusion_ = 1;
-    IterationStatus<SimpleOrderScheduler> status2(dagTasks, tasksInfo, sfOrder, scheduleOptions);
-    freshTol = 0;
-
-    scheduleOptions.freshTol_ = 0;
-    status2.scheduleOptions_ = scheduleOptions;
-    // weightInMpSfPunish = 1;
-    // weightInMpRTDAPunish = 1;
-    EXPECT_LONGS_EQUAL(18, status2.ReadObj());
-    EXPECT_LONGS_EQUAL(18, status2.ObjBarrier());
-    EXPECT_DOUBLES_EQUAL(32.5, status2.ObjWeighted(), 0.1);
-    scheduleOptions.freshTol_ = 100;
-    status2.scheduleOptions_ = scheduleOptions;
-    EXPECT_LONGS_EQUAL(0, status2.ObjBarrier());
-}
-TEST(FindLongestChainJobIndex, v1)
-{
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
-    TaskSet tasks = dagTasks.tasks;
-    TaskSetInfoDerived tasksInfo(tasks);
-
-    int processorNum = 2;
-    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
-    initial << 0, 10, 1, 1;
-    SFOrder sfOrder(tasksInfo, initial);
-
-    ScheduleOptions scheduleOptions;
-    scheduleOptions.causeEffectChainNumber_ = 1;
-    scheduleOptions.processorNum_ = 2;
-
-    IterationStatus<SimpleOrderScheduler> status(dagTasks, tasksInfo, sfOrder, scheduleOptions);
-    EXPECT_LONGS_EQUAL(1, FindLongestChainJobIndex<SimpleOrderScheduler>(status)[0]);
-    initial << 0, 10, 1, 11;
-    SFOrder sfOrder2(tasksInfo, initial);
-    IterationStatus<SimpleOrderScheduler> status2(dagTasks, tasksInfo, sfOrder2, scheduleOptions);
-    EXPECT_LONGS_EQUAL(0, FindLongestChainJobIndex<SimpleOrderScheduler>(status2)[0]);
-}
+//     IterationStatus<SimpleOrderScheduler> status(dagTasks, tasksInfo, sfOrder, scheduleOptions);
+//     EXPECT_LONGS_EQUAL(1, FindLongestChainJobIndex<SimpleOrderScheduler>(status)[0]);
+//     initial << 0, 10, 1, 11;
+//     SFOrder sfOrder2(tasksInfo, initial);
+//     IterationStatus<SimpleOrderScheduler> status2(dagTasks, tasksInfo, sfOrder2, scheduleOptions);
+//     EXPECT_LONGS_EQUAL(0, FindLongestChainJobIndex<SimpleOrderScheduler>(status2)[0]);
+// }
 
 TEST(GetTaskIdWithChainOrder, v1)
 {
@@ -592,6 +534,7 @@ TEST(CheckDDLConstraint, v1)
     initial << 9.9, 10, 0, 0;
     EXPECT(!CheckDDLConstraint(dagTasks, tasksInfo, initial));
 }
+// TODO: add this test
 TEST(IterationStatus, SchedulabilityCheck)
 {
     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v26.csv", "orig");

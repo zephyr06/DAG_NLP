@@ -13,8 +13,8 @@
 #include "sources/Utils/testMy.h"
 
 #define CurrentTimeInProfiler std::chrono::high_resolution_clock::now()
-#define BeginTimerAppInProfiler BeginTimer(__FUNCTION__);
-#define EndTimerAppInProfiler EndTimer(__FUNCTION__);
+// #define BeginTimerAppInProfiler BeginTimer(__FUNCTION__);
+// #define EndTimerAppInProfiler EndTimer(__FUNCTION__);
 extern std::mutex mtx_profiler;
 struct ProfilerData
 {

@@ -1,3 +1,4 @@
+#include <CppUnitLite/TestHarness.h>
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Optimization/ScheduleSimulation.h"
 #include "sources/Baseline/RTSS21IC.h"

@@ -1,4 +1,5 @@
 
+#include <CppUnitLite/TestHarness.h>
 #include "sources/Optimization/OptimizeSFOrder.h"
 #include "sources/Utils/testMy.h"
 TEST(DAG_Optimize_schedule, v1)
@@ -10,7 +11,7 @@ TEST(DAG_Optimize_schedule, v1)
     ScheduleResult sth;
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
     scheduleOption.LoadParametersYaml();
-    sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler>(dagTasks, scheduleOption);
+    sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::RTDAExperimentObj>(dagTasks, scheduleOption);
     PrintResultAnalyzation(sth, dagTasks);
     std::cout << "Schedulable? " << sth.schedulable_ << std::endl;
     EndTimer("main");

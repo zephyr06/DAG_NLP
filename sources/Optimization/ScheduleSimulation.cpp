@@ -106,7 +106,7 @@ namespace OrderOptDAG_SPACE
                                       TaskSetInfoDerived &tasksInfo, int processorNum,
                                       boost::optional<std::vector<uint> &> processorIdVec)
     {
-        // BeginTimerAppInProfiler;
+        // BeginTimer(__FUNCTION__);
         const TaskSet &tasks = dagTasks.tasks;
         VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
 
@@ -159,7 +159,7 @@ namespace OrderOptDAG_SPACE
         {
             initial = GenerateVectorDynamic(tasksInfo.variableDimension);
         }
-        // EndTimerAppInProfiler;
+        // EndTimer(__FUNCTION__);
         return initial;
     }
 
@@ -167,7 +167,7 @@ namespace OrderOptDAG_SPACE
                                     const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder,
                                     boost::optional<std::vector<uint> &> processorIdVec)
     {
-        BeginTimerAppInProfiler;
+        BeginTimer(__FUNCTION__);
         const TaskSet &tasks = dagTasks.tasks;
         const std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
 
@@ -253,7 +253,7 @@ namespace OrderOptDAG_SPACE
             }
         }
 
-        EndTimerAppInProfiler;
+        EndTimer(__FUNCTION__);
         return startTimeVector;
     }
 } // namespace OrderOptDAG_SPACE
