@@ -1,4 +1,5 @@
 gtsamAddTestsGlob(UnitTests "test*.cpp" "*RunSingle*" "${CONVENIENCE_LIB_NAME}")
+gtsamAddTestsGlob(Single "test*RunSingle*.cpp" "" "${CONVENIENCE_LIB_NAME}")
 
 # file(GLOB files "test*.cpp")
 # foreach(file ${files})
@@ -15,9 +16,6 @@ gtsamAddTestsGlob(UnitTests "test*.cpp" "*RunSingle*" "${CONVENIENCE_LIB_NAME}")
 
 ADD_EXECUTABLE(GenerateTaskSet GenerateTaskSet.cpp)
 TARGET_LINK_LIBRARIES(GenerateTaskSet ${CONVENIENCE_LIB_NAME})
-
-ADD_EXECUTABLE(testVerucchiRunSingle testVerucchiRunSingle.cpp)
-TARGET_LINK_LIBRARIES(testVerucchiRunSingle ${CONVENIENCE_LIB_NAME})
 
 # TODO: figure out why can't this command work!
 # ADD_EXECUTABLE(tBatch1 testBatch.cpp)
