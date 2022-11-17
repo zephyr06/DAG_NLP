@@ -1,4 +1,4 @@
-gtsamAddTestsGlob(EnergyOptNLP "test*.cpp" "*testVerucchiRunSingle*" "${CONVENIENCE_LIB_NAME}")
+gtsamAddTestsGlob(UnitTests "test*.cpp" "*RunSingle*" "${CONVENIENCE_LIB_NAME}")
 
 # file(GLOB files "test*.cpp")
 # foreach(file ${files})

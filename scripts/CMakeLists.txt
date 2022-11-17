@@ -1,2 +1,2 @@
-gtsamAddTestsGlob(EnergyOptNLP "*.cpp" "nothing*" "${CONVENIENCE_LIB_NAME}")
+gtsamAddTestsGlob(scripts "*.cpp" "" "${CONVENIENCE_LIB_NAME}")
 
