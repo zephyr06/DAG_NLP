@@ -24,24 +24,24 @@ TEST(VerucchiRTDA, single_case_v1)
     std::cout << "<-------------End of RTDA results------->\n\n";
 }
 
-TEST(VerucchiRTDA, single_case_v2)
-{
-    OrderOptDAG_SPACE::DAG_Model tasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
-    std::vector<std::vector<int>> causeEffectChains{{0, 1, 4, 5}};
+// TEST(VerucchiRTDA, single_case_v2)
+// {
+//     OrderOptDAG_SPACE::DAG_Model tasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+//     std::vector<std::vector<int>> causeEffectChains{{0, 1, 4, 5}};
 
-    OrderOptDAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, causeEffectChains, 1, 15.0, 4000.0, 15.0, 4000.0, 15.0);
-    std::cout << "<-------------RTDA results-------------->\n";
-    for (auto chain : causeEffectChains)
-    {
-        for (auto task : chain)
-        {
-            std::cout << task << ", ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << "Reaction time: " << rtda.reactionTime << "\nData age: " << rtda.dataAge << std::endl;
-    std::cout << "<-------------End of RTDA results------->\n\n";
-}
+//     OrderOptDAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, causeEffectChains, 1, 15.0, 4000.0, 15.0, 4000.0, 15.0);
+//     std::cout << "<-------------RTDA results-------------->\n";
+//     for (auto chain : causeEffectChains)
+//     {
+//         for (auto task : chain)
+//         {
+//             std::cout << task << ", ";
+//         }
+//         std::cout << std::endl;
+//     }
+//     std::cout << "Reaction time: " << rtda.reactionTime << "\nData age: " << rtda.dataAge << std::endl;
+//     std::cout << "<-------------End of RTDA results------->\n\n";
+// }
 
 TEST(VerucchiRTDA, single_case_multiple_chains)
 {
