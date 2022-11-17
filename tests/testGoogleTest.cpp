@@ -27,13 +27,13 @@ class TurtleImpl : public Turtle
 {
 public:
     // virtual ~TurtleImpl() { ; }
-    void PenUp() { ; }
-    void PenDown() { ; }
-    void Forward(int distance) { ; }
-    void Turn(int degrees) { ; }
-    void GoTo(int x, int y) { ; }
-    int GetX() const { return 0; }
-    int GetY() const { return 0; }
+    void PenUp() override { ; }
+    void PenDown() override { ; }
+    void Forward(int distance) override { ; }
+    void Turn(int degrees) override { ; }
+    void GoTo(int x, int y) override { ; }
+    int GetX() const override { return 0; }
+    int GetY() const override { return 0; }
 
 public:
     TurtleImpl() { ; }
