@@ -27,6 +27,7 @@ namespace OrderOptDAG_SPACE
     {
 
         std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks);
+        JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderRef, const TaskSetInfoDerived &tasksInfo);
 
         template <typename OrderScheduler, typename ObjectiveFunctionBase>
         ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, const ScheduleOptions &scheduleOptions, boost::optional<ScheduleResult &> resOrderOptWithoutScheduleOpt = boost::none)
@@ -102,26 +103,13 @@ namespace OrderOptDAG_SPACE
                         if (time_out_flag || foundOptimal)
                             break;
                         JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
-                        LLint prevJobIndex = 0, nextJobIndex = static_cast<LLint>(jobOrderRef.size() - 1);
-                        if (jobRelocate.jobId > 0)
-                        {
-                            JobCEC prevJob(jobRelocate.taskId, jobRelocate.jobId - 1);
-                            prevJobIndex = jobOrderRef.GetJobFinishInstancePosition(prevJob);
-                        }
-                        if (jobRelocate.jobId < tasksInfo.sizeOfVariables[jobRelocate.taskId] - 1)
-                        {
-                            JobCEC nextJob(jobRelocate.taskId, jobRelocate.jobId + 1);
-                            nextJobIndex = std::min(jobOrderRef.GetJobStartInstancePosition(nextJob) + 1, nextJobIndex); // actually, I'm not sure why do we need this "+1", but it doesn't hurt to search for a few more
-                        }
+                        JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
 
-                        JobGroupRange jobGroup(prevJobIndex, prevJobIndex);
-                        for (LLint startP = prevJobIndex; startP < nextJobIndex; startP++)
+                        for (LLint startP = jobStartFinishInstActiveRange.minIndex; startP < jobStartFinishInstActiveRange.maxIndex; startP++)
                         {
                             BeginTimer("inner_for_start");
                             if (time_out_flag || foundOptimal)
                                 break;
-
-                            jobGroup.minIndex = startP;
 
                             // TODO: this part can be optimized, though not very necessary
                             BeginTimer("SFOrderCopy");
@@ -133,7 +121,7 @@ namespace OrderOptDAG_SPACE
 
                             jobOrderCurrForStart.InsertStart(jobRelocate, startP); // must insert start first
                             double accumLengthMin = 0;
-                            for (LLint finishP = startP + 1; finishP < nextJobIndex + 1; finishP++)
+                            for (LLint finishP = startP + 1; finishP < jobStartFinishInstActiveRange.maxIndex + 1; finishP++)
                             {
                                 if (CheckTimeOut())
                                     break;
@@ -146,7 +134,7 @@ namespace OrderOptDAG_SPACE
                                 jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
                                 // check whether the small job order under influence is unschedulable
-                                if (SubGroupSchedulabilityCheck(jobGroup, jobOrderRef, jobOrderCurrForFinish, finishP, dagTasks, tasksInfo, scheduleOptions.processorNum_))
+                                if (SubGroupSchedulabilityCheck(jobStartFinishInstActiveRange, jobOrderRef, jobOrderCurrForFinish, finishP, dagTasks, tasksInfo, scheduleOptions.processorNum_))
                                 {
                                     break;
                                 }
@@ -154,9 +142,7 @@ namespace OrderOptDAG_SPACE
                                 {
                                     BeginTimer("PrevSchedulabilityCheck");
                                     if (SFOrderScheduling(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrderCurrForFinish)(0) == -1)
-                                    {
                                         break;
-                                    }
                                     EndTimer("PrevSchedulabilityCheck");
                                 }
 

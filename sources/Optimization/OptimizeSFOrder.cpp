@@ -32,5 +32,22 @@ namespace OrderOptDAG_SPACE
             return idVec;
         }
 
+        JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderRef, const TaskSetInfoDerived &tasksInfo)
+        {
+            //  JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
+            LLint prevJobIndex = 0, nextJobIndex = static_cast<LLint>(jobOrderRef.size() - 1);
+            if (jobRelocate.jobId > 0)
+            {
+                JobCEC prevJob(jobRelocate.taskId, jobRelocate.jobId - 1);
+                prevJobIndex = jobOrderRef.GetJobFinishInstancePosition(prevJob);
+            }
+            if (jobRelocate.jobId < tasksInfo.sizeOfVariables[jobRelocate.taskId] - 1)
+            {
+                JobCEC nextJob(jobRelocate.taskId, jobRelocate.jobId + 1);
+                nextJobIndex = std::min(jobOrderRef.GetJobStartInstancePosition(nextJob) + 1, nextJobIndex); // actually, I'm not sure why do we need this "+1", but it doesn't hurt to search for a few more
+            }
+            return JobGroupRange(prevJobIndex, nextJobIndex);
+        }
+
     } // namespace OptimizeSF
 } // namespace OrderOptDAG_SPACE
