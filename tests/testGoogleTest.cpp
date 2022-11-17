@@ -66,17 +66,20 @@ public:
     }
 };
 using ::testing::AtLeast; // #1
-
+using ::testing::Return;
 TEST(PainterTest, CanDrawSomething)
 {
     MockTurtle turtle;             // #2
     EXPECT_CALL(turtle, PenDown()) // #3
         .Times(AtLeast(1));
+    EXPECT_CALL(turtle, GetX())
+        .WillRepeatedly(Return(300));
 
     // TurtleImpl tImpl;
     // tImpl.call();
     Painter painter(&turtle);
     EXPECT_TRUE(painter.DrawCircle(0, 0, 10));
+    EXPECT_EQ(300, turtle.GetX());
 }
 
 int main(int argc, char **argv)
