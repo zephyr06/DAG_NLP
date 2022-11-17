@@ -3,7 +3,7 @@
 TEST(all, a1)
 {
     BeginTimer("main");
-    BatchOptimizeOrder();
+    OrderOptDAG_SPACE::BatchOptimizeOrder({});
     EndTimer("main");
     PrintTimer();
 }

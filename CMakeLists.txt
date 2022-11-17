@@ -81,6 +81,7 @@ endif()
 
 add_subdirectory(tests)
 add_subdirectory(sources)
+add_subdirectory(scripts)
 add_subdirectory(${CMAKE_SOURCE_DIR}/sources/Baseline/Verucchi20)
 
 # include(GoogleTest)
