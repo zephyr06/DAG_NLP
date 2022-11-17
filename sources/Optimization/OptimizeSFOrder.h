@@ -193,13 +193,13 @@ namespace OrderOptDAG_SPACE
             scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, processorJobVec, scheduleOptions.processorNum_, sensorFusionTolerance, freshTol);
             scheduleRes.objWeighted_ = statusPrev.objWeighted_;
 
-            if (scheduleOptions.doScheduleOptimization && !foundOptimal)
+            if (scheduleOptions.doScheduleOptimization_ && !foundOptimal)
             {
-                if (!scheduleOptions.considerSensorFusion || !scheduleRes.schedulable_)
+                if (!scheduleOptions.considerSensorFusion_ || !scheduleRes.schedulable_)
                 {
                     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
                     ScheduleResult result_after_optimization;
-                    if (scheduleOptions.considerSensorFusion)
+                    if (scheduleOptions.considerSensorFusion_)
                     {
                         schedule_optimizer.OptimizeObjWeighted(dagTasks, scheduleRes);
                         result_after_optimization = schedule_optimizer.getOptimizedResult();

@@ -8,7 +8,7 @@ BatchTestOnlyOneMethod: -1
 testDataSetName: test_n3_v6
 printSchedule: 0
 debugMode: 0
-doScheduleOptimization: 1
+doScheduleOptimization: 0
 doScheduleOptimizationOnlyOnce: 0
 considerSensorFusion: 0
 #*************************************************************

@@ -17,8 +17,19 @@
 #include "sources/Baseline/VerucchiRTDABridge.h"
 
 using namespace std::chrono;
-
-void BatchOptimizeOrder()
+namespace OrderOptDAG_SPACE
+{
+    enum BaselineMethods
+    {
+        InitialMethod,
+        Verucchi20,
+        Wang21,
+        TOM,
+        TOM_Fast,
+        TOM_FastLP
+    };
+} // namespace OrderOptDAG_SPACE
+void BatchOptimizeOrder(std::vector<OrderOptDAG_SPACE::BaselineMethods> baselineMethods)
 {
     using namespace OrderOptDAG_SPACE;
     std::string dirStr = PROJECT_PATH + "TaskData/dagTasks/";

@@ -1,5 +1,6 @@
+#include <CppUnitLite/TestHarness.h>
 #include "sources/batchOptimizeSFOrder.h"
-TEST(parameters, a1)
+TEST(all, a1)
 {
     BeginTimer("main");
     BatchOptimizeOrder();
