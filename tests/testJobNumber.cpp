@@ -1,5 +1,7 @@
 #include <CppUnitLite/TestHarness.h>
-#include "sources/batchOptimizeSFOrder.h"
+#include "sources/Utils/Parameters.h"
+#include "sources/Utils/BatchUtils.h"
+#include "sources/TaskModel/DAG_Model.h"
 TEST(parameters, a1)
 {
     using namespace OrderOptDAG_SPACE;
