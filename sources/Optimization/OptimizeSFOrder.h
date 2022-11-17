@@ -63,7 +63,6 @@ namespace OrderOptDAG_SPACE
                 foundOptimal = true;
 
             auto start_time = std::chrono::system_clock::now();
-            auto curr_time = std::chrono::system_clock::now();
             int64_t time_limit_in_seconds = makeProgressTimeLimit;
             if (time_limit_in_seconds < 0)
             {
@@ -73,7 +72,7 @@ namespace OrderOptDAG_SPACE
 
             auto CheckTimeOut = [&]()
             {
-                curr_time = std::chrono::system_clock::now();
+                auto curr_time = std::chrono::system_clock::now();
                 if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= time_limit_in_seconds)
                 {
                     std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << time_limit_in_seconds << " seconds.\n\n";
@@ -194,13 +193,13 @@ namespace OrderOptDAG_SPACE
             scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, processorJobVec, scheduleOptions.processorNum_, sensorFusionTolerance, freshTol);
             scheduleRes.objWeighted_ = statusPrev.objWeighted_;
 
-            if (doScheduleOptimization && !foundOptimal)
+            if (scheduleOptions.doScheduleOptimization && !foundOptimal)
             {
-                if (!considerSensorFusion || !scheduleRes.schedulable_)
+                if (!scheduleOptions.considerSensorFusion || !scheduleRes.schedulable_)
                 {
                     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
                     ScheduleResult result_after_optimization;
-                    if (considerSensorFusion)
+                    if (scheduleOptions.considerSensorFusion)
                     {
                         schedule_optimizer.OptimizeObjWeighted(dagTasks, scheduleRes);
                         result_after_optimization = schedule_optimizer.getOptimizedResult();
