@@ -55,7 +55,6 @@ namespace OrderOptDAG_SPACE
                 CoutWarning("Initial schedule is not schedulable!!!");
             }
             bool foundOptimal = false;
-            bool findNewUpdate = true;
             LLint countMakeProgress = 0;
             LLint countIterationStatus = 0;
             LLint countOutermostWhileLoop = 0;
@@ -86,31 +85,34 @@ namespace OrderOptDAG_SPACE
             // int jobWithMaxChain = FindLongestChainJobIndex(statusPrev)[0];
             int jobWithMaxChain = 0;
 
-            while (findNewUpdate)
+            bool continueOpt = true;
+            auto CheckIterationContinue = [&]()
+            {
+                BeginTimer("CheckIterationTerminate");
+                if (CheckTimeOut() || foundOptimal)
+                    return false;
+                else
+                    return true;
+                EndTimer("CheckIterationTerminate");
+            };
+
+            while (continueOpt && CheckIterationContinue())
             {
                 countOutermostWhileLoop++;
-                if (time_out_flag || foundOptimal)
-                    break;
-
-                findNewUpdate = false;
+                continueOpt = false; // iterations stop unless a better job order is found
 
                 // search the tasks related to task chain at first
                 std::vector<int> taskIdSet = GetTaskIdWithChainOrder(dagTasks);
                 BeginTimer("inner_for_job");
                 for (int i : taskIdSet)
-                    for (LLint j = jobWithMaxChain; j < jobWithMaxChain + tasksInfo.sizeOfVariables[i]; j++)
+                    for (LLint j = jobWithMaxChain; j < jobWithMaxChain + tasksInfo.sizeOfVariables[i] && CheckIterationContinue(); j++)
                     {
-                        if (time_out_flag || foundOptimal)
-                            break;
                         JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
                         JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
 
-                        for (LLint startP = jobStartFinishInstActiveRange.minIndex; startP < jobStartFinishInstActiveRange.maxIndex; startP++)
+                        for (LLint startP = jobStartFinishInstActiveRange.minIndex; startP < jobStartFinishInstActiveRange.maxIndex && CheckIterationContinue(); startP++)
                         {
                             BeginTimer("inner_for_start");
-                            if (time_out_flag || foundOptimal)
-                                break;
-
                             // TODO: this part can be optimized, though not very necessary
                             BeginTimer("SFOrderCopy");
                             SFOrder jobOrderCurrForStart = jobOrderRef;
@@ -121,10 +123,10 @@ namespace OrderOptDAG_SPACE
 
                             jobOrderCurrForStart.InsertStart(jobRelocate, startP); // must insert start first
                             double accumLengthMin = 0;
-                            for (LLint finishP = startP + 1; finishP < jobStartFinishInstActiveRange.maxIndex + 1; finishP++)
+                            for (LLint finishP = startP + 1; finishP < jobStartFinishInstActiveRange.maxIndex + 1 && CheckIterationContinue(); finishP++)
                             {
-                                if (CheckTimeOut())
-                                    break;
+                                // if (CheckTimeOut())
+                                //     break;
                                 if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, jobOrderRef))
                                     continue;
                                 if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart, startP))
@@ -153,7 +155,7 @@ namespace OrderOptDAG_SPACE
 
                                 if (MakeProgress<OrderScheduler>(statusPrev, statusCurr))
                                 {
-                                    findNewUpdate = true;
+                                    continueOpt = true;
                                     statusPrev = statusCurr;
                                     jobOrderRef = jobOrderCurrForFinish;
                                     if (debugMode == 1)
@@ -163,15 +165,16 @@ namespace OrderOptDAG_SPACE
                                     }
                                     countMakeProgress++;
                                     if (statusCurr.objWeighted_ == 0)
+                                    {
                                         foundOptimal = true;
+                                        break;
+                                    }
                                 }
                                 else
                                 {
                                     // restore jobOrderCurrForStart for next iteration
                                     jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
                                 }
-                                if (foundOptimal)
-                                    break;
                             }
                             EndTimer("inner_for_start");
                         }
