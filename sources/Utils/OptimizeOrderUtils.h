@@ -11,6 +11,7 @@
 namespace OrderOptDAG_SPACE
 {
 
+    // TODO: clear this struct
     struct ScheduleResult
     {
         // JobOrder jobOrder_;

@@ -22,6 +22,8 @@ namespace OrderOptDAG_SPACE
         class ObjectiveFunctionBase
         {
         public:
+            static double TrueObj(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions);
+
             static double Evaluate(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions)
             {
                 CoutError("Base function should not be called!");
@@ -32,6 +34,8 @@ namespace OrderOptDAG_SPACE
         class RTDAExperimentObj : ObjectiveFunctionBase
         {
         public:
+            static double TrueObj(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions);
+
             static double Evaluate(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions);
         };
 
@@ -39,6 +43,8 @@ namespace OrderOptDAG_SPACE
         {
         public:
             static double Evaluate(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions);
+
+            static double TrueObj(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions);
 
             static double EvaluateRTDA(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions);
 

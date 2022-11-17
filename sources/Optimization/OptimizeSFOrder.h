@@ -189,9 +189,11 @@ namespace OrderOptDAG_SPACE
             std::vector<uint> processorJobVec;
             auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrderRef, processorJobVec);
 
+            // TODO: this constructor could be an empty one
             ScheduleResult scheduleRes{jobOrderRef, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.objWeighted_, processorJobVec};
+
             scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, processorJobVec, scheduleOptions.processorNum_, sensorFusionTolerance, freshTol);
-            scheduleRes.objWeighted_ = statusPrev.objWeighted_;
+            scheduleRes.obj_ = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, statusPrev.startTimeVector_, scheduleOptions);
 
             if (scheduleOptions.doScheduleOptimization_ && !foundOptimal)
             {

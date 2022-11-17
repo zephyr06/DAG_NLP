@@ -33,6 +33,15 @@ namespace OrderOptDAG_SPACE
             return overallRTDA;
         }
 
+        double RTDAExperimentObj::TrueObj(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions)
+        {
+            std::vector<std::vector<RTDA>> rtdaVec = GetRTDAFromAllChains(dagTasks, tasksInfo, startTimeVector);
+            std::vector<RTDA> maxRtda = GetMaxRTDAs(rtdaVec);
+
+            double res = ObjRTDA(maxRtda);
+            return res;
+        }
+
         double RTDAExperimentObj::Evaluate(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions)
         {
             std::vector<std::vector<RTDA>> rtdaVec = GetRTDAFromAllChains(dagTasks, tasksInfo, startTimeVector);
@@ -70,6 +79,11 @@ namespace OrderOptDAG_SPACE
         }
 
         double RTSS21ICObj::Evaluate(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions)
+        {
+            return EvaluateRTDA(dagTasks, tasksInfo, startTimeVector, scheduleOptions) + EvaluateSF(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
+        }
+
+        double RTSS21ICObj::TrueObj(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions)
         {
             return EvaluateRTDA(dagTasks, tasksInfo, startTimeVector, scheduleOptions) + EvaluateSF(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
         }
