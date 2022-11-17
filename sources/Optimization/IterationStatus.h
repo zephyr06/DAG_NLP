@@ -28,7 +28,7 @@ namespace OrderOptDAG_SPACE
         public:
             bool schedulable_; // only basic schedulability
             double objWeighted_;
-            SFOrder jobOrder_;
+            // SFOrder jobOrder_;
             VectorDynamic startTimeVector_;
 
             IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const ScheduleOptions &scheduleOptions)
@@ -36,8 +36,8 @@ namespace OrderOptDAG_SPACE
                 BeginTimer(__FUNCTION__);
                 std::vector<uint> processorJobVec;
 
-                jobOrder_ = jobOrder;
-                startTimeVector_ = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrder_, processorJobVec);
+                // jobOrder_ = jobOrder;
+                startTimeVector_ = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVec);
                 schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec, scheduleOptions.processorNum_);
                 if (!schedulable_)
                     objWeighted_ = 1e9;

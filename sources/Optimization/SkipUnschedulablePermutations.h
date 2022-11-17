@@ -98,18 +98,18 @@ namespace OrderOptDAG_SPACE
             return false;
         }
 
-        template <typename OrderScheduler, typename ObjectiveFunctionBase>
-        bool SubGroupSchedulabilityCheck(JobGroupRange &jobGroup, IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusPrev, SFOrder &jobOrderCurrForFinish, LLint finishP, DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum)
+        // TODO: test this function
+        bool SubGroupSchedulabilityCheck(JobGroupRange &jobGroup, SFOrder &jobOrderRef, SFOrder &jobOrderCurrForFinish, LLint finishP, DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum)
         {
             if (enableSmallJobGroupCheck)
             {
                 BeginTimer("FindUnschedulableSmallJobOrder");
                 JobCEC jobNewlyAdded = jobOrderCurrForFinish[finishP - 1].job;
-                jobGroup.minIndex = min(jobGroup.minIndex, statusPrev.jobOrder_.GetJobStartInstancePosition(jobNewlyAdded));
+                jobGroup.minIndex = min(jobGroup.minIndex, jobOrderRef.GetJobStartInstancePosition(jobNewlyAdded));
 
                 jobGroup.maxIndex = max(jobGroup.maxIndex, finishP);
-                jobGroup.maxIndex = max(jobGroup.maxIndex, statusPrev.jobOrder_.GetJobFinishInstancePosition(jobNewlyAdded) + 1);
-                jobGroup.maxIndex = min(jobGroup.maxIndex, statusPrev.jobOrder_.size());
+                jobGroup.maxIndex = max(jobGroup.maxIndex, jobOrderRef.GetJobFinishInstancePosition(jobNewlyAdded) + 1);
+                jobGroup.maxIndex = min(jobGroup.maxIndex, jobOrderRef.size());
                 jobGroup.minIndex = max(jobGroup.minIndex, jobGroup.maxIndex - subJobGroupMaxSize);
                 jobGroup.minIndex = max(jobGroup.minIndex, 0);
                 // countSubJobOrderLength.push_back(jobGroup.maxIndex - jobGroup.minIndex);

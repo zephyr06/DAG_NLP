@@ -31,29 +31,23 @@ namespace OrderOptDAG_SPACE
         template <typename OrderScheduler, typename ObjectiveFunctionBase>
         ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, const ScheduleOptions &scheduleOptions, boost::optional<ScheduleResult &> resOrderOptWithoutScheduleOpt = boost::none)
         {
-
             std::vector<int> countSubJobOrderLength;
-            // srand(RandomDrawWeightMaxLoop);
             if (dagTasks.chains_.size() == 0)
                 CoutWarning("No chain is provided for the given dag!");
 
             TaskSet &tasks = dagTasks.tasks;
             TaskSetInfoDerived tasksInfo(tasks);
-            // VectorDynamic initialSTV = SFOrderScheduling(dagTasks, tasksInfo, processorNum);
             VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
+            SFOrder jobOrderRef(tasksInfo, initialSTV);
             if (debugMode == 1)
             {
                 std::cout << "Initial schedule: " << std::endl;
                 PrintSchedule(tasksInfo, initialSTV);
                 std::cout << initialSTV << std::endl;
-            }
-
-            SFOrder jobOrderRef(tasksInfo, initialSTV);
-            if (debugMode == 1)
-            {
                 std::cout << "Initial SF order: " << std::endl;
                 jobOrderRef.print();
             }
+
             IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusPrev(dagTasks, tasksInfo, jobOrderRef, scheduleOptions);
             if (!statusPrev.schedulable_)
             {
@@ -63,6 +57,7 @@ namespace OrderOptDAG_SPACE
             bool findNewUpdate = true;
             LLint countMakeProgress = 0;
             LLint countIterationStatus = 0;
+            LLint countOutermostWhileLoop = 0;
 
             if (statusPrev.objWeighted_ == 0)
                 foundOptimal = true;
@@ -90,7 +85,6 @@ namespace OrderOptDAG_SPACE
             // int jobWithMaxChain = FindLongestChainJobIndex(statusPrev)[0];
             int jobWithMaxChain = 0;
 
-            LLint countOutermostWhileLoop = 0;
             while (findNewUpdate)
             {
                 countOutermostWhileLoop++;
@@ -108,16 +102,16 @@ namespace OrderOptDAG_SPACE
                         if (time_out_flag || foundOptimal)
                             break;
                         JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
-                        LLint prevJobIndex = 0, nextJobIndex = static_cast<LLint>(statusPrev.jobOrder_.size() - 1);
+                        LLint prevJobIndex = 0, nextJobIndex = static_cast<LLint>(jobOrderRef.size() - 1);
                         if (jobRelocate.jobId > 0)
                         {
                             JobCEC prevJob(jobRelocate.taskId, jobRelocate.jobId - 1);
-                            prevJobIndex = statusPrev.jobOrder_.GetJobFinishInstancePosition(prevJob);
+                            prevJobIndex = jobOrderRef.GetJobFinishInstancePosition(prevJob);
                         }
                         if (jobRelocate.jobId < tasksInfo.sizeOfVariables[jobRelocate.taskId] - 1)
                         {
                             JobCEC nextJob(jobRelocate.taskId, jobRelocate.jobId + 1);
-                            nextJobIndex = std::min(statusPrev.jobOrder_.GetJobStartInstancePosition(nextJob) + 1, nextJobIndex); // actually, I'm not sure why do we need this "+1", but it doesn't hurt to search for a few more
+                            nextJobIndex = std::min(jobOrderRef.GetJobStartInstancePosition(nextJob) + 1, nextJobIndex); // actually, I'm not sure why do we need this "+1", but it doesn't hurt to search for a few more
                         }
 
                         JobGroupRange jobGroup(prevJobIndex, prevJobIndex);
@@ -131,7 +125,7 @@ namespace OrderOptDAG_SPACE
 
                             // TODO: this part can be optimized, though not very necessary
                             BeginTimer("SFOrderCopy");
-                            SFOrder jobOrderCurrForStart = statusPrev.jobOrder_;
+                            SFOrder jobOrderCurrForStart = jobOrderRef;
                             EndTimer("SFOrderCopy");
                             jobOrderCurrForStart.RemoveJob(jobRelocate);
                             if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, jobOrderCurrForStart))
@@ -143,7 +137,7 @@ namespace OrderOptDAG_SPACE
                             {
                                 if (CheckTimeOut())
                                     break;
-                                if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, statusPrev.jobOrder_))
+                                if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, jobOrderRef))
                                     continue;
                                 if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart, startP))
                                     break;
@@ -152,7 +146,7 @@ namespace OrderOptDAG_SPACE
                                 jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
                                 // check whether the small job order under influence is unschedulable
-                                if (SubGroupSchedulabilityCheck(jobGroup, statusPrev, jobOrderCurrForFinish, finishP, dagTasks, tasksInfo, scheduleOptions.processorNum_))
+                                if (SubGroupSchedulabilityCheck(jobGroup, jobOrderRef, jobOrderCurrForFinish, finishP, dagTasks, tasksInfo, scheduleOptions.processorNum_))
                                 {
                                     break;
                                 }
@@ -175,6 +169,7 @@ namespace OrderOptDAG_SPACE
                                 {
                                     findNewUpdate = true;
                                     statusPrev = statusCurr;
+                                    jobOrderRef = jobOrderCurrForFinish;
                                     if (debugMode == 1)
                                     {
                                         std::cout << "Make progress!" << std::endl;
@@ -204,9 +199,9 @@ namespace OrderOptDAG_SPACE
             }
 
             std::vector<uint> processorJobVec;
-            auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions.processorNum_, statusPrev.jobOrder_, processorJobVec);
+            auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrderRef, processorJobVec);
 
-            ScheduleResult scheduleRes{statusPrev.jobOrder_, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.objWeighted_, processorJobVec};
+            ScheduleResult scheduleRes{jobOrderRef, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.objWeighted_, processorJobVec};
             scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, processorJobVec, scheduleOptions.processorNum_, sensorFusionTolerance, freshTol);
             scheduleRes.objWeighted_ = statusPrev.objWeighted_;
 
