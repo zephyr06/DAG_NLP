@@ -15,7 +15,7 @@ namespace OrderOptDAG_SPACE
     struct ScheduleResult
     {
         // JobOrder jobOrder_;
-        OrderOptDAG_SPACE::SFOrder sfOrder_;
+        // OrderOptDAG_SPACE::SFOrder sfOrder_;
         VectorDynamic startTimeVector_;
         bool schedulable_;
         // RTDA rtda_;
@@ -28,30 +28,10 @@ namespace OrderOptDAG_SPACE
         LLint countIterationStatus_;
 
         ScheduleResult() { obj_ = -1; }
-        // ScheduleResult(JobOrder jobOrder,
-        //                VectorDynamic startTimeVector,
-        //                bool schedulable,
-        //                double obj) : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), obj_(obj) //, rtda_(rtda)
-        // {
-        //     timeTaken_ = 0;
-        //     countOutermostWhileLoop_ = 0;
-        //     countMakeProgress_ = 0;
-        //     countIterationStatus_ = 0;
-        // }
-        // ScheduleResult(JobOrder jobOrder, VectorDynamic startTimeVector, bool schedulable,
-        //                double obj, std::vector<uint> processorJobVec)
-        //     : jobOrder_(jobOrder), startTimeVector_(startTimeVector), schedulable_(schedulable),
-        //       obj_(obj), processorJobVec_(processorJobVec)
-        // {
-        //     timeTaken_ = 0;
-        //     countOutermostWhileLoop_ = 0;
-        //     countMakeProgress_ = 0;
-        //     countIterationStatus_ = 0;
-        // }
         ScheduleResult(SFOrder sfOrder,
                        VectorDynamic startTimeVector,
                        bool schedulable,
-                       double obj) : sfOrder_(sfOrder), startTimeVector_(startTimeVector), schedulable_(schedulable), obj_(obj) //, rtda_(rtda)
+                       double obj) : startTimeVector_(startTimeVector), schedulable_(schedulable), obj_(obj) //, rtda_(rtda)
         {
             timeTaken_ = 0;
             countOutermostWhileLoop_ = 0;
@@ -60,7 +40,7 @@ namespace OrderOptDAG_SPACE
         }
         ScheduleResult(SFOrder sfOrder, VectorDynamic startTimeVector, bool schedulable,
                        double obj, std::vector<uint> processorJobVec)
-            : sfOrder_(sfOrder), startTimeVector_(startTimeVector), schedulable_(schedulable),
+            : startTimeVector_(startTimeVector), schedulable_(schedulable),
               obj_(obj), processorJobVec_(processorJobVec)
         {
             timeTaken_ = 0;

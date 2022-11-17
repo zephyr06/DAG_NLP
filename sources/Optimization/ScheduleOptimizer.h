@@ -464,7 +464,7 @@ namespace OrderOptDAG_SPACE
             SFOrder sfOrder(tasksInfo_, start_time);
             result_after_optimization_.startTimeVector_ = start_time;
             // result_after_optimization_.jobOrder_ = jobOrderRef;
-            result_after_optimization_.sfOrder_ = sfOrder;
+            // result_after_optimization_.sfOrder_ = sfOrder;
         }
 
         void setScheduleResult(ScheduleResult &res)
