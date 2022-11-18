@@ -209,7 +209,6 @@ namespace OrderOptDAG_SPACE
             {
                 if (scheduledFinishTime[GetJobUniqueId(currentInstance.job, tasksInfo)] < timeNow)
                 {
-                    // TODO: jobOrder.size()/2
                     startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
                     startTimeVector(0) = -1;
                     break;

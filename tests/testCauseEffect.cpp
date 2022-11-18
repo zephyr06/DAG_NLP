@@ -7,6 +7,7 @@
 
 using namespace OrderOptDAG_SPACE;
 using namespace std;
+using namespace gtsam;
 // job data structure used in cause-effect chain analysis
 
 // void AddReactionTimeDataAgeFactor(NonlinearFactorGraph &graph,

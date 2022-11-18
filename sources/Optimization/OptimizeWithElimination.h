@@ -45,7 +45,7 @@ namespace RTSS21IC_NLP
             }
             vector<bool> maskForEliminate(variableDimension, false);
 
-            Symbol key('a', 0);
+            gtsam::Symbol key('a', 0);
             NonlinearFactorGraph graph;
 
             ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
@@ -67,8 +67,8 @@ namespace RTSS21IC_NLP
             graph.emplace_shared<SensorFusion_ConstraintFactor>(key, dagTasks, sizeOfVariables,
                                                                 errorDimensionSF, sensorFusionTolerance,
                                                                 mapIndex, maskForEliminate, model);
-            Values initialEstimateFG;
-            // Symbol key('a', 0);
+            gtsam::Values initialEstimateFG;
+            // gtsam::Symbol key('a', 0);
             initialEstimateFG.insert(key, startTimeVector);
             return graph.error(initialEstimateFG);
         }
@@ -112,7 +112,7 @@ namespace RTSS21IC_NLP
 
             // build the factor graph
             NonlinearFactorGraph graph;
-            Symbol key('a', 0);
+            gtsam::Symbol key('a', 0);
 
             ProcessorTaskSet processorTaskSet = ExtractProcessorTaskSet(dagTasks.tasks);
             LLint errorDimensionDBF = processorTaskSet.size();
@@ -135,10 +135,10 @@ namespace RTSS21IC_NLP
                                                                 mapIndex, maskForEliminate, model);
             // return graph;
 
-            Values initialEstimateFG;
+            gtsam::Values initialEstimateFG;
             initialEstimateFG.insert(key, initialEstimate);
 
-            Values result;
+            gtsam::Values result;
             if (optimizerType == 1)
             {
                 DoglegParams params;
@@ -285,11 +285,10 @@ namespace RTSS21IC_NLP
                 LLint errorDimensionDBF = processorTaskSet.size();
 
                 auto model = noiseModel::Isotropic::Sigma(errorDimensionDBF, noiseModelSigma);
-                Symbol key('b', 0);
+                gtsam::Symbol key('b', 0);
                 DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
                                             mapIndex, maskForEliminate, processorTaskSet, model);
                 // this function performs in-place modification for all the variables!
-                // TODO: should we add eliminate function for sensorFusion?
                 factor.addMappingFunction(resTemp, mapIndex, whetherEliminate, maskForEliminate,
                                           eliminationTrees, indexesBGL);
                 // update initial estimate

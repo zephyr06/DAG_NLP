@@ -4,7 +4,7 @@
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Utils/testMy.h"
 #include "sources/Optimization/InitialEstimate.h"
-
+using namespace gtsam;
 TEST(GenerateInitialForDAG, V2)
 {
     using namespace OrderOptDAG_SPACE;
@@ -384,7 +384,7 @@ TEST(SimulateFixedPrioritySchedDAG, v6)
     VectorDynamic expected;
     expected.resize(17, 1);
     expected << 194, 100, 200, 300, 400, 500, 671, 700, 800, 900, 170, 201, 401, 672, 801, 0, 501;
-    EXPECT(assert_equal(expected, actual));
+    EXPECT(gtsam::assert_equal(expected, actual));
 }
 
 TEST(toplogical, sortv1)
@@ -556,7 +556,7 @@ TEST(list_scheduling, least_finish_time)
     PrintSchedule(tasksInfo, initial);
     VectorDynamic expected = initial;
     expected << 5, 55, 83, 10, 60, 70, 88, 0, 50, 78;
-    EXPECT(assert_equal(expected, initial));
+    EXPECT(gtsam::assert_equal(expected, initial));
 }
 
 TEST(PrintSchedule, SortJobSchedule)

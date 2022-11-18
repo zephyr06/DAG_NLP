@@ -3,7 +3,7 @@
 namespace OrderOptDAG_SPACE
 {
 
-    double GetStartTime(JobCEC jobCEC, const Values &x, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
+    double GetStartTime(JobCEC jobCEC, const gtsam::Values &x, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
         if (jobCEC.taskId < 0 || jobCEC.taskId >= tasksInfo.N)
         {

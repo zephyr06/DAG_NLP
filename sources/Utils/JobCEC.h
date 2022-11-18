@@ -33,7 +33,7 @@ namespace OrderOptDAG_SPACE
         }
     };
 
-    double GetStartTime(JobCEC jobCEC, const Values &x, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
+    double GetStartTime(JobCEC jobCEC, const gtsam::Values &x, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
 
     inline double GetDeadline(JobCEC job, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
@@ -47,7 +47,7 @@ namespace OrderOptDAG_SPACE
 
     double GetStartTime(JobCEC jobCEC, const VectorDynamic &x, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
 
-    inline double GetFinishTime(JobCEC jobCEC, const Values &x, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
+    inline double GetFinishTime(JobCEC jobCEC, const gtsam::Values &x, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
         return GetStartTime(jobCEC, x, tasksInfo) + tasksInfo.tasks[jobCEC.taskId].executionTime;
     }

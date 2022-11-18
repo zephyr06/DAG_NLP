@@ -29,12 +29,11 @@
 #include "sources/Utils/MatirxConvenient.h"
 
 using namespace std;
-// TODO: remove using namespace
-using namespace gtsam;
+// using namespace gtsam;
 
 typedef boost::function<VectorDynamic(const VectorDynamic &)> NormalErrorFunction1D;
 typedef boost::function<VectorDynamic(const VectorDynamic &, const VectorDynamic &)> NormalErrorFunction2D;
-typedef boost::function<Vector(const Values &x)> LambdaMultiKey;
+typedef boost::function<gtsam::Vector(const gtsam::Values &x)> LambdaMultiKey;
 
 typedef long long int LLint;
 

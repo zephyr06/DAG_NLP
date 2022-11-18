@@ -28,7 +28,6 @@ namespace OrderOptDAG_SPACE
                                                       int variableDimension);
 
     // This method is not suitable to compare with Verucchi20 because it focus more on dependency, but less on schedulability (FT<Deadline), and RTDA.
-    // TODO(Sen): fix this issue
     // VectorDynamic GenerateInitial_Custom_DAG(DAG_Model &dagTasks,
     //                                          vector<LLint> &sizeOfVariables,
     //                                          int variableDimension, LLint currTime = 0)

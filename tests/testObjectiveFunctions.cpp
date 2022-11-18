@@ -5,7 +5,7 @@
 #include "sources/Optimization/OrderScheduler.h"
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
-
+using namespace gtsam;
 class ObjExperimentObjTest1 : public ::testing::Test
 {
 protected:

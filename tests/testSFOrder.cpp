@@ -8,6 +8,7 @@
 
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
+using namespace gtsam;
 
 TEST(SFOrder, constructor_v3)
 {

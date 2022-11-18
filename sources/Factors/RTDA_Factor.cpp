@@ -67,8 +67,8 @@ namespace OrderOptDAG_SPACE
         }
         return resVec;
     }
-    // TODO: remove this in Verucchi's code
-    std::vector<RTDA> GetRTDAFromSingleJob(const TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain, const Values &x)
+
+    std::vector<RTDA> GetRTDAFromSingleJob(const TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain, const gtsam::Values &x)
     {
         VectorDynamic stvAfter = GenerateVectorDynamic(tasksInfo.variableDimension);
         for (int i = 0; i < tasksInfo.N; i++)
@@ -76,7 +76,7 @@ namespace OrderOptDAG_SPACE
             for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
             {
                 LLint index_overall = IndexTran_Instance2Overall(i, j, tasksInfo.sizeOfVariables);
-                Symbol key = GenerateKey(i, j);
+                gtsam::Symbol key = GenerateKey(i, j);
                 VectorDynamic aaa = x.at<VectorDynamic>(key);
                 stvAfter(index_overall, 0) = x.at<VectorDynamic>(key)(0, 0);
             }
