@@ -1,7 +1,7 @@
 #include <sources/Baseline/Verucchi20/DAG/MaxProduct.h>
 #include <sources/Baseline/Verucchi20/Evaluation/Evaluation.h>
 #include <sources/Baseline/Verucchi20/VariableTaskSet/VariableTaskSet.h>
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 #include <iostream>
 #include "sources/Baseline/Verucchi20/MultiRate/MultiRateTaskset.h"
 

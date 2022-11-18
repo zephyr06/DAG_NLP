@@ -9,9 +9,9 @@
 #include "sources/Baseline/Verucchi20/MultiRate/MultiRateTaskset.h"
 #include "sources/Baseline/Verucchi20/DAG/DAG.h"
 #include <cmath>
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include <iomanip>
 
 #include <iostream>

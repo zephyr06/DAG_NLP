@@ -5,7 +5,7 @@
 #include <iostream>
 #include <set>
 
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 
 #include "sources/Baseline/Verucchi20/DAG/MaxProduct.h"
 #include "sources/Baseline/Verucchi20/Evaluation/Evaluation.h"

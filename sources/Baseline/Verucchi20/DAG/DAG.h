@@ -8,7 +8,7 @@
 #ifndef DAG_H_
 #define DAG_H_
 #include <sources/Baseline/Verucchi20/Evaluation/LatencyInfo.h>
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 #include <vector>
 #include <map>
 #include <string>
