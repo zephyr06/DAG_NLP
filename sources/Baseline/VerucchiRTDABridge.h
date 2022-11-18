@@ -299,11 +299,11 @@ OrderOptDAG_SPACE::RTDA GetRTDAFromBestDag(
         std::cout << "Generated initial estimate from the bestDAG of Verucchi:\n";
         OrderOptDAG_SPACE::PrintSchedule(tasksInfo, initialEstimate);
     }
-    Values initialEstimateFG = OrderOptDAG_SPACE::GenerateInitialFG(initialEstimate, tasksInfo);
+    // Values initialEstimateFG = OrderOptDAG_SPACE::GenerateInitialFG(initialEstimate, tasksInfo);
     OrderOptDAG_SPACE::RTDA resM(0, 0);
     for (auto causeEffectChain : causeEffectChains)
     {
-        auto res = OrderOptDAG_SPACE::GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
+        auto res = OrderOptDAG_SPACE::GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimate);
         auto max_of_current_chain = OrderOptDAG_SPACE::GetMaxRTDA(res);
         resM.dataAge += max_of_current_chain.dataAge;
         resM.reactionTime += max_of_current_chain.reactionTime;

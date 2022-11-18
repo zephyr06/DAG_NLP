@@ -187,8 +187,8 @@ Evaluation::evaluateWithRTDA(const std::vector<DAG> &dags)
 }
 
 void Evaluation::evaluateWithRTDAandUpdate(const std::vector<DAG> &dags,
-								  std::optional<std::reference_wrapper<DAG>> bestDag,
-								  std::optional<std::reference_wrapper<float>> bestDagCost)
+										   std::optional<std::reference_wrapper<DAG>> bestDag,
+										   std::optional<std::reference_wrapper<float>> bestDagCost)
 {
 	std::vector<float> cost(dags.size(), 0.0);
 
@@ -297,9 +297,9 @@ LatencyInfo Evaluation::getLatencyInfoRTDA(const DAG &dag, std::vector<unsigned>
 	TaskSet tasks = GetTaskSet(dag);
 	TaskSetInfoDerived tasksInfo(tasks);
 	VectorDynamic initialEstimate = GetInitialEstimate(dag, schedulingEval_.second.maxCores);
-	Values initialEstimateFG = OrderOptDAG_SPACE::GenerateInitialFG(initialEstimate, tasksInfo);
+	// Values initialEstimateFG = OrderOptDAG_SPACE::GenerateInitialFG(initialEstimate, tasksInfo);
 	std::vector<int> causeEffectChain(chain.begin(), chain.end());
-	auto res = OrderOptDAG_SPACE::GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimateFG);
+	auto res = OrderOptDAG_SPACE::GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimate);
 	OrderOptDAG_SPACE::RTDA resM = OrderOptDAG_SPACE::GetMaxRTDA(res);
 	info.maxLatency = resM.dataAge;
 	info.reactionTime = resM.reactionTime;
