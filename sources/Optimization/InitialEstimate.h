@@ -21,15 +21,15 @@ namespace OrderOptDAG_SPACE
      * @param sizeOfVariables
      * @return VectorDynamic size (N+1), first N is start time for nodes, the last one is r.h.s.
      */
-    VectorDynamic GenerateInitialForDAG_IndexMode(DAG_Model &dagTasks, vector<LLint> &sizeOfVariables, int variableDimension);
+    VectorDynamic GenerateInitialForDAG_IndexMode(DAG_Model &dagTasks,std::vector<LLint> &sizeOfVariables, int variableDimension);
 
     VectorDynamic GenerateInitialForDAG_RelativeStart(DAG_Model &dagTasks,
-                                                      vector<LLint> &sizeOfVariables,
+                                                     std::vector<LLint> &sizeOfVariables,
                                                       int variableDimension);
 
     // This method is not suitable to compare with Verucchi20 because it focus more on dependency, but less on schedulability (FT<Deadline), and RTDA.
     // VectorDynamic GenerateInitial_Custom_DAG(DAG_Model &dagTasks,
-    //                                          vector<LLint> &sizeOfVariables,
+    //                                         std::vector<LLint> &sizeOfVariables,
     //                                          int variableDimension, LLint currTime = 0)
     // {
     //     priorityMode = "Assigned";
@@ -37,7 +37,7 @@ namespace OrderOptDAG_SPACE
     //     int N = dagTasks.tasks.size();
     //     TaskSet &tasks = dagTasks.tasks;
     //     TaskSetInfoDerived tasksInfo(tasks);
-    //     // vector<int> order = FindDependencyOrderDFS(dagTasks);
+    //     //std::vector<int> order = FindDependencyOrderDFS(dagTasks);
     //     std::vector<int> order = TopologicalSortMulti(dagTasks)[3]; //"DM"
     //     for (int i = 0; i < N; i++)
     //     {
@@ -55,7 +55,7 @@ namespace OrderOptDAG_SPACE
      * @return VectorDynamic
      */
     VectorDynamic GenerateInitialForDAG_RM_DAG(DAG_Model &dagTasks,
-                                               vector<LLint> &sizeOfVariables,
+                                              std::vector<LLint> &sizeOfVariables,
                                                int variableDimension, int topoSortMethod = 4);
     /**
      * @brief Generate initial estimate based on provided options'
@@ -67,7 +67,7 @@ namespace OrderOptDAG_SPACE
      * @return VectorDynamic
      */
     VectorDynamic GenerateInitial(DAG_Model &dagTasks,
-                                  vector<LLint> &sizeOfVariables,
+                                 std::vector<LLint> &sizeOfVariables,
                                   int variableDimension, VectorDynamic initialUser = GenerateVectorDynamic(1));
 
 }

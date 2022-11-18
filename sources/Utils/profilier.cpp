@@ -39,7 +39,7 @@ void PrintTimer()
 {
     using namespace std;
     std::cout.precision(4);
-    vector<TimerDataProfiler> vec;
+   std::vector<TimerDataProfiler> vec;
     double totalProfile = 0;
     std::cout << Color::green << "Total time spent is: " << profilerMap["main"].accum << " seconds" << Color::def << std::endl;
     for (auto itr = profilerMap.begin(); itr != profilerMap.end(); itr++)

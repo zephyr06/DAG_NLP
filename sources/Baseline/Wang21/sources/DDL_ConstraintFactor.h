@@ -13,17 +13,17 @@ namespace RTSS21IC_NLP
         {
         public:
             TaskSet tasks;
-            vector<LLint> sizeOfVariables;
+           std::vector<LLint> sizeOfVariables;
             int N;
             LLint errorDimension;
-            vector<bool> maskForEliminate;
+           std::vector<bool> maskForEliminate;
             MAP_Index2Data mapIndex;
             LLint length;
             LLint lengthCompressed;
             std::unordered_map<LLint, LLint> mapIndex_True2Compress;
 
-            DDL_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables, LLint errorDimension,
-                                 MAP_Index2Data &mapIndex, vector<bool> &maskForEliminate,
+            DDL_ConstraintFactor(Key key, TaskSet &tasks,std::vector<LLint> sizeOfVariables, LLint errorDimension,
+                                 MAP_Index2Data &mapIndex,std::vector<bool> &maskForEliminate,
                                  SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
                                                            tasks(tasks), sizeOfVariables(sizeOfVariables),
                                                            N(tasks.size()), errorDimension(errorDimension),
@@ -71,7 +71,7 @@ namespace RTSS21IC_NLP
 
                 if (indexRes != errorDimension)
                 {
-                    cout << Color::red << "The errorDimension is set wrong!" << Color::def << endl;
+                   std::cout << Color::red << "The errorDimension is set wrong!" << Color::def << std::endl;
                     throw;
                 }
                 // if (res.norm() != 0)
@@ -138,8 +138,8 @@ namespace RTSS21IC_NLP
                 // x -> x0
                 SM_Dynamic j_map = JacobianElimination(length, lengthCompressed,
                                                        sizeOfVariables, mapIndex, mapIndex_True2Compress);
-                // cout << j_map << endl
-                //      << endl;
+                //std::cout << j_map <<std::endl
+                //      <<std::endl;
                 // EndTimer("DDL_H");
                 return j_yx * j_map;
             }
@@ -159,13 +159,13 @@ namespace RTSS21IC_NLP
                     // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                     if (debugMode == 1)
                     {
-                        // cout << "The Jacobian matrix of DDL_ConstraintFactor is " << endl
-                        //      << *H << endl;
+                        //std::cout << "The Jacobian matrix of DDL_ConstraintFactor is " <<std::endl
+                        //      << *H <<std::endl;
                     }
                     if (debugMode == 1)
                     {
-                        // cout << "The input startTimeVector is " << startTimeVector << endl;
-                        std::cout << "The error vector of DDL is " << Color::blue << f(startTimeVector) << Color::def << endl;
+                        //std::cout << "The input startTimeVector is " << startTimeVector <<std::endl;
+                        std::cout << "The error vector of DDL is " << Color::blue << f(startTimeVector) << Color::def << std::endl;
                     }
                 }
                 EndTimer("DDL_All");

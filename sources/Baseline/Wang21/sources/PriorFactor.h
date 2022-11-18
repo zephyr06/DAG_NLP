@@ -14,17 +14,17 @@ namespace RTSS21IC_NLP
         {
         public:
             TaskSet tasks;
-            vector<LLint> sizeOfVariables;
+           std::vector<LLint> sizeOfVariables;
             int N;
             LLint errorDimension;
             LLint length;
             MAP_Index2Data mapIndex;
-            vector<bool> maskForEliminate;
+           std::vector<bool> maskForEliminate;
             double priorValue;
             LLint firstTaskIndex;
 
-            Prior_ConstraintFactor(Key key, TaskSet &tasks, vector<LLint> sizeOfVariables, LLint errorDimension,
-                                   MAP_Index2Data &mapIndex, vector<bool> &maskForEliminate, double priorValue,
+            Prior_ConstraintFactor(Key key, TaskSet &tasks,std::vector<LLint> sizeOfVariables, LLint errorDimension,
+                                   MAP_Index2Data &mapIndex,std::vector<bool> &maskForEliminate, double priorValue,
                                    LLint firstTaskIndex,
                                    SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
                                                              tasks(tasks), sizeOfVariables(sizeOfVariables),
@@ -54,7 +54,7 @@ namespace RTSS21IC_NLP
 
                 if (indexRes != errorDimension)
                 {
-                    cout << Color::red << "The errorDimension is set wrong!" << Color::def << endl;
+                   std::cout << Color::red << "The errorDimension is set wrong!" << Color::def << std::endl;
                     throw;
                 }
 
@@ -87,13 +87,13 @@ namespace RTSS21IC_NLP
                     // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                     if (debugMode == 1)
                     {
-                        // cout << "The Jacobian matrix of Prior_ConstraintFactor is " << endl
-                        //      << *H << endl;
+                        //std::cout << "The Jacobian matrix of Prior_ConstraintFactor is " <<std::endl
+                        //      << *H <<std::endl;
                     }
                     if (debugMode == 1)
                     {
-                        // cout << "The input startTimeVector is " << startTimeVector << endl;
-                        cout << "The error vector of Prior is " << Color::blue << f(startTimeVector) << Color::def << endl;
+                        //std::cout << "The input startTimeVector is " << startTimeVector <<std::endl;
+                       std::cout << "The error vector of Prior is " << Color::blue << f(startTimeVector) << Color::def << std::endl;
                     }
                 }
                 EndTimer("Prior");

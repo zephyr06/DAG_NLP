@@ -18,5 +18,5 @@ namespace OrderOptDAG_SPACE
 
     bool VerifyResFileExist(const std::string &pathDataset, const std::string &file, int batchTestMethod_);
 
-    vector<string> ReadFilesInDirectory(const char *path);
+   std::vector<std::string> ReadFilesInDirectory(const char *path);
 }

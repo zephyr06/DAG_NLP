@@ -33,8 +33,8 @@ TEST(DAG_Optimize_schedule, v1)
 //     auto sth = OptimizeScheduling(dagTasks, initial);
 
 //     VectorDynamic res = sth.optimizeVariable;
-//     cout << "The result after optimization is " << Color::green << sth.optimizeError
-//          << Color::blue << res << Color::def << endl;
+//    std::cout << "The result after optimization is " << Color::green << sth.optimizeError
+//          << Color::blue << res << Color::def <<std::endl;
 //     if (sth.optimizeError > 0.1)
 //         CoutError("Not schedulable in one test by NLP");
 //     EndTimer("main");

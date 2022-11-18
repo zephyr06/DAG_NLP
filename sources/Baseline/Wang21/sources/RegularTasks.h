@@ -72,12 +72,12 @@ namespace RTSS21IC_NLP
             /**
              * only used in ReadTaskSet because the input parameter's type is int
              **/
-            Task(vector<double> dataInLine)
+            Task(std::vector<double> dataInLine)
             {
                 if (dataInLine.size() != 7)
                 {
-                    cout << Color::red << "The length of dataInLine in Task constructor is wrong! Must be 7!\n"
-                         << Color::def << endl;
+                   std::cout << Color::red << "The length of dataInLine in Task constructor is wrong! Must be 7!\n"
+                         << Color::def << std::endl;
                     throw;
                 }
                 id = dataInLine[0];
@@ -91,8 +91,8 @@ namespace RTSS21IC_NLP
 
             void print()
             {
-                cout << "The period is: " << period << " The executionTime is " << executionTime << " The deadline is "
-                     << deadline << " The overhead is " << overhead << " The offset is " << offset << endl;
+               std::cout << "The period is: " << period << " The executionTime is " << executionTime << " The deadline is "
+                     << deadline << " The overhead is " << overhead << " The offset is " << offset << std::endl;
             }
 
             double utilization() const
@@ -110,16 +110,16 @@ namespace RTSS21IC_NLP
 
         void Print(TaskSet &tasks)
         {
-            cout << "The task set is printed as follows" << endl;
+           std::cout << "The task set is printed as follows" << std::endl;
             for (auto &task : tasks)
                 task.print();
         }
 
         template <typename T>
-        vector<T> GetParameter(const TaskSet &taskset, string parameterType)
+       std::vector<T> GetParameter(const TaskSet &taskset, string parameterType)
         {
             uint N = taskset.size();
-            vector<T> parameterList;
+           std::vector<T> parameterList;
             parameterList.reserve(N);
 
             for (uint i = 0; i < N; i++)
@@ -136,8 +136,8 @@ namespace RTSS21IC_NLP
                     parameterList.push_back((T)(taskset[i].offset));
                 else
                 {
-                    cout << Color::red << "parameterType in GetParameter is not recognized!\n"
-                         << Color::def << endl;
+                   std::cout << Color::red << "parameterType in GetParameter is not recognized!\n"
+                         << Color::def << std::endl;
                     throw;
                 }
             }
@@ -165,8 +165,8 @@ namespace RTSS21IC_NLP
                     parameterList(i, 0) = ((T)(taskset[i].offset));
                 else
                 {
-                    cout << Color::red << "parameterType in GetParameter is not recognized!\n"
-                         << Color::def << endl;
+                   std::cout << Color::red << "parameterType in GetParameter is not recognized!\n"
+                         << Color::def << std::endl;
                     throw;
                 }
             }
@@ -185,8 +185,8 @@ namespace RTSS21IC_NLP
 
         double Utilization(const TaskSet &tasks)
         {
-            vector<int> periodHigh = GetParameter<int>(tasks, "period");
-            vector<double> executionTimeHigh = GetParameter<double>(tasks, "executionTime");
+           std::vector<int> periodHigh = GetParameter<int>(tasks, "period");
+           std::vector<double> executionTimeHigh = GetParameter<double>(tasks, "executionTime");
             int N = periodHigh.size();
             double utilization = 0;
             for (int i = 0; i < N; i++)
@@ -213,7 +213,7 @@ namespace RTSS21IC_NLP
             int N = tasks.size();
             if (N == 0)
             {
-                cout << Color::red << "Empty task set in HyperPeriod()!\n";
+               std::cout << Color::red << "Empty task set in HyperPeriod()!\n";
                 throw;
             }
             else
@@ -224,7 +224,7 @@ namespace RTSS21IC_NLP
                     hyper = lcm(hyper, tasks[i].period);
                     if (hyper < 0 || hyper > LLONG_MAX)
                     {
-                        cout << Color::red << "The hyper-period over flows!" << Color::def << endl;
+                       std::cout << Color::red << "The hyper-period over flows!" << Color::def << std::endl;
                         throw;
                     }
                 }
@@ -248,13 +248,13 @@ namespace RTSS21IC_NLP
             }
             else
             {
-                cout << Color::red << "Unrecognized priorityType in Reorder!\n"
-                     << Color::def << endl;
+               std::cout << Color::red << "Unrecognized priorityType in Reorder!\n"
+                     << Color::def << std::endl;
                 throw;
             }
             return tasks;
         }
-        TaskSet ReadTaskSet(string path, string priorityType = "RM", int taskSetType = 1)
+        TaskSet ReadTaskSet(std::string path, string priorityType = "RM", int taskSetType = 1)
         {
             // some default parameters in this function
             string delimiter = ",";
@@ -262,7 +262,7 @@ namespace RTSS21IC_NLP
             string line;
             size_t pos = 0;
 
-            vector<Task> taskSet;
+           std::vector<Task> taskSet;
 
             fstream file;
             file.open(path, ios::in);
@@ -273,7 +273,7 @@ namespace RTSS21IC_NLP
                 {
                     if (!(line[0] >= '0' && line[0] <= '9'))
                         continue;
-                    vector<double> dataInLine;
+                   std::vector<double> dataInLine;
                     while ((pos = line.find(delimiter)) != string::npos)
                     {
                         token = line.substr(0, pos);
@@ -290,14 +290,14 @@ namespace RTSS21IC_NLP
                 TaskSet ttt(taskSet);
                 ttt = Reorder(ttt, priorityType);
                 if (debugMode == 1)
-                    cout << "Finish reading the data file succesfully!\n";
+                   std::cout << "Finish reading the data file succesfully!\n";
                 return ttt;
             }
             else
             {
-                cout << Color::red << "The path does not exist in ReadTaskSet!" << endl
+               std::cout << Color::red << "The path does not exist in ReadTaskSet!" << std::endl
                      << path
-                     << Color::def << endl;
+                     << Color::def << std::endl;
                 throw;
             }
         }
@@ -313,7 +313,7 @@ namespace RTSS21IC_NLP
          * @brief
          *
          * @param tasks
-         * @return ProcessorTaskSet map type! processorId to vector<task ID>
+         * @return ProcessorTaskSet map type! processorId tostd::vector<task ID>
          */
         ProcessorTaskSet ExtractProcessorTaskSet(TaskSet &tasks)
         {
@@ -323,7 +323,7 @@ namespace RTSS21IC_NLP
             {
                 if (processorTasks.find(tasks[i].processorId) == processorTasks.end())
                 {
-                    vector<int> ttt{tasks[i].id};
+                   std::vector<int> ttt{tasks[i].id};
                     processorTasks[tasks[i].processorId] = ttt;
                 }
                 else

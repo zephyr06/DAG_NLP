@@ -241,7 +241,7 @@ TEST(sensorFusion, v1_no_fork)
     initial << 2, 1, 0, 3, 4;
     EXPECT_LONGS_EQUAL(0, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(0));
 
-    // cout << sth << endl;
+    //std::cout << sth <<std::endl;
     initial << 3, 5, 1, 6, 7;
     EXPECT_LONGS_EQUAL(0, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(0));
 }

@@ -2,6 +2,7 @@
 #include "sources/TaskModel/GenerateRandomTaskset.h"
 #include "sources/Utils/testMy.h"
 
+using namespace std;
 TEST(ExtractVariable, v1)
 {
     int N = 5;

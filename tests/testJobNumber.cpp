@@ -2,9 +2,11 @@
 #include "sources/Utils/Parameters.h"
 #include "sources/Utils/BatchUtils.h"
 #include "sources/TaskModel/DAG_Model.h"
+using namespace std;
+using namespace OrderOptDAG_SPACE;
 TEST(parameters, a1)
 {
-    using namespace OrderOptDAG_SPACE;
+    
     std::string dirStr = PROJECT_PATH + "TaskData/dagTasks/";
     const char *pathDataset = (dirStr).c_str();
     std::cout << "Dataset Directory: " << pathDataset << std::endl;
@@ -12,9 +14,9 @@ TEST(parameters, a1)
     std::vector<std::vector<double>> objsAll(TotalMethodUnderComparison);
     std::vector<std::vector<int>> schedulableAll(TotalMethodUnderComparison); // values could only be 0 / 1
 
-    std::vector<string> errorFiles;
-    std::vector<string> worseFiles;
-    std::vector<string> files = ReadFilesInDirectory(pathDataset);
+    std::vector<std::string> errorFiles;
+    std::vector<std::string> worseFiles;
+    std::vector<std::string> files = ReadFilesInDirectory(pathDataset);
     std::vector<int> jobNumber;
     for (const auto &file : files)
     {

@@ -13,14 +13,14 @@ namespace RTSS21IC_NLP
     using namespace RegularTaskSystem;
     namespace po = boost::program_options;
 
-    // vector<int> PeriodSetAM = {1, 2, 5, 10, 20, 50, 100, 200, 1000};
-    vector<int> PeriodSetAM = {2, 5, 10, 20, 50, 100, 200};
-    // vector<int> PeriodSetAM = {100,200,300,400,500,600,800,1000,1200};
+    //std::vector<int> PeriodSetAM = {1, 2, 5, 10, 20, 50, 100, 200, 1000};
+   std::vector<int> PeriodSetAM = {2, 5, 10, 20, 50, 100, 200};
+    //std::vector<int> PeriodSetAM = {100,200,300,400,500,600,800,1000,1200};
 
-    vector<double> Uunifast(int N, double utilAll)
+   std::vector<double> Uunifast(int N, double utilAll)
     {
         double sumU = utilAll;
-        vector<double> utilVec(N, 0);
+       std::vector<double> utilVec(N, 0);
 
         double nextU;
         for (size_t i = 1; i < N; i++)
@@ -53,7 +53,7 @@ namespace RTSS21IC_NLP
                             int numberOfProcessor, int periodMin,
                             int periodMax, int taskSetType = 1, int deadlineType = 0)
     {
-        vector<double> utilVec = Uunifast(N, totalUtilization);
+       std::vector<double> utilVec = Uunifast(N, totalUtilization);
         TaskSet tasks;
         int periodMaxRatio = periodMax / periodMin;
 
@@ -91,7 +91,7 @@ namespace RTSS21IC_NLP
         }
         return tasks;
     }
-    void WriteTaskSets(ofstream &file, TaskSet &tasks)
+    void WriteTaskSets(std::ofstream &file, TaskSet &tasks)
     {
         int N = tasks.size();
         file << "JobID,Offset,Period,Overhead,ExecutionTime,DeadLine,processorId\n";
@@ -128,7 +128,7 @@ namespace RTSS21IC_NLP
         return dagModel;
     }
 
-    void WriteDAG(ofstream &file, OrderOptDAG_SPACE::DAG_Model &tasksDAG)
+    void WriteDAG(std::ofstream &file, OrderOptDAG_SPACE::DAG_Model &tasksDAG)
     {
         WriteTaskSets(file, tasksDAG.tasks);
         for (auto itr = tasksDAG.mapPrev.begin(); itr != tasksDAG.mapPrev.end(); itr++)

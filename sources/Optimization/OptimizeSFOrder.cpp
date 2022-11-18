@@ -19,7 +19,7 @@ namespace OrderOptDAG_SPACE
             if (enableFastSearch)
                 return idVec;
 
-            unordered_set<int> idSet;
+            std::unordered_set<int> idSet;
             std::vector<int> idVecChainFirst = dagTasks.chains_[0];
             for (uint i = 0; i < dagTasks.chains_[0].size(); i++)
                 idSet.insert(dagTasks.chains_[0][i]);

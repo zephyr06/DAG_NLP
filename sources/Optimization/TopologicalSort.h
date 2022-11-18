@@ -10,9 +10,9 @@ namespace OrderOptDAG_SPACE
      * @brief
      *
      * @param dagTasks
-     * @return vector<int> execution order of task index, first task first
+     * @returnstd::vector<int> execution order of task index, first task first
      */
-    vector<int> FindDependencyOrderDFS(const OrderOptDAG_SPACE::DAG_Model &dagTasks);
+   std::vector<int> FindDependencyOrderDFS(const OrderOptDAG_SPACE::DAG_Model &dagTasks);
 
     TaskSet FindSourceTasks(const DAG_Model &dagTasks);
     void AddNodeTS(int taskId, const DAG_Model &dagTasks, std::vector<int> &path, std::vector<bool> &visited, Graph &graphBoost, indexVertexMap &indexesBGL);

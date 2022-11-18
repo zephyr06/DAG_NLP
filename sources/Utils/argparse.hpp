@@ -1196,7 +1196,7 @@ namespace argparse
 
         // Printing the one and only help message
         // I've stuck with a simple message format, nothing fancy.
-        [[deprecated("Use cout << program; instead.  See also help().")]] std::string
+        [[deprecated("Usestd::cout << program; instead.  See also help().")]] std::string
         print_help()
         {
             auto out = help();

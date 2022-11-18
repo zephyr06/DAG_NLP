@@ -59,6 +59,6 @@ double Overlap(Interval &v1, Interval &v2);
  * @return first double, gradient w.r.t. v1.start
  *         second double, gradient w.r.t. v2.start
  */
-pair<double, double> OverlapGradient(Interval v1, Interval v2);
+std::pair<double, double> OverlapGradient(Interval v1, Interval v2);
 
-double IntervalOverlapError(vector<Interval> &intervalVec);
+double IntervalOverlapError(std::vector<Interval> &intervalVec);

@@ -18,7 +18,7 @@
 namespace OrderOptDAG_SPACE
 {
     using namespace RegularTaskSystem;
-    LLint CountSFError(const DAG_Model &dagTasks, const vector<LLint> &sizeOfVariables);
+    LLint CountSFError(const DAG_Model &dagTasks, const std::vector<LLint> &sizeOfVariables);
 
     struct IndexData
     {
@@ -26,9 +26,9 @@ namespace OrderOptDAG_SPACE
         double time;
     };
 
-    pair<int, int> ExtractMaxDistance(vector<IndexData> &sourceFinishTime);
+    std::pair<int, int> ExtractMaxDistance(std::vector<IndexData> &sourceFinishTime);
 
-    inline double ExtractMaxDistance(vector<double> &sourceFinishTime)
+    inline double ExtractMaxDistance(std::vector<double> &sourceFinishTime)
     {
         return *max_element(sourceFinishTime.begin(), sourceFinishTime.end()) -
                *min_element(sourceFinishTime.begin(), sourceFinishTime.end());

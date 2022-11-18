@@ -2,10 +2,10 @@
 namespace RegularTaskSystem
 {
     template <typename T>
-    vector<T> GetParameter(const TaskSet &taskset, string parameterType)
+    std::vector<T> GetParameter(const TaskSet &taskset, std::string parameterType)
     {
         uint N = taskset.size();
-        vector<T> parameterList;
+       std::vector<T> parameterList;
         parameterList.reserve(N);
 
         for (uint i = 0; i < N; i++)
@@ -22,15 +22,15 @@ namespace RegularTaskSystem
                 parameterList.push_back((T)(taskset[i].offset));
             else
             {
-                cout << Color::red << "parameterType in GetParameter is not recognized!\n"
-                     << Color::def << endl;
+               std::cout << Color::red << "parameterType in GetParameter is not recognized!\n"
+                     << Color::def << std::endl;
                 throw;
             }
         }
         return parameterList;
     }
     template <typename T>
-    VectorDynamic GetParameterVD(const TaskSet &taskset, string parameterType)
+    VectorDynamic GetParameterVD(const TaskSet &taskset, std::string parameterType)
     {
         uint N = taskset.size();
         VectorDynamic parameterList;
@@ -51,19 +51,18 @@ namespace RegularTaskSystem
                 parameterList(i, 0) = ((T)(taskset[i].offset));
             else
             {
-                cout << Color::red << "parameterType in GetParameter is not recognized!\n"
-                     << Color::def << endl;
+               std::cout << Color::red << "parameterType in GetParameter is not recognized!\n"
+                     << Color::def << std::endl;
                 throw;
             }
         }
         return parameterList;
     }
 
-
     double Utilization(const TaskSet &tasks)
     {
-        vector<int> periodHigh = GetParameter<int>(tasks, "period");
-        vector<double> executionTimeHigh = GetParameter<double>(tasks, "executionTime");
+       std::vector<int> periodHigh = GetParameter<int>(tasks, "period");
+       std::vector<double> executionTimeHigh = GetParameter<double>(tasks, "executionTime");
         int N = periodHigh.size();
         double utilization = 0;
         for (int i = 0; i < N; i++)
@@ -90,7 +89,7 @@ namespace RegularTaskSystem
         int N = tasks.size();
         if (N == 0)
         {
-            cout << Color::red << "Empty task set in HyperPeriod()!\n";
+           std::cout << Color::red << "Empty task set in HyperPeriod()!\n";
             throw;
         }
         else
@@ -101,7 +100,7 @@ namespace RegularTaskSystem
                 hyper = lcm(hyper, tasks[i].period);
                 if (hyper < 0 || hyper > LLONG_MAX)
                 {
-                    cout << Color::red << "The hyper-period over flows!" << Color::def << endl;
+                   std::cout << Color::red << "The hyper-period over flows!" << Color::def << std::endl;
                     throw;
                 }
             }
@@ -110,7 +109,7 @@ namespace RegularTaskSystem
     }
 
     // should not be used anymore
-    TaskSet Reorder(TaskSet tasks, string priorityType)
+    TaskSet Reorder(TaskSet tasks, std::string priorityType)
     {
         if (CompareStringNoCase(priorityType, "RM"))
         {
@@ -130,21 +129,22 @@ namespace RegularTaskSystem
         }
         else
         {
-            cout << Color::red << "Unrecognized priorityType in Reorder!\n"
-                 << Color::def << endl;
+            std::cout << Color::red << "Unrecognized priorityType in Reorder!\n"
+                 << Color::def << std::endl;
             throw;
         }
         return tasks;
     }
-    TaskSet ReadTaskSet(string path, string priorityType, int taskSetType )
+    TaskSet ReadTaskSet(std::string path, std::string priorityType, int taskSetType)
     {
+        using namespace std;
         // some default parameters in this function
-        string delimiter = ",";
-        string token;
-        string line;
+        std::string delimiter = ",";
+        std::string token;
+        std::string line;
         size_t pos = 0;
 
-        vector<Task> taskSet;
+       std::vector<Task> taskSet;
 
         fstream file;
         file.open(path, ios::in);
@@ -155,7 +155,7 @@ namespace RegularTaskSystem
             {
                 if (!(line[0] >= '0' && line[0] <= '9'))
                     continue;
-                vector<double> dataInLine;
+               std::vector<double> dataInLine;
                 while ((pos = line.find(delimiter)) != string::npos)
                 {
                     token = line.substr(0, pos);
@@ -176,9 +176,9 @@ namespace RegularTaskSystem
         }
         else
         {
-            cout << Color::red << "The path does not exist in ReadTaskSet!" << endl
+           std::cout << Color::red << "The path does not exist in ReadTaskSet!" << std::endl
                  << path
-                 << Color::def << endl;
+                 << Color::def << std::endl;
             throw;
         }
     }
@@ -194,7 +194,7 @@ namespace RegularTaskSystem
      * @brief
      *
      * @param tasks
-     * @return ProcessorTaskSet map type! processorId to vector<task ID>
+     * @return ProcessorTaskSet map type! processorId tostd::vector<task ID>
      */
     ProcessorTaskSet ExtractProcessorTaskSet(const TaskSet &tasks)
     {
@@ -204,7 +204,7 @@ namespace RegularTaskSystem
         {
             if (processorTasks.find(tasks.at(i).processorId) == processorTasks.end())
             {
-                vector<int> ttt{tasks.at(i).id};
+               std::vector<int> ttt{tasks.at(i).id};
                 processorTasks[tasks.at(i).processorId] = ttt;
             }
             else

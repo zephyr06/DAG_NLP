@@ -20,7 +20,7 @@ namespace RTSS21IC_NLP
             LLint hyperPeriod = HyperPeriod(tasks);
 
             // declare variables
-            vector<LLint> sizeOfVariables;
+           std::vector<LLint> sizeOfVariables;
             int variableDimension = 0;
             for (int i = 0; i < N; i++)
             {
@@ -44,7 +44,7 @@ namespace RTSS21IC_NLP
             // choose an initialization method there!
             VectorDynamic initialEstimate = GenerateInitial(dagTasks, sizeOfVariables, variableDimension);
             if (debugMode)
-                cout << "Initial estimation for SA is " << initialEstimate << endl;
+               std::cout << "Initial estimation for SA is " << initialEstimate << std::endl;
             auto initialSA = Eigen2Vector<double>(initialEstimate);
             moether.runSA(SA_iteration, initialSA, randomInitialize);
 

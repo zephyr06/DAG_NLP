@@ -28,7 +28,7 @@ namespace RTSS21IC_NLP
             LLint hyperPeriod = HyperPeriod(tasks);
 
             // declare variables
-            vector<LLint> sizeOfVariables;
+           std::vector<LLint> sizeOfVariables;
             int variableDimension = 0;
             for (int i = 0; i < N; i++)
             {
@@ -43,7 +43,7 @@ namespace RTSS21IC_NLP
                 MappingDataStruct m{i, 0};
                 mapIndex[i] = m;
             }
-            vector<bool> maskForEliminate(variableDimension, false);
+           std::vector<bool> maskForEliminate(variableDimension, false);
 
             gtsam::Symbol key('a', 0);
             NonlinearFactorGraph graph;
@@ -102,8 +102,8 @@ namespace RTSS21IC_NLP
          * @return all the instances' start time
          */
         VectorDynamic UnitOptimization(OrderOptDAG_SPACE::DAG_Model &dagTasks, VectorDynamic &initialEstimate,
-                                       MAP_Index2Data mapIndex, vector<bool> &maskForEliminate,
-                                       vector<LLint> &sizeOfVariables, int variableDimension,
+                                       MAP_Index2Data mapIndex,std::vector<bool> &maskForEliminate,
+                                      std::vector<LLint> &sizeOfVariables, int variableDimension,
                                        LLint hyperPeriod)
         {
             using namespace RegularTaskSystem;
@@ -167,7 +167,7 @@ namespace RTSS21IC_NLP
 
             VectorDynamic optComp = result.at<VectorDynamic>(key);
             if (debugMode)
-                cout << Color::green << "UnitOptimization finishes for one time" << Color::def << endl;
+               std::cout << Color::green << "UnitOptimization finishes for one time" << Color::def << std::endl;
             return optComp;
         }
 
@@ -198,7 +198,7 @@ namespace RTSS21IC_NLP
             LLint hyperPeriod = HyperPeriod(tasks);
 
             // declare variables
-            vector<LLint> sizeOfVariables;
+           std::vector<LLint> sizeOfVariables;
             int variableDimension = 0;
             for (int i = 0; i < N; i++)
             {
@@ -241,7 +241,7 @@ namespace RTSS21IC_NLP
             LLint hyperPeriod = HyperPeriod(tasks);
 
             // declare variables
-            vector<LLint> sizeOfVariables;
+           std::vector<LLint> sizeOfVariables;
             int variableDimension = 0;
             for (int i = 0; i < N; i++)
             {
@@ -261,10 +261,10 @@ namespace RTSS21IC_NLP
 
             bool whetherEliminate = false;
             int loopNumber = 0;
-            vector<bool> maskForEliminate(variableDimension, false);
+           std::vector<bool> maskForEliminate(variableDimension, false);
             VectorDynamic resTemp = GenerateVectorDynamic(variableDimension);
             // build elimination eliminationTrees
-            pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(dagTasks);
+            std::pair<Graph, indexVertexMap> sth = EstablishGraphStartTimeVector(dagTasks);
             Graph eliminationTrees = sth.first;
             indexVertexMap indexesBGL = sth.second;
             VectorDynamic trueResult;
@@ -292,7 +292,7 @@ namespace RTSS21IC_NLP
                 factor.addMappingFunction(resTemp, mapIndex, whetherEliminate, maskForEliminate,
                                           eliminationTrees, indexesBGL);
                 // update initial estimate
-                vector<double> initialUpdateVec;
+               std::vector<double> initialUpdateVec;
                 initialUpdateVec.reserve(variableDimension - 1);
                 for (int i = 0; i < variableDimension; i++)
                 {
@@ -336,10 +336,10 @@ namespace RTSS21IC_NLP
             initialEstimate = GenerateInitial(dagTasks, sizeOfVariables, variableDimension, initialUser);
             double errorInitial = RTSS21IC_NLP::DAG_SPACE::GraphErrorEvaluation(dagTasks, initialEstimate);
 
-            cout << Color::blue << "The error before optimization is "
-                 << errorInitial << Color::def << endl;
+           std::cout << Color::blue << "The error before optimization is "
+                 << errorInitial << Color::def << std::endl;
             double finalError = RTSS21IC_NLP::DAG_SPACE::GraphErrorEvaluation(dagTasks, trueResult);
-            cout << Color::blue << "The error after optimization is " << finalError << Color::def << endl;
+           std::cout << Color::blue << "The error after optimization is " << finalError << Color::def << std::endl;
             return {errorInitial, finalError, initialEstimate, trueResult};
         }
     }

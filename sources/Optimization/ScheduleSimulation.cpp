@@ -47,7 +47,7 @@ namespace OrderOptDAG_SPACE
         return processorId2Index;
     }
 
-    void AddTasksToRunQueues(vector<RunQueue> &runQueues, const TaskSet &tasks, ProcessorId2Index &processorId2Index, LLint timeNow)
+    void AddTasksToRunQueues(std::vector<RunQueue> &runQueues, const TaskSet &tasks, ProcessorId2Index &processorId2Index, LLint timeNow)
     {
         for (uint i = 0; i < tasks.size(); i++)
         {
@@ -73,8 +73,8 @@ namespace OrderOptDAG_SPACE
     }
 
     void UpdateSTVAfterPopTask(RunQueue::ID_INSTANCE_PAIR &job, VectorDynamic &startTimeVector,
-                               LLint timeNow, vector<LLint> &nextFree, const TaskSet &tasks,
-                               vector<bool> &busy, int processorId, vector<LLint> &sizeOfVariables)
+                               LLint timeNow,std::vector<LLint> &nextFree, const TaskSet &tasks,
+                              std::vector<bool> &busy, int processorId,std::vector<LLint> &sizeOfVariables)
     {
         int id = job.first;
         LLint instance_id = job.second;
@@ -95,15 +95,15 @@ namespace OrderOptDAG_SPACE
         ProcessorId2Index processorId2Index = CreateProcessorId2Index(tasks);
         // contains the index of tasks to run
 
-        vector<RunQueue> runQueues;
+       std::vector<RunQueue> runQueues;
         runQueues.reserve(processorNum);
         for (int i = 0; i < processorNum; i++)
         {
             runQueues.push_back(RunQueue(tasks));
         }
 
-        vector<bool> busy(processorNum, false);
-        vector<LLint> nextFree(processorNum, -1);
+       std::vector<bool> busy(processorNum, false);
+       std::vector<LLint> nextFree(processorNum, -1);
         // LLint nextFree;
 
         for (LLint timeNow = timeInitial; timeNow < tasksInfo.hyperPeriod; timeNow++)
@@ -140,8 +140,8 @@ namespace OrderOptDAG_SPACE
         // contains the index of tasks to run
         RunQueue runQueue(tasks);
 
-        vector<bool> busy(processorNum, false);
-        vector<LLint> nextFree(processorNum, -1);
+       std::vector<bool> busy(processorNum, false);
+       std::vector<LLint> nextFree(processorNum, -1);
 
         // std::vector<LLint> jobScheduled(jobOrder ? ((*jobOrder).size()) : 0, -1); // order is the same as JobOrder's jobs
         EventPool eventPool;
@@ -195,9 +195,9 @@ namespace OrderOptDAG_SPACE
 
         VectorDynamic startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
         // return startTimeVector;
-        vector<bool> busy(processorNum, false);
-        vector<LLint> nextFree(processorNum, -1);
-        vector<LLint> scheduledFinishTime(tasksInfo.variableDimension, -1);
+       std::vector<bool> busy(processorNum, false);
+       std::vector<LLint> nextFree(processorNum, -1);
+       std::vector<LLint> scheduledFinishTime(tasksInfo.variableDimension, -1);
 
         if (processorIdVec)
             *processorIdVec = Eigen2Vector<uint>(startTimeVector);

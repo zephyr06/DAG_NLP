@@ -5,7 +5,7 @@
 // #include <Eigen/Geometry>
 #include <opencv2/core/core.hpp>
 #include "sources/Utils/testMy.h"
-using namespace std;
+// using namespace std;
 // All the global variables should be const
 
 const std::string PROJECT_PATH = "/home/zephyr/Programming/DAG_NLP/";
@@ -121,9 +121,9 @@ static const int saveGraph = (int)ConfigParameters["saveGraph"];
 static const int recordActionValue = (int)ConfigParameters["recordActionValue"];
 // int recordRLFileCount = 0;
 static const int MaxEliminateDetectIterations = (int)ConfigParameters["MaxEliminateDetectIterations"];
-static const string priorityMode = (string)ConfigParameters["priorityMode"];
-static const string runMode = (string)ConfigParameters["runMode"];
-static const string testDataSetName = (string)ConfigParameters["testDataSetName"];
+static const std::string priorityMode = (std::string)ConfigParameters["priorityMode"];
+static const std::string runMode = (std::string)ConfigParameters["runMode"];
+static const std::string testDataSetName = (std::string)ConfigParameters["testDataSetName"];
 static const double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
 static const double DataAgeThreshold = (double)ConfigParameters["DataAgeThreshold"];
 static const double ReactionTimeThreshold = (double)ConfigParameters["ReactionTimeThreshold"];
@@ -131,7 +131,7 @@ static const double RoundingThreshold = (double)ConfigParameters["RoundingThresh
 
 static const std::string verbosityLM = (std::string)ConfigParameters["verbosityLM"];
 // code below is only used to show how to read vectors, but is not actually used in this project
-// vector<int> readVector(string filename)
+//std::vector<int> readVector(std::string filename)
 // {
 //     cv::FileStorage fs;
 //     fs.open(filename, cv::FileStorage::READ);
@@ -139,7 +139,7 @@ static const std::string verbosityLM = (std::string)ConfigParameters["verbosityL
 //     fs["chain"] >> Tt;
 //     int rows = Tt.rows;
 
-//     vector<int> vec;
+//    std::vector<int> vec;
 //     vec.reserve(rows);
 //     for (int i = 0; i < rows; i++)
 //     {
@@ -147,7 +147,7 @@ static const std::string verbosityLM = (std::string)ConfigParameters["verbosityL
 //     }
 //     return vec;
 // }
-// vector<int> CA_CHAIN = readVector(PROJECT_PATH + "sources/parameters.yaml");
+//std::vector<int> CA_CHAIN = readVector(PROJECT_PATH + "sources/parameters.yaml");
 
 static const int64_t kVerucchiTimeLimit = (int)ConfigParameters["kVerucchiTimeLimit"];
 static const double kVerucchiReactionCost = (double)ConfigParameters["kVerucchiReactionCost"];

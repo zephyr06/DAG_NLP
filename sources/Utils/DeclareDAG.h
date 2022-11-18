@@ -28,7 +28,7 @@
 #include "sources/Utils/profilier.h"
 #include "sources/Utils/MatirxConvenient.h"
 
-using namespace std;
+// using namespace std;
 // using namespace gtsam;
 
 typedef boost::function<VectorDynamic(const VectorDynamic &)> NormalErrorFunction1D;
@@ -45,7 +45,7 @@ typedef long long int LLint;
  * @param sizeOfVariables
  * @return LLint
  */
-LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const vector<LLint> &sizeOfVariables);
+LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const std::vector<LLint> &sizeOfVariables);
 
 /**
  * @brief Given index in startTimeVector, decode its task index
@@ -54,7 +54,7 @@ LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const vector<LLint> 
  * @param sizeOfVariables
  * @return int: task index
  */
-int BigIndex2TaskIndex(LLint index, const vector<LLint> &sizeOfVariables);
+int BigIndex2TaskIndex(LLint index, const std::vector<LLint> &sizeOfVariables);
 
 /**
  * @brief generate key symbol for use in GTSAM
@@ -74,11 +74,11 @@ inline gtsam::Symbol GenerateKey(int idtask, LLint j)
 }
 
 // return (taskId, jobId)
-inline pair<int, LLint> AnalyzeKey(gtsam::Symbol key)
+inline std::pair<int, LLint> AnalyzeKey(gtsam::Symbol key)
 {
     int id = key.chr() - 'a';
     LLint index = key.index();
-    return make_pair(id, index);
+    return std::make_pair(id, index);
 }
 
 struct MappingDataStruct
@@ -107,7 +107,7 @@ struct MappingDataStruct
 };
 inline std::ostream &operator<<(std::ostream &os, MappingDataStruct const &m)
 {
-    return os << m.getIndex() << ", " << m.getDistance() << endl;
+    return os << m.getIndex() << ", " << m.getDistance() << std::endl;
 }
 
 typedef std::unordered_map<int, MappingDataStruct> MAP_Index2Data;
@@ -123,11 +123,11 @@ typedef boost::function<VectorDynamic(const VectorDynamic &)> FuncV2V;
  * @return double start time of the extracted instance
  */
 double ExtractVariable(const VectorDynamic &startTimeVector,
-                       const vector<LLint> &sizeOfVariables,
+                       const std::vector<LLint> &sizeOfVariables,
                        int taskIndex, int instanceIndex);
 
 VectorDynamic CompresStartTimeVector(const VectorDynamic &startTimeComplete,
-                                     const vector<bool> &maskForEliminate);
+                                     const std::vector<bool> &maskForEliminate);
 
 inline double QuotientDouble(double a, int b)
 {
@@ -182,7 +182,7 @@ MatrixDynamic NumericalDerivativeDynamic2D2(NormalErrorFunction2D h,
  */
 double GetSingleElement(LLint index, VectorDynamic &actual,
                         const MAP_Index2Data &mapIndex,
-                        vector<bool> &filledTable);
+                        std::vector<bool> &filledTable);
 
 inline void UpdateSM(double val, LLint i, LLint j, SM_Dynamic &sm)
 {

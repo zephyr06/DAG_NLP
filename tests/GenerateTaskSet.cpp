@@ -11,6 +11,7 @@ void deleteDirectoryContents(const std::string &dir_path)
 }
 int main(int argc, char *argv[])
 {
+    using namespace std;
     argparse::ArgumentParser program("program name");
     program.add_argument("-v", "--verbose"); // parameter packing
 
@@ -133,28 +134,28 @@ int main(int argc, char *argv[])
         totalUtilization = program.get<double>("--totalUtilization");
     }
 
-    cout << "Task configuration: " << endl
-         << "the number of tasks in DAG(--N): " << N << endl
-         << "DAG_taskSetNumber(--taskSetNumber): " << DAG_taskSetNumber << endl
-         << "NumberOfProcessor(--NumberOfProcessor): " << numberOfProcessor << endl
-         << "totalUtilization(--totalUtilization): " << totalUtilization << endl
-         << "aveUtilization(--aveUtilization): " << aveUtilization << endl
-         << "whether use random utilization(--useRandomUtilization): " << useRandomUtilization << endl
-         << "minimum utilization per core, only work in random utilization mode(--minUtilizationPerCore): " << minUtilizationPerCore << endl
-         << "maximum utilization per core, only work in random utilization mode(--maxUtilizationPerCore): " << maxUtilizationPerCore << endl
-         << "periodMin, only work in normal(random) taskSetType(--periodMin), : " << periodMin << endl
-         << "periodMax, only work in normal(random) taskSetType(--periodMax): " << periodMax << endl
-         << "taskType(--taskType), 0 means normal, 1 means DAG: " << taskType << endl
-         << "deadlineType(--deadlineType), 1 means random, 0 means implicit: " << deadlineType << endl
-         << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile, 3 means automobile with WATERS distribution: " << taskSetType << endl
-         << "coreRequireMax(--coreRequireMax): " << coreRequireMax << endl
-         << "excludeUnschedulable(--excludeUnschedulable): " << excludeUnschedulable << endl
-         << "excludeEmptyEdgeDag(--excludeEmptyEdgeDag): " << excludeEmptyEdgeDag << endl
-         << "randomSeed, negative will use current time, otherwise use the given seed(--randomSeed): " << randomSeed << endl
-         << endl;
+   std::cout << "Task configuration: " << std::endl
+         << "the number of tasks in DAG(--N): " << N << std::endl
+         << "DAG_taskSetNumber(--taskSetNumber): " << DAG_taskSetNumber << std::endl
+         << "NumberOfProcessor(--NumberOfProcessor): " << numberOfProcessor << std::endl
+         << "totalUtilization(--totalUtilization): " << totalUtilization << std::endl
+         << "aveUtilization(--aveUtilization): " << aveUtilization << std::endl
+         << "whether use random utilization(--useRandomUtilization): " << useRandomUtilization << std::endl
+         << "minimum utilization per core, only work in random utilization mode(--minUtilizationPerCore): " << minUtilizationPerCore << std::endl
+         << "maximum utilization per core, only work in random utilization mode(--maxUtilizationPerCore): " << maxUtilizationPerCore << std::endl
+         << "periodMin, only work in normal(random) taskSetType(--periodMin), : " << periodMin << std::endl
+         << "periodMax, only work in normal(random) taskSetType(--periodMax): " << periodMax << std::endl
+         << "taskType(--taskType), 0 means normal, 1 means DAG: " << taskType << std::endl
+         << "deadlineType(--deadlineType), 1 means random, 0 means implicit: " << deadlineType << std::endl
+         << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile, 3 means automobile with WATERS distribution: " << taskSetType << std::endl
+         << "coreRequireMax(--coreRequireMax): " << coreRequireMax << std::endl
+         << "excludeUnschedulable(--excludeUnschedulable): " << excludeUnschedulable << std::endl
+         << "excludeEmptyEdgeDag(--excludeEmptyEdgeDag): " << excludeEmptyEdgeDag << std::endl
+         << "randomSeed, negative will use current time, otherwise use the given seed(--randomSeed): " << randomSeed << std::endl
+         << std::endl;
 
-    string outDirectory = PROJECT_PATH + "TaskData/dagTasks/";
-    // string outDirectory = PROJECT_PATH + "Energy_Opt_NLP/TaskData/task_number/";
+    std::string outDirectory = PROJECT_PATH + "TaskData/dagTasks/";
+    // std::string outDirectory = PROJECT_PATH + "Energy_Opt_NLP/TaskData/task_number/";
     deleteDirectoryContents(outDirectory);
 
     for (size_t i = 0; i < DAG_taskSetNumber; i++)
@@ -169,8 +170,8 @@ int main(int argc, char *argv[])
                                             numberOfProcessor,
                                             periodMin,
                                             periodMax, coreRequireMax, taskSetType, deadlineType);
-            string fileName = "periodic-set-" + string(3 - to_string(i).size(), '0') + to_string(i) + "-syntheticJobs" + ".csv";
-            ofstream myfile;
+            std::string fileName = "periodic-set-" + std::string(3 - std::to_string(i).size(), '0') + to_string(i) + "-syntheticJobs" + ".csv";
+            std::ofstream myfile;
             myfile.open(outDirectory + fileName);
             WriteTaskSets(myfile, tasks);
         }
@@ -218,7 +219,7 @@ int main(int argc, char *argv[])
                     }
                 }
                 string fileName = "dag-set-N" + to_string(N) + "-" + string(3 - to_string(i).size(), '0') + to_string(i) + "-syntheticJobs" + ".csv";
-                ofstream myfile;
+                std::ofstream myfile;
                 myfile.open(outDirectory + fileName);
                 WriteDAG(myfile, tasks);
                 myfile.close();

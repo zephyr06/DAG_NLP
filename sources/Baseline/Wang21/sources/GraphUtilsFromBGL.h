@@ -35,7 +35,7 @@ namespace RTSS21IC_NLP
         typedef boost::vertex_property_tag kind;
     };
 
-    pair<Graph, indexVertexMap> EstablishGraphStartTimeVector(OrderOptDAG_SPACE::DAG_Model &dagTasks)
+    std::pair<Graph, indexVertexMap> EstablishGraphStartTimeVector(OrderOptDAG_SPACE::DAG_Model &dagTasks)
     {
         using namespace DAG_SPACE;
         RegularTaskSystem::TaskSet tasks = dagTasks.tasks;
@@ -43,7 +43,7 @@ namespace RTSS21IC_NLP
         LLint hyperPeriod = HyperPeriod(tasks);
 
         // declare variables
-        vector<LLint> sizeOfVariables;
+       std::vector<LLint> sizeOfVariables;
         int variableDimension = 0;
         for (int i = 0; i < N; i++)
         {
@@ -86,10 +86,10 @@ namespace RTSS21IC_NLP
         // {
         //     std::cout << vertex2indexBig[*i] << std::endl;
         // }
-        return make_pair(g, indexesBGL);
+        return std::make_pair(g, indexesBGL);
     }
 
-    void FindSubTree(Graph &g, vector<LLint> &subTreeIndex, std::unordered_set<int> &indexSet, Vertex v)
+    void FindSubTree(Graph &g,std::vector<LLint> &subTreeIndex, std::unordered_set<int> &indexSet, Vertex v)
     {
         vertex_name_map_t vertex2indexBig = get(vertex_name, g);
 
@@ -129,7 +129,7 @@ namespace RTSS21IC_NLP
         return;
     }
 
-    void FindSubTree(Graph &g, vector<LLint> &subTreeIndex, Vertex v)
+    void FindSubTree(Graph &g,std::vector<LLint> &subTreeIndex, Vertex v)
     {
         std::unordered_set<int> indexSet;
         FindSubTree(g, subTreeIndex, indexSet, v);
@@ -151,9 +151,9 @@ namespace RTSS21IC_NLP
     //     {
     //         src_name = boost::get(name, source(*first, G));
     //         targ_name = boost::get(name, target(*first, G));
-    //         // cout << src_name << " owes "
-    //         //      << targ_name << " some money" << endl;
-    //         cout << src_name.id << ", " << targ_name.id << endl;
+    //         //std::cout << src_name << " owes "
+    //         //      << targ_name << " some money" <<std::endl;
+    //        std::cout << src_name.id << ", " << targ_name.id <<std::endl;
     //         ++first;
     //     }
     // }
@@ -162,9 +162,9 @@ namespace RTSS21IC_NLP
      * @brief
      *
      * @param dagTasks
-     * @return vector<int> execution order of task index, first task first
+     * @returnstd::vector<int> execution order of task index, first task first
      */
-    vector<int> FindDependencyOrder(const OrderOptDAG_SPACE::DAG_Model &dagTasks)
+   std::vector<int> FindDependencyOrder(const OrderOptDAG_SPACE::DAG_Model &dagTasks)
     {
 
         using namespace RegularTaskSystem;
@@ -197,13 +197,13 @@ namespace RTSS21IC_NLP
         boost::topological_sort(g, std::front_inserter(make_order));
 
         // std::cout << "dependency ordering: ";
-        vector<int> executionOrder;
+       std::vector<int> executionOrder;
         executionOrder.reserve(N);
         for (MakeOrder::iterator i = make_order.begin();
              i != make_order.end(); ++i)
         {
             executionOrder.push_back(*i);
-            // cout << *i << endl;
+            //std::cout << *i <<std::endl;
         }
         return executionOrder;
     }

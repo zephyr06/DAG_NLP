@@ -30,7 +30,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
                         int periodMax, int coreRequireMax,
                         int taskSetType, int deadlineType)
 {
-    vector<double> utilVec = Uunifast(N, totalUtilization);
+   std::vector<double> utilVec = Uunifast(N, totalUtilization);
     TaskSet tasks;
     int periodMaxRatio = periodMax / periodMin;
 
@@ -87,7 +87,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
     }
     return tasks;
 }
-void WriteTaskSets(ofstream &file, TaskSet &tasks)
+void WriteTaskSets(std::ofstream &file, TaskSet &tasks)
 {
     int N = tasks.size();
     file << "JobID,Offset,Period,Overhead,ExecutionTime,DeadLine,processorId,coreRequire\n";
@@ -142,7 +142,7 @@ DAG_Model GenerateDAG(int N, double totalUtilization,
     return dagModel;
 }
 
-void WriteDAG(ofstream &file, DAG_Model &tasksDAG)
+void WriteDAG(std::ofstream &file, DAG_Model &tasksDAG)
 {
     WriteTaskSets(file, tasksDAG.tasks);
     for (auto itr = tasksDAG.mapPrev.begin(); itr != tasksDAG.mapPrev.end(); itr++)

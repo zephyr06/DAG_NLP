@@ -32,7 +32,7 @@ namespace OrderOptDAG_SPACE
             {
                 std::cout << chains[i][j] << ", ";
             }
-            std::cout << endl;
+            std::cout << std::endl;
         }
     }
 
@@ -41,7 +41,7 @@ namespace OrderOptDAG_SPACE
     // MAP_Prev maps one task to all the tasks it depends on
     using namespace RegularTaskSystem;
 
-    pair<Graph, indexVertexMap> DAG_Model::GenerateGraphForTaskSet()
+    std::pair<Graph, indexVertexMap> DAG_Model::GenerateGraphForTaskSet()
     {
 
         Graph g;
@@ -89,7 +89,7 @@ namespace OrderOptDAG_SPACE
         for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
         {
             for (uint i = 0; i < (itr->second).size(); i++)
-                cout << "Edge: " << ((itr->second)[i].id) << "-->" << (itr->first) << endl;
+               std::cout << "Edge: " << ((itr->second)[i].id) << "-->" << (itr->first) << std::endl;
         }
     }
 
@@ -183,13 +183,14 @@ namespace OrderOptDAG_SPACE
         return chains;
     }
 
-    DAG_Model ReadDAG_Tasks(string path, string priorityType, int chainNum)
+    DAG_Model ReadDAG_Tasks(std::string path, std::string priorityType, int chainNum)
     {
+        using namespace std;
         TaskSet tasks = ReadTaskSet(path, priorityType);
         // some default parameters in this function
-        string delimiter = ",";
-        string token;
-        string line;
+        std::string delimiter = ",";
+        std::string token;
+        std::string line;
         size_t pos = 0;
 
         MAP_Prev mapPrev;
@@ -198,7 +199,7 @@ namespace OrderOptDAG_SPACE
         file.open(path, ios::in);
         if (file.is_open())
         {
-            string line;
+            std::string line;
             double sf_bound = 0;
             double rtda_bound = 0;
             while (getline(file, line))
@@ -208,8 +209,8 @@ namespace OrderOptDAG_SPACE
                 if (line[0] == '*')
                 {
                     line = line.substr(1, int(line.size()) - 1);
-                    vector<int> dataInLine;
-                    while ((pos = line.find(delimiter)) != string::npos)
+                   std::vector<int> dataInLine;
+                    while ((pos = line.find(delimiter)) != std::string::npos)
                     {
                         token = line.substr(0, pos);
                         int temp = atoi(token.c_str());
@@ -241,9 +242,9 @@ namespace OrderOptDAG_SPACE
         }
         else
         {
-            cout << Color::red << "The path does not exist in ReadTaskSet!" << endl
+           std::cout << Color::red << "The path does not exist in ReadTaskSet!" << std::endl
                  << path
-                 << Color::def << endl;
+                 << Color::def << std::endl;
             throw;
         }
     }

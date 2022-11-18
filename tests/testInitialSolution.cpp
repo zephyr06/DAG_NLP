@@ -14,7 +14,7 @@ TEST(GenerateInitialForDAG, V2)
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -37,7 +37,7 @@ TEST(GenerateInitialForDAG, V3)
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -61,7 +61,7 @@ TEST(GenerateInitialForDAG_RelativeStart, v1)
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -115,7 +115,7 @@ TEST(GenerateInitialForDAG_RM_DAG, v1)
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -138,7 +138,7 @@ TEST(GenerateInitialForDAG_RM_DAG, v2)
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -161,7 +161,7 @@ TEST(GenerateInitialForDAG_RM_DAG, v3)
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -186,7 +186,7 @@ TEST(GenerateInitialForDAG_RM_DAG, MultiProcessor_v1)
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -211,7 +211,7 @@ TEST(GenerateInitialForDAG, Multi_v2)
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -234,7 +234,7 @@ TEST(GenerateInitialForDAG, Multi_v3_processorMap)
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -262,7 +262,7 @@ TEST(SimulateFixedPrioritySched, Multi_v1)
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -290,7 +290,7 @@ TEST(SimulateFixedPrioritySched, Multi_v2)
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -320,7 +320,7 @@ TEST(SimulateFixedPrioritySched, Multi_v2)
 //     LLint hyperPeriod = HyperPeriod(tasks);
 
 //     // declare variables
-//     vector<LLint> sizeOfVariables;
+//    std::vector<LLint> sizeOfVariables;
 //     int variableDimension = 0;
 //     for (int i = 0; i < N; i++)
 //     {
@@ -331,7 +331,7 @@ TEST(SimulateFixedPrioritySched, Multi_v2)
 //     VectorDynamic initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,
 //                                                                  sizeOfVariables,
 //                                                                  variableDimension);
-//     // cout << initialEstimate << endl;
+//     //std::cout << initialEstimate <<std::endl;
 //     VectorDynamic expect = initialEstimate;
 //     expect << 2.008, 1, 2, 3, 4, 5, 6.78, 7, 8, 9, 1.765, 2, 4.01, 6.78, 8.01, 0, 5.01;
 //     assert_equal(expect, initialEstimate, 0.01);
@@ -347,7 +347,7 @@ TEST(SimulateFixedPrioritySched, v3)
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -372,7 +372,7 @@ TEST(SimulateFixedPrioritySchedDAG, v6)
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -529,7 +529,7 @@ TEST(get_random_chain, v1)
 //     VectorDynamic expected = initial;
 //     expected << 0, 100, 200, 300, 400, 500, 10, 210, 410, 21, 310;
 //     assert_equal(expected, initial);
-//     cout << std::endl;
+//    std::cout << std::endl;
 // }
 
 // TEST(GenerateInitial_Custom_DAG, n6v1)

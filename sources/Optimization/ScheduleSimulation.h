@@ -147,7 +147,7 @@ namespace OrderOptDAG_SPACE
      */
     ProcessorId2Index CreateProcessorId2Index(const TaskSet &tasks);
 
-    void AddTasksToRunQueues(vector<RunQueue> &runQueues, const TaskSet &tasks, ProcessorId2Index &processorId2Index, LLint timeNow);
+    void AddTasksToRunQueues(std::vector<RunQueue> &runQueues, const TaskSet &tasks, ProcessorId2Index &processorId2Index, LLint timeNow);
 
     class EventPool
     {
@@ -184,8 +184,8 @@ namespace OrderOptDAG_SPACE
     void AddTasksToRunQueue(RunQueue &runQueue, const TaskSet &tasks, LLint timeNow, EventPool &eventPool);
 
     void UpdateSTVAfterPopTask(RunQueue::ID_INSTANCE_PAIR &job, VectorDynamic &startTimeVector,
-                               LLint timeNow, vector<LLint> &nextFree, const TaskSet &tasks,
-                               vector<bool> &busy, int processorId, vector<LLint> &sizeOfVariables);
+                               LLint timeNow,std::vector<LLint> &nextFree, const TaskSet &tasks,
+                              std::vector<bool> &busy, int processorId,std::vector<LLint> &sizeOfVariables);
 
     /**
      * @brief Warning! All the task sets must have int type values, otherwise it may generate inappropriate initialization method;

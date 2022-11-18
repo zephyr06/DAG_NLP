@@ -37,7 +37,7 @@ namespace RTSS21IC_NLP
     typedef Eigen::SparseMatrix<double, Eigen::ColMajor> SM_Dynamic;
 
     typedef long long int LLint;
-    typedef std::map<int, vector<int>> ProcessorTaskSet;
+    typedef std::map<int,std::vector<int>> ProcessorTaskSet;
     struct MappingDataStruct
     {
         LLint index;
@@ -64,7 +64,7 @@ namespace RTSS21IC_NLP
     };
     std::ostream &operator<<(std::ostream &os, MappingDataStruct const &m)
     {
-        return os << m.getIndex() << ", " << m.getDistance() << endl;
+        return os << m.getIndex() << ", " << m.getDistance() << std::endl;
     }
 
     // typedef unordered_map<int, boost::function<double(const VectorDynamic &, int)>> MAP_Index2Func;
@@ -81,13 +81,13 @@ namespace RTSS21IC_NLP
      * @return double start time of the extracted instance
      */
     double ExtractVariable(const VectorDynamic &startTimeVector,
-                           const vector<LLint> &sizeOfVariables,
+                           const std::vector<LLint> &sizeOfVariables,
                            int taskIndex, int instanceIndex)
     {
         if (taskIndex < 0 || instanceIndex < 0 || instanceIndex > sizeOfVariables[taskIndex] - 1)
         {
 
-            cout << Color::red << "Index Error in ExtractVariable!" << Color::def << endl;
+           std::cout << Color::red << "Index Error in ExtractVariable!" << Color::def << std::endl;
             throw;
         }
 
@@ -107,7 +107,7 @@ namespace RTSS21IC_NLP
      * @param sizeOfVariables
      * @return LLint
      */
-    LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const vector<LLint> &sizeOfVariables)
+    LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const std::vector<LLint> &sizeOfVariables)
     {
         if (instance_i < 0 || instance_i > sizeOfVariables[i])
             CoutError("Instance Index out of boundary in IndexTran_Instance2Overall");
@@ -126,7 +126,7 @@ namespace RTSS21IC_NLP
      * @param sizeOfVariables
      * @return int: task index
      */
-    int BigIndex2TaskIndex(LLint index, const vector<LLint> &sizeOfVariables)
+    int BigIndex2TaskIndex(LLint index, const std::vector<LLint> &sizeOfVariables)
     {
         int taskIndex = 0;
         int N = sizeOfVariables.size();
@@ -154,9 +154,9 @@ namespace RTSS21IC_NLP
     }
 
     template <class T>
-    vector<T> Eigen2Vector(const VectorDynamic &input)
+   std::vector<T> Eigen2Vector(const VectorDynamic &input)
     {
-        vector<T> res;
+       std::vector<T> res;
         LLint len = input.rows();
         res.reserve(len);
         for (LLint i = 0; i < len; i++)
@@ -164,7 +164,7 @@ namespace RTSS21IC_NLP
         return res;
     }
     template <class T>
-    VectorDynamic Vector2Eigen(const vector<T> &input)
+    VectorDynamic Vector2Eigen(const std::vector<T> &input)
     {
 
         LLint len = input.size();
@@ -222,8 +222,8 @@ namespace RTSS21IC_NLP
             VectorDynamic currErr = h(x);
             // if (debugMode == 1)
             // {
-            //     cout << "currErr" << currErr << endl
-            //          << endl;
+            //    std::cout << "currErr" << currErr <<std::endl
+            //          <<std::endl;
             // }
 
             for (int i = 0; i < n; i++)
@@ -239,7 +239,7 @@ namespace RTSS21IC_NLP
                 resMinus = h(xDelta);
                 // if (debugMode == 1)
                 // {
-                //     cout << "resPlus" << resPlus << endl;
+                //    std::cout << "resPlus" << resPlus <<std::endl;
                 // }
 
                 for (int j = 0; j < mOfJacobian; j++)
@@ -262,7 +262,7 @@ namespace RTSS21IC_NLP
          */
         double GetSingleElement(LLint index, VectorDynamic &actual,
                                 const MAP_Index2Data &mapIndex,
-                                vector<bool> &filledTable)
+                               std::vector<bool> &filledTable)
         {
             if (filledTable[index])
                 return actual(index, 0);
@@ -284,11 +284,11 @@ namespace RTSS21IC_NLP
         }
 
         VectorDynamic RecoverStartTimeVector(const VectorDynamic &compressed,
-                                             const vector<bool> &maskEliminate,
+                                             const std::vector<bool> &maskEliminate,
                                              const MAP_Index2Data &mapIndex)
         {
             LLint variableDimension = maskEliminate.size();
-            vector<bool> filledTable(variableDimension, 0);
+           std::vector<bool> filledTable(variableDimension, 0);
 
             VectorDynamic actual = GenerateVectorDynamic(variableDimension);
             LLint index = 0;
@@ -331,7 +331,7 @@ namespace RTSS21IC_NLP
          * @param maskForEliminate
          * @return std::unordered_map<LLint, LLint>
          */
-        std::unordered_map<LLint, LLint> MapIndex_True2Compress(const vector<bool> &maskForEliminate)
+        std::unordered_map<LLint, LLint> MapIndex_True2Compress(const std::vector<bool> &maskForEliminate)
         {
 
             std::unordered_map<LLint, LLint> m;
@@ -366,7 +366,7 @@ namespace RTSS21IC_NLP
          * a sparse matrix that represents Jacobian matrix of compreseed variables w.r.t. original variables
          */
         SM_Dynamic JacobianElimination(LLint length, LLint lengthCompressed,
-                                       const vector<LLint> &sizeOfVariables,
+                                       const std::vector<LLint> &sizeOfVariables,
                                        const MAP_Index2Data &mapIndex,
                                        const std::unordered_map<LLint, LLint> &mapIndex_True2Compress)
         {

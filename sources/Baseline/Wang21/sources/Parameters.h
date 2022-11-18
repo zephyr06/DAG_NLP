@@ -79,10 +79,10 @@ namespace RTSS21IC_NLP
     int withAddedSensorFusionError = (int)ConfigParameters["withAddedSensorFusionError"];
     const int maxIterations = (int)ConfigParameters["maxIterations"];
     const int maxJacobianIteration = (int)ConfigParameters["maxJacobianIteration"];
-    string priorityMode = (string)ConfigParameters["priorityMode"];
-    const string readTaskMode = (string)ConfigParameters["readTaskMode"];
-    const string runMode = (string)ConfigParameters["runMode"];
-    const string testDataSetName = (string)ConfigParameters["testDataSetName"];
+    string priorityMode = (std::string)ConfigParameters["priorityMode"];
+    const string readTaskMode = (std::string)ConfigParameters["readTaskMode"];
+    const string runMode = (std::string)ConfigParameters["runMode"];
+    const string testDataSetName = (std::string)ConfigParameters["testDataSetName"];
     double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
 
 } // namespace RTSS21IC_NLP

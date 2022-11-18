@@ -118,9 +118,9 @@ namespace OrderOptDAG_SPACE
         }
     }
 
-    vector<string> ReadFilesInDirectory(const char *path)
+   std::vector<std::string> ReadFilesInDirectory(const char *path)
     {
-        vector<string> files;
+       std::vector<std::string> files;
         DIR *dr;
         struct dirent *en;
         dr = opendir(path);
@@ -132,7 +132,7 @@ namespace OrderOptDAG_SPACE
             }
             closedir(dr); // close all directory
         }
-        sort(files.begin(), files.end());
+        std::sort(files.begin(), files.end());
         return files;
     }
 }

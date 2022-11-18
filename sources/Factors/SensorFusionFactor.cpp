@@ -3,7 +3,7 @@
 
 namespace OrderOptDAG_SPACE
 {
-    LLint CountSFError(const DAG_Model &dagTasks, const vector<LLint> &sizeOfVariables)
+    LLint CountSFError(const DAG_Model &dagTasks, const std::vector<LLint> &sizeOfVariables)
     {
         LLint errorDimensionSF = 0;
         for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
@@ -14,12 +14,12 @@ namespace OrderOptDAG_SPACE
         return errorDimensionSF;
     }
 
-    pair<int, int> ExtractMaxDistance(vector<IndexData> &sourceFinishTime)
+    std::pair<int, int> ExtractMaxDistance(std::vector<IndexData> &sourceFinishTime)
     {
         // return *max_element(sourceFinishTime.begin(), sourceFinishTime.end()) -
         //        *min_element(sourceFinishTime.begin(), sourceFinishTime.end());
         if (sourceFinishTime.size() == 0)
-            return make_pair(0, 0);
+            return std::make_pair(0, 0);
 
         double maxEle = sourceFinishTime[0].time;
         int maxIndex = 0;
@@ -39,7 +39,7 @@ namespace OrderOptDAG_SPACE
                 minIndex = sourceFinishTime[i].time;
             }
         }
-        return make_pair(maxIndex, minIndex);
+        return std::make_pair(maxIndex, minIndex);
     }
 
     VectorDynamic ObtainSensorFusionError(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
@@ -56,7 +56,7 @@ namespace OrderOptDAG_SPACE
             const TaskSet &tasksPrev = itr->second;
             if (tasksPrev.size() > 1)
             {
-                vector<double> sourceFinishTime;
+               std::vector<double> sourceFinishTime;
                 sourceFinishTime.reserve(tasksPrev.size());
                 size_t indexCurr = itr->first;
 

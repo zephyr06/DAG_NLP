@@ -39,7 +39,7 @@ namespace RTSS21IC_NLP
                 for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
                 {
                     for (int i = 0; i < (itr->second).size(); i++)
-                        std::cout << "Edge: " << ((itr->second)[i].id) << "-->" << (itr->first) << endl;
+                        std::cout << "Edge: " << ((itr->second)[i].id) << "-->" << (itr->first) << std::endl;
                 }
             }
             TaskSet GetTasks() const
@@ -58,7 +58,7 @@ namespace RTSS21IC_NLP
             }
         };
 
-        OrderOptDAG_SPACE::DAG_Model ReadDAG_Tasks(string path, string priorityType = "orig")
+        OrderOptDAG_SPACE::DAG_Model ReadDAG_Tasks(std::string path, string priorityType = "orig")
         {
             TaskSet tasks = ReadTaskSet(path, priorityType);
             // some default parameters in this function
@@ -79,7 +79,7 @@ namespace RTSS21IC_NLP
                     if (line[0] != '*')
                         continue;
                     line = line.substr(1, int(line.size()) - 1);
-                    vector<int> dataInLine;
+                   std::vector<int> dataInLine;
                     while ((pos = line.find(delimiter)) != string::npos)
                     {
                         token = line.substr(0, pos);
@@ -94,14 +94,14 @@ namespace RTSS21IC_NLP
                 OrderOptDAG_SPACE::DAG_Model ttt(tasks, mapPrev);
 
                 if (debugMode == 1)
-                    cout << "Finish reading the data file succesfully!\n";
+                   std::cout << "Finish reading the data file succesfully!\n";
                 return ttt;
             }
             else
             {
-                cout << Color::red << "The path does not exist in ReadTaskSet!" << endl
+               std::cout << Color::red << "The path does not exist in ReadTaskSet!" << std::endl
                      << path
-                     << Color::def << endl;
+                     << Color::def << std::endl;
                 throw;
             }
         }

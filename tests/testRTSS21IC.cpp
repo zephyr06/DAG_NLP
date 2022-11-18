@@ -35,7 +35,7 @@ TEST(SF, error_v1)
         RTSS21IC_NLP::MappingDataStruct m{i, 0};
         mapIndex[i] = m;
     }
-    vector<bool> maskForEliminate(tasksInfo.variableDimension, false);
+   std::vector<bool> maskForEliminate(tasksInfo.variableDimension, false);
     auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
     RTSS21IC_NLP::DAG_SPACE::SensorFusion_ConstraintFactor factor(key, dagTasks, tasksInfo.sizeOfVariables,
                                                                   errorDimensionSF, sensorFusionTolerance,
@@ -70,7 +70,7 @@ TEST(SF, error_v2)
         RTSS21IC_NLP::MappingDataStruct m{i, 0};
         mapIndex[i] = m;
     }
-    vector<bool> maskForEliminate(tasksInfo.variableDimension, false);
+   std::vector<bool> maskForEliminate(tasksInfo.variableDimension, false);
     auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
     RTSS21IC_NLP::DAG_SPACE::SensorFusion_ConstraintFactor factor(key, dagTasks, tasksInfo.sizeOfVariables,
                                                                   errorDimensionSF, sensorFusionTolerance,

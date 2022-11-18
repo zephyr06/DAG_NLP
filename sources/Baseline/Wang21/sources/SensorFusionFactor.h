@@ -11,7 +11,7 @@ namespace RTSS21IC_NLP
 
     namespace DAG_SPACE
     {
-        LLint CountSFError(OrderOptDAG_SPACE::DAG_Model &dagTasks, vector<LLint> &sizeOfVariables)
+        LLint CountSFError(OrderOptDAG_SPACE::DAG_Model &dagTasks,std::vector<LLint> &sizeOfVariables)
         {
             LLint errorDimensionSF = 0;
             for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
@@ -27,12 +27,12 @@ namespace RTSS21IC_NLP
             LLint index;
             double time;
         };
-        pair<int, int> ExtractMaxDistance(vector<IndexData> &sourceFinishTime)
+        std::pair<int, int> ExtractMaxDistance(std::vector<IndexData> &sourceFinishTime)
         {
             // return *max_element(sourceFinishTime.begin(), sourceFinishTime.end()) -
             //        *min_element(sourceFinishTime.begin(), sourceFinishTime.end());
             if (sourceFinishTime.size() == 0)
-                return make_pair(0, 0);
+                return std::make_pair(0, 0);
 
             double maxEle = sourceFinishTime[0].time;
             int maxIndex = 0;
@@ -52,9 +52,9 @@ namespace RTSS21IC_NLP
                     minIndex = sourceFinishTime[i].time;
                 }
             }
-            return make_pair(maxIndex, minIndex);
+            return std::make_pair(maxIndex, minIndex);
         }
-        double ExtractMaxDistance(vector<double> &sourceFinishTime)
+        double ExtractMaxDistance(std::vector<double> &sourceFinishTime)
         {
             return *max_element(sourceFinishTime.begin(), sourceFinishTime.end()) -
                    *min_element(sourceFinishTime.begin(), sourceFinishTime.end());
@@ -64,19 +64,19 @@ namespace RTSS21IC_NLP
         public:
             OrderOptDAG_SPACE::DAG_Model dagTasks;
             TaskSet tasks;
-            vector<LLint> sizeOfVariables;
+           std::vector<LLint> sizeOfVariables;
             int N;
             double sensorFusionTol; // not used, actually
             LLint errorDimension;
             MAP_Index2Data mapIndex;
-            vector<bool> maskForEliminate;
+           std::vector<bool> maskForEliminate;
             LLint length;
             LLint lengthCompressed;
             std::unordered_map<LLint, LLint> mapIndex_True2Compress;
             OrderOptDAG_SPACE::TaskSetInfoDerived tasksInfo;
 
-            SensorFusion_ConstraintFactor(Key key, OrderOptDAG_SPACE::DAG_Model &dagTasks, vector<LLint> sizeOfVariables, LLint errorDimension,
-                                          double sensorFusionTol, MAP_Index2Data &mapIndex, vector<bool> &maskForEliminate,
+            SensorFusion_ConstraintFactor(Key key, OrderOptDAG_SPACE::DAG_Model &dagTasks,std::vector<LLint> sizeOfVariables, LLint errorDimension,
+                                          double sensorFusionTol, MAP_Index2Data &mapIndex,std::vector<bool> &maskForEliminate,
                                           SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
                                                                     dagTasks(dagTasks),
                                                                     tasks(dagTasks.tasks), sizeOfVariables(sizeOfVariables),

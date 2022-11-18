@@ -13,7 +13,7 @@ TEST(ExtractVariable, v1)
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -42,7 +42,7 @@ TEST(ExtractVariable, v2)
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -67,7 +67,7 @@ TEST(BigIndex2TaskIndex, v1)
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
-    vector<LLint> sizeOfVariables;
+   std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -82,7 +82,7 @@ TEST(BigIndex2TaskIndex, v1)
         3 != BigIndex2TaskIndex(8, sizeOfVariables) ||
         4 != BigIndex2TaskIndex(9, sizeOfVariables))
     {
-        cout << "Error in BigIndex2TaskIndex" << endl;
+       std::cout << "Error in BigIndex2TaskIndex" << std::endl;
         throw;
     }
 }

@@ -15,16 +15,16 @@ namespace RTSS21IC_NLP
         public:
             OrderOptDAG_SPACE::DAG_Model dagTasks;
             TaskSet tasks;
-            vector<LLint> sizeOfVariables;
+           std::vector<LLint> sizeOfVariables;
             int N;
             LLint errorDimension;
             LLint length;
-            vector<bool> maskForEliminate;
+           std::vector<bool> maskForEliminate;
             MAP_Index2Data mapIndex;
             int sinkNode;
 
-            MakeSpanFactor(Key key, OrderOptDAG_SPACE::DAG_Model &dagTasks, vector<LLint> sizeOfVariables, LLint errorDimension,
-                           MAP_Index2Data &mapIndex, const vector<bool> &maskForEliminate,
+            MakeSpanFactor(Key key, OrderOptDAG_SPACE::DAG_Model &dagTasks,std::vector<LLint> sizeOfVariables, LLint errorDimension,
+                           MAP_Index2Data &mapIndex, const std::vector<bool> &maskForEliminate,
                            SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
                                                      dagTasks(dagTasks),
                                                      tasks(dagTasks.tasks), sizeOfVariables(sizeOfVariables),
@@ -88,13 +88,13 @@ namespace RTSS21IC_NLP
                     // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                     if (debugMode == 1)
                     {
-                        cout << "The Jacobian matrix of MakeSpanFactor is " << endl
-                             << *H << endl;
+                       std::cout << "The Jacobian matrix of MakeSpanFactor is " << std::endl
+                             << *H << std::endl;
                     }
                     if (debugMode == 1)
                     {
-                        // cout << "The input startTimeVector is " << startTimeVector << endl;
-                        cout << "The error vector of MakeSpanFactor is " << Color::blue << f(startTimeVector) << Color::def << endl;
+                        //std::cout << "The input startTimeVector is " << startTimeVector <<std::endl;
+                       std::cout << "The error vector of MakeSpanFactor is " << Color::blue << f(startTimeVector) << Color::def << std::endl;
                     }
                 }
                 EndTimer("MakeSpan");

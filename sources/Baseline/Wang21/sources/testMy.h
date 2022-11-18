@@ -14,11 +14,11 @@ namespace RTSS21IC_NLP
 
     using namespace std;
 
-    void CoutWarning(string message)
+    void CoutWarning(std::string message)
     {
-        cout << Color::red << message << Color::def << endl;
+       std::cout << Color::red << message << Color::def << std::endl;
     }
-    void CoutError(string message)
+    void CoutError(std::string message)
     {
         CoutWarning(message);
         throw;
@@ -35,7 +35,7 @@ namespace RTSS21IC_NLP
     void AssertUnEqual(T expect, T actual)
     {
         std::cout << "Assertion failed!" << std::endl;
-        cout << Color::red << "EXpect is " << expect << ", while the actual is " << actual << Color::def << endl;
+       std::cout << Color::red << "EXpect is " << expect << ", while the actual is " << actual << Color::def << std::endl;
         throw;
     }
     void AssertEqualScalar(double expected, double actual, double tolerance = 1e-6)
@@ -63,12 +63,12 @@ namespace RTSS21IC_NLP
     }
 
     template <typename T>
-    void AssertEqualVectorNoRepeat(const vector<T> &expected, const vector<T> &actual,
+    void AssertEqualVectorNoRepeat(const std::vector<T> &expected, const std::vector<T> &actual,
                                    double tolerance = 1e-6)
     {
         if (expected.size() != actual.size())
         {
-            cout << Color::red << "Length error! " << Color::def;
+           std::cout << Color::red << "Length error! " << Color::def;
             AssertUnEqual(expected.size(), actual.size());
             return;
         }
@@ -137,12 +137,12 @@ namespace RTSS21IC_NLP
 
                 try
                 {
-                    cout << "Expect is " << itr->first << ", " << itr->second << endl;
-                    cout << "Actual is " << itrActual->first << ", " << itrActual->second << endl;
+                   std::cout << "Expect is " << itr->first << ", " << itr->second << std::endl;
+                   std::cout << "Actual is " << itrActual->first << ", " << itrActual->second << std::endl;
                 }
                 catch (const std::exception &e)
                 {
-                    cout << "Cannot print the key to show mismatch element\n";
+                   std::cout << "Cannot print the key to show mismatch element\n";
                 }
                 CoutError("Element in mExpect is not found in or not equal to mActual!");
             }

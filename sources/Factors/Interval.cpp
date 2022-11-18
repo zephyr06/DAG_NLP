@@ -33,13 +33,13 @@ double Overlap(Interval &v1, Interval &v2)
     }
     else
     {
-        cout << Color::red << "Error in Overlap, no case found!" << Color::def << endl;
+        std::cout << Color::red << "Error in Overlap, no case found!" << Color::def << std::endl;
         throw;
     }
     return 0;
 }
 
-pair<double, double> OverlapGradient(Interval v1, Interval v2)
+std::pair<double, double> OverlapGradient(Interval v1, Interval v2)
 {
     // double e0=Overlap(v1,v2);
     v1.start += deltaOptimizer;
@@ -53,22 +53,22 @@ pair<double, double> OverlapGradient(Interval v1, Interval v2)
     v2.start -= deltaOptimizer * 2;
     double e_minus2 = Overlap(v1, v2);
 
-    return make_pair((e_plus1 - e_minus1) / 2 / deltaOptimizer, (e_plus2 - e_minus2) / 2 / deltaOptimizer);
+    return std::make_pair((e_plus1 - e_minus1) / 2 / deltaOptimizer, (e_plus2 - e_minus2) / 2 / deltaOptimizer);
     // double f1 = v1.start + v1.length;
     // double f2 = v2.start + v2.length;
     // if (v1.start >= f2 || v2.start >= f1)
-    //     return make_pair(0, 0);
+    //     return std::make_pair(0, 0);
     // else if (v2.start <= v1.start && f2 >= v1.start && f1 >= f2)
     // {
     //     if (v2.start == v1.start)
     //     {
     //         if (f1 == f2)
     //         {
-    //             return make_pair(0, 0);
+    //             return std::make_pair(0, 0);
     //         }
     //         else
     //         {
-    //             return make_pair(-0.5, 0.5);
+    //             return std::make_pair(-0.5, 0.5);
     //         }
     //     }
     //     else
@@ -79,29 +79,29 @@ pair<double, double> OverlapGradient(Interval v1, Interval v2)
     //         }
     //     }
 
-    //     return make_pair(-1, 1);
+    //     return std::make_pair(-1, 1);
     // }
     // else if (v2.start > v1.start && f2 < f1)
     // {
-    //     return make_pair(0, 0);
+    //     return std::make_pair(0, 0);
     // }
     // else if (v1.start > v2.start && f1 < f2)
     // {
-    //     return make_pair(0, 0);
+    //     return std::make_pair(0, 0);
     // }
     // else if (f1 >= v2.start && f2 >= f1 && v1.start <= v2.start)
     // {
-    //     return make_pair(1, -1);
+    //     return std::make_pair(1, -1);
     // }
     // else
     // {
-    //     cout << Color::red << "Error in Overlap, no case found!" << Color::def << endl;
+    //    std::cout << Color::red << "Error in Overlap, no case found!" << Color::def <<std::endl;
     //     throw;
     // }
-    // return make_pair(0, 0);
+    // return std::make_pair(0, 0);
 }
 
-double IntervalOverlapError(vector<Interval> &intervalVec)
+double IntervalOverlapError(std::vector<Interval> &intervalVec)
 {
     if (intervalVec.size() <= 1)
         return 0;

@@ -123,8 +123,8 @@ void AssertEqualMap(std::unordered_map<T1, T2> &mExpect, std::unordered_map<T1, 
 
             try
             {
-                std::cout << "Expect is " << itr->first << ", " << itr->second << endl;
-                std::cout << "Actual is " << itrActual->first << ", " << itrActual->second << endl;
+                std::cout << "Expect is " << itr->first << ", " << itr->second << std::endl;
+                std::cout << "Actual is " << itrActual->first << ", " << itrActual->second << std::endl;
             }
             catch (const std::exception &e)
             {

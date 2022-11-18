@@ -14,7 +14,7 @@
 #include "sources/Utils/Parameters.h"
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/Utils/testMy.h"
-using namespace std;
+// using namespace std;
 
 typedef std::map<int, std::vector<int>> ProcessorTaskSet;
 
@@ -104,12 +104,12 @@ namespace RegularTaskSystem
         /**
          * only used in ReadTaskSet because the input parameter's type is int
          **/
-        Task(vector<double> dataInLine)
+        Task(std::vector<double> dataInLine)
         {
             if (dataInLine.size() != 8)
             {
-                // cout << Color::red << "The length of dataInLine in Task constructor is wrong! Must be 8!\n"
-                //      << Color::def << endl;
+                //std::cout << Color::red << "The length of dataInLine in Task constructor is wrong! Must be 8!\n"
+                //      << Color::def <<std::endl;
                 // throw;
             }
             id = dataInLine[0];
@@ -129,10 +129,10 @@ namespace RegularTaskSystem
 
         void print()
         {
-            cout << "The period is: " << period << " The executionTime is " << executionTime << " The deadline is "
+           std::cout << "The period is: " << period << " The executionTime is " << executionTime << " The deadline is "
                  << deadline << " The overhead is " << overhead << " The offset is " << offset
                  << " The coreRequire is " << coreRequire
-                 << " The taskType is " << taskType << endl;
+                 << " The taskType is " << taskType << std::endl;
         }
 
         double utilization() const
@@ -150,15 +150,15 @@ namespace RegularTaskSystem
 
     inline void Print(TaskSet &tasks)
     {
-        cout << "The task set is printed as follows" << endl;
+       std::cout << "The task set is printed as follows" << std::endl;
         for (auto &task : tasks)
             task.print();
     }
 
     template <typename T>
-    vector<T> GetParameter(const TaskSet &taskset, string parameterType);
+   std::vector<T> GetParameter(const TaskSet &taskset, std::string parameterType);
     template <typename T>
-    VectorDynamic GetParameterVD(const TaskSet &taskset, string parameterType);
+    VectorDynamic GetParameterVD(const TaskSet &taskset, std::string parameterType);
 
     // some helper function for Reorder
     inline static bool comparePeriod(Task task1, Task task2)
@@ -186,15 +186,15 @@ namespace RegularTaskSystem
     long long int HyperPeriod(const TaskSet &tasks);
 
     // should not be used anymore
-    TaskSet Reorder(TaskSet tasks, string priorityType);
-    TaskSet ReadTaskSet(string path, string priorityType = "RM", int taskSetType = 1);
+    TaskSet Reorder(TaskSet tasks, std::string priorityType);
+    TaskSet ReadTaskSet(std::string path, std::string priorityType = "RM", int taskSetType = 1);
 
     void UpdateTaskSetExecutionTime(TaskSet &taskSet, VectorDynamic executionTimeVec, int lastTaskDoNotNeedOptimize = -1);
     /**
      * @brief
      *
      * @param tasks
-     * @return ProcessorTaskSet map type! processorId to vector<task ID>
+     * @return ProcessorTaskSet map type! processorId tostd::vector<task ID>
      */
     ProcessorTaskSet ExtractProcessorTaskSet(const TaskSet &tasks);
 
@@ -205,7 +205,7 @@ namespace RegularTaskSystem
         int N;
         LLint hyperPeriod;
         LLint variableDimension;
-        vector<LLint> sizeOfVariables;
+       std::vector<LLint> sizeOfVariables;
         LLint length;
         ProcessorTaskSet processorTaskSet;
 

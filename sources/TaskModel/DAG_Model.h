@@ -81,7 +81,7 @@ namespace OrderOptDAG_SPACE
             rtdaBound_ = rtdaBound;
         }
 
-        pair<Graph, indexVertexMap> GenerateGraphForTaskSet();
+        std::pair<Graph, indexVertexMap> GenerateGraphForTaskSet();
 
         void addEdge(int prevIndex, int nextIndex)
         {
@@ -114,6 +114,6 @@ namespace OrderOptDAG_SPACE
         std::vector<int> FindSinkTaskIds() const;
     };
 
-    DAG_Model ReadDAG_Tasks(string path, string priorityType = "orig", int chainNum = 1);
+    DAG_Model ReadDAG_Tasks(std::string path, std::string priorityType = "orig", int chainNum = 1);
 
 }

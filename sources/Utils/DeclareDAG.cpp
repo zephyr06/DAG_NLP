@@ -1,6 +1,6 @@
 #include "sources/Utils/DeclareDAG.h"
 
-LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const vector<LLint> &sizeOfVariables)
+LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const std::vector<LLint> &sizeOfVariables)
 {
     // BeginTimer(__FUNCTION__);
     if (instance_i < 0 || instance_i > sizeOfVariables[i])
@@ -14,7 +14,7 @@ LLint IndexTran_Instance2Overall(LLint i, LLint instance_i, const vector<LLint> 
     return index + instance_i;
 }
 
-int BigIndex2TaskIndex(LLint index, const vector<LLint> &sizeOfVariables)
+int BigIndex2TaskIndex(LLint index, const std::vector<LLint> &sizeOfVariables)
 {
     int taskIndex = 0;
     int N = sizeOfVariables.size();
@@ -27,13 +27,13 @@ int BigIndex2TaskIndex(LLint index, const vector<LLint> &sizeOfVariables)
 }
 
 double ExtractVariable(const VectorDynamic &startTimeVector,
-                       const vector<LLint> &sizeOfVariables,
+                       const std::vector<LLint> &sizeOfVariables,
                        int taskIndex, int instanceIndex)
 {
     if (taskIndex < 0 || instanceIndex < 0 || instanceIndex > sizeOfVariables[taskIndex] - 1)
     {
 
-        cout << Color::red << "Index Error in ExtractVariable!" << Color::def << endl;
+       std::cout << Color::red << "Index Error in ExtractVariable!" << Color::def << std::endl;
         throw;
     }
 
@@ -46,10 +46,10 @@ double ExtractVariable(const VectorDynamic &startTimeVector,
 }
 
 VectorDynamic CompresStartTimeVector(const VectorDynamic &startTimeComplete,
-                                     const vector<bool> &maskForEliminate)
+                                     const std::vector<bool> &maskForEliminate)
 {
     int variableDimension = maskForEliminate.size();
-    vector<double> initialUpdateVec;
+   std::vector<double> initialUpdateVec;
     initialUpdateVec.reserve(variableDimension - 1);
 
     for (int i = 0; i < variableDimension; i++)
@@ -148,7 +148,7 @@ MatrixDynamic NumericalDerivativeDynamic2D2(NormalErrorFunction2D h,
 
 double GetSingleElement(LLint index, VectorDynamic &actual,
                         const MAP_Index2Data &mapIndex,
-                        vector<bool> &filledTable)
+                       std::vector<bool> &filledTable)
 {
     if (filledTable[index])
         return actual(index, 0);

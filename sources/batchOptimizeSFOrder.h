@@ -79,16 +79,16 @@ namespace OrderOptDAG_SPACE
         std::vector<std::vector<double>> objsAll(TotalMethodUnderComparison);
         std::vector<std::vector<int>> schedulableAll(TotalMethodUnderComparison); // values could only be 0 / 1
 
-        std::vector<string> errorFiles;
-        std::vector<string> worseFiles;
-        std::vector<string> files = ReadFilesInDirectory(pathDataset);
+        std::vector<std::string> errorFiles;
+        std::vector<std::string> worseFiles;
+        std::vector<std::string> files = ReadFilesInDirectory(pathDataset);
         for (const auto &file : files)
         {
-            string delimiter = "-";
+            std::string delimiter = "-";
             if (file.substr(0, file.find(delimiter)) == "dag" && file.find("Res") == std::string::npos)
             {
-                std::cout << file << endl;
-                string path = PROJECT_PATH + "TaskData/dagTasks/" + file;
+                std::cout << file << std::endl;
+                std::string path = PROJECT_PATH + "TaskData/dagTasks/" + file;
                 OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(path, priorityMode);
                 if (dagTasks.GetSfBound() > 0)
                     sensorFusionTolerance = dagTasks.GetSfBound();
@@ -108,9 +108,9 @@ namespace OrderOptDAG_SPACE
                     }
                     else
                     {
-                        auto start = chrono::high_resolution_clock::now();
+                        auto start = std::chrono::high_resolution_clock::now();
                         res = PerformSingleScheduling(dagTasks, scheduleOptions, batchTestMethod);
-                        auto stop = chrono::high_resolution_clock::now();
+                        auto stop = std::chrono::high_resolution_clock::now();
                         auto duration = duration_cast<microseconds>(stop - start);
                         res.timeTaken_ = double(duration.count()) / 1e6;
                     }
@@ -156,11 +156,11 @@ namespace OrderOptDAG_SPACE
         }
 
         std::cout << "The number of error files: " << errorFiles.size() << std::endl;
-        for (string file : errorFiles)
+        for (std::string file : errorFiles)
             std::cout << file << std::endl;
 
         std::cout << "The number of files where OrderOpt performs worse: " << worseFiles.size() << std::endl;
-        for (string file : worseFiles)
+        for (std::string file : worseFiles)
             std::cout << file << std::endl;
         return;
     }

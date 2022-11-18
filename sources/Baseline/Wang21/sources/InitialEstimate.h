@@ -23,11 +23,11 @@ namespace RTSS21IC_NLP
          * @param sizeOfVariables
          * @return VectorDynamic size (N+1), first N is start time for nodes, the last one is r.h.s.
          */
-        VectorDynamic GenerateInitialForDAG_IndexMode(OrderOptDAG_SPACE::DAG_Model &dagTasks, vector<LLint> &sizeOfVariables, int variableDimension)
+        VectorDynamic GenerateInitialForDAG_IndexMode(OrderOptDAG_SPACE::DAG_Model &dagTasks,std::vector<LLint> &sizeOfVariables, int variableDimension)
         {
             int N = dagTasks.tasks.size();
             TaskSet &tasks = dagTasks.tasks;
-            vector<int> order = FindDependencyOrder(dagTasks);
+           std::vector<int> order = FindDependencyOrder(dagTasks);
             VectorDynamic initial = GenerateVectorDynamic(variableDimension);
 
             // m maps from tasks index to startTimeVector index
@@ -53,17 +53,17 @@ namespace RTSS21IC_NLP
             return initial;
         }
         VectorDynamic GenerateInitialForDAG_RelativeStart(OrderOptDAG_SPACE::DAG_Model &dagTasks,
-                                                          vector<LLint> &sizeOfVariables,
+                                                         std::vector<LLint> &sizeOfVariables,
                                                           int variableDimension)
         {
             int N = dagTasks.tasks.size();
             TaskSet &tasks = dagTasks.tasks;
-            vector<int> order = FindDependencyOrder(dagTasks);
+           std::vector<int> order = FindDependencyOrder(dagTasks);
             VectorDynamic initial = GenerateVectorDynamic(variableDimension);
 
             LLint index = 0;
             LLint currTime = 0;
-            vector<int> relativeStart;
+           std::vector<int> relativeStart;
             relativeStart.reserve(N);
             // schedule first instance for each DAG
             for (int i = 0; i < N; i++)
@@ -83,10 +83,10 @@ namespace RTSS21IC_NLP
         class RunQueue
         {
         public:
-            typedef pair<int, LLint> ID_INSTANCE_PAIR;
-            vector<RegularTaskSystem::Task> tasks;
+            typedef std::pair<int, LLint> ID_INSTANCE_PAIR;
+           std::vector<RegularTaskSystem::Task> tasks;
             int N;
-            vector<ID_INSTANCE_PAIR> taskQueue;
+           std::vector<ID_INSTANCE_PAIR> taskQueue;
             // ProcessorId2Index processorId2Index;,
             //                    ProcessorId2Index &processorId2Index                                             processorId2Index(processorId2Index)
             /**
@@ -232,7 +232,7 @@ namespace RTSS21IC_NLP
          * @return VectorDynamic
          */
         VectorDynamic GenerateInitial_RM(OrderOptDAG_SPACE::DAG_Model &dagTasks,
-                                         vector<LLint> &sizeOfVariables,
+                                        std::vector<LLint> &sizeOfVariables,
                                          int variableDimension, LLint currTime = 0)
         {
             int N = dagTasks.tasks.size();
@@ -246,15 +246,15 @@ namespace RTSS21IC_NLP
 
             ProcessorId2Index processorId2Index = CreateProcessorId2Index(tasks);
             // contains the index of tasks to run
-            vector<RunQueue> runQueues;
+           std::vector<RunQueue> runQueues;
             runQueues.reserve(processorNum);
             for (int i = 0; i < processorNum; i++)
             {
                 runQueues.push_back(RunQueue(tasks));
             }
 
-            vector<bool> busy(processorNum, false);
-            vector<LLint> nextFree(processorNum, -1);
+           std::vector<bool> busy(processorNum, false);
+           std::vector<LLint> nextFree(processorNum, -1);
             // LLint nextFree;
 
             for (LLint timeNow = currTime; timeNow < hyperPeriod; timeNow++)
@@ -300,12 +300,12 @@ namespace RTSS21IC_NLP
          * @return VectorDynamic
          */
         VectorDynamic GenerateInitialForDAG_RM_DAG(const OrderOptDAG_SPACE::DAG_Model &dagTasks,
-                                                   vector<LLint> &sizeOfVariables,
+                                                  std::vector<LLint> &sizeOfVariables,
                                                    int variableDimension)
         {
             int N = dagTasks.tasks.size();
             TaskSet tasks = dagTasks.GetTasks();
-            vector<int> order = FindDependencyOrder(dagTasks);
+           std::vector<int> order = FindDependencyOrder(dagTasks);
             LLint hyperPeriod = HyperPeriod(tasks);
             VectorDynamic initial = GenerateVectorDynamic(variableDimension);
 
@@ -345,7 +345,7 @@ namespace RTSS21IC_NLP
             ProcessorId2Index processorId2Index = CreateProcessorId2Index(tasks);
 
             // contains the index of tasks to run
-            vector<RunQueue> runQueues;
+           std::vector<RunQueue> runQueues;
             runQueues.reserve(processorNum);
             for (int i = 0; i < processorNum; i++)
             {
@@ -358,8 +358,8 @@ namespace RTSS21IC_NLP
             }
             // RunQueue runQueue(tasks);
             // bool busy = false;
-            vector<bool> busy(processorNum, false);
-            vector<LLint> nextFree(processorNum, -1);
+           std::vector<bool> busy(processorNum, false);
+           std::vector<LLint> nextFree(processorNum, -1);
 
             for (LLint timeNow = currTime; timeNow < hyperPeriod; timeNow++)
             {
@@ -404,7 +404,7 @@ namespace RTSS21IC_NLP
          * @return VectorDynamic
          */
         VectorDynamic GenerateInitial(OrderOptDAG_SPACE::DAG_Model &dagTasks,
-                                      vector<LLint> &sizeOfVariables,
+                                     std::vector<LLint> &sizeOfVariables,
                                       int variableDimension, VectorDynamic initialUser = GenerateVectorDynamic(1))
         {
             VectorDynamic initialEstimate;
