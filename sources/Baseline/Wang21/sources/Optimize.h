@@ -350,7 +350,7 @@ namespace RTSS21IC_NLP
                 DBF_ConstraintFactor factor(key, tasks, sizeOfVariables, errorDimensionDBF,
                                             mapIndex, maskForEliminate, processorTaskSet, model);
                 // this function performs in-place modification for all the variables!
-                // TODO: should we add eliminate function for sensorFusion?
+                // TODO(Old): should we add eliminate function for sensorFusion?
                 factor.addMappingFunction(resTemp, mapIndex, whetherEliminate, maskForEliminate,
                                           eliminationTrees, indexesBGL);
                 // update initial estimate

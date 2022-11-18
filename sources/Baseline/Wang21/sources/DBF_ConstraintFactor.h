@@ -531,7 +531,7 @@ namespace RTSS21IC_NLP
             bool CheckNoConflictionTree(const std::vector<LLint> &tree1, const std::vector<LLint> &tree2,
                                         const VectorDynamic &startTimeVector)
             {
-                // TODO: separate this checking process can improve speed
+                // TODO(Old): separate this checking process can improve speed
                std::vector<LLint> trees;
                 LLint ssize = tree1.size() + tree2.size();
                 trees.reserve(ssize);

@@ -199,7 +199,6 @@ namespace OrderOptDAG_SPACE
      */
     VectorDynamic SimulateFixedPrioritySched(const DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, LLint timeInitial = 0);
 
-    // TODO: when two jobs have same priority, choose the one with higher precedence priority
     VectorDynamic ListSchedulingLFTPA(DAG_Model &dagTasks,
                                       TaskSetInfoDerived &tasksInfo, int processorNum,
                                       //   const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,

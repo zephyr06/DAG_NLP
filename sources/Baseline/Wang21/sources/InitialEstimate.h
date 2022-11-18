@@ -320,7 +320,7 @@ namespace RTSS21IC_NLP
                 currTime += tasks[currTaskIndex].executionTime;
             }
             // schedule first instance for each DAG
-            // TODO: if tasks' cumulative execution time is long,
+            // TODO(Old): if tasks' cumulative execution time is long,
             // it's possible to be larger than one task's period,
             // and so prevents generating appropriate initialization value for it.
 

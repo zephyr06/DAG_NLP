@@ -99,7 +99,7 @@ namespace RTSS21IC_NLP
                 mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
                 tasksInfo = OrderOptDAG_SPACE::TaskSetInfoDerived(dagTasks.tasks);
             }
-            // TODO: design some tests for SensorFusion
+            // TODO(Old): design some tests for SensorFusion
             Vector evaluateError(const VectorDynamic &startTimeVector, boost::optional<Matrix &> H = boost::none) const override
             {
                 BeginTimer("Sensor_all");

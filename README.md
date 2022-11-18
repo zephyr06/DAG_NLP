@@ -19,6 +19,3 @@ make check.UnitTests -j2
 cd build
 make check.scripts -j2
 ```
-
-# TODO:
-- Event chain factor: analysis, approximation and implementation

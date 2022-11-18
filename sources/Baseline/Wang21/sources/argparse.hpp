@@ -612,7 +612,6 @@ namespace argparse
                     }
                     else
                     {
-                        // TODO: check if an implicit value was programmed for this argument
                         if (!mIsUsed && !mDefaultValue.has_value() && mIsRequired)
                         {
                             std::stringstream stream;
