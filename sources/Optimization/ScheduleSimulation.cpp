@@ -4,6 +4,33 @@
 namespace OrderOptDAG_SPACE
 {
 
+    RunQueue::ID_INSTANCE_PAIR RunQueue::popLeastFinishTime(const TaskSetInfoDerived &tasksInfo, DAG_Model &dagTasks, double modifyPriorityBasedOnPrecedence)
+    {
+        if (taskQueue.empty())
+            CoutError("TaskQueue is empty!");
+        std::vector<int> topoSort = TopologicalSortMulti(dagTasks)[0];
+        uint lftJobIndex = -1;
+        double lftAll = std::numeric_limits<double>::max();
+
+        for (uint i = 0; i < taskQueue.size(); i++)
+        {
+            JobCEC jobCurr(taskQueue[i].first, taskQueue[i].second);
+
+            auto it = std::find(topoSort.begin(), topoSort.end(), jobCurr.taskId);
+            double topoPunish = modifyPriorityBasedOnPrecedence * (it - topoSort.begin());
+
+            double lft = GetDeadline(jobCurr, tasksInfo) - tasksInfo.tasks[jobCurr.taskId].executionTime - topoPunish;
+            if (lft < lftAll)
+            {
+                lftJobIndex = i;
+                lftAll = lft;
+            }
+        }
+        ID_INSTANCE_PAIR jobPop = taskQueue[lftJobIndex];
+        taskQueue.erase(taskQueue.begin() + lftJobIndex);
+        return jobPop;
+    }
+
     ProcessorId2Index CreateProcessorId2Index(const TaskSet &tasks)
     {
         ProcessorId2Index processorId2Index;
@@ -137,7 +164,7 @@ namespace OrderOptDAG_SPACE
                 {
                     RunQueue::ID_INSTANCE_PAIR p;
 
-                    p = runQueue.popLeastFinishTime(tasksInfo);
+                    p = runQueue.popLeastFinishTime(tasksInfo, dagTasks);
 
                     UpdateSTVAfterPopTask(p, initial, timeNow, nextFree, tasks, busy, processorId, tasksInfo.sizeOfVariables);
                     eventPool.Insert(nextFree[processorId]);

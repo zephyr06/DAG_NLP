@@ -138,27 +138,7 @@ namespace OrderOptDAG_SPACE
             return taskQueue.empty();
         }
 
-        ID_INSTANCE_PAIR popLeastFinishTime(const TaskSetInfoDerived &tasksInfo)
-        {
-            if (taskQueue.empty())
-                CoutError("TaskQueue is empty!");
-            uint lftJobIndex = -1;
-            double lftAll = std::numeric_limits<double>::max();
-
-            for (uint i = 0; i < taskQueue.size(); i++)
-            {
-                JobCEC jobCurr(taskQueue[i].first, taskQueue[i].second);
-                double lft = GetDeadline(jobCurr, tasksInfo) - tasksInfo.tasks[jobCurr.taskId].executionTime;
-                if (lft < lftAll)
-                {
-                    lftJobIndex = i;
-                    lftAll = lft;
-                }
-            }
-            ID_INSTANCE_PAIR jobPop = taskQueue[lftJobIndex];
-            taskQueue.erase(taskQueue.begin() + lftJobIndex);
-            return jobPop;
-        }
+        ID_INSTANCE_PAIR popLeastFinishTime(const TaskSetInfoDerived &tasksInfo, DAG_Model &dagTasks, double modifyPriorityBasedOnPrecedence = 0);
     };
     /**
      * @brief Create a ProcessorId2Index object, only used in initialization estimation

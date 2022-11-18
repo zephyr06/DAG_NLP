@@ -237,7 +237,7 @@ TEST(RTDA, v3)
     auto res = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimate);
     RTDA resM = GetMaxRTDA(res);
     EXPECT_LONGS_EQUAL(120, resM.reactionTime);
-    EXPECT_LONGS_EQUAL(501, resM.dataAge);
+    EXPECT_LONGS_EQUAL(501, resM.dataAge); // T3_1 -> T0_2 + 600
 
     EXPECT(ExamAll_Feasibility(dagTasks, tasksInfo, initialEstimate, processorJobVec, processorNum, 1e9, 1e9));
 }
