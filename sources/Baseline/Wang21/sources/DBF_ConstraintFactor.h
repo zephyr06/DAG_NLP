@@ -54,7 +54,7 @@ namespace RTSS21IC_NLP
 
         // import function from OptimizeOrderUtils.h
         std::vector<std::vector<Interval>> ExtractJobsPerProcessorIC(TaskSet &tasks,
-                                                                    std::vector<LLint> &sizeOfVariables,
+                                                                     std::vector<LLint> &sizeOfVariables,
                                                                      VectorDynamic &startTimeVector,
                                                                      std::vector<uint> &processorJobVec,
                                                                      int processorNum)
@@ -96,11 +96,11 @@ namespace RTSS21IC_NLP
         {
         public:
             TaskSet tasks;
-           std::vector<LLint> sizeOfVariables;
+            std::vector<LLint> sizeOfVariables;
             int N;
             LLint errorDimension;
             LLint length;
-           std::vector<bool> maskForEliminate;
+            std::vector<bool> maskForEliminate;
             MAP_Index2Data mapIndex;
             LLint lengthCompressed;
             // each element contains tasks belonging to the same processor
@@ -108,9 +108,9 @@ namespace RTSS21IC_NLP
             ProcessorTaskSet processorTasks;
             std::unordered_map<LLint, LLint> mapIndex_True2Compress;
 
-            DBF_ConstraintFactor(Key key, TaskSet &tasks,std::vector<LLint> sizeOfVariables,
+            DBF_ConstraintFactor(Key key, TaskSet &tasks, std::vector<LLint> sizeOfVariables,
                                  LLint errorDimension, MAP_Index2Data &mapIndex,
-                                std::vector<bool> &maskForEliminate, ProcessorTaskSet &processorTasks,
+                                 std::vector<bool> &maskForEliminate, ProcessorTaskSet &processorTasks,
                                  SharedNoiseModel model)
                 : NoiseModelFactor1<VectorDynamic>(model, key),
                   tasks(tasks), sizeOfVariables(sizeOfVariables),
@@ -149,10 +149,10 @@ namespace RTSS21IC_NLP
                     // *H = numericalDerivative11(f, startTimeVector, deltaOptimizer);
                     if (debugMode == 1)
                     {
-                       std::cout << "The Jacobian matrix of DBF_ConstraintFactor is " << std::endl
-                             << *H << std::endl;
-                       std::cout << Color::green << "The input startTimeVector of DBF is " << startTimeVector << Color::def << std::endl;
-                       std::cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << std::endl;
+                        std::cout << "The Jacobian matrix of DBF_ConstraintFactor is " << std::endl
+                                  << *H << std::endl;
+                        std::cout << Color::green << "The input startTimeVector of DBF is " << startTimeVector << Color::def << std::endl;
+                        std::cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << std::endl;
                     }
                     if ((*H).norm() <= zeroJacobianDetectTol && f(startTimeVector).norm() != 0)
                     {
@@ -163,14 +163,14 @@ namespace RTSS21IC_NLP
                     if (debugMode == 1)
                     {
                         auto sth = NumericalDerivativeDynamicUpperDBF(f, startTimeVector, deltaOptimizer, errorDimension);
-                       std::cout << "The Jacobian matrix of DBF_ConstraintFactor is " << std::endl
-                             << sth << std::endl;
-                       std::cout << Color::green << "The input startTimeVector of DBF is " << startTimeVector << Color::def << std::endl;
-                       std::cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << std::endl;
+                        std::cout << "The Jacobian matrix of DBF_ConstraintFactor is " << std::endl
+                                  << sth << std::endl;
+                        std::cout << Color::green << "The input startTimeVector of DBF is " << startTimeVector << Color::def << std::endl;
+                        std::cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << std::endl;
                     }
                     if (debugMode == 3)
                     {
-                       std::cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << std::endl;
+                        std::cout << "The error vector of DBF is " << Color::blue << f(startTimeVector) << Color::def << std::endl;
                     }
                 }
                 EndTimer("DBF_All");
@@ -191,7 +191,7 @@ namespace RTSS21IC_NLP
                 int processorIndex = 0;
                 for (auto proPtr = processorTasks.begin(); proPtr != processorTasks.end(); proPtr++)
                 {
-                   std::vector<Interval> intervalVec = DbfInterval(startTimeVector, proPtr->first);
+                    std::vector<Interval> intervalVec = DbfInterval(startTimeVector, proPtr->first);
                     sort(intervalVec.begin(), intervalVec.end(), compare);
 
                     for (LLint i = 0; i < LLint(intervalVec.size()); i++)
@@ -228,7 +228,7 @@ namespace RTSS21IC_NLP
              */
             void addMappingFunctionOld(VectorDynamic &resTemp,
                                        MAP_Index2Data &mapIndex, bool &whetherEliminate,
-                                      std::vector<bool> &maskForEliminate_addMap,
+                                       std::vector<bool> &maskForEliminate_addMap,
                                        Graph &eliminationTrees_Update,
                                        indexVertexMap &indexesBGL_Update)
             {
@@ -293,7 +293,7 @@ namespace RTSS21IC_NLP
                                         //                     mapIndex, startTimeVector, sumIJK, tasks, j);
 
                                         // check eliminationTrees_Update confliction; only preceed if no confliction exists
-                                       std::vector<LLint> tree_i, tree_j;
+                                        std::vector<LLint> tree_i, tree_j;
                                         Vertex u1 = indexesBGL_Update[index_i_overall];
                                         Vertex v1 = indexesBGL_Update[index_j_overall];
                                         FindSubTree(eliminationTrees_Update, tree_i, u1);
@@ -353,7 +353,7 @@ namespace RTSS21IC_NLP
 
             void addMappingFunction(VectorDynamic &resTemp,
                                     MAP_Index2Data &mapIndex, bool &whetherEliminate,
-                                   std::vector<bool> &maskForEliminate_addMap,
+                                    std::vector<bool> &maskForEliminate_addMap,
                                     Graph &eliminationTrees_Update,
                                     indexVertexMap &indexesBGL_Update)
             {
@@ -364,8 +364,8 @@ namespace RTSS21IC_NLP
                 for (auto itr = processorTasks.begin(); itr != processorTasks.end(); itr++)
                 {
                     int processorCurr = itr->first;
-                   std::vector<int> tasksCurr = itr->second;
-                   std::vector<Interval> intervalVec = DbfInterval(startTimeVector, processorCurr);
+                    std::vector<int> tasksCurr = itr->second;
+                    std::vector<Interval> intervalVec = DbfInterval(startTimeVector, processorCurr);
                     sort(intervalVec.begin(), intervalVec.end(), compare);
 
                     // find DBF error that need elimination
@@ -398,7 +398,7 @@ namespace RTSS21IC_NLP
 
                                 // since we go over all the pairs, we only need to check j in each pair (i, j)
 
-                               std::vector<LLint> tree_i, tree_j;
+                                std::vector<LLint> tree_i, tree_j;
                                 Vertex u1 = indexesBGL_Update[index_i_overall];
                                 Vertex v1 = indexesBGL_Update[index_j_overall];
                                 FindSubTree(eliminationTrees_Update, tree_i, u1);
@@ -490,10 +490,10 @@ namespace RTSS21IC_NLP
              * @param startTimeVector
              * @returnstd::vector<Interval>
              */
-           std::vector<Interval> CreateIntervalFromSTVSameOrder(std::vector<LLint> &tree1, const VectorDynamic &startTimeVector) const
+            std::vector<Interval> CreateIntervalFromSTVSameOrder(std::vector<LLint> &tree1, const VectorDynamic &startTimeVector) const
             {
                 LLint n = tree1.size();
-               std::vector<Interval> intervalVec;
+                std::vector<Interval> intervalVec;
                 intervalVec.reserve(n);
                 for (LLint i = 0; i < n; i++)
                 {
@@ -505,9 +505,9 @@ namespace RTSS21IC_NLP
                 return intervalVec;
             }
 
-           std::vector<Interval> DbfInterval(const VectorDynamic &startTimeVector, int processorId) const
+            std::vector<Interval> DbfInterval(const VectorDynamic &startTimeVector, int processorId) const
             {
-               std::vector<LLint> indexes;
+                std::vector<LLint> indexes;
                 indexes.reserve(startTimeVector.size());
                 for (int taskId : processorTasks.at(processorId))
                 {
@@ -516,15 +516,15 @@ namespace RTSS21IC_NLP
                         indexes.push_back(IndexTran_Instance2Overall(taskId, j, sizeOfVariables));
                     }
                 }
-               std::vector<Interval> intervalVec = CreateIntervalFromSTVSameOrder(indexes,
-                                                                              startTimeVector);
+                std::vector<Interval> intervalVec = CreateIntervalFromSTVSameOrder(indexes,
+                                                                                   startTimeVector);
 
                 return intervalVec;
             }
 
             double DbfIntervalOverlapError(const VectorDynamic &startTimeVector, int processorId)
             {
-               std::vector<Interval> intervalVec = DbfInterval(startTimeVector, processorId);
+                std::vector<Interval> intervalVec = DbfInterval(startTimeVector, processorId);
                 return IntervalOverlapError(intervalVec);
             }
 
@@ -532,7 +532,7 @@ namespace RTSS21IC_NLP
                                         const VectorDynamic &startTimeVector)
             {
                 // TODO(Old): separate this checking process can improve speed
-               std::vector<LLint> trees;
+                std::vector<LLint> trees;
                 LLint ssize = tree1.size() + tree2.size();
                 trees.reserve(ssize);
                 for (size_t i = 0; i < tree1.size(); i++)
@@ -540,7 +540,7 @@ namespace RTSS21IC_NLP
                 for (size_t i = 0; i < tree2.size(); i++)
                     trees.push_back(tree2[i]);
 
-               std::vector<Interval> vv = CreateIntervalFromSTVSameOrder(trees, startTimeVector);
+                std::vector<Interval> vv = CreateIntervalFromSTVSameOrder(trees, startTimeVector);
                 double error_I_O = IntervalOverlapError(vv);
                 if (error_I_O == 0)
                     return true;
@@ -560,18 +560,18 @@ namespace RTSS21IC_NLP
              * @param startTimeVectorOrig
              * @returnstd::vector<LLint>
              */
-           std::vector<LLint> FindVanishIndex(const VectorDynamic &startTimeVectorOrig) const
+            std::vector<LLint> FindVanishIndex(const VectorDynamic &startTimeVectorOrig) const
             {
                 VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
                                                                        maskForEliminate, mapIndex);
-               std::vector<LLint> indexes;
+                std::vector<LLint> indexes;
                 indexes.reserve(startTimeVector.size());
                 for (uint i = 0; i < startTimeVector.size(); i++)
                     indexes.push_back(i);
-               std::vector<Interval> intervalVec = CreateIntervalFromSTVSameOrder(indexes, startTimeVector);
+                std::vector<Interval> intervalVec = CreateIntervalFromSTVSameOrder(indexes, startTimeVector);
 
                 LLint variableDimension = intervalVec.size();
-               std::vector<LLint> coverIntervalIndex;
+                std::vector<LLint> coverIntervalIndex;
                 coverIntervalIndex.reserve(variableDimension);
                 std::unordered_set<LLint> indexSetBig;
 
@@ -600,7 +600,7 @@ namespace RTSS21IC_NLP
                 }
 
                 auto m = MapIndex_True2Compress(maskForEliminate);
-               std::vector<LLint> coverIndexInCompressed;
+                std::vector<LLint> coverIndexInCompressed;
                 coverIndexInCompressed.reserve(startTimeVectorOrig.rows());
                 for (auto itr = indexSetBig.begin(); itr != indexSetBig.end(); itr++)
                 {
@@ -636,7 +636,7 @@ namespace RTSS21IC_NLP
                 jacobian.resize(mOfJacobian, n);
                 jacobian.setZero();
 
-               std::vector<LLint> vanishGradientIndex = FindVanishIndex(x);
+                std::vector<LLint> vanishGradientIndex = FindVanishIndex(x);
                 std::unordered_set<LLint> ss;
                 for (size_t i = 0; i < vanishGradientIndex.size(); i++)
                 {
@@ -705,7 +705,7 @@ namespace RTSS21IC_NLP
                 int n = x.rows();
                 MatrixDynamic jacobian = JacobianAnalytic(x);
 
-               std::vector<LLint> vanishGradientIndex = FindVanishIndex(x);
+                std::vector<LLint> vanishGradientIndex = FindVanishIndex(x);
                 std::unordered_set<LLint> ss;
                 for (size_t i = 0; i < vanishGradientIndex.size(); i++)
                 {

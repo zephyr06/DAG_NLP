@@ -11,7 +11,7 @@ namespace RTSS21IC_NLP
 
     namespace DAG_SPACE
     {
-        LLint CountSFError(OrderOptDAG_SPACE::DAG_Model &dagTasks,std::vector<LLint> &sizeOfVariables)
+        LLint CountSFError(OrderOptDAG_SPACE::DAG_Model &dagTasks, std::vector<LLint> &sizeOfVariables)
         {
             LLint errorDimensionSF = 0;
             for (auto itr = dagTasks.mapPrev.begin(); itr != dagTasks.mapPrev.end(); itr++)
@@ -64,19 +64,19 @@ namespace RTSS21IC_NLP
         public:
             OrderOptDAG_SPACE::DAG_Model dagTasks;
             TaskSet tasks;
-           std::vector<LLint> sizeOfVariables;
+            std::vector<LLint> sizeOfVariables;
             int N;
             double sensorFusionTol; // not used, actually
             LLint errorDimension;
             MAP_Index2Data mapIndex;
-           std::vector<bool> maskForEliminate;
+            std::vector<bool> maskForEliminate;
             LLint length;
             LLint lengthCompressed;
             std::unordered_map<LLint, LLint> mapIndex_True2Compress;
             OrderOptDAG_SPACE::TaskSetInfoDerived tasksInfo;
 
-            SensorFusion_ConstraintFactor(Key key, OrderOptDAG_SPACE::DAG_Model &dagTasks,std::vector<LLint> sizeOfVariables, LLint errorDimension,
-                                          double sensorFusionTol, MAP_Index2Data &mapIndex,std::vector<bool> &maskForEliminate,
+            SensorFusion_ConstraintFactor(Key key, OrderOptDAG_SPACE::DAG_Model &dagTasks, std::vector<LLint> sizeOfVariables, LLint errorDimension,
+                                          double sensorFusionTol, MAP_Index2Data &mapIndex, std::vector<bool> &maskForEliminate,
                                           SharedNoiseModel model) : NoiseModelFactor1<VectorDynamic>(model, key),
                                                                     dagTasks(dagTasks),
                                                                     tasks(dagTasks.tasks), sizeOfVariables(sizeOfVariables),

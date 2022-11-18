@@ -32,11 +32,11 @@ namespace OrderOptDAG_SPACE
      * @param sizeOfVariables
      * @return VectorDynamic size (N+1), first N is start time for nodes, the last one is r.h.s.
      */
-    VectorDynamic GenerateInitialForDAG_IndexMode(DAG_Model &dagTasks,std::vector<LLint> &sizeOfVariables, int variableDimension)
+    VectorDynamic GenerateInitialForDAG_IndexMode(DAG_Model &dagTasks, std::vector<LLint> &sizeOfVariables, int variableDimension)
     {
         int N = dagTasks.tasks.size();
         TaskSet &tasks = dagTasks.tasks;
-       std::vector<int> order = FindDependencyOrderDFS(dagTasks);
+        std::vector<int> order = FindDependencyOrderDFS(dagTasks);
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
 
         // m maps from tasks index to startTimeVector index
@@ -62,17 +62,17 @@ namespace OrderOptDAG_SPACE
         return initial;
     }
     VectorDynamic GenerateInitialForDAG_RelativeStart(DAG_Model &dagTasks,
-                                                     std::vector<LLint> &sizeOfVariables,
+                                                      std::vector<LLint> &sizeOfVariables,
                                                       int variableDimension)
     {
         int N = dagTasks.tasks.size();
         TaskSet &tasks = dagTasks.tasks;
-       std::vector<int> order = FindDependencyOrderDFS(dagTasks);
+        std::vector<int> order = FindDependencyOrderDFS(dagTasks);
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
 
         // LLint index = 0;
         LLint currTime = 0;
-       std::vector<int> relativeStart;
+        std::vector<int> relativeStart;
         relativeStart.reserve(N);
         // schedule first instance for each DAG
         for (int i = 0; i < N; i++)
@@ -98,12 +98,12 @@ namespace OrderOptDAG_SPACE
      * @return VectorDynamic
      */
     VectorDynamic GenerateInitialForDAG_RM_DAG(DAG_Model &dagTasks,
-                                              std::vector<LLint> &sizeOfVariables,
+                                               std::vector<LLint> &sizeOfVariables,
                                                int variableDimension, int topoSortMethod)
     {
         int N = dagTasks.tasks.size();
         TaskSet tasks = dagTasks.GetTasks();
-        //std::vector<int> order = FindDependencyOrderDFS(dagTasks);
+        // std::vector<int> order = FindDependencyOrderDFS(dagTasks);
         std::vector<int> order = TopologicalSortMulti(dagTasks)[topoSortMethod];
         LLint hyperPeriod = HyperPeriod(tasks);
         VectorDynamic initial = GenerateVectorDynamic(variableDimension);
@@ -144,7 +144,7 @@ namespace OrderOptDAG_SPACE
         ProcessorId2Index processorId2Index = CreateProcessorId2Index(tasks);
 
         // contains the index of tasks to run
-       std::vector<RunQueue> runQueues;
+        std::vector<RunQueue> runQueues;
         runQueues.reserve(processorNum);
         for (int i = 0; i < processorNum; i++)
         {
@@ -157,8 +157,8 @@ namespace OrderOptDAG_SPACE
         }
         // RunQueue runQueue(tasks);
         // bool busy = false;
-       std::vector<bool> busy(processorNum, false);
-       std::vector<LLint> nextFree(processorNum, -1);
+        std::vector<bool> busy(processorNum, false);
+        std::vector<LLint> nextFree(processorNum, -1);
 
         for (LLint timeNow = currTime; timeNow < hyperPeriod; timeNow++)
         {
@@ -203,7 +203,7 @@ namespace OrderOptDAG_SPACE
      * @return VectorDynamic
      */
     VectorDynamic GenerateInitial(DAG_Model &dagTasks,
-                                 std::vector<LLint> &sizeOfVariables,
+                                  std::vector<LLint> &sizeOfVariables,
                                   int variableDimension, VectorDynamic initialUser)
     {
         TaskSetInfoDerived tasksInfo(dagTasks.tasks);
