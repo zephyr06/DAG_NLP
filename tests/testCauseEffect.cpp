@@ -2,6 +2,8 @@
 #include <CppUnitLite/TestHarness.h>
 
 #include "sources/Factors/RTDA_Factor.h"
+#include "sources/Optimization/OrderScheduler.h"
+#include "sources/Utils/OptimizeOrderUtils.h"
 
 using namespace OrderOptDAG_SPACE;
 using namespace std;
@@ -223,13 +225,21 @@ TEST(RTDA, v3)
     OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v79.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
+    int processorNum = 2;
     VectorDynamic initialEstimate = GenerateVectorDynamic(19);
-    initialEstimate << 0, 100, 200, 321, 415, 500, 0, 100, 201, 320, 415, 500, 1, 309, 416, 202, 300, 1, 332;
+    initialEstimate << 0, 100, 200, 321, 415, 500, 0, 100, 201, 320, 415, 500, 1, 309, 416, 202, 300, 1, 322;
+    SFOrder jobOrder(tasksInfo, initialEstimate);
+    std::vector<uint> processorJobVec;
+    VectorDynamic expectStv = SimpleOrderScheduler::schedule(dagTasks, tasksInfo, processorNum, jobOrder, processorJobVec);
+    EXPECT(assert_equal(expectStv, initialEstimate));
+
     std::vector<int> causeEffectChain = {3, 2, 1, 0};
     auto res = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimate);
     RTDA resM = GetMaxRTDA(res);
     EXPECT_LONGS_EQUAL(120, resM.reactionTime);
     EXPECT_LONGS_EQUAL(501, resM.dataAge);
+
+    EXPECT(ExamAll_Feasibility(dagTasks, tasksInfo, initialEstimate, processorJobVec, processorNum, 1e9, 1e9));
 }
 
 int main()

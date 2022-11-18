@@ -138,7 +138,7 @@ namespace OrderOptDAG_SPACE
             return taskQueue.empty();
         }
 
-        ID_INSTANCE_PAIR popLeastFinishTime(TaskSetInfoDerived &tasksInfo)
+        ID_INSTANCE_PAIR popLeastFinishTime(const TaskSetInfoDerived &tasksInfo)
         {
             if (taskQueue.empty())
                 CoutError("TaskQueue is empty!");

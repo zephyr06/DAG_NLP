@@ -136,20 +136,15 @@ namespace OrderOptDAG_SPACE
                 if (!busy[processorId] && (!runQueue.empty()))
                 {
                     RunQueue::ID_INSTANCE_PAIR p;
-                    bool findTaskToSchedule;
 
                     p = runQueue.popLeastFinishTime(tasksInfo);
-                    findTaskToSchedule = true;
 
-                    if (findTaskToSchedule)
+                    UpdateSTVAfterPopTask(p, initial, timeNow, nextFree, tasks, busy, processorId, tasksInfo.sizeOfVariables);
+                    eventPool.Insert(nextFree[processorId]);
+                    if (processorIdVec)
                     {
-                        UpdateSTVAfterPopTask(p, initial, timeNow, nextFree, tasks, busy, processorId, tasksInfo.sizeOfVariables);
-                        eventPool.Insert(nextFree[processorId]);
-                        if (processorIdVec)
-                        {
-                            (*processorIdVec)[IndexTran_Instance2Overall(p.first, p.second, tasksInfo.sizeOfVariables)] = processorId;
-                            dagTasks.tasks[p.first].processorId = processorId;
-                        }
+                        (*processorIdVec)[IndexTran_Instance2Overall(p.first, p.second, tasksInfo.sizeOfVariables)] = processorId;
+                        dagTasks.tasks[p.first].processorId = processorId;
                     }
                 }
             }

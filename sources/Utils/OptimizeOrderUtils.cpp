@@ -16,7 +16,10 @@ namespace OrderOptDAG_SPACE
         std::cout << Color::def << std::endl;
         std::cout << "Schedule: " << std::endl;
         if (printSchedule)
+        {
+            std::cout << scheduleResult.startTimeVector_ << std::endl;
             PrintSchedule(tasksInfo, scheduleResult.startTimeVector_);
+        }
     }
 
     bool CheckDDLConstraint(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
