@@ -119,6 +119,8 @@ namespace OrderOptDAG_SPACE
 
                     if (res.schedulable_ == false)
                     {
+                        if (objsAll[0].size() == 0)
+                            CoutError("Initial method is not feasible in " + file);
                         res.obj_ = objsAll[0].back();
                         if (batchTestMethod >= 3)
                             errorFiles.push_back(file);
