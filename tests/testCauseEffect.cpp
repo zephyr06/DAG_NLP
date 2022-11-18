@@ -229,7 +229,7 @@ TEST(RTDA, v3)
     auto res = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialEstimate);
     RTDA resM = GetMaxRTDA(res);
     EXPECT_LONGS_EQUAL(120, resM.reactionTime);
-    EXPECT_LONGS_EQUAL(00, resM.dataAge);
+    EXPECT_LONGS_EQUAL(501, resM.dataAge);
 }
 
 int main()
