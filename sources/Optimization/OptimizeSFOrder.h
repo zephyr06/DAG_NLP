@@ -108,6 +108,7 @@ namespace OrderOptDAG_SPACE
                     {
                         JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
                         JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
+                        // jobStartFinishInstActiveRange = {0, 2 * tasksInfo.length - 2};
 
                         for (LLint startP = jobStartFinishInstActiveRange.minIndex; startP < jobStartFinishInstActiveRange.maxIndex && CheckIterationContinue(); startP++)
                         {
@@ -143,7 +144,10 @@ namespace OrderOptDAG_SPACE
                                 {
                                     BeginTimer("PrevSchedulabilityCheck");
                                     if (SFOrderScheduling(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrderCurrForFinish)(0) == -1)
+                                    {
+                                        EndTimer("PrevSchedulabilityCheck");
                                         break;
+                                    }
                                     EndTimer("PrevSchedulabilityCheck");
                                 }
 

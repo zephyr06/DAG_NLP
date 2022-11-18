@@ -16,8 +16,6 @@ namespace OrderOptDAG_SPACE
 
     std::vector<RTDA> GetRTDAFromSingleJob(const TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain, const VectorDynamic &x)
     {
-        // gtsam::Values initialFG = GenerateInitialFG(x, tasksInfo);
-        // return GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialFG);
         if (causeEffectChain.size() == 0)
         {
             return {RTDA(0, 0)};
@@ -69,7 +67,7 @@ namespace OrderOptDAG_SPACE
         }
         return resVec;
     }
-
+    // TODO: remove this in Verucchi's code
     std::vector<RTDA> GetRTDAFromSingleJob(const TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain, const Values &x)
     {
         VectorDynamic stvAfter = GenerateVectorDynamic(tasksInfo.variableDimension);
@@ -88,9 +86,7 @@ namespace OrderOptDAG_SPACE
 
     RTDA GetMaxRTDA(const TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain, VectorDynamic &startTimeVector)
     {
-        // TODO: improve efficiency by avoiding transforming vector to values
-        gtsam::Values initialFG = GenerateInitialFG(startTimeVector, tasksInfo);
-        std::vector<RTDA> rtdaVec = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, initialFG);
+        std::vector<RTDA> rtdaVec = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, startTimeVector);
         RTDA maxRTDA = GetMaxRTDA(rtdaVec);
         return maxRTDA;
     }

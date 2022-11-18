@@ -3,13 +3,14 @@
 namespace OrderOptDAG_SPACE
 {
 
-  
     void PrintResultAnalyzation(ScheduleResult &scheduleResult, DAG_Model &dagTasks)
     {
         TaskSet &tasks = dagTasks.tasks;
         RegularTaskSystem::TaskSetInfoDerived tasksInfo(tasks);
         std::cout << Color::blue;
         std::cout << "Schedulable after optimization? " << scheduleResult.schedulable_ << std::endl;
+        std::cout << "Cause effect chains:" << std::endl;
+        PrintChains(dagTasks.chains_);
         RTDA resAfterOpt = GetMaxRTDA(tasksInfo, dagTasks.chains_[0], scheduleResult.startTimeVector_);
         resAfterOpt.print();
         std::cout << Color::def << std::endl;
@@ -102,8 +103,6 @@ namespace OrderOptDAG_SPACE
         }
         return true;
     }
-
-   
 
     bool ExamBasic_Feasibility(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum)
     {

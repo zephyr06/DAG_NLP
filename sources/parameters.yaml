@@ -5,8 +5,8 @@ TotalMethodUnderComparison: 6 # 0: LS initial, 1: optimize order & schedule, 2: 
 BatchTestOnlyOneMethod: -1
                               # 5: only do one schedule optmization after the end of order optmization
 # test_n3_v6 test_n3_v26 test_n5_v79 test_n10_v4 test_n15_v1 test_n30_v1
-testDataSetName: test_n6_v1
-printSchedule: 0
+testDataSetName: test_n5_v79
+printSchedule: 1
 debugMode: 0
 doScheduleOptimization: 0
 doScheduleOptimizationOnlyOnce: 0
