@@ -551,6 +551,11 @@ TEST(IterationStatus, SchedulabilityCheck)
     // VectorDynamic stv = status.startTimeVector_;
     // EXPECT(initial, stv);
 }
+
+// TODO: add performance tests against baseline methods
+// TODO: always considering trying to incorporate TDD more into my real coding work
+
+
 int main()
 {
     TestResult tr;
