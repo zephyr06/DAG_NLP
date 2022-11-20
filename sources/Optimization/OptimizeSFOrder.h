@@ -36,7 +36,7 @@ namespace OrderOptDAG_SPACE
         }
 
         template <typename OrderScheduler, typename ObjectiveFunctionBase>
-        ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, const ScheduleOptions &scheduleOptions, boost::optional<ScheduleResult &> resOrderOptWithoutScheduleOpt = boost::none)
+        ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, const ScheduleOptions &scheduleOptions, double timeLimits = makeProgressTimeLimit)
         {
             std::vector<int> countSubJobOrderLength;
             if (dagTasks.chains_.size() == 0)
@@ -53,7 +53,6 @@ namespace OrderOptDAG_SPACE
                 std::cout << "Initial SF order: " << std::endl;
                 jobOrderRef.print();
             }
-
             IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusPrev(dagTasks, tasksInfo, jobOrderRef, scheduleOptions);
             if (!statusPrev.schedulable_)
             {
@@ -61,26 +60,23 @@ namespace OrderOptDAG_SPACE
             }
 
             auto start_time = std::chrono::system_clock::now();
-            int64_t time_limit_in_seconds = makeProgressTimeLimit;
+            int64_t time_limit_in_seconds = timeLimits;
             if (time_limit_in_seconds < 0)
             {
                 time_limit_in_seconds = INT64_MAX;
             }
-            bool time_out_flag = false;
 
-            auto CheckTimeOut = [&start_time, &time_limit_in_seconds, &time_out_flag]()
+            auto CheckTimeOut = [&start_time, &time_limit_in_seconds]()
             {
                 auto curr_time = std::chrono::system_clock::now();
                 if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= time_limit_in_seconds)
                 {
                     std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << time_limit_in_seconds << " seconds.\n\n";
-                    time_out_flag = true;
                     return true;
                 }
                 return false;
             };
 
-            bool continueOpt = true;
             auto CheckIterationContinue = [&statusPrev, &CheckTimeOut]()
             {
                 if (CheckTimeOut() || FoundOptimal(statusPrev))
@@ -92,10 +88,10 @@ namespace OrderOptDAG_SPACE
             LLint countMakeProgress = 0;
             LLint countIterationStatus = 0;
             LLint countOutermostWhileLoop = 0;
-            while (continueOpt && CheckIterationContinue())
+            while (CheckIterationContinue())
             {
                 countOutermostWhileLoop++;
-                continueOpt = false; // iterations stop unless a better job order is found
+                bool findBetterJobOrderWithinIterations = false; // iterations stop unless a better job order is found
 
                 // search the tasks related to task chain at first
                 std::vector<int> taskIdSet = GetTaskIdWithChainOrder(dagTasks);
@@ -105,11 +101,9 @@ namespace OrderOptDAG_SPACE
                     {
                         JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
                         JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
-                        // jobStartFinishInstActiveRange = {0, 2 * tasksInfo.length - 2};
 
                         for (LLint startP = jobStartFinishInstActiveRange.minIndex; startP < jobStartFinishInstActiveRange.maxIndex && CheckIterationContinue(); startP++)
                         {
-                            BeginTimer("inner_for_start");
                             // TODO: this part can be optimized, though not very necessary
                             BeginTimer("SFOrderCopy");
                             SFOrder jobOrderCurrForStart = jobOrderRef;
@@ -122,8 +116,6 @@ namespace OrderOptDAG_SPACE
                             double accumLengthMin = 0;
                             for (LLint finishP = startP + 1; finishP < jobStartFinishInstActiveRange.maxIndex + 1 && CheckIterationContinue(); finishP++)
                             {
-                                // if (CheckTimeOut())
-                                //     break;
                                 if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, jobOrderRef))
                                     continue;
                                 if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart, startP))
@@ -153,7 +145,7 @@ namespace OrderOptDAG_SPACE
 
                                 if (MakeProgress<OrderScheduler>(statusPrev, statusCurr))
                                 {
-                                    continueOpt = true;
+                                    findBetterJobOrderWithinIterations = true;
                                     statusPrev = statusCurr;
                                     jobOrderRef = jobOrderCurrForFinish;
                                     if (debugMode == 1)
@@ -162,11 +154,6 @@ namespace OrderOptDAG_SPACE
                                         // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
                                     }
                                     countMakeProgress++;
-                                    // if (statusPrev.objWeighted_ == 0)
-                                    // {
-                                    //     foundOptimal = true;
-                                    //     break;
-                                    // }
                                 }
                                 else
                                 {
@@ -174,10 +161,11 @@ namespace OrderOptDAG_SPACE
                                     jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
                                 }
                             }
-                            EndTimer("inner_for_start");
                         }
                     }
                 // std::cout << "Finish one big while loop!" << std::endl;
+                if (!findBetterJobOrderWithinIterations)
+                    break;
                 EndTimer("inner_for_job");
             }
             if (!statusPrev.schedulable_)
