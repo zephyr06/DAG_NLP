@@ -84,7 +84,7 @@ namespace OrderOptDAG_SPACE
         return GetRTDAFromSingleJob(tasksInfo, causeEffectChain, stvAfter);
     }
 
-    RTDA GetMaxRTDA(const TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain, VectorDynamic &startTimeVector)
+    RTDA GetMaxRTDA(const TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain, const VectorDynamic &startTimeVector)
     {
         std::vector<RTDA> rtdaVec = GetRTDAFromSingleJob(tasksInfo, causeEffectChain, startTimeVector);
         RTDA maxRTDA = GetMaxRTDA(rtdaVec);

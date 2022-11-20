@@ -138,7 +138,7 @@ namespace OrderOptDAG_SPACE
             return taskQueue.empty();
         }
 
-        ID_INSTANCE_PAIR popLeastFinishTime(const TaskSetInfoDerived &tasksInfo, DAG_Model &dagTasks, double modifyPriorityBasedOnPrecedence = 0);
+        ID_INSTANCE_PAIR popLeastFinishTime(const TaskSetInfoDerived &tasksInfo, const DAG_Model &dagTasks, double modifyPriorityBasedOnPrecedence = 0);
     };
     /**
      * @brief Create a ProcessorId2Index object, only used in initialization estimation
@@ -184,8 +184,8 @@ namespace OrderOptDAG_SPACE
     void AddTasksToRunQueue(RunQueue &runQueue, const TaskSet &tasks, LLint timeNow, EventPool &eventPool);
 
     void UpdateSTVAfterPopTask(RunQueue::ID_INSTANCE_PAIR &job, VectorDynamic &startTimeVector,
-                               LLint timeNow,std::vector<LLint> &nextFree, const TaskSet &tasks,
-                              std::vector<bool> &busy, int processorId,std::vector<LLint> &sizeOfVariables);
+                               LLint timeNow, std::vector<LLint> &nextFree, const TaskSet &tasks,
+                               std::vector<bool> &busy, int processorId, std::vector<LLint> &sizeOfVariables);
 
     /**
      * @brief Warning! All the task sets must have int type values, otherwise it may generate inappropriate initialization method;
@@ -197,14 +197,14 @@ namespace OrderOptDAG_SPACE
      * @param variableDimension
      * @return VectorDynamic
      */
-    VectorDynamic SimulateFixedPrioritySched(const DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, LLint timeInitial = 0);
+    VectorDynamic SimulateFixedPrioritySched(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, LLint timeInitial = 0);
 
-    VectorDynamic ListSchedulingLFTPA(DAG_Model &dagTasks,
-                                      TaskSetInfoDerived &tasksInfo, int processorNum,
+    VectorDynamic ListSchedulingLFTPA(const DAG_Model &dagTasks,
+                                      const TaskSetInfoDerived &tasksInfo, int processorNum,
                                       //   const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,
                                       boost::optional<std::vector<uint> &> processorIdVec = boost::none);
 
-    VectorDynamic SFOrderScheduling(DAG_Model &dagTasks,
+    VectorDynamic SFOrderScheduling(const DAG_Model &dagTasks,
                                     const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder,
                                     boost::optional<std::vector<uint> &> processorIdVec = boost::none);
 } // namespace OrderOptDAG_SPACE

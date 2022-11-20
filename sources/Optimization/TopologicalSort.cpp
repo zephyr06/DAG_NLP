@@ -110,7 +110,7 @@ namespace OrderOptDAG_SPACE
         return path;
     }
 
-    std::vector<std::vector<int>> TopologicalSortMulti(DAG_Model &dagTasks)
+    std::vector<std::vector<int>> TopologicalSortMulti( DAG_Model dagTasks)
     {
         std::vector<std::string> priorityTypeList = {"RM", "utilization", "DM", "orig"};
         std::vector<std::vector<int>> paths;

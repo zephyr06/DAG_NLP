@@ -31,7 +31,7 @@ namespace OrderOptDAG_SPACE
             // SFOrder jobOrder_;
             VectorDynamic startTimeVector_;
 
-            IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const ScheduleOptions &scheduleOptions)
+            IterationStatus(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const ScheduleOptions &scheduleOptions)
             {
                 BeginTimer(__FUNCTION__);
                 std::vector<uint> processorJobVec;

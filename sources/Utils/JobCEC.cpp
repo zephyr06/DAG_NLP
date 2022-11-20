@@ -27,7 +27,7 @@ namespace OrderOptDAG_SPACE
         return res;
     }
 
-    std::vector<std::pair<std::pair<double, double>, JobCEC>> ObtainAllJobSchedule(RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &x)
+    std::vector<std::pair<std::pair<double, double>, JobCEC>> ObtainAllJobSchedule(const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &x)
     {
         // souted start time
         std::vector<std::pair<std::pair<double, double>, JobCEC>> timeJobVector;
@@ -60,7 +60,7 @@ namespace OrderOptDAG_SPACE
         return timeJobVector;
     }
 
-    void PrintSchedule(RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &x)
+    void PrintSchedule(const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &x)
     {
         auto timeJobVector = ObtainAllJobSchedule(tasksInfo, x);
         timeJobVector = SortJobSchedule(timeJobVector);

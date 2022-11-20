@@ -44,7 +44,7 @@ namespace OrderOptDAG_SPACE
                 nextInstanceLeastFinishTime -= tasksInfo.tasks[instance.job.taskId].executionTime;
             return nextInstanceLeastFinishTime;
         }
-        bool WhetherSkipInsertStart(JobCEC &jobRelocate, LLint startP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
+        bool WhetherSkipInsertStart(const JobCEC &jobRelocate, LLint startP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
         {
             if (startP > 0)
             {
@@ -65,7 +65,7 @@ namespace OrderOptDAG_SPACE
             return false;
         }
 
-        bool WhetherSkipInsertFinish(JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
+        bool WhetherSkipInsertFinish(const JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
         {
             if (finishP > 0)
             {
@@ -85,7 +85,7 @@ namespace OrderOptDAG_SPACE
             }
             return false;
         }
-        bool WhetherStartFinishTooLong(double &accumLengthMin, JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurrForStart, LLint startP)
+        bool WhetherStartFinishTooLong(double &accumLengthMin, const JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurrForStart, LLint startP)
         {
             if (accumLengthMin >= tasksInfo.tasks[jobRelocate.taskId].executionTime)
                 return true;

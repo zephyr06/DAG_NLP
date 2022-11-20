@@ -459,7 +459,7 @@ namespace RTSS21IC_NLP
                 [this](const VectorDynamic &startTimeVectorOrig)
             {
                 VectorDynamic res;
-                res.resize(errorDimension, 1);
+                res.resize(errorDimension);
 
                 VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
                                                                        maskForEliminate, mapIndex);

@@ -23,7 +23,7 @@ namespace OrderOptDAG_SPACE
         return path;
     }
 
-    void PrintChains(std::vector<std::vector<int>> &chains)
+    void PrintChains(const std::vector<std::vector<int>> &chains)
     {
         std::cout << "Chains:" << std::endl;
         for (size_t i = 0; i < size(chains); i++)
@@ -41,7 +41,7 @@ namespace OrderOptDAG_SPACE
     // MAP_Prev maps one task to all the tasks it depends on
     using namespace RegularTaskSystem;
 
-    std::pair<Graph, indexVertexMap> DAG_Model::GenerateGraphForTaskSet()
+    std::pair<Graph, indexVertexMap> DAG_Model::GenerateGraphForTaskSet() const
     {
 
         Graph g;

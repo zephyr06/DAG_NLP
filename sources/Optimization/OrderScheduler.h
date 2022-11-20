@@ -18,7 +18,7 @@ namespace OrderOptDAG_SPACE
     public:
         // jobOrder is allowed to change
         OrderScheduler() {}
-        static VectorDynamic schedule(DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum, SFOrder &jobOrder, const std::vector<uint> processorJobVe)
+        static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum, SFOrder &jobOrder, const std::vector<uint> processorJobVe)
         {
             CoutError("Never call base function!");
             return GenerateVectorDynamic1D(0);
@@ -29,7 +29,7 @@ namespace OrderOptDAG_SPACE
     {
     public:
         // processorJobVe will be assigned values
-        static VectorDynamic schedule(DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum, SFOrder &jobOrder, std::vector<uint> &processorJobVe)
+        static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum, SFOrder &jobOrder, std::vector<uint> &processorJobVe)
         {
             return SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrder, processorJobVe);
         }
@@ -39,7 +39,7 @@ namespace OrderOptDAG_SPACE
     class LPOrderScheduler : public OrderScheduler
     {
     public:
-        static VectorDynamic schedule(DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum, SFOrder &jobOrder, std::vector<uint> &processorJobVe)
+        static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum, SFOrder &jobOrder, std::vector<uint> &processorJobVe)
         {
             // BeginTimer("LPOrderScheduler");
             // ScheduleResult scheduleResBeforeOpt{jobOrder, startTimeVector_, schedulable_, ReadObj(), processorJobVec_};

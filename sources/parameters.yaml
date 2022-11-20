@@ -17,7 +17,7 @@ RandomAccept: 0 # chance to take a possibly better solution
 #*************************************************************
 
 # task-set settings
-coreNumberAva: 2
+coreNumberAva: 1
 processorAssignmentMode: 1 # 0 means using given processor assignment, 1 means using deciding by the scheduling algorithm
 priorityMode: RM
 # task set generator settings

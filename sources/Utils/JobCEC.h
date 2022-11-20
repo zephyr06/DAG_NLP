@@ -56,12 +56,12 @@ namespace OrderOptDAG_SPACE
         return GetStartTime(jobCEC, x, tasksInfo) + tasksInfo.tasks[jobCEC.taskId].executionTime;
     }
 
-    std::vector<std::pair<std::pair<double, double>, JobCEC>> ObtainAllJobSchedule(RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &x);
+    std::vector<std::pair<std::pair<double, double>, JobCEC>> ObtainAllJobSchedule(const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &x);
 
     std::vector<std::pair<std::pair<double, double>, JobCEC>> SortJobSchedule(
         std::vector<std::pair<std::pair<double, double>, JobCEC>> &timeJobVector);
 
-    void PrintSchedule(RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &x);
+    void PrintSchedule(const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,const  VectorDynamic &x);
 
     // map the job to the first hyper period and return job's unique id
     LLint GetJobUniqueId(const JobCEC &jobCEC, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);

@@ -6,7 +6,7 @@
 
 namespace OrderOptDAG_SPACE
 {
-
+    // TODO: make this work with fix-ed processor assignment
     ScheduleResult ScheduleRTSS21IC(DAG_Model &dagTasks, double sfTolerance, double freshTol)
     {
         RTSS21IC_NLP::sensorFusionTolerance = sfTolerance;
