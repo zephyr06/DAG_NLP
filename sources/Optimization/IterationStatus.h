@@ -60,7 +60,7 @@ namespace OrderOptDAG_SPACE
         // }
 
         template <typename OrderScheduler, typename ObjectiveFunctionBase>
-        bool MakeProgress(IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusPrev, IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusCurr)
+        bool MakeProgress(const IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusPrev, const IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusCurr)
         {
             if (!statusCurr.schedulable_)
             {

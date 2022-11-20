@@ -30,14 +30,19 @@ namespace OrderOptDAG_SPACE
         JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderRef, const TaskSetInfoDerived &tasksInfo);
 
         template <typename OrderScheduler, typename ObjectiveFunctionBase>
+        inline bool FoundOptimal(const IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusPrev)
+        {
+            return statusPrev.objWeighted_ == 0;
+        }
+
+        template <typename OrderScheduler, typename ObjectiveFunctionBase>
         ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, const ScheduleOptions &scheduleOptions, boost::optional<ScheduleResult &> resOrderOptWithoutScheduleOpt = boost::none)
         {
             std::vector<int> countSubJobOrderLength;
             if (dagTasks.chains_.size() == 0)
                 CoutWarning("No chain is provided for the given dag!");
 
-            TaskSet &tasks = dagTasks.tasks;
-            TaskSetInfoDerived tasksInfo(tasks);
+            TaskSetInfoDerived tasksInfo(dagTasks.tasks);
             VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
             SFOrder jobOrderRef(tasksInfo, initialSTV);
             if (debugMode == 1)
@@ -54,13 +59,6 @@ namespace OrderOptDAG_SPACE
             {
                 CoutWarning("Initial schedule is not schedulable!!!");
             }
-            bool foundOptimal = false;
-            LLint countMakeProgress = 0;
-            LLint countIterationStatus = 0;
-            LLint countOutermostWhileLoop = 0;
-
-            if (statusPrev.objWeighted_ == 0)
-                foundOptimal = true;
 
             auto start_time = std::chrono::system_clock::now();
             int64_t time_limit_in_seconds = makeProgressTimeLimit;
@@ -70,7 +68,7 @@ namespace OrderOptDAG_SPACE
             }
             bool time_out_flag = false;
 
-            auto CheckTimeOut = [&]()
+            auto CheckTimeOut = [&start_time, &time_limit_in_seconds, &time_out_flag]()
             {
                 auto curr_time = std::chrono::system_clock::now();
                 if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= time_limit_in_seconds)
@@ -81,20 +79,19 @@ namespace OrderOptDAG_SPACE
                 }
                 return false;
             };
-            // int jobWithMaxChain = FindLongestChainJobIndex(statusPrev)[0];
-            int jobWithMaxChain = 0;
 
             bool continueOpt = true;
-            auto CheckIterationContinue = [&]()
+            auto CheckIterationContinue = [&statusPrev, &CheckTimeOut]()
             {
-                BeginTimer("CheckIterationTerminate");
-                if (CheckTimeOut() || foundOptimal)
+                if (CheckTimeOut() || FoundOptimal(statusPrev))
                     return false;
                 else
                     return true;
-                EndTimer("CheckIterationTerminate");
             };
 
+            LLint countMakeProgress = 0;
+            LLint countIterationStatus = 0;
+            LLint countOutermostWhileLoop = 0;
             while (continueOpt && CheckIterationContinue())
             {
                 countOutermostWhileLoop++;
@@ -104,7 +101,7 @@ namespace OrderOptDAG_SPACE
                 std::vector<int> taskIdSet = GetTaskIdWithChainOrder(dagTasks);
                 BeginTimer("inner_for_job");
                 for (int i : taskIdSet)
-                    for (LLint j = jobWithMaxChain; j < jobWithMaxChain + tasksInfo.sizeOfVariables[i] && CheckIterationContinue(); j++)
+                    for (LLint j = 0; j < 0 + tasksInfo.sizeOfVariables[i] && CheckIterationContinue(); j++)
                     {
                         JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
                         JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
@@ -151,9 +148,7 @@ namespace OrderOptDAG_SPACE
                                     EndTimer("PrevSchedulabilityCheck");
                                 }
 
-                                BeginTimer("IterationStatusCreate");
                                 IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(dagTasks, tasksInfo, jobOrderCurrForFinish, scheduleOptions);
-                                EndTimer("IterationStatusCreate");
                                 countIterationStatus++;
 
                                 if (MakeProgress<OrderScheduler>(statusPrev, statusCurr))
@@ -167,11 +162,11 @@ namespace OrderOptDAG_SPACE
                                         // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
                                     }
                                     countMakeProgress++;
-                                    if (statusCurr.objWeighted_ == 0)
-                                    {
-                                        foundOptimal = true;
-                                        break;
-                                    }
+                                    // if (statusPrev.objWeighted_ == 0)
+                                    // {
+                                    //     foundOptimal = true;
+                                    //     break;
+                                    // }
                                 }
                                 else
                                 {
@@ -199,7 +194,7 @@ namespace OrderOptDAG_SPACE
             scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, processorJobVec, scheduleOptions.processorNum_, sensorFusionTolerance, freshTol);
             scheduleRes.obj_ = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, statusPrev.startTimeVector_, scheduleOptions);
 
-            if (scheduleOptions.doScheduleOptimization_ && !foundOptimal)
+            if (scheduleOptions.doScheduleOptimization_ && !FoundOptimal(statusPrev))
             {
                 if (!scheduleOptions.considerSensorFusion_ || !scheduleRes.schedulable_)
                 {

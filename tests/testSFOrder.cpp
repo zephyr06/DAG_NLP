@@ -241,7 +241,7 @@ TEST(sensorFusion, v1_no_fork)
     initial << 2, 1, 0, 3, 4;
     EXPECT_LONGS_EQUAL(0, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(0));
 
-    //std::cout << sth <<std::endl;
+    // std::cout << sth <<std::endl;
     initial << 3, 5, 1, 6, 7;
     EXPECT_LONGS_EQUAL(0, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(0));
 }
@@ -534,23 +534,7 @@ TEST(CheckDDLConstraint, v1)
     initial << 9.9, 10, 0, 0;
     EXPECT(!CheckDDLConstraint(dagTasks, tasksInfo, initial));
 }
-// TODO: add this test
-TEST(IterationStatus, SchedulabilityCheck)
-{
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v26.csv", "orig");
-    TaskSet tasks = dagTasks.tasks;
-    TaskSetInfoDerived tasksInfo(tasks);
 
-    // doScheduleOptimization = 1;
-
-    // int processorNum = 2;
-    // VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
-    // initial << 0, 10, 1, 1;
-    // SFOrder sfOrder(tasksInfo, initial);
-    // IterationStatus status(dagTasks, tasksInfo, sfOrder, processorNum);
-    // VectorDynamic stv = status.startTimeVector_;
-    // EXPECT(initial, stv);
-}
 int main()
 {
     TestResult tr;
