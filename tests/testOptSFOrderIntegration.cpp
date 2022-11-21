@@ -9,7 +9,7 @@ class DAGScheduleOptimizerTest1 : public ::testing::Test
 protected:
     void SetUp() override
     {
-        dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig"); // single-rate dag
+        dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v79.csv", "orig"); // single-rate dag
         tasks = dagTasks.tasks;
         tasksInfo = TaskSetInfoDerived(tasks);
         chain1 = {0, 2};
@@ -35,19 +35,15 @@ protected:
     DAGScheduleOptimizer<SimpleOrderScheduler, RTDAExperimentObj> dagScheduleOptimizer;
 };
 
-TEST_F(DAGScheduleOptimizerTest1, constructor)
-{
-    EXPECT_EQ(tasks.size(), 3);
-}
 // TODO: fix the test below
 TEST_F(DAGScheduleOptimizerTest1, UpdateStatus)
 {
-    VectorDynamic initial = GenerateVectorDynamic(4);
-    initial << 5, 10, 6, 7;
+    VectorDynamic initial = GenerateVectorDynamic(19);
+    initial << 0, 199, 200, 300, 499, 511, 1, 198, 200, 399, 400, 599, 187, 201, 500, 178, 490, 107, 307;
     SFOrder jobOrder(tasksInfo, initial);
     JobGroupRange uselessRange(0, 100);
     LLint uselessFinishP = 100;
-    EXPECT_EQ(2, dagScheduleOptimizer.UpdateStatus(jobOrder, uselessRange, uselessFinishP));
+    EXPECT_EQ(0, dagScheduleOptimizer.UpdateStatus(jobOrder, uselessRange, uselessFinishP));
 }
 
 // TODO: write a failure test for OptimizeOrder

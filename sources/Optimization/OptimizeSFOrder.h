@@ -40,9 +40,8 @@ namespace OrderOptDAG_SPACE
                 BetterFeasible
             };
             DAGScheduleOptimizer() {}
-            // TODO: using initializer list
-            // https://stackoverflow.com/questions/6822422/c-where-to-initialize-variables-in-constructor
-            DAGScheduleOptimizer(const DAG_Model &dagInput, const ScheduleOptions &scheduleOptions, double timeLimits = makeProgressTimeLimit) : start_time(std::chrono::system_clock::now()), timeLimits(makeProgressTimeLimit), dagTasks(dagInput), tasksInfo(TaskSetInfoDerived(dagTasks.tasks))
+
+            DAGScheduleOptimizer(const DAG_Model &dagInput, const ScheduleOptions &scheduleOptions, double timeLimits = makeProgressTimeLimit) : start_time(std::chrono::system_clock::now()), timeLimits(makeProgressTimeLimit), dagTasks(dagInput), tasksInfo(TaskSetInfoDerived(dagTasks.tasks)), scheduleOptions(scheduleOptions)
             {
                 if (dagTasks.chains_.size() == 0)
                     CoutWarning("No chain is provided for the given dag!");
@@ -87,8 +86,7 @@ namespace OrderOptDAG_SPACE
                 return scheduleRes;
             }
 
-            inline SFOrder
-            GetJobOrder() const
+            inline SFOrder GetJobOrder() const
             {
                 return jobOrderRef;
             }
@@ -104,7 +102,6 @@ namespace OrderOptDAG_SPACE
             LLint countOutermostWhileLoop = 0;
 
             bool findBetterJobOrderWithinIterations = false;
-            // TaskSetInfoDerived tasksInfo;
             ScheduleOptions scheduleOptions;
 
             SFOrder jobOrderRef;
