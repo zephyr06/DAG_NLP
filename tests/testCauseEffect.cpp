@@ -145,11 +145,13 @@ TEST(RTDA, v3)
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     int processorNum = 2;
+    OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOptions;
+    scheduleOptions.processorNum_ = processorNum;
     VectorDynamic initialEstimate = GenerateVectorDynamic(19);
     initialEstimate << 0, 100, 200, 321, 415, 500, 0, 100, 201, 320, 415, 500, 1, 309, 416, 202, 300, 1, 322;
     SFOrder jobOrder(tasksInfo, initialEstimate);
     std::vector<uint> processorJobVec;
-    VectorDynamic expectStv = SimpleOrderScheduler::schedule(dagTasks, tasksInfo, processorNum, jobOrder, processorJobVec);
+    VectorDynamic expectStv = SimpleOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
     EXPECT(assert_equal(expectStv, initialEstimate));
 
     std::vector<int> causeEffectChain = {3, 2, 1, 0};

@@ -29,7 +29,7 @@ namespace OrderOptDAG_SPACE
         TOM_FastLP     // 5
     };
 
-    OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(DAG_Model dagTasks, OptimizeSF::ScheduleOptions scheduleOptions, BaselineMethods batchTestMethod)
+    OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(DAG_Model &dagTasks, OptimizeSF::ScheduleOptions &scheduleOptions, BaselineMethods batchTestMethod)
     {
         ScheduleResult res;
         switch (batchTestMethod)

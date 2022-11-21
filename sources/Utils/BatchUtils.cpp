@@ -12,23 +12,23 @@ namespace OrderOptDAG_SPACE
         }
         else if (batchTestMethod_ == 1)
         {
-            property = "_TOM_Res.txt";
+            property = "_Verucchi20_Res.txt";
         }
         else if (batchTestMethod_ == 2)
         {
-            property = "_Verucchi_Res.txt";
+            property = "_Wang21_Res.txt";
         }
         else if (batchTestMethod_ == 3)
         {
-            property = "_NLP_Res.txt";
+            property = "_TOM_Res.txt";
         }
         else if (batchTestMethod_ == 4)
         {
-            property = "_OrderOpt_Res.txt";
+            property = "_TOM_Fast_Res.txt";
         }
         else if (batchTestMethod_ == 5)
         {
-            property = "_OrderOpt1LP_Res.txt";
+            property = "_TOM_FastLP_Res.txt";
         }
         else
         {
@@ -46,7 +46,7 @@ namespace OrderOptDAG_SPACE
         outfileWrite << res.obj_ << std::endl;
         outfileWrite << res.timeTaken_ << std::endl;
         outfileWrite.close();
-        if (batchTestMethod_ == 1 || batchTestMethod_ == 4 || batchTestMethod_ == 5)
+        if (batchTestMethod_ > 2)
         {
             resFile = resFile.substr(0, resFile.length() - 4);
             resFile += "_LoopCount.txt";

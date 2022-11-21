@@ -39,7 +39,7 @@ namespace OrderOptDAG_SPACE
                 std::vector<uint> processorJobVec;
 
                 // jobOrder_ = jobOrder;
-                startTimeVector_ = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVec);
+                startTimeVector_ = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
                 schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec, scheduleOptions.processorNum_);
                 if (!schedulable_)
                     objWeighted_ = 1e9;

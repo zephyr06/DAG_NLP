@@ -39,5 +39,5 @@ namespace OrderOptDAG_SPACE
                 weightPunish_ = GlobalVariablesDAGOpt::weightInMpRTDAPunish;
             }
         };
-    }
-}
+    } // namespace OptimizeSF
+} // namespace OrderOptDAG_SPACE

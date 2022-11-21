@@ -46,8 +46,7 @@ if (DEFINED ENV{CPLEX_ROOT_DIR})
   include_directories(SYSTEM ${CPLEX_INCLUDE_DIRS})
 else()
   # exclude files denpends on cplex
-  message("Cplex not found! Related files will be removed from building tree.")
-  list(FILTER sources EXCLUDE REGEX "^.*ScheduleOptimizer.h|^.*other_files_to_be_ignored.h")
+  message("Error: Cplex not found! The project will not work without Cplex.")
 endif()
 
 # google test
