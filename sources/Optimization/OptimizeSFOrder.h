@@ -121,7 +121,7 @@ namespace OrderOptDAG_SPACE
 
                 // TODO: optimize the following?
                 std::vector<uint> processorJobVec;
-                auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrderRef, processorJobVec);
+                auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef, processorJobVec);
                 ScheduleResult scheduleRes{jobOrderRef, statusPrev.startTimeVector_, statusPrev.schedulable_, ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, statusPrev.startTimeVector_, scheduleOptions), processorJobVec};
                 return scheduleRes;
             }
@@ -384,7 +384,7 @@ namespace OrderOptDAG_SPACE
             ScheduleResult scheduleRes = dagScheduleOptimizer.Optimize();
 
             // std::vector<uint> processorJobVec;
-            // auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrderRef, processorJobVec);
+            // auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef, processorJobVec);
 
             if (scheduleOptions.doScheduleOptimization_)
             {
