@@ -29,73 +29,23 @@ namespace OrderOptDAG_SPACE
         std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks);
         JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderRef, const TaskSetInfoDerived &tasksInfo);
 
-        // template <typename OrderScheduler, typename ObjectiveFunctionBase>
-        // inline bool FoundOptimal(const IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusPrev)
-        // {
-        //     return statusPrev.objWeighted_ == 0;
-        // }
-
-        // bool CheckTimeOut(const std::chrono::high_resolution_clock::time_point &start_time, const double &time_limit_in_seconds)
-        // {
-        //     auto curr_time = std::chrono::system_clock::now();
-        //     if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= time_limit_in_seconds)
-        //     {
-        //         std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << time_limit_in_seconds << " seconds.\n\n";
-        //         return true;
-        //     }
-        //     return false;
-        // }
-
-        // template <typename OrderScheduler, typename ObjectiveFunctionBase>
-        // bool CompareTwoJobOrder(const SFOrder &jobOrderRef, const SFOrder &jobOrderCurrForFinish, IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusPrev, LLint &countMakeProgress, )
-        // {
-        //     // check whether the small job order under influence is unschedulable
-        //     if (SubGroupSchedulabilityCheck(jobStartFinishInstActiveRange, jobOrderRef, jobOrderCurrForFinish, finishP, dagTasks, tasksInfo, scheduleOptions.processorNum_))
-        //         return false;
-        //     else
-        //     {
-        //         if (SFOrderScheduling(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrderCurrForFinish)(0) == -1)
-        //             return false;
-        //     }
-
-        //     IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(dagTasks, tasksInfo, jobOrderCurrForFinish, scheduleOptions);
-        //     countIterationStatus++;
-
-        //     if (MakeProgress<OrderScheduler>(statusPrev, statusCurr))
-        //     {
-        //         return true;
-        //     }
-        //     else
-        //         return false;
-        // }
-
-        // template <typename OrderScheduler, typename ObjectiveFunctionBase>
-        // bool CheckIterationContinue(const IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusPrev, const std::chrono::high_resolution_clock::time_point &start_time, const double &time_limit_in_seconds)
-        // {
-        //     if (CheckTimeOut(start_time, time_limit_in_seconds) || FoundOptimal(statusPrev))
-        //         return false;
-        //     else
-        //         return true;
-        // }
-        enum SFOrderStatus
-        {
-            Infeasible,
-            InferiorFeasible,
-            BetterFeasible
-        };
-
         template <typename OrderScheduler, typename ObjectiveFunctionBase>
         class DAGScheduleOptimizer
         {
         public:
+            enum SFOrderStatus
+            {
+                Infeasible,
+                InferiorFeasible,
+                BetterFeasible
+            };
+            DAGScheduleOptimizer() {}
             // TODO: using initializer list
             // https://stackoverflow.com/questions/6822422/c-where-to-initialize-variables-in-constructor
             DAGScheduleOptimizer(const DAG_Model &dagInput, const ScheduleOptions &scheduleOptions, double timeLimits = makeProgressTimeLimit) : start_time(std::chrono::system_clock::now()), timeLimits(makeProgressTimeLimit), dagTasks(dagInput), tasksInfo(TaskSetInfoDerived(dagTasks.tasks))
-
             {
                 if (dagTasks.chains_.size() == 0)
                     CoutWarning("No chain is provided for the given dag!");
-                // tasksInfo = TaskSetInfoDerived(dagTasks.tasks);
 
                 VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
                 jobOrderRef = SFOrder(tasksInfo, initialSTV);
@@ -121,7 +71,7 @@ namespace OrderOptDAG_SPACE
                         for (LLint j = 0; j < 0 + tasksInfo.sizeOfVariables[i] && (ifContinue()); j++)
                         {
                             JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
-                            auto sth = ImproveJobOrderPerJob(jobRelocate);
+                            ImproveJobOrderPerJob(jobRelocate);
                         }
                     }
 
@@ -160,7 +110,7 @@ namespace OrderOptDAG_SPACE
             SFOrder jobOrderRef;
             IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusPrev;
 
-        private:
+        public:
             bool ifTimeout() const
             {
                 auto curr_time = std::chrono::system_clock::now();
@@ -174,8 +124,6 @@ namespace OrderOptDAG_SPACE
 
             inline bool ifOptimal() const
             {
-                if (statusPrev.objWeighted_ == 0)
-                    CoutWarning("Find optimal!");
                 return statusPrev.objWeighted_ == 0;
             }
 
