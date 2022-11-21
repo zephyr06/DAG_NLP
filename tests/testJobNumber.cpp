@@ -4,9 +4,10 @@
 #include "sources/TaskModel/DAG_Model.h"
 using namespace std;
 using namespace OrderOptDAG_SPACE;
+using namespace GlobalVariablesDAGOpt;
 TEST(parameters, a1)
 {
-    
+
     std::string dirStr = PROJECT_PATH + "TaskData/dagTasks/";
     const char *pathDataset = (dirStr).c_str();
     std::cout << "Dataset Directory: " << pathDataset << std::endl;

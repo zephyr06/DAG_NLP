@@ -4,7 +4,7 @@
 #include "sources/Baseline/RTSS21IC.h"
 #include "sources/Utils/profilier.h"
 #include "sources/Utils/testMy.h"
-
+using namespace GlobalVariablesDAGOpt;
 TEST(RTSSIC, Wang21_DBF)
 {
     RTSS21IC_NLP::sensorFusionTolerance = 1e8;

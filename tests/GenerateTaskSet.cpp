@@ -4,6 +4,7 @@
 #include "sources/Baseline/RTSS21IC.h"
 // #include "sources/RTA/RTA_DAG_Model.h"
 
+using namespace GlobalVariablesDAGOpt;
 void deleteDirectoryContents(const std::string &dir_path)
 {
     for (const auto &entry : std::filesystem::directory_iterator(dir_path))
@@ -134,25 +135,25 @@ int main(int argc, char *argv[])
         totalUtilization = program.get<double>("--totalUtilization");
     }
 
-   std::cout << "Task configuration: " << std::endl
-         << "the number of tasks in DAG(--N): " << N << std::endl
-         << "DAG_taskSetNumber(--taskSetNumber): " << DAG_taskSetNumber << std::endl
-         << "NumberOfProcessor(--NumberOfProcessor): " << numberOfProcessor << std::endl
-         << "totalUtilization(--totalUtilization): " << totalUtilization << std::endl
-         << "aveUtilization(--aveUtilization): " << aveUtilization << std::endl
-         << "whether use random utilization(--useRandomUtilization): " << useRandomUtilization << std::endl
-         << "minimum utilization per core, only work in random utilization mode(--minUtilizationPerCore): " << minUtilizationPerCore << std::endl
-         << "maximum utilization per core, only work in random utilization mode(--maxUtilizationPerCore): " << maxUtilizationPerCore << std::endl
-         << "periodMin, only work in normal(random) taskSetType(--periodMin), : " << periodMin << std::endl
-         << "periodMax, only work in normal(random) taskSetType(--periodMax): " << periodMax << std::endl
-         << "taskType(--taskType), 0 means normal, 1 means DAG: " << taskType << std::endl
-         << "deadlineType(--deadlineType), 1 means random, 0 means implicit: " << deadlineType << std::endl
-         << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile, 3 means automobile with WATERS distribution: " << taskSetType << std::endl
-         << "coreRequireMax(--coreRequireMax): " << coreRequireMax << std::endl
-         << "excludeUnschedulable(--excludeUnschedulable): " << excludeUnschedulable << std::endl
-         << "excludeEmptyEdgeDag(--excludeEmptyEdgeDag): " << excludeEmptyEdgeDag << std::endl
-         << "randomSeed, negative will use current time, otherwise use the given seed(--randomSeed): " << randomSeed << std::endl
-         << std::endl;
+    std::cout << "Task configuration: " << std::endl
+              << "the number of tasks in DAG(--N): " << N << std::endl
+              << "DAG_taskSetNumber(--taskSetNumber): " << DAG_taskSetNumber << std::endl
+              << "NumberOfProcessor(--NumberOfProcessor): " << numberOfProcessor << std::endl
+              << "totalUtilization(--totalUtilization): " << totalUtilization << std::endl
+              << "aveUtilization(--aveUtilization): " << aveUtilization << std::endl
+              << "whether use random utilization(--useRandomUtilization): " << useRandomUtilization << std::endl
+              << "minimum utilization per core, only work in random utilization mode(--minUtilizationPerCore): " << minUtilizationPerCore << std::endl
+              << "maximum utilization per core, only work in random utilization mode(--maxUtilizationPerCore): " << maxUtilizationPerCore << std::endl
+              << "periodMin, only work in normal(random) taskSetType(--periodMin), : " << periodMin << std::endl
+              << "periodMax, only work in normal(random) taskSetType(--periodMax): " << periodMax << std::endl
+              << "taskType(--taskType), 0 means normal, 1 means DAG: " << taskType << std::endl
+              << "deadlineType(--deadlineType), 1 means random, 0 means implicit: " << deadlineType << std::endl
+              << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile, 3 means automobile with WATERS distribution: " << taskSetType << std::endl
+              << "coreRequireMax(--coreRequireMax): " << coreRequireMax << std::endl
+              << "excludeUnschedulable(--excludeUnschedulable): " << excludeUnschedulable << std::endl
+              << "excludeEmptyEdgeDag(--excludeEmptyEdgeDag): " << excludeEmptyEdgeDag << std::endl
+              << "randomSeed, negative will use current time, otherwise use the given seed(--randomSeed): " << randomSeed << std::endl
+              << std::endl;
 
     std::string outDirectory = PROJECT_PATH + "TaskData/dagTasks/";
     // std::string outDirectory = PROJECT_PATH + "Energy_Opt_NLP/TaskData/task_number/";
@@ -211,7 +212,7 @@ int main(int argc, char *argv[])
                     if ((considerSensorFusion == 0 && (!ExamBasic_Feasibility(tasks, tasksInfo, initialSTV, processorJobVec, numberOfProcessor))) ||
                         (considerSensorFusion != 0 && (!ExamDDL_Feasibility(tasks, tasksInfo, initialSTV))))
                     {
-                        if (debugMode)
+                        if (GlobalVariablesDAGOpt::debugMode)
                         {
                             std::cout << "Un feasible case, skipped.\n";
                         }

@@ -4,7 +4,7 @@
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Utils/testMy.h"
 #include "sources/Optimization/InitialEstimate.h"
-using namespace gtsam;
+using namespace gtsam;using namespace GlobalVariablesDAGOpt;
 TEST(GenerateInitialForDAG, V2)
 {
     using namespace OrderOptDAG_SPACE;

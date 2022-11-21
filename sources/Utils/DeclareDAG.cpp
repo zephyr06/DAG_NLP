@@ -33,7 +33,7 @@ double ExtractVariable(const VectorDynamic &startTimeVector,
     if (taskIndex < 0 || instanceIndex < 0 || instanceIndex > sizeOfVariables[taskIndex] - 1)
     {
 
-       std::cout << Color::red << "Index Error in ExtractVariable!" << Color::def << std::endl;
+        std::cout << Color::red << "Index Error in ExtractVariable!" << Color::def << std::endl;
         throw;
     }
 
@@ -49,7 +49,7 @@ VectorDynamic CompresStartTimeVector(const VectorDynamic &startTimeComplete,
                                      const std::vector<bool> &maskForEliminate)
 {
     int variableDimension = maskForEliminate.size();
-   std::vector<double> initialUpdateVec;
+    std::vector<double> initialUpdateVec;
     initialUpdateVec.reserve(variableDimension - 1);
 
     for (int i = 0; i < variableDimension; i++)
@@ -72,10 +72,10 @@ double BarrierLog(double x)
 {
     if (x >= 0)
         // return pow(x, 2);
-        return weightLogBarrier * log(x + 1) + barrierBase;
+        return GlobalVariablesDAGOpt::weightLogBarrier * log(x + 1) + GlobalVariablesDAGOpt::barrierBase;
     else if (x < 0)
     {
-        return punishmentInBarrier * pow(1 - x, 2);
+        return GlobalVariablesDAGOpt::punishmentInBarrier * pow(1 - x, 2);
     }
     // else // it basically means x=0
     //     return weightLogBarrier *
@@ -148,7 +148,7 @@ MatrixDynamic NumericalDerivativeDynamic2D2(NormalErrorFunction2D h,
 
 double GetSingleElement(LLint index, VectorDynamic &actual,
                         const MAP_Index2Data &mapIndex,
-                       std::vector<bool> &filledTable)
+                        std::vector<bool> &filledTable)
 {
     if (filledTable[index])
         return actual(index, 0);

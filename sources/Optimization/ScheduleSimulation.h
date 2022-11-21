@@ -189,7 +189,7 @@ namespace OrderOptDAG_SPACE
 
     /**
      * @brief Warning! All the task sets must have int type values, otherwise it may generate inappropriate initialization method;
-     * If you need to use double type, please use timeScaleFactor to transform it into int type with some acceptable accuracy.
+     * If you need to use double type, please use GlobalVariablesDAGOpt::timeScaleFactor to transform it into int type with some acceptable accuracy.
      *
      * By default, priority is given by RM?
      * @param dagTasks

@@ -4,6 +4,7 @@
 #include "sources/Baseline/VerucchiScheduling.h"
 #include "sources/Factors/RTDA_Factor.h"
 #include "sources/Baseline/VerucchiRTDABridge.h"
+using namespace GlobalVariablesDAGOpt;
 // *************************
 
 // TEST(VerucchiRTDA, single_case_v1)

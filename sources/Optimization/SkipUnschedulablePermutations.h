@@ -101,7 +101,7 @@ namespace OrderOptDAG_SPACE
         // TODO: test this function
         bool SubGroupSchedulabilityCheck(JobGroupRange &jobGroup, SFOrder &jobOrderRef, const SFOrder &jobOrderCurrForFinish, LLint finishP, DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum)
         {
-            if (enableSmallJobGroupCheck)
+            if (GlobalVariablesDAGOpt::enableSmallJobGroupCheck)
             {
                 BeginTimer("FindUnschedulableSmallJobOrder");
                 JobCEC jobNewlyAdded = jobOrderCurrForFinish.at(finishP - 1).job;
@@ -110,7 +110,7 @@ namespace OrderOptDAG_SPACE
                 jobGroup.maxIndex = max(jobGroup.maxIndex, finishP);
                 jobGroup.maxIndex = max(jobGroup.maxIndex, jobOrderRef.GetJobFinishInstancePosition(jobNewlyAdded) + 1);
                 jobGroup.maxIndex = min(jobGroup.maxIndex, jobOrderRef.size());
-                jobGroup.minIndex = max(jobGroup.minIndex, jobGroup.maxIndex - subJobGroupMaxSize);
+                jobGroup.minIndex = max(jobGroup.minIndex, jobGroup.maxIndex - GlobalVariablesDAGOpt::subJobGroupMaxSize);
                 jobGroup.minIndex = max(jobGroup.minIndex, 0);
                 // countSubJobOrderLength.push_back(jobGroup.maxIndex - jobGroup.minIndex);
                 std::vector<TimeInstance> instanceOrderSmall = ExtractSubInstances(jobOrderCurrForFinish, jobGroup);
@@ -132,7 +132,7 @@ namespace OrderOptDAG_SPACE
                 bool smallFail = SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderSmall)(0) == -1;
                 // if (bigFail == false && smallFail == true)
                 // {
-                //     if (debugMode == 1)
+                //     if (GlobalVariablesDAGOpt::debugMode == 1)
                 //         jobOrderSmall.print();
                 //     // CoutWarning("One mismatched group check!");
                 // }

@@ -35,17 +35,17 @@ namespace OrderOptDAG_SPACE
         switch (batchTestMethod)
         {
         case InitialMethod:
-            res = OrderOptDAG_SPACE::ScheduleDAGLS_LFT(dagTasks, scheduleOptions.processorNum_, sensorFusionTolerance, freshTol);
+            res = OrderOptDAG_SPACE::ScheduleDAGLS_LFT(dagTasks, scheduleOptions.processorNum_, GlobalVariablesDAGOpt::sensorFusionTolerance, GlobalVariablesDAGOpt::freshTol);
             break;
         case Verucchi20:
-            if (considerSensorFusion != 0)
+            if (GlobalVariablesDAGOpt::considerSensorFusion != 0)
                 CoutError("ScheduleVerucchiRTDA is called with non-zero considerSensorFusion!");
             res = ScheduleVerucchiRTDA(dagTasks, dagTasks.chains_, scheduleOptions.processorNum_, 15.0, 400000.0, 15.0, 400000.0, 15.0);
             break;
         case Wang21:
-            if (considerSensorFusion == 0)
+            if (GlobalVariablesDAGOpt::considerSensorFusion == 0)
                 CoutError("ScheduleRTSS21IC is called with zero considerSensorFusion!");
-            res = OrderOptDAG_SPACE::ScheduleRTSS21IC(dagTasks, sensorFusionTolerance, freshTol);
+            res = OrderOptDAG_SPACE::ScheduleRTSS21IC(dagTasks, GlobalVariablesDAGOpt::sensorFusionTolerance, GlobalVariablesDAGOpt::freshTol);
             break;
         case TOM:
             scheduleOptions.doScheduleOptimization_ = 1;
@@ -75,9 +75,9 @@ namespace OrderOptDAG_SPACE
         std::string dirStr = PROJECT_PATH + "TaskData/dagTasks/";
         const char *pathDataset = (dirStr).c_str();
         std::cout << "Dataset Directory: " << pathDataset << std::endl;
-        std::vector<std::vector<double>> runTimeAll(TotalMethodUnderComparison);
-        std::vector<std::vector<double>> objsAll(TotalMethodUnderComparison);
-        std::vector<std::vector<int>> schedulableAll(TotalMethodUnderComparison); // values could only be 0 / 1
+        std::vector<std::vector<double>> runTimeAll(GlobalVariablesDAGOpt::TotalMethodUnderComparison);
+        std::vector<std::vector<double>> objsAll(GlobalVariablesDAGOpt::TotalMethodUnderComparison);
+        std::vector<std::vector<int>> schedulableAll(GlobalVariablesDAGOpt::TotalMethodUnderComparison); // values could only be 0 / 1
 
         std::vector<std::string> errorFiles;
         std::vector<std::string> worseFiles;
@@ -89,11 +89,11 @@ namespace OrderOptDAG_SPACE
             {
                 std::cout << file << std::endl;
                 std::string path = PROJECT_PATH + "TaskData/dagTasks/" + file;
-                OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(path, priorityMode);
+                OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(path, GlobalVariablesDAGOpt::priorityMode);
                 if (dagTasks.GetSfBound() > 0)
-                    sensorFusionTolerance = dagTasks.GetSfBound();
+                    GlobalVariablesDAGOpt::sensorFusionTolerance = dagTasks.GetSfBound();
                 if (dagTasks.GetRtdaBound() > 0)
-                    freshTol = dagTasks.GetRtdaBound();
+                    GlobalVariablesDAGOpt::freshTol = dagTasks.GetRtdaBound();
 
                 // int N = dagTasks.tasks.size();
                 AssertBool(true, dagTasks.chains_.size() > 0, __LINE__);

@@ -3,7 +3,7 @@
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Utils/testMy.h"
-
+using namespace GlobalVariablesDAGOpt;
 TEST(ExtractVariable, v1)
 {
     using namespace OrderOptDAG_SPACE;

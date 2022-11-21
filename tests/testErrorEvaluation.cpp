@@ -7,6 +7,7 @@
 #include "sources/Optimization/IterationStatus.h"
 
 using namespace OrderOptDAG_SPACE;
+using namespace GlobalVariablesDAGOpt;
 TEST(list_scheduling, least_finish_time_v2)
 {
     using namespace OrderOptDAG_SPACE;
@@ -93,7 +94,7 @@ TEST(sensorFusion, v1)
     initial << 2, 1, 0, 3, 4;
     EXPECT_LONGS_EQUAL(0, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(0));
 
-    //std::cout << sth <<std::endl;
+    // std::cout << sth <<std::endl;
     initial << 3, 5, 1, 6, 7;
     EXPECT_LONGS_EQUAL(3, ObtainSensorFusionError(dagTasks, tasksInfo, initial)(0));
 }

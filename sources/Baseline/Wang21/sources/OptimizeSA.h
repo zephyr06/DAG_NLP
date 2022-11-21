@@ -20,7 +20,7 @@ namespace RTSS21IC_NLP
             LLint hyperPeriod = HyperPeriod(tasks);
 
             // declare variables
-           std::vector<LLint> sizeOfVariables;
+            std::vector<LLint> sizeOfVariables;
             int variableDimension = 0;
             for (int i = 0; i < N; i++)
             {
@@ -30,7 +30,7 @@ namespace RTSS21IC_NLP
             }
             moe::SimulatedAnnealing<double> moether(moe::SAParameters<double>()
                                                         .withTemperature(temperatureSA)
-                                                        .withCoolingRate(coolingRateSA)
+                                                        .withCoolingRate(GlobalVariablesDAGOpt::coolingRateSA)
                                                         .withDimensions(variableDimension + 1)
                                                         .withRange({0, double(hyperPeriod)}));
 
@@ -44,7 +44,7 @@ namespace RTSS21IC_NLP
             // choose an initialization method there!
             VectorDynamic initialEstimate = GenerateInitial(dagTasks, sizeOfVariables, variableDimension);
             if (debugMode)
-               std::cout << "Initial estimation for SA is " << initialEstimate << std::endl;
+                std::cout << "Initial estimation for SA is " << initialEstimate << std::endl;
             auto initialSA = Eigen2Vector<double>(initialEstimate);
             moether.runSA(SA_iteration, initialSA, randomInitialize);
 

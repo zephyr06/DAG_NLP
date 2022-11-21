@@ -13,13 +13,13 @@ namespace OrderOptDAG_SPACE
         RTSS21IC_NLP::sensorFusionTolerance = sfTolerance;
         RTSS21IC_NLP::freshTol = freshTol;
         RegularTaskSystem::TaskSetInfoDerived tasksInfo(dagTasks.tasks);
-        // VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, std::nullopt, processorIdVec);
+        // VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, GlobalVariablesDAGOpt::coreNumberAva, std::nullopt, processorIdVec);
 
         VectorDynamic initial = SimulateFixedPrioritySched(dagTasks, tasksInfo);
         // std::vector<uint> processorIdVec;
-        // VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, processorIdVec);
+        // VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, GlobalVariablesDAGOpt::coreNumberAva, processorIdVec);
         // RTSS21IC_NLP::processorIdVecGlobal = processorIdVec;
-        RTSS21IC_NLP::processorNumGlobal = coreNumberAva;
+        RTSS21IC_NLP::processorNumGlobal = GlobalVariablesDAGOpt::coreNumberAva;
         auto sth = RTSS21IC_NLP::DAG_SPACE::OptimizeScheduling(dagTasks, initial);
         ScheduleResult res;
         res.schedulable_ = sth.optimizeError < 1e-1;

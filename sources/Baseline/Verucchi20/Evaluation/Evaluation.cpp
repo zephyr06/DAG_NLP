@@ -64,7 +64,7 @@ Evaluation::evaluate(const std::vector<DAG> &dags)
 		cost[k] += schedulingEval_.first.getCost(info);
 	}
 
-	if (debugMode)
+	if (GlobalVariablesDAGOpt::debugMode)
 	{
 		std::cout << "Num invalid dags: " << invalidDags << std::endl;
 	}
@@ -85,7 +85,7 @@ Evaluation::evaluate(const std::vector<DAG> &dags)
 		}
 	}
 
-	if (debugMode)
+	if (GlobalVariablesDAGOpt::debugMode)
 	{
 		std::cout << "Best DAG: " << bestDAG << ", with total cost: " << minCost << std::endl
 				  << std::endl;
@@ -145,14 +145,14 @@ Evaluation::evaluateWithRTDA(const std::vector<DAG> &dags)
 			cost[k] += eval.second.first.getCost(info);
 		}
 	}
-	if (debugMode)
+	if (GlobalVariablesDAGOpt::debugMode)
 	{
 		std::cout << "Num invalid dags: " << invalidDags << std::endl;
 	}
 
 	if (invalidDags == dags.size())
 	{
-		if (debugMode)
+		if (GlobalVariablesDAGOpt::debugMode)
 		{
 			std::cout << "No valid dag found. Constraints are too tight." << std::endl;
 		}
@@ -171,7 +171,7 @@ Evaluation::evaluateWithRTDA(const std::vector<DAG> &dags)
 		}
 	}
 
-	if (debugMode)
+	if (GlobalVariablesDAGOpt::debugMode)
 	{
 		std::cout << "Best DAG: " << bestDAG << ", with total cost: " << minCost << std::endl
 				  << std::endl;
@@ -232,14 +232,14 @@ void Evaluation::evaluateWithRTDAandUpdate(const std::vector<DAG> &dags,
 			cost[k] += eval.second.first.getCost(info);
 		}
 	}
-	if (debugMode)
+	if (GlobalVariablesDAGOpt::debugMode)
 	{
 		std::cout << "Num invalid dags: " << invalidDags << std::endl;
 	}
 
 	if (invalidDags == dags.size())
 	{
-		if (debugMode)
+		if (GlobalVariablesDAGOpt::debugMode)
 		{
 			std::cout << "No valid dag found. Constraints are too tight." << std::endl;
 		}
@@ -265,7 +265,7 @@ void Evaluation::evaluateWithRTDAandUpdate(const std::vector<DAG> &dags,
 		}
 	}
 
-	if (debugMode)
+	if (GlobalVariablesDAGOpt::debugMode)
 	{
 		std::cout << "Best DAG: " << bestDagId << ", with total cost: " << minCost << std::endl
 				  << std::endl;

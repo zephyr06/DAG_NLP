@@ -70,11 +70,11 @@ namespace OrderOptDAG_SPACE
         std::ofstream outfileWrite;
         outfileWrite.open(resFile, std::ofstream::out | std::ofstream::trunc); // std::ios_base::app
 
-        outfileWrite << coreNumberAva << std::endl;
+        outfileWrite << GlobalVariablesDAGOpt::coreNumberAva << std::endl;
         outfileWrite << tasksInfo.hyperPeriod << std::endl;
         outfileWrite << tasksInfo.variableDimension << std::endl;
         outfileWrite << 10 << std::endl; // total hyperperiods to run
-        outfileWrite << NumCauseEffectChain << std::endl;
+        outfileWrite << GlobalVariablesDAGOpt::NumCauseEffectChain << std::endl;
         for (auto chain : dagTasks.chains_)
         {
             for (auto task_id : chain)
@@ -118,9 +118,9 @@ namespace OrderOptDAG_SPACE
         }
     }
 
-   std::vector<std::string> ReadFilesInDirectory(const char *path)
+    std::vector<std::string> ReadFilesInDirectory(const char *path)
     {
-       std::vector<std::string> files;
+        std::vector<std::string> files;
         DIR *dr;
         struct dirent *en;
         dr = opendir(path);

@@ -108,7 +108,7 @@ MultiRateTaskset::createBaselineDAG()
 
 	dummyNodes_->addToDAG(baselineDAG_, hyperPeriod_);
 
-	if (debugMode)
+	if (GlobalVariablesDAGOpt::debugMode)
 	{
 		std::cout << "Baseline DAG created" << std::endl;
 		std::cout << "Number of Nodes: " << baselineDAG_.getNumNodes() << std::endl;
@@ -149,7 +149,7 @@ MultiRateTaskset::createDAGs()
 		if (edge.jitter == 0)
 			if (edge.from->getUtilization() + edge.to->getUtilization() > 1.0)
 			{
-				if (debugMode)
+				if (GlobalVariablesDAGOpt::debugMode)
 				{
 					std::cout << "Utilization overusage" << std::endl;
 					std::cout << "Edge from " << edge.from->name << " to " << edge.to->name << ":" << std::endl;
@@ -164,7 +164,7 @@ MultiRateTaskset::createDAGs()
 	int wcetFailure = 0;
 	int jitterFailure = 0;
 
-	if (debugMode)
+	if (GlobalVariablesDAGOpt::debugMode)
 	{
 		std::cout << numPermutations << " Permutations available" << std::endl;
 	}
@@ -218,7 +218,7 @@ MultiRateTaskset::createDAGs()
 		dags_.push_back(std::move(dag));
 	}
 
-	if (debugMode)
+	if (GlobalVariablesDAGOpt::debugMode)
 	{
 		std::cout << cyclicDags << " cyclic Dags were excluded" << std::endl;
 		std::cout << wcetFailure << " Dags were removed because the chains are too long" << std::endl;
@@ -257,7 +257,7 @@ MultiRateTaskset::createDAGs(std::chrono::_V2::system_clock::time_point start_ti
 		if (edge.jitter == 0)
 			if (edge.from->getUtilization() + edge.to->getUtilization() > 1.0)
 			{
-				if (debugMode)
+				if (GlobalVariablesDAGOpt::debugMode)
 				{
 					std::cout << "Utilization overusage" << std::endl;
 					std::cout << "Edge from " << edge.from->name << " to " << edge.to->name << ":" << std::endl;
@@ -278,7 +278,7 @@ MultiRateTaskset::createDAGs(std::chrono::_V2::system_clock::time_point start_ti
 	{
 		numPermutations = maxPermutations;
 	}
-	if (debugMode)
+	if (GlobalVariablesDAGOpt::debugMode)
 	{
 		std::cout << numPermutations << " Permutations available" << std::endl;
 	}
@@ -338,7 +338,7 @@ MultiRateTaskset::createDAGs(std::chrono::_V2::system_clock::time_point start_ti
 		dags_.push_back(std::move(dag));
 	}
 
-	if (debugMode)
+	if (GlobalVariablesDAGOpt::debugMode)
 	{
 		std::cout << cyclicDags << " cyclic Dags were excluded" << std::endl;
 		std::cout << wcetFailure << " Dags were removed because the chains are too long" << std::endl;

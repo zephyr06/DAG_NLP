@@ -89,7 +89,7 @@ namespace OrderOptDAG_SPACE
         for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
         {
             for (uint i = 0; i < (itr->second).size(); i++)
-               std::cout << "Edge: " << ((itr->second)[i].id) << "-->" << (itr->first) << std::endl;
+                std::cout << "Edge: " << ((itr->second)[i].id) << "-->" << (itr->first) << std::endl;
         }
     }
 
@@ -176,7 +176,7 @@ namespace OrderOptDAG_SPACE
         }
         if (chainCount > numOfChains)
         {
-            if (whether_shuffle_CE_chain)
+            if (GlobalVariablesDAGOpt::whether_shuffle_CE_chain)
                 std::shuffle(chains.begin(), chains.end(), std::default_random_engine{});
             chains.resize(numOfChains);
         }
@@ -209,7 +209,7 @@ namespace OrderOptDAG_SPACE
                 if (line[0] == '*')
                 {
                     line = line.substr(1, int(line.size()) - 1);
-                   std::vector<int> dataInLine;
+                    std::vector<int> dataInLine;
                     while ((pos = line.find(delimiter)) != std::string::npos)
                     {
                         token = line.substr(0, pos);
@@ -242,9 +242,9 @@ namespace OrderOptDAG_SPACE
         }
         else
         {
-           std::cout << Color::red << "The path does not exist in ReadTaskSet!" << std::endl
-                 << path
-                 << Color::def << std::endl;
+            std::cout << Color::red << "The path does not exist in ReadTaskSet!" << std::endl
+                      << path
+                      << Color::def << std::endl;
             throw;
         }
     }

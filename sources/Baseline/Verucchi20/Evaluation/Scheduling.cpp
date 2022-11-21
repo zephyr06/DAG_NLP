@@ -257,7 +257,7 @@ bool scheduling::scheduleDAG(const DAG &dag, const unsigned nProc, const std::st
                     // check if there is a deadline miss
                     if (std::isgreater(t + taskChosen->n->wcet, taskChosen->lft + epsilon))
                     {
-                        if (debugMode)
+                        if (GlobalVariablesDAGOpt::debugMode)
                         {
                             if (verbose)
                             {
@@ -284,7 +284,7 @@ bool scheduling::scheduleDAG(const DAG &dag, const unsigned nProc, const std::st
         }
     }
 
-    if (debugMode)
+    if (GlobalVariablesDAGOpt::debugMode)
     {
         if (verbose)
         {

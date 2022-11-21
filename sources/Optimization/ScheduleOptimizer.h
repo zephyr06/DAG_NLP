@@ -39,7 +39,7 @@ namespace OrderOptDAG_SPACE
             AddVariables();
             AddDBFConstraints();
             AddDDLConstraints();
-            if (considerSensorFusion)
+            if (GlobalVariablesDAGOpt::considerSensorFusion)
             {
                 AddSensorFusionConstraints();
             }
@@ -54,7 +54,7 @@ namespace OrderOptDAG_SPACE
             {
                 auto status = cplex_solver_.getStatus();
                 cplex_solver_.getValues(var_array_, values_optimized);
-                if (debugMode)
+                if (GlobalVariablesDAGOpt::debugMode)
                 {
                     std::cout << "Values are :" << values_optimized << "\n";
                     std::cout << status << " solution found: " << cplex_solver_.getObjValue() << "\n";
@@ -107,7 +107,7 @@ namespace OrderOptDAG_SPACE
             {
                 auto status = cplex_solver_.getStatus();
                 cplex_solver_.getValues(var_array_, values_optimized);
-                if (debugMode)
+                if (GlobalVariablesDAGOpt::debugMode)
                 {
                     std::cout << "Values are :" << values_optimized << "\n";
                     std::cout << status << " solution found: " << cplex_solver_.getObjValue() << "\n";
@@ -217,7 +217,7 @@ namespace OrderOptDAG_SPACE
                         if (pre_job_of_same_task.jobId >= 0)
                         {
                             // Cplex only support weak inequality, a threshold is added to enforce strict inequality
-                            model_.add(GetStartTimeExpression(pre_job_of_same_task) <= GetFinishTimeExpression(pre_job_in_chain) - kCplexInequalityThreshold);
+                            model_.add(GetStartTimeExpression(pre_job_of_same_task) <= GetFinishTimeExpression(pre_job_in_chain) - GlobalVariablesDAGOpt::kCplexInequalityThreshold);
                         }
                         pre_job_in_chain = cur_job;
                     }
@@ -256,11 +256,11 @@ namespace OrderOptDAG_SPACE
                     {
                         model_.add(GetFinishTimeExpression(precede_job) <= GetStartTimeExpression(succeed_job));
                         precede_job.jobId++;
-                        model_.add(GetFinishTimeExpression(precede_job) >= GetStartTimeExpression(succeed_job) + kCplexInequalityThreshold);
+                        model_.add(GetFinishTimeExpression(precede_job) >= GetStartTimeExpression(succeed_job) + GlobalVariablesDAGOpt::kCplexInequalityThreshold);
                     }
                 }
             }
-            model_.add(max_sensor_fusion_interval <= sensorFusionTolerance);
+            model_.add(max_sensor_fusion_interval <= GlobalVariablesDAGOpt::sensorFusionTolerance);
         }
 
         void AddObjectives()
@@ -351,7 +351,7 @@ namespace OrderOptDAG_SPACE
                         overall_rtda_expr += data_age_last_job_expr;
                     }
                 }
-                if (considerSensorFusion == 0)
+                if (GlobalVariablesDAGOpt::considerSensorFusion == 0)
                 {
                     // Optmize RTDA: obj = max_RTs + max_DAs + overallRTDA * weightInMpRTDA
                     obj_weighted_expr += theta_rt;
@@ -369,17 +369,17 @@ namespace OrderOptDAG_SPACE
                     auto barrier_da = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, var_name.str().c_str());
                     var_name.str("");
                     model_.add(barrier_rt >= 0);
-                    model_.add(barrier_rt >= theta_rt - freshTol);
+                    model_.add(barrier_rt >= theta_rt - GlobalVariablesDAGOpt::freshTol);
                     model_.add(barrier_da >= 0);
-                    model_.add(barrier_da >= theta_da - freshTol);
-                    obj_weighted_expr += barrier_rt * weightInMpRTDAPunish;
-                    obj_weighted_expr += barrier_da * weightInMpRTDAPunish;
+                    model_.add(barrier_da >= theta_da - GlobalVariablesDAGOpt::freshTol);
+                    obj_weighted_expr += barrier_rt * GlobalVariablesDAGOpt::weightInMpRTDAPunish;
+                    obj_weighted_expr += barrier_da * GlobalVariablesDAGOpt::weightInMpRTDAPunish;
                 }
             }
-            obj_weighted_expr += overall_rtda_expr * weightInMpRTDA;
+            obj_weighted_expr += overall_rtda_expr * GlobalVariablesDAGOpt::weightInMpRTDA;
 
             // add obj and constraints related to sensor fusion
-            if (considerSensorFusion)
+            if (GlobalVariablesDAGOpt::considerSensorFusion)
             {
                 IloNumVar max_sensor_fusion_interval = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, "MaxSensorFusionInterval");
                 LLint sensor_fusion_interval_count = 0;
@@ -418,16 +418,16 @@ namespace OrderOptDAG_SPACE
                         {
                             model_.add(GetFinishTimeExpression(precede_job) <= GetStartTimeExpression(succeed_job));
                             precede_job.jobId++;
-                            model_.add(GetFinishTimeExpression(precede_job) >= GetStartTimeExpression(succeed_job) + kCplexInequalityThreshold);
+                            model_.add(GetFinishTimeExpression(precede_job) >= GetStartTimeExpression(succeed_job) + GlobalVariablesDAGOpt::kCplexInequalityThreshold);
                         }
                     }
                 }
 
                 auto barrier_sensor_fusion = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, "Barrier_Sensor_Fusion");
                 model_.add(barrier_sensor_fusion >= 0);
-                model_.add(barrier_sensor_fusion >= max_sensor_fusion_interval - sensorFusionTolerance);
-                obj_weighted_expr += barrier_sensor_fusion * weightInMpSfPunish;
-                obj_weighted_expr += overall_sensor_fusion_expr * weightInMpSf;
+                model_.add(barrier_sensor_fusion >= max_sensor_fusion_interval - GlobalVariablesDAGOpt::sensorFusionTolerance);
+                obj_weighted_expr += barrier_sensor_fusion * GlobalVariablesDAGOpt::weightInMpSfPunish;
+                obj_weighted_expr += overall_sensor_fusion_expr * GlobalVariablesDAGOpt::weightInMpSf;
             }
 
             model_.add(IloMinimize(env_, obj_weighted_expr));

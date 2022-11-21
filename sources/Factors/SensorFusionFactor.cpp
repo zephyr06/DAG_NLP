@@ -56,7 +56,7 @@ namespace OrderOptDAG_SPACE
             const TaskSet &tasksPrev = itr->second;
             if (tasksPrev.size() > 1)
             {
-               std::vector<double> sourceFinishTime;
+                std::vector<double> sourceFinishTime;
                 sourceFinishTime.reserve(tasksPrev.size());
                 size_t indexCurr = itr->first;
 
@@ -73,7 +73,7 @@ namespace OrderOptDAG_SPACE
                         if (instanceSource < 0 || instanceSource > tasksInfo.sizeOfVariables[sourceIndex] - 1)
                         // CoutError("Error in OptimizeORder's SF evaluation!");
                         {
-                            if (debugMode == 1)
+                            if (GlobalVariablesDAGOpt::debugMode == 1)
                                 CoutWarning("Possible Error in OptimizeORder's SF evaluation!");
                             instanceSource = 0;
                         }

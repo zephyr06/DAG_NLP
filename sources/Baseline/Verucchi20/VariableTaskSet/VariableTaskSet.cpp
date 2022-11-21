@@ -71,7 +71,7 @@ VariableTaskSet::createTasksets()
 		permutSets[k] = permutSets[k + 1] * permutSets[k];
 	}
 
-	if (debugMode)
+	if (GlobalVariablesDAGOpt::debugMode)
 	{
 		std::cout << numPermutations << " Permutations available" << std::endl;
 	}
@@ -112,7 +112,7 @@ VariableTaskSet::createDAGs()
 		auto dags = set.createDAGs();
 
 		allDAGs_.insert(allDAGs_.end(), dags.begin(), dags.end());
-		if (debugMode)
+		if (GlobalVariablesDAGOpt::debugMode)
 		{
 			std::cout << std::endl
 					  << "Taskset " << k++ << "/" << tasksets_.size() << ": " << dags.size() << " created" << std::endl;
@@ -156,10 +156,11 @@ VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
 	}
 
 	int maxPermutations = INT32_MAX >> 10;
-	if (numPermutations < 0 || numPermutations > maxPermutations) {
+	if (numPermutations < 0 || numPermutations > maxPermutations)
+	{
 		numPermutations = maxPermutations;
 	}
-	if (debugMode)
+	if (GlobalVariablesDAGOpt::debugMode)
 	{
 		std::cout << numPermutations << " Permutations available" << std::endl;
 	}
@@ -183,10 +184,10 @@ VariableTaskSet::createDAGsWithTimeLimit(int64_t seconds)
 		MultiRateTaskset &temp_taskset = tasksets_.back();
 		auto dags = temp_taskset.createDAGs(start_time, seconds);
 		allDAGs_.insert(allDAGs_.end(), dags.begin(), dags.end());
-		if (debugMode)
+		if (GlobalVariablesDAGOpt::debugMode)
 		{
 			std::cout << std::endl
-					  << "Taskset " << k+1 << "/" << numPermutations << ": " << dags.size() << " created" << std::endl;
+					  << "Taskset " << k + 1 << "/" << numPermutations << ": " << dags.size() << " created" << std::endl;
 			std::cout << allDAGs_.size() << " total DAGs" << std::endl
 					  << std::endl
 					  << std::endl;

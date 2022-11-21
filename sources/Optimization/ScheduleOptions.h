@@ -26,17 +26,17 @@ namespace OrderOptDAG_SPACE
 
             void LoadParametersYaml()
             {
-                causeEffectChainNumber_ = NumCauseEffectChain;
-                considerSensorFusion_ = considerSensorFusion;
-                doScheduleOptimization_ = doScheduleOptimization;
-                doScheduleOptimizationOnlyOnce_ = doScheduleOptimizationOnlyOnce;
-                processorNum_ = coreNumberAva;
+                causeEffectChainNumber_ = GlobalVariablesDAGOpt::NumCauseEffectChain;
+                considerSensorFusion_ = GlobalVariablesDAGOpt::considerSensorFusion;
+                doScheduleOptimization_ = GlobalVariablesDAGOpt::doScheduleOptimization;
+                doScheduleOptimizationOnlyOnce_ = GlobalVariablesDAGOpt::doScheduleOptimizationOnlyOnce;
+                processorNum_ = GlobalVariablesDAGOpt::coreNumberAva;
 
-                freshTol_ = freshTol;
-                sensorFusionTolerance_ = sensorFusionTolerance;
-                weightInMpRTDA_ = weightInMpRTDA;
-                weightInMpSf_ = weightInMpSf;
-                weightPunish_ = weightInMpRTDAPunish;
+                freshTol_ = GlobalVariablesDAGOpt::freshTol;
+                sensorFusionTolerance_ = GlobalVariablesDAGOpt::sensorFusionTolerance;
+                weightInMpRTDA_ = GlobalVariablesDAGOpt::weightInMpRTDA;
+                weightInMpSf_ = GlobalVariablesDAGOpt::weightInMpSf;
+                weightPunish_ = GlobalVariablesDAGOpt::weightInMpRTDAPunish;
             }
         };
     }

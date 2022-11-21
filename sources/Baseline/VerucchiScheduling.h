@@ -17,7 +17,7 @@
 #include "sources/TaskModel/DAG_Model.h"
 // *************************
 
-bool SchedulabilityAnalysisVerucchi(OrderOptDAG_SPACE::DAG_Model &dagTasks, int processorsAvailable = coreNumberAva)
+bool SchedulabilityAnalysisVerucchi(OrderOptDAG_SPACE::DAG_Model &dagTasks, int processorsAvailable = GlobalVariablesDAGOpt::coreNumberAva)
 {
 
     VariableTaskSet taskSetVeru;

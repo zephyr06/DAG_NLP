@@ -30,7 +30,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
                         int periodMax, int coreRequireMax,
                         int taskSetType, int deadlineType)
 {
-   std::vector<double> utilVec = Uunifast(N, totalUtilization);
+    std::vector<double> utilVec = Uunifast(N, totalUtilization);
     TaskSet tasks;
     int periodMaxRatio = periodMax / periodMin;
 
@@ -54,7 +54,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
         }
         else if (taskSetType == 2) // random choice from AutoMobile set 'PeriodSetAM'
         {
-            periodCurr = int(PeriodSetAM[rand() % PeriodSetAM.size()] * timeScaleFactor);
+            periodCurr = int(PeriodSetAM[rand() % PeriodSetAM.size()] * GlobalVariablesDAGOpt::timeScaleFactor);
             double deadline = periodCurr;
             if (deadlineType == 1)
                 deadline = round(RandRange(std::max(1.0, ceil(periodCurr * utilVec[i])), periodCurr));
@@ -72,7 +72,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization,
             {
                 period_idx++;
             }
-            periodCurr = int(PeriodSetWaters[period_idx] * timeScaleFactor);
+            periodCurr = int(PeriodSetWaters[period_idx] * GlobalVariablesDAGOpt::timeScaleFactor);
             double deadline = periodCurr;
             if (deadlineType == 1)
                 deadline = round(RandRange(std::max(1.0, ceil(periodCurr * utilVec[i])), periodCurr));
@@ -117,7 +117,7 @@ DAG_Model GenerateDAG(int N, double totalUtilization,
     {
         for (int j = i + 1; j < N; j++)
         {
-            if (double(rand()) / RAND_MAX < parallelFactor)
+            if (double(rand()) / RAND_MAX < GlobalVariablesDAGOpt::parallelFactor)
             {
                 dagModel.addEdge(i, j);
             }

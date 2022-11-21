@@ -1,7 +1,7 @@
 #include <CppUnitLite/TestHarness.h>
 #include "sources/Utils/testMy.h"
 #include "sources/Baseline/RTSS21IC.h"
-using namespace gtsam;
+using namespace gtsam;using namespace GlobalVariablesDAGOpt;
 TEST(DAG_Optimize_schedule, v1)
 {
     OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + "test_n5_v17" + ".csv", "orig");

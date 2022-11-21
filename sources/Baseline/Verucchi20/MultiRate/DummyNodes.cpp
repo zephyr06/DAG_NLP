@@ -92,7 +92,7 @@ void DummyNodes::addToDAG(DAG &dag, unsigned hyperperiod)
 	dag.addEdges(dummyChain);
 	dag.addEdges(syncEdges);
 
-	if (debugMode)
+	if (GlobalVariablesDAGOpt::debugMode)
 	{
 		// Adding these edges to the chain after adding the chain to the dag to not duplicate edges
 		std::cout << "Adding " << syncNodes.size() << " Sync nodes" << std::endl;

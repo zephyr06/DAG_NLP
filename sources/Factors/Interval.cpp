@@ -42,18 +42,18 @@ double Overlap(Interval &v1, Interval &v2)
 std::pair<double, double> OverlapGradient(Interval v1, Interval v2)
 {
     // double e0=Overlap(v1,v2);
-    v1.start += deltaOptimizer;
+    v1.start += GlobalVariablesDAGOpt::deltaOptimizer;
     double e_plus1 = Overlap(v1, v2);
-    v1.start -= deltaOptimizer * 2;
+    v1.start -= GlobalVariablesDAGOpt::deltaOptimizer * 2;
     double e_minus1 = Overlap(v1, v2);
-    v1.start += deltaOptimizer;
+    v1.start += GlobalVariablesDAGOpt::deltaOptimizer;
 
-    v2.start += deltaOptimizer;
+    v2.start += GlobalVariablesDAGOpt::deltaOptimizer;
     double e_plus2 = Overlap(v1, v2);
-    v2.start -= deltaOptimizer * 2;
+    v2.start -= GlobalVariablesDAGOpt::deltaOptimizer * 2;
     double e_minus2 = Overlap(v1, v2);
 
-    return std::make_pair((e_plus1 - e_minus1) / 2 / deltaOptimizer, (e_plus2 - e_minus2) / 2 / deltaOptimizer);
+    return std::make_pair((e_plus1 - e_minus1) / 2 / GlobalVariablesDAGOpt::deltaOptimizer, (e_plus2 - e_minus2) / 2 / GlobalVariablesDAGOpt::deltaOptimizer);
     // double f1 = v1.start + v1.length;
     // double f2 = v2.start + v2.length;
     // if (v1.start >= f2 || v2.start >= f1)

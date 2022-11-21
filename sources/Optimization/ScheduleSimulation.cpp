@@ -264,7 +264,7 @@ namespace OrderOptDAG_SPACE
             }
             else
             {
-                if (debugMode)
+                if (GlobalVariablesDAGOpt::debugMode)
                 {
                     std::cout << "Failed to schedule SFOrder: Unknown TimeInstance type.\n";
                 }

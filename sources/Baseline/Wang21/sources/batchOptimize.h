@@ -21,9 +21,9 @@ namespace RTSS21IC_NLP
         return sum / data.size();
     }
 
-   std::vector<std::string> ReadFilesInDirectory(const char *path)
+    std::vector<std::string> ReadFilesInDirectory(const char *path)
     {
-       std::vector<std::string> files;
+        std::vector<std::string> files;
         DIR *dr;
         struct dirent *en;
         dr = opendir(path);
@@ -42,24 +42,24 @@ namespace RTSS21IC_NLP
     void BatchOptimize()
     {
         const char *pathDataset = "/home/zephyr/Programming/DAG_NLP/TaskData/dagTasks";
-       std::vector<double> averageErrorAccept;
-       std::vector<double> averageErrorAccept1; // 1.0 accept
-       std::vector<double> averageErrorAccept2; // 0.1 accept
-       std::vector<double> errorInitial;
-       std::vector<double> errorAfterOpt;
-       std::vector<double> runTimeAccept;
-       std::vector<double> runTimeAll;
+        std::vector<double> averageErrorAccept;
+        std::vector<double> averageErrorAccept1; // 1.0 accept
+        std::vector<double> averageErrorAccept2; // 0.1 accept
+        std::vector<double> errorInitial;
+        std::vector<double> errorAfterOpt;
+        std::vector<double> runTimeAccept;
+        std::vector<double> runTimeAll;
         int N;
 
-       std::vector<std::string> errorFiles;
+        std::vector<std::string> errorFiles;
         std::ofstream outfileWrite;
         outfileWrite.open("/home/zephyr/Programming/DAG_NLP/CompareWithBaseline/data_buffer_energy_task_number.txt",
                           std::ios_base::app);
-       std::vector<std::string> files = ReadFilesInDirectory(pathDataset);
+        std::vector<std::string> files = ReadFilesInDirectory(pathDataset);
         int TotalTestCases = files.size() - 2;
         for (const auto &file : files)
         {
-            // if (debugMode)
+            // if (GlobalVariablesDAGOpt::debugMode)
             if (batchTestMethod == 1)
                 std::cout << file << std::endl;
             string delimiter = "-";

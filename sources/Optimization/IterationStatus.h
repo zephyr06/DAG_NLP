@@ -67,7 +67,7 @@ namespace OrderOptDAG_SPACE
             if (!statusCurr.schedulable_)
             {
                 infeasibleCount++;
-                if (debugMode == 1)
+                if (GlobalVariablesDAGOpt::debugMode == 1)
                 {
                     // TaskSetInfoDerived tasksInfo(statusCurr.dagTasks_.tasks);
                     std::cout << "Infeasible schedule #:" << infeasibleCount << std::endl;

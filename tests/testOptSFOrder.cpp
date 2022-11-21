@@ -2,7 +2,7 @@
 #include "sources/Optimization/OptimizeSFOrder.h"
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
-
+using namespace GlobalVariablesDAGOpt;
 class ScheduleDAGModelTest1 : public ::testing::Test
 {
 protected:

@@ -9,7 +9,7 @@
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
 using namespace gtsam;
-
+using namespace GlobalVariablesDAGOpt;
 TEST(SFOrder, constructor_v3)
 {
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v24.csv", "orig");
@@ -304,7 +304,7 @@ TEST(SFOrderSchedule, test1)
         VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
         SFOrder sfOrder(tasksInfo, initialSTV);
         auto startTimeVector = SFOrderScheduling(dagTasks, tasksInfo, 2, sfOrder);
-        if (debugMode)
+        if (GlobalVariablesDAGOpt::debugMode)
         {
             std::cout << "taskSetId is : " << taskSetId << std::endl;
             std::cout << "Initial schedule: " << std::endl;
@@ -513,7 +513,7 @@ TEST(RTSSIC, Wang21_DBF)
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     std::vector<uint> processorIdVec;
-    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, processorIdVec);
+    VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, GlobalVariablesDAGOpt::coreNumberAva, processorIdVec);
 }
 
 TEST(CheckDDLConstraint, v1)

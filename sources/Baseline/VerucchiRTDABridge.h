@@ -105,7 +105,7 @@ DAG FindTheBestDag(
     const std::vector<DAG> &allDags,
     const std::vector<std::shared_ptr<MultiNode>> &tasksVecVeru,
     const std::vector<std::vector<int>> &causeEffectChains,
-    int processorsAvailable = coreNumberAva,
+    int processorsAvailable = GlobalVariablesDAGOpt::coreNumberAva,
     float reactCost = 15.0,
     float maxReact = 400.0,
     float ageCost = 15.0,
@@ -127,7 +127,7 @@ DAG FindTheBestDag(
     const auto &bestDAG = eval.evaluateWithRTDA(allDags);
     if (bestDAG.getNumNodes() <= 2)
     {
-        if (debugMode)
+        if (GlobalVariablesDAGOpt::debugMode)
         {
             std::cout << "Failed to find a valid dag.\n";
         }
@@ -136,13 +136,13 @@ DAG FindTheBestDag(
     bool verucchiSuccess = scheduling::scheduleDAG(bestDAG, processorsAvailable, "schedule_verucchi.tex", true);
     if (!verucchiSuccess)
     {
-        if (debugMode)
+        if (GlobalVariablesDAGOpt::debugMode)
         {
             std::cout << "Best dag is not schedulable.\n";
         }
         return DAG(0);
     }
-    if (debugMode)
+    if (GlobalVariablesDAGOpt::debugMode)
     {
         std::cout << bestDAG.getNodeInfo() << std::endl;
     }
@@ -154,13 +154,13 @@ DAG FindTheBestDagWhileCreatingDagsWithTimeLimit(
     VariableTaskSet &taskSetVeru,
     const std::vector<std::shared_ptr<MultiNode>> &tasksVecVeru,
     const std::vector<std::vector<int>> &causeEffectChains,
-    int processorsAvailable = coreNumberAva,
+    int processorsAvailable = GlobalVariablesDAGOpt::coreNumberAva,
     float reactCost = 15.0,
     float maxReact = 400.0,
     float ageCost = 15.0,
     float maxAge = 400.0,
     unsigned coreCost = 50,
-    int64_t seconds = kVerucchiTimeLimit)
+    int64_t seconds = GlobalVariablesDAGOpt::kVerucchiTimeLimit)
 {
     auto start_time = std::chrono::system_clock::now();
     auto curr_time = std::chrono::system_clock::now();
@@ -208,7 +208,7 @@ DAG FindTheBestDagWhileCreatingDagsWithTimeLimit(
     {
         numPermutations = maxPermutations;
     }
-    if (debugMode)
+    if (GlobalVariablesDAGOpt::debugMode)
     {
         std::cout << numPermutations << " Permutations available" << std::endl;
     }
@@ -233,7 +233,7 @@ DAG FindTheBestDagWhileCreatingDagsWithTimeLimit(
         }
         auto dags = set.createDAGs(start_time, seconds);
         total_dags += dags.size();
-        if (debugMode)
+        if (GlobalVariablesDAGOpt::debugMode)
         {
             std::cout << std::endl
                       << "Taskset " << k + 1 << "/" << numPermutations << ": " << dags.size() << " created" << std::endl;
@@ -259,7 +259,7 @@ DAG FindTheBestDagWhileCreatingDagsWithTimeLimit(
 
     if (bestDAG.getNumNodes() <= 2)
     {
-        if (debugMode)
+        if (GlobalVariablesDAGOpt::debugMode)
         {
             std::cout << "Failed to find a valid dag.\n";
         }
@@ -268,13 +268,13 @@ DAG FindTheBestDagWhileCreatingDagsWithTimeLimit(
     bool verucchiSuccess = scheduling::scheduleDAG(bestDAG, processorsAvailable, "schedule_verucchi.tex", true);
     if (!verucchiSuccess)
     {
-        if (debugMode)
+        if (GlobalVariablesDAGOpt::debugMode)
         {
             std::cout << "Best dag is not schedulable.\n";
         }
         return DAG(0);
     }
-    if (debugMode)
+    if (GlobalVariablesDAGOpt::debugMode)
     {
         std::cout << bestDAG.getNodeInfo() << std::endl;
     }
@@ -286,7 +286,7 @@ OrderOptDAG_SPACE::RTDA GetRTDAFromBestDag(
     const DAG &bestDAG,
     TaskSetInfoDerived &tasksInfo,
     const std::vector<std::vector<int>> &causeEffectChains,
-    int processorsAvailable = coreNumberAva)
+    int processorsAvailable = GlobalVariablesDAGOpt::coreNumberAva)
 {
     if (bestDAG.getPeriod() == 0)
     {
@@ -294,7 +294,7 @@ OrderOptDAG_SPACE::RTDA GetRTDAFromBestDag(
     }
 
     VectorDynamic initialEstimate = GetInitialEstimate(bestDAG, processorsAvailable, tasksInfo);
-    if (debugMode)
+    if (GlobalVariablesDAGOpt::debugMode)
     {
         std::cout << "Generated initial estimate from the bestDAG of Verucchi:\n";
         OrderOptDAG_SPACE::PrintSchedule(tasksInfo, initialEstimate);
@@ -315,13 +315,13 @@ OrderOptDAG_SPACE::RTDA GetRTDAFromBestDag(
 OrderOptDAG_SPACE::RTDA GetVerucchiRTDA(
     OrderOptDAG_SPACE::DAG_Model &dagTasks,
     std::vector<std::vector<int>> causeEffectChains,
-    int processorsAvailable = coreNumberAva,
+    int processorsAvailable = GlobalVariablesDAGOpt::coreNumberAva,
     float reactCost = 15.0,
     float maxReact = 400.0,
     float ageCost = 15.0,
     float maxAge = 400.0,
     unsigned coreCost = 50,
-    int64_t time_limit = kVerucchiTimeLimit)
+    int64_t time_limit = GlobalVariablesDAGOpt::kVerucchiTimeLimit)
 {
 
     VariableTaskSet taskSetVeru;
@@ -332,7 +332,7 @@ OrderOptDAG_SPACE::RTDA GetVerucchiRTDA(
     taskSetVeru.createBaselineTaskset();
     // add time limits when create dags
     auto &allDags = taskSetVeru.createDAGsWithTimeLimit(time_limit);
-    if (debugMode)
+    if (GlobalVariablesDAGOpt::debugMode)
     {
         std::cout << allDags.size() << " total valid DAGs were created" << std::endl;
     }
@@ -352,7 +352,7 @@ OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     float ageCost = 15.0,
     float maxAge = 400.0,
     unsigned coreCost = 50,
-    int64_t time_limit = kVerucchiTimeLimit)
+    int64_t time_limit = GlobalVariablesDAGOpt::kVerucchiTimeLimit)
 {
     OrderOptDAG_SPACE::ScheduleResult res;
     VariableTaskSet taskSetVeru;
@@ -362,7 +362,7 @@ OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     taskSetVeru.createBaselineTaskset();
     // generate all dags with a time limit
     // auto &allDags = taskSetVeru.createDAGsWithTimeLimit(time_limit);
-    // if (debugMode)
+    // if (GlobalVariablesDAGOpt::debugMode)
     // {
     //     std::cout << allDags.size() << " total valid DAGs were created" << std::endl;
     // }
@@ -372,7 +372,7 @@ OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
 
     DAG bestDAG = FindTheBestDagWhileCreatingDagsWithTimeLimit(taskSetVeru, tasksVecVeru, causeEffectChains,
                                                                processorsAvailable, reactCost, maxReact, ageCost,
-                                                               maxAge, coreCost, kVerucchiTimeLimit);
+                                                               maxAge, coreCost, GlobalVariablesDAGOpt::kVerucchiTimeLimit);
 
     OrderOptDAG_SPACE::RTDA rtdaOpt = GetRTDAFromBestDag(bestDAG, tasksInfo, causeEffectChains, processorsAvailable);
     res.startTimeVector_ = GetInitialEstimate(bestDAG, processorsAvailable, tasksInfo);

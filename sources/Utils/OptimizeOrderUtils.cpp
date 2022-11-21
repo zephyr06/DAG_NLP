@@ -15,7 +15,7 @@ namespace OrderOptDAG_SPACE
         resAfterOpt.print();
         std::cout << Color::def << std::endl;
         std::cout << "Schedule: " << std::endl;
-        if (printSchedule)
+        if (GlobalVariablesDAGOpt::printSchedule)
         {
             std::cout << scheduleResult.startTimeVector_ << std::endl;
             PrintSchedule(tasksInfo, scheduleResult.startTimeVector_);
@@ -59,7 +59,7 @@ namespace OrderOptDAG_SPACE
                 Interval v(GetStartTime(job, startTimeVector, tasksInfo), tasksInfo.tasks[i].executionTime);
                 if (processorJobVec[index] >= jobsPerProcessor.size())
                 {
-                    if (debugMode)
+                    if (GlobalVariablesDAGOpt::debugMode)
                         CoutWarning("Wrong processorNum in ExtractJobsPerProcessor!");
                     // jobsPerProcessor.resize(processorJobVec[index] + 1);
                     while (jobsPerProcessor.size() < processorJobVec[index] + 1)
@@ -122,7 +122,7 @@ namespace OrderOptDAG_SPACE
         if (!ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec, processorNum))
             return false;
 
-        if (considerSensorFusion)
+        if (GlobalVariablesDAGOpt::considerSensorFusion)
         {
             // Exam RTDA
             for (auto chain : dagTasks.chains_)

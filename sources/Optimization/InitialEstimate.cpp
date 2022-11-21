@@ -222,7 +222,7 @@ namespace OrderOptDAG_SPACE
             return initialUser;
         }
 
-        InitializeMethod _initializeMethod = initializeMethod;
+        InitializeMethod _initializeMethod = GlobalVariablesDAGOpt::initializeMethod;
 
         switch (_initializeMethod)
         {
@@ -252,7 +252,7 @@ namespace OrderOptDAG_SPACE
 
         case ListScheduling:
             initialEstimate = ListSchedulingLFTPA(dagTasks,
-                                                  tasksInfo, coreNumberAva);
+                                                  tasksInfo, GlobalVariablesDAGOpt::coreNumberAva);
             break;
         default:
             initialEstimate = GenerateInitialForDAG_RM_DAG(dagTasks,

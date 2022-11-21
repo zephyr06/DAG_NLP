@@ -8,7 +8,7 @@
 using namespace OrderOptDAG_SPACE;
 using namespace std;
 using namespace gtsam;
-
+using namespace GlobalVariablesDAGOpt;
 TEST(GetStartTime, v1)
 {
     using namespace OrderOptDAG_SPACE;

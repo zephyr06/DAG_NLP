@@ -6,6 +6,7 @@
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
 using namespace gtsam;
+using namespace GlobalVariablesDAGOpt;
 class ObjExperimentObjTest1 : public ::testing::Test
 {
 protected:

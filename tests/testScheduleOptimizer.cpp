@@ -7,7 +7,7 @@
 #include "sources/Optimization/ScheduleOptimizer.h"
 
 using namespace OrderOptDAG_SPACE;
-using namespace gtsam;
+using namespace gtsam;using namespace GlobalVariablesDAGOpt;
 /**
 TEST(JobCEC, GetJobUniqueId)
 {

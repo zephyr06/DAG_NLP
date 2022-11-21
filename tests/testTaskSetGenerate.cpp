@@ -3,6 +3,7 @@
 #include "sources/Utils/testMy.h"
 
 using namespace std;
+using namespace GlobalVariablesDAGOpt;
 TEST(ExtractVariable, v1)
 {
     int N = 5;

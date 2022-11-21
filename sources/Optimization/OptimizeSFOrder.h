@@ -41,7 +41,7 @@ namespace OrderOptDAG_SPACE
             };
             DAGScheduleOptimizer() {}
 
-            DAGScheduleOptimizer(const DAG_Model &dagInput, const ScheduleOptions &scheduleOptions, double timeLimits = makeProgressTimeLimit) : start_time(std::chrono::system_clock::now()), timeLimits(makeProgressTimeLimit), dagTasks(dagInput), tasksInfo(TaskSetInfoDerived(dagTasks.tasks)), scheduleOptions(scheduleOptions)
+            DAGScheduleOptimizer(const DAG_Model &dagInput, const ScheduleOptions &scheduleOptions, double timeLimits = GlobalVariablesDAGOpt::makeProgressTimeLimit) : start_time(std::chrono::system_clock::now()), timeLimits(GlobalVariablesDAGOpt::makeProgressTimeLimit), dagTasks(dagInput), tasksInfo(TaskSetInfoDerived(dagTasks.tasks)), scheduleOptions(scheduleOptions)
             {
                 if (dagTasks.chains_.size() == 0)
                     CoutWarning("No chain is provided for the given dag!");
@@ -59,7 +59,7 @@ namespace OrderOptDAG_SPACE
                 while (ifContinue())
                 {
                     countOutermostWhileLoop++;
-                    if (debugMode == 1)
+                    if (GlobalVariablesDAGOpt::debugMode == 1)
                         std::cout << "Outer loop count: " << countOutermostWhileLoop << std::endl;
                     findBetterJobOrderWithinIterations = false; // iterations stop unless a better job order is found
 
@@ -158,7 +158,7 @@ namespace OrderOptDAG_SPACE
                             findBetterJobOrderWithinIterations = true;
                             // statusPrev = statusCurr;
                             // jobOrderRef = jobOrderCurrForFinish;
-                            if (debugMode == 1)
+                            if (GlobalVariablesDAGOpt::debugMode == 1)
                             {
                                 std::cout << "Make progress!" << std::endl;
                             }
@@ -207,7 +207,7 @@ namespace OrderOptDAG_SPACE
         }; // class DAGScheduleOptimizer
 
         template <typename OrderScheduler, typename ObjectiveFunctionBase>
-        ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, const ScheduleOptions &scheduleOptions, double timeLimits = makeProgressTimeLimit)
+        ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, const ScheduleOptions &scheduleOptions, double timeLimits = GlobalVariablesDAGOpt::makeProgressTimeLimit)
         {
             DAGScheduleOptimizer<OrderScheduler, ObjectiveFunctionBase> dagScheduleOptimizer(dagTasks, scheduleOptions, timeLimits);
             const TaskSetInfoDerived &tasksInfo = dagScheduleOptimizer.tasksInfo;
@@ -248,7 +248,7 @@ namespace OrderOptDAG_SPACE
                 }
             }
 
-            scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, scheduleOptions.processorNum_, sensorFusionTolerance, freshTol);
+            scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, scheduleOptions.processorNum_, GlobalVariablesDAGOpt::sensorFusionTolerance, GlobalVariablesDAGOpt::freshTol);
             std::cout << "Outermost while loop count: " << dagScheduleOptimizer.countOutermostWhileLoop << std::endl;
             std::cout << "Make progress count: " << dagScheduleOptimizer.countMakeProgress << std::endl;
             std::cout << Color::blue << "Candidate Iteration Status count: " << dagScheduleOptimizer.countIterationStatus << Color::def << std::endl;

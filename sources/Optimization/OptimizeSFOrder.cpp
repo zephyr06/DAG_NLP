@@ -16,7 +16,7 @@ namespace OrderOptDAG_SPACE
             }
             for (uint i = 0; i < dagTasks.chains_.size(); i++)
                 std::copy(dagTasks.chains_[i].begin(), dagTasks.chains_[i].end(), back_inserter(idVec));
-            if (enableFastSearch)
+            if (GlobalVariablesDAGOpt::enableFastSearch)
                 return idVec;
 
             std::unordered_set<int> idSet;
