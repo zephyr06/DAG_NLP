@@ -31,6 +31,8 @@ namespace OrderOptDAG_SPACE
             // SFOrder jobOrder_;
             VectorDynamic startTimeVector_;
 
+            IterationStatus() : schedulable_(false), objWeighted_(1e9), startTimeVector_(GenerateVectorDynamic1D(0)) {}
+
             IterationStatus(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const ScheduleOptions &scheduleOptions)
             {
                 BeginTimer(__FUNCTION__);

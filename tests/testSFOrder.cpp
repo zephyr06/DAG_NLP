@@ -535,6 +535,22 @@ TEST(CheckDDLConstraint, v1)
     EXPECT(!CheckDDLConstraint(dagTasks, tasksInfo, initial));
 }
 
+// TODO: add performance tests against baseline methods
+// TODO: always considering trying to incorporate TDD more into my real coding work
+// TODO: add this failed test
+TEST(a, b)
+{
+    // doScheduleOptimization = 1;
+
+    // int processorNum = 2;
+    // VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+    // initial << 0, 10, 1, 1;
+    // SFOrder sfOrder(tasksInfo, initial);
+    // IterationStatus status(dagTasks, tasksInfo, sfOrder, processorNum);
+    // VectorDynamic stv = status.startTimeVector_;
+    // EXPECT(initial, stv);
+}
+
 int main()
 {
     TestResult tr;

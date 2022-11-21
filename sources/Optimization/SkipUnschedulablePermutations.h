@@ -99,12 +99,12 @@ namespace OrderOptDAG_SPACE
         }
 
         // TODO: test this function
-        bool SubGroupSchedulabilityCheck(JobGroupRange &jobGroup, SFOrder &jobOrderRef, SFOrder &jobOrderCurrForFinish, LLint finishP, DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum)
+        bool SubGroupSchedulabilityCheck(JobGroupRange &jobGroup, SFOrder &jobOrderRef, const SFOrder &jobOrderCurrForFinish, LLint finishP, DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum)
         {
             if (enableSmallJobGroupCheck)
             {
                 BeginTimer("FindUnschedulableSmallJobOrder");
-                JobCEC jobNewlyAdded = jobOrderCurrForFinish[finishP - 1].job;
+                JobCEC jobNewlyAdded = jobOrderCurrForFinish.at(finishP - 1).job;
                 jobGroup.minIndex = min(jobGroup.minIndex, jobOrderRef.GetJobStartInstancePosition(jobNewlyAdded));
 
                 jobGroup.maxIndex = max(jobGroup.maxIndex, finishP);
