@@ -77,6 +77,12 @@ namespace OrderOptDAG_SPACE
         //     else
         //         return true;
         // }
+        enum SFOrderStatus
+        {
+            Infeasible,
+            InferiorFeasible,
+            BetterFeasible
+        };
 
         template <typename OrderScheduler, typename ObjectiveFunctionBase>
         class DAGScheduleOptimizer
@@ -100,6 +106,7 @@ namespace OrderOptDAG_SPACE
 
             ScheduleResult Optimize()
             {
+                BeginTimer("OptimizeDAG");
                 while (ifContinue())
                 {
                     countOutermostWhileLoop++;
@@ -107,22 +114,95 @@ namespace OrderOptDAG_SPACE
 
                     // search the tasks related to task chain at first
                     std::vector<int> taskIdSet = GetTaskIdWithChainOrder(dagTasks);
-                    BeginTimer("inner_for_job");
                     for (int i : taskIdSet)
                         for (LLint j = 0; j < 0 + tasksInfo.sizeOfVariables[i] && (ifContinue()); j++)
                         {
                             JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
-                            findBetterJobOrderWithinIterations = findBetterJobOrderWithinIterations || ImproveJobOrderPerJob(jobRelocate);
+                            // findBetterJobOrderWithinIterations = findBetterJobOrderWithinIterations || ImproveJobOrderPerJob(jobRelocate);
+                            JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
+                            // jobStartFinishInstActiveRange = {0, 2 * tasksInfo.length - 2};
+
+                            for (LLint startP = jobStartFinishInstActiveRange.minIndex; startP < jobStartFinishInstActiveRange.maxIndex && ifContinue(); startP++)
+                            {
+                                BeginTimer("inner_for_start");
+                                // TODO: this part can be optimized, though not very necessary
+                                BeginTimer("SFOrderCopy");
+                                SFOrder jobOrderCurrForStart = jobOrderRef;
+                                EndTimer("SFOrderCopy");
+                                jobOrderCurrForStart.RemoveJob(jobRelocate);
+                                if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, jobOrderCurrForStart))
+                                    continue;
+
+                                jobOrderCurrForStart.InsertStart(jobRelocate, startP); // must insert start first
+                                double accumLengthMin = 0;
+                                for (LLint finishP = startP + 1; finishP < jobStartFinishInstActiveRange.maxIndex + 1 && ifContinue(); finishP++)
+                                {
+                                    // if (CheckTimeOut())
+                                    //     break;
+                                    if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, jobOrderRef))
+                                        continue;
+                                    if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart, startP))
+                                        break;
+
+                                    SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart;
+                                    jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
+
+                                    // check whether the small job order under influence is unschedulable
+                                    if (SubGroupSchedulabilityCheck(jobStartFinishInstActiveRange, jobOrderRef, jobOrderCurrForFinish, finishP, dagTasks, tasksInfo, scheduleOptions.processorNum_))
+                                    {
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        BeginTimer("PrevSchedulabilityCheck");
+                                        if (SFOrderScheduling(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrderCurrForFinish)(0) == -1)
+                                        {
+                                            EndTimer("PrevSchedulabilityCheck");
+                                            break;
+                                        }
+                                        EndTimer("PrevSchedulabilityCheck");
+                                    }
+
+                                    BeginTimer("IterationStatusCreate");
+                                    IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(dagTasks, tasksInfo, jobOrderCurrForFinish, scheduleOptions);
+                                    EndTimer("IterationStatusCreate");
+                                    countIterationStatus++;
+
+                                    if (MakeProgress<OrderScheduler>(statusPrev, statusCurr))
+                                    {
+                                        findBetterJobOrderWithinIterations = true;
+                                        statusPrev = statusCurr;
+                                        jobOrderRef = jobOrderCurrForFinish;
+                                        if (debugMode == 1)
+                                        {
+                                            std::cout << "Make progress!" << std::endl;
+                                            // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
+                                        }
+                                        countMakeProgress++;
+                                        // if (statusCurr.objWeighted_ == 0)
+                                        // {
+                                        //     foundOptimal = true;
+                                        //     break;
+                                        // }
+                                    }
+                                    else
+                                    {
+                                        // restore jobOrderCurrForStart for next iteration
+                                        jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
+                                    }
+                                }
+                                EndTimer("inner_for_start");
+                            }
                         }
                     if (!findBetterJobOrderWithinIterations)
                         break;
-                    EndTimer("inner_for_job");
                 }
 
                 // TODO: optimize the following?
                 std::vector<uint> processorJobVec;
                 auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrderRef, processorJobVec);
                 ScheduleResult scheduleRes{jobOrderRef, statusPrev.startTimeVector_, statusPrev.schedulable_, ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, statusPrev.startTimeVector_, scheduleOptions), processorJobVec};
+                EndTimer("OptimizeDAG");
                 return scheduleRes;
             }
 
@@ -162,6 +242,7 @@ namespace OrderOptDAG_SPACE
 
             bool ImproveJobOrderPerJob(const JobCEC &jobRelocate)
             {
+                BeginTimer("ImproveJobOrderPerJob");
                 bool findBetterJobOrderWithinIterations = false;
                 JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
                 for (LLint startP = jobStartFinishInstActiveRange.minIndex; startP < jobStartFinishInstActiveRange.maxIndex && ifContinue(); startP++)
@@ -185,35 +266,86 @@ namespace OrderOptDAG_SPACE
                         SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart;
                         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
-                        if (UpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, finishP))
+                        // SFOrderStatus sfOrderStatus = UpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, finishP);
+
+                        // if (sfOrderStatus == SFOrderStatus::BetterFeasible)
+                        // {
+                        //     findBetterJobOrderWithinIterations = true;
+                        //     // statusPrev = statusCurr;
+                        //     // jobOrderRef = jobOrderCurrForFinish;
+                        //     if (debugMode == 1)
+                        //     {
+                        //         std::cout << "Make progress!" << std::endl;
+                        //     }
+                        //     countMakeProgress++;
+                        // }
+                        // else if (sfOrderStatus == SFOrderStatus::InferiorFeasible)
+                        //     jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
+                        // else
+                        // {
+                        //     jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
+                        //     break;
+                        // }
+                        if (SubGroupSchedulabilityCheck(jobStartFinishInstActiveRange, jobOrderRef, jobOrderCurrForFinish, finishP, dagTasks, tasksInfo, scheduleOptions.processorNum_))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            BeginTimer("PrevSchedulabilityCheck");
+                            if (SFOrderScheduling(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrderCurrForFinish)(0) == -1)
+                            {
+                                EndTimer("PrevSchedulabilityCheck");
+                                break;
+                            }
+                            EndTimer("PrevSchedulabilityCheck");
+                        }
+
+                        BeginTimer("IterationStatusCreate");
+                        IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(dagTasks, tasksInfo, jobOrderCurrForFinish, scheduleOptions);
+                        EndTimer("IterationStatusCreate");
+                        countIterationStatus++;
+
+                        if (MakeProgress<OrderScheduler>(statusPrev, statusCurr))
                         {
                             findBetterJobOrderWithinIterations = true;
-                            // statusPrev = statusCurr;
-                            // jobOrderRef = jobOrderCurrForFinish;
+                            statusPrev = statusCurr;
+                            jobOrderRef = jobOrderCurrForFinish;
                             if (debugMode == 1)
                             {
                                 std::cout << "Make progress!" << std::endl;
+                                // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
                             }
                             countMakeProgress++;
+                            // if (statusCurr.objWeighted_ == 0)
+                            // {
+                            //     foundOptimal = true;
+                            //     break;
+                            // }
                         }
-                        else // restore jobOrderCurrForStart for next iteration
+                        else
+                        {
+                            // restore jobOrderCurrForStart for next iteration
                             jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
+                        }
                     }
                 }
+
+                EndTimer("ImproveJobOrderPerJob");
                 return findBetterJobOrderWithinIterations;
             }
 
             // Compare against statusPrev built from jobOrderRef, and update statusPrev and jobOrderRef if success and return true
             // TODO: should jobOrderCurrForFinish be const?
-            bool UpdateStatus(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobStartFinishInstActiveRange, LLint finishP)
+            SFOrderStatus UpdateStatus(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobStartFinishInstActiveRange, LLint finishP)
             {
                 // check whether the small job order under influence is unschedulable
                 if (SubGroupSchedulabilityCheck(jobStartFinishInstActiveRange, jobOrderRef, jobOrderCurrForFinish, finishP, dagTasks, tasksInfo, scheduleOptions.processorNum_))
-                    return false;
+                    return SFOrderStatus::Infeasible;
                 else
                 {
                     if (SFOrderScheduling(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrderCurrForFinish)(0) == -1)
-                        return false;
+                        return SFOrderStatus::Infeasible;
                 }
 
                 IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(dagTasks, tasksInfo, jobOrderCurrForFinish, scheduleOptions);
@@ -223,10 +355,10 @@ namespace OrderOptDAG_SPACE
                 {
                     statusPrev = statusCurr;
                     jobOrderRef = jobOrderCurrForFinish;
-                    return true;
+                    return SFOrderStatus::BetterFeasible;
                 }
                 else
-                    return false;
+                    return SFOrderStatus::InferiorFeasible;
             }
 
         }; // class DAGScheduleOptimizer
