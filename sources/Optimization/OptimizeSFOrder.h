@@ -191,7 +191,7 @@ namespace OrderOptDAG_SPACE
             }
 
             std::vector<uint> processorJobVec;
-            auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrderRef, processorJobVec);
+            auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef, processorJobVec);
 
             // TODO: this constructor could be an empty one
             ScheduleResult scheduleRes{jobOrderRef, statusPrev.startTimeVector_, statusPrev.schedulable_, statusPrev.objWeighted_, processorJobVec};

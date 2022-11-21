@@ -39,5 +39,5 @@ namespace OrderOptDAG_SPACE
                 weightPunish_ = weightInMpRTDAPunish;
             }
         };
-    }
-}
+    } // namespace OptimizeSF
+} // namespace OrderOptDAG_SPACE
