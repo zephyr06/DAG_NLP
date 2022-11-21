@@ -13,7 +13,7 @@ const std::string PROJECT_PATH = "/home/zephyr/Programming/DAG_NLP/";
 // const std::string PROJECT_PATH = "/home/zephyr/Programming/batch_test_DAG_NLP/VerucchiOnly/N3_10/";
 //  std::string path = PROJECT_PATH + "sources/parameters.yaml";
 static cv::FileStorage ConfigParameters(PROJECT_PATH + "sources/parameters.yaml", cv::FileStorage::READ);
-
+// TODO: add a namespace for these parameters, probably GlobalVariables?
 enum InitializeMethod
 {
     IndexMode,
@@ -131,7 +131,7 @@ static const double RoundingThreshold = (double)ConfigParameters["RoundingThresh
 
 static const std::string verbosityLM = (std::string)ConfigParameters["verbosityLM"];
 // code below is only used to show how to read vectors, but is not actually used in this project
-//std::vector<int> readVector(std::string filename)
+// std::vector<int> readVector(std::string filename)
 // {
 //     cv::FileStorage fs;
 //     fs.open(filename, cv::FileStorage::READ);
@@ -147,7 +147,7 @@ static const std::string verbosityLM = (std::string)ConfigParameters["verbosityL
 //     }
 //     return vec;
 // }
-//std::vector<int> CA_CHAIN = readVector(PROJECT_PATH + "sources/parameters.yaml");
+// std::vector<int> CA_CHAIN = readVector(PROJECT_PATH + "sources/parameters.yaml");
 
 static const int64_t kVerucchiTimeLimit = (int)ConfigParameters["kVerucchiTimeLimit"];
 static const double kVerucchiReactionCost = (double)ConfigParameters["kVerucchiReactionCost"];

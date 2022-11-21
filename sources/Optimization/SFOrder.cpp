@@ -20,7 +20,7 @@ namespace OrderOptDAG_SPACE
         }
     }
 
-    std::vector<TimeInstance> ExtractSubInstances(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobGroup)
+    std::vector<TimeInstance> ExtractSubInstances(const SFOrder &jobOrderCurrForFinish, JobGroupRange &jobGroup)
     {
         BeginTimer("ExtractSubInstances");
         // BeginTimer(__FUNCTION__);
@@ -40,7 +40,7 @@ namespace OrderOptDAG_SPACE
         for (size_t i = minIndex; i < maxIndex; i++)
         {
 
-            TimeInstance instCurr = jobOrderCurrForFinish[i];
+            TimeInstance instCurr = jobOrderCurrForFinish.at(i);
             JobCEC jobCurr = instCurr.job;
             JobInstanceInfo info;
             auto itr = jobMap.find(jobCurr);
@@ -64,7 +64,7 @@ namespace OrderOptDAG_SPACE
         instanceOrderSmall.reserve(jobGroup.maxIndex - jobGroup.minIndex);
         for (size_t i = minIndex; i < maxIndex; i++)
         {
-            TimeInstance instCurr = jobOrderCurrForFinish[i];
+            TimeInstance instCurr = jobOrderCurrForFinish.at(i);
             JobCEC &jobCurr = instCurr.job;
             if (jobMap[jobCurr].valid())
                 instanceOrderSmall.push_back(instCurr);

@@ -221,5 +221,5 @@ namespace OrderOptDAG_SPACE
         int minIndex;
         int maxIndex;
     };
-    std::vector<TimeInstance> ExtractSubInstances(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobGroup);
+    std::vector<TimeInstance> ExtractSubInstances(const SFOrder &jobOrderCurrForFinish, JobGroupRange &jobGroup);
 } // namespace OrderOptDAG_SPACE

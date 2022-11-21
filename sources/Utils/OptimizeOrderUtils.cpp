@@ -3,9 +3,9 @@
 namespace OrderOptDAG_SPACE
 {
 
-    void PrintResultAnalyzation(ScheduleResult &scheduleResult, DAG_Model &dagTasks)
+    void PrintResultAnalyzation(const ScheduleResult &scheduleResult, const DAG_Model &dagTasks)
     {
-        TaskSet &tasks = dagTasks.tasks;
+        const TaskSet &tasks = dagTasks.tasks;
         RegularTaskSystem::TaskSetInfoDerived tasksInfo(tasks);
         std::cout << Color::blue;
         std::cout << "Schedulable after optimization? " << scheduleResult.schedulable_ << std::endl;
@@ -22,7 +22,7 @@ namespace OrderOptDAG_SPACE
         }
     }
 
-    bool CheckDDLConstraint(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
+    bool CheckDDLConstraint(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
     {
         // gtsam::NonlinearFactorGraph graph;
         // AddDDL_Factor(graph, tasksInfo);
@@ -44,7 +44,7 @@ namespace OrderOptDAG_SPACE
         return true;
     }
 
-    std::vector<std::vector<Interval>> ExtractJobsPerProcessor(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum)
+    std::vector<std::vector<Interval>> ExtractJobsPerProcessor(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const std::vector<uint> &processorJobVec, int processorNum)
     {
 
         std::vector<std::vector<Interval>> jobsPerProcessor(processorNum);
@@ -59,7 +59,8 @@ namespace OrderOptDAG_SPACE
                 Interval v(GetStartTime(job, startTimeVector, tasksInfo), tasksInfo.tasks[i].executionTime);
                 if (processorJobVec[index] >= jobsPerProcessor.size())
                 {
-                    CoutWarning("Wrong processorNum in ExtractJobsPerProcessor!");
+                    if (debugMode)
+                        CoutWarning("Wrong processorNum in ExtractJobsPerProcessor!");
                     // jobsPerProcessor.resize(processorJobVec[index] + 1);
                     while (jobsPerProcessor.size() < processorJobVec[index] + 1)
                     {
@@ -76,7 +77,7 @@ namespace OrderOptDAG_SPACE
         return jobsPerProcessor;
     }
 
-    double DBF_Error(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum)
+    double DBF_Error(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const std::vector<uint> &processorJobVec, int processorNum)
     {
         if (processorNum <= 0)
             return 0;
@@ -92,7 +93,7 @@ namespace OrderOptDAG_SPACE
     }
 
     // Exams DBF constraints
-    bool ExamDBF_Feasibility(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum)
+    bool ExamDBF_Feasibility(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const std::vector<uint> &processorJobVec, int processorNum)
     {
         if (processorNum <= 0)
             return false;
@@ -107,15 +108,15 @@ namespace OrderOptDAG_SPACE
         return true;
     }
 
-    bool ExamBasic_Feasibility(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum)
+    bool ExamBasic_Feasibility(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const std::vector<uint> &processorJobVec, int processorNum)
     {
         if (!ExamDDL_Feasibility(dagTasks, tasksInfo, startTimeVector) || !ExamDBF_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec, processorNum))
             return false;
         return true;
     }
 
-    bool ExamAll_Feasibility(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
-                             VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec,
+    bool ExamAll_Feasibility(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                             const VectorDynamic &startTimeVector, const std::vector<uint> &processorJobVec,
                              int processorNum, double sfBound, double freshnessBound)
     {
         if (!ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec, processorNum))

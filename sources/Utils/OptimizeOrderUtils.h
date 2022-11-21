@@ -55,26 +55,26 @@ namespace OrderOptDAG_SPACE
         }
     };
 
-    void PrintResultAnalyzation(ScheduleResult &scheduleResult, DAG_Model &dagTasks);
+    void PrintResultAnalyzation(const ScheduleResult &scheduleResult, const DAG_Model &dagTasks);
 
-    bool CheckDDLConstraint(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector);
+    bool CheckDDLConstraint(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector);
 
-    std::vector<std::vector<Interval>> ExtractJobsPerProcessor(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum);
+    std::vector<std::vector<Interval>> ExtractJobsPerProcessor(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const std::vector<uint> &processorJobVec, int processorNum);
 
-    double DBF_Error(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum);
+    double DBF_Error(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const std::vector<uint> &processorJobVec, int processorNum);
 
     // Exams DBF constraints
-    bool ExamDBF_Feasibility(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum);
+    bool ExamDBF_Feasibility(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const std::vector<uint> &processorJobVec, int processorNum);
 
-    inline bool ExamDDL_Feasibility(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
+    inline bool ExamDDL_Feasibility(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
     {
         return CheckDDLConstraint(dagTasks, tasksInfo, startTimeVector);
     }
 
-    bool ExamBasic_Feasibility(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec, int processorNum);
+    bool ExamBasic_Feasibility(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const std::vector<uint> &processorJobVec, int processorNum);
 
-    bool ExamAll_Feasibility(DAG_Model &dagTasks, RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
-                             VectorDynamic &startTimeVector, std::vector<uint> &processorJobVec,
+    bool ExamAll_Feasibility(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                             const VectorDynamic &startTimeVector, const std::vector<uint> &processorJobVec,
                              int processorNum, double sfBound, double freshnessBound);
 
     ScheduleResult ScheduleDAGLS_LFT(DAG_Model &dagTasks, int processorNum, double sfBound, double freshnessBound);

@@ -31,7 +31,9 @@ namespace OrderOptDAG_SPACE
             // SFOrder jobOrder_;
             VectorDynamic startTimeVector_;
 
-            IterationStatus(DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const ScheduleOptions &scheduleOptions)
+            IterationStatus() : schedulable_(false), objWeighted_(1e9), startTimeVector_(GenerateVectorDynamic1D(0)) {}
+
+            IterationStatus(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const ScheduleOptions &scheduleOptions)
             {
                 BeginTimer(__FUNCTION__);
                 std::vector<uint> processorJobVec;
@@ -60,7 +62,7 @@ namespace OrderOptDAG_SPACE
         // }
 
         template <typename OrderScheduler, typename ObjectiveFunctionBase>
-        bool MakeProgress(IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusPrev, IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusCurr)
+        bool MakeProgress(const IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusPrev, const IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusCurr)
         {
             if (!statusCurr.schedulable_)
             {

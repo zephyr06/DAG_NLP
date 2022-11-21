@@ -6,7 +6,8 @@
 
 namespace OrderOptDAG_SPACE
 {
-
+    // TODO: make this work with fix-ed processor assignment
+    // TODO: add a scheduler with fixed processor assignment?
     ScheduleResult ScheduleRTSS21IC(DAG_Model &dagTasks, double sfTolerance, double freshTol)
     {
         RTSS21IC_NLP::sensorFusionTolerance = sfTolerance;
@@ -14,10 +15,10 @@ namespace OrderOptDAG_SPACE
         RegularTaskSystem::TaskSetInfoDerived tasksInfo(dagTasks.tasks);
         // VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, std::nullopt, processorIdVec);
 
-        // VectorDynamic initial = SimulateFixedPrioritySched(dagTasks, tasksInfo);
-        std::vector<uint> processorIdVec;
-        VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, processorIdVec);
-        RTSS21IC_NLP::processorIdVecGlobal = processorIdVec;
+        VectorDynamic initial = SimulateFixedPrioritySched(dagTasks, tasksInfo);
+        // std::vector<uint> processorIdVec;
+        // VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, coreNumberAva, processorIdVec);
+        // RTSS21IC_NLP::processorIdVecGlobal = processorIdVec;
         RTSS21IC_NLP::processorNumGlobal = coreNumberAva;
         auto sth = RTSS21IC_NLP::DAG_SPACE::OptimizeScheduling(dagTasks, initial);
         ScheduleResult res;

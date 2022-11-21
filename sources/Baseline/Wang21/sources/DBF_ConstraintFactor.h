@@ -459,26 +459,26 @@ namespace RTSS21IC_NLP
                 [this](const VectorDynamic &startTimeVectorOrig)
             {
                 VectorDynamic res;
-                res.resize(errorDimension, 1);
+                res.resize(errorDimension);
 
                 VectorDynamic startTimeVector = RecoverStartTimeVector(startTimeVectorOrig,
                                                                        maskForEliminate, mapIndex);
 
-                // int indexPro = 0;
-                // for (auto itr = processorTasks.begin(); itr != processorTasks.end(); itr++)
-                // {
-                //     res(indexPro++, 0) = DbfIntervalOverlapError(startTimeVector, itr->first);
-                // }
-                std::vector<std::vector<Interval>> jobsPerProcessor =
-                    ExtractJobsPerProcessorIC(tasks, sizeOfVariables,
-                                              startTimeVector, processorIdVecGlobal, processorNumGlobal);
-
-                for (int i = 0; i < processorNumGlobal; i++)
+                int indexPro = 0;
+                for (auto itr = processorTasks.begin(); itr != processorTasks.end(); itr++)
                 {
-                    res(i) = IntervalOverlapError(jobsPerProcessor[i]);
-                    // if (res(i) != 0)
-                    //     int a = 1;
+                    res(indexPro++, 0) = DbfIntervalOverlapError(startTimeVector, itr->first);
                 }
+                // std::vector<std::vector<Interval>> jobsPerProcessor =
+                //     ExtractJobsPerProcessorIC(tasks, sizeOfVariables,
+                //                               startTimeVector, processorIdVecGlobal, processorNumGlobal);
+
+                // for (int i = 0; i < processorNumGlobal; i++)
+                // {
+                //     res(i) = IntervalOverlapError(jobsPerProcessor[i]);
+                //     // if (res(i) != 0)
+                //     //     int a = 1;
+                // }
 
                 return res;
             };

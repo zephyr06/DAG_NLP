@@ -4,7 +4,7 @@
 namespace OrderOptDAG_SPACE
 {
 
-    RunQueue::ID_INSTANCE_PAIR RunQueue::popLeastFinishTime(const TaskSetInfoDerived &tasksInfo, DAG_Model &dagTasks, double modifyPriorityBasedOnPrecedence)
+    RunQueue::ID_INSTANCE_PAIR RunQueue::popLeastFinishTime(const TaskSetInfoDerived &tasksInfo, const DAG_Model &dagTasks, double modifyPriorityBasedOnPrecedence)
     {
         if (taskQueue.empty())
             CoutError("TaskQueue is empty!");
@@ -73,8 +73,8 @@ namespace OrderOptDAG_SPACE
     }
 
     void UpdateSTVAfterPopTask(RunQueue::ID_INSTANCE_PAIR &job, VectorDynamic &startTimeVector,
-                               LLint timeNow,std::vector<LLint> &nextFree, const TaskSet &tasks,
-                              std::vector<bool> &busy, int processorId,std::vector<LLint> &sizeOfVariables)
+                               LLint timeNow, std::vector<LLint> &nextFree, const TaskSet &tasks,
+                               std::vector<bool> &busy, int processorId, const std::vector<LLint> &sizeOfVariables)
     {
         int id = job.first;
         LLint instance_id = job.second;
@@ -84,7 +84,7 @@ namespace OrderOptDAG_SPACE
         busy[processorId] = true;
     }
 
-    VectorDynamic SimulateFixedPrioritySched(const DAG_Model &dagTasks, TaskSetInfoDerived &tasksInfo, LLint timeInitial)
+    VectorDynamic SimulateFixedPrioritySched(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, LLint timeInitial)
     {
         const TaskSet &tasks = dagTasks.tasks;
         VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
@@ -95,15 +95,15 @@ namespace OrderOptDAG_SPACE
         ProcessorId2Index processorId2Index = CreateProcessorId2Index(tasks);
         // contains the index of tasks to run
 
-       std::vector<RunQueue> runQueues;
+        std::vector<RunQueue> runQueues;
         runQueues.reserve(processorNum);
         for (int i = 0; i < processorNum; i++)
         {
             runQueues.push_back(RunQueue(tasks));
         }
 
-       std::vector<bool> busy(processorNum, false);
-       std::vector<LLint> nextFree(processorNum, -1);
+        std::vector<bool> busy(processorNum, false);
+        std::vector<LLint> nextFree(processorNum, -1);
         // LLint nextFree;
 
         for (LLint timeNow = timeInitial; timeNow < tasksInfo.hyperPeriod; timeNow++)
@@ -129,8 +129,8 @@ namespace OrderOptDAG_SPACE
     }
 
     // TODO: when two jobs have same priority, choose the one with higher precedence priority
-    VectorDynamic ListSchedulingLFTPA(DAG_Model &dagTasks,
-                                      TaskSetInfoDerived &tasksInfo, int processorNum,
+    VectorDynamic ListSchedulingLFTPA(const DAG_Model &dagTasks,
+                                      const TaskSetInfoDerived &tasksInfo, int processorNum,
                                       boost::optional<std::vector<uint> &> processorIdVec)
     {
         // BeginTimer(__FUNCTION__);
@@ -140,8 +140,8 @@ namespace OrderOptDAG_SPACE
         // contains the index of tasks to run
         RunQueue runQueue(tasks);
 
-       std::vector<bool> busy(processorNum, false);
-       std::vector<LLint> nextFree(processorNum, -1);
+        std::vector<bool> busy(processorNum, false);
+        std::vector<LLint> nextFree(processorNum, -1);
 
         // std::vector<LLint> jobScheduled(jobOrder ? ((*jobOrder).size()) : 0, -1); // order is the same as JobOrder's jobs
         EventPool eventPool;
@@ -171,7 +171,6 @@ namespace OrderOptDAG_SPACE
                     if (processorIdVec)
                     {
                         (*processorIdVec)[IndexTran_Instance2Overall(p.first, p.second, tasksInfo.sizeOfVariables)] = processorId;
-                        dagTasks.tasks[p.first].processorId = processorId;
                     }
                 }
             }
@@ -185,7 +184,8 @@ namespace OrderOptDAG_SPACE
         return initial;
     }
 
-    VectorDynamic SFOrderScheduling(DAG_Model &dagTasks,
+    // TODO(Dong): this function doesn't depend on dagTasks but only tasksInfo (const TaskSet &tasks = tasksInfo.tasks;), so probably remove it?
+    VectorDynamic SFOrderScheduling(const DAG_Model &dagTasks,
                                     const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder,
                                     boost::optional<std::vector<uint> &> processorIdVec)
     {
@@ -195,9 +195,9 @@ namespace OrderOptDAG_SPACE
 
         VectorDynamic startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
         // return startTimeVector;
-       std::vector<bool> busy(processorNum, false);
-       std::vector<LLint> nextFree(processorNum, -1);
-       std::vector<LLint> scheduledFinishTime(tasksInfo.variableDimension, -1);
+        std::vector<bool> busy(processorNum, false);
+        std::vector<LLint> nextFree(processorNum, -1);
+        std::vector<LLint> scheduledFinishTime(tasksInfo.variableDimension, -1);
 
         if (processorIdVec)
             *processorIdVec = Eigen2Vector<uint>(startTimeVector);

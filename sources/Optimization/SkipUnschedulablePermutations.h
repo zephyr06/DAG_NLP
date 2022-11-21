@@ -44,7 +44,7 @@ namespace OrderOptDAG_SPACE
                 nextInstanceLeastFinishTime -= tasksInfo.tasks[instance.job.taskId].executionTime;
             return nextInstanceLeastFinishTime;
         }
-        bool WhetherSkipInsertStart(JobCEC &jobRelocate, LLint startP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
+        bool WhetherSkipInsertStart(const JobCEC &jobRelocate, LLint startP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
         {
             if (startP > 0)
             {
@@ -65,7 +65,7 @@ namespace OrderOptDAG_SPACE
             return false;
         }
 
-        bool WhetherSkipInsertFinish(JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
+        bool WhetherSkipInsertFinish(const JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
         {
             if (finishP > 0)
             {
@@ -85,7 +85,7 @@ namespace OrderOptDAG_SPACE
             }
             return false;
         }
-        bool WhetherStartFinishTooLong(double &accumLengthMin, JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurrForStart, LLint startP)
+        bool WhetherStartFinishTooLong(double &accumLengthMin, const JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurrForStart, LLint startP)
         {
             if (accumLengthMin >= tasksInfo.tasks[jobRelocate.taskId].executionTime)
                 return true;
@@ -99,12 +99,12 @@ namespace OrderOptDAG_SPACE
         }
 
         // TODO: test this function
-        bool SubGroupSchedulabilityCheck(JobGroupRange &jobGroup, SFOrder &jobOrderRef, SFOrder &jobOrderCurrForFinish, LLint finishP, DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum)
+        bool SubGroupSchedulabilityCheck(JobGroupRange &jobGroup, SFOrder &jobOrderRef, const SFOrder &jobOrderCurrForFinish, LLint finishP, DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum)
         {
             if (enableSmallJobGroupCheck)
             {
                 BeginTimer("FindUnschedulableSmallJobOrder");
-                JobCEC jobNewlyAdded = jobOrderCurrForFinish[finishP - 1].job;
+                JobCEC jobNewlyAdded = jobOrderCurrForFinish.at(finishP - 1).job;
                 jobGroup.minIndex = min(jobGroup.minIndex, jobOrderRef.GetJobStartInstancePosition(jobNewlyAdded));
 
                 jobGroup.maxIndex = max(jobGroup.maxIndex, finishP);
