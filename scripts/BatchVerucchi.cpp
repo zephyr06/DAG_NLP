@@ -1,4 +1,3 @@
-
 #include "sources/batchOptimizeSFOrder.h"
 
 int main()
