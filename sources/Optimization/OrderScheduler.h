@@ -52,7 +52,8 @@ namespace OrderOptDAG_SPACE
             // EndTimer("LPOrderScheduler");
             // return resultAfterOptimization.startTimeVector_;
 
-            return SFOrderScheduling(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVe);
+            auto stv = SFOrderScheduling(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVe);
+            return stv;
         }
     };
 } // namespace OrderOptDAG_SPACE
