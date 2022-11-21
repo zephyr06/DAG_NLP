@@ -35,7 +35,7 @@ protected:
     DAGScheduleOptimizer<SimpleOrderScheduler, RTDAExperimentObj> dagScheduleOptimizer;
 };
 
-// TODO: fix the test below
+// TODO: write a failure test for OptimizeOrder
 TEST_F(DAGScheduleOptimizerTest1, UpdateStatus)
 {
     VectorDynamic initial = GenerateVectorDynamic(19);
@@ -46,7 +46,6 @@ TEST_F(DAGScheduleOptimizerTest1, UpdateStatus)
     EXPECT_EQ(0, dagScheduleOptimizer.UpdateStatus(jobOrder, uselessRange, uselessFinishP));
 }
 
-// TODO: write a failure test for OptimizeOrder
 
 int main(int argc, char **argv)
 {

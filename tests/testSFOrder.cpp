@@ -537,7 +537,6 @@ TEST(CheckDDLConstraint, v1)
 
 // TODO: add performance tests against baseline methods
 // TODO: always considering trying to incorporate TDD more into my real coding work
-// TODO: add this failed test
 TEST(a, b)
 {
     // doScheduleOptimization = 1;
