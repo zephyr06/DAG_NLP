@@ -115,6 +115,7 @@ namespace OrderOptDAG_SPACE
                     // search the tasks related to task chain at first
                     std::vector<int> taskIdSet = GetTaskIdWithChainOrder(dagTasks);
                     for (int i : taskIdSet)
+                    {
                         for (LLint j = 0; j < 0 + tasksInfo.sizeOfVariables[i] && (ifContinue()); j++)
                         {
                             JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
@@ -194,6 +195,8 @@ namespace OrderOptDAG_SPACE
                                 EndTimer("inner_for_start");
                             }
                         }
+                    }
+
                     if (!findBetterJobOrderWithinIterations)
                         break;
                 }
@@ -206,7 +209,11 @@ namespace OrderOptDAG_SPACE
                 return scheduleRes;
             }
 
-            inline SFOrder GetJobOrder() const { return jobOrderRef; }
+            inline SFOrder
+            GetJobOrder() const
+            {
+                return jobOrderRef;
+            }
 
             // data members
             std::chrono::high_resolution_clock::time_point start_time;

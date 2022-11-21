@@ -32,7 +32,7 @@ weightInMpRTDA: 0.5
 weightInMpSf: 0.5
 weightInMpSfPunish: 10
 weightInMpRTDAPunish: 10
-makeProgressTimeLimit: 100 # seconds, -1 means unlimited time
+makeProgressTimeLimit: 20 # seconds, -1 means unlimited time
 enableFastSearch: 0
 enableSmallJobGroupCheck: 0
 bigJobGroupCheck: 0
