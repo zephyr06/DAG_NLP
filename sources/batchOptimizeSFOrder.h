@@ -70,9 +70,16 @@ namespace OrderOptDAG_SPACE
         return res;
     }
 
-    void BatchOptimizeOrder(std::vector<OrderOptDAG_SPACE::BaselineMethods> baselineMethods)
+    struct BatchResult
     {
-        std::string dirStr = PROJECT_PATH + "TaskData/dagTasks/";
+        double schedulableRatio;
+        double performance;
+        double runTime;
+    };
+
+    std::vector<BatchResult> BatchOptimizeOrder(std::vector<OrderOptDAG_SPACE::BaselineMethods> baselineMethods, std::string dataSetFolder = PROJECT_PATH + "TaskData/dagTasks/")
+    {
+        std::string dirStr = dataSetFolder;
         const char *pathDataset = (dirStr).c_str();
         std::cout << "Dataset Directory: " << pathDataset << std::endl;
         std::vector<std::vector<double>> runTimeAll(GlobalVariablesDAGOpt::TotalMethodUnderComparison);
@@ -162,6 +169,15 @@ namespace OrderOptDAG_SPACE
         std::cout << "The number of files where OrderOpt performs worse: " << worseFiles.size() << std::endl;
         for (std::string file : worseFiles)
             std::cout << file << std::endl;
-        return;
+
+        std::vector<BatchResult> batchResVec;
+        for (auto method : baselineMethods)
+        {
+            int i = method;
+            BatchResult batchRes{Average(schedulableAll[i]), Average(objsAll[i]), Average(runTimeAll[i])};
+            batchResVec.push_back(batchRes);
+        }
+
+        return batchResVec;
     }
 } // namespace OrderOptDAG_SPACE

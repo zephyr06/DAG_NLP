@@ -62,7 +62,6 @@ TEST(IntegrationTest, v1)
     EXPECT_THAT(sth.obj_, testing::Le(8338 * 2));
 }
 
-// TODO: add a batch test case
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
