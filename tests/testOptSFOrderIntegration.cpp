@@ -51,7 +51,7 @@ TEST_F(DAGScheduleOptimizerTest1, UpdateStatus)
 TEST(IntegrationTest, v1)
 {
     using namespace OrderOptDAG_SPACE;
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v27.csv", "orig");
 
     ScheduleResult sth;
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
@@ -60,6 +60,20 @@ TEST(IntegrationTest, v1)
     scheduleOption.doScheduleOptimizationOnlyOnce_ = 0;
     sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::RTDAExperimentObj>(dagTasks, scheduleOption);
     EXPECT_THAT(sth.obj_, testing::Le(8338 * 2));
+}
+
+TEST(IntegrationTest, v2)
+{
+    using namespace OrderOptDAG_SPACE;
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v28.csv", "orig");
+
+    ScheduleResult sth;
+    OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
+    scheduleOption.LoadParametersYaml();
+    scheduleOption.doScheduleOptimization_ = 0;
+    scheduleOption.doScheduleOptimizationOnlyOnce_ = 0;
+    sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::RTDAExperimentObj>(dagTasks, scheduleOption);
+    EXPECT_THAT(sth.obj_, testing::Le(8638 + 17638));
 }
 
 int main(int argc, char **argv)
