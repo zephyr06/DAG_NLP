@@ -164,12 +164,12 @@ namespace OrderOptDAG_SPACE
                             }
                             countMakeProgress++;
                         }
-                        else if (sfOrderStatus == SFOrderStatus::InferiorFeasible)
-                            jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
+                        // else if (sfOrderStatus == SFOrderStatus::InferiorFeasible || )
+                        //     jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
                         else
                         {
                             jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
-                            break;
+                            // break;
                         }
                     }
                 }

@@ -1,5 +1,7 @@
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
 #include "sources/Optimization/OptimizeSFOrder.h"
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
@@ -35,7 +37,7 @@ protected:
     DAGScheduleOptimizer<SimpleOrderScheduler, RTDAExperimentObj> dagScheduleOptimizer;
 };
 
-// TODO: write a failure test for OptimizeOrder
+// TODO: add a case that evaluates initial to be schedulable
 TEST_F(DAGScheduleOptimizerTest1, UpdateStatus)
 {
     VectorDynamic initial = GenerateVectorDynamic(19);
@@ -46,7 +48,21 @@ TEST_F(DAGScheduleOptimizerTest1, UpdateStatus)
     EXPECT_EQ(0, dagScheduleOptimizer.UpdateStatus(jobOrder, uselessRange, uselessFinishP));
 }
 
+TEST(IntegrationTest, v1)
+{
+    using namespace OrderOptDAG_SPACE;
+    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
 
+    ScheduleResult sth;
+    OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
+    scheduleOption.LoadParametersYaml();
+    scheduleOption.doScheduleOptimization_ = 0;
+    scheduleOption.doScheduleOptimizationOnlyOnce_ = 0;
+    sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::RTDAExperimentObj>(dagTasks, scheduleOption);
+    EXPECT_THAT(sth.obj_, testing::Le(8338 * 2));
+}
+
+// TODO: add a batch test case
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
