@@ -51,6 +51,15 @@ namespace OrderOptDAG_SPACE
                 statusPrev = IterationStatus<OrderScheduler, ObjectiveFunctionBase>(dagTasks, tasksInfo, jobOrderRef, scheduleOptions);
                 if (!statusPrev.schedulable_)
                     CoutWarning("Initial schedule is not schedulable!!!");
+
+                if (GlobalVariablesDAGOpt::debugMode == 1)
+                {
+                    std::cout << "Initial schedule: " << std::endl;
+                    PrintSchedule(tasksInfo, initialSTV);
+                    std::cout << initialSTV << std::endl;
+                    std::cout << "Initial SF order: " << std::endl;
+                    jobOrderRef.print();
+                }
             }
 
             ScheduleResult Optimize()
@@ -161,6 +170,7 @@ namespace OrderOptDAG_SPACE
                             if (GlobalVariablesDAGOpt::debugMode == 1)
                             {
                                 std::cout << "Make progress!" << std::endl;
+                                PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
                             }
                             countMakeProgress++;
                         }
