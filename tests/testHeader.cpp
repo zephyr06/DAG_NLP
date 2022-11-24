@@ -10,6 +10,12 @@
 // #include "sources/Utils/BatchUtils.h"
 // #include "sources/batchOptimizeSFOrder.h"
 
+#include <CppUnitLite/TestHarness.h>
+#include "sources/TaskModel/DAG_Model.h"
+#include "sources/Optimization/ScheduleSimulation.h"
+#include "sources/Baseline/RTSS21IC.h"
+#include "sources/Utils/profilier.h"
+#include "sources/Utils/testMy.h"
 int main()
 {
     TestResult tr;

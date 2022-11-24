@@ -22,8 +22,8 @@ namespace OrderOptDAG_SPACE
         RTSS21IC_NLP::processorNumGlobal = GlobalVariablesDAGOpt::coreNumberAva;
         auto sth = RTSS21IC_NLP::DAG_SPACE::OptimizeScheduling(dagTasks, initial);
         ScheduleResult res;
-        res.schedulable_ = sth.optimizeError < 1e-1;
-        res.startTimeVector_ = sth.optimizeVariable;
+        // res.schedulable_ = sth.optimizeError < 1e-1;
+        // res.startTimeVector_ = sth.optimizeVariable;
 
         return res;
     }

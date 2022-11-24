@@ -108,9 +108,9 @@ namespace RTSS21IC_NLP
             ProcessorTaskSet processorTasks;
             std::unordered_map<LLint, LLint> mapIndex_True2Compress;
 
-            DBF_ConstraintFactor(Key key, TaskSet &tasks, std::vector<LLint> sizeOfVariables,
-                                 LLint errorDimension, MAP_Index2Data &mapIndex,
-                                 std::vector<bool> &maskForEliminate, ProcessorTaskSet &processorTasks,
+            DBF_ConstraintFactor(Key key, TaskSet tasks, std::vector<LLint> sizeOfVariables,
+                                 LLint errorDimension, MAP_Index2Data mapIndex,
+                                 std::vector<bool> maskForEliminate, ProcessorTaskSet processorTasks,
                                  SharedNoiseModel model)
                 : NoiseModelFactor1<VectorDynamic>(model, key),
                   tasks(tasks), sizeOfVariables(sizeOfVariables),
