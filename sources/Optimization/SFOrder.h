@@ -81,39 +81,7 @@ namespace OrderOptDAG_SPACE
         }
 
         // O(n)
-        void EstablishJobSFMap()
-        {
-            BeginTimer(__FUNCTION__);
-            if (!whetherSFMapNeedUpdate)
-                return;
-            jobSFMap_.reserve(tasksInfo_.length);
-            for (size_t i = 0; i < instanceOrder_.size(); i++)
-            {
-                TimeInstance &inst = instanceOrder_[i];
-                if (jobSFMap_.find(inst.job) == jobSFMap_.end())
-                {
-                    SFPair sfPair;
-                    if (inst.type == 's')
-                        sfPair.startInstanceIndex = i;
-                    else if (inst.type == 'f')
-                        sfPair.finishInstanceIndex = i;
-                    else
-                        CoutError("Wrong type in TimeInstance!");
-                    jobSFMap_[inst.job] = sfPair;
-                }
-                else
-                {
-                    if (inst.type == 's')
-                        jobSFMap_[inst.job].startInstanceIndex = i;
-                    else if (inst.type == 'f')
-                        jobSFMap_[inst.job].finishInstanceIndex = i;
-                    else
-                        CoutError("Wrong type in TimeInstance!");
-                }
-            }
-            whetherSFMapNeedUpdate = false;
-            EndTimer(__FUNCTION__);
-        }
+        void EstablishJobSFMap();
 
         LLint size() const { return instanceOrder_.size(); }
         TimeInstance operator[](LLint index)
@@ -138,81 +106,17 @@ namespace OrderOptDAG_SPACE
             return jobSFMap_.at(job).finishInstanceIndex;
         }
 
-        void RangeCheck(LLint index, bool allowEnd = false) const
-        {
-            if (allowEnd && (index < 0 || index > size()))
-            {
-                CoutError("Index error in SFOrder");
-            }
-            if (!allowEnd && (index < 0 || index >= size()))
-                CoutError("Index error in SFOrder");
-        }
+        void RangeCheck(LLint index, bool allowEnd = false) const;
 
-        void RemoveJob(JobCEC job)
-        {
-            BeginTimer(__FUNCTION__);
-            LLint startIndex = GetJobStartInstancePosition(job);
-            LLint finishIndex = GetJobFinishInstancePosition(job);
-            RangeCheck(startIndex);
-            RangeCheck(finishIndex);
-            instanceOrder_.erase(instanceOrder_.begin() + finishIndex);
-            instanceOrder_.erase(instanceOrder_.begin() + startIndex);
-            jobSFMap_.erase(job);
-            // EstablishJobSFMap();
-            whetherSFMapNeedUpdate = true;
-            EndTimer(__FUNCTION__);
-        }
+        void RemoveJob(JobCEC job);
 
-        void InsertStart(JobCEC job, LLint position)
-        {
-            BeginTimer(__FUNCTION__);
-            RangeCheck(position, true);
-            TimeInstance inst('s', job);
-            instanceOrder_.insert(instanceOrder_.begin() + position, inst);
+        void InsertStart(JobCEC job, LLint position);
 
-            // if (jobSFMap_.find(job) == jobSFMap_.end())
-            // {
-            //     SFPair sfP;
-            //     sfP.startInstanceIndex = position;
-            //     jobSFMap_[job] = sfP;
-            // }
-            // else
-            // {
-            //     jobSFMap_[job].startInstanceIndex = position;
-            // }
-            // EstablishJobSFMap();
-            whetherSFMapNeedUpdate = true;
+        void InsertFinish(JobCEC job, LLint position);
 
-            EndTimer(__FUNCTION__);
-        }
+        void RemoveFinish(JobCEC job, LLint position);
 
-        void InsertFinish(JobCEC job, LLint position)
-        {
-            BeginTimer(__FUNCTION__);
-            RangeCheck(position, true);
-            instanceOrder_.insert(instanceOrder_.begin() + position, TimeInstance('f', job));
-            // EstablishJobSFMap();
-            whetherSFMapNeedUpdate = true;
-            EndTimer(__FUNCTION__);
-        }
-        void RemoveFinish(JobCEC job, LLint position)
-        {
-            BeginTimer(__FUNCTION__);
-            RangeCheck(position, true);
-            instanceOrder_.erase(instanceOrder_.begin() + position);
-            // EstablishJobSFMap();
-            whetherSFMapNeedUpdate = true;
-            EndTimer(__FUNCTION__);
-        }
-
-        void print()
-        {
-            std::cout << "instanceOrder_:" << std::endl;
-            for (uint i = 0; i < instanceOrder_.size(); i++)
-            {
-                std::cout << instanceOrder_[i].job.taskId << ", " << instanceOrder_[i].job.jobId << ", " << instanceOrder_[i].type << std::endl;
-            }
-        }
+        void print();
     };
 
     struct JobGroupRange // include the minIndex, but not the maxIndex
