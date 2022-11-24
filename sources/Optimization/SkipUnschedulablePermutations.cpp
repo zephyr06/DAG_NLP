@@ -34,102 +34,48 @@ namespace OrderOptDAG_SPACE
                 nextInstanceLeastFinishTime -= tasksInfo.tasks[instance.job.taskId].executionTime;
             return nextInstanceLeastFinishTime;
         }
-        // bool WhetherSkipInsertStart(const JobCEC &jobRelocate, LLint startP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
-        // {
-        //     if (startP > 0)
-        //     {
-        //         TimeInstance instancePrev = jobOrderCurr.instanceOrder_[startP - 1];
-        //         // jP.ActivationTime <= jR.start <= jR.deadline - jR.executionTime
-        //         double prevInstanceLeastFinishTime = GetInstanceLeastStartTime(instancePrev, tasksInfo);
-        //         if (prevInstanceLeastFinishTime > GetDeadline(jobRelocate, tasksInfo) - tasksInfo.tasks[jobRelocate.taskId].executionTime)
-        //             return true;
-        //     }
-        //     if (startP < tasksInfo.length * 2 - 1)
-        //     {
-        //         TimeInstance instanceAfter = jobOrderCurr.instanceOrder_[startP + 1];
-        //         //  jR.ActivationTime <= jR.start <= nextJ.Deadline
-        //         double nextInstanceLeastFinishTime = GetInstanceMaxFinishTime(instanceAfter, tasksInfo);
-        //         if (GetActivationTime(jobRelocate, tasksInfo) > nextInstanceLeastFinishTime)
-        //             return true;
-        //     }
-        //     return false;
-        // }
-
-        // bool WhetherSkipInsertFinish(const JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
-        // {
-        //     if (finishP > 0)
-        //     {
-        //         TimeInstance instancePrev = jobOrderCurr.instanceOrder_[finishP - 1];
-        //         // jP.ActivationTime <= jR.finish <= jR.deadline
-        //         double prevInstanceLeastFinishTime = GetInstanceLeastStartTime(instancePrev, tasksInfo);
-        //         if (prevInstanceLeastFinishTime > GetDeadline(jobRelocate, tasksInfo))
-        //             return true;
-        //     }
-        //     if (finishP < tasksInfo.length * 2 - 1)
-        //     {
-        //         TimeInstance instanceAfter = jobOrderCurr.instanceOrder_[finishP + 1];
-        //         //  jR.ActivationTime <= jR.finish <= nextJ.Deadline
-        //         double nextInstanceLeastFinishTime = GetInstanceMaxFinishTime(instanceAfter, tasksInfo);
-        //         if (GetActivationTime(jobRelocate, tasksInfo) > nextInstanceLeastFinishTime)
-        //             return true;
-        //     }
-        //     return false;
-        // }
-        // bool WhetherStartFinishTooLong(double &accumLengthMin, const JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurrForStart, LLint startP)
-        // {
-        //     if (accumLengthMin >= tasksInfo.tasks[jobRelocate.taskId].executionTime)
-        //         return true;
-        //     if (finishP < jobOrderCurrForStart.size())
-        //     {
-        //         TimeInstance jobPrevInsertInst = jobOrderCurrForStart.at(finishP);
-        //         if (jobPrevInsertInst.type == 'f')
-        //             accumLengthMin += tasksInfo.tasks[jobPrevInsertInst.job.taskId].executionTime;
-        //     }
-        //     return false;
-        // }
         bool WhetherSkipInsertStart(const JobCEC &jobRelocate, LLint startP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
         {
             if (startP > 0)
             {
                 TimeInstance instancePrev = jobOrderCurr.instanceOrder_[startP - 1];
                 // jP.ActivationTime <= jR.start <= jR.deadline - jR.executionTime
-                if (GetActivationTime(instancePrev.job, tasksInfo) > GetDeadline(jobRelocate, tasksInfo) - tasksInfo.tasks[jobRelocate.taskId].executionTime)
+                double prevInstanceLeastFinishTime = GetInstanceLeastStartTime(instancePrev, tasksInfo);
+                if (prevInstanceLeastFinishTime > GetDeadline(jobRelocate, tasksInfo) - tasksInfo.tasks[jobRelocate.taskId].executionTime)
                     return true;
             }
             if (startP < tasksInfo.length * 2 - 1)
             {
                 TimeInstance instanceAfter = jobOrderCurr.instanceOrder_[startP + 1];
                 //  jR.ActivationTime <= jR.start <= nextJ.Deadline
-                double nextInstanceLeastFinishTime = GetDeadline(instanceAfter.job, tasksInfo);
-                if (instanceAfter.type == 's')
-                    nextInstanceLeastFinishTime -= tasksInfo.tasks[instanceAfter.job.taskId].executionTime;
+                double nextInstanceLeastFinishTime = GetInstanceMaxFinishTime(instanceAfter, tasksInfo);
                 if (GetActivationTime(jobRelocate, tasksInfo) > nextInstanceLeastFinishTime)
                     return true;
             }
             return false;
         }
+
         bool WhetherSkipInsertFinish(const JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr)
         {
             if (finishP > 0)
             {
                 TimeInstance instancePrev = jobOrderCurr.instanceOrder_[finishP - 1];
                 // jP.ActivationTime <= jR.finish <= jR.deadline
-                if (GetActivationTime(instancePrev.job, tasksInfo) > GetDeadline(jobRelocate, tasksInfo))
+                double prevInstanceLeastFinishTime = GetInstanceLeastStartTime(instancePrev, tasksInfo);
+                if (prevInstanceLeastFinishTime > GetDeadline(jobRelocate, tasksInfo))
                     return true;
             }
             if (finishP < tasksInfo.length * 2 - 1)
             {
                 TimeInstance instanceAfter = jobOrderCurr.instanceOrder_[finishP + 1];
                 //  jR.ActivationTime <= jR.finish <= nextJ.Deadline
-                double nextInstanceLeastFinishTime = GetDeadline(instanceAfter.job, tasksInfo);
-                if (instanceAfter.type == 's')
-                    nextInstanceLeastFinishTime -= tasksInfo.tasks[instanceAfter.job.taskId].executionTime;
+                double nextInstanceLeastFinishTime = GetInstanceMaxFinishTime(instanceAfter, tasksInfo);
                 if (GetActivationTime(jobRelocate, tasksInfo) > nextInstanceLeastFinishTime)
                     return true;
             }
             return false;
         }
-        // This version is safer than the last version
+
         bool WhetherStartFinishTooLong(double &accumLengthMin, const JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrderCurrForStart, LLint startP)
         {
             if (finishP >= 1 && finishP <= jobOrderCurrForStart.size())
