@@ -1,5 +1,6 @@
-#ifndef VERUCCHI_RTDA_BRDIGE_H_
-#define VERUCCHI_RTDA_BRDIGE_H_
+// #ifndef VERUCCHI_RTDA_BRDIGE_H_
+// #define VERUCCHI_RTDA_BRDIGE_H_
+#pragma once
 // below are include files required by Verucchi
 // #include "sources/Baseline/VerucchiScheduling.h"
 
@@ -388,4 +389,4 @@ OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     return res;
 }
 
-#endif // VERUCCHI_RTDA_BRDIGE_H_
+// #endif // VERUCCHI_RTDA_BRDIGE_H_
