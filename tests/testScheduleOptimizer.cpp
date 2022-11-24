@@ -7,7 +7,8 @@
 #include "sources/Optimization/ScheduleOptimizer.h"
 
 using namespace OrderOptDAG_SPACE;
-using namespace gtsam;using namespace GlobalVariablesDAGOpt;
+using namespace gtsam;
+using namespace GlobalVariablesDAGOpt;
 /**
 TEST(JobCEC, GetJobUniqueId)
 {
@@ -41,7 +42,7 @@ TEST(ScheduleOptimizer, single_core_optimization)
 {
     std::cout << "\n\n#############  New Test  ##############\n\n";
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
-    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v10.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH +  "TaskData/test_n3_v10.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initialEstimate = GenerateVectorDynamic(5);
@@ -69,7 +70,7 @@ TEST(ScheduleOptimizer, multi_core_optimization)
     std::cout << "\n\n#############  New Test  ##############\n\n";
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
 
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH +  "TaskData/test_n3_v8.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
@@ -109,7 +110,7 @@ TEST(ScheduleOptimizer, single_core_sensor_fusion)
 
     std::cout << "\n\n#############  New Test  ##############\n\n";
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
-    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v16.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH +  "TaskData/test_n3_v16.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initialEstimate = GenerateVectorDynamic(5);
@@ -171,7 +172,7 @@ TEST(ScheduleOptimizer, multi_core_multi_chains_optimization)
 
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
 
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v17.csv", "orig", 2);
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH +  "TaskData/test_n3_v17.csv", "orig", 2);
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
@@ -221,7 +222,7 @@ TEST(ScheduleOptimizer, optimize_weighted_obj)
 
     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
 
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v17.csv", "orig", 2);
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH +  "TaskData/test_n3_v17.csv", "orig", 2);
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);

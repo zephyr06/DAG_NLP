@@ -38,7 +38,7 @@ namespace OrderOptDAG_SPACE
             std::string delimiter = "-";
             if (file.find("Res") != std::string::npos)
             {
-                std::string path = PROJECT_PATH + "TaskData/dagTasks/" + file;
+                std::string path = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/dagTasks/" + file;
                 if (remove(path.c_str()) != 0)
                 {
                     perror("Error deleting file!");
@@ -94,7 +94,7 @@ namespace OrderOptDAG_SPACE
         double runTime;
     };
 
-    std::vector<BatchResult> BatchOptimizeOrder(std::vector<OrderOptDAG_SPACE::BaselineMethods> baselineMethods, std::string dataSetFolder = PROJECT_PATH + "TaskData/dagTasks/")
+    std::vector<BatchResult> BatchOptimizeOrder(std::vector<OrderOptDAG_SPACE::BaselineMethods> baselineMethods, std::string dataSetFolder = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/dagTasks/")
     {
         std::string dirStr = dataSetFolder;
         const char *pathDataset = (dirStr).c_str();
@@ -112,7 +112,7 @@ namespace OrderOptDAG_SPACE
             if (file.substr(0, file.find(delimiter)) == "dag" && file.find("Res") == std::string::npos)
             {
                 std::cout << file << std::endl;
-                std::string path = PROJECT_PATH + "TaskData/dagTasks/" + file;
+                std::string path = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/dagTasks/" + file;
                 OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(path, GlobalVariablesDAGOpt::priorityMode);
                 if (dagTasks.GetSfBound() > 0)
                     GlobalVariablesDAGOpt::sensorFusionTolerance = dagTasks.GetSfBound();

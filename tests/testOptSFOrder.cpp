@@ -8,7 +8,7 @@ class ScheduleDAGModelTest1 : public ::testing::Test
 protected:
     void SetUp() override
     {
-        dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig"); // single-rate dag
+        dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig"); // single-rate dag
         tasks = dagTasks.tasks;
         tasksInfo = TaskSetInfoDerived(tasks);
         chain1 = {0, 2};

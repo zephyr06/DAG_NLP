@@ -11,7 +11,7 @@ class DAGScheduleOptimizerTest1 : public ::testing::Test
 protected:
     void SetUp() override
     {
-        dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v79.csv", "orig"); // single-rate dag
+        dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v79.csv", "orig"); // single-rate dag
         tasks = dagTasks.tasks;
         tasksInfo = TaskSetInfoDerived(tasks);
         chain1 = {0, 2};
@@ -51,7 +51,7 @@ TEST_F(DAGScheduleOptimizerTest1, UpdateStatus)
 TEST(IntegrationTest, v1)
 {
     using namespace OrderOptDAG_SPACE;
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v27.csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v27.csv", "orig");
 
     ScheduleResult sth;
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
@@ -65,7 +65,7 @@ TEST(IntegrationTest, v1)
 TEST(IntegrationTest, v2)
 {
     using namespace OrderOptDAG_SPACE;
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v28.csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v28.csv", "orig");
 
     ScheduleResult sth;
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;

@@ -9,7 +9,7 @@ using namespace GlobalVariablesDAGOpt;
 
 // TEST(VerucchiRTDA, single_case_v1)
 // {
-//     OrderOptDAG_SPACE::DAG_Model tasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig");
+//     OrderOptDAG_SPACE::DAG_Model tasks = OrderOptDAG_SPACE::ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH +  "TaskData/test_n5_v1.csv", "orig");
 //     std::vector<std::vector<int>> causeEffectChains{{0, 1, 2, 3}};
 //     OrderOptDAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, causeEffectChains, 1);
 //     std::cout << "<-------------RTDA results-------------->\nChain: ";
@@ -27,7 +27,7 @@ using namespace GlobalVariablesDAGOpt;
 
 // TEST(VerucchiRTDA, single_case_v2)
 // {
-//     OrderOptDAG_SPACE::DAG_Model tasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+//     OrderOptDAG_SPACE::DAG_Model tasks = OrderOptDAG_SPACE::ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH +  "TaskData/test_n6_v1.csv", "orig");
 //     std::vector<std::vector<int>> causeEffectChains{{0, 1, 4, 5}};
 
 //     OrderOptDAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, causeEffectChains, 1, 15.0, 4000.0, 15.0, 4000.0, 15.0);
@@ -46,7 +46,7 @@ using namespace GlobalVariablesDAGOpt;
 
 TEST(VerucchiRTDA, single_case_multiple_chains)
 {
-    OrderOptDAG_SPACE::DAG_Model tasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model tasks = OrderOptDAG_SPACE::ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
 
     OrderOptDAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, tasks.chains_, 1, 15.0, 4000.0, 15.0, 4000.0, 15.0);
     std::cout << "<-------------RTDA results-------------->\n";

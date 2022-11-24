@@ -12,7 +12,7 @@ using namespace gtsam;
 using namespace GlobalVariablesDAGOpt;
 TEST(SFOrder, constructor_v3)
 {
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v24.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v24.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -27,7 +27,7 @@ TEST(SFOrder, constructor_v3)
 }
 TEST(SFOrder, constructor_v4)
 {
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -48,7 +48,7 @@ TEST(SFOrder, constructor_v4)
 }
 TEST(SFOrder, constructor_v1)
 {
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -78,7 +78,7 @@ TEST(SFOrder, constructor_v1)
 
 TEST(ExtractSubInstances, v1)
 {
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     int processorNum = 2;
@@ -114,7 +114,7 @@ TEST(ExtractSubInstances, v1)
 
 TEST(SFOrder, sched_v1)
 {
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -128,7 +128,7 @@ TEST(SFOrder, sched_v1)
 }
 TEST(SFOrder, insert_erase)
 {
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -155,7 +155,7 @@ TEST(SFOrder, insert_erase)
 
 TEST(WhetherSkipInsertStart_finish, v1)
 {
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     int processorNum = 1;
@@ -189,7 +189,7 @@ TEST(WhetherSkipInsertStart_finish, v1)
 }
 TEST(WhetherSkipInsertStart_finish, v2)
 {
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v20.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v20.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     int processorNum = 1;
@@ -215,7 +215,7 @@ TEST(WhetherSkipInsertStart_finish, v2)
 TEST(DBF_error, v1)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -232,7 +232,7 @@ TEST(sensorFusion, v1_no_fork)
     using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
 
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v10.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v10.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -248,7 +248,7 @@ TEST(sensorFusion, v1_no_fork)
 
 TEST(SFOrder, opt_v1)
 {
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -267,7 +267,7 @@ TEST(SFOrder, opt_v1)
 
 TEST(sched, v2)
 {
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -289,7 +289,7 @@ TEST(sched, v2)
 TEST(SFOrderSchedule, test1)
 {
     using namespace OrderOptDAG_SPACE;
-    // DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
+    // DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH +  "TaskData/" + testDataSetName + ".csv", "orig");
 
     for (int taskSetId = 1; taskSetId <= 79; taskSetId++)
     {
@@ -297,7 +297,7 @@ TEST(SFOrderSchedule, test1)
         { // ignore task sets with double execution time
             taskSetId = 45;
         }
-        DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v" + std::to_string(taskSetId) + ".csv", "orig");
+        DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v" + std::to_string(taskSetId) + ".csv", "orig");
 
         TaskSet &tasks = dagTasks.tasks;
         TaskSetInfoDerived tasksInfo(tasks);
@@ -317,7 +317,7 @@ TEST(SFOrderSchedule, test1)
 }
 TEST(SFOrder, insert_erase_v2)
 {
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -362,7 +362,7 @@ TEST(optimize_schedule_when_search_job_order_, v1)
     scheduleOptions.considerSensorFusion_ = 0;
 
     // enableFastSearch = 0;
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     ScheduleResult sRes = ScheduleDAGModel<SimpleOrderScheduler, RTDAExperimentObj>(dagTasks, scheduleOptions);
@@ -376,14 +376,14 @@ TEST(Schedule, jobOrder)
     scheduleOptions.causeEffectChainNumber_ = 1;
     scheduleOptions.processorNum_ = 1;
     scheduleOptions.considerSensorFusion_ = 0;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     ScheduleResult res = ScheduleDAGModel<SimpleOrderScheduler, RTDAExperimentObj>(dagTasks, scheduleOptions);
     EXPECT(99 * 2 >= res.obj_);
 }
 
 TEST(WhetherSkipInsertStart_finish, v3)
 {
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v20.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v20.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     int processorNum = 1;
@@ -404,7 +404,7 @@ TEST(WhetherSkipInsertStart_finish, v3)
 }
 TEST(WhetherStartFinishTooLong, v1)
 {
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v20.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v20.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     int processorNum = 1;
@@ -433,7 +433,7 @@ TEST(WhetherStartFinishTooLong, v1)
 
 TEST(SFOrder, constructor_v2)
 {
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v24.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v24.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -450,7 +450,7 @@ TEST(SFOrder, constructor_v2)
 
 // TEST(FindLongestChainJobIndex, v1)
 // {
-//     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+//     DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH +  "TaskData/test_n3_v18.csv", "orig");
 //     TaskSet tasks = dagTasks.tasks;
 //     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -474,7 +474,7 @@ TEST(SFOrder, constructor_v2)
 TEST(GetTaskIdWithChainOrder, v1)
 {
     // NumCauseEffectChain = 1;
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     std::vector<int> taskIdSet = GetTaskIdWithChainOrder(dagTasks);
@@ -490,7 +490,7 @@ TEST(GetTaskIdWithChainOrder, v1)
 TEST(GetTaskIdWithChainOrder, v2)
 {
 
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v79.csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v79.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     std::vector<int> taskIdSet = GetTaskIdWithChainOrder(dagTasks);
@@ -509,7 +509,7 @@ TEST(GetTaskIdWithChainOrder, v2)
 TEST(RTSSIC, Wang21_DBF)
 {
 
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v79.csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v79.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     std::vector<uint> processorIdVec;
@@ -518,7 +518,7 @@ TEST(RTSSIC, Wang21_DBF)
 
 TEST(CheckDDLConstraint, v1)
 {
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     int processorNum = 2;

@@ -9,7 +9,7 @@ TEST(RTSSIC, Wang21_DBF)
 {
     RTSS21IC_NLP::sensorFusionTolerance = 1e8;
     RTSS21IC_NLP::freshTol = 1e8;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v25.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v25.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     std::vector<uint> processorIdVec;
@@ -31,7 +31,7 @@ TEST(RTSSIC, Wang21_DBF)
 // {
 //     BeginTimer("main");
 //     using namespace OrderOptDAG_SPACE;
-//     DAG_Model tasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
+//     DAG_Model tasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH +  "TaskData/" + testDataSetName + ".csv", "orig");
 
 //     auto sth = ScheduleRTSS21IC(tasks, sensorFusionTolerance, freshTol);
 //     EndTimer("main");

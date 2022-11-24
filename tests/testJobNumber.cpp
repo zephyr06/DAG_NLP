@@ -8,7 +8,7 @@ using namespace GlobalVariablesDAGOpt;
 TEST(parameters, a1)
 {
 
-    std::string dirStr = PROJECT_PATH + "TaskData/dagTasks/";
+    std::string dirStr = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/dagTasks/";
     const char *pathDataset = (dirStr).c_str();
     std::cout << "Dataset Directory: " << pathDataset << std::endl;
     std::vector<std::vector<double>> runTimeAll(TotalMethodUnderComparison);
@@ -24,7 +24,7 @@ TEST(parameters, a1)
         string delimiter = "-";
         if (file.substr(0, file.find(delimiter)) == "dag" && file.find("Res") == std::string::npos)
         {
-            string path = PROJECT_PATH + "TaskData/dagTasks/" + file;
+            string path = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/dagTasks/" + file;
             OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(path, priorityMode);
             RegularTaskSystem::TaskSetInfoDerived tasksInfo(dagTasks.tasks);
 

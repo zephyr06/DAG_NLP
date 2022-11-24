@@ -11,7 +11,7 @@ using namespace GlobalVariablesDAGOpt;
 TEST(list_scheduling, least_finish_time_v2)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v74.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v74.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 1);
@@ -26,7 +26,7 @@ TEST(IO, ReadWriteResult)
     res.schedulable_ = false;
     res.timeTaken_ = 1.1;
     res.obj_ = 2.1;
-    std::string dirStr = PROJECT_PATH + "build/";
+    std::string dirStr = GlobalVariablesDAGOpt::PROJECT_PATH + "build/";
     const char *pathDataset = (dirStr).c_str();
     std::string file = "testIO.txt";
     WriteToResultFile(pathDataset, file, res, 0);
@@ -39,7 +39,7 @@ TEST(IO, ReadWriteResult)
 TEST(ExamDBF_Feasibility, v1)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -54,7 +54,7 @@ TEST(ExamDBF_Feasibility, v1)
 TEST(ExamDBF_Feasibility, v2)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v8.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
@@ -85,7 +85,7 @@ TEST(sensorFusion, v1)
     using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
 
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v9.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v9.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -104,7 +104,7 @@ TEST(sensorFusion, multi_rate)
     using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
 
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -143,7 +143,7 @@ TEST(sensorFusion, multi_rate)
 //     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOptions;
 //     scheduleOptions.processorNum_ = 1;
 //     scheduleOptions.weightInMpRTDA_ = 0.5;
-//     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig", 2); // single-rate dag
+//     DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH +  "TaskData/test_n5_v1.csv", "orig", 2); // single-rate dag
 //     TaskSet tasks = dagTasks.tasks;
 //     TaskSetInfoDerived tasksInfo(tasks);
 //     dagTasks.printChains();
@@ -162,7 +162,7 @@ TEST(sensorFusion, multi_rate)
 //     int processorNum = 2;
 //     considerSensorFusion = 0;
 //     weightInMpRTDA = 0.5;
-//     DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig", 1); // single-rate dag
+//     DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH +  "TaskData/test_n3_v18.csv", "orig", 1); // single-rate dag
 //     doScheduleOptimization = 1;
 //     ScheduleResult res = ScheduleDAGModel<LSchedulingFreeTA>(dagTasks, processorNum);
 //     EXPECT_LONGS_EQUAL(5 + 4, res.obj_);

@@ -9,9 +9,9 @@ namespace RTSS21IC_NLP
 {
     static std::vector<uint> processorIdVecGlobal; // global variable
     static int processorNumGlobal = 2;             // global variable
-    static const std::string PROJECT_PATH_IC = PROJECT_PATH + "sources/Baseline/Wang21/";
+    static const std::string PROJECT_PATH_IC = GlobalVariablesDAGOpt::PROJECT_PATH + "sources/Baseline/Wang21/";
     // const std::string PROJECT_PATH = "/home/dong/workspace/DAG_NLP/";
-    //  std::string path = PROJECT_PATH + "sources/parameters.yaml";
+    //  std::string path = GlobalVariablesDAGOpt::PROJECT_PATH +  "sources/parameters.yaml";
     static cv::FileStorage ConfigParameters(PROJECT_PATH_IC + "sources/parameters.yaml", cv::FileStorage::READ);
     using namespace std;
     enum InitializeMethod

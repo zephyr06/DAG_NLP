@@ -17,7 +17,7 @@ TEST(ExtractVariable, v1)
 
 TEST(ReadDAG_Tasks, V1)
 {
-    string path = PROJECT_PATH + "TaskData/test_n5_v8.csv";
+    string path = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v8.csv";
     DAG_Model dm = ReadDAG_Tasks(path);
     dm.print();
     AssertBool(true, dm.mapPrev[3].size() == 3);
@@ -26,7 +26,7 @@ TEST(ReadDAG_Tasks, V1)
 
 TEST(ReadDAG_Tasks, v3)
 {
-    string path = PROJECT_PATH + "TaskData/test_n5_v41.csv";
+    string path = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v41.csv";
     DAG_Model dm = ReadDAG_Tasks(path);
     dm.print();
     AssertEqualScalar(14.38, dm.tasks[0].executionTime);
@@ -35,7 +35,7 @@ TEST(ReadDAG_Tasks, v3)
 
 TEST(ReadDAG_Tasks, v2)
 {
-    string path = PROJECT_PATH + "TaskData/test_n5_v15.csv";
+    string path = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v15.csv";
     DAG_Model dm = ReadDAG_Tasks(path);
     dm.print();
     AssertBool(true, dm.mapPrev[1].size() == 2);
@@ -44,7 +44,7 @@ TEST(ReadDAG_Tasks, v2)
 }
 TEST(ReadDAG_Tasks, v4)
 {
-    string path = PROJECT_PATH + "TaskData/test_n3_v1.csv";
+    string path = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v1.csv";
     DAG_Model dm = ReadDAG_Tasks(path, "orig");
     dm.print();
     AssertEqualScalar(1, dm.tasks[0].period);
@@ -55,7 +55,7 @@ TEST(ReadDAG_Tasks, v4)
 }
 TEST(ReadDAG_Tasks, v5)
 {
-    string path = PROJECT_PATH + "TaskData/test_n5_v45.csv";
+    string path = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v45.csv";
     DAG_Model dm = ReadDAG_Tasks(path, "orig");
     dm.print();
     for (int i = 0; i < 3; i++)
@@ -65,7 +65,7 @@ TEST(ReadDAG_Tasks, v5)
 }
 TEST(ReadDAG_Tasks, v6)
 {
-    string path = PROJECT_PATH + "TaskData/test_n5_v49.csv";
+    string path = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v49.csv";
     DAG_Model dm = ReadDAG_Tasks(path, "orig");
     dm.print();
     for (int i = 0; i < 3; i++)
@@ -76,7 +76,7 @@ TEST(ReadDAG_Tasks, v6)
 }
 TEST(ReadDAG_Tasks, v7)
 {
-    string path = PROJECT_PATH + "TaskData/test_n5_v45.csv";
+    string path = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v45.csv";
     DAG_Model dm = ReadDAG_Tasks(path, "orig");
     dm.print();
     for (int i = 0; i < 3; i++)
@@ -85,7 +85,7 @@ TEST(ReadDAG_Tasks, v7)
 
 TEST(TaskSetInfoDerived, v1)
 {
-    string path = PROJECT_PATH + "TaskData/test_n5_v45.csv";
+    string path = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v45.csv";
     DAG_Model dm = ReadDAG_Tasks(path, "orig");
     TaskSet tasks = dm.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
@@ -94,7 +94,7 @@ TEST(TaskSetInfoDerived, v1)
 
 TEST(GetRandomChains, DAG_Model)
 {
-    string path = PROJECT_PATH + "TaskData/test_n5_v74.csv";
+    string path = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v74.csv";
     DAG_Model dagTasks = ReadDAG_Tasks(path, "orig");
     EXPECT(dagTasks.chains_.size() > 0);
     std::cout << dagTasks.chains_.size() << std::endl;

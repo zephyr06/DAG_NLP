@@ -12,7 +12,7 @@ using namespace GlobalVariablesDAGOpt;
 TEST(GetStartTime, v1)
 {
     using namespace OrderOptDAG_SPACE;
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig"); // single-rate dag
+    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig"); // single-rate dag
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -33,7 +33,7 @@ TEST(GetStartTime, v1)
 TEST(CauseAffect, v1)
 {
     using namespace OrderOptDAG_SPACE;
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig"); // single-rate dag
+    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig"); // single-rate dag
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -49,7 +49,7 @@ TEST(CauseAffect, v1)
 TEST(CA, V2)
 {
     using namespace OrderOptDAG_SPACE;
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v2.csv", "orig"); // single-rate dag
+    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v2.csv", "orig"); // single-rate dag
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -66,7 +66,7 @@ TEST(CA, V2)
 TEST(CA, v3)
 {
     using namespace OrderOptDAG_SPACE;
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v4.csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v4.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initialEstimate = GenerateVectorDynamic(11);
@@ -82,7 +82,7 @@ TEST(CA, v3)
 TEST(CA_customize, v1)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initialEstimate = GenerateVectorDynamic(10);
@@ -99,7 +99,7 @@ TEST(CA_customize, v1)
 TEST(RTDA, v2)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v13.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v13.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initialEstimate = GenerateVectorDynamic(7);
@@ -125,7 +125,7 @@ TEST(RTDA, v2)
 TEST(RTDA, v1)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n4_v1.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n4_v1.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     VectorDynamic initialEstimate = GenerateVectorDynamic(7);
@@ -141,7 +141,7 @@ TEST(RTDA, v1)
 TEST(RTDA, v3)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v79.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v79.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
     int processorNum = 2;

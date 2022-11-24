@@ -7,7 +7,7 @@ TEST(DAG_Optimize_schedule, v1)
 {
     BeginTimer("main");
     using namespace OrderOptDAG_SPACE;
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
 
     ScheduleResult sth;
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
@@ -22,9 +22,9 @@ TEST(DAG_Optimize_schedule, v1)
 // {
 //     BeginTimer("main");
 //     using namespace OrderOptDAG_SPACE;
-//     // DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
+//     // DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH +  "TaskData/" + testDataSetName + ".csv", "orig");
 
-//     auto dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v38.csv", "orig");
+//     auto dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH +  "TaskData/test_n5_v38.csv", "orig");
 
 //     VectorDynamic initial;
 //     initial.resize(6, 1);

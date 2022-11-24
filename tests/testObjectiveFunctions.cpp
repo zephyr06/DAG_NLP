@@ -12,7 +12,7 @@ class ObjExperimentObjTest1 : public ::testing::Test
 protected:
     void SetUp() override
     {
-        dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig"); // single-rate dag
+        dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v1.csv", "orig"); // single-rate dag
         tasks = dagTasks.tasks;
         tasksInfo = TaskSetInfoDerived(tasks);
         chain1 = {0, 1, 2};
@@ -54,7 +54,7 @@ TEST_F(ObjExperimentObjTest1, SFEvaluate1)
 
 TEST(aaa, nonWorkConserveCase)
 {
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 
@@ -82,7 +82,7 @@ TEST(aaa, nonWorkConserveCase)
 }
 TEST(Obj, RTDA_v1)
 {
-    DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
+    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
 

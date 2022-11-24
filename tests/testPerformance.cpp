@@ -6,7 +6,7 @@
 using namespace OrderOptDAG_SPACE;
 TEST(average_performance, v1)
 {
-    std::string dataSetFolder = PROJECT_PATH + "TaskData/dagTasksPerfTest/";
+    std::string dataSetFolder = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/dagTasksPerfTest/";
     ClearResultFiles(dataSetFolder);
     std::vector<OrderOptDAG_SPACE::BaselineMethods> baselineMethods = {OrderOptDAG_SPACE::InitialMethod, OrderOptDAG_SPACE::TOM_Fast};
     std::vector<BatchResult> batchResVec = OrderOptDAG_SPACE::BatchOptimizeOrder(baselineMethods, dataSetFolder);

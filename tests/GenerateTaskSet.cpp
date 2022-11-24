@@ -155,8 +155,8 @@ int main(int argc, char *argv[])
               << "randomSeed, negative will use current time, otherwise use the given seed(--randomSeed): " << randomSeed << std::endl
               << std::endl;
 
-    std::string outDirectory = PROJECT_PATH + "TaskData/dagTasks/";
-    // std::string outDirectory = PROJECT_PATH + "Energy_Opt_NLP/TaskData/task_number/";
+    std::string outDirectory = GlobalVariablesDAGOpt::PROJECT_PATH +  "TaskData/dagTasks/";
+    // std::string outDirectory = GlobalVariablesDAGOpt::PROJECT_PATH +  "Energy_Opt_NLP/TaskData/task_number/";
     deleteDirectoryContents(outDirectory);
 
     for (size_t i = 0; i < DAG_taskSetNumber; i++)

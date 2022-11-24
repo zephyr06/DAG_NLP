@@ -7,13 +7,13 @@ using namespace GlobalVariablesDAGOpt;
 TEST(ExtractVariable, v1)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v17.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
-   std::vector<LLint> sizeOfVariables;
+    std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -36,13 +36,13 @@ TEST(ExtractVariable, v1)
 TEST(ExtractVariable, v2)
 {
     using namespace OrderOptDAG_SPACE;
-    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v20.csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v20.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
-   std::vector<LLint> sizeOfVariables;
+    std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -62,12 +62,12 @@ TEST(ExtractVariable, v2)
 TEST(BigIndex2TaskIndex, v1)
 {
     using namespace OrderOptDAG_SPACE;
-    TaskSet tasks = ReadTaskSet(PROJECT_PATH + "TaskData/test_n5_v3.csv", "orig");
+    TaskSet tasks = ReadTaskSet(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v3.csv", "orig");
     int N = tasks.size();
     LLint hyperPeriod = HyperPeriod(tasks);
 
     // declare variables
-   std::vector<LLint> sizeOfVariables;
+    std::vector<LLint> sizeOfVariables;
     int variableDimension = 0;
     for (int i = 0; i < N; i++)
     {
@@ -82,7 +82,7 @@ TEST(BigIndex2TaskIndex, v1)
         3 != BigIndex2TaskIndex(8, sizeOfVariables) ||
         4 != BigIndex2TaskIndex(9, sizeOfVariables))
     {
-       std::cout << "Error in BigIndex2TaskIndex" << std::endl;
+        std::cout << "Error in BigIndex2TaskIndex" << std::endl;
         throw;
     }
 }

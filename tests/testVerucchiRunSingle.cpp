@@ -7,7 +7,7 @@
 using namespace GlobalVariablesDAGOpt;
 TEST(VerucchiRTDA, multichains_debug_use_only)
 {
-    OrderOptDAG_SPACE::DAG_Model tasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
+    OrderOptDAG_SPACE::DAG_Model tasks = OrderOptDAG_SPACE::ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
 
     OrderOptDAG_SPACE::RTDA rtda = GetVerucchiRTDA(tasks, tasks.chains_, GlobalVariablesDAGOpt::coreNumberAva, kVerucchiReactionCost, kVerucchiMaxReaction,
                                                    kVerucchiDataAgeCost, kVerucchiMaxDataAge, kVerucchiCoreCost, GlobalVariablesDAGOpt::kVerucchiTimeLimit);
