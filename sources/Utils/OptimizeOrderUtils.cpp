@@ -24,12 +24,6 @@ namespace OrderOptDAG_SPACE
 
     bool CheckDDLConstraint(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
     {
-        // gtsam::NonlinearFactorGraph graph;
-        // AddDDL_Factor(graph, tasksInfo);
-        // gtsam::Values initialEstimateFG = GenerateInitialFG(startTimeVector, tasksInfo);
-        // double err = graph.error(initialEstimateFG);
-        // return 0 == err;
-
         for (int i = 0; i < tasksInfo.N; i++)
         {
             for (int j = 0; j < int(tasksInfo.sizeOfVariables[i]); j++)
@@ -110,9 +104,10 @@ namespace OrderOptDAG_SPACE
 
     bool ExamBasic_Feasibility(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const std::vector<uint> &processorJobVec, int processorNum)
     {
-        if (!ExamDDL_Feasibility(dagTasks, tasksInfo, startTimeVector) || !ExamDBF_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec, processorNum))
-            return false;
-        return true;
+        BeginTimer("ExamBasic_Feasibility");
+        bool schedulable = ExamDDL_Feasibility(dagTasks, tasksInfo, startTimeVector) && ExamDBF_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec, processorNum);
+        EndTimer("ExamBasic_Feasibility");
+        return schedulable;
     }
 
     bool ExamAll_Feasibility(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,

@@ -47,6 +47,16 @@ namespace OrderOptDAG_SPACE
                     objWeighted_ = ObjectiveFunctionBase::Evaluate(dagTasks, tasksInfo, startTimeVector_, scheduleOptions);
                 EndTimer(__FUNCTION__);
             }
+
+            IterationStatus(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const ScheduleOptions &scheduleOptions, VectorDynamic startTimeVector, std::vector<uint> processorJobVec, bool schedulable) : schedulable_(schedulable), startTimeVector_(startTimeVector)
+            {
+                BeginTimer(__FUNCTION__);
+                if (!schedulable_)
+                    objWeighted_ = 1e9;
+                else
+                    objWeighted_ = ObjectiveFunctionBase::Evaluate(dagTasks, tasksInfo, startTimeVector_, scheduleOptions);
+                EndTimer(__FUNCTION__);
+            }
         };
 
         template <typename OrderScheduler, typename ObjectiveFunctionBase>

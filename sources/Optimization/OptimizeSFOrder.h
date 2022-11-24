@@ -87,7 +87,6 @@ namespace OrderOptDAG_SPACE
                         break;
                 }
 
-                // TODO: optimize the following?
                 std::vector<uint> processorJobVec;
                 auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef, processorJobVec);
                 ScheduleResult scheduleRes{jobOrderRef, statusPrev.startTimeVector_, statusPrev.schedulable_, ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, statusPrev.startTimeVector_, scheduleOptions), processorJobVec};
@@ -193,16 +192,20 @@ namespace OrderOptDAG_SPACE
             // TODO: should jobOrderCurrForFinish be const?
             SFOrderStatus UpdateStatus(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobStartFinishInstActiveRange, LLint finishP)
             {
+                VectorDynamic startTimeVector;
+                std::vector<uint> processorJobVec;
                 // check whether the small job order under influence is unschedulable
                 if (SubGroupSchedulabilityCheck(jobStartFinishInstActiveRange, jobOrderRef, jobOrderCurrForFinish, finishP, dagTasks, tasksInfo, scheduleOptions.processorNum_))
                     return SFOrderStatus::Infeasible;
                 else
                 {
-                    if (SFOrderScheduling(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrderCurrForFinish)(0) == -1)
+                    startTimeVector = SFOrderScheduling(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrderCurrForFinish, processorJobVec);
+                    bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec, scheduleOptions.processorNum_);
+                    if (!schedulable)
                         return SFOrderStatus::Infeasible;
                 }
 
-                IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(dagTasks, tasksInfo, jobOrderCurrForFinish, scheduleOptions);
+                IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(dagTasks, tasksInfo, jobOrderCurrForFinish, scheduleOptions, startTimeVector, processorJobVec, true);
                 countIterationStatus++;
 
                 if (MakeProgress<OrderScheduler>(statusPrev, statusCurr))

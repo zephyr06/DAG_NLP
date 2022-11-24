@@ -93,7 +93,7 @@ namespace OrderOptDAG_SPACE
             EndTimer("WhetherStartFinishTooLong");
             return false;
         }
-        // TODO: test this function
+
         bool SubGroupSchedulabilityCheck(JobGroupRange &jobGroup, SFOrder &jobOrderRef, const SFOrder &jobOrderCurrForFinish, LLint finishP, DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, int processorNum)
         {
             if (GlobalVariablesDAGOpt::enableSmallJobGroupCheck)
