@@ -30,9 +30,7 @@ struct ProfilerData
         accum += double(duration.count()) / 1e6;
     }
 };
-
-static std::unordered_map<std::string, ProfilerData> profilerMap;
-
+extern std::unordered_map<std::string, ProfilerData> profilerMap;
 void BeginTimer(std::string funcName);
 
 void EndTimer(std::string funcName, bool print = false);

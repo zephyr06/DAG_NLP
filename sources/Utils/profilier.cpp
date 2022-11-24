@@ -1,5 +1,7 @@
 #include "sources/Utils/profilier.h"
 std::mutex mtx_profiler;
+
+std::unordered_map<std::string, ProfilerData> profilerMap;
 void BeginTimer(std::string funcName)
 {
     std::lock_guard<std::mutex> lock(mtx_profiler);
@@ -39,7 +41,7 @@ void PrintTimer()
 {
     using namespace std;
     std::cout.precision(4);
-   std::vector<TimerDataProfiler> vec;
+    std::vector<TimerDataProfiler> vec;
     double totalProfile = 0;
     std::cout << Color::green << "Total time spent is: " << profilerMap["main"].accum << " seconds" << Color::def << std::endl;
     for (auto itr = profilerMap.begin(); itr != profilerMap.end(); itr++)
