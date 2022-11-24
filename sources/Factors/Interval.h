@@ -22,16 +22,16 @@ struct Interval
                                                                coreRequire(coreRequire),
                                                                indexInSTV(i) {}
 
-    bool IfBelong(double x)
+    inline bool IfBelong(double x)
     {
         return x >= start && x <= start + length;
     }
     // whether interval x belongs to this
-    bool IfBelong(Interval x)
+    inline bool IfBelong(Interval x)
     {
         return start <= x.start && x.start + x.length <= start + length;
     }
-    void UpdateSF(double startI, double finish)
+    inline void UpdateSF(double startI, double finish)
     {
         start = startI;
         length = finish - start;

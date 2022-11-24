@@ -22,9 +22,9 @@
 
 namespace OrderOptDAG_SPACE
 {
-    // template <typename OrderScheduler>
     namespace OptimizeSF
     {
+        // extern int infeasibleCount;
 
         std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks);
         JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderRef, const TaskSetInfoDerived &tasksInfo);

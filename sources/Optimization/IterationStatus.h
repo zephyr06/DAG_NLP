@@ -20,7 +20,7 @@ namespace OrderOptDAG_SPACE
     namespace OptimizeSF
     {
 
-        static int infeasibleCount = 0;
+        extern int infeasibleCount;
 
         template <typename OrderScheduler, typename ObjectiveFunctionBase>
         class IterationStatus
@@ -48,18 +48,6 @@ namespace OrderOptDAG_SPACE
                 EndTimer(__FUNCTION__);
             }
         };
-
-        // IterationStatus &
-        // operator=(IterationStatus &status)
-        // {
-        //     processorJobVec = status.processorJobVec;
-        //     rtdaVec_ = status.rtdaVec_;
-        //     maxRtda_ = status.maxRtda_;
-        //     schedulable_ = status.schedulable_;
-        //     sfVec_ = status.sfVec_;
-        //     objWeighted_ = status.objWeighted_;
-        //     return *this;
-        // }
 
         template <typename OrderScheduler, typename ObjectiveFunctionBase>
         bool MakeProgress(const IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusPrev, const IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusCurr)
