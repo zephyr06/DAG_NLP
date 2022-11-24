@@ -41,6 +41,33 @@ TEST_F(ScheduleDAGModelTest1, FindJobActivateRange)
     EXPECT_EQ(0, jobStartFinishInstActiveRange.minIndex);
     EXPECT_EQ(7, jobStartFinishInstActiveRange.maxIndex);
 }
+
+TEST_F(ScheduleDAGModelTest1, WhetherStartFinishTooLong)
+{
+    startTimeVector << 0, 10, 1, 3;
+    sfOrder = SFOrder(tasksInfo, startTimeVector);
+    sfOrder.print();
+    JobCEC jobRelocate(0, 0);
+    sfOrder.RemoveJob(jobRelocate);
+    LLint startP = 0;
+    sfOrder.InsertStart(jobRelocate, startP);
+    double accumLength = 0;
+
+    LLint finishP = 1;
+    EXPECT_FALSE(WhetherStartFinishTooLong(accumLength, jobRelocate, finishP, tasksInfo, sfOrder, startP));
+
+    finishP = 2;
+    EXPECT_FALSE(WhetherStartFinishTooLong(accumLength, jobRelocate, finishP, tasksInfo, sfOrder, startP));
+
+    finishP = 3;
+    EXPECT_TRUE(WhetherStartFinishTooLong(accumLength, jobRelocate, finishP, tasksInfo, sfOrder, startP));
+
+    finishP = 4;
+    EXPECT_TRUE(WhetherStartFinishTooLong(accumLength, jobRelocate, finishP, tasksInfo, sfOrder, startP));
+
+    finishP = 7;
+    EXPECT_TRUE(WhetherStartFinishTooLong(accumLength, jobRelocate, finishP, tasksInfo, sfOrder, startP));
+}
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
