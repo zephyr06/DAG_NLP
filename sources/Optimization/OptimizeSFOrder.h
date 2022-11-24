@@ -179,6 +179,7 @@ namespace OrderOptDAG_SPACE
                         else
                         {
                             jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
+                            jobOrderCurrForFinish.whetherSFMapNeedUpdate = false;
                             // break;
                         }
                     }

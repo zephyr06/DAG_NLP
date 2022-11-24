@@ -43,10 +43,10 @@ namespace OrderOptDAG_SPACE
             SFPair() : startInstanceIndex(-1), finishInstanceIndex(-1) {}
         };
         std::unordered_map<JobCEC, SFPair> jobSFMap_;
-        bool whetherSFMapNeedUpdate;
 
     public:
         std::vector<TimeInstance> instanceOrder_;
+        bool whetherSFMapNeedUpdate;
         SFOrder() {}
 
         // O(n log(n))

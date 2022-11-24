@@ -82,7 +82,7 @@ namespace OrderOptDAG_SPACE
             if (finishP >= 1 && finishP <= jobOrderCurrForStart.size())
             {
                 TimeInstance jobPrevInsertInst = jobOrderCurrForStart.at(finishP - 1);
-                if (jobPrevInsertInst.type == 'f') // && jobOrderCurrForStart.GetJobStartInstancePosition(jobPrevInsertInst.job) > startP
+                if (jobPrevInsertInst.type == 'f' && jobOrderCurrForStart.GetJobStartInstancePosition(jobPrevInsertInst.job) > startP) //
                     accumLengthMin += tasksInfo.tasks[jobPrevInsertInst.job.taskId].executionTime;
             }
             if (accumLengthMin >= tasksInfo.tasks[jobRelocate.taskId].executionTime)
