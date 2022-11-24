@@ -125,6 +125,7 @@ namespace GlobalVariablesDAGOpt
     const double kCplexInequalityThreshold = (double)ConfigParameters["kCplexInequalityThreshold"];
 
     const int doScheduleOptimization = (int)ConfigParameters["doScheduleOptimization"];
+    // TODO: figure out where this variable is used, clean related code
     int considerSensorFusion = (int)ConfigParameters["considerSensorFusion"]; // previous code heavily depended on its value, but we must treat it as a const int in the future
     const int doScheduleOptimizationOnlyOnce = (int)ConfigParameters["doScheduleOptimizationOnlyOnce"];
     const int BatchTestOnlyOneMethod = (int)ConfigParameters["BatchTestOnlyOneMethod"];
