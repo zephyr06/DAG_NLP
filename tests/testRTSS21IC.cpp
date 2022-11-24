@@ -1,8 +1,15 @@
 #include <CppUnitLite/TestHarness.h>
 #include "sources/Utils/testMy.h"
 #include "sources/Baseline/RTSS21IC.h"
-using namespace gtsam;
-using namespace GlobalVariablesDAGOpt;
+using namespace gtsam;using namespace GlobalVariablesDAGOpt;
+TEST(DAG_Optimize_schedule, v1)
+{
+    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + "test_n5_v17" + ".csv", "orig");
+    auto sth = OrderOptDAG_SPACE::ScheduleRTSS21IC(dagTasks, 1000, 1000);
+    EXPECT(sth.schedulable_);
+    sth = OrderOptDAG_SPACE::ScheduleRTSS21IC(dagTasks, 10, 10);
+    EXPECT(!sth.schedulable_);
+}
 
 TEST(SF, error_v1)
 {
@@ -28,7 +35,7 @@ TEST(SF, error_v1)
         RTSS21IC_NLP::MappingDataStruct m{i, 0};
         mapIndex[i] = m;
     }
-    std::vector<bool> maskForEliminate(tasksInfo.variableDimension, false);
+   std::vector<bool> maskForEliminate(tasksInfo.variableDimension, false);
     auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
     RTSS21IC_NLP::DAG_SPACE::SensorFusion_ConstraintFactor factor(key, dagTasks, tasksInfo.sizeOfVariables,
                                                                   errorDimensionSF, sensorFusionTolerance,
@@ -42,6 +49,7 @@ TEST(SF, error_v1)
 
 TEST(SF, error_v2)
 {
+
     using namespace OrderOptDAG_SPACE;
     using namespace RegularTaskSystem;
     RTSS21IC_NLP::freshTol = 0;
@@ -62,7 +70,7 @@ TEST(SF, error_v2)
         RTSS21IC_NLP::MappingDataStruct m{i, 0};
         mapIndex[i] = m;
     }
-    std::vector<bool> maskForEliminate(tasksInfo.variableDimension, false);
+   std::vector<bool> maskForEliminate(tasksInfo.variableDimension, false);
     auto model = noiseModel::Isotropic::Sigma(errorDimensionSF, noiseModelSigma);
     RTSS21IC_NLP::DAG_SPACE::SensorFusion_ConstraintFactor factor(key, dagTasks, tasksInfo.sizeOfVariables,
                                                                   errorDimensionSF, sensorFusionTolerance,
@@ -73,16 +81,6 @@ TEST(SF, error_v2)
     VectorDynamic actual = factor.f(initial);
     EXPECT(assert_equal(expect, actual));
 }
-
-TEST(DAG_Optimize_schedule, v1)
-{
-    OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(PROJECT_PATH + "TaskData/" + "test_n5_v17" + ".csv", "orig");
-    auto sth = OrderOptDAG_SPACE::ScheduleRTSS21IC(dagTasks, 1000, 1000);
-    EXPECT(sth.schedulable_);
-    // sth = OrderOptDAG_SPACE::ScheduleRTSS21IC(dagTasks, 10, 10);
-    // EXPECT(!sth.schedulable_);
-}
-
 int main()
 {
     TestResult tr;

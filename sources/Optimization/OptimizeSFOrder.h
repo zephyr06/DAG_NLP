@@ -157,7 +157,7 @@ namespace OrderOptDAG_SPACE
                         if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart, startP))
                             break;
 
-                        SFOrder jobOrderCurrForFinish = jobOrderCurrForStart;
+                        SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart;
                         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
                         SFOrderStatus sfOrderStatus = UpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, finishP);

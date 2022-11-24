@@ -69,7 +69,7 @@ kVerucchiCoreCost: 0.0
 #*************************************************************
 #*************************************************************
 # Wang RTSS21IC_NLP settings
-kWangRtss21IcNlpTimeLimit: 1 # seconds, -1 means unlimited time
+kWangRtss21IcNlpTimeLimit: 100 # seconds, -1 means unlimited time
 
 #*************************************************************
 

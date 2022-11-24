@@ -11,7 +11,6 @@ TEST(average_performance, v1)
     std::vector<OrderOptDAG_SPACE::BaselineMethods> baselineMethods = {OrderOptDAG_SPACE::InitialMethod, OrderOptDAG_SPACE::TOM_Fast};
     std::vector<BatchResult> batchResVec = OrderOptDAG_SPACE::BatchOptimizeOrder(baselineMethods, dataSetFolder);
     EXPECT_THAT(batchResVec[BaselineMethods::TOM_Fast].performance, testing::Le(18744.6));
-    // EXPECT_EQ(1.0, batchResVec[BaselineMethods::TOM_Fast].schedulableRatio);
     EXPECT_DOUBLE_EQ(1.0, batchResVec[BaselineMethods::TOM_Fast].schedulableRatio);
 }
 
