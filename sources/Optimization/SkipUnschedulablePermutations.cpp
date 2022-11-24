@@ -78,14 +78,19 @@ namespace OrderOptDAG_SPACE
 
         bool WhetherStartFinishTooLong(double &accumLengthMin, const JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrderCurrForStart, LLint startP)
         {
+            BeginTimer("WhetherStartFinishTooLong");
             if (finishP >= 1 && finishP <= jobOrderCurrForStart.size())
             {
                 TimeInstance jobPrevInsertInst = jobOrderCurrForStart.at(finishP - 1);
-                if (jobPrevInsertInst.type == 'f' && jobOrderCurrForStart.GetJobStartInstancePosition(jobPrevInsertInst.job) > startP)
+                if (jobPrevInsertInst.type == 'f') // && jobOrderCurrForStart.GetJobStartInstancePosition(jobPrevInsertInst.job) > startP
                     accumLengthMin += tasksInfo.tasks[jobPrevInsertInst.job.taskId].executionTime;
             }
             if (accumLengthMin >= tasksInfo.tasks[jobRelocate.taskId].executionTime)
+            {
+                EndTimer("WhetherStartFinishTooLong");
                 return true;
+            }
+            EndTimer("WhetherStartFinishTooLong");
             return false;
         }
         // TODO: test this function

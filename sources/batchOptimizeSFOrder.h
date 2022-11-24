@@ -38,7 +38,7 @@ namespace OrderOptDAG_SPACE
             std::string delimiter = "-";
             if (file.find("Res") != std::string::npos)
             {
-                std::string path = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/dagTasks/" + file;
+                std::string path = dataSetFolder + file;
                 if (remove(path.c_str()) != 0)
                 {
                     perror("Error deleting file!");
