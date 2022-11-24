@@ -184,13 +184,11 @@ namespace OrderOptDAG_SPACE
         return initial;
     }
 
-    // TODO(Dong): this function doesn't depend on dagTasks but only tasksInfo (const TaskSet &tasks = tasksInfo.tasks;), so probably remove it?
-    VectorDynamic SFOrderScheduling(const DAG_Model &dagTasks,
+    VectorDynamic SFOrderScheduling(const TaskSet &tasks,
                                     const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder,
                                     boost::optional<std::vector<uint> &> processorIdVec)
     {
         BeginTimer(__FUNCTION__);
-        const TaskSet &tasks = dagTasks.tasks;
         const std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
 
         VectorDynamic startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);

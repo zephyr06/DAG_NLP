@@ -100,7 +100,7 @@ namespace OrderOptDAG_SPACE
     }
 
     std::unordered_map<JobCEC, std::vector<JobCEC>> GetSensorMapFromSingleJob(
-        const TaskSetInfoDerived &tasksInfo, int task_id, TaskSet &precede_tasks, const VectorDynamic &x)
+        const TaskSetInfoDerived &tasksInfo, const int task_id, const TaskSet &precede_tasks, const VectorDynamic &x)
     {
         std::unordered_map<JobCEC, std::vector<JobCEC>> sensor_map;
 

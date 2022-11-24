@@ -11,131 +11,78 @@
 namespace OrderOptDAG_SPACE
 {
     // function Optimize() will optimize RTDA
-    void ScheduleOptimizer::Optimize(DAG_Model &dagTasks, ScheduleResult &result)
+    void ScheduleOptimizer::Optimize(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec)
     {
         // new environment, model, variables and solver
         env_ = IloEnv();
         model_ = IloModel(env_);
-        cplex_solver_ = IloCplex(env_);
-        p_dagTasks_ = nullptr;
-        cplex_solver_.setOut(env_.getNullStream());
+        cplexSolver_ = IloCplex(env_);
+        cplexSolver_.setOut(env_.getNullStream());
 
-        setScheduleResult(result);
-        setDagTasks(dagTasks);
-        TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+        setInitialStartTimeVector(initialStartTimeVector);
+        setOptimizedStartTimeVector(initialStartTimeVector);
+        setProcessorJobVec(processorJobVec);
+        TaskSetInfoDerived tasksInfo(dagTasks_.tasks);
         setTasksInfo(tasksInfo);
         AddVariables();
         AddDBFConstraints();
         AddDDLConstraints();
-        if (GlobalVariablesDAGOpt::considerSensorFusion)
-        {
-            AddSensorFusionConstraints();
-        }
-        AddObjectives(); // will also add cause effective chain constraints
+        AddObjectives();
 
-        cplex_solver_.extract(model_);
-        bool found_feasible_solution = cplex_solver_.solve();
+        cplexSolver_.extract(model_);
+        bool found_feasible_solution = cplexSolver_.solve();
 
-        result_after_optimization_ = result_to_be_optimized_;
-        IloNumArray values_optimized(env_, num_variables_);
+        IloNumArray values_optimized(env_, numVariables_);
         if (found_feasible_solution)
         {
-            auto status = cplex_solver_.getStatus();
-            cplex_solver_.getValues(var_array_, values_optimized);
+            auto status = cplexSolver_.getStatus();
+            cplexSolver_.getValues(varArray_, values_optimized);
             if (GlobalVariablesDAGOpt::debugMode)
             {
                 std::cout << "Values are :" << values_optimized << "\n";
-                std::cout << status << " solution found: " << cplex_solver_.getObjValue() << "\n";
+                std::cout << status << " solution found: " << cplexSolver_.getObjValue() << "\n";
             }
-            double optimized_obj = cplex_solver_.getObjValue();
-            if (optimized_obj < result_to_be_optimized_.obj_)
-            {
-                result_after_optimization_.obj_ = optimized_obj;
-                UpdateOptimizedResult(values_optimized);
-            }
+
+            // TODO: need to find a way to pass the initial obj (the obj before optimization)
+            // right now will update the optimized start time vec no matter whether find a better obj or not
+
+            // double optimized_obj = cplexSolver_.getObjValue();
+            // if (optimized_obj < result_to_be_optimized_.obj_)
+            // {
+            //     result_after_optimization_.obj_ = optimized_obj;
+            //     UpdateOptimizedStartTimeVector(values_optimized);
+            // }
+
+            UpdateOptimizedStartTimeVector(values_optimized);
         }
 
         // release memory
-        cplex_solver_.end();
-        var_array_.end();
+        cplexSolver_.end();
+        varArray_.end();
         model_.end();
         env_.end();
     }
 
-    // function OptimizeObjWeighted() will optimize weighted objectives
-    // TODO(Dong): the primary job of ScheduleOptimizer is taking a job order and return a startTimeVector, constructing a ScheduleResult struct is confusing for other users because they don't know how to construct it properly
-    void ScheduleOptimizer::OptimizeObjWeighted(DAG_Model &dagTasks, ScheduleResult &result)
+    VectorDynamic ScheduleOptimizer::getOptimizedStartTimeVector()
     {
-        // new environment, model, variables and solver
-        env_ = IloEnv();
-        model_ = IloModel(env_);
-        cplex_solver_ = IloCplex(env_);
-        p_dagTasks_ = nullptr;
-        cplex_solver_.setOut(env_.getNullStream());
-
-        setScheduleResult(result);
-        setDagTasks(dagTasks);
-        TaskSetInfoDerived tasksInfo(dagTasks.tasks);
-        setTasksInfo(tasksInfo);
-        AddVariables();
-        AddDBFConstraints();
-        AddDDLConstraints();
-        // cause effective chain constraints will be added together with objectives
-        // Sensor Fusion is added as part of weighted objs
-        AddWeightedObjectives();
-
-        BeginTimer("LP_Solve");
-        cplex_solver_.extract(model_);
-        bool found_feasible_solution = cplex_solver_.solve();
-        EndTimer("LP_Solve");
-
-        result_after_optimization_ = result_to_be_optimized_;
-        IloNumArray values_optimized(env_, num_variables_);
-        if (found_feasible_solution)
-        {
-            auto status = cplex_solver_.getStatus();
-            cplex_solver_.getValues(var_array_, values_optimized);
-            if (GlobalVariablesDAGOpt::debugMode)
-            {
-                std::cout << "Values are :" << values_optimized << "\n";
-                std::cout << status << " solution found: " << cplex_solver_.getObjValue() << "\n";
-            }
-            double optimized_obj_weighted = cplex_solver_.getObjValue();
-            if (optimized_obj_weighted < result_to_be_optimized_.objWeighted_)
-            {
-                result_after_optimization_.objWeighted_ = optimized_obj_weighted;
-                UpdateOptimizedResult(values_optimized);
-            }
-        }
-
-        // release memory
-        cplex_solver_.end();
-        var_array_.end();
-        model_.end();
-        env_.end();
-    }
-
-    // TODO(Dong): similar as above, it should not return ScheduleResult unless there's a good reason
-    ScheduleResult ScheduleOptimizer::getOptimizedResult()
-    {
-        return result_after_optimization_;
+        return optimizedStartTimeVector_;
     }
 
     void ScheduleOptimizer::AddVariables()
     {
-        num_variables_ = tasksInfo_.variableDimension;
-        var_array_ = IloNumVarArray(env_, num_variables_, 0, tasksInfo_.hyperPeriod, IloNumVar::Float);
+        numVariables_ = tasksInfo_.variableDimension;
+        varArray_ = IloNumVarArray(env_, numVariables_, 0, tasksInfo_.hyperPeriod, IloNumVar::Float);
     }
 
     void ScheduleOptimizer::AddDBFConstraints()
     {
         std::unordered_map<int, std::vector<JobCEC>> processor_job_map;
         int processor_id = 0;
-        for (int i = 0; i < num_variables_; i++)
+        for (int i = 0; i < numVariables_; i++)
         {
-            if (!result_to_be_optimized_.processorJobVec_.empty())
+            if (!processorJobVec_.empty())
             {
-                processor_id = result_to_be_optimized_.processorJobVec_[i];
+                processor_id = processorJobVec_[i];
             }
             auto job = GetJobCECFromUniqueId(i, tasksInfo_);
             if (processor_job_map.count(processor_id) == 0)
@@ -148,8 +95,8 @@ namespace OrderOptDAG_SPACE
         {
             std::sort(pair.second.begin(), pair.second.end(),
                       [this](auto a, auto b) -> bool
-                      { return GetStartTime(a, result_to_be_optimized_.startTimeVector_, tasksInfo_) <
-                               GetStartTime(b, result_to_be_optimized_.startTimeVector_, tasksInfo_); });
+                      { return GetStartTime(a, initialStartTimeVector_, tasksInfo_) <
+                               GetStartTime(b, initialStartTimeVector_, tasksInfo_); });
             if (pair.second.size() > 1)
             {
                 int pre_job_id = GetJobUniqueId(pair.second[0], tasksInfo_);
@@ -157,7 +104,7 @@ namespace OrderOptDAG_SPACE
                 for (auto j = 1u; j < pair.second.size(); j++)
                 {
                     cur_job_id = GetJobUniqueId(pair.second[j], tasksInfo_);
-                    model_.add(var_array_[pre_job_id] + GetExecutionTime(pre_job_id, tasksInfo_) <= var_array_[cur_job_id]);
+                    model_.add(varArray_[pre_job_id] + GetExecutionTime(pre_job_id, tasksInfo_) <= varArray_[cur_job_id]);
                     pre_job_id = cur_job_id;
                 }
             }
@@ -166,18 +113,18 @@ namespace OrderOptDAG_SPACE
 
     void ScheduleOptimizer::AddDDLConstraints()
     {
-        for (int i = 0; i < num_variables_; i++)
+        for (int i = 0; i < numVariables_; i++)
         {
-            model_.add(var_array_[i] >= GetActivationTime(GetJobCECFromUniqueId(i, tasksInfo_), tasksInfo_));
-            model_.add(var_array_[i] + GetExecutionTime(i, tasksInfo_) <= GetDeadline(GetJobCECFromUniqueId(i, tasksInfo_), tasksInfo_));
+            model_.add(varArray_[i] >= GetActivationTime(GetJobCECFromUniqueId(i, tasksInfo_), tasksInfo_));
+            model_.add(varArray_[i] + GetExecutionTime(i, tasksInfo_) <= GetDeadline(GetJobCECFromUniqueId(i, tasksInfo_), tasksInfo_));
         }
     }
 
     void ScheduleOptimizer::AddCauseEffectiveChainConstraints()
     {
-        for (auto chain : p_dagTasks_->chains_)
+        for (auto chain : dagTasks_.chains_)
         {
-            auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, result_to_be_optimized_.startTimeVector_);
+            auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, initialStartTimeVector_);
             AddCauseEffectiveChainConstraintsFromReactMap(react_chain_map);
         }
     }
@@ -210,13 +157,13 @@ namespace OrderOptDAG_SPACE
     void ScheduleOptimizer::AddSensorFusionConstraints()
     {
         IloNumVar max_sensor_fusion_interval = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, "MaxSensorFusionInterval");
-        for (auto itr = p_dagTasks_->mapPrev.begin(); itr != p_dagTasks_->mapPrev.end(); itr++)
+        for (auto itr = dagTasks_.mapPrev.begin(); itr != dagTasks_.mapPrev.end(); itr++)
         {
             if (itr->second.size() < 2)
             {
                 continue;
             }
-            std::unordered_map<JobCEC, std::vector<JobCEC>> sensor_map = GetSensorMapFromSingleJob(tasksInfo_, itr->first, itr->second, result_to_be_optimized_.startTimeVector_);
+            std::unordered_map<JobCEC, std::vector<JobCEC>> sensor_map = GetSensorMapFromSingleJob(tasksInfo_, itr->first, itr->second, initialStartTimeVector_);
 
             for (auto pair : sensor_map)
             {
@@ -247,13 +194,30 @@ namespace OrderOptDAG_SPACE
 
     void ScheduleOptimizer::AddObjectives()
     {
+        if (!useWeightedObj_)
+        {
+            if (GlobalVariablesDAGOpt::considerSensorFusion)
+            {
+                AddSensorFusionConstraints();
+            }
+            AddNormalObjectives(); // will also add cause effective chain constraints
+        }
+        else
+        {
+            // cause effective chain constraints will be added together with objectives
+            // Sensor Fusion is added as part of weighted objs
+            AddWeightedObjectives();
+        }
+    }
+    void ScheduleOptimizer::AddNormalObjectives()
+    {
         IloExpr rtda_expression(env_);
         std::stringstream var_name;
         int chain_count = 0;
         LLint hyper_period = tasksInfo_.hyperPeriod;
         const TaskSet &tasks = tasksInfo_.tasks;
 
-        for (auto chain : p_dagTasks_->chains_)
+        for (auto chain : dagTasks_.chains_)
         {
             var_name << "Chain_" << chain_count << "_RT";
             auto theta_rt = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, var_name.str().c_str());
@@ -261,7 +225,7 @@ namespace OrderOptDAG_SPACE
             var_name << "Chain_" << chain_count << "_DA";
             auto theta_da = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, var_name.str().c_str());
             var_name.str("");
-            auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, result_to_be_optimized_.startTimeVector_);
+            auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, initialStartTimeVector_);
 
             // add cause effective chain constraints together with objectives to save time
             AddCauseEffectiveChainConstraintsFromReactMap(react_chain_map);
@@ -300,7 +264,7 @@ namespace OrderOptDAG_SPACE
         IloExpr overall_sensor_fusion_expr(env_);
 
         // add obj and constraints related to RTDA
-        for (auto chain : p_dagTasks_->chains_)
+        for (auto chain : dagTasks_.chains_)
         {
             var_name << "Chain_" << chain_count << "_RT";
             auto theta_rt = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, var_name.str().c_str());
@@ -308,7 +272,7 @@ namespace OrderOptDAG_SPACE
             var_name << "Chain_" << chain_count << "_DA";
             auto theta_da = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, var_name.str().c_str());
             var_name.str("");
-            auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, result_to_be_optimized_.startTimeVector_);
+            auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, initialStartTimeVector_);
 
             // add cause effective chain constraints together with objectives to save time
             AddCauseEffectiveChainConstraintsFromReactMap(react_chain_map);
@@ -365,13 +329,13 @@ namespace OrderOptDAG_SPACE
         {
             IloNumVar max_sensor_fusion_interval = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, "MaxSensorFusionInterval");
             LLint sensor_fusion_interval_count = 0;
-            for (auto itr = p_dagTasks_->mapPrev.begin(); itr != p_dagTasks_->mapPrev.end(); itr++)
+            for (auto itr = dagTasks_.mapPrev.begin(); itr != dagTasks_.mapPrev.end(); itr++)
             {
                 if (itr->second.size() < 2)
                 {
                     continue;
                 }
-                std::unordered_map<JobCEC, std::vector<JobCEC>> sensor_map = GetSensorMapFromSingleJob(tasksInfo_, itr->first, itr->second, result_to_be_optimized_.startTimeVector_);
+                std::unordered_map<JobCEC, std::vector<JobCEC>> sensor_map = GetSensorMapFromSingleJob(tasksInfo_, itr->first, itr->second, initialStartTimeVector_);
 
                 for (auto pair : sensor_map)
                 {
@@ -424,7 +388,7 @@ namespace OrderOptDAG_SPACE
             CoutError("GetStartTime receives invalid jobCEC!");
         }
         int jobNumInHyperPeriod = tasksInfo_.hyperPeriod / tasksInfo_.tasks[jobCEC.taskId].period;
-        exp += var_array_[GetJobUniqueId(jobCEC, tasksInfo_)];
+        exp += varArray_[GetJobUniqueId(jobCEC, tasksInfo_)];
         exp += jobCEC.jobId / jobNumInHyperPeriod * tasksInfo_.hyperPeriod;
         return exp;
     }
@@ -434,32 +398,30 @@ namespace OrderOptDAG_SPACE
         return GetStartTimeExpression(jobCEC) + GetExecutionTime(jobCEC, tasksInfo_);
     }
 
-    void ScheduleOptimizer::UpdateOptimizedResult(IloNumArray &values_optimized)
+    void ScheduleOptimizer::UpdateOptimizedStartTimeVector(IloNumArray &values_optimized)
     {
-        VectorDynamic start_time(num_variables_);
-        for (int i = 0; i < num_variables_; i++)
+        for (int i = 0; i < numVariables_; i++)
         {
-            start_time(i) = values_optimized[i];
+            optimizedStartTimeVector_(i) = values_optimized[i];
         }
-
-        // JobOrderMultiCore jobOrderRef(tasksInfo_, start_time);
-        SFOrder sfOrder(tasksInfo_, start_time);
-        result_after_optimization_.startTimeVector_ = start_time;
-        // result_after_optimization_.jobOrder_ = jobOrderRef;
-        // result_after_optimization_.sfOrder_ = sfOrder;
     }
 
-    void ScheduleOptimizer::setScheduleResult(ScheduleResult &res)
+    inline void ScheduleOptimizer::setInitialStartTimeVector(const VectorDynamic &initialStartTimeVector)
     {
-        result_to_be_optimized_ = res;
+        initialStartTimeVector_ = initialStartTimeVector;
     }
 
-    inline void ScheduleOptimizer::setDagTasks(DAG_Model &dagTasks)
+    inline void ScheduleOptimizer::setOptimizedStartTimeVector(const VectorDynamic &optimizedStartTimeVector)
     {
-        p_dagTasks_ = &dagTasks;
+        optimizedStartTimeVector_ = optimizedStartTimeVector;
     }
 
-    void ScheduleOptimizer::setTasksInfo(TaskSetInfoDerived &info)
+    inline void ScheduleOptimizer::setProcessorJobVec(const std::vector<uint> &processorJobVec)
+    {
+        processorJobVec_ = processorJobVec;
+    }
+
+    inline void ScheduleOptimizer::setTasksInfo(const TaskSetInfoDerived &info)
     {
         tasksInfo_ = info;
     }

@@ -197,7 +197,7 @@ namespace OrderOptDAG_SPACE
                     return SFOrderStatus::Infeasible;
                 else
                 {
-                    if (SFOrderScheduling(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrderCurrForFinish)(0) == -1)
+                    if (SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrderCurrForFinish)(0) == -1)
                         return SFOrderStatus::Infeasible;
                 }
 
@@ -224,39 +224,40 @@ namespace OrderOptDAG_SPACE
             const SFOrder &jobOrderRef = dagScheduleOptimizer.GetJobOrder();
             ScheduleResult scheduleRes = dagScheduleOptimizer.Optimize();
 
+            // TODO(Dong) : optimize this part
             // std::vector<uint> processorJobVec;
             // auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef, processorJobVec);
 
-            if (scheduleOptions.doScheduleOptimization_)
-            {
-                if (!scheduleOptions.considerSensorFusion_ || !scheduleRes.schedulable_)
-                {
-                    ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
-                    ScheduleResult result_after_optimization;
-                    if (scheduleOptions.considerSensorFusion_)
-                    {
-                        schedule_optimizer.OptimizeObjWeighted(dagTasks, scheduleRes);
-                        result_after_optimization = schedule_optimizer.getOptimizedResult();
-                        if (result_after_optimization.objWeighted_ < scheduleRes.objWeighted_)
-                        {
-                            scheduleRes = result_after_optimization;
-                            std::vector<RTDA> rtda_vector;
-                            for (auto chain : dagTasks.chains_)
-                            {
-                                auto res = GetRTDAFromSingleJob(tasksInfo, chain, scheduleRes.startTimeVector_);
-                                RTDA resM = GetMaxRTDA(res);
-                                rtda_vector.push_back(resM);
-                            }
-                            scheduleRes.obj_ = ObjRTDA(rtda_vector);
-                        }
-                    }
-                    else
-                    {
-                        schedule_optimizer.Optimize(dagTasks, scheduleRes);
-                        scheduleRes = schedule_optimizer.getOptimizedResult();
-                    }
-                }
-            }
+            // if (scheduleOptions.doScheduleOptimization_)
+            // {
+            //     if (!scheduleOptions.considerSensorFusion_ || !scheduleRes.schedulable_)
+            //     {
+            //         ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
+            //         ScheduleResult result_after_optimization;
+            //         if (scheduleOptions.considerSensorFusion_)
+            //         {
+            //             schedule_optimizer.OptimizeObjWeighted(dagTasks, scheduleRes);
+            //             result_after_optimization = schedule_optimizer.getOptimizedResult();
+            //             if (result_after_optimization.objWeighted_ < scheduleRes.objWeighted_)
+            //             {
+            //                 scheduleRes = result_after_optimization;
+            //                 std::vector<RTDA> rtda_vector;
+            //                 for (auto chain : dagTasks.chains_)
+            //                 {
+            //                     auto res = GetRTDAFromSingleJob(tasksInfo, chain, scheduleRes.startTimeVector_);
+            //                     RTDA resM = GetMaxRTDA(res);
+            //                     rtda_vector.push_back(resM);
+            //                 }
+            //                 scheduleRes.obj_ = ObjRTDA(rtda_vector);
+            //             }
+            //         }
+            //         else
+            //         {
+            //             schedule_optimizer.Optimize(dagTasks, scheduleRes);
+            //             scheduleRes = schedule_optimizer.getOptimizedResult();
+            //         }
+            //     }
+            // }
 
             scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, scheduleOptions.processorNum_, GlobalVariablesDAGOpt::sensorFusionTolerance, GlobalVariablesDAGOpt::freshTol);
             std::cout << "Outermost while loop count: " << dagScheduleOptimizer.countOutermostWhileLoop << std::endl;

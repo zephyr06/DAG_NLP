@@ -204,7 +204,7 @@ namespace OrderOptDAG_SPACE
                                       //   const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,
                                       boost::optional<std::vector<uint> &> processorIdVec = boost::none);
 
-    VectorDynamic SFOrderScheduling(const DAG_Model &dagTasks,
+    VectorDynamic SFOrderScheduling(const TaskSet &tasks,
                                     const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder,
                                     boost::optional<std::vector<uint> &> processorIdVec = boost::none);
 } // namespace OrderOptDAG_SPACE
