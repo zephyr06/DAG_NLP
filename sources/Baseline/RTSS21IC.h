@@ -1,6 +1,6 @@
 #pragma once
 
-#include "sources/Optimization/OptimizeWithElimination.h"
+#include "sources/Baseline/OptimizeWithElimination.h"
 #include "sources/Optimization/ScheduleSimulation.h"
 #include "sources/Utils/OptimizeOrderUtils.h"
 

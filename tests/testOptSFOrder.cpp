@@ -41,6 +41,11 @@ TEST_F(ScheduleDAGModelTest1, FindJobActivateRange)
     EXPECT_EQ(0, jobStartFinishInstActiveRange.minIndex);
     EXPECT_EQ(7, jobStartFinishInstActiveRange.maxIndex);
 }
+
+TEST_F(ScheduleDAGModelTest1, initialEstimatePool)
+{
+    ;
+}
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
