@@ -127,7 +127,7 @@ namespace OrderOptDAG_SPACE
                     std::cout << "Schedulable? " << res.schedulable_ << std::endl;
                     std::cout << "Objective: " << res.obj_ << std::endl;
 
-                    if (GlobalVariablesDAGOpt::considerSensorFusion == 0 && res.schedulable_ == false)
+                    if (ObjectiveFunctionBase::type_trait == "RTDAExperimentObj" && res.schedulable_ == false)
                     {
                         if (objsAll[0].size() == 0)
                             CoutError("Initial method is not feasible in " + file);
