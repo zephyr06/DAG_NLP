@@ -4,6 +4,9 @@ namespace OrderOptDAG_SPACE
 {
     namespace OptimizeSF
     {
+        const std::string ObjectiveFunctionBase::type_trait("ObjectiveFunctionBase");
+        const std::string RTDAExperimentObj::type_trait("RTDAExperimentObj");
+        const std::string RTSS21ICObj::type_trait("RTSS21ICObj");
 
         std::vector<std::vector<RTDA>> GetRTDAFromAllChains(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector)
         {

@@ -111,6 +111,12 @@ TEST(Obj, RTDA_v1)
     scheduleOptions.freshTol_ = 100;
     EXPECT_EQ(RTDAExperimentObj::Evaluate(dagTasks, tasksInfo, initial, scheduleOptions), 32.5);
 }
+
+TEST(ObjectiveFunctionBase, type)
+{
+    EXPECT_EQ("RTDAExperimentObj", RTDAExperimentObj::type_trait);
+    EXPECT_EQ("RTSS21ICObj", RTSS21ICObj::type_trait);
+}
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

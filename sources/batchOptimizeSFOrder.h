@@ -98,7 +98,7 @@ namespace OrderOptDAG_SPACE
             if (file.substr(0, file.find(delimiter)) == "dag" && file.find("Res") == std::string::npos)
             {
                 std::cout << file << std::endl;
-                std::string path = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/dagTasks/" + file;
+                std::string path = dataSetFolder + file;
                 OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(path, GlobalVariablesDAGOpt::priorityMode);
                 if (dagTasks.GetSfBound() > 0)
                     GlobalVariablesDAGOpt::sensorFusionTolerance = dagTasks.GetSfBound();
@@ -127,7 +127,7 @@ namespace OrderOptDAG_SPACE
                     std::cout << "Schedulable? " << res.schedulable_ << std::endl;
                     std::cout << "Objective: " << res.obj_ << std::endl;
 
-                    if (res.schedulable_ == false)
+                    if (GlobalVariablesDAGOpt::considerSensorFusion == 0 && res.schedulable_ == false)
                     {
                         if (objsAll[0].size() == 0)
                             CoutError("Initial method is not feasible in " + file);

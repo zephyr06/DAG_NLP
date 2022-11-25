@@ -22,6 +22,8 @@ namespace OrderOptDAG_SPACE
         class ObjectiveFunctionBase
         {
         public:
+            static const std::string type_trait;
+
             static double TrueObj(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions);
 
             static double Evaluate(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions)
@@ -34,6 +36,7 @@ namespace OrderOptDAG_SPACE
         class RTDAExperimentObj : ObjectiveFunctionBase
         {
         public:
+            static const std::string type_trait;
             static double TrueObj(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions);
 
             static double Evaluate(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions);
@@ -42,6 +45,7 @@ namespace OrderOptDAG_SPACE
         class RTSS21ICObj : ObjectiveFunctionBase
         {
         public:
+            static const std::string type_trait;
             static double Evaluate(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions);
 
             static double TrueObj(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions);
