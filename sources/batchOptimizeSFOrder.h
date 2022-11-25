@@ -152,7 +152,7 @@ namespace OrderOptDAG_SPACE
         }
 
         int n = objsAll[0].size();
-        if (n != 0)
+        if (n != 0 && ObjectiveFunctionBase::type_trait == "RTDAExperimentObj")
         {
             VariadicTable<std::string, double, double, double> vt({"Method", "Schedulable ratio", "Obj (Only used in RTDA experiment)", "TimeTaken"}, 10);
 
@@ -162,6 +162,18 @@ namespace OrderOptDAG_SPACE
             vt.addRow("TOM", Average(schedulableAll[3]), Average(objsAll[3]), Average(runTimeAll[3]));
             vt.addRow("TOM_Fast", Average(schedulableAll[4]), Average(objsAll[4]), Average(runTimeAll[4]));
             vt.addRow("TOM_FastLP", Average(schedulableAll[5]), Average(objsAll[5]), Average(runTimeAll[5]));
+            vt.print(std::cout);
+        }
+        else if (n != 0 && ObjectiveFunctionBase::type_trait == "RTSS21ICObj")
+        {
+            VariadicTable<std::string, double, double> vt({"Method", "Schedulable ratio", "TimeTaken"}, 10);
+
+            vt.addRow("Initial", Average(schedulableAll[0]), Average(runTimeAll[0]));
+            vt.addRow("Verucchi20", Average(schedulableAll[1]), Average(runTimeAll[1]));
+            vt.addRow("Wang21", Average(schedulableAll[2]), Average(runTimeAll[2]));
+            vt.addRow("TOM", Average(schedulableAll[3]), Average(runTimeAll[3]));
+            vt.addRow("TOM_Fast", Average(schedulableAll[4]), Average(runTimeAll[4]));
+            vt.addRow("TOM_FastLP", Average(schedulableAll[5]), Average(runTimeAll[5]));
             vt.print(std::cout);
         }
 
