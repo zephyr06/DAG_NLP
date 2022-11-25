@@ -10,6 +10,7 @@
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/JobCEC.h"
 #include "sources/Optimization/ScheduleOptions.h"
+#include "sources/Optimization/ScheduleOptimizer.h"
 // #include "sources/Optimization/InitialEstimate.h"
 
 namespace OrderOptDAG_SPACE
@@ -19,7 +20,7 @@ namespace OrderOptDAG_SPACE
     public:
         // jobOrder is allowed to change
         OrderScheduler() {}
-        static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder, const std::vector<uint> processorJobVe)
+        static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder, const std::vector<uint> processorJobVec)
         {
             CoutError("Never call base function!");
             return GenerateVectorDynamic1D(0);
@@ -29,31 +30,23 @@ namespace OrderOptDAG_SPACE
     class SimpleOrderScheduler : public OrderScheduler
     {
     public:
-        // processorJobVe will be assigned values
-        static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder, std::vector<uint> &processorJobVe)
+        // processorJobVec will be assigned values
+        static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder, std::vector<uint> &processorJobVec)
         {
-            return SFOrderScheduling(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVe);
+            return SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVec);
         }
     };
 
-    // TODO(Dong): make this function work
     class LPOrderScheduler : public OrderScheduler
     {
     public:
-        static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder, std::vector<uint> &processorJobVe)
-        {
-            // BeginTimer("LPOrderScheduler");
-            // ScheduleResult scheduleResBeforeOpt{jobOrder, startTimeVector_, schedulable_, ReadObj(), processorJobVec_};
-
-            // ScheduleOptimizer scheduleOptimizer = ScheduleOptimizer();
-            // scheduleOptimizer.OptimizeObjWeighted(dagTasks, scheduleResBeforeOpt);
-            // ScheduleResult resultAfterOptimization = scheduleOptimizer.getOptimizedResult();
-
-            // EndTimer("LPOrderScheduler");
-            // return resultAfterOptimization.startTimeVector_;
-
-            auto stv = SFOrderScheduling(dagTasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVe);
-            return stv;
+        static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder, std::vector<uint> &processorJobVec)
+        {            
+            ScheduleOptimizer scheduleOptimizer = ScheduleOptimizer(dagTasks);
+            auto stv = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVec);
+            scheduleOptimizer.setObjType(scheduleOptions.considerSensorFusion_);
+            scheduleOptimizer.Optimize(stv, processorJobVec);
+            return scheduleOptimizer.getOptimizedStartTimeVector();
         }
     };
 } // namespace OrderOptDAG_SPACE

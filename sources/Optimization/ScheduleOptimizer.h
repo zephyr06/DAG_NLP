@@ -17,48 +17,52 @@ namespace OrderOptDAG_SPACE
     class ScheduleOptimizer
     {
     public:
-        ScheduleOptimizer()
+        ScheduleOptimizer(const DAG_Model &dagTasks) : dagTasks_(dagTasks)
         {
             env_.end();
+            useWeightedObj_ = false;
         }
 
-        // function Optimize() will optimize RTDA
-        void Optimize(DAG_Model &dagTasks, ScheduleResult &result);
+        void Optimize(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec);
 
-        // function OptimizeObjWeighted() will optimize weighted objectives
-        // TODO(Dong): the primary job of ScheduleOptimizer is taking a job order and return a startTimeVector, constructing a ScheduleResult struct is confusing for other users because they don't know how to construct it properly
-        void OptimizeObjWeighted(DAG_Model &dagTasks, ScheduleResult &result);
+        // useWeightedObj_ will decide wheterh optimize RTDA or weighted objectives
+        inline void setObjType(bool useWeightedObj = false)
+        {
+            useWeightedObj_ = useWeightedObj;
+        }
 
-        // TODO(Dong): similar as above, it should not return ScheduleResult unless there's a good reason
-        ScheduleResult getOptimizedResult();
+        VectorDynamic getOptimizedStartTimeVector();
 
     protected:
         void AddVariables();
-
         void AddDBFConstraints();
         void AddDDLConstraints();
         void AddCauseEffectiveChainConstraints();
         void AddCauseEffectiveChainConstraintsFromReactMap(const std::unordered_map<JobCEC, std::vector<JobCEC>> &react_chain_map);
         void AddSensorFusionConstraints();
         void AddObjectives();
-        void AddWeightedObjectives();
+        void AddNormalObjectives();   // RTDA obj
+        void AddWeightedObjectives(); // weighted obj
         IloExpr GetStartTimeExpression(JobCEC &jobCEC);
         IloExpr GetFinishTimeExpression(JobCEC &jobCEC);
-        void UpdateOptimizedResult(IloNumArray &values_optimized);
-        void setScheduleResult(ScheduleResult &res);
-        inline void setDagTasks(DAG_Model &dagTasks);
-        void setTasksInfo(TaskSetInfoDerived &info);
+        void UpdateOptimizedStartTimeVector(IloNumArray &values_optimized);
+        inline void setInitialStartTimeVector(const VectorDynamic &initialStartTimeVector);
+        inline void setOptimizedStartTimeVector(const VectorDynamic &optimizedStartTimeVector);
+        inline void setProcessorJobVec(const std::vector<uint> &processorJobVec);
+        inline void setTasksInfo(const TaskSetInfoDerived &info);
 
     private:
         IloEnv env_;
         IloModel model_;
-        IloCplex cplex_solver_;
-        IloNumVarArray var_array_;
-        ScheduleResult result_to_be_optimized_;
-        ScheduleResult result_after_optimization_;
+        IloCplex cplexSolver_;
+        IloNumVarArray varArray_;
+        VectorDynamic initialStartTimeVector_;
+        VectorDynamic optimizedStartTimeVector_;
+        std::vector<uint> processorJobVec_;
         TaskSetInfoDerived tasksInfo_;
-        DAG_Model *p_dagTasks_;
-        int num_variables_;
+        const DAG_Model &dagTasks_;
+        int numVariables_;
+        bool useWeightedObj_;
     };
 } // namespace OrderOptDAG_SPACE
 #endif // OPTIMIZATION_SCHEDULE_OPTIMIZER_H_

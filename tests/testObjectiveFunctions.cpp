@@ -67,7 +67,7 @@ TEST(aaa, nonWorkConserveCase)
     initial << 0, 17, 18, 1;
     SFOrder sfOrder(tasksInfo, initial);
 
-    VectorDynamic initialSTV = SFOrderScheduling(dagTasks, tasksInfo, processorNum, sfOrder);
+    VectorDynamic initialSTV = SFOrderScheduling(dagTasks.tasks, tasksInfo, processorNum, sfOrder);
     PrintSchedule(tasksInfo, initialSTV);
     VectorDynamic expect = GenerateVectorDynamic(4);
     expect << 0, 10, 11, 1;
