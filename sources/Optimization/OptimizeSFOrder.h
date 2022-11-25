@@ -262,7 +262,12 @@ namespace OrderOptDAG_SPACE
                 }
             }
 
-            scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, scheduleOptions.processorNum_, GlobalVariablesDAGOpt::sensorFusionTolerance, GlobalVariablesDAGOpt::freshTol);
+            if (ObjectiveFunctionBase::type_trait == "RTDAExperimentObj")
+                scheduleRes.schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, scheduleOptions.processorNum_);
+            else if (ObjectiveFunctionBase::type_trait == "RTSS21ICObj")
+                scheduleRes.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, scheduleOptions.processorNum_, GlobalVariablesDAGOpt::sensorFusionTolerance, GlobalVariablesDAGOpt::freshTol);
+            else
+                scheduleRes.schedulable_ = false;
             std::cout << "Outermost while loop count: " << dagScheduleOptimizer.countOutermostWhileLoop << std::endl;
             std::cout << "Make progress count: " << dagScheduleOptimizer.countMakeProgress << std::endl;
             std::cout << Color::blue << "Candidate Iteration Status count: " << dagScheduleOptimizer.countIterationStatus << Color::def << std::endl;
