@@ -112,7 +112,7 @@ namespace OrderOptDAG_SPACE
 
                 // BeginTimer("PrevSchedulabilityCheck");
                 // bool bigFail = false;
-                // if (SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderCurrForFinish)(0) == -1)
+                // if (SFOrderScheduling(dagTasks.tasks, tasksInfo, processorNum, jobOrderCurrForFinish)(0) == -1)
                 // {
                 //     bigFail = true;
                 //     if (bigJobGroupCheck)
@@ -124,7 +124,7 @@ namespace OrderOptDAG_SPACE
 
                 SFOrder jobOrderSmall(tasksInfo, instanceOrderSmall);
 
-                bool smallFail = SFOrderScheduling(dagTasks, tasksInfo, processorNum, jobOrderSmall)(0) == -1;
+                bool smallFail = SFOrderScheduling(dagTasks.tasks, tasksInfo, processorNum, jobOrderSmall)(0) == -1;
                 // if (bigFail == false && smallFail == true)
                 // {
                 //     if (GlobalVariablesDAGOpt::debugMode == 1)

@@ -123,7 +123,7 @@ TEST(SFOrder, sched_v1)
     VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
     PrintSchedule(tasksInfo, initial);
     SFOrder sfOrder(tasksInfo, initial);
-    VectorDynamic initialSTV = SFOrderScheduling(dagTasks, tasksInfo, processorNum, sfOrder);
+    VectorDynamic initialSTV = SFOrderScheduling(dagTasks.tasks, tasksInfo, processorNum, sfOrder);
     PrintSchedule(tasksInfo, initialSTV);
 }
 TEST(SFOrder, insert_erase)
@@ -143,7 +143,7 @@ TEST(SFOrder, insert_erase)
     EXPECT_LONGS_EQUAL(4, sfOrder.size());
     sfOrder.InsertStart(j00, 2);
     sfOrder.InsertFinish(j00, 3);
-    VectorDynamic initialSTV = SFOrderScheduling(dagTasks, tasksInfo, processorNum, sfOrder);
+    VectorDynamic initialSTV = SFOrderScheduling(dagTasks.tasks, tasksInfo, processorNum, sfOrder);
     EXPECT(assert_equal(initial, initialSTV));
     EXPECT_LONGS_EQUAL(0, sfOrder.GetJobStartInstancePosition(j20));
     EXPECT_LONGS_EQUAL(1, sfOrder.GetJobFinishInstancePosition(j20));
@@ -278,7 +278,7 @@ TEST(sched, v2)
     sfOrder.print();
     std::vector<uint> processorJobVec_;
     processorJobVec_.clear();
-    VectorDynamic initialSTV = SFOrderScheduling(dagTasks, tasksInfo, processorNum, sfOrder, processorJobVec_);
+    VectorDynamic initialSTV = SFOrderScheduling(dagTasks.tasks, tasksInfo, processorNum, sfOrder, processorJobVec_);
     EXPECT(assert_equal(initial, initialSTV));
     EXPECT_LONGS_EQUAL(0, processorJobVec_[0]);
     EXPECT_LONGS_EQUAL(0, processorJobVec_[1]);
@@ -303,7 +303,7 @@ TEST(SFOrderSchedule, test1)
         TaskSetInfoDerived tasksInfo(tasks);
         VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, 2);
         SFOrder sfOrder(tasksInfo, initialSTV);
-        auto startTimeVector = SFOrderScheduling(dagTasks, tasksInfo, 2, sfOrder);
+        auto startTimeVector = SFOrderScheduling(dagTasks.tasks, tasksInfo, 2, sfOrder);
         if (GlobalVariablesDAGOpt::debugMode)
         {
             std::cout << "taskSetId is : " << taskSetId << std::endl;
@@ -345,7 +345,7 @@ TEST(SFOrder, insert_erase_v2)
     EXPECT_LONGS_EQUAL(4, sfOrder.GetJobStartInstancePosition(j00));
     EXPECT_LONGS_EQUAL(5, sfOrder.GetJobFinishInstancePosition(j00));
 
-    VectorDynamic initialSTV = SFOrderScheduling(dagTasks, tasksInfo, processorNum, sfOrder);
+    VectorDynamic initialSTV = SFOrderScheduling(dagTasks.tasks, tasksInfo, processorNum, sfOrder);
     VectorDynamic expect = initialSTV;
     expect << 4, 3, 0;
     EXPECT(assert_equal(expect, initialSTV));
@@ -443,7 +443,7 @@ TEST(SFOrder, constructor_v2)
     PrintSchedule(tasksInfo, initialSTV);
     SFOrder sfOrder(tasksInfo, initialSTV);
     sfOrder.print();
-    VectorDynamic initial2 = SFOrderScheduling(dagTasks, tasksInfo, processorNum, sfOrder);
+    VectorDynamic initial2 = SFOrderScheduling(dagTasks.tasks, tasksInfo, processorNum, sfOrder);
     PrintSchedule(tasksInfo, initial2);
     EXPECT(gtsam::assert_equal(initialSTV, initial2));
 }
