@@ -84,7 +84,7 @@ namespace OrderOptDAG_SPACE
         busy[processorId] = true;
     }
 
-    VectorDynamic SimulateFixedPrioritySched(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, LLint timeInitial)
+ VectorDynamic SimulateFixedPrioritySched(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, LLint timeInitial)
     {
         const TaskSet &tasks = dagTasks.tasks;
         VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
