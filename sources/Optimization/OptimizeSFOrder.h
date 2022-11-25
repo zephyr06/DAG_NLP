@@ -29,16 +29,16 @@ namespace OrderOptDAG_SPACE
         std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks);
         JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderRef, const TaskSetInfoDerived &tasksInfo);
 
+        enum SFOrderStatus
+        {
+            Infeasible,
+            InferiorFeasible,
+            BetterFeasible
+        };
         template <typename OrderScheduler, typename ObjectiveFunctionBase>
         class DAGScheduleOptimizer
         {
         public:
-            enum SFOrderStatus
-            {
-                Infeasible,
-                InferiorFeasible,
-                BetterFeasible
-            };
             DAGScheduleOptimizer() {}
 
             DAGScheduleOptimizer(const DAG_Model &dagInput, const ScheduleOptions &scheduleOptions, double timeLimits = GlobalVariablesDAGOpt::makeProgressTimeLimit) : start_time(std::chrono::system_clock::now()), timeLimits(GlobalVariablesDAGOpt::makeProgressTimeLimit), dagTasks(dagInput), tasksInfo(TaskSetInfoDerived(dagTasks.tasks)), scheduleOptions(scheduleOptions)
@@ -189,6 +189,7 @@ namespace OrderOptDAG_SPACE
             }
 
             // Compare against statusPrev built from jobOrderRef, and update statusPrev and jobOrderRef if success and return true
+            // TODO: jobOrderCurrForFinish may become different after optimization
             SFOrderStatus UpdateStatus(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobStartFinishInstActiveRange, LLint finishP)
             {
                 VectorDynamic startTimeVector;
@@ -198,7 +199,8 @@ namespace OrderOptDAG_SPACE
                     return SFOrderStatus::Infeasible;
                 else
                 {
-                    startTimeVector = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrderCurrForFinish, processorJobVec);
+                    // startTimeVector = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrderCurrForFinish, processorJobVec);
+                    startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish, processorJobVec);
                     bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec, scheduleOptions.processorNum_);
                     if (!schedulable)
                         return SFOrderStatus::Infeasible;
