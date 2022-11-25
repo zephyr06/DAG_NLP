@@ -7,6 +7,7 @@
 #include "sources/Factors/RTDA_Factor.h"
 #include "sources/Factors/Interval.h"
 #include "sources/Factors/SensorFusionFactor.h"
+#include "sources/Optimization/ScheduleSimulation.h"
 
 namespace OrderOptDAG_SPACE
 {

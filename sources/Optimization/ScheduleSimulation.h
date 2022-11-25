@@ -201,8 +201,7 @@ namespace OrderOptDAG_SPACE
 
     VectorDynamic ListSchedulingLFTPA(const DAG_Model &dagTasks,
                                       const TaskSetInfoDerived &tasksInfo, int processorNum,
-                                      //   const std::optional<JobOrderMultiCore> &jobOrder = std::nullopt,
-                                      boost::optional<std::vector<uint> &> processorIdVec = boost::none);
+                                      boost::optional<std::vector<uint> &> processorIdVec = boost::none, double modifyPriorityBasedOnPrecedence = 0);
 
     VectorDynamic SFOrderScheduling(const TaskSet &tasks,
                                     const TaskSetInfoDerived &tasksInfo, int processorNum, const SFOrder &jobOrder,

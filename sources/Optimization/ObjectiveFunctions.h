@@ -12,7 +12,6 @@ namespace OrderOptDAG_SPACE
 {
     namespace OptimizeSF
     {
-
         std::vector<std::vector<RTDA>> GetRTDAFromAllChains(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector);
 
         std::vector<RTDA> GetMaxRTDAs(const std::vector<std::vector<RTDA>> &rtdaVec);

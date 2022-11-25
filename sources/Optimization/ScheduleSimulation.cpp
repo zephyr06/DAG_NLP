@@ -84,7 +84,7 @@ namespace OrderOptDAG_SPACE
         busy[processorId] = true;
     }
 
- VectorDynamic SimulateFixedPrioritySched(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, LLint timeInitial)
+    VectorDynamic SimulateFixedPrioritySched(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, LLint timeInitial)
     {
         const TaskSet &tasks = dagTasks.tasks;
         VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
@@ -131,7 +131,7 @@ namespace OrderOptDAG_SPACE
     // TODO: when two jobs have same priority, choose the one with higher precedence priority
     VectorDynamic ListSchedulingLFTPA(const DAG_Model &dagTasks,
                                       const TaskSetInfoDerived &tasksInfo, int processorNum,
-                                      boost::optional<std::vector<uint> &> processorIdVec)
+                                      boost::optional<std::vector<uint> &> processorIdVec, double modifyPriorityBasedOnPrecedence)
     {
         // BeginTimer(__FUNCTION__);
         const TaskSet &tasks = dagTasks.tasks;
@@ -164,7 +164,7 @@ namespace OrderOptDAG_SPACE
                 {
                     RunQueue::ID_INSTANCE_PAIR p;
 
-                    p = runQueue.popLeastFinishTime(tasksInfo, dagTasks);
+                    p = runQueue.popLeastFinishTime(tasksInfo, dagTasks, modifyPriorityBasedOnPrecedence);
 
                     UpdateSTVAfterPopTask(p, initial, timeNow, nextFree, tasks, busy, processorId, tasksInfo.sizeOfVariables);
                     eventPool.Insert(nextFree[processorId]);

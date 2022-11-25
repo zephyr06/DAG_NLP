@@ -33,6 +33,7 @@ protected:
     ScheduleOptions scheduleOptions;
     VectorDynamic startTimeVector;
     SFOrder sfOrder;
+    std::vector<uint> processorJobVec;
 };
 TEST_F(ScheduleDAGModelTest1, FindJobActivateRange)
 {
@@ -44,7 +45,11 @@ TEST_F(ScheduleDAGModelTest1, FindJobActivateRange)
 
 TEST_F(ScheduleDAGModelTest1, initialEstimatePool)
 {
-    ;
+    VectorDynamic initialBase = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
+
+    VectorDynamic initialFromPool = SelectInitialFromPool<RTDAExperimentObj>(dagTasks, tasksInfo, scheduleOptions);
+
+    EXPECT_LT(RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, initialFromPool, scheduleOptions), RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, initialBase, scheduleOptions));
 }
 int main(int argc, char **argv)
 {

@@ -15,10 +15,10 @@
 
 // #include "sources/Optimization/OptimizeOrder.h"
 
-TaskSet GetTaskSet(DAG dag);
+RegularTaskSystem::TaskSet GetTaskSet(DAG dag);
 
 // defaut proposser number is 1
-VectorDynamic GetInitialEstimate(const DAG &dag, int nproc = 1, std::optional<TaskSetInfoDerived> tasksInfo = std::nullopt);
+VectorDynamic GetInitialEstimate(const DAG &dag, int nproc = 1, std::optional<RegularTaskSystem::TaskSetInfoDerived> tasksInfo = std::nullopt);
 
 void GenerateVariableTaskSetFromDAGModel(
     OrderOptDAG_SPACE::DAG_Model &dagTasks,
@@ -50,7 +50,7 @@ DAG FindTheBestDagWhileCreatingDagsWithTimeLimit(
 
 OrderOptDAG_SPACE::RTDA GetRTDAFromBestDag(
     const DAG &bestDAG,
-    TaskSetInfoDerived &tasksInfo,
+    RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
     const std::vector<std::vector<int>> &causeEffectChains,
     int processorsAvailable = GlobalVariablesDAGOpt::coreNumberAva);
 

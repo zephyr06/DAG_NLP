@@ -4,6 +4,7 @@
 #include "sources/Factors/RTDA_Factor.h"
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/Utils/OptimizeOrderUtils.h"
+#include "sources/Optimization/InitialEstimate.h"
 
 using namespace OrderOptDAG_SPACE;
 using namespace std;

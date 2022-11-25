@@ -294,8 +294,8 @@ LatencyInfo Evaluation::getLatencyInfoRTDA(const DAG &dag, std::vector<unsigned>
 	info.minLatencyPair = std::make_pair((unsigned)0, (unsigned)0);
 	info.reactionTimePair = std::make_pair((unsigned)0, (unsigned)0);
 
-	TaskSet tasks = GetTaskSet(dag);
-	TaskSetInfoDerived tasksInfo(tasks);
+	RegularTaskSystem::TaskSet tasks = GetTaskSet(dag);
+	RegularTaskSystem::TaskSetInfoDerived tasksInfo(tasks);
 	VectorDynamic initialEstimate = GetInitialEstimate(dag, schedulingEval_.second.maxCores);
 	// Values initialEstimateFG = OrderOptDAG_SPACE::GenerateInitialFG(initialEstimate, tasksInfo);
 	std::vector<int> causeEffectChain(chain.begin(), chain.end());

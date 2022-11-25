@@ -1,9 +1,9 @@
 
 #include "sources/Baseline/VerucchiRTDABridge.h"
 
-TaskSet GetTaskSet(DAG dag)
+RegularTaskSystem::TaskSet GetTaskSet(DAG dag)
 {
-    TaskSet tasks;
+    RegularTaskSystem::TaskSet tasks;
     auto nodes = dag.getOriginatingTaskset()->getNodes();
     for (auto node : nodes)
     {
@@ -22,7 +22,7 @@ TaskSet GetTaskSet(DAG dag)
 }
 
 // defaut proposser number is 1
-VectorDynamic GetInitialEstimate(const DAG &dag, int nproc, std::optional<TaskSetInfoDerived> tasksInfo)
+VectorDynamic GetInitialEstimate(const DAG &dag, int nproc, std::optional<RegularTaskSystem::TaskSetInfoDerived> tasksInfo)
 {
     if (dag.getPeriod() == 0)
     {
@@ -78,7 +78,7 @@ void GenerateVariableTaskSetFromDAGModel(
     OrderOptDAG_SPACE::MAP_Prev &mapPrev = dagTasks.mapPrev;
     for (auto itr = mapPrev.begin(); itr != mapPrev.end(); itr++)
     {
-        TaskSet &tasksAfter = itr->second;
+        RegularTaskSystem::TaskSet &tasksAfter = itr->second;
         for (uint i = 0; i < tasksAfter.size(); i++)
         {
             // fix jitter to {0}
@@ -270,7 +270,7 @@ DAG FindTheBestDagWhileCreatingDagsWithTimeLimit(
 
 OrderOptDAG_SPACE::RTDA GetRTDAFromBestDag(
     const DAG &bestDAG,
-    TaskSetInfoDerived &tasksInfo,
+    RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
     const std::vector<std::vector<int>> &causeEffectChains,
     int processorsAvailable)
 {
@@ -312,7 +312,7 @@ OrderOptDAG_SPACE::RTDA GetVerucchiRTDA(
 
     VariableTaskSet taskSetVeru;
     std::vector<std::shared_ptr<MultiNode>> tasksVecVeru;
-    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    RegularTaskSystem::TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     GenerateVariableTaskSetFromDAGModel(dagTasks, taskSetVeru, tasksVecVeru);
     // generate all dags
     taskSetVeru.createBaselineTaskset();
@@ -343,7 +343,7 @@ OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     OrderOptDAG_SPACE::ScheduleResult res;
     VariableTaskSet taskSetVeru;
     std::vector<std::shared_ptr<MultiNode>> tasksVecVeru;
-    TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+    RegularTaskSystem::TaskSetInfoDerived tasksInfo(dagTasks.tasks);
     GenerateVariableTaskSetFromDAGModel(dagTasks, taskSetVeru, tasksVecVeru);
     taskSetVeru.createBaselineTaskset();
     // generate all dags with a time limit

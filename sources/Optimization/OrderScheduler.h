@@ -25,6 +25,12 @@ namespace OrderOptDAG_SPACE
             CoutError("Never call base function!");
             return GenerateVectorDynamic1D(0);
         }
+
+        static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder)
+        {
+            CoutError("Never call base function!");
+            return GenerateVectorDynamic1D(0);
+        }
     };
 
     class SimpleOrderScheduler : public OrderScheduler
@@ -35,13 +41,18 @@ namespace OrderOptDAG_SPACE
         {
             return SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVec);
         }
+
+        static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder)
+        {
+            return SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder);
+        }
     };
 
     class LPOrderScheduler : public OrderScheduler
     {
     public:
         static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder, std::vector<uint> &processorJobVec)
-        {            
+        {
             ScheduleOptimizer scheduleOptimizer = ScheduleOptimizer(dagTasks);
             auto stv = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVec);
             scheduleOptimizer.setObjType(scheduleOptions.considerSensorFusion_);
