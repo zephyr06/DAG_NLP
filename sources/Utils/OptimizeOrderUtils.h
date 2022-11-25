@@ -11,14 +11,10 @@
 namespace OrderOptDAG_SPACE
 {
 
-    // TODO: clear this struct
     struct ScheduleResult
     {
-        // JobOrder jobOrder_;
-        // OrderOptDAG_SPACE::SFOrder sfOrder_;
         VectorDynamic startTimeVector_;
         bool schedulable_;
-        // RTDA rtda_;
         double obj_;
         double objWeighted_;
         double timeTaken_;

@@ -189,7 +189,6 @@ namespace OrderOptDAG_SPACE
             }
 
             // Compare against statusPrev built from jobOrderRef, and update statusPrev and jobOrderRef if success and return true
-            // TODO: should jobOrderCurrForFinish be const?
             SFOrderStatus UpdateStatus(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobStartFinishInstActiveRange, LLint finishP)
             {
                 VectorDynamic startTimeVector;

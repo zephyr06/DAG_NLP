@@ -8,7 +8,7 @@ namespace OrderOptDAG_SPACE
         struct ScheduleOptions
         {
             int causeEffectChainNumber_;
-            bool considerSensorFusion_; // TODO: remove this parameter
+            bool considerSensorFusion_;
             bool doScheduleOptimization_;
             bool doScheduleOptimizationOnlyOnce_;
             int processorNum_;
