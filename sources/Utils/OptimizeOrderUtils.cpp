@@ -13,6 +13,11 @@ namespace OrderOptDAG_SPACE
         PrintChains(dagTasks.chains_);
         RTDA resAfterOpt = GetMaxRTDA(tasksInfo, dagTasks.chains_[0], scheduleResult.startTimeVector_);
         resAfterOpt.print();
+
+        VectorDynamic sfError = OrderOptDAG_SPACE::ObtainSensorFusionError(dagTasks, tasksInfo, scheduleResult.startTimeVector_);
+        std::cout << "SF Bound from schedule: " << sfError.maxCoeff() << std::endl;
+        std::cout << "Max allowed SF Bound: " << GlobalVariablesDAGOpt::sensorFusionTolerance << std::endl;
+
         std::cout << Color::def << std::endl;
         std::cout << "Schedule: " << std::endl;
         if (GlobalVariablesDAGOpt::printSchedule)
@@ -126,12 +131,22 @@ namespace OrderOptDAG_SPACE
             {
                 std::vector<OrderOptDAG_SPACE::RTDA> rtdaVec = OrderOptDAG_SPACE::GetRTDAFromSingleJob(tasksInfo, chain, startTimeVector);
                 OrderOptDAG_SPACE::RTDA rtda = GetMaxRTDA(rtdaVec);
+                if (GlobalVariablesDAGOpt::debugMode == 1)
+                {
+                    std::cout << "ExamAll_Feasibility: " << std::endl;
+                    rtda.print();
+                }
                 if (rtda.dataAge > freshnessBound || rtda.reactionTime > freshnessBound)
                     return false;
             }
 
             // Exam SF
             VectorDynamic sfError = OrderOptDAG_SPACE::ObtainSensorFusionError(dagTasks, tasksInfo, startTimeVector);
+            if (GlobalVariablesDAGOpt::debugMode == 1)
+            {
+                std::cout << "SF Bound from schedule: " << sfError.maxCoeff() << std::endl;
+                std::cout << "Max allowed SF Bound: " << sfBound << std::endl;
+            }
             if (sfError.maxCoeff() > sfBound)
                 return false;
         }
