@@ -55,6 +55,7 @@ namespace OrderOptDAG_SPACE
 
                 jobOrderRef = SFOrder(tasksInfo, initialSTV);
                 statusPrev = IterationStatus<OrderScheduler, ObjectiveFunctionBase>(dagTasks, tasksInfo, jobOrderRef, scheduleOptions);
+                // TODO: SelectInitialFromPool doesn't work well for simple order scheduler because it may leads into unschedulable results
                 if (!statusPrev.schedulable_)
                     CoutWarning("Initial schedule is not schedulable!!!");
 
