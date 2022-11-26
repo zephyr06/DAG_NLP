@@ -105,6 +105,8 @@ namespace OrderOptDAG_SPACE
     bool ExamBasic_Feasibility(const DAG_Model &dagTasks, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const std::vector<uint> &processorJobVec, int processorNum)
     {
         BeginTimer("ExamBasic_Feasibility");
+        if (processorJobVec.empty())
+            CoutError("Empty processorJobVec in ExamBasicFeasibility!");
         bool schedulable = ExamDDL_Feasibility(dagTasks, tasksInfo, startTimeVector) && ExamDBF_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec, processorNum);
         EndTimer("ExamBasic_Feasibility");
         return schedulable;

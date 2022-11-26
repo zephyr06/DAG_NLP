@@ -159,6 +159,7 @@ namespace GlobalVariablesDAGOpt
 
     extern const double kCplexInequalityThreshold;
 
+    extern const int selectInitialFromPool;
     extern const int doScheduleOptimization;
     extern int considerSensorFusion; // previous code heavily depended on its value, but we must treat it as a const int in the future
     extern const int doScheduleOptimizationOnlyOnce;

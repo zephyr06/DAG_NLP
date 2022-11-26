@@ -10,6 +10,7 @@ debugMode: 0
 doScheduleOptimization: 0
 doScheduleOptimizationOnlyOnce: 0
 considerSensorFusion: 1
+selectInitialFromPool: 1
 #*************************************************************
 # Get away from local optimal setting
 RandomAccept: 0 # chance to take a possibly better solution

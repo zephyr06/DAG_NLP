@@ -8,16 +8,21 @@ class ScheduleDAGModelTest1 : public ::testing::Test
 protected:
     void SetUp() override
     {
-        dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig"); // single-rate dag
-        tasks = dagTasks.tasks;
-        tasksInfo = TaskSetInfoDerived(tasks);
-        chain1 = {0, 2};
-        dagTasks.chains_[0] = chain1;
-
+        std::string taskSetName = "test_n3_v18";
+        SetUpTaskSet(taskSetName);
         startTimeVector = GenerateVectorDynamic(4);
         startTimeVector << 0, 10, 1, 1;
         sfOrder = SFOrder(tasksInfo, startTimeVector);
         sfOrder.print();
+    }
+
+    void SetUpTaskSet(std::string taskSet)
+    {
+        dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/" + taskSet + ".csv", "orig"); // single-rate dag
+        tasks = dagTasks.tasks;
+        tasksInfo = TaskSetInfoDerived(tasks);
+        chain1 = {0, 2};
+        dagTasks.chains_[0] = chain1;
 
         scheduleOptions.considerSensorFusion_ = 1;
         scheduleOptions.freshTol_ = 0;
@@ -50,6 +55,22 @@ TEST_F(ScheduleDAGModelTest1, initialEstimatePool)
     VectorDynamic initialFromPool = SelectInitialFromPool<RTDAExperimentObj>(dagTasks, tasksInfo, scheduleOptions);
 
     EXPECT_LT(RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, initialFromPool, scheduleOptions), RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, initialBase, scheduleOptions));
+}
+
+class ScheduleDAGModelTest2 : public ScheduleDAGModelTest1
+{
+protected:
+    void SetUp() override
+    {
+        std::string taskSetName = "test_n3_v29";
+        SetUpTaskSet(taskSetName);
+    }
+};
+
+TEST_F(ScheduleDAGModelTest2, SelectInitialFromPool_verify_feasibility)
+{
+    auto initialSTV = SelectInitialFromPool<RTDAExperimentObj>(dagTasks, tasksInfo, scheduleOptions, processorJobVec);
+    EXPECT_TRUE(ExamBasic_Feasibility(dagTasks, tasksInfo, initialSTV, processorJobVec, scheduleOptions.processorNum_));
 }
 int main(int argc, char **argv)
 {

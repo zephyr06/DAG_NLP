@@ -129,4 +129,6 @@ namespace GlobalVariablesDAGOpt
     int considerSensorFusion = (int)ConfigParameters["considerSensorFusion"]; // previous code heavily depended on its value, but we must treat it as a const int in the future
     const int doScheduleOptimizationOnlyOnce = (int)ConfigParameters["doScheduleOptimizationOnlyOnce"];
     const int BatchTestOnlyOneMethod = (int)ConfigParameters["BatchTestOnlyOneMethod"];
+    const int selectInitialFromPool = (int)ConfigParameters["selectInitialFromPool"];
+
 } // namespace GlobalVariablesDAGOpt

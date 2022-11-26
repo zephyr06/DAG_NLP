@@ -16,16 +16,16 @@ namespace OrderOptDAG_SPACE
     namespace OptimizeSF
     {
         template <typename ObjectiveFunctionBase>
-        VectorDynamic SelectInitialFromPool(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const ScheduleOptions &scheduleOptions)
+        VectorDynamic SelectInitialFromPool(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const ScheduleOptions &scheduleOptions,
+                                            boost::optional<std::vector<uint> &> processorIdVec = boost::none)
         {
             VectorDynamic stvBest = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
             double objMin = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, stvBest, scheduleOptions);
-            std::vector<uint> processorJobVec;
             for (double modifyCoeff = 0; modifyCoeff < 1000; modifyCoeff += 10)
             {
-                VectorDynamic stvCurr = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_, processorJobVec, modifyCoeff);
+                VectorDynamic stvCurr = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_, processorIdVec, modifyCoeff);
                 double objCurr = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, stvCurr, scheduleOptions);
-                if (objCurr < objMin)
+                if (objCurr < objMin && ExamBasic_Feasibility(dagTasks, tasksInfo, stvCurr, processorJobVec, scheduleOptions.processorNum_))
                 {
                     objMin = objCurr;
                     stvBest = stvCurr;

@@ -46,7 +46,13 @@ namespace OrderOptDAG_SPACE
                 if (dagTasks.chains_.size() == 0)
                     CoutWarning("No chain is provided for the given dag!");
 
-                VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
+                VectorDynamic initialSTV;
+                // TODO: move to arguments
+                if (GlobalVariablesDAGOpt::selectInitialFromPool)
+                    initialSTV = SelectInitialFromPool<ObjectiveFunctionBase>(dagTasks, tasksInfo, scheduleOptions);
+                else
+                    initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
+
                 jobOrderRef = SFOrder(tasksInfo, initialSTV);
                 statusPrev = IterationStatus<OrderScheduler, ObjectiveFunctionBase>(dagTasks, tasksInfo, jobOrderRef, scheduleOptions);
                 if (!statusPrev.schedulable_)
