@@ -44,7 +44,7 @@ namespace GlobalVariablesDAGOpt
     const int subJobGroupMaxSize = (int)ConfigParameters["subJobGroupMaxSize"];
 
     // ********************* TO-FIX:
-    double sensorFusionTolerance = (double)ConfigParameters["sensorFusionTolerance"] * timeScaleFactor;
+    double sensorFusionTolerance = (double)ConfigParameters["sensorFusionTolerance"];
     double freshTol = (double)ConfigParameters["freshTol"];
 
     InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initializeMethod"]);
