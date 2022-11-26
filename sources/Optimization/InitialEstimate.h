@@ -21,23 +21,32 @@ namespace OrderOptDAG_SPACE
         VectorDynamic SelectInitialFromPool(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const ScheduleOptions &scheduleOptions,
                                             boost::optional<std::vector<uint> &> processorIdVec = boost::none)
         {
+            BeginTimer("SelectInitialFromPool");
             std::vector<uint> processorJobVec;
             VectorDynamic stvBest = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_, processorJobVec);
             double objMin = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, stvBest, scheduleOptions);
-            for (double modifyCoeff = 0; modifyCoeff < 1000; modifyCoeff += 10)
+            int candidateNum = scheduleOptions.selectInitialFromPoolCandidate_;
+            if (candidateNum != 0)
             {
-                std::vector<uint> processorJobVecCurr;
-                VectorDynamic stvCurr = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_, processorJobVecCurr, modifyCoeff);
-                double objCurr = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, stvCurr, scheduleOptions);
-                if (objCurr < objMin && ExamBasic_Feasibility(dagTasks, tasksInfo, stvCurr, processorJobVecCurr, scheduleOptions.processorNum_))
+                for (double modifyPower = 0; modifyPower < 5; modifyPower += 5.0 / candidateNum)
                 {
-                    objMin = objCurr;
-                    stvBest = stvCurr;
-                    processorJobVec = processorJobVecCurr;
+                    double modifyCoeff = std::pow(10, modifyPower);
+                    std::vector<uint> processorJobVecCurr;
+                    BeginTimer("SelectInitialFromPool_list_scheduling");
+                    VectorDynamic stvCurr = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_, processorJobVecCurr, modifyCoeff);
+                    EndTimer("SelectInitialFromPool_list_scheduling");
+                    double objCurr = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, stvCurr, scheduleOptions);
+                    if (objCurr < objMin && ExamBasic_Feasibility(dagTasks, tasksInfo, stvCurr, processorJobVecCurr, scheduleOptions.processorNum_))
+                    {
+                        objMin = objCurr;
+                        stvBest = stvCurr;
+                        processorJobVec = processorJobVecCurr;
+                    }
                 }
             }
             if (processorIdVec != boost::none)
                 *processorIdVec = processorJobVec;
+            EndTimer("SelectInitialFromPool");
             return stvBest;
         }
     }

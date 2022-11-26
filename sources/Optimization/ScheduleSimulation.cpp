@@ -11,7 +11,7 @@ namespace OrderOptDAG_SPACE
         std::vector<int> topoSort = TopologicalSortMulti(dagTasks)[0];
         uint lftJobIndex = -1;
         double lftAll = std::numeric_limits<double>::max();
-
+        // TODO: this could be improved to log(n) in the insertion step
         for (uint i = 0; i < taskQueue.size(); i++)
         {
             JobCEC jobCurr(taskQueue[i].first, taskQueue[i].second);
@@ -133,7 +133,7 @@ namespace OrderOptDAG_SPACE
                                       const TaskSetInfoDerived &tasksInfo, int processorNum,
                                       boost::optional<std::vector<uint> &> processorIdVec, double modifyPriorityBasedOnPrecedence)
     {
-        // BeginTimer(__FUNCTION__);
+        BeginTimer(__FUNCTION__);
         const TaskSet &tasks = dagTasks.tasks;
         VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
 
@@ -180,7 +180,7 @@ namespace OrderOptDAG_SPACE
         {
             initial = GenerateVectorDynamic(tasksInfo.variableDimension);
         }
-        // EndTimer(__FUNCTION__);
+        EndTimer(__FUNCTION__);
         return initial;
     }
 

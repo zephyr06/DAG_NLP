@@ -24,7 +24,7 @@ namespace OrderOptDAG_SPACE
 {
     namespace OptimizeSF
     {
-        // extern int infeasibleCount;
+        extern int infeasibleCount;
 
         std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks);
         JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderRef, const TaskSetInfoDerived &tasksInfo);
@@ -48,7 +48,7 @@ namespace OrderOptDAG_SPACE
 
                 VectorDynamic initialSTV;
                 // TODO: move to arguments
-                if (GlobalVariablesDAGOpt::selectInitialFromPool)
+                if (GlobalVariablesDAGOpt::selectInitialFromPool != 0)
                     initialSTV = SelectInitialFromPool<ObjectiveFunctionBase>(dagTasks, tasksInfo, scheduleOptions);
                 else
                     initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);

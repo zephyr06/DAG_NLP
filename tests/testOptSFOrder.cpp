@@ -24,12 +24,14 @@ protected:
         chain1 = {0, 2};
         dagTasks.chains_[0] = chain1;
 
-        scheduleOptions.considerSensorFusion_ = 1;
+        scheduleOptions.considerSensorFusion_ = 0;
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;
         scheduleOptions.weightInMpRTDA_ = 0.5;
         scheduleOptions.weightInMpSf_ = 0.5;
         scheduleOptions.weightPunish_ = 10;
+
+        scheduleOptions.selectInitialFromPoolCandidate_ = 100;
     }
     DAG_Model dagTasks;
     TaskSet tasks;
