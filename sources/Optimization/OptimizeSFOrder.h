@@ -67,6 +67,8 @@ namespace OrderOptDAG_SPACE
                     std::cout << "Initial SF order: " << std::endl;
                     jobOrderRef.print();
                 }
+
+                infeasibleCount = 0; // TODO: avoid the global variable
             }
 
             ScheduleResult Optimize()
@@ -175,8 +177,8 @@ namespace OrderOptDAG_SPACE
                             // jobOrderRef = jobOrderCurrForFinish;
                             if (GlobalVariablesDAGOpt::debugMode == 1)
                             {
-                                std::cout << "Make progress!" << std::endl;
-                                PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
+                                // std::cout << "Make progress!" << std::endl;
+                                // PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
                             }
                             countMakeProgress++;
                         }

@@ -87,11 +87,14 @@ namespace OrderOptDAG_SPACE
         std::cout << "Dataset Directory: " << pathDataset << std::endl;
         std::vector<std::vector<double>> runTimeAll(GlobalVariablesDAGOpt::TotalMethodUnderComparison);
         std::vector<std::vector<double>> objsAll(GlobalVariablesDAGOpt::TotalMethodUnderComparison);
+
+        std::vector<std::vector<double>> objsAllNorm = objsAll;
         std::vector<std::vector<int>> schedulableAll(GlobalVariablesDAGOpt::TotalMethodUnderComparison); // values could only be 0 / 1
 
         std::vector<std::string> errorFiles;
         std::vector<std::string> worseFiles;
         std::vector<std::string> files = ReadFilesInDirectory(pathDataset);
+        int fileIndex = 0;
         for (const auto &file : files)
         {
             std::string delimiter = "-";
@@ -125,7 +128,7 @@ namespace OrderOptDAG_SPACE
                         res.timeTaken_ = double(duration.count()) / 1e6;
                     }
                     std::cout << "Schedulable? " << res.schedulable_ << std::endl;
-                    std::cout << "Objective: " << res.obj_ << std::endl;
+                    std::cout << Color::green << "Objective: " << res.obj_ << Color::def << std::endl;
 
                     if (ObjectiveFunctionBase::type_trait == "RTDAExperimentObj" && res.schedulable_ == false)
                     {
@@ -142,26 +145,28 @@ namespace OrderOptDAG_SPACE
                     runTimeAll[batchTestMethod].push_back(res.timeTaken_);
                     schedulableAll[batchTestMethod].push_back((res.schedulable_ ? 1 : 0));
                     objsAll[batchTestMethod].push_back(res.obj_);
+                    objsAllNorm[batchTestMethod].push_back(res.obj_ / objsAll[0][fileIndex]);
                 }
                 if (objsAll[2].size() > 0 && objsAll[1].back() > objsAll[2].back())
                 {
                     CoutWarning("One case where proposed method performs worse is found: " + file);
                     worseFiles.push_back(file);
                 }
+                fileIndex++;
             }
         }
 
         int n = objsAll[0].size();
         if (n != 0 && ObjectiveFunctionBase::type_trait == "RTDAExperimentObj")
         {
-            VariadicTable<std::string, double, double, double> vt({"Method", "Schedulable ratio", "Obj (Only used in RTDA experiment)", "TimeTaken"}, 10);
+            VariadicTable<std::string, double, double, double, double> vt({"Method", "Schedulable ratio", "Obj (Only used in RTDA experiment)", "Obj(Norm)", "TimeTaken"}, 10);
 
-            vt.addRow("Initial", Average(schedulableAll[0]), Average(objsAll[0]), Average(runTimeAll[0]));
-            vt.addRow("Verucchi20", Average(schedulableAll[1]), Average(objsAll[1]), Average(runTimeAll[1]));
-            vt.addRow("Wang21", Average(schedulableAll[2]), Average(objsAll[2]), Average(runTimeAll[2]));
-            vt.addRow("TOM", Average(schedulableAll[3]), Average(objsAll[3]), Average(runTimeAll[3]));
-            vt.addRow("TOM_Fast", Average(schedulableAll[4]), Average(objsAll[4]), Average(runTimeAll[4]));
-            vt.addRow("TOM_FastLP", Average(schedulableAll[5]), Average(objsAll[5]), Average(runTimeAll[5]));
+            vt.addRow("Initial", Average(schedulableAll[0]), Average(objsAll[0]), Average(objsAllNorm[0]), Average(runTimeAll[0]));
+            vt.addRow("Verucchi20", Average(schedulableAll[1]), Average(objsAll[1]), Average(objsAllNorm[1]), Average(runTimeAll[1]));
+            vt.addRow("Wang21", Average(schedulableAll[2]), Average(objsAll[2]), Average(objsAllNorm[2]), Average(runTimeAll[2]));
+            vt.addRow("TOM", Average(schedulableAll[3]), Average(objsAll[3]), Average(objsAllNorm[3]), Average(runTimeAll[3]));
+            vt.addRow("TOM_Fast", Average(schedulableAll[4]), Average(objsAll[4]), Average(objsAllNorm[4]), Average(runTimeAll[4]));
+            vt.addRow("TOM_FastLP", Average(schedulableAll[5]), Average(objsAll[5]), Average(objsAllNorm[5]), Average(runTimeAll[5]));
             vt.print(std::cout);
         }
         else if (n != 0 && ObjectiveFunctionBase::type_trait == "RTSS21ICObj")
