@@ -102,7 +102,7 @@ namespace OrderOptDAG_SPACE
             {
                 std::cout << file << std::endl;
                 std::string path = dataSetFolder + file;
-                OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(path, GlobalVariablesDAGOpt::priorityMode);
+                OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(path, GlobalVariablesDAGOpt::priorityMode, GlobalVariablesDAGOpt::NumCauseEffectChain);
                 if (dagTasks.GetSfBound() > 0)
                     GlobalVariablesDAGOpt::sensorFusionTolerance = dagTasks.GetSfBound();
                 if (dagTasks.GetRtdaBound() > 0)
