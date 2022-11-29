@@ -25,6 +25,7 @@ CompareWithBaseline_deprecated/
 **/OrderOpt_Res
 **/OrderOptWithoutScheudleOpt_Res
 **/Verucchi_Res
+**/Verucchi20_Res
 **/dagTasks
 **/scripts_and_figures_backup
 **/SensorFusionTasksets

@@ -11,11 +11,11 @@ TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
 ROOT_PATH="/home/dong/workspace/DAG_NLP"
 # ROOT_PATH="/home/dong/workspace/DAG_batch_test/rtda_test/DAG_NLP" # for final batch test
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks" # tBatch1's result path
-TASKSETS_PATH="$ROOT_PATH/CompareWithBaseline/TasksetsForRTAS2023/$title" # tBatch1's result path
+TASKSETS_PATH="$ROOT_PATH/CompareWithBaseline/RTAS2023SupplementaryExperiment/$title" # tBatch1's result path
 coreNumberAva=2
 ## setting for generating task sets
 taskSetType=3
-taskSetNumber=500
+taskSetNumber=1000
 randomSeed=-1 # negative means time seed
 # ***************************************************
 # ***************************************************
@@ -29,7 +29,7 @@ fi
 mkdir -p $TASKSETS_PATH
 
 # set parameters, backup parameters and scripts parameters
-cp RTDA2CoresPerformance/parameters.yaml $ROOT_PATH/sources/parameters.yaml
+cp parameters.yaml $ROOT_PATH/sources/parameters.yaml
 
 # major parameter
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "considerSensorFusion" --value 0
