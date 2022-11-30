@@ -89,18 +89,19 @@ TEST(IntegrationTest, v2)
 
 TEST_F(DAGScheduleOptimizerTest2, UpdateStatus)
 {
-
     VectorDynamic initial = GenerateVectorDynamic(19);
     initial << 0, 199, 200, 300, 499, 511, 1, 198, 200, 399, 400, 599, 187, 201, 500, 178, 490, 107, 307;
     SFOrder jobOrder(tasksInfo, initial);
     jobOrder.print();
     PrintSchedule(tasksInfo, initial);
-    JobGroupRange uselessRange(0, 100);
-    LLint uselessFinishP = 100;
     std::vector<uint> processorJobVector;
     VectorDynamic startTimeVectorFromScheduler = LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVector);
     EXPECT_EQ(initial, startTimeVectorFromScheduler);
-    EXPECT_GT(dagScheduleOptimizer.UpdateStatus(jobOrder, uselessRange, uselessFinishP), SFOrderStatus::Infeasible);
+    // EXPECT_TRUE(ExamBasic_Feasibility(dagTasks, tasksInfo, initial, processorJobVector, scheduleOptions.processorNum_));
+
+    // JobGroupRange uselessRange(0, 100);
+    // LLint uselessFinishP = 100;
+    // EXPECT_GT(dagScheduleOptimizer.UpdateStatus(jobOrder, uselessRange, uselessFinishP), SFOrderStatus::Infeasible);
 }
 
 int main(int argc, char **argv)
