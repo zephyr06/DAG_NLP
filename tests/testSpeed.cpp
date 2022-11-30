@@ -22,6 +22,7 @@ TEST(speed, v1)
     ScheduleResult sth;
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
     scheduleOption.LoadParametersYaml();
+    scheduleOption.selectInitialFromPoolCandidate_ = 0;
 
     BeginTimer("SFOrderOpt");
     for (int i = 0; i < REPEAT; i++)
