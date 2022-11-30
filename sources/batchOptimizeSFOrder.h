@@ -80,7 +80,7 @@ namespace OrderOptDAG_SPACE
     }
 
     template <typename ObjectiveFunctionBase>
-    std::vector<BatchResult> BatchOptimizeOrder(std::vector<OrderOptDAG_SPACE::BaselineMethods> baselineMethods, std::string dataSetFolder = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/dagTasks/")
+    std::vector<BatchResult> BatchOptimizeOrder(std::vector<OrderOptDAG_SPACE::BaselineMethods> baselineMethods, std::string dataSetFolder = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/dagTasks/", int chainNum = GlobalVariablesDAGOpt::NumCauseEffectChain)
     {
         std::string dirStr = dataSetFolder;
         const char *pathDataset = (dirStr).c_str();
@@ -102,7 +102,7 @@ namespace OrderOptDAG_SPACE
             {
                 std::cout << file << std::endl;
                 std::string path = dataSetFolder + file;
-                OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(path, GlobalVariablesDAGOpt::priorityMode, GlobalVariablesDAGOpt::NumCauseEffectChain);
+                OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(path, GlobalVariablesDAGOpt::priorityMode, chainNum);
                 if (dagTasks.GetSfBound() > 0)
                     GlobalVariablesDAGOpt::sensorFusionTolerance = dagTasks.GetSfBound();
                 if (dagTasks.GetRtdaBound() > 0)

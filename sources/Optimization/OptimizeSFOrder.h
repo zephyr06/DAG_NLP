@@ -48,7 +48,7 @@ namespace OrderOptDAG_SPACE
 
                 VectorDynamic initialSTV;
                 // TODO: move to arguments
-                if (GlobalVariablesDAGOpt::selectInitialFromPool != 0)
+                if (scheduleOptions.selectInitialFromPoolCandidate_ != 0)
                     initialSTV = SelectInitialFromPool<ObjectiveFunctionBase>(dagTasks, tasksInfo, scheduleOptions);
                 else
                     initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
