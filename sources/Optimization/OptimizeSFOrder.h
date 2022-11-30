@@ -24,7 +24,7 @@ namespace OrderOptDAG_SPACE
 {
     namespace OptimizeSF
     {
-        extern int infeasibleCount;
+        // extern int infeasibleCount;
 
         std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks);
         JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderRef, const TaskSetInfoDerived &tasksInfo);
@@ -67,8 +67,6 @@ namespace OrderOptDAG_SPACE
                     std::cout << "Initial SF order: " << std::endl;
                     jobOrderRef.print();
                 }
-
-                infeasibleCount = 0; // TODO: avoid the global variable
             }
 
             ScheduleResult Optimize()
@@ -117,6 +115,7 @@ namespace OrderOptDAG_SPACE
             LLint countMakeProgress = 0;
             LLint countIterationStatus = 0;
             LLint countOutermostWhileLoop = 0;
+            int infeasibleCount = 0;
 
             bool findBetterJobOrderWithinIterations = false;
             ScheduleOptions scheduleOptions;
@@ -124,7 +123,6 @@ namespace OrderOptDAG_SPACE
             SFOrder jobOrderRef;
             IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusPrev;
 
-        public:
             bool ifTimeout() const
             {
                 auto curr_time = std::chrono::system_clock::now();
@@ -205,14 +203,20 @@ namespace OrderOptDAG_SPACE
                 std::vector<uint> processorJobVec;
                 // check whether the small job order under influence is unschedulable
                 if (SubGroupSchedulabilityCheck(jobStartFinishInstActiveRange, jobOrderRef, jobOrderCurrForFinish, finishP, dagTasks, tasksInfo, scheduleOptions.processorNum_))
+                {
+                    infeasibleCount++;
                     return SFOrderStatus::Infeasible;
+                }
                 else
                 {
                     // startTimeVector = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrderCurrForFinish, processorJobVec);
                     startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish, processorJobVec);
                     bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec, scheduleOptions.processorNum_);
                     if (!schedulable)
+                    {
+                        infeasibleCount++;
                         return SFOrderStatus::Infeasible;
+                    }
                 }
 
                 IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(dagTasks, tasksInfo, jobOrderCurrForFinish, scheduleOptions, startTimeVector, processorJobVec, true);
@@ -282,7 +286,7 @@ namespace OrderOptDAG_SPACE
             std::cout << "Outermost while loop count: " << dagScheduleOptimizer.countOutermostWhileLoop << std::endl;
             std::cout << "Make progress count: " << dagScheduleOptimizer.countMakeProgress << std::endl;
             std::cout << Color::blue << "Candidate Iteration Status count: " << dagScheduleOptimizer.countIterationStatus << Color::def << std::endl;
-            std::cout << "infeasibleCount: " << infeasibleCount << std::endl;
+            std::cout << "infeasibleCount: " << dagScheduleOptimizer.infeasibleCount << std::endl;
             std::cout << "Total number of variables: " << tasksInfo.length << std::endl;
             scheduleRes.countOutermostWhileLoop_ = dagScheduleOptimizer.countOutermostWhileLoop;
             scheduleRes.countMakeProgress_ = dagScheduleOptimizer.countMakeProgress;

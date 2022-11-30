@@ -3,7 +3,7 @@ namespace OrderOptDAG_SPACE
 {
     namespace OptimizeSF
     {
-        int infeasibleCount = 0;
+        // int infeasibleCount = 0;
     }
 
 }

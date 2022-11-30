@@ -20,7 +20,7 @@ namespace OrderOptDAG_SPACE
     namespace OptimizeSF
     {
 
-        extern int infeasibleCount;
+        // extern int infeasibleCount;
 
         template <typename OrderScheduler, typename ObjectiveFunctionBase>
         class IterationStatus
@@ -64,14 +64,14 @@ namespace OrderOptDAG_SPACE
         {
             if (!statusCurr.schedulable_)
             {
-                infeasibleCount++;
-                if (GlobalVariablesDAGOpt::debugMode == 1)
-                {
-                    // TaskSetInfoDerived tasksInfo(statusCurr.dagTasks_.tasks);
-                    std::cout << "Infeasible schedule #:" << infeasibleCount << std::endl;
-                    // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
-                    // statusCurr.jobOrder.print();
-                }
+                // infeasibleCount++;
+                // if (GlobalVariablesDAGOpt::debugMode == 1)
+                // {
+                //     // TaskSetInfoDerived tasksInfo(statusCurr.dagTasks_.tasks);
+                //     std::cout << "Infeasible schedule #:" << infeasibleCount << std::endl;
+                //     // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
+                //     // statusCurr.jobOrder.print();
+                // }
                 return false;
             }
             if (statusCurr.objWeighted_ < statusPrev.objWeighted_)
