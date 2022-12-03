@@ -61,7 +61,7 @@ namespace OrderOptDAG_SPACE
     std::vector<std::pair<std::pair<double, double>, JobCEC>> SortJobSchedule(
         std::vector<std::pair<std::pair<double, double>, JobCEC>> &timeJobVector);
 
-    void PrintSchedule(const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,const  VectorDynamic &x);
+    void PrintSchedule(const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const VectorDynamic &x);
 
     // map the job to the first hyper period and return job's unique id
     LLint GetJobUniqueId(const JobCEC &jobCEC, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
@@ -74,7 +74,8 @@ namespace OrderOptDAG_SPACE
     }
     inline double GetExecutionTime(const JobCEC &jobCEC, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
-        return tasksInfo.tasks[GetJobCECFromUniqueId(GetJobUniqueId(jobCEC, tasksInfo), tasksInfo).taskId].executionTime;
+        // return tasksInfo.tasks[GetJobCECFromUniqueId(GetJobUniqueId(jobCEC, tasksInfo), tasksInfo).taskId].executionTime;
+        return tasksInfo.tasks[jobCEC.taskId].executionTime;
     }
 }
 

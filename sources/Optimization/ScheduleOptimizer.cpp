@@ -179,18 +179,18 @@ namespace OrderOptDAG_SPACE
                 }
                 else // type == 'f'
                 {
-                    model_.add(varArray_[globalIdCurr] + GetExecutionTime(instCurr.job.taskId, tasksInfo_) >= varArray_[globalIdPrev]);
+                    model_.add(varArray_[globalIdCurr] + GetExecutionTime(instCurr.job, tasksInfo_) >= varArray_[globalIdPrev]);
                 }
             }
             else // type == 'f'
             {
                 if (instCurr.type == 's')
                 {
-                    model_.add(varArray_[globalIdCurr] >= varArray_[globalIdPrev] + GetExecutionTime(instPrev.job.taskId, tasksInfo_));
+                    model_.add(varArray_[globalIdCurr] >= varArray_[globalIdPrev] + GetExecutionTime(instPrev.job, tasksInfo_));
                 }
                 else // type == 'f'
                 {
-                    model_.add(varArray_[globalIdCurr] + GetExecutionTime(instCurr.job.taskId, tasksInfo_) >= varArray_[globalIdPrev] + GetExecutionTime(instPrev.job.taskId, tasksInfo_));
+                    model_.add(varArray_[globalIdCurr] + GetExecutionTime(instCurr.job, tasksInfo_) >= varArray_[globalIdPrev] + GetExecutionTime(instPrev.job, tasksInfo_));
                 }
             }
         }

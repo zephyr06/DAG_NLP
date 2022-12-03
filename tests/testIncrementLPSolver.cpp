@@ -4,6 +4,7 @@
 #include "ilcplex/ilocplex.h"
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
+#include "gtsam/base/Testable.h" // assert_equal
 
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Optimization/OrderScheduler.h"
@@ -33,6 +34,7 @@ protected:
         initial = GenerateVectorDynamic(4);
         initial << 0, 10, 15, 12;
         jobOrder = SFOrder(tasksInfo, initial);
+        jobOrder.print();
         VectorDynamic initial2 = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVec);
     };
 
@@ -91,6 +93,55 @@ AugmentedJacobian GetJacobianActivationTime(const DAG_Model &dagTasks, const Tas
     return AugmentedJacobian{jacobian, rhs};
 }
 
+// TODO: what if s and f are not continuous
+AugmentedJacobian GetJacobianJobOrder(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder)
+{
+    int m = tasksInfo.length - 1;
+    MatrixDynamic jacobian = GenerateMatrixDynamic(m, tasksInfo.length);
+    VectorDynamic rhs = GenerateVectorDynamic(m);
+    int count = 0;
+    const std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
+    for (uint i = 1; i < instanceOrder.size(); i++)
+    {
+        auto instCurr = instanceOrder[i];
+        auto instPrev = instanceOrder[i - 1];
+        if (instPrev.job == instCurr.job)
+            continue;
+        int globalIdCurr = GetJobUniqueId(instCurr.job, tasksInfo);
+        int globalIdPrev = GetJobUniqueId(instPrev.job, tasksInfo);
+
+        if (count > 2)
+            CoutError("Please provide implementation for discontinuous 's' and 'f' in GetJacobianJobOrder");
+        jacobian(count, globalIdCurr) = -1;
+        jacobian(count, globalIdPrev) = 1;
+        if (instPrev.type == 's')
+        {
+            if (instCurr.type == 's')
+            {
+                rhs(count) = 0;
+            }
+            else // instCurr.type == 'f'
+            {
+                rhs(count) = GetExecutionTime(instCurr.job, tasksInfo);
+            }
+        }
+        else // instPrev.type == 'f'
+        {
+            if (instCurr.type == 's')
+            {
+                rhs(count) = -1 * GetExecutionTime(instPrev.job, tasksInfo);
+            }
+            else // type == 'f'
+            {
+                rhs(count) = -1 * GetExecutionTime(instPrev.job, tasksInfo) + GetExecutionTime(instCurr.job, tasksInfo);
+            }
+        }
+        count++;
+    }
+
+    return AugmentedJacobian{jacobian, rhs};
+}
+
 TEST_F(DAGScheduleOptimizerTest1, GetJacobianDDL)
 {
     auto augJaco = GetJacobianDDL(dagTasks, tasksInfo);
@@ -110,6 +161,30 @@ TEST_F(DAGScheduleOptimizerTest1, GetJacobianActivationTime)
     rhsExpect << 0, -10, 0, 0;
     EXPECT_EQ(rhsExpect, augJaco.rhs);
     augJaco.print();
+}
+
+TEST_F(DAGScheduleOptimizerTest1, GetExecutionTime)
+{
+    JobCEC job(2, 0);
+    EXPECT_EQ(3, GetExecutionTime(job, tasksInfo));
+}
+// TODO: re-order variables?
+// TODO: test cases when 's' and 'f' are interleaved
+TEST_F(DAGScheduleOptimizerTest1, GetJacobianJobOrder)
+{
+    auto augJaco = GetJacobianJobOrder(dagTasks, tasksInfo, jobOrder);
+    MatrixDynamic jacobianExpect = GenerateMatrixDynamic(3, 4);
+    jacobianExpect << 1, -1, 0, 0,
+        0, 1, 0, -1,
+        0, 0, -1, 1;
+    VectorDynamic rhsExpect = GenerateVectorDynamic(3);
+    rhsExpect << -1, -1, -3;
+
+    augJaco.print();
+
+    // EXPECT_EQ(jacobianExpect, augJaco.jacobian);
+    EXPECT_EQ(rhsExpect, augJaco.rhs);
+    EXPECT_TRUE(gtsam::assert_equal(jacobianExpect, augJaco.jacobian));
 }
 
 int main(int argc, char **argv)
