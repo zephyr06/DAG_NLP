@@ -25,6 +25,8 @@ namespace OrderOptDAG_SPACE
 
         void Optimize(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec);
 
+        void OptimizeWithJobOrder(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec, const SFOrder &jobOrder);
+
         // useWeightedObj_ will decide wheterh optimize RTDA or weighted objectives
         inline void setObjType(bool useWeightedObj = false)
         {
@@ -33,10 +35,11 @@ namespace OrderOptDAG_SPACE
 
         VectorDynamic getOptimizedStartTimeVector();
 
-    protected:
+        // protected:
         void AddVariables();
         void AddDBFConstraints();
         void AddDDLConstraints();
+        void AddJobOrderConstraints(const SFOrder &jobOrder);
         void AddCauseEffectiveChainConstraints();
         void AddCauseEffectiveChainConstraintsFromReactMap(const std::unordered_map<JobCEC, std::vector<JobCEC>> &react_chain_map);
         void AddSensorFusionConstraints();

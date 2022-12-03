@@ -63,6 +63,48 @@ namespace OrderOptDAG_SPACE
         env_.end();
     }
 
+    void ScheduleOptimizer::OptimizeWithJobOrder(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec, const SFOrder &jobOrder)
+    {
+        // new environment, model, variables and solver
+        env_ = IloEnv();
+        model_ = IloModel(env_);
+        cplexSolver_ = IloCplex(env_);
+        cplexSolver_.setOut(env_.getNullStream());
+
+        setInitialStartTimeVector(initialStartTimeVector);
+        setOptimizedStartTimeVector(initialStartTimeVector);
+        setProcessorJobVec(processorJobVec);
+        TaskSetInfoDerived tasksInfo(dagTasks_.tasks);
+        setTasksInfo(tasksInfo);
+        AddVariables();
+        AddDBFConstraints();
+        AddDDLConstraints();
+        AddJobOrderConstraints(jobOrder);
+        AddObjectives();
+
+        cplexSolver_.extract(model_);
+        bool found_feasible_solution = cplexSolver_.solve();
+
+        IloNumArray values_optimized(env_, numVariables_);
+        if (found_feasible_solution)
+        {
+            auto status = cplexSolver_.getStatus();
+            cplexSolver_.getValues(varArray_, values_optimized);
+            if (GlobalVariablesDAGOpt::debugMode)
+            {
+                std::cout << "Values are :" << values_optimized << "\n";
+                std::cout << status << " solution found: " << cplexSolver_.getObjValue() << "\n";
+            }
+            UpdateOptimizedStartTimeVector(values_optimized);
+        }
+
+        // release memory
+        cplexSolver_.end();
+        varArray_.end();
+        model_.end();
+        env_.end();
+    }
+
     VectorDynamic ScheduleOptimizer::getOptimizedStartTimeVector()
     {
         return optimizedStartTimeVector_;
@@ -117,6 +159,40 @@ namespace OrderOptDAG_SPACE
         {
             model_.add(varArray_[i] >= GetActivationTime(GetJobCECFromUniqueId(i, tasksInfo_), tasksInfo_));
             model_.add(varArray_[i] + GetExecutionTime(i, tasksInfo_) <= GetDeadline(GetJobCECFromUniqueId(i, tasksInfo_), tasksInfo_));
+        }
+    }
+
+    void ScheduleOptimizer::AddJobOrderConstraints(const SFOrder &jobOrder)
+    {
+        const std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
+        for (uint i = 1; i < instanceOrder.size(); i++)
+        {
+            auto instCurr = instanceOrder[i];
+            auto instPrev = instanceOrder[i - 1];
+            int globalIdCurr = GetJobUniqueId(instCurr.job, tasksInfo_);
+            int globalIdPrev = GetJobUniqueId(instPrev.job, tasksInfo_);
+            if (instPrev.type == 's')
+            {
+                if (instCurr.type == 's')
+                {
+                    model_.add(varArray_[globalIdCurr] >= varArray_[globalIdPrev]);
+                }
+                else // type == 'f'
+                {
+                    model_.add(varArray_[globalIdCurr] + GetExecutionTime(instCurr.job.taskId, tasksInfo_) >= varArray_[globalIdPrev]);
+                }
+            }
+            else // type == 'f'
+            {
+                if (instCurr.type == 's')
+                {
+                    model_.add(varArray_[globalIdCurr] >= varArray_[globalIdPrev] + GetExecutionTime(instPrev.job.taskId, tasksInfo_));
+                }
+                else // type == 'f'
+                {
+                    model_.add(varArray_[globalIdCurr] + GetExecutionTime(instCurr.job.taskId, tasksInfo_) >= varArray_[globalIdPrev] + GetExecutionTime(instPrev.job.taskId, tasksInfo_));
+                }
+            }
         }
     }
 
