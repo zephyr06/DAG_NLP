@@ -45,7 +45,7 @@ protected:
     VectorDynamic initial;
 };
 
-TEST_F(DAGScheduleOptimizerTest1, UpdateStatus)
+TEST_F(DAGScheduleOptimizerTest1, OptimizeWithJobOrder)
 {
     ScheduleOptimizer optimizer(dagTasks);
     optimizer.OptimizeWithJobOrder(initial, processorJobVec, jobOrder);
