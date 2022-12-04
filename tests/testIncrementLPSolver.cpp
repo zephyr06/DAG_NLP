@@ -187,6 +187,120 @@ TEST_F(DAGScheduleOptimizerTest1, GetJacobianJobOrder)
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect, augJaco.jacobian));
 }
 
+std::vector<std::vector<JobCEC>> SortJobsEachProcessor(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum)
+{
+    const std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
+
+    std::vector<std::vector<JobCEC>> jobsOrderedEachProcessor(processorNum);
+    // jobsOrderedEachProcessor.reserve(processorNum);
+    for (uint i = 0; i < instanceOrder.size(); i++)
+    {
+        TimeInstance instCurr = instanceOrder[i];
+        if (instCurr.type == 's') // only exam start instances
+        {
+            JobCEC &jobCurr = instCurr.job;
+            LLint uniqueJobId = GetJobUniqueId(instCurr.job, tasksInfo);
+            jobsOrderedEachProcessor[processorJobVec[uniqueJobId]].push_back(jobCurr);
+        }
+    }
+
+    return jobsOrderedEachProcessor;
+}
+TEST_F(DAGScheduleOptimizerTest1, SortJobsEachProcessor_single_core)
+{
+    std::vector<std::vector<JobCEC>> jobsOrderedEachProcessor = SortJobsEachProcessor(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    EXPECT_EQ(4, jobsOrderedEachProcessor[0].size());
+    EXPECT_EQ(0, jobsOrderedEachProcessor[0][0].taskId);
+    EXPECT_EQ(0, jobsOrderedEachProcessor[0][1].taskId);
+    EXPECT_EQ(2, jobsOrderedEachProcessor[0][2].taskId);
+    EXPECT_EQ(1, jobsOrderedEachProcessor[0][3].taskId);
+}
+
+TEST_F(DAGScheduleOptimizerTest1, SortJobsEachProcessor_multi_core)
+{
+    initial = GenerateVectorDynamic(4);
+    initial << 0, 10, 0, 12;
+    jobOrder = SFOrder(tasksInfo, initial);
+    jobOrder.print();
+    VectorDynamic _ = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVec);
+    std::vector<std::vector<JobCEC>> jobsOrderedEachProcessor = SortJobsEachProcessor(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    EXPECT_EQ(3, jobsOrderedEachProcessor[0].size());
+    EXPECT_EQ(1, jobsOrderedEachProcessor[1].size());
+    EXPECT_EQ(1, jobsOrderedEachProcessor[1][0].taskId);
+}
+
+// jobOrder's instanceOrder_ may be updated
+AugmentedJacobian GetJacobianDBF(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum)
+{
+    // find all the jobs that are executed on the same processor
+
+    // For each processor, sort all the jobs' execution order
+
+    std::vector<std::vector<JobCEC>> jobsOrderedEachProcessor = SortJobsEachProcessor(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
+    // Add DBF constraints for each adjacent job pair
+
+    int m = tasksInfo.length - 1;
+    MatrixDynamic jacobian = GenerateMatrixDynamic(m, tasksInfo.length);
+    VectorDynamic rhs = GenerateVectorDynamic(m);
+    int count = 0;
+    const std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
+    for (uint i = 1; i < instanceOrder.size(); i++)
+    {
+        auto instCurr = instanceOrder[i];
+        auto instPrev = instanceOrder[i - 1];
+        if (instPrev.job == instCurr.job)
+            continue;
+        int globalIdCurr = GetJobUniqueId(instCurr.job, tasksInfo);
+        int globalIdPrev = GetJobUniqueId(instPrev.job, tasksInfo);
+
+        if (count > 2)
+            CoutError("Please provide implementation for discontinuous 's' and 'f' in GetJacobianJobOrder");
+        jacobian(count, globalIdCurr) = -1;
+        jacobian(count, globalIdPrev) = 1;
+        if (instPrev.type == 's')
+        {
+            if (instCurr.type == 's')
+            {
+                rhs(count) = 0;
+            }
+            else // instCurr.type == 'f'
+            {
+                rhs(count) = GetExecutionTime(instCurr.job, tasksInfo);
+            }
+        }
+        else // instPrev.type == 'f'
+        {
+            if (instCurr.type == 's')
+            {
+                rhs(count) = -1 * GetExecutionTime(instPrev.job, tasksInfo);
+            }
+            else // type == 'f'
+            {
+                rhs(count) = -1 * GetExecutionTime(instPrev.job, tasksInfo) + GetExecutionTime(instCurr.job, tasksInfo);
+            }
+        }
+        count++;
+    }
+
+    return AugmentedJacobian{jacobian, rhs};
+}
+
+TEST_F(DAGScheduleOptimizerTest1, GetJacobianDBF)
+{
+    auto augJaco = GetJacobianJobOrder(dagTasks, tasksInfo, jobOrder);
+    MatrixDynamic jacobianExpect = GenerateMatrixDynamic(3, 4);
+    jacobianExpect << 1, -1, 0, 0,
+        0, 1, 0, -1,
+        0, 0, -1, 1;
+    VectorDynamic rhsExpect = GenerateVectorDynamic(3);
+    rhsExpect << -1, -1, -3;
+
+    augJaco.print();
+
+    // EXPECT_EQ(jacobianExpect, augJaco.jacobian);
+    EXPECT_EQ(rhsExpect, augJaco.rhs);
+    EXPECT_TRUE(gtsam::assert_equal(jacobianExpect, augJaco.jacobian));
+}
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
