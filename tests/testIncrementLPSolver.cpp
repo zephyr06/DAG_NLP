@@ -9,6 +9,7 @@
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/Optimization/JacobianAnalyze.h"
+#include "sources/Utils/IncrementQR.h"
 
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
@@ -176,6 +177,14 @@ TEST_F(DAGScheduleOptimizerTest1, GetJacobianAll)
     EXPECT_EQ(4 + 4 + 6 + 6, augJacobAll.jacobian.squaredNorm());
     EXPECT_EQ(20 + 20 + 20 - 1 - 1 - 3 - 1 - 1 - 3, augJacobAll.rhs.sum());
 }
+
+TEST_F(DAGScheduleOptimizerTest1, QR_Eigen)
+{
+    AugmentedJacobian augJacobAll = GetJacobianAll(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+
+    GetEigenQR(augJacobAll.jacobian).print();
+}
+
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
