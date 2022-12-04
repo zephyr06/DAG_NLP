@@ -4,6 +4,7 @@
 #include "ilcplex/ilocplex.h"
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
+#include <Eigen/Jacobi>
 #include "gtsam/base/Testable.h" // assert_equal
 
 #include "sources/TaskModel/DAG_Model.h"
@@ -176,15 +177,6 @@ TEST_F(DAGScheduleOptimizerTest1, GetJacobianAll)
     EXPECT_EQ(4 + 4 + 3 + 3, augJacobAll.jacobian.rows());
     EXPECT_EQ(4 + 4 + 6 + 6, augJacobAll.jacobian.squaredNorm());
     EXPECT_EQ(20 + 20 + 20 - 1 - 1 - 3 - 1 - 1 - 3, augJacobAll.rhs.sum());
-}
-
-TEST_F(DAGScheduleOptimizerTest1, QR_Eigen)
-{
-    AugmentedJacobian augJacobAll = GetJacobianAll(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
-
-    QR qrEigen = GetEigenQR(augJacobAll.jacobian);
-    qrEigen.print();
-    EXPECT_FLOAT_EQ(-5.39103, qrEigen.R.sum());
 }
 
 int main(int argc, char **argv)
