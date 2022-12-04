@@ -182,7 +182,9 @@ TEST_F(DAGScheduleOptimizerTest1, QR_Eigen)
 {
     AugmentedJacobian augJacobAll = GetJacobianAll(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
 
-    GetEigenQR(augJacobAll.jacobian).print();
+    QR qrEigen = GetEigenQR(augJacobAll.jacobian);
+    qrEigen.print();
+    EXPECT_FLOAT_EQ(-5.39103, qrEigen.R.sum());
 }
 
 int main(int argc, char **argv)
