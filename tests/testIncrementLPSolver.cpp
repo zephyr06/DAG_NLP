@@ -194,60 +194,29 @@ std::vector<AugmentedJacobian> GetVariableBlocks(const DAG_Model &dagTasks, cons
 
     int jobIndex = 0;
     const std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
-    for (uint i = 1; i < instanceOrder.size(); i++)
+
+    for (uint i = 0; i < instanceOrder.size(); i++)
     {
         auto instCurr = instanceOrder[i];
-        auto instPrev = instanceOrder[i - 1];
         JobCEC jobCurr = instCurr.job;
-
-        // set DDL
-        jacobs[jobIndex].jacobian(0, jobIndex) = 1;
-        jacobs[jobIndex].rhs(0) = GetDeadline(jobCurr, tasksInfo);
-
-        // set Activation
-        jacobs[jobIndex].jacobian(1, jobIndex) = -1;
-        jacobs[jobIndex].rhs(1) = -1 * GetActivationTime(jobCurr, tasksInfo);
-
-        // set job order
-        if (instPrev.job == instCurr.job)
-            continue; // setting jacobian and rhs as 0 vectors
-        int globalIdCurr = GetJobUniqueId(instCurr.job, tasksInfo);
-        int globalIdPrev = GetJobUniqueId(instPrev.job, tasksInfo);
-
-        jacobs[jobIndex].jacobian(2, globalIdPrev) = 1;
-        jacobs[jobIndex].jacobian(2, globalIdCurr) = -1;
-        if (instPrev.type == 's')
+        if (instCurr.type == 's')
         {
-            if (instCurr.type == 's')
-            {
-                jacobs[jobIndex].rhs(2) = 0;
-                // rhs(jobIndex) = 0;
-            }
-            else // instCurr.type == 'f'
-            {
-                // rhs(jobIndex) = GetExecutionTime(instCurr.job, tasksInfo);
-                jacobs[jobIndex].rhs(2) = GetExecutionTime(instCurr.job, tasksInfo);
-            }
+            // set DDL
+            jacobs[jobIndex].jacobian(0, jobIndex) = 1;
+            jacobs[jobIndex].rhs(0) = GetDeadline(jobCurr, tasksInfo);
+
+            // set Activation
+            jacobs[jobIndex].jacobian(1, jobIndex) = -1;
+            jacobs[jobIndex].rhs(1) = -1 * GetActivationTime(jobCurr, tasksInfo);
+
+            jobIndex++;
         }
-        else // instPrev.type == 'f'
-        {
-            if (instCurr.type == 's')
-            {
-                // rhs(jobIndex) = -1 * GetExecutionTime(instPrev.job, tasksInfo);
-                jacobs[jobIndex].rhs(2) = -1 * GetExecutionTime(instPrev.job, tasksInfo);
-            }
-            else // type == 'f'
-            {
-                // rhs(jobIndex) = -1 * GetExecutionTime(instPrev.job, tasksInfo) + GetExecutionTime(instCurr.job, tasksInfo);
-                jacobs[jobIndex].rhs(2) = -1 * GetExecutionTime(instPrev.job, tasksInfo) + GetExecutionTime(instCurr.job, tasksInfo);
-            }
-        }
-        jobIndex++;
     }
 
     // set DBF
     std::vector<std::vector<JobCEC>> jobsOrderedEachProcessor = SortJobsEachProcessor(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
 
+    jobIndex = 0;
     for (uint processorId = 0; processorId < jobsOrderedEachProcessor.size(); processorId++)
     {
         const std::vector<JobCEC> &jobsOrdered = jobsOrderedEachProcessor[processorId];
@@ -255,28 +224,102 @@ std::vector<AugmentedJacobian> GetVariableBlocks(const DAG_Model &dagTasks, cons
         {
             int globalIdPrev = GetJobUniqueId(jobsOrdered.at(i - 1), tasksInfo);
             int globalIdCurr = GetJobUniqueId(jobsOrdered.at(i), tasksInfo);
-            // let's assume that globalIdPrev happens earlier than globalIdCurr
-            jacobs[globalIdPrev].jacobian(3, globalIdPrev) = 1;
-            jacobs[globalIdPrev].jacobian(3, globalIdCurr) = -1;
-            jacobs[globalIdPrev].rhs(3) = -1 * GetExecutionTime(jobsOrdered.at(i - 1), tasksInfo);
+            // let's assume that globalIdPrev happens earlier than globalIdCurr, which is actually guaranteed by SortJobsEachProcessor(...)
+            jacobs[jobIndex].jacobian(2, globalIdPrev) = 1;
+            jacobs[jobIndex].jacobian(2, globalIdCurr) = -1;
+            jacobs[jobIndex].rhs(2) = -1 * GetExecutionTime(jobsOrdered.at(i - 1), tasksInfo);
+            jobIndex++;
         }
     }
 
-    return AugmentedJacobian{jacobian, rhs};
+    jobIndex = 0;
+    for (uint i = 1; i < instanceOrder.size(); i++)
+    {
+        auto instCurr = instanceOrder[i];
+        auto instPrev = instanceOrder[i - 1];
+
+        // set job order
+        if (instPrev.job == instCurr.job)
+            continue; // setting jacobian and rhs as 0 vectors
+        int globalIdCurr = GetJobUniqueId(instCurr.job, tasksInfo);
+        int globalIdPrev = GetJobUniqueId(instPrev.job, tasksInfo);
+
+        jacobs[jobIndex].jacobian(3, globalIdPrev) = 1;
+        jacobs[jobIndex].jacobian(3, globalIdCurr) = -1;
+        if (instPrev.type == 's')
+        {
+            if (instCurr.type == 's')
+            {
+                jacobs[jobIndex].rhs(3) = 0;
+                // rhs(jobIndex) = 0;
+            }
+            else // instCurr.type == 'f'
+            {
+                // rhs(jobIndex) = GetExecutionTime(instCurr.job, tasksInfo);
+                jacobs[jobIndex].rhs(3) = GetExecutionTime(instCurr.job, tasksInfo);
+            }
+        }
+        else // instPrev.type == 'f'
+        {
+            if (instCurr.type == 's')
+            {
+                // rhs(jobIndex) = -1 * GetExecutionTime(instPrev.job, tasksInfo);
+                jacobs[jobIndex].rhs(3) = -1 * GetExecutionTime(instPrev.job, tasksInfo);
+            }
+            else // type == 'f'
+            {
+                // rhs(jobIndex) = -1 * GetExecutionTime(instPrev.job, tasksInfo) + GetExecutionTime(instCurr.job, tasksInfo);
+                jacobs[jobIndex].rhs(3) = -1 * GetExecutionTime(instPrev.job, tasksInfo) + GetExecutionTime(instCurr.job, tasksInfo);
+            }
+        }
+        jobIndex++;
+    }
+
+    return jacobs;
 }
 TEST_F(DAGScheduleOptimizerTest1, GetVariableBlocks)
 {
     std::vector<AugmentedJacobian> augJacos = GetVariableBlocks(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
-    // augJaco.print();
-    MatrixDynamic jacobianExpect(4, 4);
-    jacobianExpect << 1, 0, 0, 0,
+
+    MatrixDynamic jacobianExpect0(4, 4);
+    jacobianExpect0 << 1, 0, 0, 0,
         -1, 0, 0, 0,
         1, -1, 0, 0,
         1, -1, 0, 0;
-    VectorDynamic rhsExpect(4);
-    rhsExpect << 10, 0, -1, -1;
-    EXPECT_TRUE(gtsam::assert_equal(jacobianExpect, augJacos[0].jacobian));
-    EXPECT_TRUE(gtsam::assert_equal(rhsExpect, augJacos[0].rhs));
+    VectorDynamic rhsExpect0(4);
+    rhsExpect0 << 10, 0, -1, -1;
+    EXPECT_TRUE(gtsam::assert_equal(jacobianExpect0, augJacos[0].jacobian));
+    EXPECT_TRUE(gtsam::assert_equal(rhsExpect0, augJacos[0].rhs));
+
+    MatrixDynamic jacobianExpect1(4, 4);
+    jacobianExpect1 << 0, 1, 0, 0,
+        0, -1, 0, 0,
+        0, 1, 0, -1,
+        0, 1, 0, -1;
+    VectorDynamic rhsExpect1(4);
+    rhsExpect1 << 20, -10, -1, -1;
+    EXPECT_TRUE(gtsam::assert_equal(jacobianExpect1, augJacos[1].jacobian));
+    EXPECT_TRUE(gtsam::assert_equal(rhsExpect1, augJacos[1].rhs));
+
+    MatrixDynamic jacobianExpect2(4, 4);
+    jacobianExpect2 << 0, 0, 1, 0,
+        0, 0, -1, 0,
+        0, 0, -1, 1,
+        0, 0, -1, 1;
+    VectorDynamic rhsExpect2(4);
+    rhsExpect2 << 20, 0, -3, -3;
+    EXPECT_TRUE(gtsam::assert_equal(jacobianExpect2, augJacos[2].jacobian));
+    EXPECT_TRUE(gtsam::assert_equal(rhsExpect2, augJacos[2].rhs));
+
+    MatrixDynamic jacobianExpect3(4, 4);
+    jacobianExpect3 << 0, 0, 0, 1,
+        0, 0, 0, -1,
+        0, 0, 0, 0,
+        0, 0, 0, 0;
+    VectorDynamic rhsExpect3(4);
+    rhsExpect3 << 20, 0, 0, 0;
+    EXPECT_TRUE(gtsam::assert_equal(jacobianExpect3, augJacos[3].jacobian));
+    EXPECT_TRUE(gtsam::assert_equal(rhsExpect3, augJacos[3].rhs));
 }
 // TEST_F(DAGScheduleOptimizerTest1, GetVariableBlock_non_continuous)
 // {
