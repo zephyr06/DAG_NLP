@@ -185,42 +185,80 @@ std::vector<AugmentedJacobian> GetVariableBlocks(const DAG_Model &dagTasks, cons
     int n = tasksInfo.length; // number of variables
     int m = 4;                // rows of Jacobian in each AugmentedJacobian
 
+    // prepare the results initialization
     AugmentedJacobian jacobRef(m, n);
     std::vector<AugmentedJacobian> jacobs;
     jacobs.reserve(n);
     for (int i = 0; i < n; i++)
         jacobs.push_back(jacobRef);
 
-    int jobGlobalIndex = 0;
-    for (int taskIndex = 0; taskIndex < n; taskIndex++)
+    int jobIndex = 0;
+    const std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
+    for (uint i = 1; i < instanceOrder.size(); i++)
     {
-        for (int jobIndex = 0; jobIndex < tasksInfo.sizeOfVariables[taskIndex]; jobIndex++)
+        auto instCurr = instanceOrder[i];
+        auto instPrev = instanceOrder[i - 1];
+        JobCEC jobCurr = instCurr.job;
+
+        // set DDL
+        jacobs[jobIndex].jacobian(0, jobIndex) = 1;
+        jacobs[jobIndex].rhs(0) = GetDeadline(jobCurr, tasksInfo);
+
+        // set Activation
+        jacobs[jobIndex].jacobian(1, jobIndex) = -1;
+        jacobs[jobIndex].rhs(1) = -1 * GetActivationTime(jobCurr, tasksInfo);
+
+        // set job order
+        if (instPrev.job == instCurr.job)
+            continue; // setting jacobian and rhs as 0 vectors
+        int globalIdCurr = GetJobUniqueId(instCurr.job, tasksInfo);
+        int globalIdPrev = GetJobUniqueId(instPrev.job, tasksInfo);
+
+        jacobs[jobIndex].jacobian(2, globalIdPrev) = 1;
+        jacobs[jobIndex].jacobian(2, globalIdCurr) = -1;
+        if (instPrev.type == 's')
         {
-            JobCEC jobCurr(taskIndex, jobIndex);
-            MatrixDynamic jacobian = GenerateMatrixDynamic(m, n);
-            VectorDynamic rhs = GenerateVectorDynamic(m);
+            if (instCurr.type == 's')
+            {
+                jacobs[jobIndex].rhs(2) = 0;
+                // rhs(jobIndex) = 0;
+            }
+            else // instCurr.type == 'f'
+            {
+                // rhs(jobIndex) = GetExecutionTime(instCurr.job, tasksInfo);
+                jacobs[jobIndex].rhs(2) = GetExecutionTime(instCurr.job, tasksInfo);
+            }
+        }
+        else // instPrev.type == 'f'
+        {
+            if (instCurr.type == 's')
+            {
+                // rhs(jobIndex) = -1 * GetExecutionTime(instPrev.job, tasksInfo);
+                jacobs[jobIndex].rhs(2) = -1 * GetExecutionTime(instPrev.job, tasksInfo);
+            }
+            else // type == 'f'
+            {
+                // rhs(jobIndex) = -1 * GetExecutionTime(instPrev.job, tasksInfo) + GetExecutionTime(instCurr.job, tasksInfo);
+                jacobs[jobIndex].rhs(2) = -1 * GetExecutionTime(instPrev.job, tasksInfo) + GetExecutionTime(instCurr.job, tasksInfo);
+            }
+        }
+        jobIndex++;
+    }
 
-            // DDL
-            jacobian(0, variableIndex) = 1;
-            rhs(0) = GetDeadline(jobCurr, tasksInfo);
+    // set DBF
+    std::vector<std::vector<JobCEC>> jobsOrderedEachProcessor = SortJobsEachProcessor(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
 
-            // Activation time
-            jacobian(1, variableIndex) = -1;
-            rhs(1) = -1 * GetActivationTime(jobCurr, tasksInfo);
-
-            // DBF
-            jacobian(2, variableIndex) = 1;
-            jacobian(2, variableIndex + 1) = -1;
-            std::vector<std::vector<JobCEC>> jobsOrderedEachProcessor = SortJobsEachProcessor(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
-            int processorIdCurr = processorJobVec[variableIndex];
-
-            rhs(2) = 0;
-
-            // job order
-            jacobian(3, variableIndex) = 1;
-            jacobian(3, variableIndex + 1) = -1;
-
-            jobGlobalIndex++;
+    for (uint processorId = 0; processorId < jobsOrderedEachProcessor.size(); processorId++)
+    {
+        const std::vector<JobCEC> &jobsOrdered = jobsOrderedEachProcessor[processorId];
+        for (uint i = 1; i < jobsOrdered.size(); i++)
+        {
+            int globalIdPrev = GetJobUniqueId(jobsOrdered.at(i - 1), tasksInfo);
+            int globalIdCurr = GetJobUniqueId(jobsOrdered.at(i), tasksInfo);
+            // let's assume that globalIdPrev happens earlier than globalIdCurr
+            jacobs[globalIdPrev].jacobian(3, globalIdPrev) = 1;
+            jacobs[globalIdPrev].jacobian(3, globalIdCurr) = -1;
+            jacobs[globalIdPrev].rhs(3) = -1 * GetExecutionTime(jobsOrdered.at(i - 1), tasksInfo);
         }
     }
 

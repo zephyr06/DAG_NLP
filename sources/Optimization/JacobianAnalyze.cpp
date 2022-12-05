@@ -62,6 +62,7 @@ namespace OrderOptDAG_SPACE
         return augJacobAll;
     }
 
+    // For each processor, the jobs are ordered following the gien jobOrder
     std::vector<std::vector<JobCEC>> SortJobsEachProcessor(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum)
     {
         const std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
