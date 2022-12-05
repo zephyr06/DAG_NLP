@@ -14,6 +14,12 @@ namespace OrderOptDAG_SPACE
     {
         MatrixDynamic jacobian;
         VectorDynamic rhs;
+
+        AugmentedJacobian(MatrixDynamic jacobian,
+                          VectorDynamic rhs) : jacobian(jacobian), rhs(rhs) {}
+
+        AugmentedJacobian(int m, int n): jacobian(GenerateMatrixDynamic(m, n)), rhs(GenerateVectorDynamic(m)) {}
+        
         void print()
         {
             std::cout << "Jacobian: " << jacobian << std::endl;
