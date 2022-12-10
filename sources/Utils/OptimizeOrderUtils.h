@@ -17,7 +17,6 @@ namespace OrderOptDAG_SPACE
         VectorDynamic startTimeVector_;
         bool schedulable_;
         double obj_;
-        double objWeighted_;
         double timeTaken_;
         std::vector<uint> processorJobVec_;
         LLint countOutermostWhileLoop_;
