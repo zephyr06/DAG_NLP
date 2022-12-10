@@ -69,7 +69,7 @@ namespace OrderOptDAG_SPACE
             break;
 
         case TOM_FastLP:
-            scheduleOptions.doScheduleOptimization_ = 0;
+            scheduleOptions.doScheduleOptimization_ = 1;
             scheduleOptions.doScheduleOptimizationOnlyOnce_ = 1;
             res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler, ObjectiveFunctionBase>(dagTasks, scheduleOptions);
             break;
@@ -80,7 +80,7 @@ namespace OrderOptDAG_SPACE
     }
 
     template <typename ObjectiveFunctionBase>
-    std::vector<BatchResult> BatchOptimizeOrder(std::vector<OrderOptDAG_SPACE::BaselineMethods> baselineMethods, std::string dataSetFolder = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/dagTasks/", int chainNum = GlobalVariablesDAGOpt::NumCauseEffectChain)
+    std::vector<BatchResult> BatchOptimizeOrder(std::vector<OrderOptDAG_SPACE::BaselineMethods> &baselineMethods, std::string dataSetFolder = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/dagTasks/", int chainNum = GlobalVariablesDAGOpt::NumCauseEffectChain)
     {
         std::string dirStr = dataSetFolder;
         const char *pathDataset = (dirStr).c_str();

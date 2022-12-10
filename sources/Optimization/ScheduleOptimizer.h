@@ -27,7 +27,7 @@ namespace OrderOptDAG_SPACE
 
         void OptimizeWithJobOrder(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec, const SFOrder &jobOrder);
 
-        // useWeightedObj_ will decide wheterh optimize RTDA or weighted objectives
+        // useWeightedObj_ will decide whether optimize RTDA or weighted objectives
         inline void setObjType(bool useWeightedObj = false)
         {
             useWeightedObj_ = useWeightedObj;

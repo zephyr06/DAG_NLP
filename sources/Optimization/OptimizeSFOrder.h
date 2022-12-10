@@ -243,39 +243,39 @@ namespace OrderOptDAG_SPACE
             ScheduleResult scheduleRes = dagScheduleOptimizer.Optimize();
 
             // TODO(Dong) : optimize this part
-            // std::vector<uint> processorJobVec;
-            // auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef, processorJobVec);
-
-            // if (scheduleOptions.doScheduleOptimization_)
-            // {
-            //     if (!scheduleOptions.considerSensorFusion_ || !scheduleRes.schedulable_)
-            //     {
-            //         ScheduleOptimizer schedule_optimizer = ScheduleOptimizer();
-            //         ScheduleResult result_after_optimization;
-            //         if (scheduleOptions.considerSensorFusion_)
-            //         {
-            //             schedule_optimizer.OptimizeObjWeighted(dagTasks, scheduleRes);
-            //             result_after_optimization = schedule_optimizer.getOptimizedResult();
-            //             if (result_after_optimization.objWeighted_ < scheduleRes.objWeighted_)
-            //             {
-            //                 scheduleRes = result_after_optimization;
-            //                 std::vector<RTDA> rtda_vector;
-            //                 for (auto chain : dagTasks.chains_)
-            //                 {
-            //                     auto res = GetRTDAFromSingleJob(tasksInfo, chain, scheduleRes.startTimeVector_);
-            //                     RTDA resM = GetMaxRTDA(res);
-            //                     rtda_vector.push_back(resM);
-            //                 }
-            //                 scheduleRes.obj_ = ObjRTDA(rtda_vector);
-            //             }
-            //         }
-            //         else
-            //         {
-            //             schedule_optimizer.Optimize(dagTasks, scheduleRes);
-            //             scheduleRes = schedule_optimizer.getOptimizedResult();
-            //         }
-            //     }
-            // }
+            if (scheduleOptions.doScheduleOptimization_)
+            {
+                if (!scheduleOptions.considerSensorFusion_ || !scheduleRes.schedulable_)
+                {
+                    ScheduleOptimizer schedule_optimizer = ScheduleOptimizer(dagTasks);
+                    if (scheduleOptions.considerSensorFusion_)
+                    {
+            //             // TODO(Dong): modify related code
+            //             // schedule_optimizer.OptimizeObjWeighted(dagTasks, scheduleRes);
+                           // ScheduleResult result_after_optimization;
+            //             // result_after_optimization = schedule_optimizer.getOptimizedResult();
+            //             // if (result_after_optimization.objWeighted_ < scheduleRes.objWeighted_)
+            //             // {
+            //             //     scheduleRes = result_after_optimization;
+            //             //     std::vector<RTDA> rtda_vector;
+            //             //     for (auto chain : dagTasks.chains_)
+            //             //     {
+            //             //         auto res = GetRTDAFromSingleJob(tasksInfo, chain, scheduleRes.startTimeVector_);
+            //             //         RTDA resM = GetMaxRTDA(res);
+            //             //         rtda_vector.push_back(resM);
+            //             //     }
+            //             //     scheduleRes.obj_ = ObjRTDA(rtda_vector);
+            //             // }
+                    }
+                    else
+                    {
+                        schedule_optimizer.setObjType(false);
+                        schedule_optimizer.Optimize(scheduleRes.startTimeVector_, scheduleRes.processorJobVec_);
+                        scheduleRes.startTimeVector_ = schedule_optimizer.getOptimizedStartTimeVector();
+                        scheduleRes.obj_ = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleOptions);
+                    }
+                }
+            }
 
             if (ObjectiveFunctionBase::type_trait == "RTDAExperimentObj")
                 scheduleRes.schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, scheduleRes.startTimeVector_, scheduleRes.processorJobVec_, scheduleOptions.processorNum_);
