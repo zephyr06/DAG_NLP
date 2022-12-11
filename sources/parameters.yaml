@@ -10,7 +10,7 @@ debugMode: 0
 doScheduleOptimization: 0
 doScheduleOptimizationOnlyOnce: 0
 considerSensorFusion: 0 
-selectInitialFromPool: 20 # 0 means not using this method
+selectInitialFromPool: 0 # 0 means not using this method
 #*************************************************************
 # Get away from local optimal setting
 RandomAccept: 0 # chance to take a possibly better solution

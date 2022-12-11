@@ -1,6 +1,6 @@
 ## Must do things before any test:
 ### General settings:
-* Update `PROJECT_PATH` in `sources/Utils/Parameters.h` to correct path
+* Update `PROJECT_PATH` in `sources/Utils/Parameters.cpp` to correct path
 
 
 ### runVerucchiOnlyRTAS2023 settings
