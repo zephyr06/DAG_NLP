@@ -189,7 +189,9 @@ std::vector<AugmentedJacobian> GetVariableBlocks(const DAG_Model &dagTasks, cons
 
     // prepare the results initialization
     AugmentedJacobian jacobRef(m, n);
-    jacobRef.jacobian.conservativeResize(4 + n, n);
+    // maximum rows: 2 for DDL and Acti, 2 for DBF, 2 for JobOrder
+    jacobRef.jacobian.conservativeResize(1 + 1 + 2 + 2, n);
+    jacobRef.rhs.conservativeResize(1 + 1 + 2 + 2, 1);
     std::vector<AugmentedJacobian> jacobs;
     jacobs.reserve(n);
     for (int i = 0; i < n; i++)
@@ -247,9 +249,19 @@ std::vector<AugmentedJacobian> GetVariableBlocks(const DAG_Model &dagTasks, cons
 
         if (instPrev.job == instCurr.job)
             continue; // setting jacobian and rhs as 0 vectors
+
         int globalIdPrev = jobIndexInJacobian[instPrev.job];
         int globalIdCurr = jobIndexInJacobian[instCurr.job];
+        if (globalIdPrev > globalIdCurr) // make sure that prev inst happens earlier than next inst
+        {
+            auto instTemp = instCurr;
+            instCurr = instPrev;
+            instPrev = instTemp;
+            globalIdPrev = jobIndexInJacobian[instPrev.job];
+            globalIdCurr = jobIndexInJacobian[instCurr.job];
+        }
 
+        jacobs[globalIdPrev].jacobian.row(rowCount[globalIdPrev]).setZero();
         jacobs[globalIdPrev].jacobian(rowCount[globalIdPrev], globalIdPrev) = 1;
         jacobs[globalIdPrev].jacobian(rowCount[globalIdPrev], globalIdCurr) = -1;
         if (instPrev.type == 's')
@@ -284,7 +296,8 @@ std::vector<AugmentedJacobian> GetVariableBlocks(const DAG_Model &dagTasks, cons
     jobIndex = 0;
     for (auto &augJacob : jacobs)
     {
-        augJacob.jacobian.conservativeResize(rowCount[jobIndex++], n);
+        augJacob.jacobian.conservativeResize(rowCount[jobIndex], n);
+        augJacob.rhs.conservativeResize(rowCount[jobIndex++], 1);
     }
 
     return jacobs;
@@ -326,8 +339,8 @@ TEST_F(DAGScheduleOptimizerTest1, GetVariableBlocks)
     MatrixDynamic jacobianExpect3(2, 4);
     jacobianExpect3 << 0, 0, 0, 1,
         0, 0, 0, -1;
-    VectorDynamic rhsExpect3(4);
-    rhsExpect3 << 20, 0, 0, 0;
+    VectorDynamic rhsExpect3(2);
+    rhsExpect3 << 20, 0;
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect3, augJacos[3].jacobian));
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect3, augJacos[3].rhs));
 }
@@ -344,43 +357,42 @@ TEST_F(DAGScheduleOptimizerTest1, GetVariableBlock_non_continuous)
 
     std::vector<AugmentedJacobian> augJacos = GetVariableBlocks(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
 
-    MatrixDynamic jacobianExpect0(4, 4);
+    MatrixDynamic jacobianExpect0(6, 4);
     jacobianExpect0 << 1, 0, 0, 0,
         -1, 0, 0, 0,
+        1, 0, -1, 0,
+        1, -1, 0, 0,
         1, -1, 0, 0,
         1, -1, 0, 0;
-    VectorDynamic rhsExpect0(4);
-    rhsExpect0 << 10, 0, -1, -1;
+    VectorDynamic rhsExpect0(6);
+    rhsExpect0 << 10, 0, -1, 0, -1, 1;
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect0, augJacos[0].jacobian));
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect0, augJacos[0].rhs));
 
-    MatrixDynamic jacobianExpect1(4, 4);
+    MatrixDynamic jacobianExpect1(3, 4);
     jacobianExpect1 << 0, 1, 0, 0,
         0, -1, 0, 0,
-        0, 1, 0, -1,
-        0, 1, 0, -1;
-    VectorDynamic rhsExpect1(4);
-    rhsExpect1 << 20, -10, -1, -1;
+        0, 1, -1, 0;
+    VectorDynamic rhsExpect1(3);
+    rhsExpect1 << 20, 0, -2;
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect1, augJacos[1].jacobian));
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect1, augJacos[1].rhs));
 
     MatrixDynamic jacobianExpect2(4, 4);
     jacobianExpect2 << 0, 0, 1, 0,
         0, 0, -1, 0,
-        0, 0, -1, 1,
-        0, 0, -1, 1;
+        0, 0, 1, -1,
+        0, 0, 1, -1;
     VectorDynamic rhsExpect2(4);
-    rhsExpect2 << 20, 0, -3, -3;
+    rhsExpect2 << 20, -10, -1, -1;
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect2, augJacos[2].jacobian));
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect2, augJacos[2].rhs));
 
-    MatrixDynamic jacobianExpect3(4, 4);
+    MatrixDynamic jacobianExpect3(2, 4);
     jacobianExpect3 << 0, 0, 0, 1,
-        0, 0, 0, -1,
-        0, 0, 0, 0,
-        0, 0, 0, 0;
-    VectorDynamic rhsExpect3(4);
-    rhsExpect3 << 20, 0, 0, 0;
+        0, 0, 0, -1;
+    VectorDynamic rhsExpect3(2);
+    rhsExpect3 << 20, 0;
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect3, augJacos[3].jacobian));
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect3, augJacos[3].rhs));
 }

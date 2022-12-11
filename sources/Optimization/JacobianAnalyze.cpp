@@ -91,6 +91,7 @@ namespace OrderOptDAG_SPACE
         return jobsOrderedEachProcessor;
     }
 
+    // Bug found: it can't correctly distinguish prev and next instances in cases such as (1,0,s) preceeds (0,0,f), but we'll probably not use this function anymore
     AugmentedJacobian GetJacobianJobOrder(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder)
     {
         MatrixDynamic jacobian;
