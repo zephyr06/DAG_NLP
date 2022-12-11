@@ -14,7 +14,9 @@ namespace OrderOptDAG_SPACE
     {
         MatrixDynamic jacobian;
         VectorDynamic rhs;
-
+        
+        AugmentedJacobian(){}
+        
         AugmentedJacobian(MatrixDynamic jacobian,
                           VectorDynamic rhs) : jacobian(jacobian), rhs(rhs) {}
 

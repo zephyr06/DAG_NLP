@@ -52,6 +52,20 @@ protected:
     VectorDynamic initial;
 };
 
+class DAGScheduleOptimizerTest2 : public DAGScheduleOptimizerTest1
+{
+protected:
+    void SetUp() override
+    {
+        DAGScheduleOptimizerTest1::SetUp();
+        initial = GenerateVectorDynamic(4);
+        initial << 0, 10, 0, 12;
+        jobOrder = SFOrder(tasksInfo, initial);
+        jobOrder.print();
+        VectorDynamic _ = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVec);
+    }
+};
+
 TEST_F(DAGScheduleOptimizerTest1, GetJacobianDDL)
 {
     auto augJaco = GetJacobianDDL(dagTasks, tasksInfo);
@@ -345,13 +359,9 @@ TEST_F(DAGScheduleOptimizerTest1, GetVariableBlocks)
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect3, augJacos[3].rhs));
 }
 
-TEST_F(DAGScheduleOptimizerTest1, GetVariableBlock_non_continuous)
+TEST_F(DAGScheduleOptimizerTest2, GetVariableBlock_non_continuous)
 {
-    initial = GenerateVectorDynamic(4);
-    initial << 0, 10, 0, 12;
-    jobOrder = SFOrder(tasksInfo, initial);
-    jobOrder.print();
-    VectorDynamic _ = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVec);
+
     AugmentedJacobian augJacobAll = GetJacobianAll(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
     augJacobAll.print();
 
@@ -396,6 +406,39 @@ TEST_F(DAGScheduleOptimizerTest1, GetVariableBlock_non_continuous)
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect3, augJacos[3].jacobian));
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect3, augJacos[3].rhs));
 }
+
+AugmentedJacobian MergeAugJacobian(const std::vector<AugmentedJacobian> &augJacos)
+{
+    AugmentedJacobian jacobAll;
+    if (augJacos.size() == 0)
+        return jacobAll;
+
+    int totalRow = 0;
+    for (uint i = 0; i < augJacos.size(); i++)
+        totalRow += augJacos[i].jacobian.rows();
+    jacobAll = augJacos[0];
+    // jacobAll.jacobian.conservativeResize(totalRow, augJacos[0].jacobian.cols());
+    // jacobAll.rhs.conservativeResize(totalRow, 1);
+    for (uint i = 1; i < augJacos.size(); i++)
+    {
+        // jacobAll.jacobian.resize(jacobAll.jacobian.rows() + augJacos[i].jacobian.rows(), augJacos[i].jacobian.cols());
+        // jacobAll.jacobian << jacobAll.jacobian, augJacos[i].jacobian;
+        // jacobAll.rhs << jacobAll.rhs, augJacos[i].rhs;
+        jacobAll = StackAugJaco(jacobAll, augJacos[i]);
+    }
+    return jacobAll;
+}
+TEST_F(DAGScheduleOptimizerTest2, MergeAugJacobian)
+{
+    std::vector<AugmentedJacobian> augJacobs = GetVariableBlocks(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    AugmentedJacobian jacobAll = MergeAugJacobian(augJacobs);
+    EXPECT_EQ(6 + 3 + 4 + 2, jacobAll.jacobian.rows());
+    double sum = 0;
+    for (uint i = 0; i < augJacobs.size(); i++)
+        sum += augJacobs[i].jacobian.sum() + augJacobs[i].rhs.sum();
+    EXPECT_FLOAT_EQ(sum, jacobAll.jacobian.sum() + jacobAll.rhs.sum());
+}
+
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
