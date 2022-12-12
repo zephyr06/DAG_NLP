@@ -19,8 +19,9 @@ namespace OrderOptDAG_SPACE
     {
     public:
         // jobOrder is allowed to change
+        // processorJobVec will be assigned values
         OrderScheduler() {}
-        static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder, const std::vector<uint> processorJobVec)
+        static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder, std::vector<uint> &processorJobVec)
         {
             CoutError("Never call base function!");
             return GenerateVectorDynamic1D(0);
