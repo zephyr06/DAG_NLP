@@ -64,6 +64,8 @@ public:
     size_t m_;
     size_t n_;
     VectorDynamic xCurr_;
+    VectorDynamic sCurr_;
+    VectorDynamic lambdaCurr_;
 
     LPData() {}
     LPData(const MatrixDynamic &A, const VectorDynamic &b, const VectorDynamic &c) : b_(b), m_(A.rows()), n_(A.cols())
@@ -91,17 +93,17 @@ public:
     VectorDynamic GenerateInitialLP()
     {
         MatrixDynamic AA = A_ * A_.transpose();
-        VectorDynamic x0 = A_.transpose() * (AA).inverse() * b_;
-        VectorAdd(x0, std::max(-1.5 * x0.minCoeff(), 0.0));
+        VectorDynamic xCurr_ = A_.transpose() * (AA).inverse() * b_;
+        VectorAdd(xCurr_, std::max(-1.5 * xCurr_.minCoeff(), 0.0));
 
-        VectorDynamic lambda0 = AA.inverse() * A_ * c_;
-        VectorDynamic s0 = c_ - A_.transpose() * lambda0;
-        VectorAdd(s0, std::max(-1.5 * s0.minCoeff(), 0.0));
-        double deltax = 0.5 * (x0.transpose() * s0)(0, 0) / s0.sum() / 2.0;
-        double deltas = 0.5 * (x0.transpose() * s0)(0, 0) / x0.sum() / 2.0;
-        VectorAdd(x0, deltax);
-        VectorAdd(s0, deltas);
-        return x0;
+        lambdaCurr_ = AA.inverse() * A_ * c_;
+        sCurr_ = c_ - A_.transpose() * lambdaCurr_;
+        VectorAdd(sCurr_, std::max(-1.5 * sCurr_.minCoeff(), 0.0));
+        double deltax = 0.5 * (xCurr_.transpose() * sCurr_)(0, 0) / sCurr_.sum() / 2.0;
+        double deltas = 0.5 * (xCurr_.transpose() * sCurr_)(0, 0) / sCurr_.sum() / 2.0;
+        VectorAdd(xCurr_, deltax);
+        VectorAdd(sCurr_, deltas);
+        return xCurr_;
     }
 };
 
