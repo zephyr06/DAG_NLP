@@ -218,7 +218,6 @@ VectorDynamic SolveLP(const MatrixDynamic &A, const VectorDynamic &b, const Vect
 
 TEST_F(LPTest1, SolveLP)
 {
-
     TimerFunc _;
     VectorDynamic xExpect(4);
     xExpect << 0, 10, 1, 0;

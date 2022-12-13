@@ -42,3 +42,18 @@ struct TimerDataProfiler
 };
 bool compareProfiler(TimerDataProfiler a, TimerDataProfiler b);
 void PrintTimer();
+
+class TimerFunc
+{
+public:
+    TimerFunc() : begin(std::chrono::high_resolution_clock::now()) {}
+    ~TimerFunc()
+    {
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - begin);
+        std::cout << "Accumulated time during the execution is: " << double(duration.count()) / 1e6 << " seconds!\n";
+    }
+
+private:
+    typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimerType;
+    TimerType begin;
+};
