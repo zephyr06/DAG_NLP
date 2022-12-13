@@ -91,6 +91,7 @@ namespace OrderOptDAG_SPACE
         return jobsOrderedEachProcessor;
     }
 
+    // Bug found: it can't correctly distinguish prev and next instances in cases such as (1,0,s) preceeds (0,0,f), but we'll probably not use this function anymore
     AugmentedJacobian GetJacobianJobOrder(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder)
     {
         MatrixDynamic jacobian;
@@ -170,5 +171,153 @@ namespace OrderOptDAG_SPACE
         }
 
         return AugmentedJacobian{jacobian, rhs};
+    }
+
+    // This function requires more consideration
+    // order of AugmentedJacobian follows instanceOrder in jobOrder
+    // The columns of each Jacobian matrix follows instanceOrder in jobOrder
+    // TODO: clean code, refactor function
+    std::vector<AugmentedJacobian> GetVariableBlocks(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum)
+    {
+        int n = tasksInfo.length; // number of variables
+        int m = 4;                // rows of Jacobian in each AugmentedJacobian
+
+        // prepare the results initialization
+        AugmentedJacobian jacobRef(m, n);
+        // maximum rows: 2 for DDL and Acti, 2 for DBF, 2 for JobOrder
+        jacobRef.jacobian.conservativeResize(1 + 1 + 2 + 2, n);
+        jacobRef.rhs.conservativeResize(1 + 1 + 2 + 2, 1);
+        std::vector<AugmentedJacobian> jacobs;
+        jacobs.reserve(n);
+        for (int i = 0; i < n; i++)
+            jacobs.push_back(jacobRef);
+
+        std::vector<int> rowCount(n);
+        const std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
+
+        std::unordered_map<JobCEC, size_t> jobIndexInJacobian;
+        int jobIndex = 0;
+        for (uint i = 0; i < instanceOrder.size(); i++)
+        {
+            auto instCurr = instanceOrder[i];
+            JobCEC jobCurr = instCurr.job;
+            if (instCurr.type == 's')
+            {
+                // set DDL
+                jacobs[jobIndex].jacobian(0, jobIndex) = 1;
+                jacobs[jobIndex].rhs(0) = GetDeadline(jobCurr, tasksInfo);
+
+                // set Activation
+                jacobs[jobIndex].jacobian(1, jobIndex) = -1;
+                jacobs[jobIndex].rhs(1) = -1 * GetActivationTime(jobCurr, tasksInfo);
+
+                jobIndexInJacobian[jobCurr] = jobIndex;
+                rowCount[jobIndex] = 2;
+                jobIndex++;
+            }
+        }
+
+        // set DBF
+        // TODO: clean code, probably create a struct for rowCount, jacobs, etc
+        std::vector<std::vector<JobCEC>> jobsOrderedEachProcessor = SortJobsEachProcessor(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
+
+        for (uint processorId = 0; processorId < jobsOrderedEachProcessor.size(); processorId++)
+        {
+            const std::vector<JobCEC> &jobsOrdered = jobsOrderedEachProcessor[processorId];
+            for (uint i = 1; i < jobsOrdered.size(); i++)
+            {
+                int globalIdPrev = jobIndexInJacobian[jobsOrdered.at(i - 1)];
+                int globalIdCurr = jobIndexInJacobian[jobsOrdered.at(i)];
+                // let's assume that globalIdPrev happens earlier than globalIdCurr, which is actually guaranteed by SortJobsEachProcessor(...)
+                jacobs[globalIdPrev].jacobian(rowCount[globalIdPrev], globalIdPrev) = 1;
+                jacobs[globalIdPrev].jacobian(rowCount[globalIdPrev], globalIdCurr) = -1;
+                jacobs[globalIdPrev].rhs(rowCount[globalIdPrev]) = -1 * GetExecutionTime(jobsOrdered.at(i - 1), tasksInfo);
+                rowCount[globalIdPrev]++;
+            }
+        }
+
+        // set job order
+        for (uint i = 1; i < instanceOrder.size(); i++)
+        {
+            auto instCurr = instanceOrder[i];
+            auto instPrev = instanceOrder[i - 1];
+
+            if (instPrev.job == instCurr.job)
+                continue; // setting jacobian and rhs as 0 vectors
+
+            int globalIdPrev = jobIndexInJacobian[instPrev.job];
+            int globalIdCurr = jobIndexInJacobian[instCurr.job];
+            if (globalIdPrev > globalIdCurr) // make sure that prev inst happens earlier than next inst
+            {
+                auto instTemp = instCurr;
+                instCurr = instPrev;
+                instPrev = instTemp;
+                globalIdPrev = jobIndexInJacobian[instPrev.job];
+                globalIdCurr = jobIndexInJacobian[instCurr.job];
+            }
+
+            jacobs[globalIdPrev].jacobian.row(rowCount[globalIdPrev]).setZero();
+            jacobs[globalIdPrev].jacobian(rowCount[globalIdPrev], globalIdPrev) = 1;
+            jacobs[globalIdPrev].jacobian(rowCount[globalIdPrev], globalIdCurr) = -1;
+            if (instPrev.type == 's')
+            {
+                if (instCurr.type == 's')
+                {
+                    jacobs[globalIdPrev].rhs(rowCount[globalIdPrev]) = 0;
+                    // rhs(jobIndex) = 0;
+                }
+                else // instCurr.type == 'f'
+                {
+                    // rhs(jobIndex) = GetExecutionTime(instCurr.job, tasksInfo);
+                    jacobs[globalIdPrev].rhs(rowCount[globalIdPrev]) = GetExecutionTime(instCurr.job, tasksInfo);
+                }
+            }
+            else // instPrev.type == 'f'
+            {
+                if (instCurr.type == 's')
+                {
+                    // rhs(jobIndex) = -1 * GetExecutionTime(instPrev.job, tasksInfo);
+                    jacobs[globalIdPrev].rhs(rowCount[globalIdPrev]) = -1 * GetExecutionTime(instPrev.job, tasksInfo);
+                }
+                else // type == 'f'
+                {
+                    // rhs(jobIndex) = -1 * GetExecutionTime(instPrev.job, tasksInfo) + GetExecutionTime(instCurr.job, tasksInfo);
+                    jacobs[globalIdPrev].rhs(rowCount[globalIdPrev]) = -1 * GetExecutionTime(instPrev.job, tasksInfo) + GetExecutionTime(instCurr.job, tasksInfo);
+                }
+            }
+            rowCount[globalIdPrev]++;
+        }
+
+        jobIndex = 0;
+        for (auto &augJacob : jacobs)
+        {
+            augJacob.jacobian.conservativeResize(rowCount[jobIndex], n);
+            augJacob.rhs.conservativeResize(rowCount[jobIndex++], 1);
+        }
+
+        return jacobs;
+    }
+
+    // TODO: this function could improve efficiency
+    AugmentedJacobian MergeAugJacobian(const std::vector<AugmentedJacobian> &augJacos)
+    {
+        AugmentedJacobian jacobAll;
+        if (augJacos.size() == 0)
+            return jacobAll;
+
+        int totalRow = 0;
+        for (uint i = 0; i < augJacos.size(); i++)
+            totalRow += augJacos[i].jacobian.rows();
+        jacobAll = augJacos[0];
+        // jacobAll.jacobian.conservativeResize(totalRow, augJacos[0].jacobian.cols());
+        // jacobAll.rhs.conservativeResize(totalRow, 1);
+        for (uint i = 1; i < augJacos.size(); i++)
+        {
+            // jacobAll.jacobian.resize(jacobAll.jacobian.rows() + augJacos[i].jacobian.rows(), augJacos[i].jacobian.cols());
+            // jacobAll.jacobian << jacobAll.jacobian, augJacos[i].jacobian;
+            // jacobAll.rhs << jacobAll.rhs, augJacos[i].rhs;
+            jacobAll = StackAugJaco(jacobAll, augJacos[i]);
+        }
+        return jacobAll;
     }
 } // namespace OrderOptDAG_SPACE

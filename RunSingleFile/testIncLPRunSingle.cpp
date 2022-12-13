@@ -23,9 +23,9 @@ protected:
         dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig", 1);
         tasks = dagTasks.tasks;
         tasksInfo = TaskSetInfoDerived(tasks);
-        chain1 = {0, 2};
-        dagTasks.chains_[0] = chain1;
-        timeLimits = 1;
+        // chain1 = {0, 2};
+        // dagTasks.chains_[0] = chain1;
+        timeLimits = 10;
         scheduleOptions.processorNum_ = 2;
         scheduleOptions.considerSensorFusion_ = 0;
         scheduleOptions.freshTol_ = 0;
@@ -34,7 +34,10 @@ protected:
         scheduleOptions.weightInMpSf_ = 0.5;
         scheduleOptions.weightPunish_ = 10;
 
-        VectorDynamic initial = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVec);
+        // VectorDynamic initial = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVec);
+        VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_, processorJobVec);
+        std::cout << "Initial solutions: " << std::endl
+                  << initial << std::endl;
         jobOrder = SFOrder(tasksInfo, initial);
         jobOrder.print();
     };
@@ -52,7 +55,11 @@ protected:
 
 TEST_F(DAGScheduleOptimizerTest1, GetJacobianAll)
 {
-    AugmentedJacobian augJacobAll = GetJacobianAll(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    CoutWarning("The first matrix shows the original order, which is actually not rigorously right in some cases, only used to illustrate a few example!");
+    AugmentedJacobian augJacobAllOrg = GetJacobianAll(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    augJacobAllOrg.print();
+    std::vector<AugmentedJacobian> augJacobs = GetVariableBlocks(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    AugmentedJacobian augJacobAll = MergeAugJacobian(augJacobs);
     augJacobAll.print();
 }
 
