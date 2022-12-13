@@ -61,6 +61,40 @@ struct CentralVariable
     CentralVariable(VectorDynamic x,
                     VectorDynamic s,
                     VectorDynamic lambda) : x(x), s(s), lambda(lambda) {}
+
+    // inline CentralVariable operator+(const CentralVariable &a, const CentralVariable &b)
+    // {
+    //     CentralVariable res = a;
+    //     res.x = res.x + b.x;
+    //     res.s = res.s + b.s;
+    //     res.lambda = res.lambda + b.lambda;
+    //     return res;
+    // }
+    // inline CentralVariable operator-(const CentralVariable &a, const CentralVariable &b)
+    // {
+    //     CentralVariable res = a;
+    //     res.x = res.x - b.x;
+    //     res.s = res.s - b.s;
+    //     res.lambda = res.lambda - b.lambda;
+    //     return res;
+    // }
+
+    inline CentralVariable &operator+(const CentralVariable &a)
+    {
+        x = x + a.x;
+        s = s + a.s;
+        lambda = lambda + a.lambda;
+        return *this;
+    }
+
+    inline CentralVariable &operator-(const CentralVariable &a)
+    {
+        x = x - a.x;
+        s = s - a.s;
+        lambda = lambda - a.lambda;
+        return *this;
+    }
+
     VectorDynamic x;
     VectorDynamic s;
     VectorDynamic lambda;
@@ -108,14 +142,33 @@ public:
         VectorDynamic sCurr_ = c_ - A_.transpose() * lambdaCurr_;
         VectorAdd(sCurr_, std::max(-1.5 * sCurr_.minCoeff(), 0.0));
         double deltax = 0.5 * (xCurr_.transpose() * sCurr_)(0, 0) / sCurr_.sum() / 2.0;
-        double deltas = 0.5 * (xCurr_.transpose() * sCurr_)(0, 0) / sCurr_.sum() / 2.0;
+        double deltas = 0.5 * (xCurr_.transpose() * sCurr_)(0, 0) / xCurr_.sum() / 2.0;
         VectorAdd(xCurr_, deltax);
         VectorAdd(sCurr_, deltas);
 
         return CentralVariable{xCurr_, sCurr_, lambdaCurr_};
     }
 
-    // void
+    CentralVariable SolveLinearSystem()
+    {
+        Eigen::MatrixXd S = centralVarCurr_.s.asDiagonal();
+        Eigen::MatrixXd X = centralVarCurr_.x.asDiagonal();
+        VectorDynamic rb = A_ * centralVarCurr_.x - b_;
+        VectorDynamic rc = A_.transpose() * centralVarCurr_.lambda + centralVarCurr_.s - c_;
+        VectorDynamic rxs = X * centralVarCurr_.s;
+        VectorAdd(rxs, Duality() * 0.5 * -1);
+        Eigen::MatrixXd D2 = S.inverse() * X;
+        CentralVariable deltaCentral;
+        deltaCentral.lambda = (A_ * D2 * A_.transpose()).inverse() * (-1 * rb - A_ * X * S.inverse() * rc + A_ * (S.inverse() * rxs));
+        deltaCentral.s = -1 * rc - A_.transpose() * deltaCentral.lambda;
+        deltaCentral.x = -1 * S.inverse() * rxs - X * (S.inverse() * deltaCentral.s);
+        return deltaCentral;
+    }
+
+    inline double Duality() const
+    {
+        return (centralVarCurr_.x.transpose() * centralVarCurr_.s / centralVarCurr_.s.rows())(0, 0);
+    }
 };
 
 TEST_F(LPTest1, LPData_constructor)
@@ -150,8 +203,113 @@ TEST_F(LPTest1, GenerateInitialLP)
         2.9165,
         2.4742,
         2.4549;
+    VectorDynamic s0Expect = GenerateVectorDynamic(19);
+    s0Expect << 0.5843,
+        0.7574,
+        0.5891,
+        0.7141,
+        0.4048,
+        0.2317,
+        0.4000,
+        0.2750,
+        0.5843,
+        0.7574,
+        0.5891,
+        0.7141,
+        0.4994,
+        0.6628,
+        0.6244,
+        0.3647,
+        0.4994,
+        0.6195,
+        0.5378;
+    VectorDynamic lambda0Expect = GenerateVectorDynamic(15);
+    lambda0Expect << 0.0897,
+        0.2628,
+        0.0946,
+        0.2196,
+        -0.0897,
+        -0.2628,
+        -0.0946,
+        -0.2196,
+        -0.0048,
+        -0.1683,
+        -0.1298,
+        0.1298,
+        -0.0048,
+        -0.1250,
+        -0.0433;
 
     EXPECT_TRUE(gtsam::assert_equal(x0Expect, lpData.centralVarCurr_.x, 1e-4));
+    EXPECT_TRUE(gtsam::assert_equal(s0Expect, lpData.centralVarCurr_.s, 1e-4));
+    EXPECT_TRUE(gtsam::assert_equal(lambda0Expect, lpData.centralVarCurr_.lambda, 1e-4));
+}
+
+TEST_F(LPTest1, SolveLinearSystem)
+{
+    LPData lpData(A, b, c);
+    VectorDynamic deltaLambdaExpect = GenerateVectorDynamic(15);
+    deltaLambdaExpect << -0.4062,
+        -0.5019,
+        -0.2759,
+        -0.3572,
+        -0.3924,
+        -0.1712,
+        -0.1973,
+        -0.1986,
+        -0.7254,
+        -0.2528,
+        -0.7032,
+        -1.7754,
+        -0.7254,
+        -1.3167,
+        -0.2845;
+    VectorDynamic deltasExpect = GenerateVectorDynamic(19);
+    deltasExpect << -0.1021,
+        -0.7012,
+        -0.2972,
+        -0.2959,
+        -0.0883,
+        0.0073,
+        -0.2186,
+        -0.1373,
+        -0.1021,
+        -0.3234,
+        -0.2972,
+        -0.2959,
+        0.2308,
+        -0.2417,
+        0.2087,
+        1.2809,
+        0.2308,
+        0.8222,
+        -0.2100;
+    VectorDynamic deltaxExpect = GenerateVectorDynamic(19);
+    deltaxExpect << -2.4527,
+        1.4345,
+        -1.2752,
+        -2.2634,
+        -1.4956,
+        -5.3828,
+        -2.6731,
+        -1.6850,
+        -2.4527,
+        1.4345,
+        -1.2752,
+        -2.2634,
+        -0.7967,
+        0.7355,
+        -1.7848,
+        -2.1635,
+        -0.7967,
+        -2.9623,
+        1.7237;
+
+    CentralVariable centralDelta = lpData.SolveLinearSystem();
+
+    EXPECT_TRUE(gtsam::assert_equal(deltaLambdaExpect, centralDelta.lambda, 1e-4));
+    EXPECT_TRUE(gtsam::assert_equal(deltasExpect, centralDelta.s, 1e-4));
+    EXPECT_TRUE(gtsam::assert_equal(deltaxExpect, centralDelta.x, 1e-4));
 }
 
 // Solve the following LP:
