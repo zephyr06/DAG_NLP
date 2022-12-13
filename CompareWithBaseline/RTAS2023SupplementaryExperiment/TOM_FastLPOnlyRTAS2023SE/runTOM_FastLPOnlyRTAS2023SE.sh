@@ -2,7 +2,7 @@
 
 # ***************************************************
 # ************** Adjust settings there **************
-title="Verucchi20OnlyRTAS2023SE"
+title="TOM_FastLPOnlyRTAS2023SE"
 MinTaskNumber=3
 MaxTaskNumber=30
 # TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
@@ -13,8 +13,8 @@ ROOT_PATH="/home/dong/workspace/DAG_NLP"
 # ROOT_PATH="/home/zephyr/Programming/batch_test_DAG_NLP/VerucchiOnly/N3_10" # for final batch test
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks" # tBatch1's result path
 SCRIPT_PATH="$ROOT_PATH/CompareWithBaseline/RTAS2023SupplementaryExperiment/$title"
-methods_result_dir_name=( "Initial_Res" "Verucchi20_Res" ) # only do Initial and Verucchi
-target_method_res_name="Verucchi20_Res"
+methods_result_dir_name=( "Initial_Res" "TOM_FastLP_Res" "TOM_FastLP_Res_LoopCount" ) # only do Initial and TOM_FastLP
+target_method_res_name="TOM_FastLP_Res"
 TASKSETS_PATH="$ROOT_PATH/CompareWithBaseline/RTAS2023SupplementaryExperiment/TasksetsForRTAS2023SE/RTDATasksets"
 makeProgressTimeLimit=600
 kVerucchiTimeLimit=600
@@ -31,7 +31,7 @@ NumCauseEffectChain=2
 
 call_the_executable() {
   cd $ROOT_PATH/release
-  ./scripts/BatchVerucchi20 # only test verucchi
+  ./scripts/BatchRTDA_TOM_FastLP # only test TOM_FastLP
   cd $SCRIPT_PATH
 }
 
