@@ -55,6 +55,16 @@ inline void VectorAdd(VectorDynamic &x, double c)
     x = x + Eigen::MatrixXd::Ones(x.rows(), 1) * c;
 }
 
+struct CentralVariable
+{
+    CentralVariable() {}
+    CentralVariable(VectorDynamic x,
+                    VectorDynamic s,
+                    VectorDynamic lambda) : x(x), s(s), lambda(lambda) {}
+    VectorDynamic x;
+    VectorDynamic s;
+    VectorDynamic lambda;
+};
 class LPData
 {
 public:
@@ -63,9 +73,7 @@ public:
     VectorDynamic c_;
     size_t m_;
     size_t n_;
-    VectorDynamic xCurr_;
-    VectorDynamic sCurr_;
-    VectorDynamic lambdaCurr_;
+    CentralVariable centralVarCurr_;
 
     LPData() {}
     LPData(const MatrixDynamic &A, const VectorDynamic &b, const VectorDynamic &c) : b_(b), m_(A.rows()), n_(A.cols())
@@ -86,25 +94,28 @@ public:
         {
             CoutError("A's dimension is wrong in LPData!");
         }
-        xCurr_ = GenerateInitialLP();
+        centralVarCurr_ = GenerateInitialLP();
     }
 
     // TODO: remove all the matrix inverse
-    VectorDynamic GenerateInitialLP()
+    CentralVariable GenerateInitialLP()
     {
         MatrixDynamic AA = A_ * A_.transpose();
         VectorDynamic xCurr_ = A_.transpose() * (AA).inverse() * b_;
         VectorAdd(xCurr_, std::max(-1.5 * xCurr_.minCoeff(), 0.0));
 
-        lambdaCurr_ = AA.inverse() * A_ * c_;
-        sCurr_ = c_ - A_.transpose() * lambdaCurr_;
+        VectorDynamic lambdaCurr_ = AA.inverse() * A_ * c_;
+        VectorDynamic sCurr_ = c_ - A_.transpose() * lambdaCurr_;
         VectorAdd(sCurr_, std::max(-1.5 * sCurr_.minCoeff(), 0.0));
         double deltax = 0.5 * (xCurr_.transpose() * sCurr_)(0, 0) / sCurr_.sum() / 2.0;
         double deltas = 0.5 * (xCurr_.transpose() * sCurr_)(0, 0) / sCurr_.sum() / 2.0;
         VectorAdd(xCurr_, deltax);
         VectorAdd(sCurr_, deltas);
-        return xCurr_;
+
+        return CentralVariable{xCurr_, sCurr_, lambdaCurr_};
     }
+
+    // void
 };
 
 TEST_F(LPTest1, LPData_constructor)
@@ -140,7 +151,7 @@ TEST_F(LPTest1, GenerateInitialLP)
         2.4742,
         2.4549;
 
-    EXPECT_TRUE(gtsam::assert_equal(x0Expect, lpData.xCurr_, 1e-4));
+    EXPECT_TRUE(gtsam::assert_equal(x0Expect, lpData.centralVarCurr_.x, 1e-4));
 }
 
 // Solve the following LP:
