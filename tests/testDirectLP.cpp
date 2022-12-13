@@ -165,6 +165,11 @@ public:
         return deltaCentral;
     }
 
+    inline void ApplyCentralDelta(const CentralVariable &centralDelta)
+    {
+        centralVarCurr_ = centralVarCurr_ + centralDelta;
+    }
+
     inline double Duality() const
     {
         return (centralVarCurr_.x.transpose() * centralVarCurr_.s / centralVarCurr_.s.rows())(0, 0);
@@ -318,20 +323,32 @@ TEST_F(LPTest1, SolveLinearSystem)
 // This algorithm is based on primal-dual interior-point method, following the tutorial in Nocedal07Numerical_Optimization
 // During the optimization process, this algorithm doesn't perform matrix permutation
 // TODO: avoid more data copy/paste
-VectorDynamic SolveLP(const MatrixDynamic &A, const VectorDynamic &b, const VectorDynamic &c)
+VectorDynamic SolveLP(const MatrixDynamic &A, const VectorDynamic &b, const VectorDynamic &c, double precision = 1e-5)
 {
-    LPData lpDataExpand(A, b, c);
-    return b;
+    LPData lpData(A, b, c);
+    int iterationCount = 0;
+    while (lpData.Duality() > precision && iterationCount < 1000)
+    {
+        if (GlobalVariablesDAGOpt::debugMode == 1)
+        {
+            std::cout << "Current duality measure: " << lpData.Duality() << std::endl;
+        }
+        CentralVariable centralDelta = lpData.SolveLinearSystem();
+        lpData.ApplyCentralDelta(centralDelta);
+        iterationCount++;
+    }
+    return lpData.centralVarCurr_.x.block(0, 0, lpData.n_, 1);
+    ;
 }
 
-// TEST_F(LPTest1, SolveLP)
-// {
+TEST_F(LPTest1, SolveLP)
+{
 
-//     VectorDynamic xExpect(4);
-//     xExpect << 0, 10, 1, 0;
-//     VectorDynamic xActual = SolveLP(A, b, c);
-//     EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual));
-// }
+    VectorDynamic xExpect(4);
+    xExpect << 0, 10, 1, 0;
+    VectorDynamic xActual = SolveLP(A, b, c);
+    EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual, 1e-4));
+}
 
 int main(int argc, char **argv)
 {
