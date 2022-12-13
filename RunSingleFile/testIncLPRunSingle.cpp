@@ -55,7 +55,11 @@ protected:
 
 TEST_F(DAGScheduleOptimizerTest1, GetJacobianAll)
 {
-    AugmentedJacobian augJacobAll = GetJacobianAll(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    CoutWarning("The first matrix shows the original order, which is actually not rigorously right in some cases, only used to illustrate a few example!");
+    AugmentedJacobian augJacobAllOrg = GetJacobianAll(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    augJacobAllOrg.print();
+    std::vector<AugmentedJacobian> augJacobs = GetVariableBlocks(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    AugmentedJacobian augJacobAll = MergeAugJacobian(augJacobs);
     augJacobAll.print();
 }
 

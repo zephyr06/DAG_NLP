@@ -14,14 +14,14 @@ namespace OrderOptDAG_SPACE
     {
         MatrixDynamic jacobian;
         VectorDynamic rhs;
-        
-        AugmentedJacobian(){}
-        
+
+        AugmentedJacobian() {}
+
         AugmentedJacobian(MatrixDynamic jacobian,
                           VectorDynamic rhs) : jacobian(jacobian), rhs(rhs) {}
 
-        AugmentedJacobian(int m, int n): jacobian(GenerateMatrixDynamic(m, n)), rhs(GenerateVectorDynamic(m)) {}
-        
+        AugmentedJacobian(int m, int n) : jacobian(GenerateMatrixDynamic(m, n)), rhs(GenerateVectorDynamic(m)) {}
+
         void print()
         {
             std::cout << "Jacobian: " << jacobian << std::endl;
@@ -43,5 +43,9 @@ namespace OrderOptDAG_SPACE
     AugmentedJacobian GetJacobianJobOrder(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder);
 
     AugmentedJacobian GetJacobianDBF(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum);
+
+    std::vector<AugmentedJacobian> GetVariableBlocks(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum);
+
+    AugmentedJacobian MergeAugJacobian(const std::vector<AugmentedJacobian> &augJacos);
 
 } // namespace OrderOptDAG_SPACE
