@@ -1,5 +1,5 @@
 
-gtsamAddTestsGlob(UnitTests "test*.cpp" "*RunSingle*" "${CONVENIENCE_LIB_NAME}")
+gtsamAddTestsGlob(UnitTests "test*.cpp" "" "${CONVENIENCE_LIB_NAME}")
 
 
 

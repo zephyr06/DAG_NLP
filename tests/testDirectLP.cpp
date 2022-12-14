@@ -45,6 +45,14 @@ protected:
         c << 0, 1, 0, 1;
         // VectorDynamic xExpect(4);
         // xExpect << 0, 10, 1, 0;
+        // for (int k = 0; k < As.outerSize(); ++k)
+        // {
+        //     for (Eigen::SparseMatrix<double>::InnerIterator it(As, k); it; ++it)
+        //     {
+        //         std::cout << "(" << it.row() << ","; // row index
+        //         std::cout << it.col() << ")\t";      // col index (here it is equal to k)
+        //     }
+        // }
     };
 
     MatrixDynamic A;

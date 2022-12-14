@@ -2,10 +2,6 @@
 #include "gmock/gmock.h" // Brings in gMock.
 #include "ilcplex/cplex.h"
 #include "ilcplex/ilocplex.h"
-#include <Eigen/Core>
-#include <Eigen/SparseCore>
-#include <Eigen/Jacobi>
-#include "gtsam/base/Testable.h" // assert_equal
 
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Optimization/OrderScheduler.h"
@@ -13,6 +9,7 @@
 #include "sources/Utils/IncrementQR.h"
 #include "sources/Optimization/LinearProgrammingSolver.h"
 #include "sources/Optimization/LPSolverCplex.h"
+#include "sources/Utils/profilier.h"
 
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
@@ -82,19 +79,13 @@ protected:
 TEST_F(LPTest1, SolveLP_Cplex)
 {
     TimerFunc _;
+    BeginTimer("main");
     VectorDynamic xExpect(2);
     xExpect << 0, 15;
     VectorDynamic xActual = SolveLP_Cplex(As, b, c);
     EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual.block(0, 0, 2, 1), 1e-4));
-}
-
-TEST_F(LPTest1, SolveLP)
-{
-    TimerFunc _;
-    VectorDynamic xExpect(2);
-    xExpect << 0, 15;
-    VectorDynamic xActual = SolveLP(As, b, c);
-    EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual.block(0, 0, 2, 1), 1e-4));
+    EndTimer("main");
+    PrintTimer();
 }
 
 int main(int argc, char **argv)
