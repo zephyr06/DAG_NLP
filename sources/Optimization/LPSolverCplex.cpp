@@ -34,7 +34,16 @@ namespace LPOptimizer
 
         BeginTimer("SolveLP_Cplex");
         // add obj
-        model_.add(IloMinimize(env_, varArray_[0] - varArray_[1]));
+        {
+            IloNumExpr row(env_);
+            for (uint j = 0; j < c.rows(); ++j)
+            {
+                if (c(j))
+                    row += c(j) * varArray_[j];
+            }
+            model_.add(IloMinimize(env_, row));
+            row.end();
+        }
 
         cplexSolver_.extract(model_);
         bool found_feasible_solution = cplexSolver_.solve();
