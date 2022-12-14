@@ -6,8 +6,6 @@ namespace LPOptimizer
     {
         if (m_ > n_)
         {
-            VectorDynamic onesForDiag = Eigen::MatrixXd::Ones(m_, 1);
-            Eigen::DiagonalMatrix<double, Eigen::Dynamic> onesDiag = (onesForDiag).asDiagonal();
             // A_.resize(m_, n_ + m_);
             A_ = Eigen::SparseMatrix<double>(m_, m_ + n_);
             A_.reserve(A.nonZeros() + m_);
