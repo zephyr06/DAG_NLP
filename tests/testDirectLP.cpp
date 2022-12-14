@@ -125,72 +125,72 @@ TEST_F(LPTest1, GenerateInitialLP)
     EXPECT_TRUE(gtsam::assert_equal(lambda0Expect, lpData.centralVarCurr_.lambda, 1e-4));
 }
 
-TEST_F(LPTest1, SolveLinearSystem)
-{
-    LPData lpData(A, b, c);
-    VectorDynamic deltaLambdaExpect = GenerateVectorDynamic(15);
-    deltaLambdaExpect << -0.4062,
-        -0.5019,
-        -0.2759,
-        -0.3572,
-        -0.3924,
-        -0.1712,
-        -0.1973,
-        -0.1986,
-        -0.7254,
-        -0.2528,
-        -0.7032,
-        -1.7754,
-        -0.7254,
-        -1.3167,
-        -0.2845;
-    VectorDynamic deltasExpect = GenerateVectorDynamic(19);
-    deltasExpect << -0.1021,
-        -0.7012,
-        -0.2972,
-        -0.2959,
-        -0.0883,
-        0.0073,
-        -0.2186,
-        -0.1373,
-        -0.1021,
-        -0.3234,
-        -0.2972,
-        -0.2959,
-        0.2308,
-        -0.2417,
-        0.2087,
-        1.2809,
-        0.2308,
-        0.8222,
-        -0.2100;
-    VectorDynamic deltaxExpect = GenerateVectorDynamic(19);
-    deltaxExpect << -2.4527,
-        1.4345,
-        -1.2752,
-        -2.2634,
-        -1.4956,
-        -5.3828,
-        -2.6731,
-        -1.6850,
-        -2.4527,
-        1.4345,
-        -1.2752,
-        -2.2634,
-        -0.7967,
-        0.7355,
-        -1.7848,
-        -2.1635,
-        -0.7967,
-        -2.9623,
-        1.7237;
+// TEST_F(LPTest1, SolveLinearSystem)
+// {
+//     LPData lpData(A, b, c);
+//     VectorDynamic deltaLambdaExpect = GenerateVectorDynamic(15);
+//     deltaLambdaExpect << -0.4062,
+//         -0.5019,
+//         -0.2759,
+//         -0.3572,
+//         -0.3924,
+//         -0.1712,
+//         -0.1973,
+//         -0.1986,
+//         -0.7254,
+//         -0.2528,
+//         -0.7032,
+//         -1.7754,
+//         -0.7254,
+//         -1.3167,
+//         -0.2845;
+//     VectorDynamic deltasExpect = GenerateVectorDynamic(19);
+//     deltasExpect << -0.1021,
+//         -0.7012,
+//         -0.2972,
+//         -0.2959,
+//         -0.0883,
+//         0.0073,
+//         -0.2186,
+//         -0.1373,
+//         -0.1021,
+//         -0.3234,
+//         -0.2972,
+//         -0.2959,
+//         0.2308,
+//         -0.2417,
+//         0.2087,
+//         1.2809,
+//         0.2308,
+//         0.8222,
+//         -0.2100;
+//     VectorDynamic deltaxExpect = GenerateVectorDynamic(19);
+//     deltaxExpect << -2.4527,
+//         1.4345,
+//         -1.2752,
+//         -2.2634,
+//         -1.4956,
+//         -5.3828,
+//         -2.6731,
+//         -1.6850,
+//         -2.4527,
+//         1.4345,
+//         -1.2752,
+//         -2.2634,
+//         -0.7967,
+//         0.7355,
+//         -1.7848,
+//         -2.1635,
+//         -0.7967,
+//         -2.9623,
+//         1.7237;
 
-    CentralVariable centralDelta = lpData.SolveLinearSystem();
+//     CentralVariable centralDelta = lpData.SolveLinearSystem();
 
-    EXPECT_TRUE(gtsam::assert_equal(deltaLambdaExpect, centralDelta.lambda, 1e-4));
-    EXPECT_TRUE(gtsam::assert_equal(deltasExpect, centralDelta.s, 1e-4));
-    EXPECT_TRUE(gtsam::assert_equal(deltaxExpect, centralDelta.x, 1e-4));
-}
+//     EXPECT_TRUE(gtsam::assert_equal(deltaLambdaExpect, centralDelta.lambda, 1e-4));
+//     EXPECT_TRUE(gtsam::assert_equal(deltasExpect, centralDelta.s, 1e-4));
+//     EXPECT_TRUE(gtsam::assert_equal(deltaxExpect, centralDelta.x, 1e-4));
+// }
 
 TEST_F(LPTest1, SolveLP)
 {

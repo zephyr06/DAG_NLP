@@ -97,7 +97,6 @@ namespace LPOptimizer
         CentralVariable GenerateInitialLP();
 
         CentralVariable SolveLinearSystem();
-        CentralVariable SolveLinearSystem2();
 
         void ApplyCentralDelta(const CentralVariable &centralDelta, double eta = 0.7);
 
