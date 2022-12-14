@@ -192,30 +192,6 @@ TEST_F(LPTest1, SolveLinearSystem)
     EXPECT_TRUE(gtsam::assert_equal(deltaxExpect, centralDelta.x, 1e-4));
 }
 
-// Solve the following LP:
-// min_x c^T x
-// subject to Ax <= b
-// This algorithm is based on primal-dual interior-point method, following the tutorial in Nocedal07Numerical_Optimization
-// During the optimization process, this algorithm doesn't perform matrix permutation
-// TODO: avoid more data copy/paste
-VectorDynamic SolveLP(const MatrixDynamic &A, const VectorDynamic &b, const VectorDynamic &c, double precision = 1e-5)
-{
-    LPData lpData(A, b, c);
-    int iterationCount = 0;
-    while (lpData.Duality() > precision && iterationCount < 1000)
-    {
-        if (GlobalVariablesDAGOpt::debugMode == 1)
-        {
-            std::cout << "Current duality measure: " << lpData.Duality() << std::endl;
-        }
-        CentralVariable centralDelta = lpData.SolveLinearSystem();
-        lpData.ApplyCentralDelta(centralDelta);
-        iterationCount++;
-    }
-    return lpData.centralVarCurr_.x.block(0, 0, lpData.n_, 1);
-    ;
-}
-
 TEST_F(LPTest1, SolveLP)
 {
 

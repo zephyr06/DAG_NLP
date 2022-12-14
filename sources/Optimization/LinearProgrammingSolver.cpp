@@ -37,4 +37,21 @@ namespace LPOptimizer
         return deltaCentral;
     }
 
+    VectorDynamic SolveLP(const MatrixDynamic &A, const VectorDynamic &b, const VectorDynamic &c, double precision)
+    {
+        LPData lpData(A, b, c);
+        int iterationCount = 0;
+        while (lpData.Duality() > precision && iterationCount < 1000)
+        {
+            if (GlobalVariablesDAGOpt::debugMode == 1)
+            {
+                std::cout << "Current duality measure: " << lpData.Duality() << std::endl;
+            }
+            CentralVariable centralDelta = lpData.SolveLinearSystem();
+            lpData.ApplyCentralDelta(centralDelta);
+            iterationCount++;
+        }
+        return lpData.centralVarCurr_.x.block(0, 0, lpData.n_, 1);
+    }
+
 } // namespace LPOptimizer

@@ -22,207 +22,67 @@ class LPTest1 : public ::testing::Test
 protected:
     void SetUp() override
     {
-        A = MatrixDynamic(15, 4);
-        A << 1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1,
-            -1, 0, 0, 0,
-            0, -1, 0, 0,
-            0, 0, -1, 0,
-            0, 0, 0, -1,
-            1, 0, -1, 0,
-            0, -1, 1, 0,
-            1, 0, 0, -1,
-            -1, 0, 0, 1,
-            1, 0, -1, 0,
-            0, 0, 1, -1,
-            0, -1, 0, 1;
-        b = VectorDynamic(15);
-        b << 10, 20, 20, 20, -0, -10, 0, -0, -1, -2, 0, 1, -1, 1, -3;
-        c = VectorDynamic(4);
-        c << 0, 1, 0, 1;
-        // VectorDynamic xExpect(4);
-        // xExpect << 0, 10, 1, 0;
+        dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v11.csv", "orig", 1);
+        tasks = dagTasks.tasks;
+        tasksInfo = TaskSetInfoDerived(tasks);
+        // chain1 = {0, 2};
+        // dagTasks.chains_[0] = chain1;
+        timeLimits = 10;
+        scheduleOptions.processorNum_ = 2;
+        scheduleOptions.considerSensorFusion_ = 0;
+        scheduleOptions.freshTol_ = 0;
+        scheduleOptions.sensorFusionTolerance_ = 0;
+        scheduleOptions.weightInMpRTDA_ = 0.5;
+        scheduleOptions.weightInMpSf_ = 0.5;
+        scheduleOptions.weightPunish_ = 10;
+
+        VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_, processorJobVec);
+        // std::cout << "Initial solutions: " << std::endl
+        //           << initial << std::endl
+        //           << std::endl;
+        jobOrder = SFOrder(tasksInfo, initial);
+        // jobOrder.print();
+
+        std::vector<AugmentedJacobian> augJacobs = GetVariableBlocks(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+        AugmentedJacobian jacobAll = MergeAugJacobian(augJacobs);
+        A = jacobAll.jacobian;
+
+        std::cout << "A" << std::endl
+                  << A << std::endl
+                  << std::endl;
+        b = jacobAll.rhs;
+        // std::cout << "rhs" << std::endl
+        //           << b << std::endl
+        //           << std::endl;
+        c = GenerateVectorDynamic(A.cols());
+        c(0) = 1;
+        c(1) = -1;
+        std::cout << c << std::endl
+                  << std::endl;
     };
+
+    double timeLimits = 1;
+    DAG_Model dagTasks;
+    TaskSet tasks;
+    TaskSetInfoDerived tasksInfo;
+    std::vector<int> chain1;
+    ScheduleOptions scheduleOptions;
+    std::vector<uint> processorJobVec;
+    SFOrder jobOrder;
+    VectorDynamic initial;
 
     MatrixDynamic A;
     VectorDynamic b;
     VectorDynamic c;
 };
 
-TEST_F(LPTest1, LPData_constructor)
-{
-    LPData lpData(A, b, c);
-    EXPECT_EQ(A.sum() + 15, lpData.A_.sum());
-    EXPECT_EQ(19, lpData.A_.cols());
-    EXPECT_EQ(c.sum() + 0, lpData.c_.sum());
-    EXPECT_TRUE(gtsam::assert_equal(b, lpData.b_));
-}
-
-TEST_F(LPTest1, GenerateInitialLP)
-{
-    LPData lpData(A, b, c);
-    VectorDynamic x0Expect = GenerateVectorDynamic(19);
-    x0Expect << 6.5639,
-        11.4870,
-        8.5062,
-        8.0062,
-        7.3844,
-        12.4613,
-        15.4421,
-        15.9421,
-        6.5639,
-        1.4870,
-        8.5062,
-        8.0062,
-        2.9165,
-        2.9549,
-        3.4165,
-        1.5318,
-        2.9165,
-        2.4742,
-        2.4549;
-    VectorDynamic s0Expect = GenerateVectorDynamic(19);
-    s0Expect << 0.5843,
-        0.7574,
-        0.5891,
-        0.7141,
-        0.4048,
-        0.2317,
-        0.4000,
-        0.2750,
-        0.5843,
-        0.7574,
-        0.5891,
-        0.7141,
-        0.4994,
-        0.6628,
-        0.6244,
-        0.3647,
-        0.4994,
-        0.6195,
-        0.5378;
-    VectorDynamic lambda0Expect = GenerateVectorDynamic(15);
-    lambda0Expect << 0.0897,
-        0.2628,
-        0.0946,
-        0.2196,
-        -0.0897,
-        -0.2628,
-        -0.0946,
-        -0.2196,
-        -0.0048,
-        -0.1683,
-        -0.1298,
-        0.1298,
-        -0.0048,
-        -0.1250,
-        -0.0433;
-
-    EXPECT_TRUE(gtsam::assert_equal(x0Expect, lpData.centralVarCurr_.x, 1e-4));
-    EXPECT_TRUE(gtsam::assert_equal(s0Expect, lpData.centralVarCurr_.s, 1e-4));
-    EXPECT_TRUE(gtsam::assert_equal(lambda0Expect, lpData.centralVarCurr_.lambda, 1e-4));
-}
-
-TEST_F(LPTest1, SolveLinearSystem)
-{
-    LPData lpData(A, b, c);
-    VectorDynamic deltaLambdaExpect = GenerateVectorDynamic(15);
-    deltaLambdaExpect << -0.4062,
-        -0.5019,
-        -0.2759,
-        -0.3572,
-        -0.3924,
-        -0.1712,
-        -0.1973,
-        -0.1986,
-        -0.7254,
-        -0.2528,
-        -0.7032,
-        -1.7754,
-        -0.7254,
-        -1.3167,
-        -0.2845;
-    VectorDynamic deltasExpect = GenerateVectorDynamic(19);
-    deltasExpect << -0.1021,
-        -0.7012,
-        -0.2972,
-        -0.2959,
-        -0.0883,
-        0.0073,
-        -0.2186,
-        -0.1373,
-        -0.1021,
-        -0.3234,
-        -0.2972,
-        -0.2959,
-        0.2308,
-        -0.2417,
-        0.2087,
-        1.2809,
-        0.2308,
-        0.8222,
-        -0.2100;
-    VectorDynamic deltaxExpect = GenerateVectorDynamic(19);
-    deltaxExpect << -2.4527,
-        1.4345,
-        -1.2752,
-        -2.2634,
-        -1.4956,
-        -5.3828,
-        -2.6731,
-        -1.6850,
-        -2.4527,
-        1.4345,
-        -1.2752,
-        -2.2634,
-        -0.7967,
-        0.7355,
-        -1.7848,
-        -2.1635,
-        -0.7967,
-        -2.9623,
-        1.7237;
-
-    CentralVariable centralDelta = lpData.SolveLinearSystem();
-
-    EXPECT_TRUE(gtsam::assert_equal(deltaLambdaExpect, centralDelta.lambda, 1e-4));
-    EXPECT_TRUE(gtsam::assert_equal(deltasExpect, centralDelta.s, 1e-4));
-    EXPECT_TRUE(gtsam::assert_equal(deltaxExpect, centralDelta.x, 1e-4));
-}
-
-// Solve the following LP:
-// min_x c^T x
-// subject to Ax <= b
-// This algorithm is based on primal-dual interior-point method, following the tutorial in Nocedal07Numerical_Optimization
-// During the optimization process, this algorithm doesn't perform matrix permutation
-// TODO: avoid more data copy/paste
-VectorDynamic SolveLP(const MatrixDynamic &A, const VectorDynamic &b, const VectorDynamic &c, double precision = 1e-5)
-{
-    LPData lpData(A, b, c);
-    int iterationCount = 0;
-    while (lpData.Duality() > precision && iterationCount < 1000)
-    {
-        if (GlobalVariablesDAGOpt::debugMode == 1)
-        {
-            std::cout << "Current duality measure: " << lpData.Duality() << std::endl;
-        }
-        CentralVariable centralDelta = lpData.SolveLinearSystem();
-        lpData.ApplyCentralDelta(centralDelta);
-        iterationCount++;
-    }
-    return lpData.centralVarCurr_.x.block(0, 0, lpData.n_, 1);
-    ;
-}
-
 TEST_F(LPTest1, SolveLP)
 {
     TimerFunc _;
-    VectorDynamic xExpect(4);
-    xExpect << 0, 10, 1, 0;
+    VectorDynamic xExpect(2);
+    xExpect << 0, 15;
     VectorDynamic xActual = SolveLP(A, b, c);
-    EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual, 1e-4));
+    EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual.block(0, 0, 2, 1), 1e-4));
 }
 
 int main(int argc, char **argv)

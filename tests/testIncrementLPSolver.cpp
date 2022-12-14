@@ -15,6 +15,7 @@
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
 using namespace GlobalVariablesDAGOpt;
+// TODO: Fix DDL issue, rhs should minus execution time;
 class DAGScheduleOptimizerTest1 : public ::testing::Test
 {
 protected:

@@ -4,7 +4,8 @@
 #include <Eigen/Jacobi>
 
 #include "sources/Utils/MatirxConvenient.h"
-#include "sources/Utils/testMy.h" // CoutError
+#include "sources/Utils/testMy.h"     // CoutError
+#include "sources/Utils/Parameters.h" // DebugMode
 
 namespace LPOptimizer
 {
@@ -107,4 +108,12 @@ namespace LPOptimizer
             return (centralVarCurr_.x.transpose() * centralVarCurr_.s / centralVarCurr_.s.rows())(0, 0);
         }
     };
+
+    // Solve the following LP:
+    // min_x c^T x
+    // subject to Ax <= b
+    // This algorithm is based on primal-dual interior-point method, following the tutorial in Nocedal07Numerical_Optimization
+    // During the optimization process, this algorithm doesn't perform matrix permutation
+    // TODO: avoid more data copy/paste
+    VectorDynamic SolveLP(const MatrixDynamic &A, const VectorDynamic &b, const VectorDynamic &c, double precision = 1e-5);
 } // namespace LPOptimizer
