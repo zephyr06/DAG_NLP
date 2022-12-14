@@ -47,9 +47,9 @@ protected:
         AugmentedJacobian jacobAll = MergeAugJacobian(augJacobs);
         A = jacobAll.jacobian;
 
-        std::cout << "A" << std::endl
-                  << A << std::endl
-                  << std::endl;
+        // std::cout << "A" << std::endl
+        //           << A << std::endl
+        //           << std::endl;
         b = jacobAll.rhs;
         // std::cout << "rhs" << std::endl
         //           << b << std::endl
@@ -57,8 +57,8 @@ protected:
         c = GenerateVectorDynamic(A.cols());
         c(0) = 1;
         c(1) = -1;
-        std::cout << c << std::endl
-                  << std::endl;
+        // std::cout << c << std::endl
+        //           << std::endl;
     };
 
     double timeLimits = 1;

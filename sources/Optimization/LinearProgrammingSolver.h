@@ -1,6 +1,7 @@
 #pragma once
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
+#include <Eigen/SparseCholesky>
 #include <Eigen/Jacobi>
 
 #include "sources/Utils/MatirxConvenient.h"
@@ -10,6 +11,7 @@
 namespace LPOptimizer
 {
 
+    typedef Eigen::SparseMatrix<double> SpMat; // declares a column-major sparse matrix type of double
     // in-place addition, add c to each x_i
     inline void VectorAdd(VectorDynamic &x, double c)
     {
@@ -64,7 +66,7 @@ namespace LPOptimizer
     class LPData
     {
     public:
-        MatrixDynamic A_;
+        SpMat A_;
         VectorDynamic b_;
         VectorDynamic c_;
         size_t m_;
@@ -79,8 +81,10 @@ namespace LPOptimizer
                 VectorDynamic onesForDiag = Eigen::MatrixXd::Ones(m_, 1);
                 MatrixDynamic onesDiag = (onesForDiag).asDiagonal();
                 // A_.resize(m_, n_ + m_);
-                A_ = Eigen::MatrixXd(m_, m_ + n_);
-                A_ << A, onesDiag;
+                Eigen::MatrixXd A_t(m_, m_ + n_);
+                A_t << A, onesDiag;
+                A_ = A_t.sparseView();
+
                 c_ = Eigen::MatrixXd(m_ + n_, 1);
                 VectorDynamic zeros = GenerateVectorDynamic(m_);
                 c_ << c,
@@ -92,6 +96,38 @@ namespace LPOptimizer
             }
             centralVarCurr_ = GenerateInitialLP();
         }
+
+        // LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const VectorDynamic &c) : b_(b), m_(A.rows()), n_(A.cols())
+        // {
+        //     if (m_ > n_)
+        //     {
+        //         VectorDynamic onesForDiag = Eigen::MatrixXd::Ones(m_, 1);
+        //         Eigen::DiagonalMatrix<double, Eigen::Dynamic> onesDiag = (onesForDiag).asDiagonal();
+        //         // A_.resize(m_, n_ + m_);
+        //         Eigen::SparseMatrix<double> A_(m_, m_ + n_);
+        //         A_.reserve(A.nonZeros() + m_);
+
+        //         for (uint c = 0; c < A.cols(); ++c)
+        //         {
+        //             A_.startVec(c); // Important: Must be called once for each column before inserting!
+        //             for (Eigen::SparseMatrix<double>::InnerIterator itL(A, c); itL; ++itL)
+        //                 A_.insertBack(itL.row(), c) = itL.value();
+        //         }
+        //         for (int i = 0; i < m_; i++)
+        //             A_.insert(i, i + n_) = 1;
+        //         A_.finalize();
+
+        //         c_ = Eigen::MatrixXd(m_ + n_, 1);
+        //         VectorDynamic zeros = GenerateVectorDynamic(m_);
+        //         c_ << c,
+        //             zeros;
+        //     }
+        //     else
+        //     {
+        //         CoutError("A's dimension is wrong in LPData!");
+        //     }
+        //     centralVarCurr_ = GenerateInitialLP();
+        // }
 
         // TODO: remove all the matrix inverse
         CentralVariable GenerateInitialLP();
