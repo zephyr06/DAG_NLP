@@ -21,6 +21,21 @@ namespace LPOptimizer
         return CentralVariable{xCurr_, sCurr_, lambdaCurr_};
     }
 
+    double GetAlphaAff(const VectorDynamic &xCurr, const VectorDynamic &xDelta)
+    {
+        size_t m = xDelta.rows();
+        double minDelta = 1e9;
+        // TODO: use an iterator instead
+        for (uint i = 0; i < m; i++)
+        {
+            if (xDelta(i) < 0)
+            {
+                minDelta = std::min(minDelta, -1 * xCurr(i) / xDelta(i));
+            }
+        }
+        return std::min(1.0, minDelta);
+    }
+
     CentralVariable LPData::SolveLinearSystem()
     {
         Eigen::MatrixXd S = centralVarCurr_.s.asDiagonal();
@@ -37,6 +52,38 @@ namespace LPOptimizer
         return deltaCentral;
     }
 
+    // TODO: merge the two functions
+    CentralVariable LPData::SolveLinearSystem2()
+    {
+        CentralVariable centralDelta = SolveLinearSystem();
+        Eigen::MatrixXd S = centralVarCurr_.s.asDiagonal();
+        Eigen::MatrixXd X = centralVarCurr_.x.asDiagonal();
+        VectorDynamic rb = A_ * centralVarCurr_.x - b_;
+        VectorDynamic rc = A_.transpose() * centralVarCurr_.lambda + centralVarCurr_.s - c_;
+        double alphaAffPrim = GetAlphaAff(centralVarCurr_.x, centralDelta.x);
+        double alphaAffDual = GetAlphaAff(centralVarCurr_.s, centralDelta.s);
+        double muAff = ((centralVarCurr_.x + centralDelta.x * alphaAffPrim).transpose() * (centralVarCurr_.s + centralDelta.s * alphaAffDual))(0, 0) / centralVarCurr_.x.rows();
+        double sigma = std::pow(muAff / Duality(), 3);
+
+        VectorDynamic rxs = -1 * (-1 * X * centralVarCurr_.s - centralDelta.x.asDiagonal() * centralDelta.s);
+        VectorAdd(rxs, Duality() * sigma * -1);
+        Eigen::MatrixXd D2 = S.inverse() * X;
+        CentralVariable deltaCentral;
+        deltaCentral.lambda = (A_ * D2 * A_.transpose()).inverse() * (-1 * rb - A_ * X * S.inverse() * rc + A_ * (S.inverse() * rxs));
+        deltaCentral.s = -1 * rc - A_.transpose() * deltaCentral.lambda;
+        deltaCentral.x = -1 * S.inverse() * rxs - X * (S.inverse() * deltaCentral.s);
+        return deltaCentral;
+    }
+
+    void LPData::ApplyCentralDelta(const CentralVariable &centralDelta, double eta)
+    {
+        double alphaAffPrim = GetAlphaAff(centralVarCurr_.x, centralDelta.x);
+        double alphaAffDual = GetAlphaAff(centralVarCurr_.s, centralDelta.s);
+        centralVarCurr_.x = centralVarCurr_.x + centralDelta.x * std::min(1.0, alphaAffPrim * eta);
+        centralVarCurr_.lambda = centralVarCurr_.lambda + centralDelta.lambda * std::min(1.0, alphaAffDual * eta);
+        centralVarCurr_.s = centralVarCurr_.s + centralDelta.s * std::min(1.0, alphaAffDual * eta);
+    }
+
     VectorDynamic SolveLP(const MatrixDynamic &A, const VectorDynamic &b, const VectorDynamic &c, double precision)
     {
         LPData lpData(A, b, c);
@@ -47,8 +94,8 @@ namespace LPOptimizer
             {
                 std::cout << "Current duality measure: " << lpData.Duality() << std::endl;
             }
-            CentralVariable centralDelta = lpData.SolveLinearSystem();
-            lpData.ApplyCentralDelta(centralDelta);
+            CentralVariable centralDelta = lpData.SolveLinearSystem2();
+            lpData.ApplyCentralDelta(centralDelta, 0.7);
             iterationCount++;
         }
         return lpData.centralVarCurr_.x.block(0, 0, lpData.n_, 1);

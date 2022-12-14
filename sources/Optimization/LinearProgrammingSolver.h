@@ -97,11 +97,9 @@ namespace LPOptimizer
         CentralVariable GenerateInitialLP();
 
         CentralVariable SolveLinearSystem();
+        CentralVariable SolveLinearSystem2();
 
-        inline void ApplyCentralDelta(const CentralVariable &centralDelta)
-        {
-            centralVarCurr_ = centralVarCurr_ + centralDelta;
-        }
+        void ApplyCentralDelta(const CentralVariable &centralDelta, double eta = 0.7);
 
         inline double Duality() const
         {
