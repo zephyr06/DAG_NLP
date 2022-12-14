@@ -38,14 +38,15 @@ namespace LPOptimizer
 
     CentralVariable LPData::SolveLinearSystem()
     {
-        Eigen::MatrixXd S = centralVarCurr_.s.asDiagonal();
-        Eigen::MatrixXd X = centralVarCurr_.x.asDiagonal();
+        Eigen::DiagonalMatrix<double, Eigen::Dynamic> S = centralVarCurr_.s.asDiagonal();
+        Eigen::DiagonalMatrix<double, Eigen::Dynamic> X = centralVarCurr_.x.asDiagonal();
         VectorDynamic rb = A_ * centralVarCurr_.x - b_;
         VectorDynamic rc = A_.transpose() * centralVarCurr_.lambda + centralVarCurr_.s - c_;
 
         // predictor
         VectorDynamic rxs1 = X * centralVarCurr_.s;
-        Eigen::MatrixXd D2 = S.inverse() * X;
+        Eigen::DiagonalMatrix<double, Eigen::Dynamic> S_inv = S.inverse();
+        Eigen::DiagonalMatrix<double, Eigen::Dynamic> D2 = (S_inv * centralVarCurr_.x).asDiagonal();
         CentralVariable centralDelta;
         centralDelta.lambda = (A_ * D2 * A_.transpose()).inverse() * (-1 * rb - A_ * X * S.inverse() * rc + A_ * (S.inverse() * rxs1));
         centralDelta.s = -1 * rc - A_.transpose() * centralDelta.lambda;
