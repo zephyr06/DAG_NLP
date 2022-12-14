@@ -1,5 +1,5 @@
 #include "sources/Optimization/LinearProgrammingSolver.h"
-
+// TODO: if there is time, consider using band matrix from eigen
 namespace LPOptimizer
 {
     LPData::LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const VectorDynamic &c) : b_(b), m_(A.rows()), n_(A.cols())
@@ -34,7 +34,6 @@ namespace LPOptimizer
         centralVarCurr_ = GenerateInitialLP();
     }
 
-    // TODO: remove all the matrix inverse
     CentralVariable LPData::GenerateInitialLP()
     {
         Eigen::SparseMatrix<double> AA = A_ * A_.transpose();
@@ -76,7 +75,10 @@ namespace LPOptimizer
         VectorDynamic rb = A_ * centralVarCurr_.x - b_;
         VectorDynamic rc = A_.transpose() * centralVarCurr_.lambda + centralVarCurr_.s - c_;
         VectorDynamic rxs1 = X * centralVarCurr_.s;
-        Eigen::DiagonalMatrix<double, Eigen::Dynamic> S_inv = S.inverse();
+        VectorDynamic sInv = centralVarCurr_.s;
+        for (uint i = 0; i < sInv.rows(); i++)
+            sInv(i) = 1 / sInv(i);
+        Eigen::DiagonalMatrix<double, Eigen::Dynamic> S_inv = sInv.asDiagonal();
         Eigen::DiagonalMatrix<double, Eigen::Dynamic> D2 = (S_inv * centralVarCurr_.x).asDiagonal();
         Eigen::SparseMatrix<double> AA = A_ * D2 * A_.transpose();
         Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> AAFact(AA);
