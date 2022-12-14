@@ -46,6 +46,7 @@ protected:
         std::vector<AugmentedJacobian> augJacobs = GetVariableBlocks(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
         AugmentedJacobian jacobAll = MergeAugJacobian(augJacobs);
         A = jacobAll.jacobian;
+        As = A.sparseView();
 
         // std::cout << "A" << std::endl
         //           << A << std::endl
@@ -72,6 +73,7 @@ protected:
     VectorDynamic initial;
 
     MatrixDynamic A;
+    Eigen::SparseMatrix<double> As;
     VectorDynamic b;
     VectorDynamic c;
 };
@@ -81,7 +83,7 @@ TEST_F(LPTest1, SolveLP)
     TimerFunc _;
     VectorDynamic xExpect(2);
     xExpect << 0, 15;
-    VectorDynamic xActual = SolveLP(A, b, c);
+    VectorDynamic xActual = SolveLP(As, b, c);
     EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual.block(0, 0, 2, 1), 1e-4));
 }
 

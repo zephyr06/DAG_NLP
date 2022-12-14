@@ -38,6 +38,7 @@ protected:
             1, 0, -1, 0,
             0, 0, 1, -1,
             0, -1, 0, 1;
+        As = A.sparseView();
         b = VectorDynamic(15);
         b << 10, 20, 20, 20, -0, -10, 0, -0, -1, -2, 0, 1, -1, 1, -3;
         c = VectorDynamic(4);
@@ -47,13 +48,14 @@ protected:
     };
 
     MatrixDynamic A;
+    Eigen::SparseMatrix<double> As;
     VectorDynamic b;
     VectorDynamic c;
 };
 
 TEST_F(LPTest1, LPData_constructor)
 {
-    LPData lpData(A, b, c);
+    LPData lpData(As, b, c);
     EXPECT_EQ(A.sum() + 15, lpData.A_.sum());
     EXPECT_EQ(19, lpData.A_.cols());
     EXPECT_EQ(c.sum() + 0, lpData.c_.sum());
@@ -62,7 +64,7 @@ TEST_F(LPTest1, LPData_constructor)
 
 TEST_F(LPTest1, GenerateInitialLP)
 {
-    LPData lpData(A, b, c);
+    LPData lpData(As, b, c);
     VectorDynamic x0Expect = GenerateVectorDynamic(19);
     x0Expect << 6.5639,
         11.4870,
@@ -125,80 +127,13 @@ TEST_F(LPTest1, GenerateInitialLP)
     EXPECT_TRUE(gtsam::assert_equal(lambda0Expect, lpData.centralVarCurr_.lambda, 1e-4));
 }
 
-// TEST_F(LPTest1, SolveLinearSystem)
-// {
-//     LPData lpData(A, b, c);
-//     VectorDynamic deltaLambdaExpect = GenerateVectorDynamic(15);
-//     deltaLambdaExpect << -0.4062,
-//         -0.5019,
-//         -0.2759,
-//         -0.3572,
-//         -0.3924,
-//         -0.1712,
-//         -0.1973,
-//         -0.1986,
-//         -0.7254,
-//         -0.2528,
-//         -0.7032,
-//         -1.7754,
-//         -0.7254,
-//         -1.3167,
-//         -0.2845;
-//     VectorDynamic deltasExpect = GenerateVectorDynamic(19);
-//     deltasExpect << -0.1021,
-//         -0.7012,
-//         -0.2972,
-//         -0.2959,
-//         -0.0883,
-//         0.0073,
-//         -0.2186,
-//         -0.1373,
-//         -0.1021,
-//         -0.3234,
-//         -0.2972,
-//         -0.2959,
-//         0.2308,
-//         -0.2417,
-//         0.2087,
-//         1.2809,
-//         0.2308,
-//         0.8222,
-//         -0.2100;
-//     VectorDynamic deltaxExpect = GenerateVectorDynamic(19);
-//     deltaxExpect << -2.4527,
-//         1.4345,
-//         -1.2752,
-//         -2.2634,
-//         -1.4956,
-//         -5.3828,
-//         -2.6731,
-//         -1.6850,
-//         -2.4527,
-//         1.4345,
-//         -1.2752,
-//         -2.2634,
-//         -0.7967,
-//         0.7355,
-//         -1.7848,
-//         -2.1635,
-//         -0.7967,
-//         -2.9623,
-//         1.7237;
-
-//     CentralVariable centralDelta = lpData.SolveLinearSystem();
-
-//     EXPECT_TRUE(gtsam::assert_equal(deltaLambdaExpect, centralDelta.lambda, 1e-4));
-//     EXPECT_TRUE(gtsam::assert_equal(deltasExpect, centralDelta.s, 1e-4));
-//     EXPECT_TRUE(gtsam::assert_equal(deltaxExpect, centralDelta.x, 1e-4));
-// }
-
 TEST_F(LPTest1, SolveLP)
 {
 
     TimerFunc _;
     VectorDynamic xExpect(4);
     xExpect << 0, 10, 1, 0;
-    VectorDynamic xActual = SolveLP(A, b, c);
+    VectorDynamic xActual = SolveLP(As, b, c);
     EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual, 1e-4));
 }
 

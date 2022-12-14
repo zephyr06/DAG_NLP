@@ -81,7 +81,7 @@ namespace LPOptimizer
         centralVarCurr_.s = centralVarCurr_.s + centralDelta.s * std::min(1.0, alphaAffDual * eta);
     }
 
-    VectorDynamic SolveLP(const MatrixDynamic &A, const VectorDynamic &b, const VectorDynamic &c, double precision)
+    VectorDynamic SolveLP(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const VectorDynamic &c, double precision)
     {
         LPData lpData(A, b, c);
         int iterationCount = 0;
