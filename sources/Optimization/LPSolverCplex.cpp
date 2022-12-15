@@ -59,6 +59,10 @@ namespace LPOptimizer
                 std::cout << status << " solution found: " << cplexSolver_.getObjValue() << "\n";
             }
         }
+        else
+        {
+            CoutWarning("Didn't find a solution!");
+        }
 
         VectorDynamic optimizedStartTimeVector_(numVariables_);
         for (int i = 0; i < numVariables_; i++)

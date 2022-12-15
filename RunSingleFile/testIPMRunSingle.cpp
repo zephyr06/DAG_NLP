@@ -67,18 +67,17 @@ protected:
     VectorDynamic c;
 };
 
-TEST_F(LPTest1, SolveLP_Cplex)
+TEST_F(LPTest1, SolveLP)
 {
-
     TimerFunc _;
     BeginTimer("main");
     // VectorDynamic xExpect(2);
     // xExpect << 0, 15;
-    VectorDynamic xActual = SolveLP_Cplex(As, b, c);
+    VectorDynamic xActual = SolveLP(As, b, c);
+
     if (GlobalVariablesDAGOpt::PrintOutput)
         std::cout << "Solution found: \n"
                   << xActual << std::endl;
-
     EXPECT_THAT((b - As * xActual).minCoeff(), testing::Ge(-1e-4));
     EndTimer("main");
     PrintTimer();
