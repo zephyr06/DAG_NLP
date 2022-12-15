@@ -26,7 +26,8 @@ namespace OrderOptDAG_SPACE
             for (int j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
             {
                 jacobian(count, count) = 1;
-                rhs(count++, 0) = GetDeadline(JobCEC{(int)i, j}, tasksInfo);
+                JobCEC jobCurr((int)i, j);
+                rhs(count++, 0) = GetDeadline(jobCurr, tasksInfo) - GetExecutionTime(jobCurr, tasksInfo);
             }
         }
         return AugmentedJacobian{jacobian, rhs};
@@ -205,7 +206,7 @@ namespace OrderOptDAG_SPACE
             {
                 // set DDL
                 jacobs[jobIndex].jacobian(0, jobIndex) = 1;
-                jacobs[jobIndex].rhs(0) = GetDeadline(jobCurr, tasksInfo);
+                jacobs[jobIndex].rhs(0) = GetDeadline(jobCurr, tasksInfo) - GetExecutionTime(jobCurr, tasksInfo);
 
                 // set Activation
                 jacobs[jobIndex].jacobian(1, jobIndex) = -1;

@@ -73,7 +73,7 @@ TEST_F(DAGScheduleOptimizerTest1, GetJacobianDDL)
     EXPECT_EQ(tasksInfo.length, augJaco.jacobian.sum());
     EXPECT_EQ(1, augJaco.jacobian(0, 0));
     VectorDynamic rhsExpect = GenerateVectorDynamic(4);
-    rhsExpect << 10, 20, 20, 20;
+    rhsExpect << 9, 19, 18, 17;
     EXPECT_EQ(rhsExpect, augJaco.rhs);
     augJaco.print();
 }
@@ -182,7 +182,7 @@ TEST_F(DAGScheduleOptimizerTest1, StackAugJaco)
     augJacobAll.print();
     EXPECT_EQ(4 + 4 + 3, augJacobAll.jacobian.rows());
     EXPECT_EQ(4 + 4 + 6, augJacobAll.jacobian.squaredNorm());
-    EXPECT_EQ(20 + 20 + 20 - 1 - 1 - 3, augJacobAll.rhs.sum());
+    EXPECT_EQ(48, augJacobAll.rhs.sum());
 }
 TEST_F(DAGScheduleOptimizerTest1, GetJacobianAll)
 {
@@ -191,7 +191,7 @@ TEST_F(DAGScheduleOptimizerTest1, GetJacobianAll)
 
     EXPECT_EQ(4 + 4 + 3 + 3, augJacobAll.jacobian.rows());
     EXPECT_EQ(4 + 4 + 6 + 6, augJacobAll.jacobian.squaredNorm());
-    EXPECT_EQ(20 + 20 + 20 - 1 - 1 - 3 - 1 - 1 - 3, augJacobAll.rhs.sum());
+    EXPECT_EQ(43, augJacobAll.rhs.sum());
 }
 
 TEST_F(DAGScheduleOptimizerTest1, GetVariableBlocks)
@@ -204,7 +204,7 @@ TEST_F(DAGScheduleOptimizerTest1, GetVariableBlocks)
         1, -1, 0, 0,
         1, -1, 0, 0;
     VectorDynamic rhsExpect0(4);
-    rhsExpect0 << 10, 0, -1, -1;
+    rhsExpect0 << 9, 0, -1, -1;
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect0, augJacos[0].jacobian));
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect0, augJacos[0].rhs));
 
@@ -214,7 +214,7 @@ TEST_F(DAGScheduleOptimizerTest1, GetVariableBlocks)
         0, 1, -1, 0,
         0, 1, -1, 0;
     VectorDynamic rhsExpect1(4);
-    rhsExpect1 << 20, -10, -1, -1;
+    rhsExpect1 << 19, -10, -1, -1;
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect1, augJacos[1].jacobian));
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect1, augJacos[1].rhs));
 
@@ -224,7 +224,7 @@ TEST_F(DAGScheduleOptimizerTest1, GetVariableBlocks)
         0, 0, 1, -1,
         0, 0, 1, -1;
     VectorDynamic rhsExpect2(4);
-    rhsExpect2 << 20, 0, -3, -3;
+    rhsExpect2 << 17, 0, -3, -3;
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect2, augJacos[2].jacobian));
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect2, augJacos[2].rhs));
 
@@ -232,7 +232,7 @@ TEST_F(DAGScheduleOptimizerTest1, GetVariableBlocks)
     jacobianExpect3 << 0, 0, 0, 1,
         0, 0, 0, -1;
     VectorDynamic rhsExpect3(2);
-    rhsExpect3 << 20, 0;
+    rhsExpect3 << 18, 0;
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect3, augJacos[3].jacobian));
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect3, augJacos[3].rhs));
 }
@@ -253,7 +253,7 @@ TEST_F(DAGScheduleOptimizerTest2, GetVariableBlock_non_continuous)
         1, -1, 0, 0,
         1, -1, 0, 0;
     VectorDynamic rhsExpect0(6);
-    rhsExpect0 << 10, 0, -1, 0, -1, 1;
+    rhsExpect0 << 9, 0, -1, 0, -1, 1;
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect0, augJacos[0].jacobian));
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect0, augJacos[0].rhs));
 
@@ -262,7 +262,7 @@ TEST_F(DAGScheduleOptimizerTest2, GetVariableBlock_non_continuous)
         0, -1, 0, 0,
         0, 1, -1, 0;
     VectorDynamic rhsExpect1(3);
-    rhsExpect1 << 20, 0, -2;
+    rhsExpect1 << 18, 0, -2;
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect1, augJacos[1].jacobian));
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect1, augJacos[1].rhs));
 
@@ -272,7 +272,7 @@ TEST_F(DAGScheduleOptimizerTest2, GetVariableBlock_non_continuous)
         0, 0, 1, -1,
         0, 0, 1, -1;
     VectorDynamic rhsExpect2(4);
-    rhsExpect2 << 20, -10, -1, -1;
+    rhsExpect2 << 19, -10, -1, -1;
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect2, augJacos[2].jacobian));
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect2, augJacos[2].rhs));
 
@@ -280,7 +280,7 @@ TEST_F(DAGScheduleOptimizerTest2, GetVariableBlock_non_continuous)
     jacobianExpect3 << 0, 0, 0, 1,
         0, 0, 0, -1;
     VectorDynamic rhsExpect3(2);
-    rhsExpect3 << 20, 0;
+    rhsExpect3 << 17, 0;
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect3, augJacos[3].jacobian));
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect3, augJacos[3].rhs));
 }
