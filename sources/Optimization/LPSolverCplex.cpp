@@ -3,7 +3,7 @@
 
 namespace LPOptimizer
 {
-
+    // TODO: This doesn't work with test_n15_v1, find out why
     VectorDynamic SolveLP_Cplex(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const VectorDynamic &c)
     {
         BeginTimer("SolveLP_Cplex");
