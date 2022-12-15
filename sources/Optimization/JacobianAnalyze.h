@@ -44,6 +44,11 @@ namespace OrderOptDAG_SPACE
 
     AugmentedJacobian GetJacobianDBF(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum);
 
+    // This function requires more consideration
+    // order of AugmentedJacobian follows instanceOrder in jobOrder
+    // The columns of each Jacobian matrix follows instanceOrder in jobOrder
+    // TODO: clean code, refactor function
+    // return: all the Jacobian matrices, columns and rows are re-ordered following jobs' dispatch order
     std::vector<AugmentedJacobian> GetVariableBlocks(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum);
 
     AugmentedJacobian MergeAugJacobian(const std::vector<AugmentedJacobian> &augJacos);
