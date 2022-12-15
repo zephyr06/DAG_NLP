@@ -55,7 +55,6 @@ protected:
 
 TEST_F(DAGScheduleOptimizerTest1, GetJacobianAll)
 {
-    CoutWarning("The first matrix shows the original order, which is actually not rigorously right in some cases, only used to illustrate a few example!");
     AugmentedJacobian augJacobAllOrg = GetDAGJacobianOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
     augJacobAllOrg.print();
 
