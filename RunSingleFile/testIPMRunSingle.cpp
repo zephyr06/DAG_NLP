@@ -79,6 +79,7 @@ TEST_F(LPTest1, SolveLP)
         std::cout << "Solution found: \n"
                   << xActual << std::endl;
     EXPECT_THAT((b - As * xActual).minCoeff(), testing::Ge(-1e-4));
+    std::cout << "Optimal solution found: " << c.transpose() * xActual << std::endl;
     EndTimer("main");
     PrintTimer();
 }
