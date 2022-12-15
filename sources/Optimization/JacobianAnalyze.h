@@ -36,7 +36,7 @@ namespace OrderOptDAG_SPACE
 
     AugmentedJacobian GetJacobianActivationTime(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo);
 
-    AugmentedJacobian GetJacobianAll(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum);
+    AugmentedJacobian GetDAGJacobianOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum);
 
     std::vector<std::vector<JobCEC>> SortJobsEachProcessor(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum);
 
@@ -52,5 +52,11 @@ namespace OrderOptDAG_SPACE
     std::vector<AugmentedJacobian> GetVariableBlocks(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum);
 
     AugmentedJacobian MergeAugJacobian(const std::vector<AugmentedJacobian> &augJacos);
+
+    inline AugmentedJacobian GetDAGJacobianOrdered(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum)
+    {
+        std::vector<AugmentedJacobian> augJacobs = GetVariableBlocks(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
+        return MergeAugJacobian(augJacobs);
+    }
 
 } // namespace OrderOptDAG_SPACE

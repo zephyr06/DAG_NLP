@@ -58,7 +58,7 @@ protected:
 
 TEST_F(DAGScheduleOptimizerTest1, QR_Eigen)
 {
-    AugmentedJacobian augJacobAll = GetJacobianAll(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    AugmentedJacobian augJacobAll = GetDAGJacobianOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
 
     QR qrEigen = GetEigenQR(augJacobAll.jacobian);
     qrEigen.print();

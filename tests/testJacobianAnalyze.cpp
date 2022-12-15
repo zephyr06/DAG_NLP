@@ -186,7 +186,7 @@ TEST_F(DAGScheduleOptimizerTest1, StackAugJaco)
 }
 TEST_F(DAGScheduleOptimizerTest1, GetJacobianAll)
 {
-    AugmentedJacobian augJacobAll = GetJacobianAll(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    AugmentedJacobian augJacobAll = GetDAGJacobianOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
     augJacobAll.print();
 
     EXPECT_EQ(4 + 4 + 3 + 3, augJacobAll.jacobian.rows());
@@ -240,7 +240,7 @@ TEST_F(DAGScheduleOptimizerTest1, GetVariableBlocks)
 TEST_F(DAGScheduleOptimizerTest2, GetVariableBlock_non_continuous)
 {
 
-    AugmentedJacobian augJacobAll = GetJacobianAll(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    AugmentedJacobian augJacobAll = GetDAGJacobianOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
     augJacobAll.print();
 
     std::vector<AugmentedJacobian> augJacos = GetVariableBlocks(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
@@ -250,10 +250,10 @@ TEST_F(DAGScheduleOptimizerTest2, GetVariableBlock_non_continuous)
         -1, 0, 0, 0,
         1, 0, -1, 0,
         1, -1, 0, 0,
-        1, -1, 0, 0,
+        -1, 1, 0, 0,
         1, -1, 0, 0;
     VectorDynamic rhsExpect0(6);
-    rhsExpect0 << 9, 0, -1, 0, -1, 1;
+    rhsExpect0 << 9, 0, -1, 0, 1, 1;
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect0, augJacos[0].jacobian));
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect0, augJacos[0].rhs));
 
@@ -294,6 +294,18 @@ TEST_F(DAGScheduleOptimizerTest2, MergeAugJacobian)
     for (uint i = 0; i < augJacobs.size(); i++)
         sum += augJacobs[i].jacobian.sum() + augJacobs[i].rhs.sum();
     EXPECT_FLOAT_EQ(sum, jacobAll.jacobian.sum() + jacobAll.rhs.sum());
+}
+
+TEST_F(DAGScheduleOptimizerTest2, overall_reordered_results)
+{
+    AugmentedJacobian augJacobAllOrg = GetDAGJacobianOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    augJacobAllOrg.print();
+
+    AugmentedJacobian augJacobAllOrdered = GetDAGJacobianOrdered(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    augJacobAllOrdered.print();
+
+    EXPECT_EQ(augJacobAllOrg.jacobian.sum(), augJacobAllOrdered.jacobian.sum());
+    EXPECT_EQ(augJacobAllOrg.rhs.sum(), augJacobAllOrdered.rhs.sum());
 }
 
 int main(int argc, char **argv)

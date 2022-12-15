@@ -45,6 +45,7 @@ namespace OrderOptDAG_SPACE
         augJacob.jacobian(rowIndex, jobIndex) = -1;
         augJacob.rhs(rowIndex) = GetActivationTime(jobCurr, tasksInfo) * -1;
     }
+
     AugmentedJacobian GetJacobianActivationTime(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo)
     {
         AugmentedJacobian augJacob;
@@ -64,7 +65,8 @@ namespace OrderOptDAG_SPACE
         return augJacob;
     }
 
-    AugmentedJacobian GetJacobianAll(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum)
+    // GetDAGJacobianOrg
+    AugmentedJacobian GetDAGJacobianOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum)
     {
         AugmentedJacobian augJacoDDL = GetJacobianDDL(dagTasks, tasksInfo);
         AugmentedJacobian augJacoAct = GetJacobianActivationTime(dagTasks, tasksInfo);
@@ -105,7 +107,7 @@ namespace OrderOptDAG_SPACE
 
         return jobsOrderedEachProcessor;
     }
-    // TODO: switch argument order of instCurr and instPrev
+
     void UpdateAugmentedJacobianJobOrder(AugmentedJacobian &augJacob, TimeInstance &instPrev, TimeInstance &instCurr, int rowIndex, int globalIdPrev, int globalIdCurr, const TaskSetInfoDerived &tasksInfo)
     {
         augJacob.jacobian.row(rowIndex).setZero();
@@ -265,17 +267,10 @@ namespace OrderOptDAG_SPACE
 
             int globalIdPrev = jobIndexInJacobian[instPrev.job];
             int globalIdCurr = jobIndexInJacobian[instCurr.job];
-            if (globalIdPrev > globalIdCurr) // make sure that prev inst happens earlier than next inst
-            {
-                auto instTemp = instCurr;
-                instCurr = instPrev;
-                instPrev = instTemp;
-                globalIdPrev = jobIndexInJacobian[instPrev.job];
-                globalIdCurr = jobIndexInJacobian[instCurr.job];
-            }
 
-            UpdateAugmentedJacobianJobOrder(jacobs[globalIdPrev], instPrev, instCurr, rowCount[globalIdPrev], globalIdPrev, globalIdCurr, tasksInfo);
-            rowCount[globalIdPrev]++;
+            int jacobianIndexToUpdate = std::min(globalIdPrev, globalIdCurr);
+            UpdateAugmentedJacobianJobOrder(jacobs[jacobianIndexToUpdate], instPrev, instCurr, rowCount[jacobianIndexToUpdate], globalIdPrev, globalIdCurr, tasksInfo);
+            rowCount[jacobianIndexToUpdate]++;
         }
 
         jobIndex = 0;
