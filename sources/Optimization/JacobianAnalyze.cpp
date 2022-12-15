@@ -108,16 +108,6 @@ namespace OrderOptDAG_SPACE
     // TODO: switch argument order of instCurr and instPrev
     void UpdateAugmentedJacobianJobOrder(AugmentedJacobian &augJacob, TimeInstance &instPrev, TimeInstance &instCurr, int rowIndex, int globalIdPrev, int globalIdCurr, const TaskSetInfoDerived &tasksInfo)
     {
-
-        // if (globalIdPrev > globalIdCurr) // make sure that prev inst happens earlier than next inst
-        // {
-        //     auto instTemp = instCurr;
-        //     instCurr = instPrev;
-        //     instPrev = instTemp;
-        //     int idTemp = globalIdPrev;
-        //     globalIdPrev = globalIdCurr;
-        //     globalIdCurr = idTemp;
-        // }
         augJacob.jacobian.row(rowIndex).setZero();
         augJacob.jacobian(rowIndex, globalIdCurr) = -1;
         augJacob.jacobian(rowIndex, globalIdPrev) = 1;
@@ -202,9 +192,6 @@ namespace OrderOptDAG_SPACE
             {
                 int globalIdPrev = GetJobUniqueId(jobsOrdered.at(i - 1), tasksInfo);
                 int globalIdCurr = GetJobUniqueId(jobsOrdered.at(i), tasksInfo);
-                // jacobian(count, globalIdPrev) = 1;
-                // jacobian(count, globalIdCurr) = -1;
-                // rhs(count) = -1 * GetExecutionTime(jobsOrdered.at(i - 1), tasksInfo);
                 UpdateAugmentedJacobianDBF(augJacob, count, globalIdPrev, globalIdCurr, jobsOrdered.at(i - 1), tasksInfo);
                 count++;
             }
@@ -239,14 +226,8 @@ namespace OrderOptDAG_SPACE
             JobCEC jobCurr = instCurr.job;
             if (instCurr.type == 's')
             {
-                // set DDL
-                // jacobs[jobIndex].jacobian(0, jobIndex) = 1;
-                // jacobs[jobIndex].rhs(0) = GetDeadline(jobCurr, tasksInfo) - GetExecutionTime(jobCurr, tasksInfo);
                 UpdateAugmentedJacobianDDL(jacobs[jobIndex], 0, jobIndex, jobCurr, tasksInfo);
 
-                // set Activation
-                // jacobs[jobIndex].jacobian(1, jobIndex) = -1;
-                // jacobs[jobIndex].rhs(1) = -1 * GetActivationTime(jobCurr, tasksInfo);
                 UpdateAugmentedJacobianActivationTime(jacobs[jobIndex], 1, jobIndex, jobCurr, tasksInfo);
 
                 jobIndexInJacobian[jobCurr] = jobIndex;
@@ -268,9 +249,6 @@ namespace OrderOptDAG_SPACE
                 int globalIdPrev = jobIndexInJacobian[jobPrev];
                 int globalIdCurr = jobIndexInJacobian[jobsOrdered.at(i)];
                 // // let's assume that globalIdPrev happens earlier than globalIdCurr, which is actually guaranteed by SortJobsEachProcessor(...)
-                // jacobs[globalIdPrev].jacobian(rowCount[globalIdPrev], globalIdPrev) = 1;
-                // jacobs[globalIdPrev].jacobian(rowCount[globalIdPrev], globalIdCurr) = -1;
-                // jacobs[globalIdPrev].rhs(rowCount[globalIdPrev]) = -1 * GetExecutionTime(jobsOrdered.at(i - 1), tasksInfo);
                 UpdateAugmentedJacobianDBF(jacobs[globalIdPrev], rowCount[globalIdPrev], globalIdPrev, globalIdCurr, jobPrev, tasksInfo);
                 rowCount[globalIdPrev]++;
             }
@@ -296,35 +274,6 @@ namespace OrderOptDAG_SPACE
                 globalIdCurr = jobIndexInJacobian[instCurr.job];
             }
 
-            // jacobs[globalIdPrev].jacobian.row(rowCount[globalIdPrev]).setZero();
-            // jacobs[globalIdPrev].jacobian(rowCount[globalIdPrev], globalIdPrev) = 1;
-            // jacobs[globalIdPrev].jacobian(rowCount[globalIdPrev], globalIdCurr) = -1;
-            // if (instPrev.type == 's')
-            // {
-            //     if (instCurr.type == 's')
-            //     {
-            //         jacobs[globalIdPrev].rhs(rowCount[globalIdPrev]) = 0;
-            //         // rhs(jobIndex) = 0;
-            //     }
-            //     else // instCurr.type == 'f'
-            //     {
-            //         // rhs(jobIndex) = GetExecutionTime(instCurr.job, tasksInfo);
-            //         jacobs[globalIdPrev].rhs(rowCount[globalIdPrev]) = GetExecutionTime(instCurr.job, tasksInfo);
-            //     }
-            // }
-            // else // instPrev.type == 'f'
-            // {
-            //     if (instCurr.type == 's')
-            //     {
-            //         // rhs(jobIndex) = -1 * GetExecutionTime(instPrev.job, tasksInfo);
-            //         jacobs[globalIdPrev].rhs(rowCount[globalIdPrev]) = -1 * GetExecutionTime(instPrev.job, tasksInfo);
-            //     }
-            //     else // type == 'f'
-            //     {
-            //         // rhs(jobIndex) = -1 * GetExecutionTime(instPrev.job, tasksInfo) + GetExecutionTime(instCurr.job, tasksInfo);
-            //         jacobs[globalIdPrev].rhs(rowCount[globalIdPrev]) = -1 * GetExecutionTime(instPrev.job, tasksInfo) + GetExecutionTime(instCurr.job, tasksInfo);
-            //     }
-            // }
             UpdateAugmentedJacobianJobOrder(jacobs[globalIdPrev], instPrev, instCurr, rowCount[globalIdPrev], globalIdPrev, globalIdCurr, tasksInfo);
             rowCount[globalIdPrev]++;
         }
@@ -354,9 +303,6 @@ namespace OrderOptDAG_SPACE
         // jacobAll.rhs.conservativeResize(totalRow, 1);
         for (uint i = 1; i < augJacos.size(); i++)
         {
-            // jacobAll.jacobian.resize(jacobAll.jacobian.rows() + augJacos[i].jacobian.rows(), augJacos[i].jacobian.cols());
-            // jacobAll.jacobian << jacobAll.jacobian, augJacos[i].jacobian;
-            // jacobAll.rhs << jacobAll.rhs, augJacos[i].rhs;
             jacobAll = StackAugJaco(jacobAll, augJacos[i]);
         }
         return jacobAll;
