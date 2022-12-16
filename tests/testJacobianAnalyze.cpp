@@ -11,10 +11,12 @@
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/Optimization/JacobianAnalyze.h"
 #include "sources/Utils/IncrementQR.h"
+#include "sources/Optimization/LinearProgrammingSolver.h"
 
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
 using namespace GlobalVariablesDAGOpt;
+using namespace LPOptimizer;
 // TODO: Fix DDL issue, rhs should minus execution time;
 class DAGScheduleOptimizerTest1 : public ::testing::Test
 {
@@ -307,7 +309,35 @@ TEST_F(DAGScheduleOptimizerTest2, overall_reordered_results)
     EXPECT_EQ(augJacobAllOrg.jacobian.sum(), augJacobAllOrdered.jacobian.sum());
     EXPECT_EQ(augJacobAllOrg.rhs.sum(), augJacobAllOrdered.rhs.sum());
 }
+TEST_F(DAGScheduleOptimizerTest2, ReOrderLPObj)
+{
+    VectorDynamic c(4);
+    c << 1, -1, 0, 0;
+    VectorDynamic cExpect(4);
+    cExpect << 1, 0, -1, 0;
+    VectorDynamic cOrdered = ReOrderLPObj(c, jobOrder, tasksInfo);
+    EXPECT_TRUE(gtsam::assert_equal(cExpect, cOrdered));
+}
+TEST_F(DAGScheduleOptimizerTest2, ReOrderPerformance)
+{
+    AugmentedJacobian jacobAllOrg = GetDAGJacobianOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    AugmentedJacobian jacobAllOrdered = GetDAGJacobianOrdered(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
 
+    VectorDynamic c(4);
+    c << 1, -1, 0, 0;
+    VectorDynamic cOrdered = ReOrderLPObj(c, jobOrder, tasksInfo);
+
+    // std::cout << "Oroginal Jacobian and rhs:\n"
+    //           << jacobAllOrg.jacobian << "\n"
+    //           << jacobAllOrg.rhs << "\n\n";
+    // std::cout << "Ordered Jacobian and rhs:\n"
+    //           << jacobAllOrdered.jacobian << "\n"
+    //           << jacobAllOrdered.rhs << "\n";
+
+    VectorDynamic xActualFromOrg = SolveLP(jacobAllOrg.jacobian.sparseView(), jacobAllOrg.rhs, c);
+    VectorDynamic xActualFromOrdered = SolveLP(jacobAllOrdered.jacobian.sparseView(), jacobAllOrdered.rhs, cOrdered);
+    EXPECT_FLOAT_EQ(c.transpose() * xActualFromOrg, cOrdered.transpose() * xActualFromOrdered);
+}
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

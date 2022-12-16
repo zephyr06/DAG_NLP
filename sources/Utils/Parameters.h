@@ -123,6 +123,7 @@ namespace GlobalVariablesDAGOpt
     extern const std::string priorityMode;
     extern const std::string runMode;
     extern const std::string testDataSetName;
+    extern const std::string ReOrderProblem;
     extern const double punishmentInBarrier;
     extern const double DataAgeThreshold;
     extern const double ReactionTimeThreshold;

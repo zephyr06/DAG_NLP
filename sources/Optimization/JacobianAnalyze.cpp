@@ -202,6 +202,37 @@ namespace OrderOptDAG_SPACE
         return augJacob;
     }
 
+    std::unordered_map<JobCEC, size_t> GetJobOrderMap(const SFOrder &jobOrder)
+    {
+        int jobIndex = 0;
+        std::unordered_map<JobCEC, size_t> jobIndexInJacobian;
+        const std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
+        for (uint i = 0; i < instanceOrder.size(); i++)
+        {
+            if (instanceOrder[i].type == 's')
+            {
+                jobIndexInJacobian[instanceOrder[i].job] = jobIndex++;
+            }
+        }
+        return jobIndexInJacobian;
+    }
+
+    VectorDynamic ReOrderLPObj(const VectorDynamic &c, const SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo)
+    {
+        std::unordered_map<JobCEC, size_t> jobIndexInJacobian = GetJobOrderMap(jobOrder);
+        VectorDynamic cOrdered(tasksInfo.length);
+        int count = 0;
+        for (uint i = 0; i < tasksInfo.tasks.size(); i++)
+        {
+            for (int j = 0; j < tasksInfo.sizeOfVariables[i]; j++)
+            {
+                JobCEC jobCurr(i, j);
+                cOrdered(jobIndexInJacobian[jobCurr]) = c(count++);
+            }
+        }
+        return cOrdered;
+    }
+
     std::vector<AugmentedJacobian> GetVariableBlocks(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum)
     {
         int n = tasksInfo.length; // number of variables
@@ -286,6 +317,7 @@ namespace OrderOptDAG_SPACE
     // TODO: this function could improve efficiency
     AugmentedJacobian MergeAugJacobian(const std::vector<AugmentedJacobian> &augJacos)
     {
+        BeginTimer("MergeAugJacobian");
         AugmentedJacobian jacobAll;
         if (augJacos.size() == 0)
             return jacobAll;
@@ -300,6 +332,7 @@ namespace OrderOptDAG_SPACE
         {
             jacobAll = StackAugJaco(jacobAll, augJacos[i]);
         }
+        EndTimer("MergeAugJacobian");
         return jacobAll;
     }
 } // namespace OrderOptDAG_SPACE

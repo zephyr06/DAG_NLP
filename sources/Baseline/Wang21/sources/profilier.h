@@ -71,7 +71,7 @@ namespace RTSS21IC_NLP
         std::cout.precision(4);
         std::vector<TimerDataProfiler> vec;
         double totalProfile = 0;
-        std::cout << Color::green << "Total time spent is: " << profilerMap["main"].accum << Color::def << std::endl;
+        std::cout << Color::green << "Total time spent by the main function is: " << profilerMap["main"].accum << Color::def << std::endl;
         for (auto itr = profilerMap.begin(); itr != profilerMap.end(); itr++)
         {
             double perc = itr->second.accum / (profilerMap["main"].accum);

@@ -41,14 +41,28 @@ protected:
         jobOrder = SFOrder(tasksInfo, initial);
         // jobOrder.print();
 
-        AugmentedJacobian jacobAll = GetDAGJacobianOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+        c = GenerateVectorDynamic(tasksInfo.length);
+        c(0) = 1;
+        c(1) = -1;
+
+        AugmentedJacobian jacobAll;
+        if (GlobalVariablesDAGOpt::ReOrderProblem == "orig")
+            jacobAll = GetDAGJacobianOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+        else if (GlobalVariablesDAGOpt::ReOrderProblem == "band")
+        {
+            jacobAll = GetDAGJacobianOrdered(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+            c = ReOrderLPObj(c, jobOrder, tasksInfo);
+        }
+
+        else if (GlobalVariablesDAGOpt::ReOrderProblem == "amd")
+            CoutError("Please provide reorder method implementation!");
+        else
+            CoutError("Please provide reorder method implementation!");
+
         A = jacobAll.jacobian;
         As = A.sparseView();
 
         b = jacobAll.rhs;
-        c = GenerateVectorDynamic(A.cols());
-        c(0) = 1;
-        c(1) = -1;
     };
 
     double timeLimits = 1;
@@ -74,13 +88,14 @@ TEST_F(LPTest1, SolveLP)
     // VectorDynamic xExpect(2);
     // xExpect << 0, 15;
     VectorDynamic xActual = SolveLP(As, b, c);
-
+    EndTimer("main");
     if (GlobalVariablesDAGOpt::PrintOutput)
         std::cout << "Solution found: \n"
                   << xActual << std::endl;
     EXPECT_THAT((b - As * xActual).minCoeff(), testing::Ge(-1e-4));
+    std::cout << "The number of variables is: " << xActual.rows() << std::endl;
     std::cout << "Optimal solution found: " << c.transpose() * xActual << std::endl;
-    EndTimer("main");
+
     PrintTimer();
 }
 

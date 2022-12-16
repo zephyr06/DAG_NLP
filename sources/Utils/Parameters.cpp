@@ -88,6 +88,7 @@ namespace GlobalVariablesDAGOpt
     const std::string priorityMode = (std::string)ConfigParameters["priorityMode"];
     const std::string runMode = (std::string)ConfigParameters["runMode"];
     const std::string testDataSetName = (std::string)ConfigParameters["testDataSetName"];
+    const std::string ReOrderProblem = (std::string)ConfigParameters["ReOrderProblem"];
     const double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
     const double DataAgeThreshold = (double)ConfigParameters["DataAgeThreshold"];
     const double ReactionTimeThreshold = (double)ConfigParameters["ReactionTimeThreshold"];
