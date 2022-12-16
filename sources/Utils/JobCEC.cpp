@@ -93,6 +93,19 @@ namespace OrderOptDAG_SPACE
         return id;
     }
 
+    LLint GetJobUniqueIdWithinHyperPeriod(const JobCEC &jobCEC, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
+    {
+        if (jobCEC.jobId >= tasksInfo.sizeOfVariables[jobCEC.taskId])
+        {
+            JobCEC jobWithinHyperPeriod(jobCEC.taskId, jobCEC.jobId % tasksInfo.sizeOfVariables[jobCEC.taskId]);
+            return GetJobUniqueId(jobWithinHyperPeriod, tasksInfo);
+        }
+        else
+        {
+            return GetJobUniqueId(jobCEC, tasksInfo);
+        }
+    }
+
     JobCEC GetJobCECFromUniqueId(LLint id, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
     {
         if (id < 0 || id >= tasksInfo.variableDimension)

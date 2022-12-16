@@ -101,7 +101,7 @@ namespace OrderOptDAG_SPACE
             if (job.jobId >= tasksInfo_.sizeOfVariables[job.taskId])
             {
                 JobCEC jobWithinSingleHP{job.taskId, job.jobId % tasksInfo_.sizeOfVariables[job.taskId]};
-                return jobSFMap_.at(jobWithinSingleHP).startInstanceIndex + job.jobId / tasksInfo_.sizeOfVariables[job.taskId] * tasksInfo_.sizeOfVariables[job.taskId];
+                return jobSFMap_.at(jobWithinSingleHP).startInstanceIndex + job.jobId / tasksInfo_.sizeOfVariables[job.taskId] * tasksInfo_.length * 2;
             }
             else
                 return jobSFMap_.at(job).startInstanceIndex;
@@ -112,7 +112,7 @@ namespace OrderOptDAG_SPACE
             if (job.jobId >= tasksInfo_.sizeOfVariables[job.taskId])
             {
                 JobCEC jobWithinSingleHP{job.taskId, job.jobId % tasksInfo_.sizeOfVariables[job.taskId]};
-                return jobSFMap_.at(jobWithinSingleHP).finishInstanceIndex + job.jobId / tasksInfo_.sizeOfVariables[job.taskId] * tasksInfo_.sizeOfVariables[job.taskId];
+                return jobSFMap_.at(jobWithinSingleHP).finishInstanceIndex + job.jobId / tasksInfo_.sizeOfVariables[job.taskId] * tasksInfo_.length * 2;
             }
             else
                 return jobSFMap_.at(job).finishInstanceIndex;

@@ -359,51 +359,63 @@ TEST_F(DAGScheduleOptimizerTest1, GetJacobianCauseEffectChainOrg)
     jacobianExpect << -1, 0, 0, 1, -1, 0,
         0, -1, 0, 1, -1, 0,
         -1, 0, 0, 1, -1, 0,
-        0, -1, 0, 1, -1, 0,
-        0, -1, 0, 1, 0, -1;
+        0, -1, 0, 1, 0, -1,
+        0, -1, 0, 1, -1, 0;
     VectorDynamic rhsExpect = GenerateVectorDynamic(5);
     rhsExpect << -3, -3, -3, -3, -3;
 
     augJaco.print();
 
-    // EXPECT_EQ(jacobianExpect, augJaco.jacobian);
     EXPECT_TRUE(gtsam::assert_equal(rhsExpect, augJaco.rhs));
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect, augJaco.jacobian));
 }
-// TEST_F(DAGScheduleOptimizerTest2, GetJacobianCauseEffectChainOrg)
-// {
-//     auto augJaco = GetJacobianCauseEffectChainOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
-//     MatrixDynamic jacobianExpect = GenerateMatrixDynamic(3, 4 + 2);
-//     jacobianExpect << -1, 0, 0, 1, -1, 0,
-//         // 0, 0, 0, 0, 0, 0,
-//         0, -1, 0, 1, -1, 0,
-//         0, -1, 0, 1, 0, -1;
-//     VectorDynamic rhsExpect = GenerateVectorDynamic(3);
-//     rhsExpect << -3, -3, -3;
 
-//     augJaco.print();
+TEST_F(DAGScheduleOptimizerTest2, GetJacobianCauseEffectChainOrg)
+{
+    auto augJaco = GetJacobianCauseEffectChainOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_, chain1);
+    MatrixDynamic jacobianExpect = GenerateMatrixDynamic(5, 4 + 2);
+    jacobianExpect << -1, 0, 0, 1, -1, 0,
+        0, -1, 0, 1, -1, 0,
+        -1, 0, 0, 1, -1, 0,
+        0, -1, 0, 1, 0, -1,
+        0, -1, 0, 1, -1, 0;
+    VectorDynamic rhsExpect = GenerateVectorDynamic(5);
+    rhsExpect << -3, -3, -3, -3, -3;
 
-//     // EXPECT_EQ(jacobianExpect, augJaco.jacobian);
-//     EXPECT_EQ(rhsExpect, augJaco.rhs);
-//     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect, augJaco.jacobian));
-// }
-// TEST_F(DAGScheduleOptimizerTest3, GetJacobianCauseEffectChainOrg)
-// {
-//     auto augJaco = GetJacobianCauseEffectChainOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
-//     MatrixDynamic jacobianExpect = GenerateMatrixDynamic(3, 4 + 2);
-//     jacobianExpect << -1, 0, 0, 1, -1, 0,
-//         -1, 0, 0, 1, 0, -1,
-//         0, -1, 0, 1, -1, 0;
-//     // 0, -1, 0, 1, 0, -1;
-//     VectorDynamic rhsExpect = GenerateVectorDynamic(3);
-//     rhsExpect << -3, -3, -23;
+    augJaco.print();
 
-//     augJaco.print();
+    EXPECT_TRUE(gtsam::assert_equal(rhsExpect, augJaco.rhs));
+    EXPECT_TRUE(gtsam::assert_equal(jacobianExpect, augJaco.jacobian));
+}
+TEST_F(DAGScheduleOptimizerTest1, GetJobStartInstancePosition)
+{
+    JobCEC job1(0, 0);
+    EXPECT_EQ(0, jobOrder.GetJobStartInstancePosition(job1));
+    JobCEC job2(0, 2);
+    EXPECT_EQ(8, jobOrder.GetJobStartInstancePosition(job2));
+    JobCEC job3(2, 0);
+    EXPECT_EQ(4, jobOrder.GetJobStartInstancePosition(job3));
+    JobCEC job4(2, 1);
+    EXPECT_EQ(4 + 8, jobOrder.GetJobStartInstancePosition(job4));
+}
+TEST_F(DAGScheduleOptimizerTest3, GetJacobianCauseEffectChainOrg)
+{
+    auto augJaco = GetJacobianCauseEffectChainOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_, chain1);
+    MatrixDynamic jacobianExpect = GenerateMatrixDynamic(6, 4 + 2);
+    jacobianExpect << -1, 0, 0, 1, -1, 0, // (0,0) -> (2,0) RT
+        0, -1, 0, 1, -1, 0,               // (0,1) -> (2,0) RT
+        -1, 0, 0, 1, 0, -1,               // (0,0) -> (2,0) DA
+        -1, 0, 0, 1, -1, 0,               // (0,0) -> (2,0) RT, next hyper-period
+        0, -1, 0, 1, -1, 0,               // (0,1) -> (2,0) RT, next hyper-period
+        -1, 0, 0, 1, 0, -1;               // (0,0) -> (2,0) DA, next hyper-period
+    VectorDynamic rhsExpect = GenerateVectorDynamic(6);
+    rhsExpect << -3, -3, -3, -3, -3, -3;
 
-//     // EXPECT_EQ(jacobianExpect, augJaco.jacobian);
-//     EXPECT_EQ(rhsExpect, augJaco.rhs);
-//     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect, augJaco.jacobian));
-// }
+    augJaco.print();
+
+    EXPECT_TRUE(gtsam::assert_equal(rhsExpect, augJaco.rhs));
+    EXPECT_TRUE(gtsam::assert_equal(jacobianExpect, augJaco.jacobian));
+}
 
 int main(int argc, char **argv)
 {

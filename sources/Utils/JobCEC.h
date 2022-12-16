@@ -65,6 +65,9 @@ namespace OrderOptDAG_SPACE
 
     // map the job to the first hyper period and return job's unique id
     LLint GetJobUniqueId(const JobCEC &jobCEC, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
+    
+    // similar as above, except that it maps jobs outside of a hyper-period into one hyper-period
+    LLint GetJobUniqueIdWithinHyperPeriod(const JobCEC &jobCEC, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
 
     JobCEC GetJobCECFromUniqueId(LLint id, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
 

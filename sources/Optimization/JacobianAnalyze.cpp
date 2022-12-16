@@ -412,9 +412,9 @@ namespace OrderOptDAG_SPACE
                 lastReaction.jobId--;
                 // resVec[startInstanceIndex - 1].dataAge = GetStartTime(lastReaction, x, tasksInfo) + tasks[lastReaction.taskId].executionTime - GetStartTime({causeEffectChain[0], startInstanceIndex - 1}, x, tasksInfo);
                 augJacob.jacobian.row(rowIndex).setZero();
-                JobCEC sourceJobDA = JobCEC{causeEffectChain[0], startInstanceIndex - 1};
-                int sourceJobColDA = GetJobUniqueId(jj, tasksInfo);
-                int tailJobColDA = GetJobUniqueId(lastReaction, tasksInfo);
+                JobCEC sourceJobDA = JobCEC{causeEffectChain[0], (startInstanceIndex - 1)};
+                int sourceJobColDA = GetJobUniqueIdWithinHyperPeriod(sourceJobDA, tasksInfo);
+                int tailJobColDA = GetJobUniqueIdWithinHyperPeriod(lastReaction, tasksInfo);
                 augJacob.jacobian(rowIndex, tailJobColDA) = 1;
                 augJacob.jacobian(rowIndex, sourceJobColDA) = -1;
                 augJacob.jacobian(rowIndex, varIndexDA) = -1;
