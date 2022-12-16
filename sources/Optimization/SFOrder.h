@@ -98,12 +98,24 @@ namespace OrderOptDAG_SPACE
         LLint GetJobStartInstancePosition(JobCEC &job)
         {
             EstablishJobSFMap();
-            return jobSFMap_.at(job).startInstanceIndex;
+            if (job.jobId >= tasksInfo_.sizeOfVariables[job.taskId])
+            {
+                JobCEC jobWithinSingleHP{job.taskId, job.jobId % tasksInfo_.sizeOfVariables[job.taskId]};
+                return jobSFMap_.at(jobWithinSingleHP).startInstanceIndex + job.jobId / tasksInfo_.sizeOfVariables[job.taskId] * tasksInfo_.sizeOfVariables[job.taskId];
+            }
+            else
+                return jobSFMap_.at(job).startInstanceIndex;
         }
         LLint GetJobFinishInstancePosition(JobCEC &job)
         {
             EstablishJobSFMap();
-            return jobSFMap_.at(job).finishInstanceIndex;
+            if (job.jobId >= tasksInfo_.sizeOfVariables[job.taskId])
+            {
+                JobCEC jobWithinSingleHP{job.taskId, job.jobId % tasksInfo_.sizeOfVariables[job.taskId]};
+                return jobSFMap_.at(jobWithinSingleHP).finishInstanceIndex + job.jobId / tasksInfo_.sizeOfVariables[job.taskId] * tasksInfo_.sizeOfVariables[job.taskId];
+            }
+            else
+                return jobSFMap_.at(job).finishInstanceIndex;
         }
 
         void RangeCheck(LLint index, bool allowEnd = false) const;

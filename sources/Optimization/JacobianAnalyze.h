@@ -5,6 +5,7 @@
 
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Optimization/OrderScheduler.h"
+#include "sources/Factors/RTDA_Factor.h"
 #include "sources/Utils/profilier.h"
 
 namespace OrderOptDAG_SPACE
@@ -64,5 +65,7 @@ namespace OrderOptDAG_SPACE
         std::vector<AugmentedJacobian> augJacobs = GetVariableBlocks(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
         return MergeAugJacobian(augJacobs);
     }
+
+    AugmentedJacobian GetJacobianCauseEffectChainOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum, const std::vector<int> &causeEffectChain);
 
 } // namespace OrderOptDAG_SPACE
