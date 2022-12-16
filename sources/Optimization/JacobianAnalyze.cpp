@@ -4,7 +4,6 @@
 
 namespace OrderOptDAG_SPACE
 {
-    // TODO: improve efficiency for this function
     AugmentedJacobian StackAugJaco(const AugmentedJacobian &augJaco1, const AugmentedJacobian &augJaco2)
     {
         MatrixDynamic jacobianAll(augJaco1.jacobian.rows() + augJaco2.jacobian.rows(), augJaco1.jacobian.cols());
@@ -314,7 +313,8 @@ namespace OrderOptDAG_SPACE
         return jacobs;
     }
 
-    // TODO: this function could improve efficiency
+    // TODO: this function could possibly improve efficiency?
+    // TODO: switch Jacobian to sparseMatrix
     AugmentedJacobian MergeAugJacobian(const std::vector<AugmentedJacobian> &augJacos)
     {
         BeginTimer("MergeAugJacobian");
@@ -322,15 +322,19 @@ namespace OrderOptDAG_SPACE
         if (augJacos.size() == 0)
             return jacobAll;
 
+        int n = augJacos[0].jacobian.cols();
         int totalRow = 0;
         for (uint i = 0; i < augJacos.size(); i++)
             totalRow += augJacos[i].jacobian.rows();
-        jacobAll = augJacos[0];
-        // jacobAll.jacobian.conservativeResize(totalRow, augJacos[0].jacobian.cols());
-        // jacobAll.rhs.conservativeResize(totalRow, 1);
-        for (uint i = 1; i < augJacos.size(); i++)
+
+        jacobAll.jacobian.conservativeResize(totalRow, n);
+        jacobAll.rhs.conservativeResize(totalRow, 1);
+        int rowCount = 0;
+        for (uint i = 0; i < augJacos.size(); i++)
         {
-            jacobAll = StackAugJaco(jacobAll, augJacos[i]);
+            jacobAll.jacobian.block(rowCount, 0, augJacos[i].jacobian.rows(), n) = augJacos[i].jacobian;
+            jacobAll.rhs.block(rowCount, 0, augJacos[i].rhs.rows(), 1) = augJacos[i].rhs;
+            rowCount += augJacos[i].jacobian.rows();
         }
         EndTimer("MergeAugJacobian");
         return jacobAll;

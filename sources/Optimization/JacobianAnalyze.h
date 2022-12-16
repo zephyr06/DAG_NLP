@@ -30,7 +30,7 @@ namespace OrderOptDAG_SPACE
         }
     };
 
-    // TODO: improve efficiency for this function
+    // Warning! This function is slow because it creates a new AugmentedJacobian object
     AugmentedJacobian StackAugJaco(const AugmentedJacobian &augJaco1, const AugmentedJacobian &augJaco2);
 
     AugmentedJacobian GetJacobianDDL(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo);
