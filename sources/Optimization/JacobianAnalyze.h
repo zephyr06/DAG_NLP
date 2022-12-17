@@ -26,8 +26,10 @@ namespace OrderOptDAG_SPACE
 
         void print()
         {
-            std::cout << "Jacobian: " << jacobian << std::endl;
-            std::cout << "RHS: " << rhs << std::endl;
+            std::cout << "Jacobian: \n"
+                      << jacobian << std::endl;
+            std::cout << "RHS: \n"
+                      << rhs << std::endl;
         }
     };
 
@@ -66,6 +68,6 @@ namespace OrderOptDAG_SPACE
         return MergeAugJacobian(augJacobs);
     }
 
-    AugmentedJacobian GetJacobianCauseEffectChainOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum, const std::vector<int> &causeEffectChain);
+    AugmentedJacobian GetJacobianCauseEffectChainOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum, const std::vector<int> &causeEffectChain, int chainIndex);
 
 } // namespace OrderOptDAG_SPACE

@@ -345,7 +345,7 @@ namespace OrderOptDAG_SPACE
     // As for the added variable, it's also RT first DA second;
     // jobOrder's jobSFMap_ may be updated
     // TODO: this function only considres 1 chain, add functiosn for multiple chains
-    AugmentedJacobian GetJacobianCauseEffectChainOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum, const std::vector<int> &causeEffectChain)
+    AugmentedJacobian GetJacobianCauseEffectChainOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum, const std::vector<int> &causeEffectChain, int chainIndex)
     {
         std::unordered_map<JobCEC, JobCEC> firstReactionMap;
 
@@ -354,11 +354,11 @@ namespace OrderOptDAG_SPACE
         LLint totalStartJobs = hyperPeriod / tasks[causeEffectChain[0]].period + 1;
 
         AugmentedJacobian augJacob;
-        int varNum = tasksInfo.length + 2 * 1;
+        int varNum = tasksInfo.length + 2 * (1 + chainIndex);
         augJacob.jacobian.conservativeResize((totalStartJobs + 1) * 2, varNum);
         augJacob.rhs.conservativeResize((totalStartJobs + 1) * 2, 1);
-        int varIndexRT = tasksInfo.length;
-        int varIndexDA = tasksInfo.length + 1;
+        int varIndexRT = tasksInfo.length + 2 * (chainIndex);
+        int varIndexDA = tasksInfo.length + 1 + 2 * (chainIndex);
 
         if (causeEffectChain.size() == 0)
         {
