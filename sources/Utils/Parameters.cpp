@@ -27,6 +27,7 @@ namespace GlobalVariablesDAGOpt
     const double weightLogBarrier = (double)ConfigParameters["weightLogBarrier"];
     const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetectTol"];
     const double stepJacobianIteration = (double)ConfigParameters["stepJacobianIteration"];
+    const double NumericalPrecision = (double)ConfigParameters["NumericalPrecision"];
 
     int printSchedule = (int)ConfigParameters["printSchedule"];
     int bigJobGroupCheck = (int)ConfigParameters["bigJobGroupCheck"];

@@ -10,6 +10,7 @@ PrintOutput: 1
 # band orig
 ReOrderProblem: "orig"
 debugMode: 0
+NumericalPrecision: 1e-3
 doScheduleOptimization: 0
 doScheduleOptimizationOnlyOnce: 0
 considerSensorFusion: 0 

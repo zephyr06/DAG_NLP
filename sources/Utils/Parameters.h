@@ -93,6 +93,8 @@ namespace GlobalVariablesDAGOpt
     extern const double weightInMpSfPunish;
     extern const double weightInMpRTDAPunish;
     extern const int64_t makeProgressTimeLimit;
+    extern const double NumericalPrecision;
+    
 
     extern const double RtdaWeight;
     extern const double ResetRandomWeightThreshold;
