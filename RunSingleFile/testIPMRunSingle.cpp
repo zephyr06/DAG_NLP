@@ -39,7 +39,8 @@ protected:
     //           << initial << std::endl
     //           << std::endl;
     jobOrder = SFOrder(tasksInfo, initial);
-    // jobOrder.print();
+    if (GlobalVariablesDAGOpt::PrintOutput)
+      jobOrder.print();
   };
 
   double timeLimits = 1;
@@ -58,6 +59,16 @@ protected:
   VectorDynamic c;
 };
 
+TEST_F(LPTest1, OldLPOrderScheduler) {
+  TimerFunc _;
+  VectorDynamic stv =
+      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
+  if (GlobalVariablesDAGOpt::PrintOutput)
+    std::cout << "start time vector after Old LPOrderScheduler: " << stv << std::endl;
+  std::cout << "Obj after Old LPOrderScheduler: "
+            << RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, stv, scheduleOptions) << std::endl;
+}
+
 TEST_F(LPTest1, SolveLP) {
   TimerFunc _;
   BeginTimer("main");
@@ -75,6 +86,9 @@ TEST_F(LPTest1, SolveLP) {
     CoutError("Please provide reorder method implementation!");
   EndTimer("main");
   std::cout << "The number of variables is: " << xActual.rows() << std::endl;
+  if (GlobalVariablesDAGOpt::PrintOutput)
+    std::cout << "optimal start time vector found: " << xActual << std::endl;
+
   std::cout << "Optimal solution found: "
             << RTDAExperimentObj::TrueObj(
                    dagTasks, tasksInfo, xActual.block(0, 0, initial.rows(), initial.cols()), scheduleOptions)
