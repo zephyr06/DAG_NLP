@@ -129,6 +129,13 @@ VectorDynamic SolveLP(LPData &lpData, double precision) {
 namespace OrderOptDAG_SPACE {
 using namespace LPOptimizer;
 
+void RoundIPMResults(VectorDynamic &startTimeVector, double precision) {
+  for (uint i = 0; i < startTimeVector.rows(); i++) {
+    if (abs(startTimeVector(i) - round(startTimeVector(i))) < precision)
+      startTimeVector(i) = round(startTimeVector(i));
+  }
+}
+
 LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
                          const std::vector<uint> processorJobVec, int processorNum) {
   AugmentedJacobian augJacobConstraints =

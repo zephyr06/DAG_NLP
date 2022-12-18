@@ -10,6 +10,7 @@
 #include "sources/Optimization/JacobianAnalyze.h"
 #include "sources/Optimization/LPSolverCplex.h"
 #include "sources/Optimization/LinearProgrammingSolver.h"
+#include "sources/Optimization/ObjectiveFunctions.h"
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/IncrementQR.h"
@@ -58,13 +59,6 @@ protected:
   VectorDynamic xOpt;
 };
 
-VectorDynamic OptRTDA_IPM(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
-                          const std::vector<uint> processorJobVec, int processorNum) {
-
-  LPData lpData = GenerateRTDALPOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
-  return SolveLP(lpData);
-}
-
 TEST_F(DAGScheduleOptimizerTest1, OptRTDA_IPM) {
   VectorDynamic startOpt =
       LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
@@ -72,7 +66,9 @@ TEST_F(DAGScheduleOptimizerTest1, OptRTDA_IPM) {
   EXPECT_TRUE(gtsam::assert_equal(xOpt, startOpt));
   VectorDynamic startFromIPM =
       OptRTDA_IPM(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
-  EXPECT_TRUE(gtsam::assert_equal(xOpt, startFromIPM));
+
+  EXPECT_EQ(RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startOpt, scheduleOptions),
+            RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startFromIPM.block(0, 0, 4, 1), scheduleOptions));
 }
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
