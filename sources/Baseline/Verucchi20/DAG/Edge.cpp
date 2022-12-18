@@ -6,6 +6,7 @@
  */
 #include "sources/Baseline/Verucchi20/DAG/Edge.h"
 #include "sources/Baseline/Verucchi20/DAG/Node.h"
+#include "string"
 
 Edge::Edge()
 {

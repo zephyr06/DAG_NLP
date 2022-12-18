@@ -1,12 +1,14 @@
 # Dependencies:
-- GTSAM
+- [GTSAM](https://github.com/borglab/gtsam)
 - boost
-- OpenCV
+- OpenCV, C++
 - Python
     - Graphviz (conda install python-graphviz)
     - pydot (conda install -c rmg pydot)
 - GCC V8.1+ (`sudo apt install gcc-8 g++-8`)
-- [CppUnitLite](https://github.com/Zephyr06/CppUnitLite) (If you want to run test files)
+- [CppUnitLite](https://github.com/Zephyr06/CppUnitLite) 
+- yaml-cpp (sudo apt install libyaml-cpp-dev)
+- Cplex, C++
 
 # Run all the tests
 ```
@@ -19,3 +21,4 @@ make check.UnitTests -j2
 cd build
 make check.scripts -j2
 ```
+`

@@ -24,7 +24,7 @@ unset(CMAKE_WARN_DEPRECATED)
 
 # Boost - same requirement as gtsam
 find_package(Boost 1.50 REQUIRED)
-find_package(CppUnitLite REQUIRED)
+# find_package(CppUnitLite REQUIRED)
 find_package( OpenCV REQUIRED )
 find_package(yaml-cpp)
 include_directories(${Boost_INCLUDE_DIR})
@@ -34,7 +34,9 @@ include_directories(/usr/local/lib)
 file(GLOB_RECURSE sources "sources/*.cpp" "sources/*.h")
 set(CONVENIENCE_LIB_NAME ${PROJECT_NAME})
 
+
 # Config Cplex
+set(ENV{CPLEX_ROOT_DIR} "/opt/ibm/ILOG/CPLEX_Studio221")
 if (DEFINED ENV{CPLEX_ROOT_DIR})
   message("Find Cplex installed at " $ENV{CPLEX_ROOT_DIR})
   set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -43,8 +45,10 @@ if (DEFINED ENV{CPLEX_ROOT_DIR})
   include_directories(SYSTEM ${CPLEX_INCLUDE_DIRS})
 else()
   # exclude files denpends on cplex
-  message("Error: Cplex not found! The project will not work without Cplex.")
+  message( FATAL_ERROR "Error: Cplex not found! The project will not work without Cplex.")
 endif()
+
+
 
 # google test
 include(FetchContent)
@@ -63,7 +67,7 @@ add_library(${CONVENIENCE_LIB_NAME} SHARED ${sources})
 # linking with dependencies
 target_link_libraries(${CONVENIENCE_LIB_NAME} gtsam)
 target_link_libraries(${CONVENIENCE_LIB_NAME} ${Boost_LIBRARIES})
-target_link_libraries(${CONVENIENCE_LIB_NAME} CppUnitLite)
+# target_link_libraries(${CONVENIENCE_LIB_NAME} CppUnitLite)
 target_link_libraries(${CONVENIENCE_LIB_NAME} ${OpenCV_LIBS} )
 target_link_libraries(${CONVENIENCE_LIB_NAME} yaml-cpp)
 target_link_libraries(${CONVENIENCE_LIB_NAME} "stdc++fs")

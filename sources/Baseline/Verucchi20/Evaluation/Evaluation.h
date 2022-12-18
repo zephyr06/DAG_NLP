@@ -11,6 +11,7 @@
 #include <sources/Baseline/Verucchi20/Evaluation/LatencyInfo.h>
 #include <sources/Baseline/Verucchi20/Evaluation/SchedulingInfo.h>
 #include <sources/Baseline/Verucchi20/MultiRate/MultiNode.h>
+#include <optional>
 
 class Evaluation
 {
