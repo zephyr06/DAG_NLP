@@ -86,23 +86,23 @@ TEST(IntegrationTest, v2)
     sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::RTDAExperimentObj>(dagTasks, scheduleOption);
     EXPECT_THAT(sth.obj_, testing::Le(8638 + 17638));
 }
+// TODO: add this test back in the future!
+// TEST_F(DAGScheduleOptimizerTest2, UpdateStatus)
+// {
+//     VectorDynamic initial = GenerateVectorDynamic(19);
+//     initial << 0, 199, 200, 300, 499, 511, 1, 198, 200, 399, 400, 599, 187, 201, 500, 178, 490, 107, 307;
+//     SFOrder jobOrder(tasksInfo, initial);
+//     jobOrder.print();
+//     PrintSchedule(tasksInfo, initial);
+//     std::vector<uint> processorJobVector;
+//     VectorDynamic startTimeVectorFromScheduler = LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVector);
+//     EXPECT_EQ(initial, startTimeVectorFromScheduler);
+//     // EXPECT_TRUE(ExamBasic_Feasibility(dagTasks, tasksInfo, initial, processorJobVector, scheduleOptions.processorNum_));
 
-TEST_F(DAGScheduleOptimizerTest2, UpdateStatus)
-{
-    VectorDynamic initial = GenerateVectorDynamic(19);
-    initial << 0, 199, 200, 300, 499, 511, 1, 198, 200, 399, 400, 599, 187, 201, 500, 178, 490, 107, 307;
-    SFOrder jobOrder(tasksInfo, initial);
-    jobOrder.print();
-    PrintSchedule(tasksInfo, initial);
-    std::vector<uint> processorJobVector;
-    VectorDynamic startTimeVectorFromScheduler = LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVector);
-    EXPECT_EQ(initial, startTimeVectorFromScheduler);
-    // EXPECT_TRUE(ExamBasic_Feasibility(dagTasks, tasksInfo, initial, processorJobVector, scheduleOptions.processorNum_));
-
-    // JobGroupRange uselessRange(0, 100);
-    // LLint uselessFinishP = 100;
-    // EXPECT_GT(dagScheduleOptimizer.UpdateStatus(jobOrder, uselessRange, uselessFinishP), SFOrderStatus::Infeasible);
-}
+//     // JobGroupRange uselessRange(0, 100);
+//     // LLint uselessFinishP = 100;
+//     // EXPECT_GT(dagScheduleOptimizer.UpdateStatus(jobOrder, uselessRange, uselessFinishP), SFOrderStatus::Infeasible);
+// }
 
 int main(int argc, char **argv)
 {
