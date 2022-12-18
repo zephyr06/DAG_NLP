@@ -103,13 +103,6 @@ LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &ta
 
 void RoundIPMResults(VectorDynamic &startTimeVector, double precision = 1e-4);
 
-inline VectorDynamic OptRTDA_IPM(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
-                                 SFOrder &jobOrder, const std::vector<uint> processorJobVec,
-                                 int processorNum) {
-
-  LPData lpData = GenerateRTDALPOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
-  VectorDynamic startTimeVectorAfterOpt = SolveLP(lpData);
-  RoundIPMResults(startTimeVectorAfterOpt);
-  return startTimeVectorAfterOpt;
-}
+VectorDynamic OptRTDA_IPMOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                             SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum);
 } // namespace OrderOptDAG_SPACE

@@ -65,7 +65,7 @@ TEST_F(DAGScheduleOptimizerTest1, OptRTDA_IPM) {
   std::cout << startOpt << std::endl;
   EXPECT_TRUE(gtsam::assert_equal(xOpt, startOpt));
   VectorDynamic startFromIPM =
-      OptRTDA_IPM(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+      OptRTDA_IPMOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
 
   EXPECT_EQ(RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startOpt, scheduleOptions),
             RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startFromIPM.block(0, 0, 4, 1), scheduleOptions));

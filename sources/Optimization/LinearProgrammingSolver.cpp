@@ -173,5 +173,14 @@ LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &ta
   LPData lpData(jacobAll.jacobian.sparseView(), jacobAll.rhs, c);
   return lpData;
 }
+// TODO: add feasibility check
+VectorDynamic OptRTDA_IPMOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                             SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum) {
+
+  LPData lpData = GenerateRTDALPOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
+  VectorDynamic startTimeVectorAfterOpt = SolveLP(lpData);
+  RoundIPMResults(startTimeVectorAfterOpt);
+  return startTimeVectorAfterOpt;
+}
 
 } // namespace OrderOptDAG_SPACE
