@@ -429,66 +429,6 @@ TEST_F(DAGScheduleOptimizerTest3, GetJacobianCauseEffectChainOrg)
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect, augJaco.jacobian));
 }
 
-AugmentedJacobian MergeJacobianOfRTDAChains(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum)
-{
-    AugmentedJacobian jacobAll;
-    int mAllMax = 0, nAll = tasksInfo.length + 2 * dagTasks.chains_.size();
-    for (uint i = 0; i < dagTasks.chains_.size(); i++)
-    {
-        mAllMax += 2 * (tasksInfo.hyperPeriod / dagTasks.tasks[dagTasks.chains_[i][0]].period + 1 + 1); // +1 just to be safe
-    }
-    jacobAll.jacobian.conservativeResize(mAllMax, nAll);
-    // TODO: verify whether this will introduce extra 0s
-    jacobAll.jacobian.setZero();
-    jacobAll.rhs.conservativeResize(mAllMax, 1);
-
-    // TODO: improve efficiency in matrix merge;
-    int rowCount = 0;
-    int colCount = -1;
-    for (uint i = 0; i < dagTasks.chains_.size(); i++)
-    {
-        AugmentedJacobian augJacobRTDACurr = GetJacobianCauseEffectChainOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum, dagTasks.chains_[i], i);
-        jacobAll.jacobian.block(rowCount, 0, augJacobRTDACurr.jacobian.rows(), augJacobRTDACurr.jacobian.cols()) = augJacobRTDACurr.jacobian;
-        jacobAll.rhs.block(rowCount, 0, augJacobRTDACurr.jacobian.rows(), 1) = augJacobRTDACurr.rhs;
-        rowCount += augJacobRTDACurr.jacobian.rows();
-        colCount = augJacobRTDACurr.jacobian.cols();
-    }
-    jacobAll.jacobian.conservativeResize(rowCount, colCount);
-    jacobAll.rhs.conservativeResize(rowCount);
-    return jacobAll;
-}
-
-LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum)
-{
-    AugmentedJacobian augJacobConstraints = GetDAGJacobianOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
-
-    AugmentedJacobian jacobAll;
-    int mAllMax = augJacobConstraints.jacobian.rows(), nAll = augJacobConstraints.jacobian.cols() + 2 * dagTasks.chains_.size();
-    for (uint i = 0; i < dagTasks.chains_.size(); i++)
-    {
-        mAllMax += 2 * (tasksInfo.hyperPeriod / dagTasks.tasks[dagTasks.chains_[i][0]].period + 1 + 1); // +1 just to be safe
-    }
-    jacobAll.jacobian.conservativeResize(mAllMax, nAll);
-    jacobAll.rhs.conservativeResize(mAllMax, 1);
-    jacobAll.jacobian.setZero();
-
-    AugmentedJacobian jacobRTDAS = MergeJacobianOfRTDAChains(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
-
-    jacobAll.jacobian.block(0, 0, augJacobConstraints.jacobian.rows(), augJacobConstraints.jacobian.cols()) = augJacobConstraints.jacobian;
-    jacobAll.jacobian.block(augJacobConstraints.jacobian.rows(), 0, jacobRTDAS.jacobian.rows(), jacobRTDAS.jacobian.cols()) = jacobRTDAS.jacobian;
-
-    jacobAll.rhs.block(0, 0, augJacobConstraints.jacobian.rows(), 1) = augJacobConstraints.rhs;
-    jacobAll.rhs.block(augJacobConstraints.jacobian.rows(), 0, jacobRTDAS.jacobian.rows(), 1) = jacobRTDAS.rhs;
-
-    jacobAll.jacobian.conservativeResize(augJacobConstraints.jacobian.rows() + jacobRTDAS.jacobian.rows(), jacobAll.jacobian.cols());
-    jacobAll.rhs.conservativeResize(jacobAll.rhs.rows(), 1);
-
-    LPData lpData;
-    lpData.A_ = jacobAll.jacobian.sparseView();
-    lpData.b_ = jacobAll.rhs;
-    return lpData;
-}
-
 TEST_F(DAGScheduleOptimizerTest1, MergeJacobianOfRTDAChains_single_chain)
 {
     AugmentedJacobian augJacobRTDA = GetJacobianCauseEffectChainOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_, chain1, 0);
@@ -537,14 +477,14 @@ TEST_F(DAGScheduleOptimizerTest1, GenerateRTDALPOrg)
     AugmentedJacobian augAll(jacobianExpect, bExpect);
     augAll.print();
 
-    VectorDynamic cExpect = GenerateVectorDynamic(5);
-    cExpect << -3, -3, -3, -3, -3;
+    VectorDynamic cExpect = GenerateVectorDynamic(6);
+    cExpect << 0, 0, 0, 0, 1, 1;
 
     LPData lpAll = GenerateRTDALPOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
 
     EXPECT_TRUE(gtsam::assert_equal(jacobianExpect, lpAll.A_));
-    // EXPECT_TRUE(gtsam::assert_equal(bExpect, lpAll.b_));
-    // EXPECT_TRUE(gtsam::assert_equal(cExpect, lpAll.c_));
+    EXPECT_TRUE(gtsam::assert_equal(bExpect, lpAll.b_));
+    EXPECT_TRUE(gtsam::assert_equal(cExpect, lpAll.c_));
 }
 
 int main(int argc, char **argv)

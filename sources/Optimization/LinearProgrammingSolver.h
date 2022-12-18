@@ -8,6 +8,8 @@
 #include "sources/Utils/testMy.h"     // CoutError
 #include "sources/Utils/Parameters.h" // DebugMode
 
+#include "sources/Optimization/JacobianAnalyze.h" // GenerateRTDALPOrg
+
 namespace LPOptimizer
 {
 
@@ -97,4 +99,15 @@ namespace LPOptimizer
     // During the optimization process, this algorithm doesn't perform matrix permutation
     // TODO: avoid more data copy/paste
     VectorDynamic SolveLP(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const VectorDynamic &c, double precision = 1e-5);
+
+    VectorDynamic SolveLP(LPData &lpData, double precision = 1e-5);
+
 } // namespace LPOptimizer
+
+namespace OrderOptDAG_SPACE
+{
+    using namespace LPOptimizer;
+
+    LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum);
+
+} // namespace OrderOptDAG_SPACE

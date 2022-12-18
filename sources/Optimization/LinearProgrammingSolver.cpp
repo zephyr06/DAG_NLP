@@ -115,6 +115,11 @@ namespace LPOptimizer
     VectorDynamic SolveLP(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const VectorDynamic &c, double precision)
     {
         LPData lpData(A, b, c);
+        return SolveLP(lpData, precision);
+    }
+
+    VectorDynamic SolveLP(LPData &lpData, double precision)
+    {
         int iterationCount = 0;
         while (lpData.Duality() > precision && iterationCount < 1000)
         {
@@ -131,3 +136,43 @@ namespace LPOptimizer
     }
 
 } // namespace LPOptimizer
+
+namespace OrderOptDAG_SPACE
+{
+    using namespace LPOptimizer;
+
+    LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum)
+    {
+        AugmentedJacobian augJacobConstraints = GetDAGJacobianOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
+
+        AugmentedJacobian jacobAll;
+        int mAllMax = augJacobConstraints.jacobian.rows(), nAll = augJacobConstraints.jacobian.cols() + 2 * dagTasks.chains_.size();
+        for (uint i = 0; i < dagTasks.chains_.size(); i++)
+        {
+            mAllMax += 2 * (tasksInfo.hyperPeriod / dagTasks.tasks[dagTasks.chains_[i][0]].period + 1 + 1); // +1 just to be safe
+        }
+        jacobAll.jacobian.conservativeResize(mAllMax, nAll);
+        jacobAll.rhs.conservativeResize(mAllMax, 1);
+        jacobAll.jacobian.setZero();
+
+        AugmentedJacobian jacobRTDAS = MergeJacobianOfRTDAChains(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
+
+        jacobAll.jacobian.block(0, 0, augJacobConstraints.jacobian.rows(), augJacobConstraints.jacobian.cols()) = augJacobConstraints.jacobian;
+        jacobAll.jacobian.block(augJacobConstraints.jacobian.rows(), 0, jacobRTDAS.jacobian.rows(), jacobRTDAS.jacobian.cols()) = jacobRTDAS.jacobian;
+
+        jacobAll.rhs.block(0, 0, augJacobConstraints.jacobian.rows(), 1) = augJacobConstraints.rhs;
+        jacobAll.rhs.block(augJacobConstraints.jacobian.rows(), 0, jacobRTDAS.jacobian.rows(), 1) = jacobRTDAS.rhs;
+
+        jacobAll.jacobian.conservativeResize(augJacobConstraints.jacobian.rows() + jacobRTDAS.jacobian.rows(), jacobAll.jacobian.cols());
+        jacobAll.rhs.conservativeResize(jacobAll.jacobian.rows(), 1);
+
+        LPData lpData;
+        lpData.A_ = jacobAll.jacobian.sparseView();
+        lpData.b_ = jacobAll.rhs;
+        lpData.c_ = GenerateVectorDynamic(nAll);
+        for (int i = augJacobConstraints.jacobian.cols(); i < nAll; i++)
+            lpData.c_(i) = 1;
+        return lpData;
+    }
+
+} // namespace OrderOptDAG_SPACE

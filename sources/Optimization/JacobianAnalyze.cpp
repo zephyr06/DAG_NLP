@@ -427,4 +427,34 @@ namespace OrderOptDAG_SPACE
         return augJacob;
     }
 
+    AugmentedJacobian MergeJacobianOfRTDAChains(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                                                SFOrder &jobOrder, const std::vector<uint> processorJobVec,
+                                                int processorNum)
+    {
+        AugmentedJacobian jacobAll;
+        int mAllMax = 0, nAll = tasksInfo.length + 2 * dagTasks.chains_.size();
+        for (uint i = 0; i < dagTasks.chains_.size(); i++)
+        {
+            mAllMax += 2 * (tasksInfo.hyperPeriod / dagTasks.tasks[dagTasks.chains_[i][0]].period + 1 + 1); // +1 just to be safe
+        }
+        jacobAll.jacobian.conservativeResize(mAllMax, nAll);
+        // TODO: verify whether this will introduce extra 0s
+        jacobAll.jacobian.setZero();
+        jacobAll.rhs.conservativeResize(mAllMax, 1);
+
+        // TODO: improve efficiency in matrix merge;
+        int rowCount = 0;
+        int colCount = -1;
+        for (uint i = 0; i < dagTasks.chains_.size(); i++)
+        {
+            AugmentedJacobian augJacobRTDACurr = GetJacobianCauseEffectChainOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum, dagTasks.chains_[i], i);
+            jacobAll.jacobian.block(rowCount, 0, augJacobRTDACurr.jacobian.rows(), augJacobRTDACurr.jacobian.cols()) = augJacobRTDACurr.jacobian;
+            jacobAll.rhs.block(rowCount, 0, augJacobRTDACurr.jacobian.rows(), 1) = augJacobRTDACurr.rhs;
+            rowCount += augJacobRTDACurr.jacobian.rows();
+            colCount = augJacobRTDACurr.jacobian.cols();
+        }
+        jacobAll.jacobian.conservativeResize(rowCount, colCount);
+        jacobAll.rhs.conservativeResize(rowCount);
+        return jacobAll;
+    }
 } // namespace OrderOptDAG_SPACE
