@@ -85,18 +85,6 @@ protected:
     dagTasks.chains_.push_back({0, 1});
   }
 };
-class DAGScheduleOptimizerTest5 : public DAGScheduleOptimizerTest1 {
-protected:
-  void SetUp() override {
-    DAGScheduleOptimizerTest1::SetUp();
-    initial = GenerateVectorDynamic(4);
-    initial << 0, 10, 1, 0;
-    jobOrder = SFOrder(tasksInfo, initial);
-    jobOrder.print();
-    VectorDynamic _ = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder,
-                                        processorJobVec);
-  }
-};
 
 TEST_F(DAGScheduleOptimizerTest1, GetJacobianDDL) {
   auto augJaco = GetJacobianDDL(dagTasks, tasksInfo);
@@ -467,6 +455,37 @@ TEST_F(DAGScheduleOptimizerTest1, GenerateRTDALPOrg) {
   EXPECT_TRUE(gtsam::assert_equal(cExpect, lpAll.c_.block(0, 0, cExpect.rows(), cExpect.cols())));
 }
 
+class DAGScheduleOptimizerTest5 : public DAGScheduleOptimizerTest1 {
+protected:
+  void SetUp() override {
+    DAGScheduleOptimizerTest1::SetUp();
+    initial = GenerateVectorDynamic(4);
+    initial << 0, 10, 1, 0;
+    jobOrder = SFOrder(tasksInfo, initial);
+    jobOrder.print();
+    VectorDynamic _ = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder,
+                                        processorJobVec);
+  }
+};
+
+TEST_F(DAGScheduleOptimizerTest5, GetJacobianCauseEffectChainOrg) {
+  auto augJaco = GetJacobianCauseEffectChainOrg(dagTasks, tasksInfo, jobOrder, processorJobVec,
+                                                scheduleOptions.processorNum_, chain1, 0);
+  MatrixDynamic jacobianExpect = GenerateMatrixDynamic(5, 4 + 2);
+  jacobianExpect << -1, 0, 0, 1, -1, 0, // (0,0) -> (2,0) RT
+      0, -1, 0, 1, -1, 0,               // (0,1) -> (2,0) RT
+      -1, 0, 0, 1, -1, 0,               // (0,0) -> (2,0) RT, next hyper-period
+      0, -1, 0, 1, 0, -1,               // (0,1) -> (2,0) DA
+      0, -1, 0, 1, -1, 0;               // (0,1) -> (2,0) RT, next hyper-period
+  // -1, 0, 0, 1, 0, -1;               // (0,0) -> (2,0) DA, next hyper-period
+  VectorDynamic rhsExpect = GenerateVectorDynamic(5);
+  rhsExpect << -23, -23, -23, -3, -23;
+
+  augJaco.print();
+
+  EXPECT_TRUE(gtsam::assert_equal(rhsExpect, augJaco.rhs));
+  EXPECT_TRUE(gtsam::assert_equal(jacobianExpect, augJaco.jacobian));
+}
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
