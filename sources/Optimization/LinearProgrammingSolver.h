@@ -105,7 +105,8 @@ namespace OrderOptDAG_SPACE {
 using namespace LPOptimizer;
 
 LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
-                         const std::vector<uint> processorJobVec, int processorNum);
+                         const std::vector<uint> processorJobVec, int processorNum,
+                         bool lessJobOrderConstraints = false);
 
 void RoundIPMResults(VectorDynamic &startTimeVector, double precision = 1e-4);
 

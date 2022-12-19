@@ -468,24 +468,37 @@ protected:
   }
 };
 
-TEST_F(DAGScheduleOptimizerTest5, GetJacobianCauseEffectChainOrg) {
-  auto augJaco = GetJacobianCauseEffectChainOrg(dagTasks, tasksInfo, jobOrder, processorJobVec,
-                                                scheduleOptions.processorNum_, chain1, 0);
-  MatrixDynamic jacobianExpect = GenerateMatrixDynamic(5, 4 + 2);
-  jacobianExpect << -1, 0, 0, 1, -1, 0, // (0,0) -> (2,0) RT
-      0, -1, 0, 1, -1, 0,               // (0,1) -> (2,0) RT
-      -1, 0, 0, 1, -1, 0,               // (0,0) -> (2,0) RT, next hyper-period
-      0, -1, 0, 1, 0, -1,               // (0,1) -> (2,0) DA
-      0, -1, 0, 1, -1, 0;               // (0,1) -> (2,0) RT, next hyper-period
-  // -1, 0, 0, 1, 0, -1;               // (0,0) -> (2,0) DA, next hyper-period
-  VectorDynamic rhsExpect = GenerateVectorDynamic(5);
-  rhsExpect << -23, -23, -23, -23, -23;
-
-  augJaco.print();
-
-  EXPECT_TRUE(gtsam::assert_equal(rhsExpect, augJaco.rhs));
-  EXPECT_TRUE(gtsam::assert_equal(jacobianExpect, augJaco.jacobian));
+TEST_F(DAGScheduleOptimizerTest5, jobChainReactionMap) {
+  std::unordered_map<JobCEC, std::vector<JobCEC>> reactionChainMap = GetReactionChainMap(
+      dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_, dagTasks.chains_[0], 0);
+  EXPECT_EQ(2, reactionChainMap[JobCEC(0, 0)][1].taskId);
+  EXPECT_EQ(1, reactionChainMap[JobCEC(0, 0)][1].jobId);
+  EXPECT_EQ(2, reactionChainMap[JobCEC(0, 1)][1].taskId);
+  EXPECT_EQ(1, reactionChainMap[JobCEC(0, 1)][1].jobId);
+  EXPECT_EQ(2, reactionChainMap[JobCEC(0, 2)][1].taskId);
+  EXPECT_EQ(2, reactionChainMap[JobCEC(0, 2)][1].jobId);
+  EXPECT_EQ(2, reactionChainMap[JobCEC(0, 3)][1].taskId);
+  EXPECT_EQ(2, reactionChainMap[JobCEC(0, 3)][1].jobId);
 }
+
+// TEST_F(DAGScheduleOptimizerTest5, GetJacobianCauseEffectChainOrg) {
+//   auto augJaco = GetJacobianCauseEffectChainOrg(dagTasks, tasksInfo, jobOrder, processorJobVec,
+//                                                 scheduleOptions.processorNum_, chain1, 0);
+//   MatrixDynamic jacobianExpect = GenerateMatrixDynamic(5, 4 + 2);
+//   jacobianExpect << -1, 0, 0, 1, -1, 0, // (0,0) -> (2,0) RT
+//       0, -1, 0, 1, -1, 0,               // (0,1) -> (2,0) RT
+//       -1, 0, 0, 1, -1, 0,               // (0,0) -> (2,0) RT, next hyper-period
+//       0, -1, 0, 1, 0, -1,               // (0,1) -> (2,0) DA
+//       0, -1, 0, 1, -1, 0;               // (0,1) -> (2,0) RT, next hyper-period
+//   // -1, 0, 0, 1, 0, -1;               // (0,0) -> (2,0) DA, next hyper-period
+//   VectorDynamic rhsExpect = GenerateVectorDynamic(5);
+//   rhsExpect << -23, -23, -23, -23, -23;
+
+//   augJaco.print();
+
+//   EXPECT_TRUE(gtsam::assert_equal(rhsExpect, augJaco.rhs));
+//   EXPECT_TRUE(gtsam::assert_equal(jacobianExpect, augJaco.jacobian));
+// }
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

@@ -60,7 +60,7 @@ AugmentedJacobian GetJacobianActivationTime(const DAG_Model &dagTasks, const Tas
 // GetDAGJacobianOrg
 AugmentedJacobian GetDAGJacobianOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                     const SFOrder &jobOrder, const std::vector<uint> processorJobVec,
-                                    int processorNum) {
+                                    int processorNum, bool lessJobOrderConstraints) {
   AugmentedJacobian augJacoDDL = GetJacobianDDL(dagTasks, tasksInfo);
   AugmentedJacobian augJacoAct = GetJacobianActivationTime(dagTasks, tasksInfo);
   AugmentedJacobian augJacoDBF = GetJacobianDBF(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);

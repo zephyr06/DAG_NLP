@@ -2,6 +2,7 @@
 
 #include "sources/TaskModel/DAG_Model.h"
 // #include "sources/Optimization/InitialEstimate.h"
+#include "sources/Optimization/SFOrder.h"
 #include "sources/Utils/JobCEC.h"
 
 namespace OrderOptDAG_SPACE {
@@ -33,5 +34,10 @@ double ObjRTDA(const std::vector<RTDA> &rtdaVec);
 std::unordered_map<JobCEC, std::vector<JobCEC>>
 GetRTDAReactChainsFromSingleJob(const TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain,
                                 const VectorDynamic &x);
+
+std::unordered_map<JobCEC, std::vector<JobCEC>>
+GetReactionChainMap(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
+                    const std::vector<uint> processorJobVec, int processorNum,
+                    const std::vector<int> &causeEffectChain, int chainIndex);
 
 } // namespace OrderOptDAG_SPACE

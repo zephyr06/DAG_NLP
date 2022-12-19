@@ -126,4 +126,39 @@ GetRTDAReactChainsFromSingleJob(const TaskSetInfoDerived &tasksInfo, const std::
   }
   return firstReactionChainMap;
 }
+
+std::unordered_map<JobCEC, std::vector<JobCEC>>
+GetReactionChainMap(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
+                    const std::vector<uint> processorJobVec, int processorNum,
+                    const std::vector<int> &causeEffectChain, int chainIndex) {
+  std::unordered_map<JobCEC, std::vector<JobCEC>> firstReactionChainMap;
+  LLint hyperPeriod = tasksInfo.hyperPeriod;
+  const TaskSet &tasks = tasksInfo.tasks;
+  LLint totalStartJobs = hyperPeriod / tasks[causeEffectChain[0]].period + 1;
+
+  for (LLint startInstanceIndex = 0; startInstanceIndex <= totalStartJobs; startInstanceIndex++) {
+    JobCEC firstJob = {causeEffectChain[0], (startInstanceIndex)};
+    std::vector<JobCEC> react_chain;
+    react_chain.push_back(firstJob);
+    for (uint j = 1; j < causeEffectChain.size(); j++) {
+      LLint instIndexFirstJob = jobOrder.GetJobFinishInstancePosition(firstJob);
+      LLint jobIndex = 0;
+      while (true) {
+        JobCEC jobCurr{causeEffectChain[j], jobIndex};
+        if (jobOrder.GetJobStartInstancePosition(jobCurr) > instIndexFirstJob)
+          break;
+        jobIndex++;
+        if (jobIndex > 10000) {
+          CoutError("didn't find a match in GetJacobianCauseEffectChainOrg!");
+        }
+      }
+      firstJob = {causeEffectChain[j], jobIndex};
+      react_chain.push_back(firstJob);
+    }
+
+    JobCEC startJobCurr(causeEffectChain[0], startInstanceIndex);
+    firstReactionChainMap[startJobCurr] = react_chain;
+  }
+  return firstReactionChainMap;
+}
 } // namespace OrderOptDAG_SPACE

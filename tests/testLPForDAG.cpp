@@ -109,6 +109,30 @@ TEST_F(DAGScheduleOptimizerTest2, SolveLP) {
   EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual.block(0, 0, 6, 1)));
 }
 
+TEST_F(DAGScheduleOptimizerTest2, SolveLP_lessJobOrderConstraints) {
+  // VectorDynamic xActual =
+  //     OptRTDA_IPMOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+  std::cout << "Initial solution: " << initial << std::endl;
+  LPData lpData =
+      GenerateRTDALPOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_, true);
+  lpData.print();
+  VectorDynamic xActual = SolveLP(lpData);
+  RoundIPMResults(xActual);
+
+  std::cout << "The number of variables is: " << xActual.rows() << std::endl;
+  if (GlobalVariablesDAGOpt::PrintOutput)
+    std::cout << "optimal start time vector found: " << xActual << std::endl;
+  std::cout << "Optimal solution found: "
+            << RTDAExperimentObj::TrueObj(
+                   dagTasks, tasksInfo, xActual.block(0, 0, initial.rows(), initial.cols()), scheduleOptions)
+            << std::endl;
+
+  EXPECT_EQ(18, // global optimal stv is [9,10,x,11]; RTmax is 14-9, DAmax is 14-10
+                // But in this case, optimal stv is []
+            RTDAExperimentObj::TrueObj(dagTasks, tasksInfo,
+                                       xActual.block(0, 0, initial.rows(), initial.cols()), scheduleOptions));
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
