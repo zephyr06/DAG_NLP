@@ -411,7 +411,8 @@ AugmentedJacobian GetJacobianCauseEffectChainOrg(const DAG_Model &dagTasks,
       augJacob.jacobian(rowIndex, tailJobColDA) = 1;
       augJacob.jacobian(rowIndex, sourceJobColDA) = -1;
       augJacob.jacobian(rowIndex, varIndexDA) = -1;
-      augJacob.rhs(rowIndex) = -1 * GetExecutionTime(lastReaction, tasksInfo);
+      augJacob.rhs(rowIndex) = -1 * GetExecutionTime(lastReaction, tasksInfo) -
+                               GetHyperPeriodDiff(sourceJobDA, lastReaction, tasksInfo);
       rowIndex++;
     }
   }

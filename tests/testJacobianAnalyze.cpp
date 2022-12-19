@@ -479,7 +479,7 @@ TEST_F(DAGScheduleOptimizerTest5, GetJacobianCauseEffectChainOrg) {
       0, -1, 0, 1, -1, 0;               // (0,1) -> (2,0) RT, next hyper-period
   // -1, 0, 0, 1, 0, -1;               // (0,0) -> (2,0) DA, next hyper-period
   VectorDynamic rhsExpect = GenerateVectorDynamic(5);
-  rhsExpect << -23, -23, -23, -3, -23;
+  rhsExpect << -23, -23, -23, -23, -23;
 
   augJaco.print();
 

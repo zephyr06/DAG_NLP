@@ -103,6 +103,10 @@ TEST_F(DAGScheduleOptimizerTest2, SolveLP) {
             << RTDAExperimentObj::TrueObj(
                    dagTasks, tasksInfo, xActual.block(0, 0, initial.rows(), initial.cols()), scheduleOptions)
             << std::endl;
+
+  VectorDynamic xExpect = GenerateVectorDynamic(6);
+  xExpect << 0, 19, 1, 0, 23, 4;
+  EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual.block(0, 0, 6, 1)));
 }
 
 int main(int argc, char **argv) {
