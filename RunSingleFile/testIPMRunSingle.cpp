@@ -65,12 +65,16 @@ TEST_F(LPTest1, OldLPOrderScheduler) {
       LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
   if (GlobalVariablesDAGOpt::PrintOutput)
     std::cout << "start time vector after Old LPOrderScheduler: " << stv << std::endl;
-  std::cout << "Obj after Old LPOrderScheduler: "
-            << RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, stv, scheduleOptions) << std::endl;
+  std::cout << Color::blue << "Obj after Old LPOrderScheduler: "
+            << RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, stv, scheduleOptions) << Color::def
+            << std::endl;
 }
 
 TEST_F(LPTest1, SolveLP) {
   TimerFunc _;
+  std::cout << Color::blue << "Initial solution: "
+            << RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, initial, scheduleOptions) << Color::def
+            << std::endl;
   BeginTimer("main");
   VectorDynamic xActual;
   if (GlobalVariablesDAGOpt::ReOrderProblem == "orig")
@@ -89,10 +93,10 @@ TEST_F(LPTest1, SolveLP) {
   if (GlobalVariablesDAGOpt::PrintOutput)
     std::cout << "optimal start time vector found: " << xActual << std::endl;
 
-  std::cout << "Optimal solution found: "
+  std::cout << Color::blue << "Optimal solution found: "
             << RTDAExperimentObj::TrueObj(
                    dagTasks, tasksInfo, xActual.block(0, 0, initial.rows(), initial.cols()), scheduleOptions)
-            << std::endl;
+            << Color::def << std::endl;
 
   PrintTimer();
 }

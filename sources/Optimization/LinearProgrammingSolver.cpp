@@ -138,6 +138,7 @@ void RoundIPMResults(VectorDynamic &startTimeVector, double precision) {
 
 LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
                          const std::vector<uint> processorJobVec, int processorNum) {
+  BeginTimer("GenerateRTDALPOrg");
   AugmentedJacobian augJacobConstraints =
       GetDAGJacobianOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
 
@@ -171,6 +172,7 @@ LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &ta
   for (int i = augJacobConstraints.jacobian.cols(); i < nAll; i++)
     c(i) = 1;
   LPData lpData(jacobAll.jacobian.sparseView(), jacobAll.rhs, c);
+  EndTimer("GenerateRTDALPOrg");
   return lpData;
 }
 // TODO: add feasibility check
