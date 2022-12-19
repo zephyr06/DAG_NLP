@@ -79,7 +79,7 @@ kWangRtss21IcNlpTimeLimit: 600 # seconds, -1 means unlimited time
 #*************************************************************
 
 # Cplex settings
-kCplexInequalityThreshold: 1e-3
+kCplexInequalityThreshold: 1e-5
 #*************************************************************
 
 

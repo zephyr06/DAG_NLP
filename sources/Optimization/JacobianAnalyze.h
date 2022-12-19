@@ -59,7 +59,8 @@ std::unordered_map<JobCEC, size_t> GetJobOrderMap(const SFOrder &jobOrder);
 std::vector<AugmentedJacobian> GetVariableBlocks(const DAG_Model &dagTasks,
                                                  const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder,
                                                  const std::vector<uint> processorJobVec, int processorNum);
-
+double GetHyperPeriodDiff(const JobCEC &jobStart, const JobCEC &jobFinish,
+                          const TaskSetInfoDerived &tasksInfo);
 // Input is the original coefficient vector c for LP without "band" re-ordering trick
 VectorDynamic ReOrderLPObj(const VectorDynamic &c, const SFOrder &jobOrder,
                            const TaskSetInfoDerived &tasksInfo);
