@@ -85,6 +85,18 @@ protected:
     dagTasks.chains_.push_back({0, 1});
   }
 };
+class DAGScheduleOptimizerTest5 : public DAGScheduleOptimizerTest1 {
+protected:
+  void SetUp() override {
+    DAGScheduleOptimizerTest1::SetUp();
+    initial = GenerateVectorDynamic(4);
+    initial << 0, 10, 1, 0;
+    jobOrder = SFOrder(tasksInfo, initial);
+    jobOrder.print();
+    VectorDynamic _ = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder,
+                                        processorJobVec);
+  }
+};
 
 TEST_F(DAGScheduleOptimizerTest1, GetJacobianDDL) {
   auto augJaco = GetJacobianDDL(dagTasks, tasksInfo);
@@ -380,7 +392,7 @@ TEST_F(DAGScheduleOptimizerTest3, GetJacobianCauseEffectChainOrg) {
       0, -1, 0, 1, -1, 0,               // (0,1) -> (2,0) RT, next hyper-period
       -1, 0, 0, 1, 0, -1;               // (0,0) -> (2,0) DA, next hyper-period
   VectorDynamic rhsExpect = GenerateVectorDynamic(6);
-  rhsExpect << -3, -3, -3, -3, -3, -3;
+  rhsExpect << -3, -23, -3, -3, -23, -3;
 
   augJaco.print();
 

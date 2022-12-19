@@ -59,6 +59,20 @@ protected:
   VectorDynamic xOpt;
 };
 
+class DAGScheduleOptimizerTest2 : public DAGScheduleOptimizerTest1 {
+protected:
+  void SetUp() override {
+    DAGScheduleOptimizerTest1::SetUp();
+    initial = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_, processorJobVec);
+    // std::cout << "Initial solutions: " << std::endl
+    //           << initial << std::endl
+    //           << std::endl;
+    jobOrder = SFOrder(tasksInfo, initial);
+    if (GlobalVariablesDAGOpt::PrintOutput)
+      jobOrder.print();
+  }
+};
+
 TEST_F(DAGScheduleOptimizerTest1, OptRTDA_IPM) {
   VectorDynamic startOpt =
       LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
@@ -70,6 +84,27 @@ TEST_F(DAGScheduleOptimizerTest1, OptRTDA_IPM) {
   EXPECT_EQ(RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startOpt, scheduleOptions),
             RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startFromIPM.block(0, 0, 4, 1), scheduleOptions));
 }
+
+// TODO: add expect assertion
+TEST_F(DAGScheduleOptimizerTest2, SolveLP) {
+  // VectorDynamic xActual =
+  //     OptRTDA_IPMOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+  std::cout << "Initial solution: " << initial << std::endl;
+  LPData lpData =
+      GenerateRTDALPOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+  lpData.print();
+  VectorDynamic xActual = SolveLP(lpData);
+  RoundIPMResults(xActual);
+
+  std::cout << "The number of variables is: " << xActual.rows() << std::endl;
+  if (GlobalVariablesDAGOpt::PrintOutput)
+    std::cout << "optimal start time vector found: " << xActual << std::endl;
+  std::cout << "Optimal solution found: "
+            << RTDAExperimentObj::TrueObj(
+                   dagTasks, tasksInfo, xActual.block(0, 0, initial.rows(), initial.cols()), scheduleOptions)
+            << std::endl;
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

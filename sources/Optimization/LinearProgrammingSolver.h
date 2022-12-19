@@ -79,6 +79,12 @@ public:
   inline double Duality() const {
     return (centralVarCurr_.x.transpose() * centralVarCurr_.s / centralVarCurr_.s.rows())(0, 0);
   }
+
+  void print() const {
+    std::cout << "\nA: \n" << Eigen::MatrixXd(A_) << std::endl;
+    std::cout << "\nb: \n" << b_ << std::endl;
+    std::cout << "\nc: \n" << c_ << std::endl;
+  }
 };
 
 // Solve the following LP:
