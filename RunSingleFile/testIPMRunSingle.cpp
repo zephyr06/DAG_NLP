@@ -60,6 +60,9 @@ protected:
 };
 
 TEST_F(LPTest1, OldLPOrderScheduler) {
+  std::cout << Color::blue << "Initial solution: "
+            << RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, initial, scheduleOptions) << Color::def
+            << std::endl;
   TimerFunc _;
   VectorDynamic stv =
       LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
@@ -72,9 +75,9 @@ TEST_F(LPTest1, OldLPOrderScheduler) {
 
 TEST_F(LPTest1, SolveLP) {
   TimerFunc _;
-  std::cout << Color::blue << "Initial solution: "
-            << RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, initial, scheduleOptions) << Color::def
-            << std::endl;
+  // std::cout << Color::blue << "Initial solution: "
+  //           << RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, initial, scheduleOptions) << Color::def
+  //           << std::endl;
   BeginTimer("main");
   VectorDynamic xActual;
   if (GlobalVariablesDAGOpt::ReOrderProblem == "orig")
@@ -103,9 +106,7 @@ TEST_F(LPTest1, SolveLP) {
 
 TEST_F(LPTest1, SolveLP_lessJobOrderConstraints) {
   TimerFunc _;
-  std::cout << Color::blue << "Initial solution: "
-            << RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, initial, scheduleOptions) << Color::def
-            << std::endl;
+
   BeginTimer("main");
   VectorDynamic xActual;
   if (GlobalVariablesDAGOpt::ReOrderProblem == "orig")
