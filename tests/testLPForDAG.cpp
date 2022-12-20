@@ -106,7 +106,7 @@ TEST_F(DAGScheduleOptimizerTest2, SolveLP) {
 
   VectorDynamic xExpect = GenerateVectorDynamic(6);
   xExpect << 0, 19, 1, 0, 23, 4;
-  EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual.block(0, 0, 6, 1)));
+  EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual.block(0, 0, 6, 1), 1e-3));
 }
 
 TEST_F(DAGScheduleOptimizerTest2, SolveLP_lessJobOrderConstraints) {
@@ -127,10 +127,11 @@ TEST_F(DAGScheduleOptimizerTest2, SolveLP_lessJobOrderConstraints) {
                    dagTasks, tasksInfo, xActual.block(0, 0, initial.rows(), initial.cols()), scheduleOptions)
             << std::endl;
 
-  EXPECT_EQ(18, // global optimal stv is [9,10,x,11]; RTmax is 14-9, DAmax is 14-10
-                // But in this case, optimal stv is []
-            RTDAExperimentObj::TrueObj(dagTasks, tasksInfo,
-                                       xActual.block(0, 0, initial.rows(), initial.cols()), scheduleOptions));
+  EXPECT_NEAR(18, // global optimal stv is [9,10,x,11]; RTmax is 14-9, DAmax is 14-10
+                  // But in this case, optimal stv is []
+              RTDAExperimentObj::TrueObj(
+                  dagTasks, tasksInfo, xActual.block(0, 0, initial.rows(), initial.cols()), scheduleOptions),
+              1e-3);
 }
 
 int main(int argc, char **argv) {

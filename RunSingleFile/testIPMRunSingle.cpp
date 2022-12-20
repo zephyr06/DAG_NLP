@@ -101,6 +101,38 @@ TEST_F(LPTest1, SolveLP) {
   PrintTimer();
 }
 
+TEST_F(LPTest1, SolveLP_lessJobOrderConstraints) {
+  TimerFunc _;
+  std::cout << Color::blue << "Initial solution: "
+            << RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, initial, scheduleOptions) << Color::def
+            << std::endl;
+  BeginTimer("main");
+  VectorDynamic xActual;
+  if (GlobalVariablesDAGOpt::ReOrderProblem == "orig")
+    xActual =
+        OptRTDA_IPMOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_, true);
+  else if (GlobalVariablesDAGOpt::ReOrderProblem == "band") {
+    // jacobAll =
+    //     GetDAGJacobianOrdered(dagTasks, tasksInfo, jobOrder, processorJobVec,
+    //     scheduleOptions.processorNum_);
+    // c = ReOrderLPObj(c, jobOrder, tasksInfo);
+  } else if (GlobalVariablesDAGOpt::ReOrderProblem == "amd")
+    CoutError("Please provide reorder method implementation!");
+  else
+    CoutError("Please provide reorder method implementation!");
+  EndTimer("main");
+  std::cout << "The number of variables is: " << xActual.rows() << std::endl;
+  if (GlobalVariablesDAGOpt::PrintOutput)
+    std::cout << "optimal start time vector found: " << xActual << std::endl;
+
+  std::cout << Color::blue << "Optimal solution found: "
+            << RTDAExperimentObj::TrueObj(
+                   dagTasks, tasksInfo, xActual.block(0, 0, initial.rows(), initial.cols()), scheduleOptions)
+            << Color::def << std::endl;
+
+  PrintTimer();
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

@@ -95,9 +95,9 @@ public:
 // permutation
 // TODO: avoid more data copy/paste
 VectorDynamic SolveLP(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const VectorDynamic &c,
-                      double precision = 1e-5);
+                      double precision = GlobalVariablesDAGOpt::NumericalPrecision);
 
-VectorDynamic SolveLP(LPData &lpData, double precision = 1e-5);
+VectorDynamic SolveLP(LPData &lpData, double precision = GlobalVariablesDAGOpt::NumericalPrecision);
 
 } // namespace LPOptimizer
 
@@ -111,5 +111,6 @@ LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &ta
 void RoundIPMResults(VectorDynamic &startTimeVector, double precision = 1e-4);
 
 VectorDynamic OptRTDA_IPMOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
-                             SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum);
+                             SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum,
+                             bool lessJobOrderConstraints = false);
 } // namespace OrderOptDAG_SPACE

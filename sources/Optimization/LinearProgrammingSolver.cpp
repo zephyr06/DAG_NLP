@@ -1,4 +1,8 @@
 #include "sources/Optimization/LinearProgrammingSolver.h"
+#include <Eigen/SparseCholesky>
+#include <Eigen/SparseLU>
+
+#include <Eigen/SparseQR>
 // TODO: if there is time, consider using band matrix from eigen
 namespace LPOptimizer {
 LPData::LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const VectorDynamic &c)
@@ -68,11 +72,19 @@ CentralVariable LPData::SolveLinearSystem() {
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> S_inv = sInv.asDiagonal();
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> D2 = (S_inv * centralVarCurr_.x).asDiagonal();
   Eigen::SparseMatrix<double> AA = A_ * D2 * A_.transpose();
-  Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> AAFact(AA);
+  // std::cout << "AA:\n" << Eigen::MatrixXd(AA) << std::endl;
+  Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> AAFact(AA);
+  // Eigen::SparseLU<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> AAFact;
+  // AAFact.analyzePattern(AA);
+  // AAFact.factorize(AA);
 
   // predictor
   CentralVariable centralDelta;
   centralDelta.lambda = AAFact.solve(-1 * rb - A_ * X * S_inv * rc + A_ * (S_inv * rxs1));
+  if (GlobalVariablesDAGOpt::debugMode == 1) {
+    if ((eigen_is_nan(centralDelta.lambda)))
+      CoutError("centralDelta.lambda becomes Nan during iterations!");
+  }
   centralDelta.s = -1 * rc - A_.transpose() * centralDelta.lambda;
   centralDelta.x = -1 * S_inv * rxs1 - X * (S_inv * centralDelta.s);
 
@@ -140,8 +152,8 @@ LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &ta
                          const std::vector<uint> processorJobVec, int processorNum,
                          bool lessJobOrderConstraints) {
   BeginTimer("GenerateRTDALPOrg");
-  AugmentedJacobian augJacobConstraints =
-      GetDAGJacobianOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
+  AugmentedJacobian augJacobConstraints = GetDAGJacobianOrg(dagTasks, tasksInfo, jobOrder, processorJobVec,
+                                                            processorNum, lessJobOrderConstraints);
 
   AugmentedJacobian jacobAll;
   int mAllMax = augJacobConstraints.jacobian.rows(),
@@ -178,9 +190,13 @@ LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &ta
 }
 // TODO: add feasibility check
 VectorDynamic OptRTDA_IPMOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
-                             SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum) {
+                             SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum,
+                             bool lessJobOrderConstraints) {
 
-  LPData lpData = GenerateRTDALPOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
+  LPData lpData = GenerateRTDALPOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum,
+                                    lessJobOrderConstraints);
+  if (GlobalVariablesDAGOpt::debugMode == 1)
+    lpData.print();
   VectorDynamic startTimeVectorAfterOpt = SolveLP(lpData);
   RoundIPMResults(startTimeVectorAfterOpt);
   return startTimeVectorAfterOpt;

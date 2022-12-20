@@ -35,7 +35,7 @@ AugmentedJacobian GetJacobianDDL(const DAG_Model &dagTasks, const TaskSetInfoDer
 AugmentedJacobian GetJacobianActivationTime(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo);
 
 AugmentedJacobian GetDAGJacobianOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
-                                    const SFOrder &jobOrder, const std::vector<uint> processorJobVec,
+                                    SFOrder &jobOrder, const std::vector<uint> processorJobVec,
                                     int processorNum, bool lessJobOrderConstraints = false);
 
 std::vector<std::vector<JobCEC>>
@@ -83,4 +83,9 @@ AugmentedJacobian GetJacobianCauseEffectChainOrg(const DAG_Model &dagTasks,
 AugmentedJacobian MergeJacobianOfRTDAChains(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                             SFOrder &jobOrder, const std::vector<uint> processorJobVec,
                                             int processorNum);
+
+AugmentedJacobian
+GetJacobianJobOrderReduced(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                           const SFOrder &jobOrder, int chainIndex,
+                           const std::unordered_map<JobCEC, std::vector<JobCEC>> &reactionChainMap);
 } // namespace OrderOptDAG_SPACE
