@@ -49,7 +49,7 @@ protected:
 };
 
 TEST_F(LPTest1, LPData_constructor) {
-  LPData lpData(As, b, c);
+  LPData lpData(As, b, c.sparseView());
   EXPECT_EQ(A.sum() + 15, lpData.A_.sum());
   EXPECT_EQ(19, lpData.A_.cols());
   EXPECT_EQ(c.sum() + 0, lpData.c_.sum());
@@ -57,7 +57,7 @@ TEST_F(LPTest1, LPData_constructor) {
 }
 
 TEST_F(LPTest1, GenerateInitialLP) {
-  LPData lpData(As, b, c);
+  LPData lpData(As, b, c.sparseView());
   VectorDynamic x0Expect = GenerateVectorDynamic(19);
   x0Expect << 6.5639, 11.4870, 8.5062, 8.0062, 7.3844, 12.4613, 15.4421, 15.9421, 6.5639, 1.4870, 8.5062,
       8.0062, 2.9165, 2.9549, 3.4165, 1.5318, 2.9165, 2.4742, 2.4549;
@@ -78,7 +78,7 @@ TEST_F(LPTest1, SolveLP) {
   TimerFunc _;
   VectorDynamic xExpect(4);
   xExpect << 0, 10, 1, 0;
-  VectorDynamic xActual = SolveLP(As, b, c);
+  VectorDynamic xActual = SolveLP(As, b, c.sparseView());
   EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual, 1e-3));
 }
 
@@ -158,7 +158,7 @@ TEST_F(LPTest2, SolveLP) {
   TimerFunc _;
   VectorDynamic xExpect(2);
   xExpect << 0, 19;
-  VectorDynamic xActual = SolveLP(As, b, c);
+  VectorDynamic xActual = SolveLP(As, b, c.sparseView());
   EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual.block(0, 0, 2, 1), 1e-3));
 }
 class LPTest3 : public ::testing::Test {

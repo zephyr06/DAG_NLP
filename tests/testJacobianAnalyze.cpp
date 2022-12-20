@@ -335,10 +335,11 @@ TEST_F(DAGScheduleOptimizerTest2, ReOrderPerformance) {
   // std::cout << "Ordered Jacobian and rhs:\n"
   //           << jacobAllOrdered.jacobian << "\n"
   //           << jacobAllOrdered.rhs << "\n";
-
-  VectorDynamic xActualFromOrg = SolveLP(jacobAllOrg.jacobian.sparseView(), jacobAllOrg.rhs, c);
+  SpVec cSp(c.sparseView());
+  VectorDynamic xActualFromOrg = SolveLP(jacobAllOrg.jacobian.sparseView(), jacobAllOrg.rhs, cSp);
+  SpVec cSpO(cOrdered.sparseView());
   VectorDynamic xActualFromOrdered =
-      SolveLP(jacobAllOrdered.jacobian.sparseView(), jacobAllOrdered.rhs, cOrdered);
+      SolveLP(jacobAllOrdered.jacobian.sparseView(), jacobAllOrdered.rhs, cSpO);
   EXPECT_FLOAT_EQ(c.transpose() * xActualFromOrg, cOrdered.transpose() * xActualFromOrdered);
 }
 

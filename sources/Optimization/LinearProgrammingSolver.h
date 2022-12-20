@@ -13,6 +13,8 @@
 namespace LPOptimizer {
 
 typedef Eigen::SparseMatrix<double> SpMat; // declares a column-major sparse matrix type of double
+typedef Eigen::SparseVector<double> SpVec;
+
 // in-place addition, add c to each x_i
 inline void VectorAdd(VectorDynamic &x, double c) { x = x + Eigen::MatrixXd::Ones(x.rows(), 1) * c; }
 
@@ -60,14 +62,14 @@ class LPData {
 public:
   Eigen::SparseMatrix<double> A_;
   VectorDynamic b_;
-  VectorDynamic c_;
+  SpVec c_;
   size_t m_;
   size_t n_;
   CentralVariable centralVarCurr_;
 
   LPData() {}
 
-  LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const VectorDynamic &c);
+  LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const SpVec &c);
 
   // TODO: remove all the matrix inverse
   CentralVariable GenerateInitialLP();
@@ -94,7 +96,7 @@ public:
 // Nocedal07Numerical_Optimization During the optimization process, this algorithm doesn't perform matrix
 // permutation
 // TODO: avoid more data copy/paste
-VectorDynamic SolveLP(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const VectorDynamic &c,
+VectorDynamic SolveLP(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const SpVec &c,
                       double precision = GlobalVariablesDAGOpt::NumericalPrecision);
 
 VectorDynamic SolveLP(LPData &lpData, double precision = GlobalVariablesDAGOpt::NumericalPrecision);

@@ -5,7 +5,7 @@
 #include <Eigen/SparseQR>
 // TODO: if there is time, consider using band matrix from eigen
 namespace LPOptimizer {
-LPData::LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const VectorDynamic &c)
+LPData::LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const SpVec &c)
     : b_(b), m_(A.rows()), n_(A.cols()) {
   if (m_ > n_) {
     // A_.resize(m_, n_ + m_);
@@ -21,9 +21,14 @@ LPData::LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, con
     for (uint i = 0; i < m_; i++)
       A_.insert(i, i + n_) = 1;
 
-    c_ = Eigen::MatrixXd(m_ + n_, 1);
-    VectorDynamic zeros = GenerateVectorDynamic(m_);
-    c_ << c, zeros;
+    c_ = SpVec(m_ + n_);
+    c_.setZero();
+    for (int k = 0; k < c.outerSize(); k++)
+      for (Eigen::SparseVector<double>::InnerIterator it(c, k); it; ++it) {
+        c_.insert(it.row()) = it.value();
+      }
+
+    // c_ << c, zeros;
   } else {
     CoutError("A's dimension is wrong in LPData!");
   }
@@ -114,7 +119,7 @@ void LPData::ApplyCentralDelta(const CentralVariable &centralDelta, double eta) 
   centralVarCurr_.s = centralVarCurr_.s + centralDelta.s * std::min(1.0, alphaAffDual * eta);
 }
 
-VectorDynamic SolveLP(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const VectorDynamic &c,
+VectorDynamic SolveLP(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const SpVec &c,
                       double precision) {
   LPData lpData(A, b, c);
   return SolveLP(lpData, precision);
@@ -162,9 +167,10 @@ LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &ta
     jacobTripConstraints.push_back(augJacobRTDACurr);
   }
   AugmentedSparseJacobian jacobAll = MergeAugJacobian(jacobTripConstraints);
-  VectorDynamic c = GenerateVectorDynamic(jacobAll.jacobian.cols());
+  // VectorDynamic c = GenerateVectorDynamic(jacobAll.jacobian.cols());
+  SpVec c(jacobAll.jacobian.cols());
   for (uint i = tasksInfo.length; i < c.rows(); i++)
-    c(i) = 1;
+    c.insert(i) = 1;
   LPData lpData(jacobAll.jacobian, jacobAll.rhs, c);
   EndTimer("GenerateRTDALPOrg");
   return lpData;
