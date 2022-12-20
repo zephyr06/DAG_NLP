@@ -24,6 +24,16 @@ GetDAGJacobianTripletOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &ta
                          const std::vector<uint> processorJobVec, int processorNum,
                          bool lessJobOrderConstraints = false);
 
+inline AugmentedSparseJacobian GetDAGSparseJacobianOrg(const DAG_Model &dagTasks,
+                                                       const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
+                                                       const std::vector<uint> processorJobVec,
+                                                       int processorNum,
+                                                       bool lessJobOrderConstraints = false) {
+  std::vector<AugmentedJacobianTriplet> augJacobsTriplet = GetDAGJacobianTripletOrg(
+      dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum, lessJobOrderConstraints);
+  return MergeAugJacobian(augJacobsTriplet);
+}
+
 // ****************************************Below is about ordered Jacobian *****************************
 
 // This function requires more consideration
