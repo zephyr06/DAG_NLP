@@ -73,7 +73,7 @@ CentralVariable LPData::SolveLinearSystem() {
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> D2 = (S_inv * centralVarCurr_.x).asDiagonal();
   Eigen::SparseMatrix<double> AA = A_ * D2 * A_.transpose();
   // std::cout << "AA:\n" << Eigen::MatrixXd(AA) << std::endl;
-  Eigen::SimplicialLDLT<Eigen::SparseMatrix<double>> AAFact(AA);
+  Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> AAFact(AA);
   // Eigen::SparseLU<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> AAFact;
   // AAFact.analyzePattern(AA);
   // AAFact.factorize(AA);

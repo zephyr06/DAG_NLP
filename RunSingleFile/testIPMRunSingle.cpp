@@ -59,13 +59,17 @@ protected:
   VectorDynamic c;
 };
 
+// const int MEASUREMENT = 10;
 TEST_F(LPTest1, OldLPOrderScheduler) {
   std::cout << Color::blue << "Initial solution: "
             << RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, initial, scheduleOptions) << Color::def
             << std::endl;
   TimerFunc _;
-  VectorDynamic stv =
-      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
+
+  VectorDynamic stv;
+  for (int i = 0; i < 1 + GlobalVariablesDAGOpt::RepeatExecution; i++) {
+    stv = LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
+  }
   if (GlobalVariablesDAGOpt::PrintOutput)
     std::cout << "start time vector after Old LPOrderScheduler: " << stv << std::endl;
   std::cout << Color::blue << "Obj after Old LPOrderScheduler: "
@@ -80,17 +84,19 @@ TEST_F(LPTest1, SolveLP) {
   //           << std::endl;
   BeginTimer("main");
   VectorDynamic xActual;
-  if (GlobalVariablesDAGOpt::ReOrderProblem == "orig")
-    xActual = OptRTDA_IPMOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
-  else if (GlobalVariablesDAGOpt::ReOrderProblem == "band") {
-    // jacobAll =
-    //     GetDAGJacobianOrdered(dagTasks, tasksInfo, jobOrder, processorJobVec,
-    //     scheduleOptions.processorNum_);
-    // c = ReOrderLPObj(c, jobOrder, tasksInfo);
-  } else if (GlobalVariablesDAGOpt::ReOrderProblem == "amd")
-    CoutError("Please provide reorder method implementation!");
-  else
-    CoutError("Please provide reorder method implementation!");
+  for (int i = 0; i < 1 + GlobalVariablesDAGOpt::RepeatExecution; i++) {
+    if (GlobalVariablesDAGOpt::ReOrderProblem == "orig")
+      xActual = OptRTDA_IPMOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+    else if (GlobalVariablesDAGOpt::ReOrderProblem == "band") {
+      // jacobAll =
+      //     GetDAGJacobianOrdered(dagTasks, tasksInfo, jobOrder, processorJobVec,
+      //     scheduleOptions.processorNum_);
+      // c = ReOrderLPObj(c, jobOrder, tasksInfo);
+    } else if (GlobalVariablesDAGOpt::ReOrderProblem == "amd")
+      CoutError("Please provide reorder method implementation!");
+    else
+      CoutError("Please provide reorder method implementation!");
+  }
   EndTimer("main");
   std::cout << "The number of variables is: " << xActual.rows() << std::endl;
   if (GlobalVariablesDAGOpt::PrintOutput)
@@ -109,18 +115,20 @@ TEST_F(LPTest1, SolveLP_lessJobOrderConstraints) {
 
   BeginTimer("main");
   VectorDynamic xActual;
-  if (GlobalVariablesDAGOpt::ReOrderProblem == "orig")
-    xActual =
-        OptRTDA_IPMOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_, true);
-  else if (GlobalVariablesDAGOpt::ReOrderProblem == "band") {
-    // jacobAll =
-    //     GetDAGJacobianOrdered(dagTasks, tasksInfo, jobOrder, processorJobVec,
-    //     scheduleOptions.processorNum_);
-    // c = ReOrderLPObj(c, jobOrder, tasksInfo);
-  } else if (GlobalVariablesDAGOpt::ReOrderProblem == "amd")
-    CoutError("Please provide reorder method implementation!");
-  else
-    CoutError("Please provide reorder method implementation!");
+  for (int i = 0; i < 1 + GlobalVariablesDAGOpt::RepeatExecution; i++) {
+    if (GlobalVariablesDAGOpt::ReOrderProblem == "orig")
+      xActual =
+          OptRTDA_IPMOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_, true);
+    else if (GlobalVariablesDAGOpt::ReOrderProblem == "band") {
+      // jacobAll =
+      //     GetDAGJacobianOrdered(dagTasks, tasksInfo, jobOrder, processorJobVec,
+      //     scheduleOptions.processorNum_);
+      // c = ReOrderLPObj(c, jobOrder, tasksInfo);
+    } else if (GlobalVariablesDAGOpt::ReOrderProblem == "amd")
+      CoutError("Please provide reorder method implementation!");
+    else
+      CoutError("Please provide reorder method implementation!");
+  }
   EndTimer("main");
   std::cout << "The number of variables is: " << xActual.rows() << std::endl;
   if (GlobalVariablesDAGOpt::PrintOutput)
