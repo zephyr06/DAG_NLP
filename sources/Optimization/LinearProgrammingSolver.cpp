@@ -152,39 +152,20 @@ LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &ta
                          const std::vector<uint> processorJobVec, int processorNum,
                          bool lessJobOrderConstraints) {
   BeginTimer("GenerateRTDALPOrg");
-  AugmentedJacobian augJacobConstraints = GetDAGJacobianOrg(dagTasks, tasksInfo, jobOrder, processorJobVec,
-                                                            processorNum, lessJobOrderConstraints);
+  std::vector<AugmentedJacobianTriplet> jacobTripConstraints = GetDAGJacobianTripletOrg(
+      dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum, lessJobOrderConstraints);
 
-  AugmentedJacobian jacobAll;
-  int mAllMax = augJacobConstraints.jacobian.rows(),
-      nAll = augJacobConstraints.jacobian.cols() + 2 * dagTasks.chains_.size();
+  jacobTripConstraints.reserve(jacobTripConstraints.size() + dagTasks.chains_.size());
   for (uint i = 0; i < dagTasks.chains_.size(); i++) {
-    mAllMax += 2 * (tasksInfo.hyperPeriod / dagTasks.tasks[dagTasks.chains_[i][0]].period + 1 +
-                    1); // +1 just to be safe
+    AugmentedJacobianTriplet augJacobRTDACurr = GetJacobianCauseEffectChainOrg(
+        dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum, dagTasks.chains_[i], i);
+    jacobTripConstraints.push_back(augJacobRTDACurr);
   }
-  jacobAll.jacobian.conservativeResize(mAllMax, nAll);
-  jacobAll.rhs.conservativeResize(mAllMax, 1);
-  jacobAll.jacobian.setZero();
-
-  AugmentedJacobian jacobRTDAS =
-      MergeJacobianOfRTDAChains(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
-
-  jacobAll.jacobian.block(0, 0, augJacobConstraints.jacobian.rows(), augJacobConstraints.jacobian.cols()) =
-      augJacobConstraints.jacobian;
-  jacobAll.jacobian.block(augJacobConstraints.jacobian.rows(), 0, jacobRTDAS.jacobian.rows(),
-                          jacobRTDAS.jacobian.cols()) = jacobRTDAS.jacobian;
-
-  jacobAll.rhs.block(0, 0, augJacobConstraints.jacobian.rows(), 1) = augJacobConstraints.rhs;
-  jacobAll.rhs.block(augJacobConstraints.jacobian.rows(), 0, jacobRTDAS.jacobian.rows(), 1) = jacobRTDAS.rhs;
-
-  jacobAll.jacobian.conservativeResize(augJacobConstraints.jacobian.rows() + jacobRTDAS.jacobian.rows(),
-                                       jacobAll.jacobian.cols());
-  jacobAll.rhs.conservativeResize(jacobAll.jacobian.rows(), 1);
-
-  VectorDynamic c = GenerateVectorDynamic(nAll);
-  for (int i = augJacobConstraints.jacobian.cols(); i < nAll; i++)
+  AugmentedSparseJacobian jacobAll = MergeAugJacobian(jacobTripConstraints);
+  VectorDynamic c = GenerateVectorDynamic(jacobAll.jacobian.cols());
+  for (uint i = tasksInfo.length; i < c.rows(); i++)
     c(i) = 1;
-  LPData lpData(jacobAll.jacobian.sparseView(), jacobAll.rhs, c);
+  LPData lpData(jacobAll.jacobian, jacobAll.rhs, c);
   EndTimer("GenerateRTDALPOrg");
   return lpData;
 }
