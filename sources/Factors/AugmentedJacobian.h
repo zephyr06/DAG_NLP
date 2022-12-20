@@ -11,9 +11,20 @@ namespace OrderOptDAG_SPACE {
 
 typedef Eigen::SparseMatrix<double> SpMat; // declares a column-major sparse matrix type of double
 typedef Eigen::Triplet<double> EigenTriplet;
-typedef std::vector<EigenTriplet> EigenTripletVector;
+
+class EigenTripletMy : public EigenTriplet {
+public:
+  EigenTripletMy() : EigenTriplet() {}
+  EigenTripletMy(size_t i, size_t j, double val) : EigenTriplet(i, j, val) {}
+  inline void UpdateRow(size_t r) { m_row = r; }
+  inline void UpdateCol(size_t c) { m_col = c; }
+  inline void UpdateVal(double v) { m_value = v; }
+};
+typedef std::vector<EigenTripletMy> EigenTripletVector;
 
 struct AugmentedJacobianTriplet {
+  int rows;
+  int cols;
   EigenTripletVector jacobian;
   VectorDynamic rhs;
 
@@ -39,26 +50,6 @@ struct AugmentedJacobianTriplet {
   }
 };
 
-// TODO: work with SM_Matrix
-struct AugmentedJacobian {
-  MatrixDynamic jacobian;
-  VectorDynamic rhs;
-
-  AugmentedJacobian() {}
-
-  AugmentedJacobian(const AugmentedJacobianTriplet &augTrip)
-      : jacobian(augTrip.GetDenseMat()), rhs(augTrip.rhs) {}
-
-  AugmentedJacobian(MatrixDynamic jacobian, VectorDynamic rhs) : jacobian(jacobian), rhs(rhs) {}
-
-  AugmentedJacobian(int m, int n) : jacobian(GenerateMatrixDynamic(m, n)), rhs(GenerateVectorDynamic(m)) {}
-
-  void print() {
-    std::cout << "Jacobian: \n" << jacobian << std::endl;
-    std::cout << "RHS: \n" << rhs << std::endl;
-  }
-};
-
 struct AugmentedSparseJacobian {
   SpMat jacobian;
   VectorDynamic rhs;
@@ -73,9 +64,34 @@ struct AugmentedSparseJacobian {
   }
 };
 
+// TODO: work with SM_Matrix
+struct AugmentedJacobian {
+  MatrixDynamic jacobian;
+  VectorDynamic rhs;
+
+  AugmentedJacobian() {}
+
+  AugmentedJacobian(const AugmentedJacobianTriplet &augTrip)
+      : jacobian(augTrip.GetDenseMat()), rhs(augTrip.rhs) {}
+
+  AugmentedJacobian(const AugmentedSparseJacobian &augTrip)
+      : jacobian(augTrip.jacobian), rhs(augTrip.rhs) {}
+
+  AugmentedJacobian(MatrixDynamic jacobian, VectorDynamic rhs) : jacobian(jacobian), rhs(rhs) {}
+
+  AugmentedJacobian(int m, int n) : jacobian(GenerateMatrixDynamic(m, n)), rhs(GenerateVectorDynamic(m)) {}
+
+  void print() {
+    std::cout << "Jacobian: \n" << jacobian << std::endl;
+    std::cout << "RHS: \n" << rhs << std::endl;
+  }
+};
+
 // Warning! This function is slow because it creates a new AugmentedJacobian object
 AugmentedJacobian StackAugJaco(const AugmentedJacobian &augJaco1, const AugmentedJacobian &augJaco2);
 
 AugmentedJacobian MergeAugJacobian(const std::vector<AugmentedJacobian> &augJacos);
+
+AugmentedSparseJacobian MergeAugJacobian(const std::vector<AugmentedJacobianTriplet> &augJacos);
 
 } // namespace OrderOptDAG_SPACE

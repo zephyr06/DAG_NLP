@@ -16,7 +16,7 @@ void UpdateAugmentedJacobianTripletJobOrder(AugmentedJacobianTriplet &augJacob, 
                                             TimeInstance &instCurr, int rowIndex, int globalIdPrev,
                                             int globalIdCurr, const TaskSetInfoDerived &tasksInfo);
 
-AugmentedJacobian GetJacobianJobOrder(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+AugmentedJacobianTriplet GetJacobianJobOrder(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                       const SFOrder &jobOrder);
 
 AugmentedJacobianTriplet

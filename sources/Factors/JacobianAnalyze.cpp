@@ -33,6 +33,32 @@ AugmentedJacobian GetDAGJacobianOrg(const DAG_Model &dagTasks, const TaskSetInfo
   return augJacobAll;
 }
 
+std::vector<AugmentedJacobianTriplet>
+GetDAGJacobianTripletOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
+                         const std::vector<uint> processorJobVec, int processorNum,
+                         bool lessJobOrderConstraints) {
+  std::vector<AugmentedJacobianTriplet> augJacoTripAll;
+  augJacoTripAll.reserve(3 + dagTasks.chains_.size());
+
+  augJacoTripAll.push_back(GetJacobianDDL(dagTasks, tasksInfo));
+  augJacoTripAll.push_back(GetJacobianActivationTime(dagTasks, tasksInfo));
+  augJacoTripAll.push_back(GetJacobianDBF(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum));
+
+  AugmentedJacobianTriplet augJacoJobOrder;
+  if (lessJobOrderConstraints) {
+    for (uint chainIndex = 0; chainIndex < dagTasks.chains_.size(); chainIndex++) {
+      std::unordered_map<JobCEC, std::vector<JobCEC>> reactionChainMap =
+          GetReactionChainMap(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum,
+                              dagTasks.chains_[chainIndex], chainIndex);
+      augJacoTripAll.push_back(
+          GetJacobianJobOrderReduced(dagTasks, tasksInfo, jobOrder, chainIndex, reactionChainMap));
+    }
+  } else
+    augJacoTripAll.push_back(GetJacobianJobOrder(dagTasks, tasksInfo, jobOrder));
+
+  return augJacoTripAll;
+}
+
 // ****************************************Below is about ordered Jacobian *****************************
 
 VectorDynamic ReOrderLPObj(const VectorDynamic &c, const SFOrder &jobOrder,

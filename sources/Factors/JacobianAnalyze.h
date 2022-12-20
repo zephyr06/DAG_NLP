@@ -19,6 +19,11 @@ AugmentedJacobian GetDAGJacobianOrg(const DAG_Model &dagTasks, const TaskSetInfo
                                     SFOrder &jobOrder, const std::vector<uint> processorJobVec,
                                     int processorNum, bool lessJobOrderConstraints = false);
 
+std::vector<AugmentedJacobianTriplet>
+GetDAGJacobianTripletOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
+                         const std::vector<uint> processorJobVec, int processorNum,
+                         bool lessJobOrderConstraints = false);
+
 // ****************************************Below is about ordered Jacobian *****************************
 
 // This function requires more consideration

@@ -35,4 +35,35 @@ AugmentedJacobian MergeAugJacobian(const std::vector<AugmentedJacobian> &augJaco
   EndTimer("MergeAugJacobian");
   return jacobAll;
 }
+
+AugmentedSparseJacobian MergeAugJacobian(const std::vector<AugmentedJacobianTriplet> &augJacos) {
+  int totalRow = 0;
+  int totalCol = 0;
+  for (uint i = 0; i < augJacos.size(); i++) {
+    totalRow += augJacos[i].rows;
+    totalCol = std::max(totalCol, augJacos[i].cols);
+  }
+
+  EigenTripletVector tripletVecAll;
+  tripletVecAll.reserve(totalRow);
+  VectorDynamic rhsAll(totalRow);
+  int rowIndex = 0;
+
+  for (uint i = 0; i < augJacos.size(); i++) {
+    const AugmentedJacobianTriplet &augJacobCurr = augJacos[i];
+    for (uint j = 0; j < augJacobCurr.jacobian.size(); j++) {
+      EigenTripletMy tripCurr = augJacobCurr.jacobian[j];
+      tripCurr.UpdateRow(tripCurr.row() + rowIndex);
+      tripletVecAll.push_back(tripCurr);
+    }
+    rhsAll.block(rowIndex, 0, augJacobCurr.rhs.rows(), 1) = augJacobCurr.rhs;
+    rowIndex += augJacos[i].rows;
+  }
+
+  AugmentedSparseJacobian augSparJacob;
+  augSparJacob.jacobian = SpMat(totalRow, totalCol);
+  augSparJacob.jacobian.setFromTriplets(tripletVecAll.begin(), tripletVecAll.end());
+  augSparJacob.rhs = rhsAll;
+  return augSparJacob;
+}
 } // namespace OrderOptDAG_SPACE

@@ -60,7 +60,8 @@ AugmentedJacobianTriplet GetJacobianDBF(const DAG_Model &dagTasks, const TaskSet
       count++;
     }
   }
-
+  augJacob.rows = count;
+  augJacob.cols = tasksInfo.length;
   return augJacob;
 }
 

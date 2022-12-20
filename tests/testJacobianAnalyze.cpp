@@ -283,6 +283,22 @@ TEST_F(DAGScheduleOptimizerTest2, MergeAugJacobian) {
   EXPECT_FLOAT_EQ(sum, jacobAll.jacobian.sum() + jacobAll.rhs.sum());
 }
 
+TEST_F(DAGScheduleOptimizerTest2, MergeAugJacobian_triplets) {
+  std::vector<AugmentedJacobianTriplet> augJacobsTriplet =
+      GetDAGJacobianTripletOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+
+  AugmentedJacobian jacobAll = MergeAugJacobian(augJacobsTriplet);
+  EXPECT_EQ(6 + 3 + 4 + 2, jacobAll.jacobian.rows());
+
+  double sumExpected = 0;
+  std::vector<AugmentedJacobian> augJacobs =
+      GetVariableBlocksOrdered(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+  for (uint i = 0; i < augJacobs.size(); i++)
+    sumExpected += augJacobs[i].jacobian.sum() + augJacobs[i].rhs.sum();
+
+  EXPECT_FLOAT_EQ(sumExpected, jacobAll.jacobian.sum() + jacobAll.rhs.sum());
+}
+
 TEST_F(DAGScheduleOptimizerTest2, overall_reordered_results) {
   AugmentedJacobian augJacobAllOrg =
       GetDAGJacobianOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
