@@ -33,6 +33,8 @@ AugmentedJacobian GetDAGJacobianOrg(const DAG_Model &dagTasks, const TaskSetInfo
   return augJacobAll;
 }
 
+// ****************************************Below is about ordered Jacobian *****************************
+
 VectorDynamic ReOrderLPObj(const VectorDynamic &c, const SFOrder &jobOrder,
                            const TaskSetInfoDerived &tasksInfo) {
   std::unordered_map<JobCEC, size_t> jobIndexInJacobian = GetJobOrderMap(jobOrder);

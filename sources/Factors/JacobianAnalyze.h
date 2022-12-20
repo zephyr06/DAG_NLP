@@ -19,6 +19,8 @@ AugmentedJacobian GetDAGJacobianOrg(const DAG_Model &dagTasks, const TaskSetInfo
                                     SFOrder &jobOrder, const std::vector<uint> processorJobVec,
                                     int processorNum, bool lessJobOrderConstraints = false);
 
+// ****************************************Below is about ordered Jacobian *****************************
+
 // This function requires more consideration
 // order of AugmentedJacobian follows instanceOrder in jobOrder
 // The columns of each Jacobian matrix follows instanceOrder in jobOrder

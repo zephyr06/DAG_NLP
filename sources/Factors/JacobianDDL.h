@@ -10,7 +10,7 @@ inline void UpdateAugmentedJacobianDDL(AugmentedJacobian &augJacob, int rowIndex
   augJacob.rhs(rowIndex) = GetDeadline(jobCurr, tasksInfo) - GetExecutionTime(jobCurr, tasksInfo);
 }
 
-AugmentedJacobian GetJacobianDDL(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo);
+AugmentedJacobianTriplet GetJacobianDDL(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo);
 
 inline void UpdateAugmentedJacobianActivationTime(AugmentedJacobian &augJacob, int rowIndex, int jobIndex,
                                                   const JobCEC &jobCurr,
