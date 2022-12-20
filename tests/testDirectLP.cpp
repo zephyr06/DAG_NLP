@@ -106,7 +106,7 @@ protected:
     jobOrder = SFOrder(tasksInfo, initial);
     // jobOrder.print();
 
-    // std::vector<AugmentedJacobian> augJacobs = GetVariableBlocks(dagTasks, tasksInfo, jobOrder,
+    // std::vector<AugmentedJacobian> augJacobs = GetVariableBlocksOrdered(dagTasks, tasksInfo, jobOrder,
     // processorJobVec, scheduleOptions.processorNum_); AugmentedJacobian jacobAll =
     // MergeAugJacobian(augJacobs);
     AugmentedJacobian jacobAll =

@@ -201,9 +201,9 @@ TEST_F(DAGScheduleOptimizerTest1, GetJacobianAll) {
   EXPECT_EQ(43, augJacobAll.rhs.sum());
 }
 
-TEST_F(DAGScheduleOptimizerTest1, GetVariableBlocks) {
+TEST_F(DAGScheduleOptimizerTest1, GetVariableBlocksOrdered) {
   std::vector<AugmentedJacobian> augJacos =
-      GetVariableBlocks(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+      GetVariableBlocksOrdered(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
 
   MatrixDynamic jacobianExpect0(4, 4);
   jacobianExpect0 << 1, 0, 0, 0, -1, 0, 0, 0, 1, -1, 0, 0, 1, -1, 0, 0;
@@ -241,7 +241,7 @@ TEST_F(DAGScheduleOptimizerTest2, GetVariableBlock_non_continuous) {
   augJacobAll.print();
 
   std::vector<AugmentedJacobian> augJacos =
-      GetVariableBlocks(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+      GetVariableBlocksOrdered(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
 
   MatrixDynamic jacobianExpect0(6, 4);
   jacobianExpect0 << 1, 0, 0, 0, -1, 0, 0, 0, 1, 0, -1, 0, 1, -1, 0, 0, -1, 1, 0, 0, 1, -1, 0, 0;
@@ -274,7 +274,7 @@ TEST_F(DAGScheduleOptimizerTest2, GetVariableBlock_non_continuous) {
 
 TEST_F(DAGScheduleOptimizerTest2, MergeAugJacobian) {
   std::vector<AugmentedJacobian> augJacobs =
-      GetVariableBlocks(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
+      GetVariableBlocksOrdered(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
   AugmentedJacobian jacobAll = MergeAugJacobian(augJacobs);
   EXPECT_EQ(6 + 3 + 4 + 2, jacobAll.jacobian.rows());
   double sum = 0;

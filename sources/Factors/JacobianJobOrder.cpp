@@ -2,6 +2,18 @@
 
 namespace OrderOptDAG_SPACE {
 
+std::unordered_map<JobCEC, size_t> GetJobOrderMap(const SFOrder &jobOrder) {
+  int jobIndex = 0;
+  std::unordered_map<JobCEC, size_t> jobIndexInJacobian;
+  const std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
+  for (uint i = 0; i < instanceOrder.size(); i++) {
+    if (instanceOrder[i].type == 's') {
+      jobIndexInJacobian[instanceOrder[i].job] = jobIndex++;
+    }
+  }
+  return jobIndexInJacobian;
+}
+
 void UpdateAugmentedJacobianJobOrder(AugmentedJacobian &augJacob, TimeInstance &instPrev,
                                      TimeInstance &instCurr, int rowIndex, int globalIdPrev, int globalIdCurr,
                                      const TaskSetInfoDerived &tasksInfo) {
@@ -53,6 +65,58 @@ AugmentedJacobian GetJacobianJobOrder(const DAG_Model &dagTasks, const TaskSetIn
 
   augJacob.jacobian.conservativeResize(count, tasksInfo.length);
   augJacob.rhs.conservativeResize(count, 1);
+  return augJacob;
+}
+
+AugmentedJacobian
+GetJacobianJobOrderReduced(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                           const SFOrder &jobOrder, int chainIndex,
+                           const std::unordered_map<JobCEC, std::vector<JobCEC>> &reactionChainMap) {
+  AugmentedJacobian augJacob;
+  int maxRowNum = dagTasks.chains_[chainIndex].size() * reactionChainMap.size() * 2;
+  augJacob.jacobian.conservativeResize(maxRowNum, tasksInfo.length);
+  augJacob.jacobian.setZero();
+  augJacob.rhs.conservativeResize(maxRowNum, 1);
+  augJacob.rhs.setZero();
+  int rowCount = 0;
+
+  for (auto pair : reactionChainMap) {
+    std::vector<JobCEC> &react_chain = pair.second;
+
+    if (react_chain.size() > 1) {
+      JobCEC pre_job_in_chain = react_chain[0];
+      for (auto i = 1u; i < react_chain.size(); i++) {
+        JobCEC cur_job = react_chain[i];
+
+        // model_.add(GetFinishTimeExpression(pre_job_in_chain) <= GetStartTimeExpression(cur_job));
+        int globalIdCurr = GetJobUniqueId(cur_job, tasksInfo);
+        int globalIdPrev = GetJobUniqueId(pre_job_in_chain, tasksInfo);
+        augJacob.jacobian(rowCount, globalIdPrev) = 1;
+        augJacob.jacobian(rowCount, globalIdCurr) = -1;
+        augJacob.rhs(rowCount) = -1 * GetExecutionTime(pre_job_in_chain, tasksInfo) +
+                                 GetHyperPeriodDiff(pre_job_in_chain, cur_job, tasksInfo);
+        rowCount++;
+
+        JobCEC pre_cur_job(cur_job.taskId, cur_job.jobId - 1);
+        if (pre_cur_job.jobId >= 0) {
+          // Cplex only support weak inequality, a threshold is added to enforce strict inequality
+          // model_.add(GetStartTimeExpression(pre_cur_job) <=
+          //            GetFinishTimeExpression(pre_job_in_chain) -
+          //                GlobalVariablesDAGOpt::kCplexInequalityThreshold);
+          int globalIdPrevCurr = GetJobUniqueId(pre_cur_job, tasksInfo);
+          augJacob.jacobian(rowCount, globalIdPrevCurr) = 1;
+          augJacob.jacobian(rowCount, globalIdPrev) = -1;
+          augJacob.rhs(rowCount) = GetExecutionTime(pre_job_in_chain, tasksInfo) -
+                                   GlobalVariablesDAGOpt::kCplexInequalityThreshold +
+                                   GetHyperPeriodDiff(pre_cur_job, pre_job_in_chain, tasksInfo);
+          rowCount++;
+        }
+        pre_job_in_chain = cur_job;
+      }
+    }
+  }
+  augJacob.jacobian.conservativeResize(rowCount, tasksInfo.length);
+  augJacob.rhs.conservativeResize(rowCount, 1);
   return augJacob;
 }
 } // namespace OrderOptDAG_SPACE

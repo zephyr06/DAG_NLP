@@ -19,16 +19,14 @@ AugmentedJacobian GetDAGJacobianOrg(const DAG_Model &dagTasks, const TaskSetInfo
                                     SFOrder &jobOrder, const std::vector<uint> processorJobVec,
                                     int processorNum, bool lessJobOrderConstraints = false);
 
-std::unordered_map<JobCEC, size_t> GetJobOrderMap(const SFOrder &jobOrder);
-
 // This function requires more consideration
 // order of AugmentedJacobian follows instanceOrder in jobOrder
 // The columns of each Jacobian matrix follows instanceOrder in jobOrder
 // TODO: clean code, refactor function
 // return: all the Jacobian matrices, columns and rows are re-ordered following jobs' dispatch order
-std::vector<AugmentedJacobian> GetVariableBlocks(const DAG_Model &dagTasks,
-                                                 const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrder,
-                                                 const std::vector<uint> processorJobVec, int processorNum);
+std::vector<AugmentedJacobian>
+GetVariableBlocksOrdered(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                         const SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum);
 
 // Input is the original coefficient vector c for LP without "band" re-ordering trick
 VectorDynamic ReOrderLPObj(const VectorDynamic &c, const SFOrder &jobOrder,
@@ -38,12 +36,8 @@ inline AugmentedJacobian GetDAGJacobianOrdered(const DAG_Model &dagTasks, const 
                                                const SFOrder &jobOrder,
                                                const std::vector<uint> processorJobVec, int processorNum) {
   std::vector<AugmentedJacobian> augJacobs =
-      GetVariableBlocks(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
+      GetVariableBlocksOrdered(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum);
   return MergeAugJacobian(augJacobs);
 }
 
-AugmentedJacobian
-GetJacobianJobOrderReduced(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
-                           const SFOrder &jobOrder, int chainIndex,
-                           const std::unordered_map<JobCEC, std::vector<JobCEC>> &reactionChainMap);
 } // namespace OrderOptDAG_SPACE
