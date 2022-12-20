@@ -7,19 +7,20 @@ namespace OrderOptDAG_SPACE {
 // As for the added variable, it's also RT first DA second;
 // jobOrder's jobSFMap_ may be updated
 // TODO: this function only considres 1 chain, add functiosn for multiple chains
-AugmentedJacobian GetJacobianCauseEffectChainOrg(const DAG_Model &dagTasks,
-                                                 const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
-                                                 const std::vector<uint> processorJobVec, int processorNum,
-                                                 const std::vector<int> &causeEffectChain, int chainIndex) {
+AugmentedJacobianTriplet
+GetJacobianCauseEffectChainOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                               SFOrder &jobOrder, const std::vector<uint> processorJobVec, int processorNum,
+                               const std::vector<int> &causeEffectChain, int chainIndex) {
   std::unordered_map<JobCEC, JobCEC> firstReactionMap;
 
   LLint hyperPeriod = tasksInfo.hyperPeriod;
   const TaskSet &tasks = tasksInfo.tasks;
   LLint totalStartJobs = hyperPeriod / tasks[causeEffectChain[0]].period + 1;
 
-  AugmentedJacobian augJacob;
+  AugmentedJacobianTriplet augJacob;
   int varNum = tasksInfo.length + 2 * (1 + chainIndex);
-  augJacob.jacobian.conservativeResize((totalStartJobs + 1) * 2, varNum);
+  // augJacob.jacobian.conservativeResize((totalStartJobs + 1) * 2, varNum);
+  augJacob.jacobian.reserve((totalStartJobs + 1) * 2 * 3);
   augJacob.rhs.conservativeResize((totalStartJobs + 1) * 2, 1);
   int varIndexRT = tasksInfo.length + 2 * (chainIndex);
   int varIndexDA = tasksInfo.length + 1 + 2 * (chainIndex);
@@ -53,13 +54,15 @@ AugmentedJacobian GetJacobianCauseEffectChainOrg(const DAG_Model &dagTasks,
     firstReactionMap[startJobCurr] = firstJob;
 
     // update augJacob
-    augJacob.jacobian.row(rowIndex).setZero();
+    // augJacob.jacobian.row(rowIndex).setZero();
     int sourceJobCol = GetJobUniqueId(startJobCurr, tasksInfo);
     int tailJobCol = GetJobUniqueId(firstJob, tasksInfo);
-    augJacob.jacobian(rowIndex, tailJobCol) = 1;
-    augJacob.jacobian(rowIndex, sourceJobCol) = -1;
-    augJacob.jacobian(rowIndex, sourceJobCol) = -1;
-    augJacob.jacobian(rowIndex, varIndexRT) = -1;
+    // augJacob.jacobian(rowIndex, tailJobCol) = 1;
+    augJacob.jacobian.push_back(EigenTriplet(rowIndex, tailJobCol, 1));
+    // augJacob.jacobian(rowIndex, sourceJobCol) = -1;
+    augJacob.jacobian.push_back(EigenTriplet(rowIndex, sourceJobCol, -1));
+    // augJacob.jacobian(rowIndex, varIndexRT) = -1;
+    augJacob.jacobian.push_back(EigenTriplet(rowIndex, varIndexRT, -1));
 
     augJacob.rhs(rowIndex) =
         -1 * GetExecutionTime(firstJob, tasksInfo) - GetHyperPeriodDiff(startJobCurr, firstJob, tasksInfo);
@@ -73,19 +76,22 @@ AugmentedJacobian GetJacobianCauseEffectChainOrg(const DAG_Model &dagTasks,
       // resVec[startInstanceIndex - 1].dataAge = GetStartTime(lastReaction, x, tasksInfo) +
       // tasks[lastReaction.taskId].executionTime - GetStartTime({causeEffectChain[0], startInstanceIndex -
       // 1}, x, tasksInfo);
-      augJacob.jacobian.row(rowIndex).setZero();
+      // augJacob.jacobian.row(rowIndex).setZero();
       JobCEC sourceJobDA = JobCEC{causeEffectChain[0], (startInstanceIndex - 1)};
       int sourceJobColDA = GetJobUniqueIdWithinHyperPeriod(sourceJobDA, tasksInfo);
       int tailJobColDA = GetJobUniqueIdWithinHyperPeriod(lastReaction, tasksInfo);
-      augJacob.jacobian(rowIndex, tailJobColDA) = 1;
-      augJacob.jacobian(rowIndex, sourceJobColDA) = -1;
-      augJacob.jacobian(rowIndex, varIndexDA) = -1;
+      // augJacob.jacobian(rowIndex, tailJobColDA) = 1;
+      augJacob.jacobian.push_back(EigenTriplet(rowIndex, tailJobColDA, 1));
+      // augJacob.jacobian(rowIndex, sourceJobColDA) = -1;
+      augJacob.jacobian.push_back(EigenTriplet(rowIndex, sourceJobColDA, -1));
+      // augJacob.jacobian(rowIndex, varIndexDA) = -1;
+      augJacob.jacobian.push_back(EigenTriplet(rowIndex, varIndexDA, -1));
       augJacob.rhs(rowIndex) = -1 * GetExecutionTime(lastReaction, tasksInfo) -
                                GetHyperPeriodDiff(sourceJobDA, lastReaction, tasksInfo);
       rowIndex++;
     }
   }
-  augJacob.jacobian.conservativeResize(rowIndex, varNum);
+  // augJacob.jacobian.conservativeResize(rowIndex, varNum);
   augJacob.rhs.conservativeResize(rowIndex, 1);
   return augJacob;
 }

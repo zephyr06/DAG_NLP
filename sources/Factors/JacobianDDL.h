@@ -19,6 +19,6 @@ inline void UpdateAugmentedJacobianActivationTime(AugmentedJacobian &augJacob, i
   augJacob.rhs(rowIndex) = GetActivationTime(jobCurr, tasksInfo) * -1;
 }
 
-AugmentedJacobian GetJacobianActivationTime(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo);
+AugmentedJacobianTriplet GetJacobianActivationTime(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo);
 
 } // namespace OrderOptDAG_SPACE

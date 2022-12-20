@@ -68,14 +68,15 @@ AugmentedJacobian GetJacobianJobOrder(const DAG_Model &dagTasks, const TaskSetIn
   return augJacob;
 }
 
-AugmentedJacobian
+AugmentedJacobianTriplet
 GetJacobianJobOrderReduced(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                            const SFOrder &jobOrder, int chainIndex,
                            const std::unordered_map<JobCEC, std::vector<JobCEC>> &reactionChainMap) {
-  AugmentedJacobian augJacob;
+  AugmentedJacobianTriplet augJacob;
   int maxRowNum = dagTasks.chains_[chainIndex].size() * reactionChainMap.size() * 2;
-  augJacob.jacobian.conservativeResize(maxRowNum, tasksInfo.length);
-  augJacob.jacobian.setZero();
+  // augJacob.jacobian.conservativeResize(maxRowNum, tasksInfo.length);
+  augJacob.jacobian.reserve(maxRowNum * 2);
+  // augJacob.jacobian.setZero();
   augJacob.rhs.conservativeResize(maxRowNum, 1);
   augJacob.rhs.setZero();
   int rowCount = 0;
@@ -91,8 +92,10 @@ GetJacobianJobOrderReduced(const DAG_Model &dagTasks, const TaskSetInfoDerived &
         // model_.add(GetFinishTimeExpression(pre_job_in_chain) <= GetStartTimeExpression(cur_job));
         int globalIdCurr = GetJobUniqueId(cur_job, tasksInfo);
         int globalIdPrev = GetJobUniqueId(pre_job_in_chain, tasksInfo);
-        augJacob.jacobian(rowCount, globalIdPrev) = 1;
-        augJacob.jacobian(rowCount, globalIdCurr) = -1;
+        // augJacob.jacobian(rowCount, globalIdPrev) = 1;
+        augJacob.jacobian.push_back(EigenTriplet(rowCount, globalIdPrev, 1));
+        // augJacob.jacobian(rowCount, globalIdCurr) = -1;
+        augJacob.jacobian.push_back(EigenTriplet(rowCount, globalIdCurr, -1));
         augJacob.rhs(rowCount) = -1 * GetExecutionTime(pre_job_in_chain, tasksInfo) +
                                  GetHyperPeriodDiff(pre_job_in_chain, cur_job, tasksInfo);
         rowCount++;
@@ -104,8 +107,11 @@ GetJacobianJobOrderReduced(const DAG_Model &dagTasks, const TaskSetInfoDerived &
           //            GetFinishTimeExpression(pre_job_in_chain) -
           //                GlobalVariablesDAGOpt::kCplexInequalityThreshold);
           int globalIdPrevCurr = GetJobUniqueId(pre_cur_job, tasksInfo);
-          augJacob.jacobian(rowCount, globalIdPrevCurr) = 1;
-          augJacob.jacobian(rowCount, globalIdPrev) = -1;
+          // augJacob.jacobian(rowCount, globalIdPrevCurr) = 1;
+          augJacob.jacobian.push_back(EigenTriplet(rowCount, globalIdPrevCurr, 1));
+          // augJacob.jacobian(rowCount, globalIdPrev) = -1;
+          augJacob.jacobian.push_back(EigenTriplet(rowCount, globalIdPrev, -1));
+
           augJacob.rhs(rowCount) = GetExecutionTime(pre_job_in_chain, tasksInfo) -
                                    GlobalVariablesDAGOpt::kCplexInequalityThreshold +
                                    GetHyperPeriodDiff(pre_cur_job, pre_job_in_chain, tasksInfo);
@@ -115,7 +121,7 @@ GetJacobianJobOrderReduced(const DAG_Model &dagTasks, const TaskSetInfoDerived &
       }
     }
   }
-  augJacob.jacobian.conservativeResize(rowCount, tasksInfo.length);
+  // augJacob.jacobian.conservativeResize(rowCount, tasksInfo.length);
   augJacob.rhs.conservativeResize(rowCount, 1);
   return augJacob;
 }

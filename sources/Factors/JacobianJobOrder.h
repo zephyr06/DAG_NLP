@@ -12,10 +12,14 @@ void UpdateAugmentedJacobianJobOrder(AugmentedJacobian &augJacob, TimeInstance &
                                      TimeInstance &instCurr, int rowIndex, int globalIdPrev, int globalIdCurr,
                                      const TaskSetInfoDerived &tasksInfo);
 
+void UpdateAugmentedJacobianTripletJobOrder(AugmentedJacobianTriplet &augJacob, TimeInstance &instPrev,
+                                            TimeInstance &instCurr, int rowIndex, int globalIdPrev,
+                                            int globalIdCurr, const TaskSetInfoDerived &tasksInfo);
+
 AugmentedJacobian GetJacobianJobOrder(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                       const SFOrder &jobOrder);
 
-AugmentedJacobian
+AugmentedJacobianTriplet
 GetJacobianJobOrderReduced(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                            const SFOrder &jobOrder, int chainIndex,
                            const std::unordered_map<JobCEC, std::vector<JobCEC>> &reactionChainMap);

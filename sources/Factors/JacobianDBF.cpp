@@ -30,9 +30,9 @@ SortJobsEachProcessor(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasks
   return jobsOrderedEachProcessor;
 }
 
-AugmentedJacobian GetJacobianDBF(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
-                                 const SFOrder &jobOrder, const std::vector<uint> processorJobVec,
-                                 int processorNum) {
+AugmentedJacobianTriplet GetJacobianDBF(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                                        const SFOrder &jobOrder, const std::vector<uint> processorJobVec,
+                                        int processorNum) {
   // find all the jobs that are executed on the same processor
 
   // For each processor, sort all the jobs' execution order
@@ -43,8 +43,9 @@ AugmentedJacobian GetJacobianDBF(const DAG_Model &dagTasks, const TaskSetInfoDer
 
   int m = tasksInfo.length - 1 - (static_cast<int>(jobsOrderedEachProcessor.size()) - 1);
 
-  AugmentedJacobian augJacob;
-  augJacob.jacobian = GenerateMatrixDynamic(m, tasksInfo.length);
+  AugmentedJacobianTriplet augJacob;
+  // augJacob.jacobian = GenerateMatrixDynamic(m, tasksInfo.length);
+  augJacob.jacobian.reserve(2 * m);
   augJacob.rhs = GenerateVectorDynamic(m);
   int count = 0;
   for (uint processorId = 0; processorId < jobsOrderedEachProcessor.size(); processorId++) {
@@ -52,8 +53,10 @@ AugmentedJacobian GetJacobianDBF(const DAG_Model &dagTasks, const TaskSetInfoDer
     for (uint i = 1; i < jobsOrdered.size(); i++) {
       int globalIdPrev = GetJobUniqueId(jobsOrdered.at(i - 1), tasksInfo);
       int globalIdCurr = GetJobUniqueId(jobsOrdered.at(i), tasksInfo);
-      UpdateAugmentedJacobianDBF(augJacob, count, globalIdPrev, globalIdCurr, jobsOrdered.at(i - 1),
-                                 tasksInfo);
+      // UpdateAugmentedJacobianDBF(augJacob, count, globalIdPrev, globalIdCurr, jobsOrdered.at(i - 1),
+      //                            tasksInfo);
+      UpdateAugmentedJacobianTripletDBF(augJacob, count, globalIdPrev, globalIdCurr, jobsOrdered.at(i - 1),
+                                        tasksInfo);
       count++;
     }
   }
