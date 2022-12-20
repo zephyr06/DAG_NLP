@@ -3,7 +3,7 @@
 #include "gmock/gmock.h" // Brings in gMock.
 #include <gtest/gtest.h>
 
-#include "sources/Optimization/JacobianAnalyze.h"
+#include "sources/Factors/JacobianAnalyze.h"
 #include "sources/Optimization/LPSolverCplex.h"
 #include "sources/Optimization/LinearProgrammingSolver.h"
 #include "sources/Optimization/ObjectiveFunctions.h"

@@ -8,7 +8,7 @@
 #include "sources/Utils/Parameters.h" // DebugMode
 #include "sources/Utils/testMy.h"     // CoutError
 
-#include "sources/Optimization/JacobianAnalyze.h" // GenerateRTDALPOrg
+#include "sources/Factors/JacobianAnalyze.h" // GenerateRTDALPOrg
 
 namespace LPOptimizer {
 

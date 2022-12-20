@@ -5,7 +5,7 @@
 
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Optimization/OrderScheduler.h"
-#include "sources/Optimization/JacobianAnalyze.h"
+#include "sources/Factors/JacobianAnalyze.h"
 #include "sources/Utils/IncrementQR.h"
 #include "sources/Optimization/LinearProgrammingSolver.h"
 #include "sources/Optimization/LPSolverCplex.h"

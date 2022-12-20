@@ -1,5 +1,5 @@
 #pragma once
-#include "sources/Optimization/JacobianAnalyze.h"
+#include "sources/Factors/JacobianAnalyze.h"
 
 namespace OrderOptDAG_SPACE
 {

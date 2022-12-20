@@ -7,7 +7,7 @@
 #include <Eigen/SparseCore>
 #include <gtest/gtest.h>
 
-#include "sources/Optimization/JacobianAnalyze.h"
+#include "sources/Factors/JacobianAnalyze.h"
 #include "sources/Optimization/LinearProgrammingSolver.h"
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/TaskModel/DAG_Model.h"
