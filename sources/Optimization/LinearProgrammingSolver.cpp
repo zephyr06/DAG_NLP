@@ -34,8 +34,10 @@ LPData::LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, con
   }
 
   AA_ = A_ * A_.transpose();
+  BeginTimer("AnalyzePatternAA_");
   AASolver_.analyzePattern(AA_);
   AASolver_.factorize(AA_);
+  EndTimer("AnalyzePatternAA_");
 
   centralVarCurr_ = GenerateInitialLP();
 }
@@ -155,6 +157,7 @@ VectorDynamic SolveLP(LPData &lpData, double precision) {
     lpData.ApplyCentralDelta(centralDelta, 0.9);
     iterationCount++;
   }
+  std::cout << "IPM Iterations taken: " << iterationCount << std::endl;
   return lpData.centralVarCurr_.x.block(0, 0, lpData.n_, 1);
 }
 

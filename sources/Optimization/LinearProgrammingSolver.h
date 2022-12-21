@@ -78,8 +78,10 @@ public:
         centralVarCurr_(lpData.centralVarCurr_), AA_(lpData.AA_) {
     // AASolver_ = Eigen::SimplicialLLT<Eigen::SparseMatrix<double>>();
     // Eigen::SparseMatrix<double> AA = A_ * A_.transpose();
+    BeginTimer("AnalyzePatternAA_");
     AASolver_.analyzePattern(AA_);
     AASolver_.factorize(AA_);
+    EndTimer("AnalyzePatternAA_");
   }
 
   // TODO: remove all the matrix inverse
