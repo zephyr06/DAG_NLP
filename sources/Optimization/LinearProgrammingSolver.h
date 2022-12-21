@@ -72,6 +72,14 @@ public:
 
   LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const SpVec &c);
 
+  LPData(const LPData &lpData)
+      : A_(lpData.A_), b_(lpData.b_), c_(lpData.c_), m_(lpData.m_), n_(lpData.n_),
+        centralVarCurr_(lpData.centralVarCurr_) {
+    // AASolver_ = Eigen::SimplicialLLT<Eigen::SparseMatrix<double>>();
+    Eigen::SparseMatrix<double> AA = A_ * A_.transpose();
+    AASolver_.analyzePattern(AA);
+  }
+
   // TODO: remove all the matrix inverse
   CentralVariable GenerateInitialLP();
 
