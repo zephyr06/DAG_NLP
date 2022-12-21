@@ -33,20 +33,22 @@ LPData::LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, con
     CoutError("A's dimension is wrong in LPData!");
   }
 
+  AA_ = A_ * A_.transpose();
+  AASolver_.analyzePattern(AA_);
+  AASolver_.factorize(AA_);
+
   centralVarCurr_ = GenerateInitialLP();
-  Eigen::SparseMatrix<double> AA = A_ * A_.transpose();
-  AASolver_.analyzePattern(AA);
 }
 
 CentralVariable LPData::GenerateInitialLP() {
   BeginTimer("GenerateInitialIPM");
-  Eigen::SparseMatrix<double> AA = A_ * A_.transpose();
-  Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> AAFact(AA);
+  // Eigen::SparseMatrix<double> AA = A_ * A_.transpose();
+  // Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> AAFact(AA_);
   // auto AAFact = solver.compute(AA);
-  VectorDynamic xCurr_ = A_.transpose() * (AAFact.solve(b_));
+  VectorDynamic xCurr_ = A_.transpose() * (AASolver_.solve(b_));
   VectorAdd(xCurr_, std::max(-1.5 * xCurr_.minCoeff(), 0.0));
 
-  VectorDynamic lambdaCurr_ = AAFact.solve(A_ * c_);
+  VectorDynamic lambdaCurr_ = AASolver_.solve(A_ * c_);
   VectorDynamic sCurr_ = c_ - A_.transpose() * lambdaCurr_;
   VectorAdd(sCurr_, std::max(-1.5 * sCurr_.minCoeff(), 0.0));
   double deltax = 0.5 * (xCurr_.transpose() * sCurr_)(0, 0) / sCurr_.sum() / 2.0;
