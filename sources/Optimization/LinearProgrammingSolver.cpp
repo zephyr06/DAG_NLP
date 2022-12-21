@@ -32,10 +32,14 @@ LPData::LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, con
   } else {
     CoutError("A's dimension is wrong in LPData!");
   }
+
   centralVarCurr_ = GenerateInitialLP();
+  Eigen::SparseMatrix<double> AA = A_ * A_.transpose();
+  AASolver_.analyzePattern(AA);
 }
 
 CentralVariable LPData::GenerateInitialLP() {
+  BeginTimer("GenerateInitialIPM");
   Eigen::SparseMatrix<double> AA = A_ * A_.transpose();
   Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> AAFact(AA);
   // auto AAFact = solver.compute(AA);
@@ -49,7 +53,7 @@ CentralVariable LPData::GenerateInitialLP() {
   double deltas = 0.5 * (xCurr_.transpose() * sCurr_)(0, 0) / xCurr_.sum() / 2.0;
   VectorAdd(xCurr_, deltax);
   VectorAdd(sCurr_, deltas);
-
+  EndTimer("GenerateInitialIPM");
   return CentralVariable{xCurr_, sCurr_, lambdaCurr_};
 }
 
@@ -66,6 +70,7 @@ double GetAlphaAff(const VectorDynamic &xCurr, const VectorDynamic &xDelta) {
 }
 
 CentralVariable LPData::SolveLinearSystem() {
+  BeginTimer("SolveLinearSystem");
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> S = centralVarCurr_.s.asDiagonal();
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> X = centralVarCurr_.x.asDiagonal();
   VectorDynamic rb = A_ * centralVarCurr_.x - b_;
@@ -76,16 +81,25 @@ CentralVariable LPData::SolveLinearSystem() {
     sInv(i) = 1 / sInv(i);
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> S_inv = sInv.asDiagonal();
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> D2 = (S_inv * centralVarCurr_.x).asDiagonal();
+  BeginTimer("MatrixMul_AA");
   Eigen::SparseMatrix<double> AA = A_ * D2 * A_.transpose();
+  // std::cout << "AA size: " << AA.size() << ", AA rows: " << AA.rows() << ", AA cols: " << AA.cols()
+  //           << ", AA non-zeros: " << AA.nonZeros() << std::endl;
+  EndTimer("MatrixMul_AA");
   // std::cout << "AA:\n" << Eigen::MatrixXd(AA) << std::endl;
-  Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> AAFact(AA);
+  BeginTimer("MatrixFactorization:");
+  // Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> AAFact(AA);
+  AASolver_.factorize(AA);
+  EndTimer("MatrixFactorization:");
   // Eigen::SparseLU<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> AAFact;
   // AAFact.analyzePattern(AA);
   // AAFact.factorize(AA);
 
   // predictor
   CentralVariable centralDelta;
-  centralDelta.lambda = AAFact.solve(-1 * rb - A_ * X * S_inv * rc + A_ * (S_inv * rxs1));
+  BeginTimer("Backward_substitution1");
+  centralDelta.lambda = AASolver_.solve(-1 * rb - A_ * X * S_inv * rc + A_ * (S_inv * rxs1));
+  EndTimer("Backward_substitution1");
   if (GlobalVariablesDAGOpt::debugMode == 1) {
     if ((eigen_is_nan(centralDelta.lambda)))
       CoutError("centralDelta.lambda becomes Nan during iterations!");
@@ -99,15 +113,16 @@ CentralVariable LPData::SolveLinearSystem() {
   double muAff = ((centralVarCurr_.x + centralDelta.x * alphaAffPrim).transpose() *
                   (centralVarCurr_.s + centralDelta.s * alphaAffDual))(0, 0) /
                  centralVarCurr_.x.rows();
-  double sigma = std::pow(muAff / Duality(), 2);
+  double sigma = std::pow(muAff / Duality(), 3);
 
   VectorDynamic rxs2 = -1 * (-1 * X * centralVarCurr_.s - centralDelta.x.asDiagonal() * centralDelta.s);
   VectorAdd(rxs2, Duality() * sigma * -1);
-
-  centralDelta.lambda = AAFact.solve(-1 * rb - A_ * X * S_inv * rc + A_ * (S_inv * rxs2));
+  BeginTimer("Backward_substitution2");
+  centralDelta.lambda = AASolver_.solve(-1 * rb - A_ * X * S_inv * rc + A_ * (S_inv * rxs2));
+  EndTimer("Backward_substitution2");
   centralDelta.s = -1 * rc - A_.transpose() * centralDelta.lambda;
   centralDelta.x = -1 * S_inv * rxs2 - X * (S_inv * centralDelta.s);
-
+  EndTimer("SolveLinearSystem");
   return centralDelta;
 }
 

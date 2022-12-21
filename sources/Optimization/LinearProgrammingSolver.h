@@ -66,6 +66,7 @@ public:
   size_t m_;
   size_t n_;
   CentralVariable centralVarCurr_;
+  Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> AASolver_;
 
   LPData() {}
 
