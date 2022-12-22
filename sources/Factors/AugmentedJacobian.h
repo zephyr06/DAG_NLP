@@ -36,7 +36,7 @@ struct AugmentedJacobianTriplet {
       m = std::max(m, jacobian[i].row());
       n = std::max(n, jacobian[i].col());
     }
-    SpMat mat(m + 1, n + 1);
+    SpMat mat(std::max(rows, m + 1), std::max(cols, n + 1));
     mat.setFromTriplets(jacobian.begin(), jacobian.end());
     return mat;
   }
@@ -74,8 +74,7 @@ struct AugmentedJacobian {
   AugmentedJacobian(const AugmentedJacobianTriplet &augTrip)
       : jacobian(augTrip.GetDenseMat()), rhs(augTrip.rhs) {}
 
-  AugmentedJacobian(const AugmentedSparseJacobian &augTrip)
-      : jacobian(augTrip.jacobian), rhs(augTrip.rhs) {}
+  AugmentedJacobian(const AugmentedSparseJacobian &augTrip) : jacobian(augTrip.jacobian), rhs(augTrip.rhs) {}
 
   AugmentedJacobian(MatrixDynamic jacobian, VectorDynamic rhs) : jacobian(jacobian), rhs(rhs) {}
 
