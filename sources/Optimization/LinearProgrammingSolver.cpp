@@ -157,7 +157,7 @@ VectorDynamic SolveLP(LPData &lpData, double precision) {
     lpData.ApplyCentralDelta(centralDelta, 0.9);
     iterationCount++;
   }
-  std::cout << "IPM Iterations taken: " << iterationCount << std::endl;
+  // std::cout << "IPM Iterations taken: " << iterationCount << std::endl;
   return lpData.centralVarCurr_.x.block(0, 0, lpData.n_, 1);
 }
 
