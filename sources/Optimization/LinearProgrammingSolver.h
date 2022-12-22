@@ -9,6 +9,7 @@
 #include "sources/Utils/testMy.h"     // CoutError
 
 #include "sources/Factors/JacobianAnalyze.h" // GenerateRTDALPOrg
+#include "sources/TaskModel/DAG_Model.h"
 
 namespace LPOptimizer {
 
@@ -79,8 +80,11 @@ public:
   LPData(const LPData &lpData);
 
   LPData &operator=(const LPData &lpData);
-  // TODO: remove all the matrix inverse
+
   CentralVariable GenerateInitialLP();
+
+  CentralVariable GenerateInitialLPWarmStart(const VectorDynamic &warmStartX,
+                                             const OrderOptDAG_SPACE::DAG_Model &dagTasks);
 
   CentralVariable SolveLinearSystem();
 
@@ -103,6 +107,7 @@ public:
 // This algorithm is based on primal-dual interior-point method, following the tutorial in
 // Nocedal07Numerical_Optimization During the optimization process, this algorithm doesn't perform matrix
 // permutation
+// @return: both start time vector and artificial variables!!!
 // TODO: avoid more data copy/paste
 VectorDynamic SolveLP(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const SpVec &c,
                       double precision = GlobalVariablesDAGOpt::NumericalPrecision);
