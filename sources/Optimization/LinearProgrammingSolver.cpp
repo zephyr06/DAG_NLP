@@ -41,6 +41,36 @@ LPData::LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, con
 
   centralVarCurr_ = GenerateInitialLP();
 }
+LPData::LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const SpVec &c,
+               const VectorDynamic &warmStartX)
+    : LPData(A, b, c) {
+  centralVarCurr_.x = warmStartX;
+}
+LPData::LPData(const LPData &lpData)
+    : A_(lpData.A_), b_(lpData.b_), c_(lpData.c_), m_(lpData.m_), n_(lpData.n_),
+      centralVarCurr_(lpData.centralVarCurr_), AA_(lpData.AA_) {
+  // AASolver_ = Eigen::SimplicialLLT<Eigen::SparseMatrix<double>>();
+  // Eigen::SparseMatrix<double> AA = A_ * A_.transpose();
+  BeginTimer("AnalyzePatternAA_");
+  AASolver_.analyzePattern(AA_);
+  AASolver_.factorize(AA_);
+  EndTimer("AnalyzePatternAA_");
+}
+
+LPData &LPData::operator=(const LPData &lpData) {
+  A_ = lpData.A_;
+  b_ = lpData.b_;
+  c_ = lpData.c_;
+  m_ = lpData.m_;
+  n_ = lpData.n_;
+  centralVarCurr_ = lpData.centralVarCurr_;
+  AA_ = lpData.AA_;
+  BeginTimer("AnalyzePatternAA_");
+  AASolver_.analyzePattern(AA_);
+  AASolver_.factorize(AA_);
+  EndTimer("AnalyzePatternAA_");
+  return *this;
+}
 
 CentralVariable LPData::GenerateInitialLP() {
   BeginTimer("GenerateInitialIPM");

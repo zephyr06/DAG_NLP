@@ -241,6 +241,7 @@ TEST_F(LPTest3, SolveLP_lessJobOrderConstraints) {
   EXPECT_FALSE(eigen_is_nan(xActual));
   PrintTimer();
 }
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
