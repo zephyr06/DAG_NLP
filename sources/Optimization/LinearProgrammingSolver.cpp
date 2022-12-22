@@ -109,6 +109,9 @@ CentralVariable LPData::SolveLinearSystem() {
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> X = centralVarCurr_.x.asDiagonal();
   VectorDynamic rb = A_ * centralVarCurr_.x - b_;
   VectorDynamic rc = A_.transpose() * centralVarCurr_.lambda + centralVarCurr_.s - c_;
+  if (GlobalVariablesDAGOpt::debugMode == 1) {
+    std::cout << "Current constraint violation measure: " << rb.norm() << ", " << rc.norm() << std::endl;
+  }
   VectorDynamic rxs1 = X * centralVarCurr_.s;
   VectorDynamic sInv = centralVarCurr_.s;
   for (uint i = 0; i < sInv.rows(); i++)
@@ -147,7 +150,7 @@ CentralVariable LPData::SolveLinearSystem() {
   double muAff = ((centralVarCurr_.x + centralDelta.x * alphaAffPrim).transpose() *
                   (centralVarCurr_.s + centralDelta.s * alphaAffDual))(0, 0) /
                  centralVarCurr_.x.rows();
-  double sigma = std::pow(muAff / Duality(), 3);
+  double sigma = std::pow(muAff / Duality(), 2);
 
   VectorDynamic rxs2 = -1 * (-1 * X * centralVarCurr_.s - centralDelta.x.asDiagonal() * centralDelta.s);
   VectorAdd(rxs2, Duality() * sigma * -1);
@@ -163,6 +166,9 @@ CentralVariable LPData::SolveLinearSystem() {
 void LPData::ApplyCentralDelta(const CentralVariable &centralDelta, double eta) {
   double alphaAffPrim = GetAlphaAff(centralVarCurr_.x, centralDelta.x);
   double alphaAffDual = GetAlphaAff(centralVarCurr_.s, centralDelta.s);
+  if (GlobalVariablesDAGOpt::debugMode == 1) {
+    std::cout << "Current alpha_Aff_Prim and _dual: " << alphaAffPrim << ", " << alphaAffDual << std::endl;
+  }
   centralVarCurr_.x = centralVarCurr_.x + centralDelta.x * std::min(1.0, alphaAffPrim * eta);
   centralVarCurr_.lambda = centralVarCurr_.lambda + centralDelta.lambda * std::min(1.0, alphaAffDual * eta);
   centralVarCurr_.s = centralVarCurr_.s + centralDelta.s * std::min(1.0, alphaAffDual * eta);
@@ -178,7 +184,8 @@ VectorDynamic SolveLP(LPData &lpData, double precision) {
   if (lpData.centralVarCurr_.x.rows() == 0)
     lpData.centralVarCurr_ = lpData.GenerateInitialLP();
   int iterationCount = 0;
-  while (lpData.Duality() > precision && iterationCount < 1000) {
+  double dualityPrev = lpData.Duality();
+  while (dualityPrev > precision && iterationCount < 1000) {
     if (GlobalVariablesDAGOpt::debugMode == 1) {
       std::cout << "Current duality measure: " << lpData.Duality() << std::endl;
     }
@@ -186,6 +193,10 @@ VectorDynamic SolveLP(LPData &lpData, double precision) {
     CentralVariable centralDelta = lpData.SolveLinearSystem();
     lpData.ApplyCentralDelta(centralDelta, 0.9);
     iterationCount++;
+    double dualityCurr = lpData.Duality();
+    // if (dualityCurr > dualityPrev * 100)
+    //   CoutError("IPM diverged during iterations!");
+    dualityPrev = dualityCurr;
   }
   std::cout << "IPM Iterations taken: " << iterationCount << std::endl;
   return lpData.centralVarCurr_.x.block(0, 0, lpData.n_, 1);
