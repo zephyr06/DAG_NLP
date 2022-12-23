@@ -197,6 +197,19 @@ void LPData::ApplyCentralDelta(const CentralVariable &centralDelta, double eta) 
   centralVarCurr_.s = centralVarCurr_.s + centralDelta.s * std::min(1.0, alphaAffDual * eta);
 }
 
+void LPData::ExamKKTCondition() const {
+  std::cout << "Primal feasibility: " << (b_ - A_ * centralVarCurr_.x).maxCoeff() << ", "
+            << (b_ - A_ * centralVarCurr_.x).minCoeff() << "\n";
+  std::cout << "Dual feasibility: "
+            << (VectorDynamic(c_) - A_.transpose() * centralVarCurr_.lambda - centralVarCurr_.s).maxCoeff()
+            << ", "
+            << (VectorDynamic(c_) - A_.transpose() * centralVarCurr_.lambda - centralVarCurr_.s).minCoeff()
+            << "\n";
+  std::cout << "Duality measure: " << Duality() << std::endl;
+  std::cout << "Positve x: " << centralVarCurr_.x.minCoeff() << std::endl;
+  std::cout << "Positve s: " << centralVarCurr_.s.minCoeff() << std::endl;
+}
+
 VectorDynamic SolveLP(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, const SpVec &c,
                       double precision) {
   LPData lpData(A, b, c);
@@ -270,6 +283,8 @@ VectorDynamic OptRTDA_IPMOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived
   // if (GlobalVariablesDAGOpt::debugMode == 1)
   //   lpData.print();
   VectorDynamic startTimeVectorAfterOpt = SolveLP(lpData);
+  if (GlobalVariablesDAGOpt::debugMode == 1)
+    lpData.ExamKKTCondition();
   RoundIPMResults(startTimeVectorAfterOpt);
   return startTimeVectorAfterOpt;
 }
