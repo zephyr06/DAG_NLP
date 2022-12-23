@@ -79,7 +79,7 @@ TEST_F(LPTest1, SolveLP) {
   VectorDynamic xExpect(4);
   xExpect << 0, 10, 1, 0;
   VectorDynamic xActual = SolveLP(As, b, c.sparseView());
-  EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual, 1e-3));
+  EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual, GlobalVariablesDAGOpt::NumericalPrecision*10));
 }
 
 class LPTest2 : public ::testing::Test {
@@ -159,8 +159,9 @@ TEST_F(LPTest2, SolveLP) {
   VectorDynamic xExpect(2);
   xExpect << 0, 19;
   VectorDynamic xActual = SolveLP(As, b, c.sparseView());
-  EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual.block(0, 0, 2, 1), 1e-3));
+  EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual.block(0, 0, 2, 1), GlobalVariablesDAGOpt::NumericalPrecision*10));
 }
+
 class LPTest3 : public ::testing::Test {
 protected:
   void SetUp() override {

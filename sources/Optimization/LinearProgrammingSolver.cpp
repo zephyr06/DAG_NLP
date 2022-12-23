@@ -118,14 +118,31 @@ CentralVariable LPData::SolveLinearSystem() {
     sInv(i) = 1 / sInv(i);
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> S_inv = sInv.asDiagonal();
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> D2 = (S_inv * centralVarCurr_.x).asDiagonal();
+  if (GlobalVariablesDAGOpt::debugMode == 1) {
+    // Eigen::JacobiSVD<Eigen::MatrixXd> svd(AA);
+    // double cond = svd.singularValues()(0) / svd.singularValues()(svd.singularValues().size() - 1);
+    std::cout << Color::blue
+              << "condition number of D2: " << D2.diagonal().maxCoeff() / D2.diagonal().minCoeff()
+              << Color::def << std::endl;
+    std::cout << Color::blue << "minimum element of D2: " << D2.diagonal().minCoeff() << Color::def
+              << std::endl;
+    if (D2.diagonal().minCoeff() < 1e-7) {
+      VectorDynamic sth = S_inv * centralVarCurr_.x;
+      VectorAdd(sth, GlobalVariablesDAGOpt::deltaOptimizer);
+      D2 = sth.asDiagonal();
+    }
+  }
+
   BeginTimer("MatrixMul_AA");
   Eigen::SparseMatrix<double> AA = A_ * D2 * A_.transpose();
+
   // std::cout << "AA size: " << AA.size() << ", AA rows: " << AA.rows() << ", AA cols: " << AA.cols()
   //           << ", AA non-zeros: " << AA.nonZeros() << std::endl;
   EndTimer("MatrixMul_AA");
   // std::cout << "AA:\n" << Eigen::MatrixXd(AA) << std::endl;
   BeginTimer("MatrixFactorization:");
-  // Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> AAFact(AA);
+  // Eigen::SparseQR<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> AAFact;
+  // AAFact.compute(AA);
   AASolver_.factorize(AA);
   EndTimer("MatrixFactorization:");
   // Eigen::SparseLU<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> AAFact;
@@ -136,6 +153,12 @@ CentralVariable LPData::SolveLinearSystem() {
   CentralVariable centralDelta;
   BeginTimer("Backward_substitution1");
   centralDelta.lambda = AASolver_.solve(-1 * rb - A_ * X * S_inv * rc + A_ * (S_inv * rxs1));
+  if (GlobalVariablesDAGOpt::debugMode == 1) {
+    // Eigen::JacobiSVD<Eigen::MatrixXd> svd(AA);
+    // double cond = svd.singularValues()(0) / svd.singularValues()(svd.singularValues().size() - 1);
+    std::cout << Color::blue << "condition number of centralDelta.lambda: "
+              << centralDelta.lambda.maxCoeff() / centralDelta.lambda.minCoeff() << Color::def << std::endl;
+  }
   EndTimer("Backward_substitution1");
   if (GlobalVariablesDAGOpt::debugMode == 1) {
     if ((eigen_is_nan(centralDelta.lambda)))
@@ -244,8 +267,8 @@ VectorDynamic OptRTDA_IPMOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived
 
   LPData lpData = GenerateRTDALPOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum,
                                     lessJobOrderConstraints);
-  if (GlobalVariablesDAGOpt::debugMode == 1)
-    lpData.print();
+  // if (GlobalVariablesDAGOpt::debugMode == 1)
+  //   lpData.print();
   VectorDynamic startTimeVectorAfterOpt = SolveLP(lpData);
   RoundIPMResults(startTimeVectorAfterOpt);
   return startTimeVectorAfterOpt;

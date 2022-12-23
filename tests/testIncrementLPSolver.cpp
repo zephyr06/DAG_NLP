@@ -127,6 +127,46 @@ TEST_F(LPTest1, basic) {
                                           startTimeVectorAfterOpt.block(0, 0, initial.rows(), initial.cols()),
                                           scheduleOptions)
             << Color::def << std::endl;
+
+  std::cout << "Old X range: " << expectX.minCoeff() << ", " << expectX.maxCoeff() << std::endl;
+  std::cout << "New X range: " << startTimeVectorAfterOpt.minCoeff() << ", "
+            << startTimeVectorAfterOpt.maxCoeff() << std::endl;
+  std::cout << "Old obj from LP: " << lpData.c_.transpose() * expectX << std::endl;
+  std::cout << "Incremental obj from LP: " << lpData.c_.transpose() * startTimeVectorAfterOpt << std::endl;
+
+  // std::cout << "A_\n" << MatrixDynamic(lpData.A_) << std::endl;
+  // WriteMatrixToFile("A.txt", MatrixDynamic(lpData.A_));
+
+  std::cout << " A range: " << (MatrixDynamic(lpData.A_).array()).minCoeff() << ", "
+            << (MatrixDynamic(lpData.A_).array()).maxCoeff() << std::endl;
+  std::cout << "A size: " << lpData.A_.rows() << ", " << lpData.A_.cols() << std::endl;
+  std::cout << "Constraint violation Ax incremental  LP: "
+            << (MatrixDynamic(lpData.A_) * lpData.centralVarCurr_.x).array().maxCoeff() << std::endl;
+  VectorDynamic Ab = lpData.A_ * expectX;
+
+  MatrixDynamic A = MatrixDynamic(lpData.A_);
+  for (uint i = 0; i < Ab.rows(); i++) {
+    if (Ab(i) > 1e202) {
+      for (uint j = 0; j < A.cols(); j++) {
+        if (A(i, j) != 0) {
+          std::cout << "(" << i << ", " << j << "): " << A(i, j) << " ,";
+          std::cout << expectX(j) << std::endl;
+          std::cout << expectX.array().maxCoeff() << std::endl;
+        }
+      }
+      std::cout << "\n\n\n";
+    }
+  }
+  WriteMatrixToFile("X.txt", expectX);
+
+  std::cout << "Constraint violation about direct LP: " << (lpData.b_ - lpData.A_ * expectX).maxCoeff()
+            << std::endl;
+  std::cout << "Constraint violation about Incremental LP: "
+            << (lpData.b_ - lpData.A_ * lpData.centralVarCurr_.x).maxCoeff() << std::endl;
+  std::cout << "Nan: " << eigen_is_nan(expectX) << ", " << eigen_is_nan(startTimeVectorAfterOpt) << std::endl;
+  std::cout << "Inf: " << eigen_is_inf(expectX) << ", " << eigen_is_inf(startTimeVectorAfterOpt) << ", "
+            << eigen_is_inf(lpData.b_) << ", " << eigen_is_inf((lpData.b_ - lpData.A_ * expectX))
+            << std::endl;
 }
 
 int main(int argc, char **argv) {

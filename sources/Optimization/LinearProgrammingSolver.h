@@ -3,6 +3,7 @@
 #include <Eigen/Jacobi>
 #include <Eigen/SparseCholesky>
 #include <Eigen/SparseCore>
+#include<Eigen/SparseQR>
 
 #include "sources/Utils/MatirxConvenient.h"
 #include "sources/Utils/Parameters.h" // DebugMode

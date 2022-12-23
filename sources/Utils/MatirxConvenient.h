@@ -1,7 +1,8 @@
 #pragma once
-
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
+#include <fstream>
+#include <iostream>
 
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatrixDynamic;
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> VectorDynamic;
@@ -64,6 +65,17 @@ template <typename Derived> inline bool eigen_is_nan(const Eigen::MatrixBase<Der
   return Eigen::isnan(x.array()).any();
 }
 
-// template <typename Derived> inline bool eigen_is_finite(const Eigen::MatrixBase<Derived> &x) {
-//   return ((x - x).array() == (x - x).array()).all();
-// }
+template <typename Derived> inline bool eigen_is_inf(const Eigen::MatrixBase<Derived> &x) {
+  return Eigen::isinf(x.array()).any();
+}
+inline void WriteMatrixToFile(std::string filePath, const MatrixDynamic &m) {
+  std::ofstream file;
+  file.open(filePath);
+  if (file.is_open()) {
+    file << m << '\n';
+    // file << "m" << '\n' <<  colm(m) << '\n';
+  } else {
+    std::cout << "Error writing the matrix to file\n";
+  }
+  file.close();
+}
