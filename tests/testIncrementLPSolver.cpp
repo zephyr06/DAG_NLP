@@ -101,9 +101,10 @@ CentralVariable LPData::GenerateInitialLPWarmStart(const VectorDynamic &warmStar
 }
 
 TEST_F(LPTest1, Cplex) {
-  ScheduleOptimizer optimizer(dagTasks);
-  optimizer.OptimizeWithJobOrder(initial, processorJobVec, jobOrder);
-  VectorDynamic stvRes = optimizer.getOptimizedStartTimeVector();
+  // ScheduleOptimizer optimizer(dagTasks);
+  // optimizer.OptimizeWithJobOrder(initial, processorJobVec, jobOrder);
+  VectorDynamic stvRes =
+      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
   std::cout << Color::blue << "Obj from Old LPOrderScheduler: "
             << RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, stvRes, scheduleOptions) << Color::def
             << std::endl;
@@ -143,8 +144,8 @@ TEST_F(LPTest1, basic) {
   VectorDynamic expectX =
       OptRTDA_IPMOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_, true);
 
-  LPData lpData = GenerateRTDALPOrg(dagTasks, tasksInfo, jobOrderPermutation, processorJobVec,
-                                    scheduleOptions.processorNum_, true);
+  LPData lpData =
+      GenerateRTDALPOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_, true);
   lpData.centralVarCurr_ = lpData.GenerateInitialLPWarmStart(expectX, dagTasks);
   VectorDynamic startTimeVectorAfterOpt = SolveLP(lpData);
   RoundIPMResults(startTimeVectorAfterOpt);
@@ -159,6 +160,10 @@ TEST_F(LPTest1, basic) {
                                           startTimeVectorAfterOpt.block(0, 0, initial.rows(), initial.cols()),
                                           scheduleOptions)
             << Color::def << std::endl;
+
+  if (GlobalVariablesDAGOpt::PrintOutput)
+    std::cout << "start time vector after Old LPOrderScheduler: "
+              << startTimeVectorAfterOpt.block(0, 0, initial.rows(), initial.cols()) << std::endl;
   lpData.ExamKKTCondition();
   // std::cout << "Old X range: " << expectX.minCoeff() << ", " << expectX.maxCoeff() << std::endl;
   // std::cout << "New X range: " << startTimeVectorAfterOpt.minCoeff() << ", "
