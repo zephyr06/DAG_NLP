@@ -46,7 +46,7 @@ public:
     }
 };
 
-TEST_F(TestProcessorAssignment, ReadRightArguments)
+TEST_F(TestProcessorAssignment, ReadCorrectArguments)
 {
     EXPECT_NO_THROW(ProcessorAssignment::AssignProcessor(tasksInfo_, sfOrder_, processorNum_, processorJobVec_));
 }
@@ -59,7 +59,7 @@ TEST_F(TestProcessorAssignment, WillAssignCorrectProcessor)
     EXPECT_THAT(ProcessorAssignment::AssignProcessor(tasksInfo_, sfOrder_, processorNum_, processorJobVec_), IsTrue());
     EXPECT_THAT(HaveSameProcessorAssignment(processorJobVec_, processorJobVecRef_), IsTrue());
 }
-TEST_F(TestProcessorAssignment, WillFailProcessorAssignment)
+TEST_F(TestProcessorAssignment, WillFailProcessorAssignmentWhenUnfeasible)
 {
     VectorDynamic initialSTV = GenerateVectorDynamic(tasksInfo_.variableDimension);
     initialSTV << 0, 10, 20, 0, 0;
