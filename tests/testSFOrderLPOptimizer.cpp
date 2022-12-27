@@ -37,14 +37,25 @@ public:
         // sfOrder_.print();
         scheduleOptions_.causeEffectChainNumber_ = 1;
         pSFOrderLPOptimizer_ = std::make_shared<SFOrderLPOptimizer>(dagTasks_);
+        pSFOrderLPOptimizer_->Init();
+    }
+    void TearDown() override
+    {
+        pSFOrderLPOptimizer_->ClearMemory();
     }
 };
 
 TEST_F(TestSFOrderLPOptimizer, CanBeInitializedSuccessfully)
 {
-    pSFOrderLPOptimizer_->setObjType(true);
-    EXPECT_TRUE(true);
+    EXPECT_NO_THROW(pSFOrderLPOptimizer_->Init());
+    EXPECT_NO_THROW(pSFOrderLPOptimizer_->ClearMemory());
 }
+TEST_F(TestSFOrderLPOptimizer, WillAddCorrectLPVariableNumber)
+{
+    pSFOrderLPOptimizer_->AddVariables();
+    EXPECT_THAT((long)pSFOrderLPOptimizer_->varArray_.getSize(), Eq(tasksInfo_.variableDimension));
+}
+
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleMock(&argc, argv);

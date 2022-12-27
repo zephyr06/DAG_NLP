@@ -10,6 +10,40 @@
 
 namespace OrderOptDAG_SPACE
 {
+    void SFOrderLPOptimizer::Init()
+    {
+        if (hasBeenInitialized_)
+        {
+            this->ClearMemory();
+        }
+        TaskSetInfoDerived tasksInfo(dagTasks_.tasks);
+        setTasksInfo(tasksInfo);
+        env_ = IloEnv();
+        model_ = IloModel(env_);
+        cplexSolver_ = IloCplex(env_);
+        cplexSolver_.setOut(env_.getNullStream());
+        setOptimizedStartTimeVector();
+
+        hasBeenInitialized_ = true;
+    }
+
+    void SFOrderLPOptimizer::ClearMemory()
+    {
+        // release memory
+        if (hasBeenInitialized_)
+        {
+            cplexSolver_.end();
+            model_.end();
+            env_.end();
+            hasBeenInitialized_ = false;
+        }
+    }
+
+    inline void SFOrderLPOptimizer::setOptimizedStartTimeVector()
+    {
+        optimizedStartTimeVector_ = GenerateVectorDynamic(tasksInfo_.variableDimension);
+    }
+
     // function Optimize() will optimize RTDA
     void SFOrderLPOptimizer::Optimize(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec)
     {
@@ -24,6 +58,7 @@ namespace OrderOptDAG_SPACE
         setProcessorJobVec(processorJobVec);
         TaskSetInfoDerived tasksInfo(dagTasks_.tasks);
         setTasksInfo(tasksInfo);
+
         AddVariables();
         AddDBFConstraints();
         AddDDLConstraints();

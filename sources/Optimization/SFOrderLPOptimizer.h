@@ -21,10 +21,14 @@ namespace OrderOptDAG_SPACE
         {
             env_.end();
             useWeightedObj_ = false;
+            hasBeenInitialized_ = false;
         }
 
-        void Optimize(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec);
+        void Init();
+        void ClearMemory();
+        inline void setOptimizedStartTimeVector();
 
+        void Optimize(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec);
         void OptimizeWithJobOrder(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec, const SFOrder &jobOrder);
 
         // useWeightedObj_ will decide whether optimize RTDA or weighted objectives
@@ -66,6 +70,7 @@ namespace OrderOptDAG_SPACE
         const DAG_Model &dagTasks_;
         int numVariables_;
         bool useWeightedObj_;
+        bool hasBeenInitialized_;
     };
 } // namespace OrderOptDAG_SPACE
 #endif // SFORDER_LP_OPTIMIZER_H_
