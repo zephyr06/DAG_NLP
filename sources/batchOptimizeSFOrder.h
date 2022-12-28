@@ -59,7 +59,7 @@ namespace OrderOptDAG_SPACE
         case TOM:
             scheduleOptions.doScheduleOptimization_ = 1;
             scheduleOptions.doScheduleOptimizationOnlyOnce_ = 0;
-            res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<SimpleOrderScheduler, ObjectiveFunctionBase>(dagTasks, scheduleOptions);
+            res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<LPOrderScheduler, ObjectiveFunctionBase>(dagTasks, scheduleOptions);
             break;
 
         case TOM_Fast:

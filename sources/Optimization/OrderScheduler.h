@@ -8,6 +8,7 @@
 #include "sources/Optimization/LinearProgrammingSolver.h"
 #include "sources/Optimization/ProcessorAssignment.h"
 #include "sources/Optimization/ScheduleOptimizer.h"
+#include "sources/Optimization/SFOrderLPOptimizer.h"
 #include "sources/Optimization/ScheduleOptions.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/JobCEC.h"
@@ -56,12 +57,24 @@ public:
   static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                 const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
                                 std::vector<uint> &processorJobVec) {
-    ScheduleOptimizer scheduleOptimizer = ScheduleOptimizer(dagTasks);
-    auto stv = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder,
-                                 processorJobVec);
-    scheduleOptimizer.setObjType(scheduleOptions.considerSensorFusion_);
-    scheduleOptimizer.Optimize(stv, processorJobVec);
-    return scheduleOptimizer.getOptimizedStartTimeVector();
+    if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrder, scheduleOptions.processorNum_, processorJobVec))
+    { // SFOrder unschedulable
+      VectorDynamic startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
+      startTimeVector(0) = -1;
+      processorJobVec.resize(tasksInfo.variableDimension, -1);
+      return startTimeVector;
+    }
+    SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder);
+    sfOrderLPOptimizer.Optimize(processorJobVec);
+    VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
+    jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
+    return startTimeVectorOptmized;
+    // ScheduleOptimizer scheduleOptimizer = ScheduleOptimizer(dagTasks);
+    // auto stv = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder,
+    //                              processorJobVec);
+    // scheduleOptimizer.setObjType(scheduleOptions.considerSensorFusion_);
+    // scheduleOptimizer.Optimize(stv, processorJobVec);
+    // return scheduleOptimizer.getOptimizedStartTimeVector();
   }
 };
 // TODO: test !!
