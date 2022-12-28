@@ -27,11 +27,10 @@ namespace OrderOptDAG_SPACE
         void Init();
         void ClearCplexMemory();
 
-        void Optimize(const SFOrder &jobOrder, const std::vector<uint> &processorJobVec);
-        void OptimizeWithJobOrder(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec, const SFOrder &jobOrder);
+        void Optimize(const std::vector<uint> &processorJobVec);
 
-        // useWeightedObj_ will decide whether optimize RTDA or weighted objectives
-        inline void setObjType(bool useWeightedObj = false)
+        // useWeightedObj_ will decide whether optimize max RTDAs or weighted objectives
+        inline void setUseWeightedObjType(bool useWeightedObj = false)
         {
             useWeightedObj_ = useWeightedObj;
         }

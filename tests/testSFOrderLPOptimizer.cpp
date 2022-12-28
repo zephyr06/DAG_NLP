@@ -99,17 +99,17 @@ TEST_F(TestSFOrderLPOptimizer, CanAddDBFConstraintsUsingSFOrder)
 }
 TEST_F(TestSFOrderLPOptimizer, CanAddNormalObjectives)
 {
-    pSFOrderLPOptimizer_->setObjType(false);
+    pSFOrderLPOptimizer_->setUseWeightedObjType(false);
     EXPECT_NO_THROW(pSFOrderLPOptimizer_->AddDBFConstraints());
     EXPECT_NO_THROW(pSFOrderLPOptimizer_->AddObjectives());
 }
 TEST_F(TestSFOrderLPOptimizer, CanDoBasicOptimization)
 {
-    EXPECT_NO_THROW(pSFOrderLPOptimizer_->Optimize(sfOrder_, processorJobVec_));
+    EXPECT_NO_THROW(pSFOrderLPOptimizer_->Optimize(processorJobVec_));
 }
 TEST_F(TestSFOrderLPOptimizer, CanDoCorrectOptimization)
 {
-    EXPECT_NO_THROW(pSFOrderLPOptimizer_->Optimize(sfOrder_, processorJobVec_));
+    EXPECT_NO_THROW(pSFOrderLPOptimizer_->Optimize(processorJobVec_));
     VectorDynamic stvOptimized = pSFOrderLPOptimizer_->getOptimizedStartTimeVector();
     // PrintSchedule(tasksInfo_, stvOptimized);
     VectorDynamic stvExpected = GenerateVectorDynamic(5);

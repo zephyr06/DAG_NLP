@@ -41,7 +41,7 @@ namespace OrderOptDAG_SPACE
     }
 
     // function Optimize() will optimize RTDA
-    void SFOrderLPOptimizer::Optimize(const SFOrder &jobOrder, const std::vector<uint> &processorJobVec)
+    void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec)
     {
         this->Init();
         setProcessorJobVec(processorJobVec);
@@ -79,48 +79,6 @@ namespace OrderOptDAG_SPACE
         }
 
         this->ClearCplexMemory();
-    }
-
-    void SFOrderLPOptimizer::OptimizeWithJobOrder(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec, const SFOrder &jobOrder)
-    {
-        // new environment, model, variables and solver
-        env_ = IloEnv();
-        model_ = IloModel(env_);
-        cplexSolver_ = IloCplex(env_);
-        cplexSolver_.setOut(env_.getNullStream());
-
-        setInitialStartTimeVector(initialStartTimeVector);
-        setOptimizedStartTimeVector(initialStartTimeVector);
-        setProcessorJobVec(processorJobVec);
-        TaskSetInfoDerived tasksInfo(dagTasks_.tasks);
-        setTasksInfo(tasksInfo);
-        AddVariables();
-        AddDBFConstraints();
-        AddDDLConstraints();
-        AddJobOrderConstraints(jobOrder);
-        AddObjectives();
-
-        cplexSolver_.extract(model_);
-        bool found_feasible_solution = cplexSolver_.solve();
-
-        IloNumArray values_optimized(env_, numVariables_);
-        if (found_feasible_solution)
-        {
-            auto status = cplexSolver_.getStatus();
-            cplexSolver_.getValues(varArray_, values_optimized);
-            if (GlobalVariablesDAGOpt::debugMode)
-            {
-                std::cout << "Values are :" << values_optimized << "\n";
-                std::cout << status << " solution found: " << cplexSolver_.getObjValue() << "\n";
-            }
-            UpdateOptimizedStartTimeVector(values_optimized);
-        }
-
-        // release memory
-        cplexSolver_.end();
-        varArray_.end();
-        model_.end();
-        env_.end();
     }
 
     VectorDynamic SFOrderLPOptimizer::getOptimizedStartTimeVector()
@@ -289,7 +247,7 @@ namespace OrderOptDAG_SPACE
 
     void SFOrderLPOptimizer::AddObjectives()
     {
-        //TODO: current version only support optimizing RTDA ann only optimize with regular objective,
+        //TODO: current version only support optimizing RTDA ann only optimize with regular (non-weighted) objectives,
         //need to add more choices in the future
         //TODO(Dong): add support and test for weighted objectives
         //TODO(Dong): add support and test for considerSensorFusion mode
