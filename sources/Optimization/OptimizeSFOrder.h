@@ -163,6 +163,13 @@ namespace OrderOptDAG_SPACE
                         if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart, startP))
                             break;
 
+                        /************************
+                        // TODO(Sen): here may has a bug if using reference type of jobOrderCurrForFinish to save copy time?
+                        // If (sfOrderStatus == SFOrderStatus::BetterFeasible) is true, the added finish instance will not be
+                        // removed from jobOrderCurrForFinish, then will affect future for loop because there will be one more finish instance.
+                        // Is it a correct fix to move the two lines in else block below outside the if statement? then jobOrderCurrForFinish
+                        // will be recoverd for next loop. Please check and make the modification.
+                        *************************/
                         SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart;
                         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
