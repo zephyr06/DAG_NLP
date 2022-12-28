@@ -164,11 +164,13 @@ namespace OrderOptDAG_SPACE
                             break;
 
                         /************************
-                        // TODO(Sen): here may has a bug if using reference type of jobOrderCurrForFinish to save copy time?
+                        // TODO(Sen): comment from Dong: here may has a bug if using reference type of jobOrderCurrForFinish to save copy time?
                         // If (sfOrderStatus == SFOrderStatus::BetterFeasible) is true, the added finish instance will not be
                         // removed from jobOrderCurrForFinish, then will affect future for loop because there will be one more finish instance.
-                        // Is it a correct fix to move the two lines in else block below outside the if statement? then jobOrderCurrForFinish
-                        // will be recoverd for next loop. Please check and make the modification.
+                        // I moved the two lines in else block below outside the if statement, so that jobOrderCurrForFinish
+                        // will be recoverd for next loop. I also comment out the `jobOrderCurrForFinish.whetherSFMapNeedUpdate = true;` to
+                        // prevent some out of range errors.
+                        // Please check if this modification is correct! and do some refactoring.
                         *************************/
                         SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart;
                         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
@@ -189,12 +191,12 @@ namespace OrderOptDAG_SPACE
                         }
                         // else if (sfOrderStatus == SFOrderStatus::InferiorFeasible || )
                         //     jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
-                        else
-                        {
-                            jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
-                            jobOrderCurrForFinish.whetherSFMapNeedUpdate = false;
-                            // break;
-                        }
+                        // else
+                        // {
+                        jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
+                        // jobOrderCurrForFinish.whetherSFMapNeedUpdate = false;
+                        // break;
+                        // }
                     }
                 }
 
@@ -257,22 +259,22 @@ namespace OrderOptDAG_SPACE
                     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer(dagTasks);
                     if (scheduleOptions.considerSensorFusion_)
                     {
-            //             // TODO(Dong): modify related code
-            //             // schedule_optimizer.OptimizeObjWeighted(dagTasks, scheduleRes);
-                           // ScheduleResult result_after_optimization;
-            //             // result_after_optimization = schedule_optimizer.getOptimizedResult();
-            //             // if (result_after_optimization.objWeighted_ < scheduleRes.objWeighted_)
-            //             // {
-            //             //     scheduleRes = result_after_optimization;
-            //             //     std::vector<RTDA> rtda_vector;
-            //             //     for (auto chain : dagTasks.chains_)
-            //             //     {
-            //             //         auto res = GetRTDAFromSingleJob(tasksInfo, chain, scheduleRes.startTimeVector_);
-            //             //         RTDA resM = GetMaxRTDA(res);
-            //             //         rtda_vector.push_back(resM);
-            //             //     }
-            //             //     scheduleRes.obj_ = ObjRTDA(rtda_vector);
-            //             // }
+                        // TODO(Dong): modify related code
+                        // schedule_optimizer.OptimizeObjWeighted(dagTasks, scheduleRes);
+                        // ScheduleResult result_after_optimization;
+                        // result_after_optimization = schedule_optimizer.getOptimizedResult();
+                        // if (result_after_optimization.objWeighted_ < scheduleRes.objWeighted_)
+                        // {
+                        //     scheduleRes = result_after_optimization;
+                        //     std::vector<RTDA> rtda_vector;
+                        //     for (auto chain : dagTasks.chains_)
+                        //     {
+                        //         auto res = GetRTDAFromSingleJob(tasksInfo, chain, scheduleRes.startTimeVector_);
+                        //         RTDA resM = GetMaxRTDA(res);
+                        //         rtda_vector.push_back(resM);
+                        //     }
+                        //     scheduleRes.obj_ = ObjRTDA(rtda_vector);
+                        // }
                     }
                     else
                     {

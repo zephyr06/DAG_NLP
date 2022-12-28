@@ -51,7 +51,6 @@ public:
     return SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder);
   }
 };
-// TODO: this function is wrong, fix it!
 class LPOrderScheduler : public OrderScheduler {
 public:
   static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
@@ -67,15 +66,9 @@ public:
     SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder);
     sfOrderLPOptimizer.Optimize(processorJobVec);
     VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
-    // TODO: need to check carefully whether the code support changing joborder?
-    // jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
+    // TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
+    jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
     return startTimeVectorOptmized;
-    // ScheduleOptimizer scheduleOptimizer = ScheduleOptimizer(dagTasks);
-    // auto stv = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder,
-    //                              processorJobVec);
-    // scheduleOptimizer.setObjType(scheduleOptions.considerSensorFusion_);
-    // scheduleOptimizer.Optimize(stv, processorJobVec);
-    // return scheduleOptimizer.getOptimizedStartTimeVector();
   }
 };
 // TODO: test !!
