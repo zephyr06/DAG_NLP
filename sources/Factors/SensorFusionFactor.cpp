@@ -112,7 +112,7 @@ namespace OrderOptDAG_SPACE
         const TaskSet &tasks = tasksInfo.tasks;
         LLint totalStartJobs = hyperPeriod / tasks[task_id].period + 1;
 
-        for (LLint startInstanceIndex = 0; startInstanceIndex <= totalStartJobs; startInstanceIndex++)
+        for (LLint startInstanceIndex = 0; startInstanceIndex < totalStartJobs; startInstanceIndex++)
         {
             JobCEC succeed_job = {task_id, (startInstanceIndex)};
             std::vector<JobCEC> precede_jobs;

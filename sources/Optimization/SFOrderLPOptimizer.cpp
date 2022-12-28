@@ -14,7 +14,7 @@ namespace OrderOptDAG_SPACE
     {
         if (hasBeenInitialized_)
         {
-            this->ClearMemory();
+            this->ClearCplexMemory();
         }
         TaskSetInfoDerived tasksInfo(dagTasks_.tasks);
         setTasksInfo(tasksInfo);
@@ -28,7 +28,7 @@ namespace OrderOptDAG_SPACE
         hasBeenInitialized_ = true;
     }
 
-    void SFOrderLPOptimizer::ClearMemory()
+    void SFOrderLPOptimizer::ClearCplexMemory()
     {
         // release memory
         if (hasBeenInitialized_)
@@ -41,19 +41,10 @@ namespace OrderOptDAG_SPACE
     }
 
     // function Optimize() will optimize RTDA
-    void SFOrderLPOptimizer::Optimize(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec)
+    void SFOrderLPOptimizer::Optimize(const SFOrder &jobOrder, const std::vector<uint> &processorJobVec)
     {
-        // new environment, model, variables and solver
-        env_ = IloEnv();
-        model_ = IloModel(env_);
-        cplexSolver_ = IloCplex(env_);
-        cplexSolver_.setOut(env_.getNullStream());
-
-        setInitialStartTimeVector(initialStartTimeVector);
-        setOptimizedStartTimeVector(initialStartTimeVector);
+        this->Init();
         setProcessorJobVec(processorJobVec);
-        TaskSetInfoDerived tasksInfo(dagTasks_.tasks);
-        setTasksInfo(tasksInfo);
 
         AddVariables();
         AddDBFConstraints();
@@ -74,7 +65,7 @@ namespace OrderOptDAG_SPACE
                 std::cout << status << " solution found: " << cplexSolver_.getObjValue() << "\n";
             }
 
-            // TODO: need to find a way to pass the initial obj (the obj before optimization)
+            // TODO(Dong): need to find a way to pass the initial obj (the obj before optimization)
             // right now will update the optimized start time vec no matter whether find a better obj or not
 
             // double optimized_obj = cplexSolver_.getObjValue();
@@ -87,11 +78,7 @@ namespace OrderOptDAG_SPACE
             UpdateOptimizedStartTimeVector(values_optimized);
         }
 
-        // release memory
-        cplexSolver_.end();
-        varArray_.end();
-        model_.end();
-        env_.end();
+        this->ClearCplexMemory();
     }
 
     void SFOrderLPOptimizer::OptimizeWithJobOrder(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec, const SFOrder &jobOrder)
@@ -226,11 +213,13 @@ namespace OrderOptDAG_SPACE
         }
     }
 
+    //TODO(Dong): Deprecated, delete this function after LP with SFOrder works.
     void SFOrderLPOptimizer::AddCauseEffectiveChainConstraints()
     {
         for (auto chain : dagTasks_.chains_)
         {
-            auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, initialStartTimeVector_);
+            // auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, initialStartTimeVector_);
+            auto react_chain_map = GetReactionChainMap(dagTasks_, tasksInfo_, sfOrder_, processorJobVec_, 1, chain, 1);
             AddCauseEffectiveChainConstraintsFromReactMap(react_chain_map);
         }
     }
@@ -331,7 +320,8 @@ namespace OrderOptDAG_SPACE
             var_name << "Chain_" << chain_count << "_DA";
             auto theta_da = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, var_name.str().c_str());
             var_name.str("");
-            auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, initialStartTimeVector_);
+            // auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, initialStartTimeVector_);
+            auto react_chain_map = GetReactionChainMap(dagTasks_, tasksInfo_, sfOrder_, processorJobVec_, 1, chain, 1);
 
             // add cause effective chain constraints together with objectives to save time
             AddCauseEffectiveChainConstraintsFromReactMap(react_chain_map);
@@ -352,6 +342,7 @@ namespace OrderOptDAG_SPACE
                     model_.add(theta_da >= (GetFinishTimeExpression(last_react_job) - GetStartTimeExpression(last_start_job)));
                 }
             }
+            // Normal obj to optmize RTDA: obj = max_RTs + max_DAs
             rtda_expression += theta_rt;
             rtda_expression += theta_da;
         }
@@ -378,7 +369,8 @@ namespace OrderOptDAG_SPACE
             var_name << "Chain_" << chain_count << "_DA";
             auto theta_da = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, var_name.str().c_str());
             var_name.str("");
-            auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, initialStartTimeVector_);
+            // auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, initialStartTimeVector_);
+            auto react_chain_map = GetReactionChainMap(dagTasks_, tasksInfo_, sfOrder_, processorJobVec_, 1, chain, 1);
 
             // add cause effective chain constraints together with objectives to save time
             AddCauseEffectiveChainConstraintsFromReactMap(react_chain_map);

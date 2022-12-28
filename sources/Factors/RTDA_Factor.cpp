@@ -29,7 +29,7 @@ std::vector<RTDA> GetRTDAFromSingleJob(const TaskSetInfoDerived &tasksInfo,
 
   std::unordered_map<JobCEC, JobCEC> firstReactionMap;
 
-  for (LLint startInstanceIndex = 0; startInstanceIndex <= totalStartJobs; startInstanceIndex++) {
+  for (LLint startInstanceIndex = 0; startInstanceIndex < totalStartJobs; startInstanceIndex++) {
 
     JobCEC firstJob = {causeEffectChain[0], (startInstanceIndex)};
     for (uint j = 1; j < causeEffectChain.size(); j++) {
@@ -104,7 +104,7 @@ GetRTDAReactChainsFromSingleJob(const TaskSetInfoDerived &tasksInfo, const std::
   const TaskSet &tasks = tasksInfo.tasks;
   LLint totalStartJobs = hyperPeriod / tasks[causeEffectChain[0]].period + 1;
 
-  for (LLint startInstanceIndex = 0; startInstanceIndex <= totalStartJobs; startInstanceIndex++) {
+  for (LLint startInstanceIndex = 0; startInstanceIndex < totalStartJobs; startInstanceIndex++) {
     JobCEC firstJob = {causeEffectChain[0], (startInstanceIndex)};
     std::vector<JobCEC> react_chain;
     react_chain.push_back(firstJob);
@@ -136,7 +136,7 @@ GetReactionChainMap(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksIn
   const TaskSet &tasks = tasksInfo.tasks;
   LLint totalStartJobs = hyperPeriod / tasks[causeEffectChain[0]].period + 1;
 
-  for (LLint startInstanceIndex = 0; startInstanceIndex <= totalStartJobs; startInstanceIndex++) {
+  for (LLint startInstanceIndex = 0; startInstanceIndex < totalStartJobs; startInstanceIndex++) {
     JobCEC firstJob = {causeEffectChain[0], (startInstanceIndex)};
     std::vector<JobCEC> react_chain;
     react_chain.push_back(firstJob);

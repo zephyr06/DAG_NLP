@@ -40,14 +40,14 @@ public:
     }
     void TearDown() override
     {
-        pSFOrderLPOptimizer_->ClearMemory();
+        pSFOrderLPOptimizer_->ClearCplexMemory();
     }
 };
 
 TEST_F(TestSFOrderLPOptimizerBasicFunction, CanBeInitializedSuccessfully)
 {
     EXPECT_NO_THROW(pSFOrderLPOptimizer_->Init());
-    EXPECT_NO_THROW(pSFOrderLPOptimizer_->ClearMemory());
+    EXPECT_NO_THROW(pSFOrderLPOptimizer_->ClearCplexMemory());
 }
 TEST_F(TestSFOrderLPOptimizerBasicFunction, WillAddCorrectLPVariableNumber)
 {
@@ -89,7 +89,7 @@ public:
     }
     void TearDown() override
     {
-        pSFOrderLPOptimizer_->ClearMemory();
+        pSFOrderLPOptimizer_->ClearCplexMemory();
     }
 };
 
@@ -97,7 +97,17 @@ TEST_F(TestSFOrderLPOptimizer, CanAddDBFConstraintsUsingSFOrder)
 {
     EXPECT_NO_THROW(pSFOrderLPOptimizer_->AddDBFConstraints());
 }
-
+TEST_F(TestSFOrderLPOptimizer, CanAddNormalObjectives)
+{
+    pSFOrderLPOptimizer_->setObjType(false);
+    EXPECT_NO_THROW(pSFOrderLPOptimizer_->AddDBFConstraints());
+    EXPECT_NO_THROW(pSFOrderLPOptimizer_->AddObjectives());
+}
+TEST_F(TestSFOrderLPOptimizer, CanDoBasicOptimization)
+{
+    EXPECT_NO_THROW(pSFOrderLPOptimizer_->Optimize(sfOrder_, processorJobVec_));
+    auto stvOptimized = pSFOrderLPOptimizer_->getOptimizedStartTimeVector();
+}
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleMock(&argc, argv);
