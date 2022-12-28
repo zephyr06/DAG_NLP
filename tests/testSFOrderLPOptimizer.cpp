@@ -106,7 +106,15 @@ TEST_F(TestSFOrderLPOptimizer, CanAddNormalObjectives)
 TEST_F(TestSFOrderLPOptimizer, CanDoBasicOptimization)
 {
     EXPECT_NO_THROW(pSFOrderLPOptimizer_->Optimize(sfOrder_, processorJobVec_));
-    auto stvOptimized = pSFOrderLPOptimizer_->getOptimizedStartTimeVector();
+}
+TEST_F(TestSFOrderLPOptimizer, CanDoCorrectOptimization)
+{
+    EXPECT_NO_THROW(pSFOrderLPOptimizer_->Optimize(sfOrder_, processorJobVec_));
+    VectorDynamic stvOptimized = pSFOrderLPOptimizer_->getOptimizedStartTimeVector();
+    // PrintSchedule(tasksInfo_, stvOptimized);
+    VectorDynamic stvExpected = GenerateVectorDynamic(5);
+    stvExpected << 9, 19, 29, 14, 0;
+    EXPECT_THAT(stvOptimized, Eq(stvExpected));
 }
 int main(int argc, char **argv)
 {
