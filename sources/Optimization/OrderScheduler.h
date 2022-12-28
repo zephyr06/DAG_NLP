@@ -67,7 +67,8 @@ public:
     SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder);
     sfOrderLPOptimizer.Optimize(processorJobVec);
     VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
-    jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
+    // TODO: need to check carefully whether the code support changing joborder?
+    // jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
     return startTimeVectorOptmized;
     // ScheduleOptimizer scheduleOptimizer = ScheduleOptimizer(dagTasks);
     // auto stv = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder,
