@@ -23,6 +23,7 @@ namespace OrderOptDAG_SPACE
         cplexSolver_ = IloCplex(env_);
         cplexSolver_.setOut(env_.getNullStream());
         setOptimizedStartTimeVector();
+        processorJobVec_.clear();
 
         hasBeenInitialized_ = true;
     }
@@ -37,11 +38,6 @@ namespace OrderOptDAG_SPACE
             env_.end();
             hasBeenInitialized_ = false;
         }
-    }
-
-    inline void SFOrderLPOptimizer::setOptimizedStartTimeVector()
-    {
-        optimizedStartTimeVector_ = GenerateVectorDynamic(tasksInfo_.variableDimension);
     }
 
     // function Optimize() will optimize RTDA
@@ -172,8 +168,7 @@ namespace OrderOptDAG_SPACE
         {
             std::sort(pair.second.begin(), pair.second.end(),
                       [this](auto a, auto b) -> bool
-                      { return GetStartTime(a, initialStartTimeVector_, tasksInfo_) <
-                               GetStartTime(b, initialStartTimeVector_, tasksInfo_); });
+                      { return sfOrder_.GetJobStartInstancePosition(a) < sfOrder_.GetJobStartInstancePosition(b); });
             if (pair.second.size() > 1)
             {
                 int pre_job_id = GetJobUniqueId(pair.second[0], tasksInfo_);
@@ -517,24 +512,5 @@ namespace OrderOptDAG_SPACE
         }
     }
 
-    inline void SFOrderLPOptimizer::setInitialStartTimeVector(const VectorDynamic &initialStartTimeVector)
-    {
-        initialStartTimeVector_ = initialStartTimeVector;
-    }
-
-    inline void SFOrderLPOptimizer::setOptimizedStartTimeVector(const VectorDynamic &optimizedStartTimeVector)
-    {
-        optimizedStartTimeVector_ = optimizedStartTimeVector;
-    }
-
-    inline void SFOrderLPOptimizer::setProcessorJobVec(const std::vector<uint> &processorJobVec)
-    {
-        processorJobVec_ = processorJobVec;
-    }
-
-    inline void SFOrderLPOptimizer::setTasksInfo(const TaskSetInfoDerived &info)
-    {
-        tasksInfo_ = info;
-    }
 
 } // namespace OrderOptDAG_SPACE

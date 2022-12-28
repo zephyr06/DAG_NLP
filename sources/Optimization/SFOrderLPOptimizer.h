@@ -17,7 +17,7 @@ namespace OrderOptDAG_SPACE
     class SFOrderLPOptimizer
     {
     public:
-        SFOrderLPOptimizer(const DAG_Model &dagTasks) : dagTasks_(dagTasks)
+        SFOrderLPOptimizer(const DAG_Model &dagTasks, SFOrder &sfOrder) : dagTasks_(dagTasks), sfOrder_(sfOrder)
         {
             env_.end();
             useWeightedObj_ = false;
@@ -26,7 +26,6 @@ namespace OrderOptDAG_SPACE
 
         void Init();
         void ClearMemory();
-        inline void setOptimizedStartTimeVector();
 
         void Optimize(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec);
         void OptimizeWithJobOrder(const VectorDynamic &initialStartTimeVector, const std::vector<uint> &processorJobVec, const SFOrder &jobOrder);
@@ -53,10 +52,26 @@ namespace OrderOptDAG_SPACE
         IloExpr GetStartTimeExpression(JobCEC &jobCEC);
         IloExpr GetFinishTimeExpression(JobCEC &jobCEC);
         void UpdateOptimizedStartTimeVector(IloNumArray &values_optimized);
-        inline void setInitialStartTimeVector(const VectorDynamic &initialStartTimeVector);
-        inline void setOptimizedStartTimeVector(const VectorDynamic &optimizedStartTimeVector);
-        inline void setProcessorJobVec(const std::vector<uint> &processorJobVec);
-        inline void setTasksInfo(const TaskSetInfoDerived &info);
+        inline void setInitialStartTimeVector(const VectorDynamic &initialStartTimeVector)
+        {
+            initialStartTimeVector_ = initialStartTimeVector;
+        }
+        inline void setOptimizedStartTimeVector(const VectorDynamic &optimizedStartTimeVector)
+        {
+            optimizedStartTimeVector_ = optimizedStartTimeVector;
+        }
+        inline void setOptimizedStartTimeVector()
+        {
+            optimizedStartTimeVector_ = GenerateVectorDynamic(tasksInfo_.variableDimension);
+        }
+        inline void setProcessorJobVec(const std::vector<uint> &processorJobVec)
+        {
+            processorJobVec_ = processorJobVec;
+        }
+        inline void setTasksInfo(const TaskSetInfoDerived &info)
+        {
+            tasksInfo_ = info;
+        }
 
     public:
         IloEnv env_;
@@ -68,6 +83,7 @@ namespace OrderOptDAG_SPACE
         std::vector<uint> processorJobVec_;
         TaskSetInfoDerived tasksInfo_;
         const DAG_Model &dagTasks_;
+        SFOrder &sfOrder_;
         int numVariables_;
         bool useWeightedObj_;
         bool hasBeenInitialized_;
