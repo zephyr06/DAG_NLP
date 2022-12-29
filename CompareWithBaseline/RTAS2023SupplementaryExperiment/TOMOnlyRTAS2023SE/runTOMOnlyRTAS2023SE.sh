@@ -31,7 +31,7 @@ NumCauseEffectChain=2
 
 call_the_executable() {
   cd $ROOT_PATH/release
-  ./scripts/BatchRTDA_TOM_Fast # only test TOM_Fast
+  ./scripts/BatchRTDA_TOM # only test TOM
   cd $SCRIPT_PATH
 }
 
