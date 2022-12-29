@@ -307,7 +307,7 @@ namespace OrderOptDAG_SPACE
             AddCauseEffectiveChainConstraintsFromReactMap(react_chain_map);
 
             LLint total_start_jobs = hyper_period / tasks[chain[0]].period + 1;
-            for (LLint start_instance_index = 0; start_instance_index < total_start_jobs; start_instance_index++)
+            for (LLint start_instance_index = 0; start_instance_index <= total_start_jobs; start_instance_index++)
             {
                 JobCEC start_job = {chain[0], (start_instance_index)};
                 auto &react_chain = react_chain_map[start_job];
@@ -354,7 +354,7 @@ namespace OrderOptDAG_SPACE
             AddCauseEffectiveChainConstraintsFromReactMap(react_chain_map);
 
             LLint total_start_jobs = hyper_period / tasks[chain[0]].period + 1;
-            for (LLint start_instance_index = 0; start_instance_index < total_start_jobs; start_instance_index++)
+            for (LLint start_instance_index = 0; start_instance_index <= total_start_jobs; start_instance_index++)
             {
                 JobCEC start_job = {chain[0], (start_instance_index)};
                 auto &react_chain = react_chain_map[start_job];
