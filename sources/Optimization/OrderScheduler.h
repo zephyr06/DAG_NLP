@@ -60,7 +60,8 @@ public:
     { // SFOrder unschedulable
       VectorDynamic startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
       startTimeVector(0) = -1;
-      processorJobVec.resize(tasksInfo.variableDimension, -1);
+      // assign all jobs to processor 0 to avoid errors in codes, this will not affect the correctness.
+      processorJobVec.resize(tasksInfo.variableDimension, 0);
       return startTimeVector;
     }
     SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder);

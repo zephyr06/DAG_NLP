@@ -171,7 +171,7 @@ namespace OrderOptDAG_SPACE
         }
     }
 
-    //TODO(Dong): Deprecated, delete this function after LP with SFOrder works.
+    // TODO(Dong): Deprecated, delete this function after LP with SFOrder works.
     void SFOrderLPOptimizer::AddCauseEffectiveChainConstraints()
     {
         for (auto chain : dagTasks_.chains_)
@@ -247,10 +247,10 @@ namespace OrderOptDAG_SPACE
 
     void SFOrderLPOptimizer::AddObjectives()
     {
-        //TODO: current version only support optimizing RTDA ann only optimize with regular (non-weighted) objectives,
-        //need to add more choices in the future
-        //TODO(Dong): add support and test for weighted objectives
-        //TODO(Dong): add support and test for considerSensorFusion mode
+        // TODO: current version only support optimizing RTDA ann only optimize with regular (non-weighted) objectives,
+        // need to add more choices in the future
+        // TODO(Dong): add support and test for weighted objectives
+        // TODO(Dong): add support and test for considerSensorFusion mode
         if (!useWeightedObj_)
         {
             if (GlobalVariablesDAGOpt::considerSensorFusion)
@@ -463,8 +463,13 @@ namespace OrderOptDAG_SPACE
         for (int i = 0; i < numVariables_; i++)
         {
             optimizedStartTimeVector_(i) = values_optimized[i];
+            // Round the optimized start time to interger when locate in 1e-4 range. This can avoid
+            // float number precision error in further feasibility check.
+            if (abs(round(optimizedStartTimeVector_(i)) - optimizedStartTimeVector_(i)) < 1e-4)
+            {
+                optimizedStartTimeVector_(i) = round(optimizedStartTimeVector_(i));
+            }
         }
     }
-
 
 } // namespace OrderOptDAG_SPACE
