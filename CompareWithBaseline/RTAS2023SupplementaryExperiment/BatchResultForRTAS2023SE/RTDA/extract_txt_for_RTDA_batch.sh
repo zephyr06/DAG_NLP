@@ -1,6 +1,6 @@
 #!/bin/bash
 
-methods_result_dir_name=( "Initial_Res" "Verucchi20_Res" "TOM_Fast_Res" "TOM_Fast_Res_LoopCount" "TOM_FastLP_Res" "TOM_FastLP_Res_LoopCount")
+methods_result_dir_name=( "Initial_Res" "Verucchi20_Res" "TOM_Res" "TOM_Res_LoopCount" "TOM_Fast_Res" "TOM_Fast_Res_LoopCount" "TOM_FastLP_Res" "TOM_FastLP_Res_LoopCount")
 TaskNumberArray=(3 4 5 6 7 8 9 10 15 20 25 30)
 
 for jobNumber in ${TaskNumberArray[@]}

@@ -147,17 +147,17 @@ else:
     taskNumberList = list(range(minTaskNumber, maxTaskNumber+1))
 title = args.title
 result_file_path = args.result_file_path
-# methods_name = ["Initial", "Verucchi20", "TOM", "TOM_Fast", "TOM_FastLP"] # used to read result files and uesd as index in this file
-# legends_name = ["Initial", "Verucchi20", "TOM", "TOM_Fast", "TOM_FastLP"]
-# marker_list = ["o", "D", "v", "s", "*"]
-# color_list = ["#0084DB", "y", "r", "limegreen", "#333333"]
+methods_name = ["Initial", "Verucchi20", "TOM", "TOM_Fast", "TOM_FastLP"] # used to read result files and uesd as index in this file
+legends_name = ["Initial", "Verucchi20", "TOM", "TOM_Fast", "TOM_FastLP"]
+marker_list = ["o", "D", "v", "s", "*"]
+color_list = ["#0084DB", "y", "r", "limegreen", "#333333"]
 
-# Begin: plot without TOM
-methods_name = ["Initial", "Verucchi20", "TOM_Fast", "TOM_FastLP"] # used to read result files and uesd as index in this file
-legends_name = ["Initial", "Verucchi20", "TOM_Fast", "TOM_FastLP"]
-marker_list = ["o", "D", "s", "*"]
-color_list = ["#0084DB", "y", "limegreen", "#333333"]
-# End: plot without TOM
+# # Begin: plot without TOM
+# methods_name = ["Initial", "Verucchi20", "TOM_Fast", "TOM_FastLP"] # used to read result files and uesd as index in this file
+# legends_name = ["Initial", "Verucchi20", "TOM_Fast", "TOM_FastLP"]
+# marker_list = ["o", "D", "s", "*"]
+# color_list = ["#0084DB", "y", "limegreen", "#333333"]
+# # End: plot without TOM
 
 if __name__ == "__main__":
     all_data_dict = read_data(taskNumberList)

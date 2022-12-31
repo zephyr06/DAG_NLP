@@ -43,7 +43,10 @@ def average_ratio(numerator_list, denominator_list):
         return -1
     lst = []
     for i in range(min(len(numerator_list), len(denominator_list))):
-        lst.append((numerator_list[i] + 0.0) / denominator_list[i])
+        if denominator_list[i] == 0:
+            lst.append(0.0)
+        else:
+            lst.append((numerator_list[i] + 0.0) / denominator_list[i])
     return sum(lst) / len(lst)
 
 
