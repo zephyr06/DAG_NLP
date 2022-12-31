@@ -81,8 +81,9 @@ TEST_F(DAGScheduleOptimizerTest1, OptRTDA_IPM) {
   VectorDynamic startFromIPM =
       OptRTDA_IPMOrg(dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_);
 
-  EXPECT_EQ(RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startOpt, scheduleOptions),
-            RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startFromIPM.block(0, 0, 4, 1), scheduleOptions));
+  EXPECT_NEAR(
+      RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startOpt, scheduleOptions),
+      RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startFromIPM.block(0, 0, 4, 1), scheduleOptions), 1e-3);
 }
 
 // TODO: add expect assertion
@@ -106,7 +107,7 @@ TEST_F(DAGScheduleOptimizerTest2, SolveLP) {
 
   VectorDynamic xExpect = GenerateVectorDynamic(6);
   xExpect << 0, 19, 1, 0, 23, 4;
-  EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual.block(0, 0, 6, 1), 1e-3));
+  EXPECT_TRUE(gtsam::assert_equal(xExpect, xActual.block(0, 0, 6, 1), 5e-3));
 }
 
 TEST_F(DAGScheduleOptimizerTest2, SolveLP_lessJobOrderConstraints) {

@@ -101,6 +101,7 @@ CentralVariable LPData::GenerateInitialLPWarmStart(const VectorDynamic &warmStar
 }
 
 TEST_F(LPTest1, Cplex) {
+  TimerFunc _;
   // ScheduleOptimizer optimizer(dagTasks);
   // optimizer.OptimizeWithJobOrder(initial, processorJobVec, jobOrder);
   VectorDynamic stvRes =
@@ -134,6 +135,7 @@ TEST_F(LPTest1, Cplex_v2) {
 }
 
 TEST_F(LPTest1, basic) {
+  TimerFunc _;
   SFOrder jobOrderPermutation = jobOrder;
   JobCEC jobCurr(1, 0);
   jobOrderPermutation.RemoveJob(jobCurr);

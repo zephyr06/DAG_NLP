@@ -525,7 +525,7 @@ TEST_F(DAGScheduleOptimizerTest5, GetJacobianJobOrderReduced) {
   augJaco.print();
 
   // EXPECT_EQ(jacobianExpect, augJaco.jacobian);
-  EXPECT_TRUE(gtsam::assert_equal(rhsExpect, augJaco.rhs, 1e-4));
+  EXPECT_TRUE(gtsam::assert_equal(rhsExpect, augJaco.rhs, 1e-3));
   EXPECT_TRUE(gtsam::assert_equal(jacobianExpect, augJaco.jacobian, 1e-4));
 }
 
