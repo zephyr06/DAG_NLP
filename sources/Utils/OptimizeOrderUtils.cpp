@@ -101,7 +101,8 @@ namespace OrderOptDAG_SPACE
             return false;
         for (int i = 0; i < processorNum; i++)
         {
-            if (IntervalOverlapError(jobsPerProcessor[i]) > 0)
+            // to avoid rounding errors, use 1e-6 as threshold
+            if (IntervalOverlapError(jobsPerProcessor[i]) > 1e-6)
                 return false;
         }
         return true;
