@@ -54,7 +54,7 @@ def extract_average_data_2d(all_data_dict, taskNumberList, target_obj):
     return data_2d
 
 
-def normalize_data(data_2d, reference_method="Verucchi"):
+def normalize_data(data_2d, reference_method="Verucchi20"):
     normalized_data = copy.deepcopy(data_2d)
     reference_method_idx = 0
     for i in range(len(methods_name)):
@@ -72,8 +72,7 @@ def normalize_data(data_2d, reference_method="Verucchi"):
         normalized_data[reference_method_idx][j] = 100.0
     return normalized_data
 
-
-def extract_relative_gap(data_2d, reference_method="Verucchi"):
+def extract_relative_gap(data_2d, reference_method="Verucchi20"):
     relative_gap = copy.deepcopy(data_2d)
     reference_method_idx = 0
     for i in range(len(methods_name)):
@@ -90,6 +89,23 @@ def extract_relative_gap(data_2d, reference_method="Verucchi"):
         relative_gap[reference_method_idx][j] = 0.0
     return relative_gap
 
+def extract_relative_gap_piecewisely(all_data_dict, target_obj, reference_method="Verucchi20"):
+    relative_gap = []
+    for method in methods_name:
+        method_gap = []
+        for task_number in taskNumberList:
+            if method == reference_method:
+                method_gap.append(0.0)
+                continue
+            raw_data = all_data_dict[method][task_number][target_obj]
+            ref_raw_data = all_data_dict[reference_method][task_number][target_obj]
+            raw_relative_gap = []
+            for i in range(len(raw_data)):
+                raw_relative_gap.append((raw_data[i] - ref_raw_data[i]) / (ref_raw_data[i] + 0.0))
+            method_gap.append(Average(raw_relative_gap) * 100.0)
+        relative_gap.append(method_gap)
+    return relative_gap
+    
 
 def plot_figure(data_to_plot, taskNumberList, ylabel_name):
     dataset_pd = pd.DataFrame()
@@ -168,7 +184,8 @@ if __name__ == "__main__":
         all_data_dict, taskNumberList, "Objective")
     time_data_2d = extract_average_data_2d(
         all_data_dict, taskNumberList, "Time")
-    obj_relative_gap = extract_relative_gap(objective_data_2d, "Verucchi20")
+    # obj_relative_gap = extract_relative_gap(objective_data_2d, "Verucchi20")
+    obj_relative_gap = extract_relative_gap_piecewisely(all_data_dict, "Objective", "Verucchi20")
 
     plot_figure(schedulable_data_2d, taskNumberList, "Schedulable Ratio (%)")
     plot_figure(objective_data_2d, taskNumberList, "Original RTDA")
