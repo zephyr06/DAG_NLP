@@ -10,20 +10,21 @@ namespace OrderOptDAG_SPACE
         std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks)
         {
             std::vector<int> idVec;
+            std::unordered_set<int> idSet;
             idVec.reserve(dagTasks.tasks.size());
             if (dagTasks.chains_.size() == 0)
             {
                 return idVec;
             }
             for (uint i = 0; i < dagTasks.chains_.size(); i++)
-                std::copy(dagTasks.chains_[i].begin(), dagTasks.chains_[i].end(), back_inserter(idVec));
+                for (uint j = 0; j < dagTasks.chains_[i].size(); j++)
+                    if (idSet.find(dagTasks.chains_[i][j]) == idSet.end())
+                    {
+                        idSet.insert(dagTasks.chains_[i][j]);
+                        idVec.push_back(dagTasks.chains_[i][j]);
+                    }
             if (GlobalVariablesDAGOpt::enableFastSearch)
                 return idVec;
-
-            std::unordered_set<int> idSet;
-            std::vector<int> idVecChainFirst = dagTasks.chains_[0];
-            for (uint i = 0; i < dagTasks.chains_[0].size(); i++)
-                idSet.insert(dagTasks.chains_[0][i]);
 
             for (uint i = 0; i < dagTasks.tasks.size(); i++)
             {
