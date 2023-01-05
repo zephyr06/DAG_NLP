@@ -5,8 +5,6 @@ namespace OrderOptDAG_SPACE
     // template <typename OrderScheduler>
     namespace OptimizeSF
     {
-        // TODO(Sen): comment from Dong: please check: Will this function generate duplicate tasks (might cause duplicate search) in
-        // idVec if there are 2 or more chains that contains the same task?
         std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks)
         {
             std::vector<int> idVec;
