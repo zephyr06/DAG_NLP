@@ -72,6 +72,25 @@ public:
     return startTimeVectorOptmized;
   }
 };
+class LPOrderSchedulerWithPAFromSimpleOrderScheduler : public OrderScheduler {
+public:
+  static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                                const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
+                                std::vector<uint> &processorJobVec) {
+    auto stv = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder, processorJobVec);
+    if (stv(0) == -1)
+    { // SFOrder unschedulable
+      // assign all jobs to processor 0 to avoid errors in codes, this will not affect the correctness.
+      processorJobVec.resize(tasksInfo.variableDimension, 0);
+      return stv;
+    }
+    SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder);
+    sfOrderLPOptimizer.Optimize(processorJobVec);
+    VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
+    jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
+    return startTimeVectorOptmized;
+  }
+};
 // TODO: test !!
 class IPMOrderScheduler : public OrderScheduler {
 public:
