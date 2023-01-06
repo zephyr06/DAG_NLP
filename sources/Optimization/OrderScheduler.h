@@ -87,7 +87,10 @@ public:
     SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder);
     sfOrderLPOptimizer.Optimize(processorJobVec);
     VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
-    jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
+    auto jobOrderOptmized = SFOrder(tasksInfo, startTimeVectorOptmized);
+    auto new_stv = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrderOptmized);
+    if (new_stv(0) != -1)
+      jobOrder = jobOrderOptmized;
     return startTimeVectorOptmized;
   }
 };
