@@ -185,7 +185,7 @@ if __name__ == "__main__":
     time_data_2d = extract_average_data_2d(
         all_data_dict, taskNumberList, "Time")
     # obj_relative_gap = extract_relative_gap(objective_data_2d, "Verucchi20")
-    obj_relative_gap = extract_relative_gap_piecewisely(all_data_dict, "Objective", "Verucchi20")
+    obj_relative_gap = extract_relative_gap_piecewisely(all_data_dict, "Objective", "Initial")
 
     plot_figure(schedulable_data_2d, taskNumberList, "Schedulable Ratio (%)")
     plot_figure(objective_data_2d, taskNumberList, "Original RTDA")
