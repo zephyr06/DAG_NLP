@@ -95,7 +95,7 @@ namespace OrderOptDAG_SPACE
             TimeInstance inst = instanceOrder_[index];
             return inst;
         }
-        LLint GetJobStartInstancePosition(JobCEC &job)
+        LLint GetJobStartInstancePosition(const JobCEC &job)
         {
             EstablishJobSFMap();
             if (job.jobId >= tasksInfo_.sizeOfVariables[job.taskId])
@@ -106,7 +106,7 @@ namespace OrderOptDAG_SPACE
             else
                 return jobSFMap_.at(job).startInstanceIndex;
         }
-        LLint GetJobFinishInstancePosition(JobCEC &job)
+        LLint GetJobFinishInstancePosition(const JobCEC &job)
         {
             EstablishJobSFMap();
             if (job.jobId >= tasksInfo_.sizeOfVariables[job.taskId])
