@@ -24,6 +24,26 @@ public:
 
   inline bool operator==(const TimeInstance &b) const { return type == b.type && job == b.job; }
   inline bool operator!=(const TimeInstance &b) const { return !(*this == b); }
+
+  double GetRangeMin(const TaskSetInfoDerived &tasksInfo) const {
+    if (type == 's')
+      return GetActivationTime(job, tasksInfo);
+    else if (type == 'f')
+      return GetActivationTime(job, tasksInfo) + GetExecutionTime(job, tasksInfo);
+    else
+      CoutError("Wrong type!");
+    return -1;
+  }
+
+  double GetRangeMax(const TaskSetInfoDerived &tasksInfo) const {
+    if (type == 's')
+      return GetDeadline(job, tasksInfo) - GetExecutionTime(job, tasksInfo);
+    else if (type == 'f')
+      return GetDeadline(job, tasksInfo);
+    else
+      CoutError("Wrong type!");
+    return -1;
+  }
 };
 
 bool compareTimeInstance(const TimeInstance i1, const TimeInstance i2);

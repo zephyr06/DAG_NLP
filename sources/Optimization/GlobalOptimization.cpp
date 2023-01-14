@@ -33,7 +33,14 @@ void IterateTimeInstanceSeq(std::vector<TimeInstance> &prevSeq, std::vector<JobQ
   for (uint i = 0; i < jobQueueTaskSet.size(); i++) {
     if (jobQueueTaskSet[i].ReachEnd())
       continue;
-    prevSeq.push_back(jobQueueTaskSet[i].GetTimeInstance());
+    TimeInstance instCurr = jobQueueTaskSet[i].GetTimeInstance();
+    if (prevSeq.size() > 0) {
+      if (instCurr.GetRangeMax(permutationStatus.tasksInfo) <
+          prevSeq.back().GetRangeMin(permutationStatus.tasksInfo))
+        continue;
+      // ;
+    }
+    prevSeq.push_back(instCurr);
     jobQueueTaskSet[i].MoveForward();
     IterateTimeInstanceSeq(prevSeq, jobQueueTaskSet, permutationStatus);
     jobQueueTaskSet[i].MoveBackward();
