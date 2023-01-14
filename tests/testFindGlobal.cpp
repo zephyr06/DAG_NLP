@@ -9,6 +9,7 @@
 
 #include "sources/Factors/JacobianAnalyze.h"
 #include "sources/Optimization/LinearProgrammingSolver.h"
+#include "sources/Optimization/ObjectiveFunctions.h"
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/IncrementQR.h"
@@ -61,7 +62,7 @@ protected:
     tasks = dagTasks.tasks;
     tasksInfo = TaskSetInfoDerived(tasks);
 
-    scheduleOptions.processorNum_ = 2;
+    scheduleOptions.processorNum_ = 1;
     scheduleOptions.considerSensorFusion_ = 0;
     scheduleOptions.freshTol_ = 0;
     scheduleOptions.sensorFusionTolerance_ = 0;
@@ -163,6 +164,43 @@ std::vector<std::vector<TimeInstance>> FindAllJobOrderPermutations(const DAG_Mod
 
   return instOrderAll;
 }
+std::vector<SFOrder> GetAllJobOrderPermutations(const DAG_Model &dagTasks,
+                                                const TaskSetInfoDerived &tasksInfo) {
+  std::vector<std::vector<TimeInstance>> instPermu = FindAllJobOrderPermutations(dagTasks, tasksInfo);
+  std::vector<SFOrder> jobOrderAll;
+  jobOrderAll.reserve(instPermu.size());
+  for (uint i = 0; i < instPermu.size(); i++) {
+    jobOrderAll.push_back(SFOrder(tasksInfo, instPermu[i]));
+  }
+  return jobOrderAll;
+}
+
+double FindGlobalOptRTDA(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                         const ScheduleOptions &scheduleOptions) {
+  std::vector<SFOrder> jobOrderAll = GetAllJobOrderPermutations(dagTasks, tasksInfo);
+  double globalOpt = 1e99;
+  int globalOptIndex = -1;
+
+  for (uint i = 0; i < jobOrderAll.size(); i++) {
+    auto &jobOrder = jobOrderAll[i];
+    std::vector<uint> processorJobVec;
+    VectorDynamic startTimeOpt =
+        LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
+    bool schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeOpt, processorJobVec,
+                                              scheduleOptions.processorNum_);
+    if (!schedulable_)
+      continue;
+
+    double evalCurr = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startTimeOpt, scheduleOptions);
+    std::cout << "startTimeOpt: " << startTimeOpt << "\n\n";
+    if (evalCurr < globalOpt) {
+      std::cout << "Find a better permutation at the index: " << i << "\n";
+      globalOpt = evalCurr;
+      globalOptIndex = i;
+    }
+  }
+  return globalOpt;
+}
 
 TEST_F(DAGScheduleOptimizerTest2, FindAllJobOrderPermutations) {
 
@@ -194,8 +232,20 @@ TEST_F(DAGScheduleOptimizerTest2, FindAllJobOrderPermutations) {
 TEST_F(DAGScheduleOptimizerTest1, FindAllJobOrderPermutations) {
 
   std::vector<std::vector<TimeInstance>> instSeqAllActual = FindAllJobOrderPermutations(dagTasks, tasksInfo);
-  print(instSeqAllActual);
+  //   print(instSeqAllActual);
   EXPECT_EQ(90, instSeqAllActual.size());
+}
+
+TEST_F(DAGScheduleOptimizerTest2, FindGlobalOptRTDA) {
+  double objActual = FindGlobalOptRTDA(dagTasks, tasksInfo, scheduleOptions);
+  std::cout << "Global optimal RTDA found is: \n" << objActual << "\n";
+  EXPECT_EQ(3 + 3, objActual);
+}
+
+TEST_F(DAGScheduleOptimizerTest1, FindGlobalOptRTDA) {
+  double objActual = FindGlobalOptRTDA(dagTasks, tasksInfo, scheduleOptions);
+  std::cout << "Global optimal RTDA found is: \n" << objActual << "\n";
+  EXPECT_EQ(4 + 4, objActual);
 }
 
 int main(int argc, char **argv) {
