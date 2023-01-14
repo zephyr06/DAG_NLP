@@ -84,7 +84,7 @@ public:
   size_t maxJobNum;
   JobQueueOfATask(const Task &task, int maxJobNum) : task_(task), jobIndexCurr(0), maxJobNum(maxJobNum) {}
 
-  bool ReachEnd() const { return jobIndexCurr >= maxJobNum - 1; }
+  bool ReachEnd() const { return jobIndexCurr >= maxJobNum * 2; }
   bool ReachBegin() const { return jobIndexCurr <= 0; }
   bool MoveForward() {
     if (ReachEnd())
@@ -106,14 +106,32 @@ public:
   }
 };
 
-void AddTimeInstance(std::vector<TimeInstance> &prevSeq, std::vector<JobQueueOfATask> jobQueueTaskSet,
+void print(const std::vector<std::vector<TimeInstance>> &results) {
+  for (uint i = 0; i < results.size(); i++) {
+    std::cout << "Chain " << i << ": \n";
+    for (uint j = 0; j < results[i].size(); j++) {
+      std::cout << "(" << results[i][j].type << ", " << results[i][j].job.taskId << ", "
+                << results[i][j].job.jobId << "), "
+                << "\n";
+    }
+  }
+}
+
+void AddTimeInstance(std::vector<TimeInstance> &prevSeq, std::vector<JobQueueOfATask> &jobQueueTaskSet,
                      std::vector<std::vector<TimeInstance>> &results) {
   // if all reachEnd, push into result;
+  bool whetherAllReachEnd = true;
   for (uint i = 0; i < jobQueueTaskSet.size(); i++) {
-    if (!jobQueueTaskSet[i].ReachEnd())
-      return;
+    if (!jobQueueTaskSet[i].ReachEnd()) {
+      whetherAllReachEnd = false;
+      break;
+    }
   }
-  results.push_back(prevSeq);
+  if (whetherAllReachEnd) {
+    results.push_back(prevSeq);
+    return;
+  }
+
   for (uint i = 0; i < jobQueueTaskSet.size(); i++) {
     if (jobQueueTaskSet[i].ReachEnd())
       continue;
@@ -151,14 +169,20 @@ TEST_F(DAGScheduleOptimizerTest2, FindAllJobOrderPermutations) {
   std::vector<TimeInstance> seq0{
       {'s', JobCEC(0, 0)}, {'f', JobCEC(0, 0)}, {'s', JobCEC(1, 0)}, {'f', JobCEC(1, 0)}};
   std::vector<TimeInstance> seq1{
-      {'s', JobCEC(0, 0)}, {'f', JobCEC(0, 0)}, {'s', JobCEC(1, 0)}, {'f', JobCEC(1, 0)}};
+      {'s', JobCEC(0, 0)}, {'s', JobCEC(1, 0)}, {'f', JobCEC(0, 0)}, {'f', JobCEC(1, 0)}};
   std::vector<TimeInstance> seq2{
-      {'s', JobCEC(0, 0)}, {'f', JobCEC(0, 0)}, {'s', JobCEC(1, 0)}, {'f', JobCEC(1, 0)}};
+      {'s', JobCEC(0, 0)}, {'s', JobCEC(1, 0)}, {'f', JobCEC(1, 0)}, {'f', JobCEC(0, 0)}};
+
   std::vector<TimeInstance> seq3{
-      {'s', JobCEC(0, 0)}, {'f', JobCEC(0, 0)}, {'s', JobCEC(1, 0)}, {'f', JobCEC(1, 0)}};
-  std::vector<std::vector<TimeInstance>> instSeqAll{seq0, seq1, seq2, seq3};
+      {'s', JobCEC(1, 0)}, {'s', JobCEC(0, 0)}, {'f', JobCEC(0, 0)}, {'f', JobCEC(1, 0)}};
+  std::vector<TimeInstance> seq4{
+      {'s', JobCEC(1, 0)}, {'s', JobCEC(0, 0)}, {'f', JobCEC(1, 0)}, {'f', JobCEC(0, 0)}};
+  std::vector<TimeInstance> seq5{
+      {'s', JobCEC(1, 0)}, {'f', JobCEC(1, 0)}, {'s', JobCEC(0, 0)}, {'f', JobCEC(0, 0)}};
+  std::vector<std::vector<TimeInstance>> instSeqAll{seq0, seq1, seq2, seq3, seq4, seq5};
 
   std::vector<std::vector<TimeInstance>> instSeqAllActual = FindAllJobOrderPermutations(dagTasks, tasksInfo);
+  print(instSeqAllActual);
   EXPECT_EQ(instSeqAll.size(), instSeqAllActual.size());
   if (instSeqAll.size() == instSeqAllActual.size())
     for (uint i = 0; i < instSeqAll.size(); i++) {
