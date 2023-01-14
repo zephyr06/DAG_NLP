@@ -36,11 +36,10 @@ public:
   }
 };
 
-// TODO: rename this function
 void PrintTimeSequence2D(const std::vector<std::vector<TimeInstance>> &results);
 
-void AddTimeInstance(std::vector<TimeInstance> &prevSeq, std::vector<JobQueueOfATask> &jobQueueTaskSet,
-                     std::vector<std::vector<TimeInstance>> &results);
+void AddTimeInstanceSeq(std::vector<TimeInstance> &prevSeq, std::vector<JobQueueOfATask> &jobQueueTaskSet,
+                        std::vector<std::vector<TimeInstance>> &results);
 
 std::vector<std::vector<TimeInstance>> FindAllJobOrderPermutations(const DAG_Model &dagTasks,
                                                                    const TaskSetInfoDerived &tasksInfo);

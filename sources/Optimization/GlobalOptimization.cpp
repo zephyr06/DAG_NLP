@@ -15,8 +15,8 @@ void PrintTimeSequence2D(const std::vector<std::vector<TimeInstance>> &results) 
   }
 }
 
-void AddTimeInstance(std::vector<TimeInstance> &prevSeq, std::vector<JobQueueOfATask> &jobQueueTaskSet,
-                     std::vector<std::vector<TimeInstance>> &results) {
+void AddTimeInstanceSeq(std::vector<TimeInstance> &prevSeq, std::vector<JobQueueOfATask> &jobQueueTaskSet,
+                        std::vector<std::vector<TimeInstance>> &results) {
   // if all reachEnd, push into result;
   bool whetherAllReachEnd = true;
   for (uint i = 0; i < jobQueueTaskSet.size(); i++) {
@@ -35,7 +35,7 @@ void AddTimeInstance(std::vector<TimeInstance> &prevSeq, std::vector<JobQueueOfA
       continue;
     prevSeq.push_back(jobQueueTaskSet[i].GetTimeInstance());
     jobQueueTaskSet[i].MoveForward();
-    AddTimeInstance(prevSeq, jobQueueTaskSet, results);
+    AddTimeInstanceSeq(prevSeq, jobQueueTaskSet, results);
     jobQueueTaskSet[i].MoveBackward();
     prevSeq.pop_back();
   }
@@ -57,7 +57,7 @@ std::vector<std::vector<TimeInstance>> FindAllJobOrderPermutations(const DAG_Mod
   instOrderAll.reserve(1000); // should be the max?
   std::vector<TimeInstance> prevSeq;
   prevSeq.reserve(2 * tasksInfo.length);
-  AddTimeInstance(prevSeq, jobQueueTaskSet, instOrderAll);
+  AddTimeInstanceSeq(prevSeq, jobQueueTaskSet, instOrderAll);
 
   return instOrderAll;
 }

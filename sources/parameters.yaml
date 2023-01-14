@@ -4,7 +4,7 @@
 TotalMethodUnderComparison: 6 # 0: LS initial, 1: Verucchi20, 2: Wang21, 3: TOM, 4: TOM_Fast, 5: TOM_FastLP
 BatchTestOnlyOneMethod: -1
 # test_n3_v6 test_n3_v18 test_n3_v26 test_n3_v11 test_n5_v79 test_n10_v4 test_n15_v1 test_n30_v1
-testDataSetName: test_n15_v1
+testDataSetName: test_n3_v12
 printSchedule: 0
 PrintOutput: 0
 # band orig

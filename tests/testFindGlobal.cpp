@@ -106,6 +106,91 @@ TEST_F(DAGScheduleOptimizerTest2, FindAllJobOrderPermutations) {
     }
 }
 
+class PermutationStatus {
+public:
+  DAG_Model dagTasks;
+  TaskSetInfoDerived tasksInfo;
+  ScheduleOptions scheduleOptions;
+
+  SFOrder orderOpt_;
+  int totalPermutation_ = 0;
+  double valOpt_ = 1e9;
+
+  PermutationStatus(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                    const ScheduleOptions &scheduleOptions)
+      : dagTasks(dagTasks), tasksInfo(tasksInfo), scheduleOptions(scheduleOptions) {}
+
+  void TryUpdate(SFOrder jobOrder) {
+    totalPermutation_++;
+
+    std::vector<uint> processorJobVec;
+    VectorDynamic startTimeOpt =
+        LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
+    bool schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeOpt, processorJobVec,
+                                              scheduleOptions.processorNum_);
+    if (!schedulable_)
+      return;
+
+    double evalCurr = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startTimeOpt, scheduleOptions);
+    // std::cout << "startTimeOpt: " << startTimeOpt << "\n\n";
+    if (evalCurr < valOpt_) {
+      std::cout << "Find a better permutation with value: " << evalCurr << "\n";
+      valOpt_ = evalCurr;
+      orderOpt_ = jobOrder;
+    }
+  }
+};
+
+void IterateTimeInstanceSeq(std::vector<TimeInstance> &prevSeq, std::vector<JobQueueOfATask> &jobQueueTaskSet,
+                            PermutationStatus &permutationStatus) {
+  // if all reachEnd, push into result;
+  bool whetherAllReachEnd = true;
+  for (uint i = 0; i < jobQueueTaskSet.size(); i++) {
+    if (!jobQueueTaskSet[i].ReachEnd()) {
+      whetherAllReachEnd = false;
+      break;
+    }
+  }
+  if (whetherAllReachEnd) {
+    SFOrder jobOrder(permutationStatus.tasksInfo, prevSeq);
+    permutationStatus.TryUpdate(jobOrder);
+    return;
+  }
+
+  for (uint i = 0; i < jobQueueTaskSet.size(); i++) {
+    if (jobQueueTaskSet[i].ReachEnd())
+      continue;
+    prevSeq.push_back(jobQueueTaskSet[i].GetTimeInstance());
+    jobQueueTaskSet[i].MoveForward();
+    IterateTimeInstanceSeq(prevSeq, jobQueueTaskSet, permutationStatus);
+    jobQueueTaskSet[i].MoveBackward();
+    prevSeq.pop_back();
+  }
+}
+
+TEST_F(DAGScheduleOptimizerTest2, IterateTimeInstanceSeq) {
+  PermutationStatus permutationStatus(dagTasks, tasksInfo, scheduleOptions);
+  std::vector<TimeInstance> prevSeq;
+  prevSeq.reserve(2 * tasksInfo.length);
+
+  std::vector<JobQueueOfATask> jobQueueTaskSet;
+  int N = tasksInfo.N;
+  jobQueueTaskSet.reserve(N);
+  for (int i = 0; i < N; i++)
+    jobQueueTaskSet.push_back(
+        JobQueueOfATask(dagTasks.tasks[i], tasksInfo.hyperPeriod / dagTasks.tasks[i].period));
+
+  IterateTimeInstanceSeq(prevSeq, jobQueueTaskSet, permutationStatus);
+  EXPECT_EQ(6, permutationStatus.totalPermutation_);
+  EXPECT_EQ(6, permutationStatus.valOpt_);
+
+  std::vector<TimeInstance> instanceOrderOpt{
+      {'s', JobCEC(0, 0)}, {'f', JobCEC(0, 0)}, {'s', JobCEC(1, 0)}, {'f', JobCEC(1, 0)}};
+
+  for (uint j = 0; j < instanceOrderOpt.size(); j++)
+    EXPECT_TRUE(instanceOrderOpt[j] == permutationStatus.orderOpt_.instanceOrder_[j]);
+}
+
 TEST_F(DAGScheduleOptimizerTest1, FindAllJobOrderPermutations) {
 
   std::vector<std::vector<TimeInstance>> instSeqAllActual = FindAllJobOrderPermutations(dagTasks, tasksInfo);
