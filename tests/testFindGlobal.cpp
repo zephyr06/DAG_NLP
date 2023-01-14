@@ -85,14 +85,45 @@ public:
   JobQueueOfATask(const Task &task, int maxJobNum) : task_(task), jobIndexCurr(0), maxJobNum(maxJobNum) {}
 
   bool ReachEnd() const { return jobIndexCurr >= maxJobNum - 1; }
+  bool ReachBegin() const { return jobIndexCurr <= 0; }
   bool MoveForward() {
     if (ReachEnd())
       return false;
     jobIndexCurr++;
     return true;
   }
-  JobCEC Job() const { return JobCEC(task_.id, jobIndexCurr); }
+  bool MoveBackward() {
+    if (ReachBegin())
+      return false;
+    jobIndexCurr--;
+    return true;
+  }
+  TimeInstance GetTimeInstance() const {
+    char type = 's';
+    if (jobIndexCurr % 2 == 1)
+      type = 'f';
+    return TimeInstance(type, JobCEC(task_.id, jobIndexCurr / 2));
+  }
 };
+
+void AddTimeInstance(std::vector<TimeInstance> &prevSeq, std::vector<JobQueueOfATask> jobQueueTaskSet,
+                     std::vector<std::vector<TimeInstance>> &results) {
+  // if all reachEnd, push into result;
+  for (uint i = 0; i < jobQueueTaskSet.size(); i++) {
+    if (!jobQueueTaskSet[i].ReachEnd())
+      return;
+  }
+  results.push_back(prevSeq);
+  for (uint i = 0; i < jobQueueTaskSet.size(); i++) {
+    if (jobQueueTaskSet[i].ReachEnd())
+      continue;
+    prevSeq.push_back(jobQueueTaskSet[i].GetTimeInstance());
+    jobQueueTaskSet[i].MoveForward();
+    AddTimeInstance(prevSeq, jobQueueTaskSet, results);
+    jobQueueTaskSet[i].MoveBackward();
+    prevSeq.pop_back();
+  }
+}
 
 std::vector<std::vector<TimeInstance>> FindAllJobOrderPermutations(const DAG_Model &dagTasks,
                                                                    const TaskSetInfoDerived &tasksInfo) {
@@ -108,6 +139,10 @@ std::vector<std::vector<TimeInstance>> FindAllJobOrderPermutations(const DAG_Mod
 
   std::vector<std::vector<TimeInstance>> instOrderAll;
   instOrderAll.reserve(1000); // should be the max?
+  std::vector<TimeInstance> prevSeq;
+  prevSeq.reserve(2 * tasksInfo.length);
+  AddTimeInstance(prevSeq, jobQueueTaskSet, instOrderAll);
+
   return instOrderAll;
 }
 
@@ -125,10 +160,11 @@ TEST_F(DAGScheduleOptimizerTest2, FindAllJobOrderPermutations) {
 
   std::vector<std::vector<TimeInstance>> instSeqAllActual = FindAllJobOrderPermutations(dagTasks, tasksInfo);
   EXPECT_EQ(instSeqAll.size(), instSeqAllActual.size());
-  for (uint i = 0; i < instSeqAll.size(); i++) {
-    for (uint j = 0; j < instSeqAll[i].size(); j++)
-      EXPECT_TRUE(instSeqAll[i][j] == instSeqAllActual[i][j]);
-  }
+  if (instSeqAll.size() == instSeqAllActual.size())
+    for (uint i = 0; i < instSeqAll.size(); i++) {
+      for (uint j = 0; j < instSeqAll[i].size(); j++)
+        EXPECT_TRUE(instSeqAll[i][j] == instSeqAllActual[i][j]);
+    }
 }
 
 int main(int argc, char **argv) {
