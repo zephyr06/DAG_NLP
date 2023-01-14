@@ -36,15 +36,55 @@ public:
   }
 };
 
-void PrintTimeSequence2D(const std::vector<std::vector<TimeInstance>> &results);
+class PermutationStatus {
+public:
+  DAG_Model dagTasks;
+  TaskSetInfoDerived tasksInfo;
+  ScheduleOptions scheduleOptions;
 
-void AddTimeInstanceSeq(std::vector<TimeInstance> &prevSeq, std::vector<JobQueueOfATask> &jobQueueTaskSet,
-                        std::vector<std::vector<TimeInstance>> &results);
+  SFOrder orderOpt_;
+  int totalPermutation_ = 0;
+  double valOpt_ = 1e9;
 
-std::vector<std::vector<TimeInstance>> FindAllJobOrderPermutations(const DAG_Model &dagTasks,
-                                                                   const TaskSetInfoDerived &tasksInfo);
+  PermutationStatus(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                    const ScheduleOptions &scheduleOptions)
+      : dagTasks(dagTasks), tasksInfo(tasksInfo), scheduleOptions(scheduleOptions) {}
 
-double FindGlobalOptRTDA(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
-                         const ScheduleOptions &scheduleOptions);
+  void TryUpdate(SFOrder jobOrder) {
+    totalPermutation_++;
+
+    std::vector<uint> processorJobVec;
+    VectorDynamic startTimeOpt =
+        LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
+    bool schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeOpt, processorJobVec,
+                                              scheduleOptions.processorNum_);
+    if (!schedulable_)
+      return;
+
+    double evalCurr = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startTimeOpt, scheduleOptions);
+    // std::cout << "startTimeOpt: " << startTimeOpt << "\n\n";
+    if (evalCurr < valOpt_) {
+      std::cout << "Find a better permutation with value: " << evalCurr << "\n";
+      valOpt_ = evalCurr;
+      orderOpt_ = jobOrder;
+    }
+  }
+
+  void print() const {
+    std::cout << "Global optimal job order found is: \n";
+    orderOpt_.print();
+    std::cout << "\n";
+    std::cout << "Global optimal RTDA found is: \n" << valOpt_ << "\n";
+    std::cout << "Total number of permutations iterated is: \n" << totalPermutation_ << "\n";
+  }
+};
+
+// void PrintTimeSequence2D(const std::vector<std::vector<TimeInstance>> &results);
+
+void IterateTimeInstanceSeq(std::vector<TimeInstance> &prevSeq, std::vector<JobQueueOfATask> &jobQueueTaskSet,
+                            PermutationStatus &permutationStatus);
+
+PermutationStatus FindGlobalOptRTDA(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                                    const ScheduleOptions &scheduleOptions);
 
 } // namespace OrderOptDAG_SPACE

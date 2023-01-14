@@ -113,7 +113,7 @@ public:
 
   void RemoveFinish(JobCEC job, LLint position);
 
-  void print();
+  void print() const;
 };
 
 struct JobGroupRange // include the minIndex, but not the maxIndex

@@ -52,8 +52,8 @@ protected:
 };
 
 TEST_F(DAGScheduleOptimizerTest3, FindGlobalOptRTDA) {
-  double objActual = FindGlobalOptRTDA(dagTasks, tasksInfo, scheduleOptions);
-  std::cout << "Global optimal RTDA found is: \n" << objActual << "\n";
+  PermutationStatus permSta = FindGlobalOptRTDA(dagTasks, tasksInfo, scheduleOptions);
+  permSta.print();
 }
 
 int main(int argc, char **argv) {
