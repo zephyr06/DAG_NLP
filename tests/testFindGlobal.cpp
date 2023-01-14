@@ -248,6 +248,41 @@ TEST_F(DAGScheduleOptimizerTest1, FindGlobalOptRTDA) {
   EXPECT_EQ(4 + 4, objActual);
 }
 
+class DAGScheduleOptimizerTest3 : public ::testing::Test {
+protected:
+  void SetUp() override {
+    dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig", 1);
+    tasks = dagTasks.tasks;
+    tasksInfo = TaskSetInfoDerived(tasks);
+    chain1 = {0, 2};
+    dagTasks.chains_[0] = chain1;
+    timeLimits = 1;
+    scheduleOptions.processorNum_ = 2;
+    scheduleOptions.considerSensorFusion_ = 0;
+    scheduleOptions.freshTol_ = 0;
+    scheduleOptions.sensorFusionTolerance_ = 0;
+    scheduleOptions.weightInMpRTDA_ = 0.5;
+    scheduleOptions.weightInMpSf_ = 0.5;
+    scheduleOptions.weightPunish_ = 10;
+  };
+
+  double timeLimits = 1;
+  DAG_Model dagTasks;
+  TaskSet tasks;
+  TaskSetInfoDerived tasksInfo;
+  std::vector<int> chain1;
+  ScheduleOptions scheduleOptions;
+  std::vector<uint> processorJobVec;
+  SFOrder jobOrder;
+  VectorDynamic initial;
+};
+
+TEST_F(DAGScheduleOptimizerTest3, FindGlobalOptRTDA) {
+  double objActual = FindGlobalOptRTDA(dagTasks, tasksInfo, scheduleOptions);
+  std::cout << "Global optimal RTDA found is: \n" << objActual << "\n";
+  EXPECT_EQ(5 + 4, objActual);
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
