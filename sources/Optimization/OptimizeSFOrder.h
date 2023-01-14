@@ -136,11 +136,11 @@ public:
       SFOrder jobOrderCurrForStart = jobOrderRef;
       EndTimer("SFOrderCopy");
 
-      LLint startPOld, finishPold;
-      if (GlobalVariablesDAGOpt::debugMode == 1) {
-        startPOld = jobOrderCurrForStart.GetJobStartInstancePosition(jobRelocate);
-        finishPold = jobOrderCurrForStart.GetJobFinishInstancePosition(jobRelocate);
-      }
+      // LLint startPOld, finishPold;
+      // if (GlobalVariablesDAGOpt::debugMode == 1) {
+      //   startPOld = jobOrderCurrForStart.GetJobStartInstancePosition(jobRelocate);
+      //   finishPold = jobOrderCurrForStart.GetJobFinishInstancePosition(jobRelocate);
+      // }
       jobOrderCurrForStart.RemoveJob(jobRelocate);
 
       if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, jobOrderCurrForStart))

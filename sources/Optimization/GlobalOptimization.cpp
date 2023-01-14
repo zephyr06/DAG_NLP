@@ -48,6 +48,11 @@ void IterateTimeInstanceSeq(std::vector<TimeInstance> &prevSeq, std::vector<JobQ
   }
 }
 
+PermutationStatus FindGlobalOptRTDA(const DAG_Model &dagTasks, const ScheduleOptions &scheduleOptions) {
+  TaskSetInfoDerived tasksInfo(dagTasks.tasks);
+  return FindGlobalOptRTDA(dagTasks, tasksInfo, scheduleOptions);
+}
+
 PermutationStatus FindGlobalOptRTDA(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                     const ScheduleOptions &scheduleOptions) {
   int N = dagTasks.tasks.size();

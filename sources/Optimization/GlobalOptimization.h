@@ -3,6 +3,7 @@
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/Optimization/ScheduleOptions.h"
 #include "sources/TaskModel/DAG_Model.h"
+#include "sources/Utils/OptimizeOrderUtils.h"
 
 namespace OrderOptDAG_SPACE {
 using namespace OptimizeSF;
@@ -56,9 +57,9 @@ public:
     std::vector<uint> processorJobVec;
     VectorDynamic startTimeOpt =
         LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
-    bool schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeOpt, processorJobVec,
-                                              scheduleOptions.processorNum_);
-    if (!schedulable_)
+    bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeOpt, processorJobVec,
+                                             scheduleOptions.processorNum_);
+    if (!schedulable)
       return;
 
     double evalCurr = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startTimeOpt, scheduleOptions);
@@ -77,12 +78,23 @@ public:
     std::cout << "Global optimal RTDA found is: \n" << valOpt_ << "\n";
     std::cout << "Total number of permutations iterated is: \n" << totalPermutation_ << "\n";
   }
+
+  ScheduleResult GetScheduleResult() {
+    std::vector<uint> processorJobVec;
+    VectorDynamic startTimeOpt =
+        LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, orderOpt_, processorJobVec);
+    bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeOpt, processorJobVec,
+                                             scheduleOptions.processorNum_);
+    return ScheduleResult(orderOpt_, startTimeOpt, schedulable, valOpt_);
+  }
 };
 
 // void PrintTimeSequence2D(const std::vector<std::vector<TimeInstance>> &results);
 
 void IterateTimeInstanceSeq(std::vector<TimeInstance> &prevSeq, std::vector<JobQueueOfATask> &jobQueueTaskSet,
                             PermutationStatus &permutationStatus);
+
+PermutationStatus FindGlobalOptRTDA(const DAG_Model &dagTasks, const ScheduleOptions &scheduleOptions);
 
 PermutationStatus FindGlobalOptRTDA(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                     const ScheduleOptions &scheduleOptions);
