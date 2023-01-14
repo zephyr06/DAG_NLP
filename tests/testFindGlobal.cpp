@@ -191,6 +191,13 @@ TEST_F(DAGScheduleOptimizerTest2, FindAllJobOrderPermutations) {
     }
 }
 
+TEST_F(DAGScheduleOptimizerTest1, FindAllJobOrderPermutations) {
+
+  std::vector<std::vector<TimeInstance>> instSeqAllActual = FindAllJobOrderPermutations(dagTasks, tasksInfo);
+  print(instSeqAllActual);
+  EXPECT_EQ(90, instSeqAllActual.size());
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
