@@ -54,6 +54,7 @@ protected:
 TEST_F(DAGScheduleOptimizerTest3, FindGlobalOptRTDA) {
   PermutationStatus permSta = FindGlobalOptRTDA(dagTasks, tasksInfo, scheduleOptions);
   permSta.print();
+  auto _ = permSta.GetScheduleResult();
 }
 
 int main(int argc, char **argv) {

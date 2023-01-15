@@ -16,6 +16,10 @@ namespace OrderOptDAG_SPACE {
 
 void IterateTimeInstanceSeq(std::vector<TimeInstance> &prevSeq, std::vector<JobQueueOfATask> &jobQueueTaskSet,
                             PermutationStatus &permutationStatus) {
+  if (permutationStatus.ifTimeout()) {
+    permutationStatus.whetherTimeOut = true;
+    return;
+  }
   // if all reachEnd, push into result;
   bool whetherAllReachEnd = true;
   for (uint i = 0; i < jobQueueTaskSet.size(); i++) {

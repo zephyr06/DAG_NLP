@@ -147,6 +147,7 @@ extern const double kVerucchiMaxReaction;
 extern const double kVerucchiDataAgeCost;
 extern const double kVerucchiMaxDataAge;
 extern const double kVerucchiCoreCost;
+extern const double kGlobalOptimizationTimeLimit;
 
 extern const int64_t kWangRtss21IcNlpTimeLimit;
 

@@ -131,6 +131,7 @@ const double kVerucchiMaxReaction = (double)ConfigParameters["kVerucchiMaxReacti
 const double kVerucchiDataAgeCost = (double)ConfigParameters["kVerucchiDataAgeCost"];
 const double kVerucchiMaxDataAge = (double)ConfigParameters["kVerucchiMaxDataAge"];
 const double kVerucchiCoreCost = (double)ConfigParameters["kVerucchiCoreCost"];
+const double kGlobalOptimizationTimeLimit = (double)ConfigParameters["kGlobalOptimizationTimeLimit"];
 
 const int64_t kWangRtss21IcNlpTimeLimit = (int)ConfigParameters["kWangRtss21IcNlpTimeLimit"];
 

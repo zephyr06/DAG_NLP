@@ -48,7 +48,7 @@ public:
   int totalPermutation_ = 0;
   double valOpt_ = 1e9;
   TimerType startTime_;
-  double timeLimits_ = 600;
+  double timeLimits_ = GlobalVariablesDAGOpt::kGlobalOptimizationTimeLimit;
   bool whetherTimeOut = false;
 
   PermutationStatus(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
@@ -57,10 +57,6 @@ public:
         startTime_(std::chrono::high_resolution_clock::now()) {}
 
   void TryUpdate(SFOrder jobOrder) {
-    if (ifTimeout()) {
-      whetherTimeOut = true;
-      return;
-    }
 
     totalPermutation_++;
 
@@ -90,6 +86,9 @@ public:
   }
 
   ScheduleResult GetScheduleResult() {
+    if (whetherTimeOut) {
+      return ScheduleResult(orderOpt_, GenerateVectorDynamic1D(0), false, valOpt_);
+    }
     std::vector<uint> processorJobVec;
     VectorDynamic startTimeOpt =
         LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, orderOpt_, processorJobVec);
@@ -101,8 +100,8 @@ public:
   bool ifTimeout() const {
     auto curr_time = std::chrono::system_clock::now();
     if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - startTime_).count() >= timeLimits_) {
-      std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << timeLimits_
-                << " seconds.\n\n";
+      // std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << timeLimits_
+      //           << " seconds.\n\n";
       return true;
     }
     return false;
