@@ -39,19 +39,29 @@ public:
 
 class PermutationStatus {
 public:
+  typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimerType;
+
   DAG_Model dagTasks;
   TaskSetInfoDerived tasksInfo;
   ScheduleOptions scheduleOptions;
-
   SFOrder orderOpt_;
   int totalPermutation_ = 0;
   double valOpt_ = 1e9;
+  TimerType startTime_;
+  double timeLimits_ = 600;
+  bool whetherTimeOut = false;
 
   PermutationStatus(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                     const ScheduleOptions &scheduleOptions)
-      : dagTasks(dagTasks), tasksInfo(tasksInfo), scheduleOptions(scheduleOptions) {}
+      : dagTasks(dagTasks), tasksInfo(tasksInfo), scheduleOptions(scheduleOptions),
+        startTime_(std::chrono::high_resolution_clock::now()) {}
 
   void TryUpdate(SFOrder jobOrder) {
+    if (ifTimeout()) {
+      whetherTimeOut = true;
+      return;
+    }
+
     totalPermutation_++;
 
     std::vector<uint> processorJobVec;
@@ -86,6 +96,16 @@ public:
     bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeOpt, processorJobVec,
                                              scheduleOptions.processorNum_);
     return ScheduleResult(orderOpt_, startTimeOpt, schedulable, valOpt_);
+  }
+
+  bool ifTimeout() const {
+    auto curr_time = std::chrono::system_clock::now();
+    if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - startTime_).count() >= timeLimits_) {
+      std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << timeLimits_
+                << " seconds.\n\n";
+      return true;
+    }
+    return false;
   }
 };
 

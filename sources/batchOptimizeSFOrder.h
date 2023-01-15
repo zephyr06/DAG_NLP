@@ -86,6 +86,8 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(DAG_Model &dagTasks,
   case GlobalOpt: {
     PermutationStatus permSta = FindGlobalOptRTDA(dagTasks, scheduleOptions);
     res = permSta.GetScheduleResult();
+    if (permSta.whetherTimeOut)
+      res.discardResult_ = true;
     break;
   }
 
@@ -113,6 +115,7 @@ std::vector<BatchResult> BatchOptimizeOrder(std::vector<OrderOptDAG_SPACE::Basel
   std::vector<std::string> errorFiles;
   std::vector<std::string> worseFiles;
   std::vector<std::string> files = ReadFilesInDirectory(pathDataset);
+  std::vector<bool> validFileIndex(1000, true);
   int fileIndex = 0;
   for (const auto &file : files) {
     std::string delimiter = "-";
@@ -133,6 +136,7 @@ std::vector<BatchResult> BatchOptimizeOrder(std::vector<OrderOptDAG_SPACE::Basel
         OrderOptDAG_SPACE::ScheduleResult res;
         OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOptions;
         scheduleOptions.LoadParametersYaml();
+
         if (VerifyResFileExist(pathDataset, file, batchTestMethod)) {
           res = ReadFromResultFile(pathDataset, file, batchTestMethod);
         } else {
@@ -144,6 +148,12 @@ std::vector<BatchResult> BatchOptimizeOrder(std::vector<OrderOptDAG_SPACE::Basel
         }
         std::cout << "Schedulable? " << res.schedulable_ << std::endl;
         std::cout << Color::green << "Objective: " << res.obj_ << Color::def << std::endl;
+
+        // if timeTaken_ approaches 600s and the method is GlobalOpt, then we'll skip its results because
+        // cannot guarantee global optimal
+        if (abs(res.timeTaken_ - 600) < 10 && batchTestMethod == BaselineMethods::GlobalOpt) {
+          validFileIndex[fileIndex] = false;
+        }
 
         if (ObjectiveFunctionBase::type_trait == "RTDAExperimentObj" && res.schedulable_ == false) {
           if (objsAll[0].size() == 0)
@@ -180,14 +190,14 @@ std::vector<BatchResult> BatchOptimizeOrder(std::vector<OrderOptDAG_SPACE::Basel
               Average(runTimeAll[1]));
     vt.addRow("Wang21", Average(schedulableAll[2]), Average(objsAll[2]), Average(objsAllNorm[2]),
               Average(runTimeAll[2]));
-    vt.addRow("TOM", Average(schedulableAll[3]), Average(objsAll[3]), Average(objsAllNorm[3]),
+    vt.addRow("TOM", Average(schedulableAll[3]), Average(objsAll[3], validFileIndex), Average(objsAllNorm[3]),
               Average(runTimeAll[3]));
     vt.addRow("TOM_Fast", Average(schedulableAll[4]), Average(objsAll[4]), Average(objsAllNorm[4]),
               Average(runTimeAll[4]));
     vt.addRow("TOM_FastLP", Average(schedulableAll[5]), Average(objsAll[5]), Average(objsAllNorm[5]),
               Average(runTimeAll[5]));
-    vt.addRow("GlobalOptimal", Average(schedulableAll[6]), Average(objsAll[6]), Average(objsAllNorm[6]),
-              Average(runTimeAll[6]));
+    vt.addRow("GlobalOptimal", Average(schedulableAll[6]), Average(objsAll[6], validFileIndex),
+              Average(objsAllNorm[6]), Average(runTimeAll[6]));
     vt.print(std::cout);
   } else if (n != 0 && ObjectiveFunctionBase::type_trait == "RTSS21ICObj") {
     VariadicTable<std::string, double, double> vt({"Method", "Schedulable ratio", "TimeTaken"}, 10);
