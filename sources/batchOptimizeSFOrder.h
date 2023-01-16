@@ -46,9 +46,9 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(DAG_Model &dagTasks,
   ScheduleResult res;
   switch (batchTestMethod) {
   case InitialMethod:
-    res = OrderOptDAG_SPACE::ScheduleDAGLS_LFT(dagTasks, scheduleOptions.processorNum_,
-                                               GlobalVariablesDAGOpt::sensorFusionTolerance,
-                                               GlobalVariablesDAGOpt::freshTol);
+    res = OrderOptDAG_SPACE::ScheduleDAGLS_LFT<ObjectiveFunctionBase>(
+        dagTasks, scheduleOptions, GlobalVariablesDAGOpt::sensorFusionTolerance,
+        GlobalVariablesDAGOpt::freshTol);
     break;
   case Verucchi20:
     if (GlobalVariablesDAGOpt::considerSensorFusion != 0)

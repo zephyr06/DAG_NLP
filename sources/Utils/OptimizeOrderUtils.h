@@ -7,6 +7,7 @@
 #include "sources/Factors/RTDA_Factor.h"
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Optimization/SFOrder.h"
+#include "sources/Optimization/ScheduleOptions.h"
 #include "sources/Optimization/ScheduleSimulation.h"
 
 namespace OrderOptDAG_SPACE {
@@ -77,6 +78,27 @@ bool ExamAll_Feasibility(const DAG_Model &dagTasks, const RegularTaskSystem::Tas
                          const VectorDynamic &startTimeVector, const std::vector<uint> &processorJobVec,
                          int processorNum, double sfBound, double freshnessBound);
 
-ScheduleResult ScheduleDAGLS_LFT(DAG_Model &dagTasks, int processorNum, double sfBound,
-                                 double freshnessBound);
+template <typename ObjectiveFunctionBase>
+ScheduleResult ScheduleDAGLS_LFT(const DAG_Model &dagTasks,
+                                 const OptimizeSF::ScheduleOptions &scheduleOptions, double sfBound,
+                                 double freshnessBound) {
+  const TaskSet &tasks = dagTasks.tasks;
+  RegularTaskSystem::TaskSetInfoDerived tasksInfo(tasks);
+  std::vector<uint> processorJobVec;
+  VectorDynamic initialSTV =
+      ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_, processorJobVec);
+
+  ScheduleResult res;
+  res.startTimeVector_ = initialSTV;
+  if (ObjectiveFunctionBase::type_trait == "RTDAExperimentObj") {
+    res.schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, initialSTV, processorJobVec,
+                                             scheduleOptions.processorNum_);
+  } else if (ObjectiveFunctionBase::type_trait == "RTSS21ICObj") {
+    res.schedulable_ = ExamAll_Feasibility(dagTasks, tasksInfo, initialSTV, processorJobVec,
+                                           scheduleOptions.processorNum_, sfBound, freshnessBound);
+  }
+
+  res.obj_ = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, initialSTV, scheduleOptions);
+  return res;
+}
 } // namespace OrderOptDAG_SPACE
