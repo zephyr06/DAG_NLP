@@ -156,7 +156,7 @@ public:
                                       startP))
           break;
 
-        SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart;
+        SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
         SFOrderStatus sfOrderStatus =
