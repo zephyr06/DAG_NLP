@@ -91,6 +91,36 @@ TEST_F(ScheduleDAGModelTest3, ScheduleDAGLS_LFT_false) {
       dagTasks, scheduleOptions, dagTasks.GetSfBound(), dagTasks.GetRtdaBound());
   EXPECT_FALSE(res.schedulable_);
 }
+
+class ScheduleDAGModelTest4 : public ScheduleDAGModelTest1 {
+protected:
+  void SetUp() override {
+    std::string taskSetName = "test_n3_v29";
+    SetUpTaskSet(taskSetName);
+
+    const TaskSet &tasks = dagTasks.tasks;
+    RegularTaskSystem::TaskSetInfoDerived tasksInfo(tasks);
+    std::vector<uint> processorJobVec;
+    startTimeVector =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_, processorJobVec);
+    sfOrder = SFOrder(tasksInfo, startTimeVector);
+    sfOrder.print();
+  }
+};
+TEST_F(ScheduleDAGModelTest4, FindJobActivateRange) {
+  JobCEC jobRelocate(0, 0);
+  JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, sfOrder, tasksInfo);
+  EXPECT_EQ(0, jobStartFinishInstActiveRange.minIndex);
+  EXPECT_EQ(5 + 1, jobStartFinishInstActiveRange.maxIndex);
+}
+
+TEST_F(ScheduleDAGModelTest4, FindJobActivateRange_min) {
+  JobCEC jobRelocate(0, 1);
+  JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, sfOrder, tasksInfo);
+  EXPECT_EQ(4, jobStartFinishInstActiveRange.minIndex);
+  EXPECT_EQ(10 + 1, jobStartFinishInstActiveRange.maxIndex);
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   // ::testing::InitGoogleMock(&argc, argv);
