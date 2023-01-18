@@ -169,11 +169,11 @@ public:
           if (finishP > startP + 1 &&
               (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
                                                      scheduleOptions.processorNum_, processorJobVec))) {
-            // break;
+            break;
             // int a = 1;
 
-            jobOrderCurrForFinish.print();
-            std::cout << "\n";
+            // jobOrderCurrForFinish.print();
+            // std::cout << "\n";
             debug_infeasible = true;
           }
           if (finishP > startP + 1)
@@ -185,18 +185,18 @@ public:
 
         if (sfOrderStatus == SFOrderStatus::BetterFeasible) {
           if (debug_infeasible == true) {
-            jobOrderCurrForFinish.print();
-            int a = 1;
+            // jobOrderCurrForFinish.print();
+            // int a = 1;
           }
           findBetterJobOrderWithinIterations = true;
           // statusPrev = statusCurr;
           // jobOrderRef = jobOrderCurrForFinish;
 
-          std::cout << "Make progress!" << std::endl;
-          std::cout << "start time vector: \n" << statusPrev.startTimeVector_ << "\n";
-          PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
           if (GlobalVariablesDAGOpt::debugMode == 1) {
-            // PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
+
+            std::cout << "Make progress!" << std::endl;
+            std::cout << "start time vector: \n" << statusPrev.startTimeVector_ << "\n";
+            PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
           }
           countMakeProgress++;
         }
