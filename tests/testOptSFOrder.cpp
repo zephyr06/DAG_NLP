@@ -120,7 +120,27 @@ TEST_F(ScheduleDAGModelTest4, FindJobActivateRange_min) {
   EXPECT_EQ(4, jobStartFinishInstActiveRange.minIndex);
   EXPECT_EQ(10 + 1, jobStartFinishInstActiveRange.maxIndex);
 }
+class ScheduleDAGModelTest5 : public ScheduleDAGModelTest1 {
+protected:
+  void SetUp() override {
+    std::string taskSetName = "test_n3_v33";
+    SetUpTaskSet(taskSetName);
 
+    const TaskSet &tasks = dagTasks.tasks;
+    RegularTaskSystem::TaskSetInfoDerived tasksInfo(tasks);
+    std::vector<uint> processorJobVec;
+    startTimeVector =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_, processorJobVec);
+    startTimeVector << 1000, 2325, 4325, 6325, 8650, 0, 1000, 2000, 3222, 4000, 5222, 6000, 7222, 8650, 9547,
+        1897;
+    sfOrder = SFOrder(tasksInfo, startTimeVector);
+    sfOrder.print();
+  }
+};
+TEST_F(ScheduleDAGModelTest5, assign_processor) {
+  EXPECT_TRUE(ProcessorAssignment::AssignProcessor(tasksInfo, sfOrder, scheduleOptions.processorNum_,
+                                                   processorJobVec));
+}
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   // ::testing::InitGoogleMock(&argc, argv);

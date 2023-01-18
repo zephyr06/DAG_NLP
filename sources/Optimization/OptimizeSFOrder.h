@@ -13,6 +13,7 @@
 #include "sources/Optimization/IterationStatus.h"
 #include "sources/Optimization/ObjectiveFunctions.h"
 #include "sources/Optimization/OrderScheduler.h"
+#include "sources/Optimization/ProcessorAssignment.h"
 #include "sources/Optimization/SFOrder.h"
 #include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Optimization/SkipUnschedulablePermutations.h"
@@ -148,6 +149,7 @@ public:
 
       jobOrderCurrForStart.InsertStart(jobRelocate, startP); // must insert start first
       double accumLengthMin = 0;
+      bool examJobOrderSchedulabilityOnce = false;
       for (LLint finishP = startP + 1; finishP < jobStartFinishInstActiveRange.maxIndex + 1 && ifContinue();
            finishP++) {
         if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, jobOrderRef))
@@ -159,15 +161,41 @@ public:
         SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
+        // If the start position makes the job order unschedulable, then there is no need for future
+        // iterations
+        bool debug_infeasible = false;
+        if (!examJobOrderSchedulabilityOnce) {
+          std::vector<uint> processorJobVec;
+          if (finishP > startP + 1 &&
+              (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
+                                                     scheduleOptions.processorNum_, processorJobVec))) {
+            // break;
+            // int a = 1;
+
+            jobOrderCurrForFinish.print();
+            std::cout << "\n";
+            debug_infeasible = true;
+          }
+          if (finishP > startP + 1)
+            examJobOrderSchedulabilityOnce = true;
+        }
+
         SFOrderStatus sfOrderStatus =
             UpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, finishP);
 
         if (sfOrderStatus == SFOrderStatus::BetterFeasible) {
+          if (debug_infeasible == true) {
+            jobOrderCurrForFinish.print();
+            int a = 1;
+          }
           findBetterJobOrderWithinIterations = true;
           // statusPrev = statusCurr;
           // jobOrderRef = jobOrderCurrForFinish;
+
+          std::cout << "Make progress!" << std::endl;
+          std::cout << "start time vector: \n" << statusPrev.startTimeVector_ << "\n";
+          PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
           if (GlobalVariablesDAGOpt::debugMode == 1) {
-            // std::cout << "Make progress!" << std::endl;
             // PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
           }
           countMakeProgress++;
