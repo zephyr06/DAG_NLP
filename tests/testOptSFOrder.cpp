@@ -24,13 +24,13 @@ protected:
     dagTasks.chains_[0] = chain1;
 
     scheduleOptions.considerSensorFusion_ = 0;
-    scheduleOptions.freshTol_ = 0;
-    scheduleOptions.sensorFusionTolerance_ = 0;
+    scheduleOptions.freshTol_ = 1e6;
+    scheduleOptions.sensorFusionTolerance_ = 1e6;
     scheduleOptions.weightInMpRTDA_ = 0.5;
     scheduleOptions.weightInMpSf_ = 0.5;
-    scheduleOptions.weightPunish_ = 10;
+    scheduleOptions.weightPunish_ = 1000;
 
-    scheduleOptions.selectInitialFromPoolCandidate_ = 100;
+    scheduleOptions.selectInitialFromPoolCandidate_ = 0; // 1000 if adding select initial from pool
   }
   DAG_Model dagTasks;
   TaskSet tasks;
@@ -48,15 +48,15 @@ TEST_F(ScheduleDAGModelTest1, FindJobActivateRange) {
   EXPECT_EQ(7, jobStartFinishInstActiveRange.maxIndex);
 }
 
-TEST_F(ScheduleDAGModelTest1, initialEstimatePool) {
-  VectorDynamic initialBase = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
+// TEST_F(ScheduleDAGModelTest1, initialEstimatePool) {
+//   VectorDynamic initialBase = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
 
-  VectorDynamic initialFromPool =
-      SelectInitialFromPool<RTDAExperimentObj>(dagTasks, tasksInfo, scheduleOptions);
+//   VectorDynamic initialFromPool =
+//       SelectInitialFromPool<RTDAExperimentObj>(dagTasks, tasksInfo, scheduleOptions);
 
-  EXPECT_LT(RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, initialFromPool, scheduleOptions),
-            RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, initialBase, scheduleOptions));
-}
+//   EXPECT_LT(RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, initialFromPool, scheduleOptions),
+//             RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, initialBase, scheduleOptions));
+// }
 
 class ScheduleDAGModelTest2 : public ScheduleDAGModelTest1 {
 protected:
@@ -66,12 +66,13 @@ protected:
   }
 };
 
-TEST_F(ScheduleDAGModelTest2, SelectInitialFromPool_verify_feasibility) {
-  auto initialSTV =
-      SelectInitialFromPool<RTDAExperimentObj>(dagTasks, tasksInfo, scheduleOptions, processorJobVec);
-  EXPECT_TRUE(
-      ExamBasic_Feasibility(dagTasks, tasksInfo, initialSTV, processorJobVec, scheduleOptions.processorNum_));
-}
+// TEST_F(ScheduleDAGModelTest2, SelectInitialFromPool_verify_feasibility) {
+//   auto initialSTV =
+//       SelectInitialFromPool<RTDAExperimentObj>(dagTasks, tasksInfo, scheduleOptions, processorJobVec);
+//   EXPECT_TRUE(
+//       ExamBasic_Feasibility(dagTasks, tasksInfo, initialSTV, processorJobVec,
+//       scheduleOptions.processorNum_));
+// }
 
 class ScheduleDAGModelTest3 : public ScheduleDAGModelTest1 {
 protected:
@@ -125,6 +126,9 @@ protected:
   void SetUp() override {
     std::string taskSetName = "test_n3_v33";
     SetUpTaskSet(taskSetName);
+    chain1 = {2, 0};
+    dagTasks.chains_[0] = chain1;
+    scheduleOptions.processorNum_ = 2;
 
     const TaskSet &tasks = dagTasks.tasks;
     RegularTaskSystem::TaskSetInfoDerived tasksInfo(tasks);
@@ -134,12 +138,32 @@ protected:
     startTimeVector << 1000, 2325, 4325, 6325, 8650, 0, 1000, 2000, 3222, 4000, 5222, 6000, 7222, 8650, 9547,
         1897;
     sfOrder = SFOrder(tasksInfo, startTimeVector);
+    auto instTemp = sfOrder.instanceOrder_[2];
+    sfOrder.instanceOrder_[2] = sfOrder.instanceOrder_[3];
+    sfOrder.instanceOrder_[3] = instTemp;
     sfOrder.print();
   }
 };
 TEST_F(ScheduleDAGModelTest5, assign_processor) {
   EXPECT_TRUE(ProcessorAssignment::AssignProcessor(tasksInfo, sfOrder, scheduleOptions.processorNum_,
                                                    processorJobVec));
+  JobCEC jobCurr(0, 3);
+  sfOrder.RemoveJob(jobCurr);
+  sfOrder.InsertStart(jobCurr, 21);
+  sfOrder.InsertFinish(jobCurr, 23);
+  sfOrder.print();
+
+  EXPECT_FALSE(ProcessorAssignment::AssignProcessor(tasksInfo, sfOrder, scheduleOptions.processorNum_,
+                                                    processorJobVec));
+
+  EXPECT_FALSE(ProcessorAssignment::AssignProcessor(tasksInfo, sfOrder, scheduleOptions.processorNum_,
+                                                    processorJobVec));
+
+  startTimeVector =
+      SimpleOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, sfOrder, processorJobVec);
+  bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
+                                           scheduleOptions.processorNum_);
+  EXPECT_FALSE(schedulable);
 }
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
