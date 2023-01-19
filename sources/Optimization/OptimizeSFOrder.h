@@ -134,7 +134,7 @@ public:
     for (LLint startP = jobStartFinishInstActiveRange.minIndex;
          startP < jobStartFinishInstActiveRange.maxIndex && ifContinue(); startP++) {
       BeginTimer("SFOrderCopy");
-      SFOrder jobOrderCurrForStart = jobOrderRef;
+      SFOrder jobOrderCurrForStart = jobOrderRef; // can be moved outside the for loop
       EndTimer("SFOrderCopy");
 
       // LLint startPOld, finishPold;
@@ -158,7 +158,7 @@ public:
                                       startP))
           break;
 
-        SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
+        SFOrder& jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
         // If the start position makes the job order unschedulable, then there is no need for future
@@ -200,8 +200,11 @@ public:
           }
           countMakeProgress++;
         }
+        // TODO: verify this is correct
+        // TODO: this is probably not correct because LP scheduler could change jobOrder without notifying whetherSFMapNeedUpdate
+        bool s=jobOrderCurrForFinish.whetherSFMapNeedUpdate;
         jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
-        // jobOrderCurrForFinish.whetherSFMapNeedUpdate = false;
+        jobOrderCurrForFinish.whetherSFMapNeedUpdate = s;
       }
     }
 
@@ -224,6 +227,7 @@ public:
     } else {
       // startTimeVector = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_,
       // jobOrderCurrForFinish, processorJobVec);
+      // TODO: LP scheduler doesn't have to update the given job order
       startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
                                                  processorJobVec);
       bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
