@@ -12,7 +12,7 @@ namespace OrderOptDAG_SPACE
         Return false if SFOrder disobey processor number constraints(necessary of unschedulalble), otherwise return true.
         Assigned processor will be written into the input vector processorJobVec.
         */
-        static bool AssignProcessor(const TaskSetInfoDerived &tasksInfo, SFOrder &sfOrder,
+        static bool AssignProcessor(const TaskSetInfoDerived &tasksInfo,const SFOrder &sfOrder,
                                     const int processorNum, std::vector<uint> &processorJobVec);
     };
 

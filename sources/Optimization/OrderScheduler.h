@@ -7,8 +7,8 @@
 
 #include "sources/Optimization/LinearProgrammingSolver.h"
 #include "sources/Optimization/ProcessorAssignment.h"
-#include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Optimization/SFOrderLPOptimizer.h"
+#include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Optimization/ScheduleOptions.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/JobCEC.h"
@@ -56,8 +56,8 @@ public:
   static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                 const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
                                 std::vector<uint> &processorJobVec) {
-    if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrder, scheduleOptions.processorNum_, processorJobVec))
-    { // SFOrder unschedulable
+    if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrder, scheduleOptions.processorNum_,
+                                              processorJobVec)) { // SFOrder unschedulable
       VectorDynamic startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
       startTimeVector(0) = -1;
       // assign all jobs to processor 0 to avoid errors in codes, this will not affect the correctness.
@@ -68,7 +68,7 @@ public:
     sfOrderLPOptimizer.Optimize(processorJobVec);
     VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
     // TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
-    jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
+    // jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
     return startTimeVectorOptmized;
   }
 };

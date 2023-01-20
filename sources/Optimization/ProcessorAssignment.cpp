@@ -5,7 +5,7 @@
 #include "sources/Utils/profilier.h"
 
 namespace OrderOptDAG_SPACE {
-bool ProcessorAssignment::AssignProcessor(const TaskSetInfoDerived &tasksInfo, SFOrder &sfOrder,
+bool ProcessorAssignment::AssignProcessor(const TaskSetInfoDerived &tasksInfo, const SFOrder &sfOrder,
                                           const int processorNum, std::vector<uint> &processorJobVec) {
   BeginTimer("AssignProcessor");
 
@@ -16,7 +16,7 @@ bool ProcessorAssignment::AssignProcessor(const TaskSetInfoDerived &tasksInfo, S
   bool flagProcessorAvailable;
 
   for (LLint i = 0; i < sfOrder.size(); i++) {
-    const auto &orderInstance = sfOrder[i];
+    const auto &orderInstance = sfOrder.at(i);
     if (orderInstance.type == 's') {
       flagProcessorAvailable = false;
       for (int n = 0; n < processorNum; n++) {
