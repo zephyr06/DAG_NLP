@@ -1,5 +1,6 @@
 #include "sources/Optimization/OptimizeSFOrder.h"
 #include "sources/Utils/OptimizeOrderUtils.h"
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
@@ -165,6 +166,45 @@ TEST_F(ScheduleDAGModelTest5, assign_processor) {
                                            scheduleOptions.processorNum_);
   EXPECT_FALSE(schedulable);
 }
+
+class ScheduleDAGModelTest6 : public ScheduleDAGModelTest1 {
+protected:
+  void SetUp() override {
+    std::string taskSetName = "test_n3_v34";
+    SetUpTaskSet(taskSetName);
+    chain1 = {0, 2};
+    dagTasks.chains_[0] = chain1;
+    scheduleOptions.processorNum_ = 2;
+
+    const TaskSet &tasks = dagTasks.tasks;
+    RegularTaskSystem::TaskSetInfoDerived tasksInfo(tasks);
+    std::vector<uint> processorJobVec;
+    // startTimeVector =
+    //     ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_, processorJobVec);
+    // startTimeVector << 8, 10, 1, 3;
+    // sfOrder = SFOrder(tasksInfo, startTimeVector);
+    // sfOrder.print();
+
+    dagScheduleOptimizer =
+        DAGScheduleOptimizer<LPOrderScheduler, RTDAExperimentObj>(dagTasks, scheduleOptions, 100);
+
+    VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
+    initialSTV(10) = 6;
+    dagScheduleOptimizer.jobOrderRef = SFOrder(tasksInfo, initialSTV);
+    dagScheduleOptimizer.statusPrev = IterationStatus<LPOrderScheduler, RTDAExperimentObj>(
+        dagTasks, tasksInfo, dagScheduleOptimizer.jobOrderRef, scheduleOptions);
+  }
+
+  DAGScheduleOptimizer<LPOrderScheduler, RTDAExperimentObj> dagScheduleOptimizer;
+};
+
+TEST_F(ScheduleDAGModelTest6, ImproveJobOrderPerJob_Single_update) {
+  JobCEC jobRelocate(2, 0);
+  dagScheduleOptimizer.ImproveJobOrderPerJob(jobRelocate);
+  EXPECT_EQ(1, dagScheduleOptimizer.countMakeProgress);
+  EXPECT_THAT(dagScheduleOptimizer.countIterationStatus, testing::Ge(1));
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   // ::testing::InitGoogleMock(&argc, argv);

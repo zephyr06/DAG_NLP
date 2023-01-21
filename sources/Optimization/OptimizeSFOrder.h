@@ -29,7 +29,8 @@ JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderR
                                    const TaskSetInfoDerived &tasksInfo);
 
 enum SFOrderStatus { Infeasible, InferiorFeasible, BetterFeasible };
-template <typename OrderScheduler, typename ObjectiveFunctionBase> class DAGScheduleOptimizer {
+template <typename OrderScheduler, typename ObjectiveFunctionBase> 
+class DAGScheduleOptimizer {
 public:
   DAGScheduleOptimizer() {}
 
@@ -158,7 +159,7 @@ public:
                                       startP))
           break;
 
-        SFOrder& jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
+        SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
         // If the start position makes the job order unschedulable, then there is no need for future
@@ -201,8 +202,9 @@ public:
           countMakeProgress++;
         }
         // TODO: verify this is correct
-        // TODO: this is probably not correct because LP scheduler could change jobOrder without notifying whetherSFMapNeedUpdate
-        bool s=jobOrderCurrForFinish.whetherSFMapNeedUpdate;
+        // TODO: this is probably not correct because LP scheduler could change jobOrder without notifying
+        // whetherSFMapNeedUpdate
+        bool s = jobOrderCurrForFinish.whetherSFMapNeedUpdate;
         jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
         jobOrderCurrForFinish.whetherSFMapNeedUpdate = s;
       }
