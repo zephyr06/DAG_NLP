@@ -28,9 +28,8 @@ std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks);
 JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderRef,
                                    const TaskSetInfoDerived &tasksInfo);
 
-enum SFOrderStatus { Infeasible, InferiorFeasible, BetterFeasible };
-template <typename OrderScheduler, typename ObjectiveFunctionBase> 
-class DAGScheduleOptimizer {
+enum SFOrderCompareStatus { Infeasible, InferiorFeasible, BetterFeasible };
+template <typename OrderScheduler, typename ObjectiveFunctionBase> class DAGScheduleOptimizer {
 public:
   DAGScheduleOptimizer() {}
 
@@ -132,17 +131,15 @@ public:
   bool ImproveJobOrderPerJob(const JobCEC &jobRelocate) {
     BeginTimer("ImproveJobOrderPerJob");
     JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
+
+    IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusBestFound;
+
     for (LLint startP = jobStartFinishInstActiveRange.minIndex;
          startP < jobStartFinishInstActiveRange.maxIndex && ifContinue(); startP++) {
       BeginTimer("SFOrderCopy");
       SFOrder jobOrderCurrForStart = jobOrderRef; // can be moved outside the for loop
       EndTimer("SFOrderCopy");
 
-      // LLint startPOld, finishPold;
-      // if (GlobalVariablesDAGOpt::debugMode == 1) {
-      //   startPOld = jobOrderCurrForStart.GetJobStartInstancePosition(jobRelocate);
-      //   finishPold = jobOrderCurrForStart.GetJobFinishInstancePosition(jobRelocate);
-      // }
       jobOrderCurrForStart.RemoveJob(jobRelocate);
 
       if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, jobOrderCurrForStart))
@@ -171,36 +168,14 @@ public:
               (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
                                                      scheduleOptions.processorNum_, processorJobVec))) {
             break;
-            // int a = 1;
-
-            // jobOrderCurrForFinish.print();
-            // std::cout << "\n";
             debug_infeasible = true;
           }
           if (finishP > startP + 1)
             examJobOrderSchedulabilityOnce = true;
         }
 
-        SFOrderStatus sfOrderStatus =
-            UpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, finishP);
+        CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, finishP);
 
-        if (sfOrderStatus == SFOrderStatus::BetterFeasible) {
-          if (debug_infeasible == true) {
-            // jobOrderCurrForFinish.print();
-            // int a = 1;
-          }
-          findBetterJobOrderWithinIterations = true;
-          // statusPrev = statusCurr;
-          // jobOrderRef = jobOrderCurrForFinish;
-
-          if (GlobalVariablesDAGOpt::debugMode == 1) {
-
-            std::cout << "Make progress!" << std::endl;
-            std::cout << "start time vector: \n" << statusPrev.startTimeVector_ << "\n";
-            PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
-          }
-          countMakeProgress++;
-        }
         // TODO: verify this is correct
         // TODO: this is probably not correct because LP scheduler could change jobOrder without notifying
         // whetherSFMapNeedUpdate
@@ -217,39 +192,40 @@ public:
   // Compare against statusPrev built from jobOrderRef, and update statusPrev and jobOrderRef if success and
   // return true
   // TODO: jobOrderCurrForFinish may become different after optimization
-  SFOrderStatus UpdateStatus(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobStartFinishInstActiveRange,
-                             LLint finishP) {
+  // TODO: SubGroupSchedulabilityCheck is temporarily removed, which is used to check whether the small job
+  // order under influence is unschedulable
+  void CompareAndUpdateStatus(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobStartFinishInstActiveRange,
+                              LLint finishP) {
     VectorDynamic startTimeVector;
     std::vector<uint> processorJobVec;
-    // check whether the small job order under influence is unschedulable
-    if (SubGroupSchedulabilityCheck(jobStartFinishInstActiveRange, jobOrderRef, jobOrderCurrForFinish,
-                                    finishP, dagTasks, tasksInfo, scheduleOptions.processorNum_)) {
+    // TODO: LP scheduler doesn't have to update the given job order
+    startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
+                                               processorJobVec);
+    bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
+                                             scheduleOptions.processorNum_);
+    if (!schedulable) {
       infeasibleCount++;
-      return SFOrderStatus::Infeasible;
-    } else {
-      // startTimeVector = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_,
-      // jobOrderCurrForFinish, processorJobVec);
-      // TODO: LP scheduler doesn't have to update the given job order
-      startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
-                                                 processorJobVec);
-      bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
-                                               scheduleOptions.processorNum_);
-      if (!schedulable) {
-        infeasibleCount++;
-        return SFOrderStatus::Infeasible;
-      }
+      return;
     }
 
     IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(
-        dagTasks, tasksInfo, jobOrderCurrForFinish, scheduleOptions, startTimeVector, processorJobVec, true);
+        dagTasks, tasksInfo, jobOrderCurrForFinish, scheduleOptions, startTimeVector, processorJobVec,
+        schedulable);
     countIterationStatus++;
 
     if (MakeProgress<OrderScheduler>(statusPrev, statusCurr)) {
       statusPrev = statusCurr;
       jobOrderRef = jobOrderCurrForFinish;
-      return SFOrderStatus::BetterFeasible;
+      findBetterJobOrderWithinIterations = true;
+      countMakeProgress++;
+      if (GlobalVariablesDAGOpt::debugMode == 1) {
+        std::cout << "Make progress!" << std::endl;
+        std::cout << "start time vector: \n" << statusPrev.startTimeVector_ << "\n";
+        PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
+      }
+      return;
     } else
-      return SFOrderStatus::InferiorFeasible;
+      return;
   }
 
 }; // class DAGScheduleOptimizer
