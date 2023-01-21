@@ -151,6 +151,8 @@ void SFOrder::InsertFinish(JobCEC job, LLint position) {
 void SFOrder::RemoveInstance(JobCEC job, LLint position) {
   BeginTimer(__FUNCTION__);
   RangeCheck(position, true);
+  if (job != instanceOrder_.at(position).job)
+    CoutError("Wrong position while removing instance!");
   instanceOrder_.erase(instanceOrder_.begin() + position);
   // EstablishJobSFMap();
   whetherSFMapNeedUpdate = true;

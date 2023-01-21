@@ -134,12 +134,12 @@ public:
 
     IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusBestFound = statusPrev;
     SFOrder jobOrderBestFound = jobOrderRef;
+    SFOrder jobOrderCurrForStart = jobOrderRef;
+    jobOrderCurrForStart.RemoveJob(jobRelocate);
 
     for (LLint startP = jobStartFinishInstActiveRange.minIndex;
          startP < jobStartFinishInstActiveRange.maxIndex && ifContinue(); startP++) {
 
-      SFOrder jobOrderCurrForStart = jobOrderRef;
-      jobOrderCurrForStart.RemoveJob(jobRelocate);
       if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, jobOrderCurrForStart))
         continue;
 
@@ -163,6 +163,8 @@ public:
           if (finishP > startP + 1 &&
               (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
                                                      scheduleOptions.processorNum_, processorJobVec))) {
+
+            jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
             break;
             // debug_infeasible = true;
           }
@@ -173,14 +175,15 @@ public:
         CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, statusBestFound,
                                jobOrderBestFound);
 
-        // TODO: verify this is correct
-        // TODO: this is probably not correct because LP scheduler could change jobOrder without notifying
-        // whetherSFMapNeedUpdate
+        // TODO: whether it's possible to avoid whetherSFMapNeedUpdate
         // bool s = jobOrderCurrForFinish.whetherSFMapNeedUpdate;
         jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
         // jobOrderCurrForFinish.whetherSFMapNeedUpdate = s;
       }
       jobOrderCurrForStart.RemoveInstance(jobRelocate, startP);
+      // if (jobOrderCurrForStart.instanceOrder_.size() != 32 - 2) {
+      //   CoutWarning("Wrong!!");
+      // }
     }
 
     if (statusPrev.objWeighted_ != statusBestFound.objWeighted_) {
