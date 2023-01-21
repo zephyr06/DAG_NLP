@@ -68,7 +68,7 @@ public:
     sfOrderLPOptimizer.Optimize(processorJobVec);
     VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
     // TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
-    // jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
+    jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
     return startTimeVectorOptmized;
   }
 };
