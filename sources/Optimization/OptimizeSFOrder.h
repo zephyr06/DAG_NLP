@@ -137,12 +137,9 @@ public:
 
     for (LLint startP = jobStartFinishInstActiveRange.minIndex;
          startP < jobStartFinishInstActiveRange.maxIndex && ifContinue(); startP++) {
-      BeginTimer("SFOrderCopy");
-      SFOrder jobOrderCurrForStart = jobOrderRef; // can be moved outside the for loop
-      EndTimer("SFOrderCopy");
 
+      SFOrder jobOrderCurrForStart = jobOrderRef;
       jobOrderCurrForStart.RemoveJob(jobRelocate);
-
       if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, jobOrderCurrForStart))
         continue;
 
@@ -160,16 +157,14 @@ public:
         SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
-        // If the start position makes the job order unschedulable, then there is no need for future
-        // iterations
-        bool debug_infeasible = false;
+        // bool debug_infeasible = false;
         if (!examJobOrderSchedulabilityOnce) {
           std::vector<uint> processorJobVec;
           if (finishP > startP + 1 &&
               (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
                                                      scheduleOptions.processorNum_, processorJobVec))) {
             break;
-            debug_infeasible = true;
+            // debug_infeasible = true;
           }
           if (finishP > startP + 1)
             examJobOrderSchedulabilityOnce = true;
@@ -181,10 +176,11 @@ public:
         // TODO: verify this is correct
         // TODO: this is probably not correct because LP scheduler could change jobOrder without notifying
         // whetherSFMapNeedUpdate
-        bool s = jobOrderCurrForFinish.whetherSFMapNeedUpdate;
-        jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
-        jobOrderCurrForFinish.whetherSFMapNeedUpdate = s;
+        // bool s = jobOrderCurrForFinish.whetherSFMapNeedUpdate;
+        jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
+        // jobOrderCurrForFinish.whetherSFMapNeedUpdate = s;
       }
+      jobOrderCurrForStart.RemoveInstance(jobRelocate, startP);
     }
 
     if (statusPrev.objWeighted_ != statusBestFound.objWeighted_) {

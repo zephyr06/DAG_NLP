@@ -131,7 +131,7 @@ public:
 
   void InsertFinish(JobCEC job, LLint position);
 
-  void RemoveFinish(JobCEC job, LLint position);
+  void RemoveInstance(JobCEC job, LLint position);
 
   void print() const;
 };

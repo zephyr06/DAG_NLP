@@ -9,7 +9,7 @@ printSchedule: 0
 PrintOutput: 0
 # band orig
 ReOrderProblem: "orig"
-debugMode: 1
+debugMode: 0
 RepeatExecution: 0
 NumericalPrecision: 1e-3
 doScheduleOptimization: 0

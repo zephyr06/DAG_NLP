@@ -54,7 +54,12 @@ TEST_F(DAGScheduleOptimizerTest1, UpdateStatus) {
   SFOrder jobOrder(tasksInfo, initial);
   JobGroupRange uselessRange(0, 100);
   LLint uselessFinishP = 100;
-  EXPECT_EQ(0, dagScheduleOptimizer.UpdateStatus(jobOrder, uselessRange, uselessFinishP));
+
+  IterationStatus<SimpleOrderScheduler, RTDAExperimentObj> statusBestFound = dagScheduleOptimizer.statusPrev;
+  SFOrder jobOrderBestFound = jobOrder;
+  EXPECT_FALSE(dagScheduleOptimizer.CompareAndUpdateStatus(jobOrder, uselessRange, statusBestFound,
+                                                           jobOrderBestFound));
+  // EXPECT_EQ(0, dagScheduleOptimizer.UpdateStatus(jobOrder, uselessRange, uselessFinishP));
 }
 
 TEST(IntegrationTest, v1) {
