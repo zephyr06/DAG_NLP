@@ -132,7 +132,8 @@ public:
     BeginTimer("ImproveJobOrderPerJob");
     JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
 
-    IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusBestFound;
+    IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusBestFound = statusPrev;
+    SFOrder jobOrderBestFound = jobOrderRef;
 
     for (LLint startP = jobStartFinishInstActiveRange.minIndex;
          startP < jobStartFinishInstActiveRange.maxIndex && ifContinue(); startP++) {
@@ -174,7 +175,8 @@ public:
             examJobOrderSchedulabilityOnce = true;
         }
 
-        CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, finishP);
+        CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, statusBestFound,
+                               jobOrderBestFound);
 
         // TODO: verify this is correct
         // TODO: this is probably not correct because LP scheduler could change jobOrder without notifying
@@ -183,6 +185,13 @@ public:
         jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
         jobOrderCurrForFinish.whetherSFMapNeedUpdate = s;
       }
+    }
+
+    if (statusPrev.objWeighted_ != statusBestFound.objWeighted_) {
+      statusPrev = statusBestFound;
+      jobOrderRef = jobOrderBestFound;
+      findBetterJobOrderWithinIterations = true;
+      countMakeProgress++;
     }
 
     EndTimer("ImproveJobOrderPerJob");
@@ -194,8 +203,9 @@ public:
   // TODO: jobOrderCurrForFinish may become different after optimization
   // TODO: SubGroupSchedulabilityCheck is temporarily removed, which is used to check whether the small job
   // order under influence is unschedulable
-  void CompareAndUpdateStatus(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobStartFinishInstActiveRange,
-                              LLint finishP) {
+  bool CompareAndUpdateStatus(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobStartFinishInstActiveRange,
+                              IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusBestFound,
+                              SFOrder &jobOrderBestFound) {
     VectorDynamic startTimeVector;
     std::vector<uint> processorJobVec;
     // TODO: LP scheduler doesn't have to update the given job order
@@ -205,7 +215,7 @@ public:
                                              scheduleOptions.processorNum_);
     if (!schedulable) {
       infeasibleCount++;
-      return;
+      return false;
     }
 
     IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(
@@ -213,19 +223,17 @@ public:
         schedulable);
     countIterationStatus++;
 
-    if (MakeProgress<OrderScheduler>(statusPrev, statusCurr)) {
-      statusPrev = statusCurr;
-      jobOrderRef = jobOrderCurrForFinish;
-      findBetterJobOrderWithinIterations = true;
-      countMakeProgress++;
+    if (MakeProgress<OrderScheduler>(statusBestFound, statusCurr)) {
+      statusBestFound = statusCurr;
+      jobOrderBestFound = jobOrderCurrForFinish;
       if (GlobalVariablesDAGOpt::debugMode == 1) {
         std::cout << "Make progress!" << std::endl;
         std::cout << "start time vector: \n" << statusPrev.startTimeVector_ << "\n";
         PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
       }
-      return;
+      return true;
     } else
-      return;
+      return false;
   }
 
 }; // class DAGScheduleOptimizer
