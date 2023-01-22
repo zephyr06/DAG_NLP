@@ -14,6 +14,7 @@
 #include "sources/Utils/JobCEC.h"
 #include "sources/Utils/MatirxConvenient.h"
 #include "sources/Utils/Parameters.h"
+#include "sources/Utils/profilier.h"
 // #include "sources/Optimization/InitialEstimate.h"
 
 namespace OrderOptDAG_SPACE {
@@ -53,9 +54,11 @@ public:
 };
 class LPOrderScheduler : public OrderScheduler {
 public:
+  // TODO: add setStart() as an advanced initialization
   static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                 const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
                                 std::vector<uint> &processorJobVec) {
+    BeginTimer("LPOrderScheduler_schedule");
     if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrder, scheduleOptions.processorNum_,
                                               processorJobVec)) { // SFOrder unschedulable
       VectorDynamic startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
@@ -69,6 +72,7 @@ public:
     VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
     // TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
     // jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
+    EndTimer("LPOrderScheduler_schedule");
     return startTimeVectorOptmized;
   }
 };

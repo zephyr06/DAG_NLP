@@ -181,9 +181,6 @@ public:
         // jobOrderCurrForFinish.whetherSFMapNeedUpdate = s;
       }
       jobOrderCurrForStart.RemoveInstance(jobRelocate, startP);
-      // if (jobOrderCurrForStart.instanceOrder_.size() != 32 - 2) {
-      //   CoutWarning("Wrong!!");
-      // }
     }
 
     if (statusPrev.objWeighted_ != statusBestFound.objWeighted_) {
