@@ -31,9 +31,9 @@ public:
     VectorDynamic initialSTV = ListSchedulingLFTPA(dagTasks_, tasksInfo_, processorNum_, processorJobVec_);
     sfOrder_ = SFOrder(tasksInfo_, initialSTV);
     // PrintSchedule(tasksInfo_, initialSTV);
-    // sfOrder_.print();
+    sfOrder_.print();
     scheduleOptions_.causeEffectChainNumber_ = 1;
-    pSFOrderLPOptimizer_ = std::make_shared<SFOrderLPOptimizer>(dagTasks_, sfOrder_);
+    pSFOrderLPOptimizer_ = std::make_shared<SFOrderLPOptimizer>(dagTasks_, sfOrder_, processorNum_);
     pSFOrderLPOptimizer_->Init();
   }
   void TearDown() override { pSFOrderLPOptimizer_->ClearCplexMemory(); }
@@ -71,7 +71,7 @@ public:
     // PrintSchedule(tasksInfo_, initialSTV);
     // sfOrder_.print();
     scheduleOptions_.causeEffectChainNumber_ = 1;
-    pSFOrderLPOptimizer_ = std::make_shared<SFOrderLPOptimizer>(dagTasks_, sfOrder_);
+    pSFOrderLPOptimizer_ = std::make_shared<SFOrderLPOptimizer>(dagTasks_, sfOrder_, processorNum_);
     pSFOrderLPOptimizer_->Init();
     pSFOrderLPOptimizer_->AddVariables();
     pSFOrderLPOptimizer_->AddDDLConstraints();

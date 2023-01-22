@@ -15,7 +15,8 @@
 namespace OrderOptDAG_SPACE {
 class SFOrderLPOptimizer {
 public:
-  SFOrderLPOptimizer(const DAG_Model &dagTasks, SFOrder &sfOrder) : dagTasks_(dagTasks), sfOrder_(sfOrder) {
+  SFOrderLPOptimizer(const DAG_Model &dagTasks, SFOrder &sfOrder, int processorNum)
+      : dagTasks_(dagTasks), sfOrder_(sfOrder), processorNum_(processorNum) {
     env_.end();
     useWeightedObj_ = false;
     hasBeenInitialized_ = false;
@@ -74,6 +75,7 @@ public:
   int numVariables_;
   bool useWeightedObj_;
   bool hasBeenInitialized_;
+  int processorNum_;
 };
 } // namespace OrderOptDAG_SPACE
 #endif // SFORDER_LP_OPTIMIZER_H_

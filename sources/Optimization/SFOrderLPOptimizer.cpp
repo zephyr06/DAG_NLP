@@ -90,32 +90,26 @@ void SFOrderLPOptimizer::AddVariables() {
 void SFOrderLPOptimizer::AddDBFConstraints() {
   // TODO: this can be improve a lot
   BeginTimer("LPAddDBFConstraints");
-  std::unordered_map<int, std::vector<JobCEC>> processor_job_map;
-  int processor_id = 0;
-  for (int i = 0; i < numVariables_; i++) {
-    if (!processorJobVec_.empty()) {
-      processor_id = processorJobVec_[i];
-    }
-    auto job = GetJobCECFromUniqueId(i, tasksInfo_);
-    if (processor_job_map.count(processor_id) == 0) {
-      processor_job_map[processor_id] = std::vector<JobCEC>{};
-    }
-    processor_job_map[processor_id].push_back(job);
+  std::vector<TimeInstance> prevInstancesEachProcessor;
+  prevInstancesEachProcessor.reserve(processorNum_);
+  for (int i = 0; i < processorNum_; i++) {
+    prevInstancesEachProcessor.push_back(TimeInstance('n', JobCEC(0, 0)));
   }
-  for (auto &pair : processor_job_map) {
-    std::sort(pair.second.begin(), pair.second.end(), [this](auto a, auto b) -> bool {
-      return sfOrder_.GetJobStartInstancePosition(a) < sfOrder_.GetJobStartInstancePosition(b);
-    });
-    if (pair.second.size() > 1) {
-      int pre_job_id = GetJobUniqueId(pair.second[0], tasksInfo_);
-      int cur_job_id;
-      for (auto j = 1u; j < pair.second.size(); j++) {
-        cur_job_id = GetJobUniqueId(pair.second[j], tasksInfo_);
+  for (uint i = 0; i < sfOrder_.instanceOrder_.size(); i++) {
+    JobCEC jobCurr = sfOrder_.instanceOrder_[i].job;
+    int cur_job_id = GetJobUniqueId(jobCurr, tasksInfo_);
+    int processor_id = processorJobVec_[cur_job_id];
+    if (prevInstancesEachProcessor[processor_id].type != 'n') {
+      JobCEC jobPrev = prevInstancesEachProcessor[processor_id].job;
+      int pre_job_id = GetJobUniqueId(jobPrev, tasksInfo_);
+      // FOR DEBUG ONLY
+      // std::cout << "DBF: (" << jobPrev.ToString() << ", " << jobCurr.ToString() << "\n";
+      if (jobPrev != jobCurr)
         model_.add(varArray_[pre_job_id] + GetExecutionTime(pre_job_id, tasksInfo_) <= varArray_[cur_job_id]);
-        pre_job_id = cur_job_id;
-      }
     }
+    prevInstancesEachProcessor[processor_id] = sfOrder_.instanceOrder_[i];
   }
+
   EndTimer("LPAddDBFConstraints");
 }
 

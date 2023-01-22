@@ -67,7 +67,7 @@ public:
       processorJobVec.resize(tasksInfo.variableDimension, 0);
       return startTimeVector;
     }
-    SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder);
+    SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder, scheduleOptions.processorNum_);
     sfOrderLPOptimizer.Optimize(processorJobVec);
     VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
     // TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
