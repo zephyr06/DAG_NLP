@@ -53,7 +53,6 @@ void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec) {
   BeginTimer("Solve_LP");
   bool found_feasible_solution = cplexSolver_.solve();
   EndTimer("Solve_LP");
-  BeginTimer("GetLPResult");
   IloNumArray values_optimized(env_, numVariables_);
   if (found_feasible_solution) {
     auto status = cplexSolver_.getStatus();
@@ -75,9 +74,9 @@ void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec) {
 
     UpdateOptimizedStartTimeVector(values_optimized);
   }
-
+  BeginTimer("GetLPResult5");
   this->ClearCplexMemory();
-  EndTimer("GetLPResult");
+  EndTimer("GetLPResult5");
 }
 
 VectorDynamic SFOrderLPOptimizer::getOptimizedStartTimeVector() { return optimizedStartTimeVector_; }
@@ -88,7 +87,6 @@ void SFOrderLPOptimizer::AddVariables() {
 }
 
 void SFOrderLPOptimizer::AddDBFConstraints() {
-  // TODO: this can be improve a lot
   BeginTimer("LPAddDBFConstraints");
   std::vector<TimeInstance> prevInstancesEachProcessor;
   prevInstancesEachProcessor.reserve(processorNum_);
