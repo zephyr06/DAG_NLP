@@ -143,28 +143,17 @@ public:
 
         SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
-
-        // bool debug_infeasible = false;
-        if (!examJobOrderSchedulabilityOnce) {
-          std::vector<uint> processorJobVec;
-          if (finishP > startP + 1 &&
-              (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
-                                                     scheduleOptions.processorNum_, processorJobVec))) {
-
-            jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
-            break;
-            // debug_infeasible = true;
-          }
-          if (finishP > startP + 1)
-            examJobOrderSchedulabilityOnce = true;
+        std::vector<uint> processorJobVec;
+        if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
+                                                  scheduleOptions.processorNum_, processorJobVec)) {
+          break;
         }
+
         CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, statusBestFound,
                                jobOrderBestFound);
 
         // TODO: whether it's possible to avoid whetherSFMapNeedUpdate
-        // bool s = jobOrderCurrForFinish.whetherSFMapNeedUpdate;
         jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
-        // jobOrderCurrForFinish.whetherSFMapNeedUpdate = s;
       }
       jobOrderCurrForStart.RemoveInstance(jobRelocate, startP);
     }
