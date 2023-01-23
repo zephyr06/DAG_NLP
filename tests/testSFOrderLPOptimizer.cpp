@@ -100,6 +100,14 @@ TEST_F(TestSFOrderLPOptimizer, CanDoCorrectOptimization) {
   EXPECT_THAT(stvOptimized, Eq(stvExpected));
 }
 
+TEST_F(TestSFOrderLPOptimizer, warm_start_opt) {
+  VectorDynamic stvExpected = GenerateVectorDynamic(5);
+  stvExpected << 9, 19, 29, 14, 0;
+  EXPECT_NO_THROW(pSFOrderLPOptimizer_->Optimize(processorJobVec_, stvExpected));
+  VectorDynamic stvOptimized = pSFOrderLPOptimizer_->getOptimizedStartTimeVector();
+  EXPECT_THAT(stvOptimized, Eq(stvExpected));
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleMock(&argc, argv);
   return RUN_ALL_TESTS();

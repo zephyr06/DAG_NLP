@@ -79,6 +79,46 @@ void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec) {
   EndTimer("GetLPResult5");
 }
 
+// TODO: merge same code
+void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec,
+                                  const VectorDynamic &warmStartSchedule) {
+
+  BeginTimer("Build_LP_Model");
+  this->Init();
+
+  setProcessorJobVec(processorJobVec);
+
+  AddVariables();
+  AddDBFConstraints();
+  AddDDLConstraints();
+  AddObjectives();
+  cplexSolver_.extract(model_);
+  EndTimer("Build_LP_Model");
+
+  IloNumArray warmStartForCplex(env_, numVariables_);
+  for (uint i = 0; i < warmStartSchedule.rows(); i++) {
+    warmStartForCplex[i] = warmStartSchedule(i, 0);
+  }
+  cplexSolver_.setStart(warmStartForCplex, NULL, varArray_, NULL, NULL, NULL);
+  BeginTimer("Solve_LP");
+  bool found_feasible_solution = cplexSolver_.solve();
+  EndTimer("Solve_LP");
+  IloNumArray values_optimized(env_, numVariables_);
+  if (found_feasible_solution) {
+    auto status = cplexSolver_.getStatus();
+    cplexSolver_.getValues(varArray_, values_optimized);
+    if (GlobalVariablesDAGOpt::debugMode) {
+      std::cout << "Values are :" << values_optimized << "\n";
+      std::cout << status << " solution found: " << cplexSolver_.getObjValue() << "\n";
+    }
+
+    UpdateOptimizedStartTimeVector(values_optimized);
+  }
+  BeginTimer("GetLPResult5");
+  this->ClearCplexMemory();
+  EndTimer("GetLPResult5");
+}
+
 VectorDynamic SFOrderLPOptimizer::getOptimizedStartTimeVector() { return optimizedStartTimeVector_; }
 
 void SFOrderLPOptimizer::AddVariables() {

@@ -206,7 +206,8 @@ public:
     std::vector<uint> processorJobVec;
     // TODO: LP scheduler doesn't have to update the given job order
     startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
-                                               processorJobVec);
+                                               processorJobVec, statusPrev.startTimeVector_);
+
     bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
                                              scheduleOptions.processorNum_);
     if (!schedulable) {

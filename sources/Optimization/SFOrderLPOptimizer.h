@@ -27,6 +27,8 @@ public:
 
   void Optimize(const std::vector<uint> &processorJobVec);
 
+  void Optimize(const std::vector<uint> &processorJobVec, const VectorDynamic &warmStartSchedule);
+
   // useWeightedObj_ will decide whether optimize max RTDAs or weighted objectives
   inline void setUseWeightedObjType(bool useWeightedObj = false) { useWeightedObj_ = useWeightedObj; }
 

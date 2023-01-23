@@ -205,6 +205,38 @@ TEST_F(ScheduleDAGModelTest6, ImproveJobOrderPerJob_Single_update) {
   EXPECT_THAT(dagScheduleOptimizer.countIterationStatus, testing::Ge(1));
 }
 
+class ScheduleDAGModelTest7 : public ScheduleDAGModelTest1 {
+protected:
+  void SetUp() override {
+    std::string taskSetName = "test_n30_v1";
+    SetUpTaskSet(taskSetName);
+    scheduleOptions.processorNum_ = 2;
+
+    const TaskSet &tasks = dagTasks.tasks;
+    RegularTaskSystem::TaskSetInfoDerived tasksInfo(tasks);
+    std::vector<uint> processorJobVec;
+    VectorDynamic initial =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_, processorJobVec);
+
+    sfOrder = SFOrder(tasksInfo, initial);
+    // sfOrder.print();
+  }
+};
+
+TEST_F(ScheduleDAGModelTest7, warm_start_LP) {
+  BeginTimer("main");
+  BeginTimer("Direct_LP");
+  auto schedule0 = LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, sfOrder, processorJobVec);
+  EndTimer("Direct_LP");
+  BeginTimer("Warm_start_LP");
+  auto schedule1 =
+      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, sfOrder, processorJobVec, schedule0);
+  EndTimer("Warm_start_LP");
+  EXPECT_TRUE(gtsam::assert_equal(schedule0, schedule1));
+  EndTimer("main");
+  PrintTimer();
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   // ::testing::InitGoogleMock(&argc, argv);

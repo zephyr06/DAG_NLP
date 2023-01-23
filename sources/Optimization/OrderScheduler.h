@@ -35,10 +35,22 @@ public:
     CoutError("Never call base function!");
     return GenerateVectorDynamic1D(0);
   }
+
+  static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                                const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
+                                const VectorDynamic &warmStart) {
+    CoutError("Never call base function!");
+    return GenerateVectorDynamic1D(0);
+  }
 };
 
 class SimpleOrderScheduler : public OrderScheduler {
-public:
+public:  
+  
+  static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                                const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder) {
+    return SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder);
+  }
   // processorJobVec will be assigned values
   static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                 const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
@@ -47,10 +59,17 @@ public:
                              processorJobVec);
   }
 
-  static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
-                                const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder) {
-    return SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder);
+
+
+    static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                                const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
+                                std::vector<uint> &processorJobVec,
+                                const VectorDynamic &warmStart) {
+    return SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder,
+                             processorJobVec);
   }
+
+ 
 };
 class LPOrderScheduler : public OrderScheduler {
 public:
@@ -69,6 +88,27 @@ public:
     }
     SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder, scheduleOptions.processorNum_);
     sfOrderLPOptimizer.Optimize(processorJobVec);
+    VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
+    // TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
+    // jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
+    EndTimer("LPOrderScheduler_schedule");
+    return startTimeVectorOptmized;
+  }
+  // TODO: merge same code
+  static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                                const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
+                                std::vector<uint> &processorJobVec, const VectorDynamic &warmStart) {
+    BeginTimer("LPOrderScheduler_schedule");
+    if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrder, scheduleOptions.processorNum_,
+                                              processorJobVec)) { // SFOrder unschedulable
+      VectorDynamic startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
+      startTimeVector(0) = -1;
+      // assign all jobs to processor 0 to avoid errors in codes, this will not affect the correctness.
+      processorJobVec.resize(tasksInfo.variableDimension, 0);
+      return startTimeVector;
+    }
+    SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder, scheduleOptions.processorNum_);
+    sfOrderLPOptimizer.Optimize(processorJobVec,warmStart);
     VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
     // TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
     // jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
