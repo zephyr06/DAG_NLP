@@ -147,16 +147,14 @@ public:
         // bool debug_infeasible = false;
         if (!examJobOrderSchedulabilityOnce) {
           std::vector<uint> processorJobVec;
-          if (finishP > startP + 1 &&
-              (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
+          if ((!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
                                                      scheduleOptions.processorNum_, processorJobVec))) {
 
             jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
             break;
             // debug_infeasible = true;
           }
-          if (finishP > startP + 1)
-            examJobOrderSchedulabilityOnce = true;
+          examJobOrderSchedulabilityOnce = true;
         }
         CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, statusBestFound,
                                jobOrderBestFound);
