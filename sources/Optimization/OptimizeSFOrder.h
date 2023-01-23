@@ -100,24 +100,6 @@ public:
 
   inline SFOrder GetJobOrder() const { return jobOrderRef; }
 
-  // data members
-  std::chrono::high_resolution_clock::time_point start_time;
-  double timeLimits;
-
-  DAG_Model dagTasks;
-  TaskSetInfoDerived tasksInfo;
-  LLint countMakeProgress = 0;
-  LLint countIterationStatus = 0;
-  LLint countOutermostWhileLoop = 0;
-  int infeasibleCount = 0;
-
-  bool findBetterJobOrderWithinIterations = false;
-  ScheduleOptions scheduleOptions;
-
-  SFOrder jobOrderRef;
-  IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusPrev;
-  VectorDynamic warmStart_;
-
   bool ifTimeout() const {
     auto curr_time = std::chrono::system_clock::now();
     if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= timeLimits) {
@@ -236,6 +218,24 @@ public:
     } else
       return false;
   }
+
+  // data members
+  std::chrono::high_resolution_clock::time_point start_time;
+  double timeLimits;
+
+  DAG_Model dagTasks;
+  TaskSetInfoDerived tasksInfo;
+  LLint countMakeProgress = 0;
+  LLint countIterationStatus = 0;
+  LLint countOutermostWhileLoop = 0;
+  int infeasibleCount = 0;
+
+  bool findBetterJobOrderWithinIterations = false;
+  ScheduleOptions scheduleOptions;
+
+  SFOrder jobOrderRef;
+  IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusPrev;
+  VectorDynamic warmStart_;
 
 }; // class DAGScheduleOptimizer
 
