@@ -65,6 +65,7 @@ public:
                              processorJobVec);
   }
 };
+// TODO: test all the components becuse LP perrforms much worse than simple in n15_v1, RTDA objective function
 class LPOrderScheduler : public OrderScheduler {
 public:
   // TODO: add setStart() as an advanced initialization

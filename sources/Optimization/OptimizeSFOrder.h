@@ -141,7 +141,7 @@ public:
                                       startP))
           break;
 
-        SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
+        SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
         // bool debug_infeasible = false;
@@ -190,7 +190,6 @@ public:
                               SFOrder &jobOrderBestFound) {
     VectorDynamic startTimeVector;
     std::vector<uint> processorJobVec;
-    // TODO: LP scheduler doesn't have to update the given job order
     startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
                                                processorJobVec, warmStart_);
     warmStart_ = startTimeVector;
