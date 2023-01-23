@@ -95,12 +95,16 @@ void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec,
   cplexSolver_.extract(model_);
   EndTimer("Build_LP_Model");
 
+  BeginTimer("LPWarmStart");
   IloNumArray warmStartForCplex(env_, numVariables_);
   for (uint i = 0; i < warmStartSchedule.rows(); i++) {
     warmStartForCplex[i] = warmStartSchedule(i, 0);
   }
   cplexSolver_.setStart(warmStartForCplex, NULL, varArray_, NULL, NULL, NULL);
+
+  EndTimer("LPWarmStart");
   BeginTimer("Solve_LP");
+  cplexSolver_.setParam(IloCplex::RootAlg, IloCplex::Dual);
   bool found_feasible_solution = cplexSolver_.solve();
   EndTimer("Solve_LP");
   IloNumArray values_optimized(env_, numVariables_);
@@ -115,6 +119,7 @@ void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec,
     UpdateOptimizedStartTimeVector(values_optimized);
   }
   BeginTimer("GetLPResult5");
+  // std::cout << cplexSolver_.getNiterations() << "\n";
   this->ClearCplexMemory();
   EndTimer("GetLPResult5");
 }

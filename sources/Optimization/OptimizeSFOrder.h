@@ -51,8 +51,10 @@ public:
     jobOrderRef = SFOrder(tasksInfo, initialSTV);
     statusPrev = IterationStatus<OrderScheduler, ObjectiveFunctionBase>(dagTasks, tasksInfo, jobOrderRef,
                                                                         scheduleOptions);
+    warmStart_ = statusPrev.startTimeVector_;
     // TODO: SelectInitialFromPool doesn't work well for simple order scheduler because it may leads into
     // unschedulable results
+
     if (!statusPrev.schedulable_)
       CoutWarning("Initial schedule is not schedulable!!!");
 
@@ -114,6 +116,7 @@ public:
 
   SFOrder jobOrderRef;
   IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusPrev;
+  VectorDynamic warmStart_;
 
   bool ifTimeout() const {
     auto curr_time = std::chrono::system_clock::now();
@@ -145,6 +148,8 @@ public:
 
       jobOrderCurrForStart.InsertStart(jobRelocate, startP); // must insert start first
       double accumLengthMin = 0;
+
+      warmStart_(0) = -1;
       bool examJobOrderSchedulabilityOnce = false;
       for (LLint finishP = startP + 1; finishP < jobStartFinishInstActiveRange.maxIndex + 1 && ifContinue();
            finishP++) {
@@ -171,7 +176,6 @@ public:
           if (finishP > startP + 1)
             examJobOrderSchedulabilityOnce = true;
         }
-
         CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, statusBestFound,
                                jobOrderBestFound);
 
@@ -206,8 +210,8 @@ public:
     std::vector<uint> processorJobVec;
     // TODO: LP scheduler doesn't have to update the given job order
     startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
-                                               processorJobVec, statusPrev.startTimeVector_);
-
+                                               processorJobVec, warmStart_);
+    warmStart_ = startTimeVector;
     bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
                                              scheduleOptions.processorNum_);
     if (!schedulable) {

@@ -45,8 +45,7 @@ public:
 };
 
 class SimpleOrderScheduler : public OrderScheduler {
-public:  
-  
+public:
   static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                 const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder) {
     return SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder);
@@ -59,17 +58,12 @@ public:
                              processorJobVec);
   }
 
-
-
-    static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+  static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                 const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
-                                std::vector<uint> &processorJobVec,
-                                const VectorDynamic &warmStart) {
+                                std::vector<uint> &processorJobVec, const VectorDynamic &warmStart) {
     return SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder,
                              processorJobVec);
   }
-
- 
 };
 class LPOrderScheduler : public OrderScheduler {
 public:
@@ -108,7 +102,10 @@ public:
       return startTimeVector;
     }
     SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder, scheduleOptions.processorNum_);
-    sfOrderLPOptimizer.Optimize(processorJobVec,warmStart);
+    if (warmStart(0) != -1)
+      sfOrderLPOptimizer.Optimize(processorJobVec, warmStart);
+    else
+      sfOrderLPOptimizer.Optimize(processorJobVec);
     VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
     // TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
     // jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
