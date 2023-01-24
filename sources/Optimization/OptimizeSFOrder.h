@@ -149,11 +149,13 @@ public:
                                       startP))
           break;
 
-        SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
+        SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
         std::vector<uint> processorJobVec;
         if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
                                                   scheduleOptions.processorNum_, processorJobVec)) {
+
+          jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
           break;
         }
         CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, statusBestFound,
