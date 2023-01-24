@@ -126,7 +126,10 @@ public:
     jobOrderCurrForStart.RemoveJob(jobRelocate);
 
     for (LLint startP = jobStartFinishInstActiveRange.minIndex;
-         startP <= jobStartFinishInstActiveRange.maxIndex - 2 && ifContinue(); startP++) {
+         startP <=
+             std::min(jobStartFinishInstActiveRange.maxIndex, static_cast<int>(tasksInfo.length) * 2 - 2) &&
+         ifContinue();
+         startP++) {
 
       if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, jobOrderCurrForStart))
         continue;
@@ -135,15 +138,17 @@ public:
       double accumLengthMin = 0;
 
       warmStart_(0) = -1;
-      for (LLint finishP = startP + 1;
-           finishP <= jobStartFinishInstActiveRange.maxIndex - 2 + 1 && ifContinue(); finishP++) {
+      for (LLint finishP = startP + 1; finishP <= std::min(jobStartFinishInstActiveRange.maxIndex,
+                                                           static_cast<int>(tasksInfo.length) * 2 - 1) &&
+                                       ifContinue();
+           finishP++) {
         if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, jobOrderRef))
           continue;
         if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart,
                                       startP))
           break;
 
-        SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
+        SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
         std::vector<uint> processorJobVec;
         if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
