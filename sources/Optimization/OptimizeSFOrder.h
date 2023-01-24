@@ -126,8 +126,8 @@ public:
     jobOrderCurrForStart.RemoveJob(jobRelocate);
 
     for (LLint startP = jobStartFinishInstActiveRange.minIndex;
-         startP <=
-             std::min(jobStartFinishInstActiveRange.maxIndex, static_cast<int>(tasksInfo.length) * 2 - 2) &&
+         startP <= std::min(jobStartFinishInstActiveRange.maxIndex - 2,
+                            static_cast<int>(tasksInfo.length) * 2 - 2) &&
          ifContinue();
          startP++) {
 
@@ -138,7 +138,7 @@ public:
       double accumLengthMin = 0;
 
       warmStart_(0) = -1;
-      for (LLint finishP = startP + 1; finishP <= std::min(jobStartFinishInstActiveRange.maxIndex,
+      for (LLint finishP = startP + 1; finishP <= std::min(jobStartFinishInstActiveRange.maxIndex - 1,
                                                            static_cast<int>(tasksInfo.length) * 2 - 1) &&
                                        ifContinue();
            finishP++) {
@@ -154,23 +154,6 @@ public:
         if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
                                                   scheduleOptions.processorNum_, processorJobVec)) {
           break;
-        }
-        //
-        if (startP >= jobStartFinishInstActiveRange.maxIndex - 1 ||
-            finishP == jobStartFinishInstActiveRange.maxIndex) {
-
-          VectorDynamic startTimeVector;
-          std::vector<uint> processorJobVec;
-          startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions,
-                                                     jobOrderCurrForFinish, processorJobVec, warmStart_);
-          warmStart_ = startTimeVector;
-          bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
-                                                   scheduleOptions.processorNum_);
-          if (schedulable) {
-            jobOrderCurrForFinish.print();
-            int a = 1;
-          }
-          int a = 1;
         }
         CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, statusBestFound,
                                jobOrderBestFound);

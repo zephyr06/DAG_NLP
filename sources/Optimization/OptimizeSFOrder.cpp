@@ -28,8 +28,7 @@ std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks) {
 
 JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderRef,
                                    const TaskSetInfoDerived &tasksInfo) {
-  //  JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
-  LLint prevJobIndex = 0, nextJobIndex = static_cast<LLint>(jobOrderRef.size() - 1);
+  LLint prevJobIndex = 0, nextJobIndex = 1e5;
   if (jobRelocate.jobId > 0) {
     JobCEC prevJob(jobRelocate.taskId, jobRelocate.jobId - 1);
     prevJobIndex = jobOrderRef.GetJobFinishInstancePosition(prevJob);
