@@ -155,7 +155,23 @@ public:
                                                   scheduleOptions.processorNum_, processorJobVec)) {
           break;
         }
+        //
+        if (startP >= jobStartFinishInstActiveRange.maxIndex - 1 ||
+            finishP == jobStartFinishInstActiveRange.maxIndex) {
 
+          VectorDynamic startTimeVector;
+          std::vector<uint> processorJobVec;
+          startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions,
+                                                     jobOrderCurrForFinish, processorJobVec, warmStart_);
+          warmStart_ = startTimeVector;
+          bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
+                                                   scheduleOptions.processorNum_);
+          if (schedulable) {
+            jobOrderCurrForFinish.print();
+            int a = 1;
+          }
+          int a = 1;
+        }
         CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, statusBestFound,
                                jobOrderBestFound);
 
