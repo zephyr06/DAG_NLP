@@ -46,7 +46,7 @@ TEST_F(ScheduleDAGModelTest1, FindJobActivateRange) {
   JobCEC jobRelocate(0, 0);
   JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, sfOrder, tasksInfo);
   EXPECT_EQ(0, jobStartFinishInstActiveRange.minIndex);
-  EXPECT_EQ(7, jobStartFinishInstActiveRange.maxIndex);
+  EXPECT_EQ(6, jobStartFinishInstActiveRange.maxIndex);
 }
 
 // TEST_F(ScheduleDAGModelTest1, initialEstimatePool) {
@@ -113,14 +113,14 @@ TEST_F(ScheduleDAGModelTest4, FindJobActivateRange) {
   JobCEC jobRelocate(0, 0);
   JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, sfOrder, tasksInfo);
   EXPECT_EQ(0, jobStartFinishInstActiveRange.minIndex);
-  EXPECT_EQ(5 + 1, jobStartFinishInstActiveRange.maxIndex);
+  EXPECT_EQ(5, jobStartFinishInstActiveRange.maxIndex);
 }
 
 TEST_F(ScheduleDAGModelTest4, FindJobActivateRange_min) {
   JobCEC jobRelocate(0, 1);
   JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, sfOrder, tasksInfo);
   EXPECT_EQ(4, jobStartFinishInstActiveRange.minIndex);
-  EXPECT_EQ(10 + 1, jobStartFinishInstActiveRange.maxIndex);
+  EXPECT_EQ(10, jobStartFinishInstActiveRange.maxIndex);
 }
 class ScheduleDAGModelTest5 : public ScheduleDAGModelTest1 {
 protected:

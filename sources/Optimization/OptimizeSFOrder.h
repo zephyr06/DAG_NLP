@@ -25,6 +25,9 @@ namespace OptimizeSF {
 // extern int infeasibleCount;
 
 std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks);
+
+// return the range of index that the start instnace of jobRelocate could be, inclusive on both ends;
+// the index of JobGroupRange is based on the original jobOrderRef without removing jobRelocate
 JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderRef,
                                    const TaskSetInfoDerived &tasksInfo);
 
@@ -123,7 +126,7 @@ public:
     jobOrderCurrForStart.RemoveJob(jobRelocate);
 
     for (LLint startP = jobStartFinishInstActiveRange.minIndex;
-         startP < jobStartFinishInstActiveRange.maxIndex && ifContinue(); startP++) {
+         startP <= jobStartFinishInstActiveRange.maxIndex - 2 && ifContinue(); startP++) {
 
       if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, jobOrderCurrForStart))
         continue;
@@ -132,16 +135,15 @@ public:
       double accumLengthMin = 0;
 
       warmStart_(0) = -1;
-      bool examJobOrderSchedulabilityOnce = false;
-      for (LLint finishP = startP + 1; finishP < jobStartFinishInstActiveRange.maxIndex + 1 && ifContinue();
-           finishP++) {
+      for (LLint finishP = startP + 1;
+           finishP <= jobStartFinishInstActiveRange.maxIndex - 2 + 1 && ifContinue(); finishP++) {
         if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, jobOrderRef))
           continue;
         if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart,
                                       startP))
           break;
 
-        SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
+        SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
         std::vector<uint> processorJobVec;
         if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
@@ -185,6 +187,8 @@ public:
     bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
                                              scheduleOptions.processorNum_);
     if (!schedulable) {
+      if (GlobalVariablesDAGOpt::debugMode == 1)
+        jobOrderCurrForFinish.print();
       infeasibleCount++;
       return false;
     }

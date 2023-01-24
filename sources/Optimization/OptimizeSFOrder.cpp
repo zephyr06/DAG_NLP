@@ -36,8 +36,7 @@ JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderR
   }
   if (jobRelocate.jobId < tasksInfo.sizeOfVariables[jobRelocate.taskId] - 1) {
     JobCEC nextJob(jobRelocate.taskId, jobRelocate.jobId + 1);
-    nextJobIndex = std::min(jobOrderRef.GetJobStartInstancePosition(nextJob) + 1,
-                            nextJobIndex); // "+1" because the iterating uses "<" instead of "<="
+    nextJobIndex = std::min(jobOrderRef.GetJobStartInstancePosition(nextJob), nextJobIndex);
   }
   JobGroupRange range(prevJobIndex, nextJobIndex);
   // go through other tasks to further bound the interval
@@ -56,7 +55,7 @@ JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderR
     int nextInstance = ceil(GetDeadline(jobRelocate, tasksInfo) / double(tasksInfo.tasks[i].period));
     if (nextInstance < tasksInfo.hyperPeriod / tasksInfo.tasks[i].period) {
       JobCEC jobNext(i, nextInstance);
-      range.maxIndex = std::min(range.maxIndex, int(jobOrderRef.GetJobStartInstancePosition(jobNext)) + 1);
+      range.maxIndex = std::min(range.maxIndex, int(jobOrderRef.GetJobStartInstancePosition(jobNext)));
     }
   }
 
