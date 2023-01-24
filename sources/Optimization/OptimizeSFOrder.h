@@ -28,6 +28,7 @@ std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks);
 
 // return the range of index that the start instnace of jobRelocate could be, inclusive on both ends;
 // the index of JobGroupRange is based on the original jobOrderRef without removing jobRelocate
+// To use the found JobGroupRange, user needs to check bounds on SFOrder;
 JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderRef,
                                    const TaskSetInfoDerived &tasksInfo);
 
