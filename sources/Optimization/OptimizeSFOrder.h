@@ -149,7 +149,7 @@ public:
                                       startP))
           break;
 
-        SFOrder &jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is faster
+        SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is still faster
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
         std::vector<uint> processorJobVec;
         if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
@@ -162,6 +162,7 @@ public:
                                jobOrderBestFound);
 
         // TODO: whether it's possible to avoid whetherSFMapNeedUpdate
+        // TODO: Avoid update job order’s internal index
         jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
       }
       jobOrderCurrForStart.RemoveInstance(jobRelocate, startP);
@@ -210,12 +211,17 @@ public:
       jobOrderBestFound = jobOrderCurrForFinish;
       if (GlobalVariablesDAGOpt::debugMode == 1) {
         std::cout << "Make progress!" << std::endl;
+        jobOrderCurrForFinish.print();
         std::cout << "start time vector: \n" << statusPrev.startTimeVector_ << "\n";
         PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
       }
       return true;
-    } else
+    } else {
+      if (GlobalVariablesDAGOpt::debugMode == 1) {
+        jobOrderCurrForFinish.print();
+      }
       return false;
+    }
   }
 
   // data members
