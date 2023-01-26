@@ -37,7 +37,6 @@ GetRTDAReactChainsFromSingleJob(const TaskSetInfoDerived &tasksInfo, const std::
 
 std::unordered_map<JobCEC, std::vector<JobCEC>>
 GetReactionChainMap(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
-                    const std::vector<uint> processorJobVec, int processorNum,
-                    const std::vector<int> &causeEffectChain, int chainIndex);
+                    int processorNum, const std::vector<int> &causeEffectChain, int chainIndex);
 
 } // namespace OrderOptDAG_SPACE

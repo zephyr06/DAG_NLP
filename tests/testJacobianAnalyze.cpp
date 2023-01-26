@@ -487,7 +487,7 @@ protected:
 
 TEST_F(DAGScheduleOptimizerTest5, jobChainReactionMap) {
   std::unordered_map<JobCEC, std::vector<JobCEC>> reactionChainMap = GetReactionChainMap(
-      dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_, dagTasks.chains_[0], 0);
+      dagTasks, tasksInfo, jobOrder, scheduleOptions.processorNum_, dagTasks.chains_[0], 0);
   EXPECT_EQ(2, reactionChainMap[JobCEC(0, 0)][1].taskId);
   EXPECT_EQ(1, reactionChainMap[JobCEC(0, 0)][1].jobId);
   EXPECT_EQ(2, reactionChainMap[JobCEC(0, 1)][1].taskId);
@@ -500,7 +500,7 @@ TEST_F(DAGScheduleOptimizerTest5, jobChainReactionMap) {
 
 TEST_F(DAGScheduleOptimizerTest5, GetJacobianJobOrderReduced) {
   std::unordered_map<JobCEC, std::vector<JobCEC>> reactionChainMap = GetReactionChainMap(
-      dagTasks, tasksInfo, jobOrder, processorJobVec, scheduleOptions.processorNum_, dagTasks.chains_[0], 0);
+      dagTasks, tasksInfo, jobOrder, scheduleOptions.processorNum_, dagTasks.chains_[0], 0);
   // order: s_03, s_02, s_01, s_00
   AugmentedJacobian augJaco = GetJacobianJobOrderReduced(dagTasks, tasksInfo, jobOrder, 0, reactionChainMap);
   MatrixDynamic jacobianExpect = GenerateMatrixDynamic(8, 4);

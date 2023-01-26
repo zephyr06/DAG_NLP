@@ -199,8 +199,7 @@ void SFOrderLPOptimizer::AddJobOrderConstraints(const SFOrder &jobOrder) {
 void SFOrderLPOptimizer::AddCauseEffectiveChainConstraints() {
   for (auto chain : dagTasks_.chains_) {
     // auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, initialStartTimeVector_);
-    auto react_chain_map =
-        GetReactionChainMap(dagTasks_, tasksInfo_, sfOrder_, processorJobVec_, 1, chain, 1);
+    auto react_chain_map = GetReactionChainMap(dagTasks_, tasksInfo_, sfOrder_, 1, chain, 1);
     AddCauseEffectiveChainConstraintsFromReactMap(react_chain_map);
   }
 }
@@ -296,8 +295,7 @@ void SFOrderLPOptimizer::AddNormalObjectives() {
     auto theta_da = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, var_name.str().c_str());
     var_name.str("");
     // auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, initialStartTimeVector_);
-    auto react_chain_map =
-        GetReactionChainMap(dagTasks_, tasksInfo_, sfOrder_, processorJobVec_, 1, chain, 1);
+    auto react_chain_map = GetReactionChainMap(dagTasks_, tasksInfo_, sfOrder_, 1, chain, 1);
 
     // add cause effective chain constraints together with objectives to save time
     AddCauseEffectiveChainConstraintsFromReactMap(react_chain_map);
@@ -344,8 +342,7 @@ void SFOrderLPOptimizer::AddWeightedObjectives() {
     auto theta_da = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, var_name.str().c_str());
     var_name.str("");
     // auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, initialStartTimeVector_);
-    auto react_chain_map =
-        GetReactionChainMap(dagTasks_, tasksInfo_, sfOrder_, processorJobVec_, 1, chain, 1);
+    auto react_chain_map = GetReactionChainMap(dagTasks_, tasksInfo_, sfOrder_, 1, chain, 1);
 
     // add cause effective chain constraints together with objectives to save time
     AddCauseEffectiveChainConstraintsFromReactMap(react_chain_map);

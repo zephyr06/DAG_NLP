@@ -17,9 +17,8 @@ AugmentedJacobian GetDAGJacobianOrg(const DAG_Model &dagTasks, const TaskSetInfo
     std::vector<AugmentedJacobian> augJacobVec;
     augJacobVec.reserve(dagTasks.chains_.size());
     for (uint chainIndex = 0; chainIndex < dagTasks.chains_.size(); chainIndex++) {
-      std::unordered_map<JobCEC, std::vector<JobCEC>> reactionChainMap =
-          GetReactionChainMap(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum,
-                              dagTasks.chains_[chainIndex], chainIndex);
+      std::unordered_map<JobCEC, std::vector<JobCEC>> reactionChainMap = GetReactionChainMap(
+          dagTasks, tasksInfo, jobOrder, processorNum, dagTasks.chains_[chainIndex], chainIndex);
       augJacobVec.push_back(
           GetJacobianJobOrderReduced(dagTasks, tasksInfo, jobOrder, chainIndex, reactionChainMap));
     }
@@ -47,9 +46,8 @@ GetDAGJacobianTripletOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &ta
   AugmentedJacobianTriplet augJacoJobOrder;
   if (lessJobOrderConstraints) {
     for (uint chainIndex = 0; chainIndex < dagTasks.chains_.size(); chainIndex++) {
-      std::unordered_map<JobCEC, std::vector<JobCEC>> reactionChainMap =
-          GetReactionChainMap(dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum,
-                              dagTasks.chains_[chainIndex], chainIndex);
+      std::unordered_map<JobCEC, std::vector<JobCEC>> reactionChainMap = GetReactionChainMap(
+          dagTasks, tasksInfo, jobOrder, processorNum, dagTasks.chains_[chainIndex], chainIndex);
       augJacoTripAll.push_back(
           GetJacobianJobOrderReduced(dagTasks, tasksInfo, jobOrder, chainIndex, reactionChainMap));
     }

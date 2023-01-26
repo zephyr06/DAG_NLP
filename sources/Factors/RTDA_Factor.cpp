@@ -91,7 +91,7 @@ double ObjRTDA(const std::vector<RTDA> &rtdaVec) {
     res += ObjRTDA(r);
   return res;
 }
-
+// **********************************************************************
 std::unordered_map<JobCEC, std::vector<JobCEC>>
 GetRTDAReactChainsFromSingleJob(const TaskSetInfoDerived &tasksInfo, const std::vector<int> &causeEffectChain,
                                 const VectorDynamic &x) {
@@ -129,8 +129,7 @@ GetRTDAReactChainsFromSingleJob(const TaskSetInfoDerived &tasksInfo, const std::
 
 std::unordered_map<JobCEC, std::vector<JobCEC>>
 GetReactionChainMap(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
-                    const std::vector<uint> processorJobVec, int processorNum,
-                    const std::vector<int> &causeEffectChain, int chainIndex) {
+                    int processorNum, const std::vector<int> &causeEffectChain, int chainIndex) {
   std::unordered_map<JobCEC, std::vector<JobCEC>> firstReactionChainMap;
   LLint hyperPeriod = tasksInfo.hyperPeriod;
   const TaskSet &tasks = tasksInfo.tasks;
