@@ -140,13 +140,20 @@ public:
     std::vector<std::vector<JobCEC>> longestChains;
     longestChains.reserve(dagTasks.chains_.size() * 3); // 3x is usually not necessary, though
 
+    std::unordered_set<JobCEC> sourceJobRecords;
+
     for (uint i = 0; i < dagTasks.chains_.size(); i++) {
       auto react_chain_map =
           GetReactionChainMap(dagTasks, tasksInfo, jobOrder, processorNum, dagTasks.chains_[i], i);
       auto chains = GetMaxReactionTimeChains(react_chain_map, startTimeVector, tasksInfo);
-      longestChains.insert(longestChains.end(), chains.begin(), chains.end());
-      chains = GetMaxDataAgeChains(react_chain_map, startTimeVector, tasksInfo);
-      longestChains.insert(longestChains.end(), chains.begin(), chains.end());
+      auto chains2 = GetMaxDataAgeChains(react_chain_map, startTimeVector, tasksInfo);
+      chains.insert(chains.end(), chains2.begin(), chains2.end());
+      for (uint i = 0; i < chains.size(); i++) {
+        if (sourceJobRecords.find(chains[i][0]) == sourceJobRecords.end()) {
+          longestChains.push_back(chains[i]);
+          sourceJobRecords.insert(chains[i][0]);
+        }
+      }
     }
     return longestChains;
   }
@@ -185,13 +192,14 @@ TEST_F(RTDATest1, longest_chain) {
   auto rtdaVecTemp = GetRTDAFromSingleJob(tasksInfo, dagTasks.chains_[0], startTimeVector);
 
   LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_);
+  // order:
   // std::vector<std::vector<JobCEC>> longestChains;
   // longestChains.reserve(3);
-  std::vector<JobCEC> chain1 = {JobCEC(0, 0), JobCEC(2, 1)}; // RT
-  std::vector<JobCEC> chain2 = {JobCEC(0, 1), JobCEC(2, 2)}; // RT & DA
-  std::vector<JobCEC> chain3 = {JobCEC(0, 2), JobCEC(2, 1)}; // RT
-
-  AssertEqualVectorNoRepeat<JobCEC>(chain1, longestChain.longestChains_[0], 0, 143);
+  std::vector<JobCEC> chain0 = {JobCEC(0, 0), JobCEC(2, 1)}; // RT
+  std::vector<JobCEC> chain2 = {JobCEC(0, 2), JobCEC(2, 2)}; // RT&DA
+  EXPECT_EQ(2, longestChain.longestChains_.size());
+  AssertEqualVectorNoRepeat<JobCEC>(chain2, longestChain.longestChains_[0], 0, __LINE__);
+  AssertEqualVectorNoRepeat<JobCEC>(chain0, longestChain.longestChains_[1], 0, __LINE__);
 }
 
 int main(int argc, char **argv) {
