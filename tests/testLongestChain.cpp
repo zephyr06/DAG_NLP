@@ -97,58 +97,6 @@ TEST_F(RTDATest1, break_chain) {
   EXPECT_FALSE(WhetherJobBreakChain(JobCEC(1, 0), 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
 }
 
-double GetJobMaxStartTime(const JobCEC &jobCurr, SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo) {
-  double maxStartTime = GetDeadline(jobCurr, tasksInfo) - GetExecutionTime(jobCurr, tasksInfo);
-  for (LLint i = jobOrder.GetJobStartInstancePosition(jobCurr) + 1; i < jobOrder.size(); i++) {
-    TimeInstance instCurr = jobOrder[i];
-    double instCurrMaxStart = instCurr.GetRangeMax(tasksInfo);
-    if (instCurrMaxStart < maxStartTime) {
-      maxStartTime = instCurrMaxStart;
-    }
-    double instCurrMinStart = instCurr.GetRangeMin(tasksInfo);
-    if (maxStartTime < instCurrMinStart)
-      break;
-  }
-  return maxStartTime;
-}
-
-bool WhetherJobStartLater(const JobCEC &jobCurr, SFOrder &jobOrderOrg, SFOrder &jobOrderNew,
-                          const TaskSetInfoDerived &tasksInfo) {
-
-  double maxStartTimeOrg = GetJobMaxStartTime(jobCurr, jobOrderOrg, tasksInfo);
-  double maxStartTimeNew = GetJobMaxStartTime(jobCurr, jobOrderNew, tasksInfo);
-  return maxStartTimeNew > maxStartTimeOrg;
-}
-bool WhetherJobStartLater(const JobCEC &jobCurr, const JobCEC &jobChanged, LLint startP, LLint finishP,
-                          SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo) {
-
-  SFOrder jobOrderNew = jobOrder;
-  jobOrderNew.RemoveJob(jobChanged);
-  jobOrderNew.InsertStart(jobChanged, startP);
-  jobOrderNew.InsertFinish(jobChanged, finishP);
-  return WhetherJobStartLater(jobCurr, jobOrder, jobOrderNew, tasksInfo);
-}
-TEST_F(RTDATest1, GetJobMinStartTime) {
-  EXPECT_EQ(0, GetJobMinStartTime(JobCEC(0, 0), jobOrder, tasksInfo));
-  EXPECT_EQ(0, GetJobMinStartTime(JobCEC(2, 0), jobOrder, tasksInfo));
-  EXPECT_EQ(1, GetJobMinStartTime(JobCEC(1, 0), jobOrder, tasksInfo));
-  EXPECT_EQ(10, GetJobMinStartTime(JobCEC(0, 1), jobOrder, tasksInfo));
-}
-TEST_F(RTDATest1, GetJobMaxStartTime) {
-  EXPECT_EQ(9, GetJobMaxStartTime(JobCEC(0, 0), jobOrder, tasksInfo));
-  EXPECT_EQ(10, GetJobMaxStartTime(JobCEC(2, 0), jobOrder, tasksInfo));
-  EXPECT_EQ(11, GetJobMaxStartTime(JobCEC(1, 0), jobOrder, tasksInfo));
-  EXPECT_EQ(19, GetJobMaxStartTime(JobCEC(0, 1), jobOrder, tasksInfo));
-}
-
-TEST_F(RTDATest1, WhetherJobStartEarlier) {
-  EXPECT_FALSE(WhetherJobStartEarlier(JobCEC(0, 1), JobCEC(0, 1), 6, 7, jobOrder, tasksInfo));
-  EXPECT_FALSE(WhetherJobStartEarlier(JobCEC(0, 1), JobCEC(1, 0), 6, 7, jobOrder, tasksInfo));
-  EXPECT_FALSE(WhetherJobStartEarlier(JobCEC(0, 1), JobCEC(2, 0), 6, 7, jobOrder, tasksInfo));
-
-  EXPECT_TRUE(WhetherJobStartEarlier(JobCEC(1, 0), JobCEC(0, 0), 4, 5, jobOrder, tasksInfo));
-}
-
 class RTDATest2 : public RTDATest1 {
 protected:
   void SetUp() override {
@@ -163,19 +111,6 @@ protected:
   }
 };
 
-TEST_F(RTDATest2, GetJobMinStartTime) {
-
-  EXPECT_EQ(0, GetJobMinStartTime(JobCEC(0, 0), jobOrder, tasksInfo));
-  EXPECT_EQ(10, GetJobMinStartTime(JobCEC(0, 1), jobOrder, tasksInfo));
-  EXPECT_EQ(20, GetJobMinStartTime(JobCEC(0, 2), jobOrder, tasksInfo));
-
-  EXPECT_EQ(0, GetJobMinStartTime(JobCEC(1, 0), jobOrder, tasksInfo));
-  EXPECT_EQ(10, GetJobMinStartTime(JobCEC(1, 1), jobOrder, tasksInfo));
-  EXPECT_EQ(20, GetJobMinStartTime(JobCEC(1, 2), jobOrder, tasksInfo));
-
-  EXPECT_EQ(2, GetJobMinStartTime(JobCEC(2, 0), jobOrder, tasksInfo));
-}
-
 TEST_F(RTDATest2, break_chain) {
 
   LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_);
@@ -186,15 +121,6 @@ TEST_F(RTDATest2, break_chain) {
   EXPECT_FALSE(WhetherJobBreakChain(job10, 0, 1, longestChain, dagTasks, jobOrder, tasksInfo));
   EXPECT_TRUE(WhetherJobBreakChain(job11, 1, 2, longestChain, dagTasks, jobOrder, tasksInfo));
   EXPECT_FALSE(WhetherJobBreakChain(job12, 10, 11, longestChain, dagTasks, jobOrder, tasksInfo));
-}
-
-TEST_F(RTDATest2, WhetherJobStartEarlier) {
-  EXPECT_FALSE(WhetherJobStartEarlier(JobCEC(0, 0), JobCEC(0, 1), 6, 7, jobOrder, tasksInfo));
-  EXPECT_FALSE(WhetherJobStartEarlier(JobCEC(0, 0), JobCEC(1, 1), 6, 7, jobOrder, tasksInfo));
-  EXPECT_FALSE(WhetherJobStartEarlier(JobCEC(0, 0), JobCEC(2, 0), 6, 7, jobOrder, tasksInfo));
-  EXPECT_FALSE(WhetherJobStartEarlier(JobCEC(0, 0), JobCEC(1, 2), 6, 7, jobOrder, tasksInfo));
-
-  EXPECT_FALSE(WhetherJobStartEarlier(JobCEC(2, 0), JobCEC(0, 0), 4, 5, jobOrder, tasksInfo));
 }
 
 class RTDATest3 : public RTDATest1 {
@@ -210,11 +136,6 @@ protected:
     dagTasks.chains_.push_back({0, 1, 2});
   }
 };
-TEST_F(RTDATest3, WhetherJobStartEarlier) {
-
-  EXPECT_TRUE(WhetherJobStartEarlier(JobCEC(2, 0), JobCEC(1, 1), 10, 11, jobOrder, tasksInfo));
-}
-
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

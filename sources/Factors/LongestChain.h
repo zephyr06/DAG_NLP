@@ -52,11 +52,4 @@ bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
                           const LongestCAChain &longestJobChains, const DAG_Model &dagTasks,
                           SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo);
 
-double GetJobMinStartTime(const JobCEC &jobCurr, SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo);
-
-bool WhetherJobStartEarlier(const JobCEC &jobCurr, SFOrder &jobOrderOrg, SFOrder &jobOrderNew,
-                            const TaskSetInfoDerived &tasksInfo);
-
-bool WhetherJobStartEarlier(const JobCEC &jobCurr, const JobCEC &jobChanged, LLint startP, LLint finishP,
-                            SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo);
 } // namespace OrderOptDAG_SPACE
