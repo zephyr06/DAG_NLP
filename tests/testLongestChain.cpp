@@ -97,41 +97,48 @@ TEST_F(RTDATest1, break_chain) {
   EXPECT_FALSE(WhetherJobBreakChain(JobCEC(1, 0), 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
 }
 
-double GetJobMinStartTime(const JobCEC &jobCurr, SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo) {
-  double minStartTime = GetActivationTime(jobCurr, tasksInfo);
-  for (LLint i = jobOrder.GetJobStartInstancePosition(jobCurr) - 1; i >= 0; i--) {
+double GetJobMaxStartTime(const JobCEC &jobCurr, SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo) {
+  double maxStartTime = GetDeadline(jobCurr, tasksInfo) - GetExecutionTime(jobCurr, tasksInfo);
+  for (LLint i = jobOrder.GetJobStartInstancePosition(jobCurr) + 1; i < jobOrder.size(); i++) {
     TimeInstance instCurr = jobOrder[i];
-    double instCurrMinStart = instCurr.GetRangeMin(tasksInfo);
-    if (instCurrMinStart > minStartTime) {
-      minStartTime = instCurrMinStart;
-    }
     double instCurrMaxStart = instCurr.GetRangeMax(tasksInfo);
-    if (minStartTime > instCurrMaxStart)
+    if (instCurrMaxStart < maxStartTime) {
+      maxStartTime = instCurrMaxStart;
+    }
+    double instCurrMinStart = instCurr.GetRangeMin(tasksInfo);
+    if (maxStartTime < instCurrMinStart)
       break;
   }
-  return minStartTime;
+  return maxStartTime;
 }
-bool WhetherJobStartEarlier(const JobCEC &jobCurr, SFOrder &jobOrderOrg, SFOrder &jobOrderNew,
-                            const TaskSetInfoDerived &tasksInfo) {
 
-  double minStartTimeOrg = GetJobMinStartTime(jobCurr, jobOrderOrg, tasksInfo);
-  double minStartTimeNew = GetJobMinStartTime(jobCurr, jobOrderNew, tasksInfo);
-  return minStartTimeNew < minStartTimeOrg;
+bool WhetherJobStartLater(const JobCEC &jobCurr, SFOrder &jobOrderOrg, SFOrder &jobOrderNew,
+                          const TaskSetInfoDerived &tasksInfo) {
+
+  double maxStartTimeOrg = GetJobMaxStartTime(jobCurr, jobOrderOrg, tasksInfo);
+  double maxStartTimeNew = GetJobMaxStartTime(jobCurr, jobOrderNew, tasksInfo);
+  return maxStartTimeNew > maxStartTimeOrg;
 }
-bool WhetherJobStartEarlier(const JobCEC &jobCurr, const JobCEC &jobChanged, LLint startP, LLint finishP,
-                            SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo) {
+bool WhetherJobStartLater(const JobCEC &jobCurr, const JobCEC &jobChanged, LLint startP, LLint finishP,
+                          SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo) {
 
   SFOrder jobOrderNew = jobOrder;
   jobOrderNew.RemoveJob(jobChanged);
   jobOrderNew.InsertStart(jobChanged, startP);
   jobOrderNew.InsertFinish(jobChanged, finishP);
-  return WhetherJobStartEarlier(jobCurr, jobOrder, jobOrderNew, tasksInfo);
+  return WhetherJobStartLater(jobCurr, jobOrder, jobOrderNew, tasksInfo);
 }
 TEST_F(RTDATest1, GetJobMinStartTime) {
   EXPECT_EQ(0, GetJobMinStartTime(JobCEC(0, 0), jobOrder, tasksInfo));
   EXPECT_EQ(0, GetJobMinStartTime(JobCEC(2, 0), jobOrder, tasksInfo));
   EXPECT_EQ(1, GetJobMinStartTime(JobCEC(1, 0), jobOrder, tasksInfo));
   EXPECT_EQ(10, GetJobMinStartTime(JobCEC(0, 1), jobOrder, tasksInfo));
+}
+TEST_F(RTDATest1, GetJobMaxStartTime) {
+  EXPECT_EQ(9, GetJobMaxStartTime(JobCEC(0, 0), jobOrder, tasksInfo));
+  EXPECT_EQ(10, GetJobMaxStartTime(JobCEC(2, 0), jobOrder, tasksInfo));
+  EXPECT_EQ(11, GetJobMaxStartTime(JobCEC(1, 0), jobOrder, tasksInfo));
+  EXPECT_EQ(19, GetJobMaxStartTime(JobCEC(0, 1), jobOrder, tasksInfo));
 }
 
 TEST_F(RTDATest1, WhetherJobStartEarlier) {

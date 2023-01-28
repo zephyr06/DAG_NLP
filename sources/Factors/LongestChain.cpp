@@ -154,4 +154,35 @@ bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
   return false;
 }
 
+double GetJobMinStartTime(const JobCEC &jobCurr, SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo) {
+  double minStartTime = GetActivationTime(jobCurr, tasksInfo);
+  for (LLint i = jobOrder.GetJobStartInstancePosition(jobCurr) - 1; i >= 0; i--) {
+    TimeInstance instCurr = jobOrder[i];
+    double instCurrMinStart = instCurr.GetRangeMin(tasksInfo);
+    if (instCurrMinStart > minStartTime) {
+      minStartTime = instCurrMinStart;
+    }
+    double instCurrMaxStart = instCurr.GetRangeMax(tasksInfo);
+    if (minStartTime > instCurrMaxStart)
+      break;
+  }
+  return minStartTime;
+}
+bool WhetherJobStartEarlier(const JobCEC &jobCurr, SFOrder &jobOrderOrg, SFOrder &jobOrderNew,
+                            const TaskSetInfoDerived &tasksInfo) {
+
+  double minStartTimeOrg = GetJobMinStartTime(jobCurr, jobOrderOrg, tasksInfo);
+  double minStartTimeNew = GetJobMinStartTime(jobCurr, jobOrderNew, tasksInfo);
+  return minStartTimeNew < minStartTimeOrg;
+}
+bool WhetherJobStartEarlier(const JobCEC &jobCurr, const JobCEC &jobChanged, LLint startP, LLint finishP,
+                            SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo) {
+
+  SFOrder jobOrderNew = jobOrder;
+  jobOrderNew.RemoveJob(jobChanged);
+  jobOrderNew.InsertStart(jobChanged, startP);
+  jobOrderNew.InsertFinish(jobChanged, finishP);
+  return WhetherJobStartEarlier(jobCurr, jobOrder, jobOrderNew, tasksInfo);
+}
+
 } // namespace OrderOptDAG_SPACE
