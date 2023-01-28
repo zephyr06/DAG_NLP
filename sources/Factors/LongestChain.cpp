@@ -153,5 +153,25 @@ bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
 
   return false;
 }
+std::unordered_map<JobCEC, int> ExtractIndependentJobGroups(const SFOrder &jobOrder,
+                                                            const TaskSetInfoDerived &tasksInfo) {
+  std::unordered_map<JobCEC, int> jobGroupMap;
+  int jobGroupIndex = 0;
+  jobGroupMap.insert({jobOrder.at(0).job, jobGroupIndex});
+  for (uint i = 1; i < jobOrder.size(); i++) {
+    const TimeInstance &instCurr = jobOrder.at(i);
+    if (instCurr.type == 's') {
+      auto a = jobOrder.at(i - 1).GetRangeMax(tasksInfo);
+      auto b = instCurr.GetRangeMin(tasksInfo);
+      if (a <= b) {
+        jobGroupIndex++;
+      }
+      jobGroupMap.insert({instCurr.job, jobGroupIndex});
+    } else {
+      ;
+    }
+  }
+  return jobGroupMap;
+}
 
 } // namespace OrderOptDAG_SPACE

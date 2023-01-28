@@ -52,4 +52,11 @@ bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
                           const LongestCAChain &longestJobChains, const DAG_Model &dagTasks,
                           SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo);
 
+std::unordered_map<JobCEC, int> ExtractIndependentJobGroups(const SFOrder &jobOrder,
+                                                            const TaskSetInfoDerived &tasksInfo);
+
+inline bool WhetherInfluenceJobSimple(const JobCEC &jobCurr, const JobCEC &jobChanged,
+                                      std::unordered_map<JobCEC, int> &jobGroupMap) {
+  return (jobGroupMap[jobCurr] == jobGroupMap[jobChanged]);
+}
 } // namespace OrderOptDAG_SPACE
