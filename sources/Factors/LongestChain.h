@@ -42,4 +42,13 @@ public:
   // data members
   std::vector<std::vector<JobCEC>> longestChains_;
 };
+
+int FindSiblingJobIndex(const JobCEC &job, const std::vector<JobCEC> &jobChainCurr);
+// The input jobOrder is the same as jobOrderRef
+// it assumes the input jobOrder will first remove job, and then insert its start/finish instances at
+// startP/finishP
+// If you want to be safer, return more 'true'
+bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
+                          const LongestCAChain &longestJobChains, const DAG_Model &dagTasks,
+                          SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo);
 } // namespace OrderOptDAG_SPACE

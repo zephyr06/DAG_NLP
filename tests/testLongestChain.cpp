@@ -86,57 +86,6 @@ TEST_F(RTDATest1, longest_chain) {
   AssertEqualVectorNoRepeat<JobCEC>(chain0, longestChain.longestChains_[1], 0, __LINE__);
 }
 
-int FindSiblingJobIndex(const JobCEC &job, const std::vector<JobCEC> &jobChainCurr) {
-  for (uint i = 0; i < jobChainCurr.size(); i++) {
-    if (job.taskId == jobChainCurr[i].taskId) {
-      return i;
-    }
-  }
-  return -1;
-}
-// The input jobOrder is the same as jobOrderRef
-// it assumes the input jobOrder will first remove job, and then insert its start/finish instances at
-// startP/finishP
-// If you want to be safer, return more 'true'
-bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
-                          const LongestCAChain &longestJobChains, const DAG_Model &dagTasks,
-                          SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo) {
-
-  for (auto &taskChainCurr : dagTasks.chains_) {
-    auto itr = std::find(taskChainCurr.begin(), taskChainCurr.end(), job.taskId);
-    if (itr != taskChainCurr.end()) {
-      for (uint i = 0; i < longestJobChains.size(); i++) {
-        const std::vector<JobCEC> &jobChainCurr = longestJobChains[i];
-        int siblingJobIndex = FindSiblingJobIndex(job, jobChainCurr);
-        JobCEC sibJob = jobChainCurr[siblingJobIndex];
-        if (sibJob == job)
-          return true; // this may not be necessary, but is a safe solution
-
-        if (siblingJobIndex == 0) { // new source job may initiate a different cause-effect chain
-          JobCEC afterSibJob =
-              jobChainCurr[siblingJobIndex + 1]; // assume the length of the chain is longer than 1
-          if (startP > jobOrder.GetJobFinishInstancePosition(sibJob) &&
-              finishP < jobOrder.GetJobStartInstancePosition(afterSibJob))
-            return true;
-        } else { // whether the job reacts earlier than sibingJob?
-          if (sibJob.jobId < job.jobId)
-            continue; // the job cannot react earlier than sibJob, and so cannot change reaction relationship
-          JobCEC sibJobImmediateSourceJob = jobChainCurr[siblingJobIndex - 1];
-          LLint sibImmeSourJobFinish = jobOrder.GetJobFinishInstancePosition(sibJobImmediateSourceJob);
-          if (jobOrder.GetJobStartInstancePosition(job) < sibImmeSourJobFinish)
-            sibImmeSourJobFinish--;
-          if (jobOrder.GetJobFinishInstancePosition(job) < sibImmeSourJobFinish)
-            sibImmeSourJobFinish--;
-          if (sibImmeSourJobFinish <= startP && startP < jobOrder.GetJobStartInstancePosition(sibJob))
-            return true;
-        }
-      }
-    }
-  }
-
-  return false;
-}
-
 TEST_F(RTDATest1, break_chain) {
 
   LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_);
@@ -144,7 +93,8 @@ TEST_F(RTDATest1, break_chain) {
   EXPECT_TRUE(WhetherJobBreakChain(job0, 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
   EXPECT_TRUE(WhetherJobBreakChain(job0, 0, 1, longestChain, dagTasks, jobOrder, tasksInfo));
   EXPECT_TRUE(WhetherJobBreakChain(job2, 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
-  EXPECT_FALSE(WhetherJobBreakChain(job1, 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_TRUE(WhetherJobBreakChain(job1, 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_FALSE(WhetherJobBreakChain(JobCEC(1, 0), 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
 }
 
 class RTDATest2 : public RTDATest1 {
