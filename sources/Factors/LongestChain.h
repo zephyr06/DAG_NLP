@@ -36,6 +36,8 @@ public:
   void FindLongestCAChain() {}
 
   size_t size() const { return longestChains_.size(); }
+  // inline begin() const { return longestChains_[0]; }
+  // inline back() const { return longestChains_[size() - 1]; }
 
   std::vector<JobCEC> operator[](size_t index) const { return longestChains_[index]; }
   // std::vector<JobCEC> at(size_t index) const { return longestChains_[index]; }

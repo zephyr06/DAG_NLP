@@ -145,5 +145,5 @@ int considerSensorFusion =
 const int doScheduleOptimizationOnlyOnce = (int)ConfigParameters["doScheduleOptimizationOnlyOnce"];
 const int BatchTestOnlyOneMethod = (int)ConfigParameters["BatchTestOnlyOneMethod"];
 const int selectInitialFromPool = (int)ConfigParameters["selectInitialFromPool"];
-
+const int FastOptimization = (int)ConfigParameters["FastOptimization"];
 } // namespace GlobalVariablesDAGOpt

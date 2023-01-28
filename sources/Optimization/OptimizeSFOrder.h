@@ -8,6 +8,7 @@
 #include "sources/Utils/Parameters.h"
 // #include "sources/Optimization/JobOrder.h"
 #include "sources/Factors/Interval.h"
+#include "sources/Factors/LongestChain.h"
 #include "sources/Factors/RTDA_Factor.h"
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Optimization/IterationStatus.h"
@@ -69,6 +70,10 @@ public:
       std::cout << "Initial SF order: " << std::endl;
       jobOrderRef.print();
     }
+
+    longestJobChains_ = LongestCAChain(dagTasks, tasksInfo, jobOrderRef, statusPrev.startTimeVector_,
+                                       scheduleOptions.processorNum_);
+    jobGroupMap_ = ExtractIndependentJobGroups(jobOrderRef, tasksInfo);
   }
 
   ScheduleResult Optimize() {
@@ -149,6 +154,25 @@ public:
                                       startP))
           break;
 
+        // Independence analysis
+        if (GlobalVariablesDAGOpt::FastOptimization) {
+          if (!WhetherJobBreakChain(jobRelocate, startP, finishP, longestJobChains_, dagTasks, jobOrderRef,
+                                    tasksInfo)) {
+            bool noInfluence = false;
+            for (uint kk = 0; kk < longestJobChains_.size(); kk++) {
+              JobCEC sourceJob = longestJobChains_[kk][0];
+              JobCEC sinkJob = longestJobChains_[kk][longestJobChains_[kk].size() - 1];
+              if (WhetherInfluenceJobSimple(sourceJob, jobRelocate, jobGroupMap_) ||
+                  (WhetherInfluenceJobSimple(sinkJob, jobRelocate, jobGroupMap_))) {
+                noInfluence = true;
+                break;
+              }
+            }
+            if (noInfluence)
+              continue;
+          }
+        }
+
         SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is still faster
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
         std::vector<uint> processorJobVec;
@@ -173,6 +197,10 @@ public:
       jobOrderRef = jobOrderBestFound;
       findBetterJobOrderWithinIterations = true;
       countMakeProgress++;
+
+      longestJobChains_ = LongestCAChain(dagTasks, tasksInfo, jobOrderRef, statusPrev.startTimeVector_,
+                                         scheduleOptions.processorNum_);
+      jobGroupMap_ = ExtractIndependentJobGroups(jobOrderRef, tasksInfo);
     }
 
     EndTimer("ImproveJobOrderPerJob");
@@ -241,6 +269,8 @@ public:
   SFOrder jobOrderRef;
   IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusPrev;
   VectorDynamic warmStart_;
+  std::unordered_map<JobCEC, int> jobGroupMap_;
+  LongestCAChain longestJobChains_;
 
 }; // class DAGScheduleOptimizer
 

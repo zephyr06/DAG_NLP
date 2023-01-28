@@ -159,4 +159,5 @@ extern int considerSensorFusion; // previous code heavily depended on its value,
                                  // const int in the future
 extern const int doScheduleOptimizationOnlyOnce;
 extern const int BatchTestOnlyOneMethod;
+extern const int FastOptimization;
 } // namespace GlobalVariablesDAGOpt
