@@ -83,6 +83,7 @@ std::vector<std::vector<JobCEC>> LongestCAChain::FindLongestCAChain(const DAG_Mo
                                                                     SFOrder &jobOrder,
                                                                     const VectorDynamic &startTimeVector,
                                                                     int processorNum) {
+  BeginTimer("FindLongestCAChain");
   std::vector<std::vector<JobCEC>> longestChains;
   longestChains.reserve(dagTasks.chains_.size() * 3); // 3x is usually not necessary, though
 
@@ -101,6 +102,7 @@ std::vector<std::vector<JobCEC>> LongestCAChain::FindLongestCAChain(const DAG_Mo
       }
     }
   }
+  EndTimer("FindLongestCAChain");
   return longestChains;
 }
 
@@ -119,7 +121,7 @@ int FindSiblingJobIndex(const JobCEC &job, const std::vector<JobCEC> &jobChainCu
 bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
                           const LongestCAChain &longestJobChains, const DAG_Model &dagTasks,
                           SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo) {
-
+  BeginTimer("WhetherJobBreakChain");
   for (auto &taskChainCurr : dagTasks.chains_) {
     auto itr = std::find(taskChainCurr.begin(), taskChainCurr.end(), job.taskId);
     if (itr != taskChainCurr.end()) {
@@ -127,14 +129,19 @@ bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
         const std::vector<JobCEC> &jobChainCurr = longestJobChains[i];
         int siblingJobIndex = FindSiblingJobIndex(job, jobChainCurr);
         JobCEC sibJob = jobChainCurr[siblingJobIndex];
-        if (sibJob == job)
-          return true; // this may not be necessary, but is a safe solution
+        if (sibJob == job) // this may not be necessary, but is a safe solution
+        {
+          EndTimer("WhetherJobBreakChain");
+          return true;
+        }
 
         if (siblingJobIndex == 0) { // new source job may initiate a different cause-effect chain
           JobCEC afterSibJob =
               jobChainCurr[siblingJobIndex + 1]; // assume the length of the chain is longer than 1
-          if (sibJob.jobId < job.jobId && finishP < jobOrder.GetJobStartInstancePosition(afterSibJob))
+          if (sibJob.jobId < job.jobId && finishP < jobOrder.GetJobStartInstancePosition(afterSibJob)) {
+            EndTimer("WhetherJobBreakChain");
             return true;
+          }
         } else { // the job is not a source task's job
           if (sibJob.jobId < job.jobId)
             continue; // the job cannot react earlier than sibJob, and so cannot change reaction relationship
@@ -144,17 +151,20 @@ bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
             sibImmeSourJobFinish--;
           if (jobOrder.GetJobFinishInstancePosition(job) < sibImmeSourJobFinish)
             sibImmeSourJobFinish--;
-          if (sibImmeSourJobFinish <= startP && job.jobId < sibJob.jobId)
+          if (sibImmeSourJobFinish <= startP && job.jobId < sibJob.jobId) {
+            EndTimer("WhetherJobBreakChain");
             return true;
+          }
         }
       }
     }
   }
-
+  EndTimer("WhetherJobBreakChain");
   return false;
 }
 std::unordered_map<JobCEC, int> ExtractIndependentJobGroups(const SFOrder &jobOrder,
                                                             const TaskSetInfoDerived &tasksInfo) {
+  BeginTimer("ExtractIndependentJobGroups");
   std::unordered_map<JobCEC, int> jobGroupMap;
   int jobGroupIndex = 0;
   jobGroupMap.insert({jobOrder.at(0).job, jobGroupIndex});
@@ -171,6 +181,7 @@ std::unordered_map<JobCEC, int> ExtractIndependentJobGroups(const SFOrder &jobOr
       ;
     }
   }
+  EndTimer("ExtractIndependentJobGroups");
   return jobGroupMap;
 }
 

@@ -184,8 +184,9 @@ public:
           jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
           break;
         }
-        bool findImprove = CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange,
-                                                  statusBestFound, jobOrderBestFound);
+        // bool findImprove =
+        CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, statusBestFound,
+                               jobOrderBestFound);
         // if (debug_independence && findImprove) {
         //   jobOrderRef.print();
         //   std::cout << "\n";
