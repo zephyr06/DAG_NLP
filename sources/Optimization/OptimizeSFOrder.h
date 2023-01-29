@@ -156,6 +156,7 @@ public:
 
         // Independence analysis
         // bool debug_independence = false;
+        BeginTimer("FastOptimizationExam");
         if (GlobalVariablesDAGOpt::FastOptimization) {
           if (!WhetherJobBreakChain(jobRelocate, startP, finishP, longestJobChains_, dagTasks, jobOrderRef,
                                     tasksInfo)) {
@@ -166,14 +167,18 @@ public:
               if (WhetherInfluenceJobSimple(sourceJob, jobRelocate, jobGroupMap_) ||
                   (WhetherInfluenceJobSimple(sinkJob, jobRelocate, jobGroupMap_))) {
                 hasInfluence = true;
+                EndTimer("FastOptimizationExam");
                 break;
               }
             }
-            if (!hasInfluence)
+            if (!hasInfluence) {
+              EndTimer("FastOptimizationExam");
               continue;
+            }
             // debug_independence = true;
           }
         }
+        EndTimer("FastOptimizationExam");
 
         SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is still faster
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
