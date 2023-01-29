@@ -112,6 +112,7 @@ int FindSiblingJobIndex(const JobCEC &job, const std::vector<JobCEC> &jobChainCu
       return i;
     }
   }
+  // CoutError("Didn't find sibling job in FindSiblingJobIndex");
   return -1;
 }
 // The input jobOrder is the same as jobOrderRef
@@ -128,6 +129,8 @@ bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
       for (uint i = 0; i < longestJobChains.size(); i++) {
         const std::vector<JobCEC> &jobChainCurr = longestJobChains[i];
         int siblingJobIndex = FindSiblingJobIndex(job, jobChainCurr);
+        if (siblingJobIndex == -1)
+          continue;
         JobCEC sibJob = jobChainCurr[siblingJobIndex];
         if (sibJob == job) // this may not be necessary, but is a safe solution
         {
