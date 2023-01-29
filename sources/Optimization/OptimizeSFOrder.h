@@ -172,7 +172,7 @@ public:
                 break;
               }
             }
-            if (hasInfluence) {
+            if (!hasInfluence) {
               EndTimer("FastOptimizationExam");
               continue;
             }
