@@ -62,4 +62,9 @@ inline bool WhetherInfluenceJobSimple(const JobCEC &jobCurr, const JobCEC &jobCh
                                       std::unordered_map<JobCEC, int> &jobGroupMap) {
   return (jobGroupMap[jobCurr] == jobGroupMap[jobChanged]);
 }
+
+bool WhetherInfluenceJobSource(const JobCEC &jobCurr, const JobCEC &jobChanged,
+                               std::unordered_map<JobCEC, int> &jobGroupMap);
+bool WhetherInfluenceJobSink(const JobCEC &jobCurr, const JobCEC &jobChanged,
+                             std::unordered_map<JobCEC, int> &jobGroupMap);
 } // namespace OrderOptDAG_SPACE

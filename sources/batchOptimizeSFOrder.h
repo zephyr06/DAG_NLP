@@ -236,6 +236,9 @@ std::vector<BatchResult> BatchOptimizeOrder(std::vector<OrderOptDAG_SPACE::Basel
     BatchResult batchRes{Average(schedulableAll[i]), Average(objsAll[i]), Average(runTimeAll[i])};
     batchResVec.push_back(batchRes);
   }
+  std::cout << "Case that takes the longest time in TOM: "
+            << int((std::max_element(runTimeAll[3].begin(), runTimeAll[3].end())) - runTimeAll[3].begin())
+            << "\n";
 
   return batchResVec;
 }

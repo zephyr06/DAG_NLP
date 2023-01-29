@@ -185,7 +185,15 @@ std::unordered_map<JobCEC, int> ExtractIndependentJobGroups(const SFOrder &jobOr
     }
   }
   EndTimer("ExtractIndependentJobGroups");
+  std::cout << "The number of job groups in ExtractIndependentJobGroups: " << jobGroupIndex << std::endl;
   return jobGroupMap;
 }
-
+bool WhetherInfluenceJobSource(const JobCEC &jobCurr, const JobCEC &jobChanged,
+                               std::unordered_map<JobCEC, int> &jobGroupMap) {
+  return WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap);
+}
+bool WhetherInfluenceJobSink(const JobCEC &jobCurr, const JobCEC &jobChanged,
+                             std::unordered_map<JobCEC, int> &jobGroupMap) {
+  return WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap);
+}
 } // namespace OrderOptDAG_SPACE
