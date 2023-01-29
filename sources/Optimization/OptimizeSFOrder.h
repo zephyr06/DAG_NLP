@@ -150,6 +150,7 @@ public:
            finishP++) {
         if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, jobOrderRef))
           continue;
+        // TODO: WhetherStartFinishTooLong can be optimized for better efficiency
         if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart,
                                       startP))
           break;
@@ -171,7 +172,7 @@ public:
                 break;
               }
             }
-            if (!hasInfluence) {
+            if (hasInfluence) {
               EndTimer("FastOptimizationExam");
               continue;
             }
