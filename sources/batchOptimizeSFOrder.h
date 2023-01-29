@@ -148,6 +148,7 @@ std::vector<BatchResult> BatchOptimizeOrder(std::vector<OrderOptDAG_SPACE::Basel
         }
         std::cout << "Schedulable? " << res.schedulable_ << std::endl;
         std::cout << Color::green << "Objective: " << res.obj_ << Color::def << std::endl;
+        std::cout << "res.timeTaken_: " << res.timeTaken_ << "\n\n";
 
         // if timeTaken_ approaches 600s and the method is GlobalOpt, then we'll skip its results because
         // cannot guarantee global optimal
