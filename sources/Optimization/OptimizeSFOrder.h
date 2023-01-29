@@ -155,21 +155,23 @@ public:
           break;
 
         // Independence analysis
+        // bool debug_independence = false;
         if (GlobalVariablesDAGOpt::FastOptimization) {
           if (!WhetherJobBreakChain(jobRelocate, startP, finishP, longestJobChains_, dagTasks, jobOrderRef,
                                     tasksInfo)) {
-            bool noInfluence = false;
+            bool hasInfluence = false;
             for (uint kk = 0; kk < longestJobChains_.size(); kk++) {
               JobCEC sourceJob = longestJobChains_[kk][0];
               JobCEC sinkJob = longestJobChains_[kk][longestJobChains_[kk].size() - 1];
               if (WhetherInfluenceJobSimple(sourceJob, jobRelocate, jobGroupMap_) ||
                   (WhetherInfluenceJobSimple(sinkJob, jobRelocate, jobGroupMap_))) {
-                noInfluence = true;
+                hasInfluence = true;
                 break;
               }
             }
-            if (noInfluence)
+            if (!hasInfluence)
               continue;
+            // debug_independence = true;
           }
         }
 
@@ -182,8 +184,17 @@ public:
           jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
           break;
         }
-        CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, statusBestFound,
-                               jobOrderBestFound);
+        bool findImprove = CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange,
+                                                  statusBestFound, jobOrderBestFound);
+        // if (debug_independence && findImprove) {
+        //   jobOrderRef.print();
+        //   std::cout << "\n";
+        //   std::cout << "\n";
+        //   std::cout << "\n";
+        //   jobOrderCurrForFinish.print();
+        //   CoutWarning("Error situation!");
+        //   int a = 1;
+        // }
 
         // TODO: whether it's possible to avoid whetherSFMapNeedUpdate
         // TODO: Avoid update job order’s internal index
