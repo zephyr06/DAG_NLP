@@ -5,10 +5,9 @@
 #include "sources/Utils/profilier.h"
 
 namespace OrderOptDAG_SPACE {
+// this function usually is fast
 bool ProcessorAssignment::AssignProcessor(const TaskSetInfoDerived &tasksInfo, const SFOrder &sfOrder,
                                           const int processorNum, std::vector<uint> &processorJobVec) {
-  BeginTimer("AssignProcessor");
-
   processorJobVec.clear();
   processorJobVec.resize(tasksInfo.variableDimension, 0);
 
@@ -30,7 +29,6 @@ bool ProcessorAssignment::AssignProcessor(const TaskSetInfoDerived &tasksInfo, c
       }
       if (!flagProcessorAvailable) {
         processorJobVec.clear();
-        EndTimer("AssignProcessor");
         return false; // SFOrder unschedulable
       }
     } else // finish instance
@@ -39,7 +37,6 @@ bool ProcessorAssignment::AssignProcessor(const TaskSetInfoDerived &tasksInfo, c
           orderInstance.job.taskId, orderInstance.job.jobId, tasksInfo.sizeOfVariables)]] = false;
     }
   }
-  EndTimer("AssignProcessor");
   return true;
 }
 

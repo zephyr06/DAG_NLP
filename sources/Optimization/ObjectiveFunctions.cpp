@@ -38,12 +38,12 @@ namespace OrderOptDAG_SPACE
 
         double RTDAExperimentObj::TrueObj(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector, const ScheduleOptions scheduleOptions)
         {
-            BeginTimer("RTDAExperimentObj_TrueObj");
+            // BeginTimer("RTDAExperimentObj_TrueObj");
             std::vector<std::vector<RTDA>> rtdaVec = GetRTDAFromAllChains(dagTasks, tasksInfo, startTimeVector);
             std::vector<RTDA> maxRtda = GetMaxRTDAs(rtdaVec);
 
             double res = ObjRTDA(maxRtda);
-            EndTimer("RTDAExperimentObj_TrueObj");
+            // EndTimer("RTDAExperimentObj_TrueObj");
             return res;
         }
 

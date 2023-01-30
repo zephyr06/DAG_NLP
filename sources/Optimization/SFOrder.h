@@ -66,7 +66,6 @@ public:
   // O(n log(n))
   SFOrder(const TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector) : tasksInfo_(tasksInfo) {
 
-    BeginTimer(__FUNCTION__);
     instanceOrder_.reserve(tasksInfo.length * 2);
     for (int i = 0; i < tasksInfo.N; i++) {
       for (uint j = 0; j < tasksInfo.sizeOfVariables[i]; j++) {
@@ -82,7 +81,6 @@ public:
 
     whetherSFMapNeedUpdate = true;
     EstablishJobSFMap();
-    EndTimer(__FUNCTION__);
   }
 
   SFOrder(const TaskSetInfoDerived &tasksInfo, std::vector<TimeInstance> &instanceOrder)

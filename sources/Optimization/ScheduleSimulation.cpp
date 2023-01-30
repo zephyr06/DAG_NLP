@@ -174,7 +174,7 @@ inline VectorDynamic GetInfeasibleStartTimeVector(const TaskSetInfoDerived &task
 VectorDynamic SFOrderScheduling(const TaskSet &tasks, const TaskSetInfoDerived &tasksInfo, int processorNum,
                                 const SFOrder &jobOrder,
                                 boost::optional<std::vector<uint> &> processorIdVec) {
-  BeginTimer(__FUNCTION__);
+
   const std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
 
   VectorDynamic startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
@@ -227,7 +227,6 @@ VectorDynamic SFOrderScheduling(const TaskSet &tasks, const TaskSetInfoDerived &
           //   }
           //   timeNow = leastAvailableProcessorTime;
 
-          EndTimer(__FUNCTION__);
           return GetInfeasibleStartTimeVector(tasksInfo);
         }
       }
@@ -240,7 +239,6 @@ VectorDynamic SFOrderScheduling(const TaskSet &tasks, const TaskSetInfoDerived &
     }
   }
 
-  EndTimer(__FUNCTION__);
   return startTimeVector;
 }
 } // namespace OrderOptDAG_SPACE

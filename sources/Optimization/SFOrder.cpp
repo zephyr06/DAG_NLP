@@ -68,8 +68,8 @@ std::vector<TimeInstance> ExtractSubInstances(const SFOrder &jobOrderCurrForFini
 void SFOrder::EstablishJobSFMap() {
   BeginTimer(__FUNCTION__);
   if (!whetherSFMapNeedUpdate) {
-    return;
     EndTimer(__FUNCTION__);
+    return;
   }
   jobSFMap_.reserve(tasksInfo_.length);
   for (size_t i = 0; i < instanceOrder_.size(); i++) {
@@ -105,7 +105,6 @@ void SFOrder::RangeCheck(LLint index, bool allowEnd) const {
 }
 
 void SFOrder::RemoveJob(JobCEC job) {
-  BeginTimer(__FUNCTION__);
   LLint startIndex = GetJobStartInstancePosition(job);
   LLint finishIndex = GetJobFinishInstancePosition(job);
   RangeCheck(startIndex);
@@ -115,11 +114,9 @@ void SFOrder::RemoveJob(JobCEC job) {
   jobSFMap_.erase(job);
   // EstablishJobSFMap();
   whetherSFMapNeedUpdate = true;
-  EndTimer(__FUNCTION__);
 }
 
 void SFOrder::InsertStart(JobCEC job, LLint position) {
-  BeginTimer(__FUNCTION__);
   RangeCheck(position, true);
   TimeInstance inst('s', job);
   instanceOrder_.insert(instanceOrder_.begin() + position, inst);
@@ -136,27 +133,21 @@ void SFOrder::InsertStart(JobCEC job, LLint position) {
   // }
   // EstablishJobSFMap();
   whetherSFMapNeedUpdate = true;
-
-  EndTimer(__FUNCTION__);
 }
 
 void SFOrder::InsertFinish(JobCEC job, LLint position) {
-  BeginTimer(__FUNCTION__);
   RangeCheck(position, true);
   instanceOrder_.insert(instanceOrder_.begin() + position, TimeInstance('f', job));
   // EstablishJobSFMap();
   whetherSFMapNeedUpdate = true;
-  EndTimer(__FUNCTION__);
 }
 void SFOrder::RemoveInstance(JobCEC job, LLint position) {
-  BeginTimer(__FUNCTION__);
   RangeCheck(position, true);
   if (job != instanceOrder_.at(position).job)
     CoutError("Wrong position while removing instance!");
   instanceOrder_.erase(instanceOrder_.begin() + position);
   // EstablishJobSFMap();
   whetherSFMapNeedUpdate = true;
-  EndTimer(__FUNCTION__);
 }
 
 void SFOrder::print() const {

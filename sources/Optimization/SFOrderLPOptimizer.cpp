@@ -10,7 +10,6 @@
 
 namespace OrderOptDAG_SPACE {
 void SFOrderLPOptimizer::Init() {
-  BeginTimer("SFOrderLPOptimizer_Init");
   if (hasBeenInitialized_) {
     this->ClearCplexMemory();
   }
@@ -24,7 +23,6 @@ void SFOrderLPOptimizer::Init() {
   processorJobVec_.clear();
 
   hasBeenInitialized_ = true;
-  EndTimer("SFOrderLPOptimizer_Init");
 }
 
 void SFOrderLPOptimizer::ClearCplexMemory() {
@@ -39,7 +37,7 @@ void SFOrderLPOptimizer::ClearCplexMemory() {
 
 // function Optimize() will optimize RTDA
 void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec) {
-  BeginTimer("Build_LP_Model");
+  // BeginTimer("Build_LP_Model");
   this->Init();
   setProcessorJobVec(processorJobVec);
 
@@ -48,11 +46,11 @@ void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec) {
   AddDDLConstraints();
   AddObjectives();
   cplexSolver_.extract(model_);
-  EndTimer("Build_LP_Model");
+  // EndTimer("Build_LP_Model");
 
-  BeginTimer("Solve_LP");
+  // BeginTimer("Solve_LP");
   bool found_feasible_solution = cplexSolver_.solve();
-  EndTimer("Solve_LP");
+  // EndTimer("Solve_LP");
   IloNumArray values_optimized(env_, numVariables_);
   if (found_feasible_solution) {
     auto status = cplexSolver_.getStatus();
@@ -74,16 +72,14 @@ void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec) {
 
     UpdateOptimizedStartTimeVector(values_optimized);
   }
-  BeginTimer("GetLPResult5");
   this->ClearCplexMemory();
-  EndTimer("GetLPResult5");
 }
 
 // TODO: merge same code
 void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec,
                                   const VectorDynamic &warmStartSchedule) {
 
-  BeginTimer("Build_LP_Model");
+  // BeginTimer("Build_LP_Model");
   this->Init();
 
   setProcessorJobVec(processorJobVec);
@@ -93,20 +89,18 @@ void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec,
   AddDDLConstraints();
   AddObjectives();
   cplexSolver_.extract(model_);
-  EndTimer("Build_LP_Model");
+  // EndTimer("Build_LP_Model");
 
-  BeginTimer("LPWarmStart");
   IloNumArray warmStartForCplex(env_, numVariables_);
   for (uint i = 0; i < warmStartSchedule.rows(); i++) {
     warmStartForCplex[i] = warmStartSchedule(i, 0);
   }
   cplexSolver_.setStart(warmStartForCplex, NULL, varArray_, NULL, NULL, NULL);
 
-  EndTimer("LPWarmStart");
-  BeginTimer("Solve_LP");
+  // BeginTimer("Solve_LP");
   cplexSolver_.setParam(IloCplex::RootAlg, IloCplex::Dual);
   bool found_feasible_solution = cplexSolver_.solve();
-  EndTimer("Solve_LP");
+  // EndTimer("Solve_LP");
   IloNumArray values_optimized(env_, numVariables_);
   if (found_feasible_solution) {
     auto status = cplexSolver_.getStatus();
@@ -118,10 +112,8 @@ void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec,
 
     UpdateOptimizedStartTimeVector(values_optimized);
   }
-  BeginTimer("GetLPResult5");
   // std::cout << cplexSolver_.getNiterations() << "\n";
   this->ClearCplexMemory();
-  EndTimer("GetLPResult5");
 }
 
 VectorDynamic SFOrderLPOptimizer::getOptimizedStartTimeVector() { return optimizedStartTimeVector_; }
@@ -132,7 +124,7 @@ void SFOrderLPOptimizer::AddVariables() {
 }
 
 void SFOrderLPOptimizer::AddDBFConstraints() {
-  BeginTimer("LPAddDBFConstraints");
+  // BeginTimer("LPAddDBFConstraints");
   std::vector<TimeInstance> prevInstancesEachProcessor;
   prevInstancesEachProcessor.reserve(processorNum_);
   for (int i = 0; i < processorNum_; i++) {
@@ -153,17 +145,15 @@ void SFOrderLPOptimizer::AddDBFConstraints() {
     prevInstancesEachProcessor[processor_id] = sfOrder_.instanceOrder_[i];
   }
 
-  EndTimer("LPAddDBFConstraints");
+  // EndTimer("LPAddDBFConstraints");
 }
 
 void SFOrderLPOptimizer::AddDDLConstraints() {
-  BeginTimer("LPAddDDLConstraints");
   for (int i = 0; i < numVariables_; i++) {
     model_.add(varArray_[i] >= GetActivationTime(GetJobCECFromUniqueId(i, tasksInfo_), tasksInfo_));
     model_.add(varArray_[i] + GetExecutionTime(i, tasksInfo_) <=
                GetDeadline(GetJobCECFromUniqueId(i, tasksInfo_), tasksInfo_));
   }
-  EndTimer("LPAddDDLConstraints");
 }
 
 void SFOrderLPOptimizer::AddJobOrderConstraints(const SFOrder &jobOrder) {
@@ -263,7 +253,7 @@ void SFOrderLPOptimizer::AddSensorFusionConstraints() {
 }
 
 void SFOrderLPOptimizer::AddObjectives() {
-  BeginTimer("LPAddObjectives");
+  // BeginTimer("LPAddObjectives");
   // TODO: current version only support optimizing RTDA ann only optimize with regular (non-weighted)
   // objectives, need to add more choices in the future
   // TODO(Dong): add support and test for weighted objectives
@@ -278,7 +268,7 @@ void SFOrderLPOptimizer::AddObjectives() {
     // Sensor Fusion is added as part of weighted objs
     AddWeightedObjectives();
   }
-  EndTimer("LPAddObjectives");
+  // EndTimer("LPAddObjectives");
 }
 void SFOrderLPOptimizer::AddNormalObjectives() {
   IloExpr rtda_expression(env_);

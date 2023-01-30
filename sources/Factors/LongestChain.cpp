@@ -77,13 +77,13 @@ GetMaxDataAgeChains(const std::unordered_map<JobCEC, std::vector<JobCEC>> &react
   }
   return longestChains;
 }
-
+// no need for profiler
 std::vector<std::vector<JobCEC>> LongestCAChain::FindLongestCAChain(const DAG_Model &dagTasks,
                                                                     const TaskSetInfoDerived &tasksInfo,
                                                                     SFOrder &jobOrder,
                                                                     const VectorDynamic &startTimeVector,
                                                                     int processorNum) {
-  BeginTimer("FindLongestCAChain");
+  // BeginTimer("FindLongestCAChain");
   std::vector<std::vector<JobCEC>> longestChains;
   longestChains.reserve(dagTasks.chains_.size() * 3); // 3x is usually not necessary, though
 
@@ -102,7 +102,7 @@ std::vector<std::vector<JobCEC>> LongestCAChain::FindLongestCAChain(const DAG_Mo
       }
     }
   }
-  EndTimer("FindLongestCAChain");
+  // EndTimer("FindLongestCAChain");
   return longestChains;
 }
 
@@ -119,10 +119,11 @@ int FindSiblingJobIndex(const JobCEC &job, const std::vector<JobCEC> &jobChainCu
 // it assumes the input jobOrder will first remove job, and then insert its start/finish instances at
 // startP/finishP
 // If you want to be safer, return more 'true'
+// no need for profiler
 bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
                           const LongestCAChain &longestJobChains, const DAG_Model &dagTasks,
                           SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo) {
-  BeginTimer("WhetherJobBreakChain");
+  // BeginTimer("WhetherJobBreakChain");
   for (auto &taskChainCurr : dagTasks.chains_) {
     auto itr = std::find(taskChainCurr.begin(), taskChainCurr.end(), job.taskId);
     if (itr != taskChainCurr.end()) {
@@ -134,7 +135,7 @@ bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
         JobCEC sibJob = jobChainCurr[siblingJobIndex];
         if (sibJob == job) // this may not be necessary, but is a safe solution
         {
-          EndTimer("WhetherJobBreakChain");
+          // EndTimer("WhetherJobBreakChain");
           return true;
         }
 
@@ -142,7 +143,7 @@ bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
           JobCEC afterSibJob =
               jobChainCurr[siblingJobIndex + 1]; // assume the length of the chain is longer than 1
           if (sibJob.jobId < job.jobId && finishP < jobOrder.GetJobStartInstancePosition(afterSibJob)) {
-            EndTimer("WhetherJobBreakChain");
+            // EndTimer("WhetherJobBreakChain");
             return true;
           }
         } else { // the job is not a source task's job
@@ -155,19 +156,20 @@ bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
           if (jobOrder.GetJobFinishInstancePosition(job) < sibImmeSourJobFinish)
             sibImmeSourJobFinish--;
           if (sibImmeSourJobFinish <= startP && job.jobId < sibJob.jobId) {
-            EndTimer("WhetherJobBreakChain");
+            // EndTimer("WhetherJobBreakChain");
             return true;
           }
         }
       }
     }
   }
-  EndTimer("WhetherJobBreakChain");
+  // EndTimer("WhetherJobBreakChain");
   return false;
 }
+// very fast, no need for profiler
 std::unordered_map<JobCEC, int> ExtractIndependentJobGroups(const SFOrder &jobOrder,
                                                             const TaskSetInfoDerived &tasksInfo) {
-  BeginTimer("ExtractIndependentJobGroups");
+  // BeginTimer("ExtractIndependentJobGroups");
   std::unordered_map<JobCEC, int> jobGroupMap;
   int jobGroupIndex = 0;
   jobGroupMap.insert({jobOrder.at(0).job, jobGroupIndex});
@@ -184,7 +186,7 @@ std::unordered_map<JobCEC, int> ExtractIndependentJobGroups(const SFOrder &jobOr
       ;
     }
   }
-  EndTimer("ExtractIndependentJobGroups");
+  // EndTimer("ExtractIndependentJobGroups");
   // std::cout << "The number of job groups in ExtractIndependentJobGroups: " << jobGroupIndex << std::endl;
   return jobGroupMap;
 }

@@ -123,8 +123,6 @@ public:
   inline bool ifContinue() const { return (!ifTimeout()) && (!ifOptimal()); }
 
   bool ImproveJobOrderPerJob(const JobCEC &jobRelocate) {
-    BeginTimer("ImproveJobOrderPerJob");
-    BeginTimer("ImproveJobOrderPerJob_prepare");
     JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
 
     IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusBestFound = statusPrev;
@@ -132,9 +130,7 @@ public:
     jobOrderRef.EstablishJobSFMap();
     SFOrder jobOrderCurrForStart = jobOrderRef;
     jobOrderCurrForStart.RemoveJob(jobRelocate);
-    EndTimer("ImproveJobOrderPerJob_prepare");
 
-    BeginTimer("Iterate_through_start");
     for (LLint startP = jobStartFinishInstActiveRange.minIndex;
          startP <= std::min(jobStartFinishInstActiveRange.maxIndex - 2,
                             static_cast<int>(tasksInfo.length) * 2 - 2) &&
@@ -148,7 +144,7 @@ public:
       double accumLengthMin = 0;
 
       warmStart_(0) = -1;
-      BeginTimer("Iterate_through_finish");
+      // BeginTimer("Iterate_through_finish");
       for (LLint finishP = startP + 1; finishP <= std::min(jobStartFinishInstActiveRange.maxIndex - 1,
                                                            static_cast<int>(tasksInfo.length) * 2 - 1) &&
                                        ifContinue();
@@ -187,9 +183,9 @@ public:
         if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart,
                                       startP))
           break;
-        BeginTimer("SFOrder_copy");
+
         SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is still faster
-        EndTimer("SFOrder_copy");
+
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
         std::vector<uint> processorJobVec;
         if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
@@ -215,12 +211,10 @@ public:
         // TODO: Avoid update job order’s internal index
         jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
       }
-      EndTimer("Iterate_through_finish");
+      // BeginTimer("Iterate_through_finish");
       jobOrderCurrForStart.RemoveInstance(jobRelocate, startP);
     }
-    EndTimer("Iterate_through_start");
 
-    BeginTimer("ImproveJobOrder_post_process");
     if (statusPrev.objWeighted_ != statusBestFound.objWeighted_) {
       statusPrev = statusBestFound;
       jobOrderRef = jobOrderBestFound;
@@ -231,9 +225,7 @@ public:
                                          scheduleOptions.processorNum_);
       jobGroupMap_ = ExtractIndependentJobGroups(jobOrderRef, tasksInfo);
     }
-    EndTimer("ImproveJobOrder_post_process");
 
-    EndTimer("ImproveJobOrderPerJob");
     return findBetterJobOrderWithinIterations;
   }
 
@@ -245,7 +237,6 @@ public:
   bool CompareAndUpdateStatus(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobStartFinishInstActiveRange,
                               IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusBestFound,
                               SFOrder &jobOrderBestFound) {
-    BeginTimer("CompareAndUpdateStatus");
     VectorDynamic startTimeVector;
     std::vector<uint> processorJobVec;
     startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
@@ -257,7 +248,6 @@ public:
       if (GlobalVariablesDAGOpt::debugMode == 1)
         jobOrderCurrForFinish.print();
       infeasibleCount++;
-      EndTimer("CompareAndUpdateStatus");
       return false;
     }
 
@@ -275,13 +265,11 @@ public:
         std::cout << "start time vector: \n" << statusPrev.startTimeVector_ << "\n";
         PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
       }
-      EndTimer("CompareAndUpdateStatus");
       return true;
     } else {
       if (GlobalVariablesDAGOpt::debugMode == 1) {
         jobOrderCurrForFinish.print();
       }
-      EndTimer("CompareAndUpdateStatus");
       return false;
     }
   }
