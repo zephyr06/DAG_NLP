@@ -10,7 +10,7 @@
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/Utils/OptimizeOrderUtils.h"
 #include "sources/Utils/colormod.h"
-
+#include "sources/Utils/profilier.h"
 using namespace RegularTaskSystem;
 namespace OrderOptDAG_SPACE {
 namespace OptimizeSF {
@@ -19,7 +19,10 @@ template <typename ObjectiveFunctionBase>
 VectorDynamic SelectInitialFromPool(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                     const ScheduleOptions &scheduleOptions,
                                     boost::optional<std::vector<uint> &> processorIdVec = boost::none) {
-  BeginTimer("SelectInitialFromPool");
+#ifdef PROFILE_CODE
+  BeginTimer(__FUNCTION__);
+#endif
+
   std::vector<uint> processorJobVec;
   VectorDynamic stvBest =
       ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_, processorJobVec);
@@ -29,10 +32,10 @@ VectorDynamic SelectInitialFromPool(const DAG_Model &dagTasks, const TaskSetInfo
     for (double modifyPower = 0; modifyPower < 5; modifyPower += 5.0 / candidateNum) {
       double modifyCoeff = std::pow(10, modifyPower);
       std::vector<uint> processorJobVecCurr;
-      BeginTimer("SelectInitialFromPool_list_scheduling");
+      // BeginTimer("SelectInitialFromPool_list_scheduling");
       VectorDynamic stvCurr = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_,
                                                   processorJobVecCurr, modifyCoeff);
-      EndTimer("SelectInitialFromPool_list_scheduling");
+      // EndTimer("SelectInitialFromPool_list_scheduling");
       double objCurr = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, stvCurr, scheduleOptions);
       if (objCurr < objMin && ExamBasic_Feasibility(dagTasks, tasksInfo, stvCurr, processorJobVecCurr,
                                                     scheduleOptions.processorNum_)) {
@@ -44,7 +47,9 @@ VectorDynamic SelectInitialFromPool(const DAG_Model &dagTasks, const TaskSetInfo
   }
   if (processorIdVec != boost::none)
     *processorIdVec = processorJobVec;
-  EndTimer("SelectInitialFromPool");
+#ifdef PROFILE_CODE
+  EndTimer(__FUNCTION__);
+#endif
   return stvBest;
 }
 } // namespace OptimizeSF

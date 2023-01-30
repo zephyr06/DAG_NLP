@@ -2,7 +2,6 @@
 
 #include "sources/Optimization/SFOrder.h"
 #include "sources/Utils/DeclareDAG.h"
-#include "sources/Utils/profilier.h"
 
 namespace OrderOptDAG_SPACE {
 // this function usually is fast

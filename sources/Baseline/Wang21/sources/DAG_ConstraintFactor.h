@@ -1,6 +1,6 @@
 #pragma once
 #include "DeclareDAG.h"
-
+#include "sources/Utils/profilier.h"
 #include "sources/TaskModel/RegularTasks.h"
 namespace RTSS21IC_NLP
 {

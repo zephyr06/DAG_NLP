@@ -1,5 +1,6 @@
 
 #include "sources/Factors/AugmentedJacobian.h"
+#include "sources/Utils/profilier.h"
 
 namespace OrderOptDAG_SPACE {
 AugmentedJacobian StackAugJaco(const AugmentedJacobian &augJaco1, const AugmentedJacobian &augJaco2) {
@@ -14,7 +15,9 @@ AugmentedJacobian StackAugJaco(const AugmentedJacobian &augJaco1, const Augmente
 // TODO: this function could possibly improve efficiency?
 // TODO: switch Jacobian to sparseMatrix
 AugmentedJacobian MergeAugJacobian(const std::vector<AugmentedJacobian> &augJacos) {
-  BeginTimer("MergeAugJacobian");
+#ifdef PROFILE_CODE
+  BeginTimer(__FUNCTION__);
+#endif
   AugmentedJacobian jacobAll;
   if (augJacos.size() == 0)
     return jacobAll;
@@ -32,7 +35,9 @@ AugmentedJacobian MergeAugJacobian(const std::vector<AugmentedJacobian> &augJaco
     jacobAll.rhs.block(rowCount, 0, augJacos[i].rhs.rows(), 1) = augJacos[i].rhs;
     rowCount += augJacos[i].jacobian.rows();
   }
-  EndTimer("MergeAugJacobian");
+#ifdef PROFILE_CODE
+  EndTimer(__FUNCTION__);
+#endif
   return jacobAll;
 }
 

@@ -1,7 +1,7 @@
 #include "sources/Optimization/LinearProgrammingSolver.h"
+#include "sources/Utils/profilier.h"
 #include <Eigen/SparseCholesky>
 #include <Eigen/SparseLU>
-
 #include <Eigen/SparseQR>
 // TODO: if there is time, consider using band matrix from eigen
 namespace LPOptimizer {
@@ -49,12 +49,18 @@ LPData::LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, con
 LPData::LPData(const LPData &lpData)
     : A_(lpData.A_), b_(lpData.b_), c_(lpData.c_), m_(lpData.m_), n_(lpData.n_),
       centralVarCurr_(lpData.centralVarCurr_), AA_(lpData.AA_) {
-  // AASolver_ = Eigen::SimplicialLLT<Eigen::SparseMatrix<double>>();
-  // Eigen::SparseMatrix<double> AA = A_ * A_.transpose();
+// AASolver_ = Eigen::SimplicialLLT<Eigen::SparseMatrix<double>>();
+// Eigen::SparseMatrix<double> AA = A_ * A_.transpose();
+// BeginTimer("AnalyzePatternAA_");
+#ifdef PROFILE_CODE
   BeginTimer("AnalyzePatternAA_");
+#endif
   AASolver_.analyzePattern(AA_);
   AASolver_.factorize(AA_);
+// EndTimer("AnalyzePatternAA_");
+#ifdef PROFILE_CODE
   EndTimer("AnalyzePatternAA_");
+#endif
 }
 
 LPData &LPData::operator=(const LPData &lpData) {
@@ -65,15 +71,21 @@ LPData &LPData::operator=(const LPData &lpData) {
   n_ = lpData.n_;
   centralVarCurr_ = lpData.centralVarCurr_;
   AA_ = lpData.AA_;
+#ifdef PROFILE_CODE
   BeginTimer("AnalyzePatternAA_");
+#endif
   AASolver_.analyzePattern(AA_);
   AASolver_.factorize(AA_);
+#ifdef PROFILE_CODE
   EndTimer("AnalyzePatternAA_");
+#endif
   return *this;
 }
 
 CentralVariable LPData::GenerateInitialLP() {
-  BeginTimer("GenerateInitialIPM");
+#ifdef PROFILE_CODE
+  EndTimer("AnalyzePatternAA_");
+#endif
   // Eigen::SparseMatrix<double> AA = A_ * A_.transpose();
   // Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> AAFact(AA_);
   // auto AAFact = solver.compute(AA);
@@ -87,7 +99,10 @@ CentralVariable LPData::GenerateInitialLP() {
   double deltas = 0.5 * (xCurr_.transpose() * sCurr_)(0, 0) / xCurr_.sum() / 2.0;
   VectorAdd(xCurr_, deltax);
   VectorAdd(sCurr_, deltas);
-  EndTimer("GenerateInitialIPM");
+#ifdef PROFILE_CODE
+  EndTimer(__FUNCTION__);
+#endif
+
   return CentralVariable{xCurr_, sCurr_, lambdaCurr_};
 }
 
@@ -104,7 +119,9 @@ double GetAlphaAff(const VectorDynamic &xCurr, const VectorDynamic &xDelta) {
 }
 
 CentralVariable LPData::SolveLinearSystem() {
-  BeginTimer("SolveLinearSystem");
+#ifdef PROFILE_CODE
+  BeginTimer(__FUNCTION__);
+#endif
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> S = centralVarCurr_.s.asDiagonal();
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> X = centralVarCurr_.x.asDiagonal();
   VectorDynamic rb = A_ * centralVarCurr_.x - b_;
@@ -133,25 +150,38 @@ CentralVariable LPData::SolveLinearSystem() {
     }
   }
 
+#ifdef PROFILE_CODE
   BeginTimer("MatrixMul_AA");
+#endif
   Eigen::SparseMatrix<double> AA = A_ * D2 * A_.transpose();
 
   // std::cout << "AA size: " << AA.size() << ", AA rows: " << AA.rows() << ", AA cols: " << AA.cols()
   //           << ", AA non-zeros: " << AA.nonZeros() << std::endl;
+
+#ifdef PROFILE_CODE
   EndTimer("MatrixMul_AA");
+#endif
   // std::cout << "AA:\n" << Eigen::MatrixXd(AA) << std::endl;
-  BeginTimer("MatrixFactorization:");
+
+#ifdef PROFILE_CODE
+  BeginTimer("MatrixFactorization");
+#endif
   // Eigen::SparseQR<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> AAFact;
   // AAFact.compute(AA);
   AASolver_.factorize(AA);
-  EndTimer("MatrixFactorization:");
+#ifdef PROFILE_CODE
+  EndTimer("MatrixFactorization");
+#endif
+
   // Eigen::SparseLU<Eigen::SparseMatrix<double>, Eigen::COLAMDOrdering<int>> AAFact;
   // AAFact.analyzePattern(AA);
   // AAFact.factorize(AA);
 
   // predictor
   CentralVariable centralDelta;
+#ifdef PROFILE_CODE
   BeginTimer("Backward_substitution1");
+#endif
   centralDelta.lambda = AASolver_.solve(-1 * rb - A_ * X * S_inv * rc + A_ * (S_inv * rxs1));
   if (GlobalVariablesDAGOpt::debugMode == 1) {
     // Eigen::JacobiSVD<Eigen::MatrixXd> svd(AA);
@@ -159,7 +189,9 @@ CentralVariable LPData::SolveLinearSystem() {
     std::cout << Color::blue << "condition number of centralDelta.lambda: "
               << centralDelta.lambda.maxCoeff() / centralDelta.lambda.minCoeff() << Color::def << std::endl;
   }
+#ifdef PROFILE_CODE
   EndTimer("Backward_substitution1");
+#endif
   if (GlobalVariablesDAGOpt::debugMode == 1) {
     if ((eigen_is_nan(centralDelta.lambda)))
       CoutError("centralDelta.lambda becomes Nan during iterations!");
@@ -177,12 +209,19 @@ CentralVariable LPData::SolveLinearSystem() {
 
   VectorDynamic rxs2 = -1 * (-1 * X * centralVarCurr_.s - centralDelta.x.asDiagonal() * centralDelta.s);
   VectorAdd(rxs2, Duality() * sigma * -1);
+#ifdef PROFILE_CODE
   BeginTimer("Backward_substitution2");
+#endif
   centralDelta.lambda = AASolver_.solve(-1 * rb - A_ * X * S_inv * rc + A_ * (S_inv * rxs2));
+#ifdef PROFILE_CODE
   EndTimer("Backward_substitution2");
+#endif
   centralDelta.s = -1 * rc - A_.transpose() * centralDelta.lambda;
   centralDelta.x = -1 * S_inv * rxs2 - X * (S_inv * centralDelta.s);
-  EndTimer("SolveLinearSystem");
+#ifdef PROFILE_CODE
+  EndTimer(__FUNCTION__);
+#endif
+
   return centralDelta;
 }
 
@@ -253,7 +292,9 @@ void RoundIPMResults(VectorDynamic &startTimeVector, double precision) {
 LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
                          const std::vector<uint> processorJobVec, int processorNum,
                          bool lessJobOrderConstraints) {
-  BeginTimer("GenerateRTDALPOrg");
+#ifdef PROFILE_CODE
+  BeginTimer(__FUNCTION__);
+#endif
   std::vector<AugmentedJacobianTriplet> jacobTripConstraints = GetDAGJacobianTripletOrg(
       dagTasks, tasksInfo, jobOrder, processorJobVec, processorNum, lessJobOrderConstraints);
 
@@ -269,7 +310,9 @@ LPData GenerateRTDALPOrg(const DAG_Model &dagTasks, const TaskSetInfoDerived &ta
   for (uint i = tasksInfo.length; i < c.rows(); i++)
     c.insert(i) = 1;
   LPData lpData(jacobAll.jacobian, jacobAll.rhs, c);
-  EndTimer("GenerateRTDALPOrg");
+#ifdef PROFILE_CODE
+  EndTimer(__FUNCTION__);
+#endif
   return lpData;
 }
 

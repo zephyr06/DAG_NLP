@@ -1,4 +1,5 @@
 #include "sources/Factors/LongestChain.h"
+#include "sources/Utils/profilier.h"
 
 namespace OrderOptDAG_SPACE {
 
