@@ -79,6 +79,7 @@ public:
       startTimeVector(0) = -1;
       // assign all jobs to processor 0 to avoid errors in codes, this will not affect the correctness.
       processorJobVec.resize(tasksInfo.variableDimension, 0);
+      EndTimer("LPOrderScheduler_schedule");
       return startTimeVector;
     }
     SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder, scheduleOptions.processorNum_);
@@ -100,6 +101,7 @@ public:
       startTimeVector(0) = -1;
       // assign all jobs to processor 0 to avoid errors in codes, this will not affect the correctness.
       processorJobVec.resize(tasksInfo.variableDimension, 0);
+      EndTimer("LPOrderScheduler_schedule");
       return startTimeVector;
     }
     SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder, scheduleOptions.processorNum_);

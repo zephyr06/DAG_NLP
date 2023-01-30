@@ -32,40 +32,53 @@ double GetInstanceMaxFinishTime(const TimeInstance &instance, const TaskSetInfoD
 }
 bool WhetherSkipInsertStart(const JobCEC &jobRelocate, LLint startP, const TaskSetInfoDerived &tasksInfo,
                             const SFOrder &jobOrderCurr) {
+  BeginTimer(__FUNCTION__);
   if (startP > 0) {
     TimeInstance instancePrev = jobOrderCurr.instanceOrder_[startP - 1];
     // jP.ActivationTime <= jR.start <= jR.deadline - jR.executionTime
     double prevInstanceLeastFinishTime = GetInstanceLeastStartTime(instancePrev, tasksInfo);
     if (prevInstanceLeastFinishTime >
-        GetDeadline(jobRelocate, tasksInfo) - tasksInfo.tasks[jobRelocate.taskId].executionTime)
+        GetDeadline(jobRelocate, tasksInfo) - tasksInfo.tasks[jobRelocate.taskId].executionTime) {
+      EndTimer(__FUNCTION__);
       return true;
+    }
   }
   if (startP < tasksInfo.length * 2 - 1) {
     TimeInstance instanceAfter = jobOrderCurr.instanceOrder_[startP + 1];
     //  jR.ActivationTime <= jR.start <= nextJ.Deadline
     double nextInstanceLeastFinishTime = GetInstanceMaxFinishTime(instanceAfter, tasksInfo);
-    if (GetActivationTime(jobRelocate, tasksInfo) > nextInstanceLeastFinishTime)
+    if (GetActivationTime(jobRelocate, tasksInfo) > nextInstanceLeastFinishTime) {
+      EndTimer(__FUNCTION__);
       return true;
+    }
   }
+  EndTimer(__FUNCTION__);
   return false;
 }
 
 bool WhetherSkipInsertFinish(const JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo,
                              const SFOrder &jobOrderCurr) {
+  BeginTimer("WhetherSkipInsertFinish");
   if (finishP > 0) {
     TimeInstance instancePrev = jobOrderCurr.instanceOrder_[finishP - 1];
     // jP.ActivationTime <= jR.finish <= jR.deadline
     double prevInstanceLeastFinishTime = GetInstanceLeastStartTime(instancePrev, tasksInfo);
-    if (prevInstanceLeastFinishTime > GetDeadline(jobRelocate, tasksInfo))
+    if (prevInstanceLeastFinishTime > GetDeadline(jobRelocate, tasksInfo)) {
+      EndTimer("WhetherSkipInsertFinish");
       return true;
+    }
   }
   if (finishP < tasksInfo.length * 2 - 1) {
     TimeInstance instanceAfter = jobOrderCurr.instanceOrder_[finishP + 1];
     //  jR.ActivationTime <= jR.finish <= nextJ.Deadline
     double nextInstanceLeastFinishTime = GetInstanceMaxFinishTime(instanceAfter, tasksInfo);
-    if (GetActivationTime(jobRelocate, tasksInfo) > nextInstanceLeastFinishTime)
+    if (GetActivationTime(jobRelocate, tasksInfo) > nextInstanceLeastFinishTime) {
+      EndTimer("WhetherSkipInsertFinish");
       return true;
+    }
   }
+
+  EndTimer("WhetherSkipInsertFinish");
   return false;
 }
 

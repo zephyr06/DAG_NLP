@@ -124,6 +124,7 @@ public:
 
   bool ImproveJobOrderPerJob(const JobCEC &jobRelocate) {
     BeginTimer("ImproveJobOrderPerJob");
+    BeginTimer("ImproveJobOrderPerJob_prepare");
     JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
 
     IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusBestFound = statusPrev;
@@ -131,7 +132,9 @@ public:
     jobOrderRef.EstablishJobSFMap();
     SFOrder jobOrderCurrForStart = jobOrderRef;
     jobOrderCurrForStart.RemoveJob(jobRelocate);
+    EndTimer("ImproveJobOrderPerJob_prepare");
 
+    BeginTimer("Iterate_through_start");
     for (LLint startP = jobStartFinishInstActiveRange.minIndex;
          startP <= std::min(jobStartFinishInstActiveRange.maxIndex - 2,
                             static_cast<int>(tasksInfo.length) * 2 - 2) &&
@@ -145,6 +148,7 @@ public:
       double accumLengthMin = 0;
 
       warmStart_(0) = -1;
+      BeginTimer("Iterate_through_finish");
       for (LLint finishP = startP + 1; finishP <= std::min(jobStartFinishInstActiveRange.maxIndex - 1,
                                                            static_cast<int>(tasksInfo.length) * 2 - 1) &&
                                        ifContinue();
@@ -154,8 +158,8 @@ public:
 
         // Independence analysis
         // bool debug_independence = false;
-        BeginTimer("FastOptimizationExam");
         if (GlobalVariablesDAGOpt::FastOptimization) {
+          BeginTimer("FastOptimizationExam");
           if (!WhetherJobBreakChain(jobRelocate, startP, finishP, longestJobChains_, dagTasks, jobOrderRef,
                                     tasksInfo)) {
             bool hasInfluence = false;
@@ -167,7 +171,6 @@ public:
                   (WhetherInfluenceJobSink(sinkJob, jobRelocate, jobGroupMap_, jobOrderRef, startP,
                                            finishP))) {
                 hasInfluence = true;
-                EndTimer("FastOptimizationExam");
                 break;
               }
             }
@@ -177,15 +180,16 @@ public:
             }
             // debug_independence = true;
           }
+          EndTimer("FastOptimizationExam");
         }
-        EndTimer("FastOptimizationExam");
 
         // TODO: WhetherStartFinishTooLong can be optimized for better efficiency
         if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart,
                                       startP))
           break;
-
+        BeginTimer("SFOrder_copy");
         SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is still faster
+        EndTimer("SFOrder_copy");
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
         std::vector<uint> processorJobVec;
         if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
@@ -211,9 +215,12 @@ public:
         // TODO: Avoid update job order’s internal index
         jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
       }
+      EndTimer("Iterate_through_finish");
       jobOrderCurrForStart.RemoveInstance(jobRelocate, startP);
     }
+    EndTimer("Iterate_through_start");
 
+    BeginTimer("ImproveJobOrder_post_process");
     if (statusPrev.objWeighted_ != statusBestFound.objWeighted_) {
       statusPrev = statusBestFound;
       jobOrderRef = jobOrderBestFound;
@@ -224,6 +231,7 @@ public:
                                          scheduleOptions.processorNum_);
       jobGroupMap_ = ExtractIndependentJobGroups(jobOrderRef, tasksInfo);
     }
+    EndTimer("ImproveJobOrder_post_process");
 
     EndTimer("ImproveJobOrderPerJob");
     return findBetterJobOrderWithinIterations;
