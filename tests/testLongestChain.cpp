@@ -177,6 +177,7 @@ TEST_F(RTDATest1, WhetherInfluenceJobSink) {
   EXPECT_FALSE(WhetherInfluenceJobSink(JobCEC(0, 1), JobCEC(0, 0), jobGroupMap, jobOrder, 2, 3));
   EXPECT_FALSE(WhetherInfluenceJobSink(JobCEC(1, 0), JobCEC(2, 0), jobGroupMap, jobOrder, 0, 1));
   EXPECT_TRUE(WhetherInfluenceJobSink(JobCEC(1, 0), JobCEC(2, 0), jobGroupMap, jobOrder, 6, 7));
+  EXPECT_TRUE(WhetherInfluenceJobSink(JobCEC(0, 0), JobCEC(2, 0), jobGroupMap, jobOrder, 2, 3));
 }
 
 TEST_F(RTDATest2, WhetherInfluenceJobSimple) {
@@ -190,6 +191,36 @@ TEST_F(RTDATest2, WhetherInfluenceJobSimple) {
 TEST_F(RTDATest3, WhetherInfluenceJobSimple) {
 
   EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(2, 0), JobCEC(1, 1), jobGroupMap));
+}
+
+class JobPositionTest : public ::testing::Test {
+protected:
+  void SetUp() override { jobPosition = JobPosition(10, 15); }
+  JobPosition jobPosition;
+};
+TEST_F(JobPositionTest, UpdateAfterRemoveInstance) {
+  jobPosition.UpdateAfterRemoveInstance(5);
+  EXPECT_EQ(9, jobPosition.start_);
+  EXPECT_EQ(14, jobPosition.finish_);
+  jobPosition.UpdateAfterRemoveInstance(20);
+  EXPECT_EQ(9, jobPosition.start_);
+  EXPECT_EQ(14, jobPosition.finish_);
+
+  jobPosition.UpdateAfterInsertInstance(5);
+  EXPECT_EQ(10, jobPosition.start_);
+  EXPECT_EQ(15, jobPosition.finish_);
+
+  jobPosition.UpdateAfterInsertInstance(20);
+  EXPECT_EQ(10, jobPosition.start_);
+  EXPECT_EQ(15, jobPosition.finish_);
+
+  jobPosition.UpdateAfterRemoveInstance(12);
+  EXPECT_EQ(10, jobPosition.start_);
+  EXPECT_EQ(14, jobPosition.finish_);
+
+  jobPosition.UpdateAfterInsertInstance(12);
+  EXPECT_EQ(10, jobPosition.start_);
+  EXPECT_EQ(15, jobPosition.finish_);
 }
 
 int main(int argc, char **argv) {

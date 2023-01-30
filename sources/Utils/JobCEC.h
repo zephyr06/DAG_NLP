@@ -83,3 +83,33 @@ template <> struct std::hash<OrderOptDAG_SPACE::JobCEC> {
 };
 
 #endif
+
+class JobPosition {
+public:
+  JobPosition() {}
+  JobPosition(LLint start, LLint finish) : start_(start), finish_(finish) {}
+
+  inline void UpdateAfterRemoveInstance(LLint instIndex) {
+    // if (instIndex == start_ || instIndex == finish_) {
+    //   CoutError("Error in UpdateAfterRemoveInstance");
+    // }
+    if (instIndex <= start_)
+      start_--;
+    if (instIndex <= finish_)
+      finish_--;
+  }
+
+  inline void UpdateAfterInsertInstance(LLint instIndex) {
+    // if (instIndex == start_ || instIndex == finish_) {
+    //   CoutError("Error in UpdateAfterRemoveInstance");
+    // }
+    if (instIndex <= start_)
+      start_++;
+    if (instIndex <= finish_)
+      finish_++;
+  }
+
+  // data members
+  LLint start_;
+  LLint finish_;
+};

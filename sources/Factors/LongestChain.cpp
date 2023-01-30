@@ -189,48 +189,91 @@ std::unordered_map<JobCEC, int> ExtractIndependentJobGroups(const SFOrder &jobOr
   return jobGroupMap;
 }
 
-bool ExamMaxStartChange(LLint jobCurrP, LLint jobChangedOldStart, LLint jobChangedOldFinish,
-                        LLint jobChangedNewStart, LLint jobChangedNewfinish) {
-  if (jobChangedOldStart > jobCurrP) {
-    if (jobChangedNewStart < jobCurrP)
-      return true;
-  } else if (jobChangedOldFinish > jobCurrP) {
-    if (jobChangedNewfinish < jobCurrP)
+bool ExamMaxStartChange(LLint jobChangedOldStart, LLint jobChangedOldFinish, LLint jobChangedNewStart,
+                        LLint jobChangedNewfinish, LLint jobCurrOldStart, LLint jobCurrOldFinish,
+                        LLint jobCurrNewStart, LLint jobCurrNewFinish) {
+  // exam start constraints;
+  if (jobChangedOldStart > jobCurrOldStart) {
+    if (jobChangedNewStart < jobCurrNewStart)
       return true;
   }
+  if (jobChangedOldFinish > jobCurrOldStart) {
+    if (jobChangedNewfinish < jobCurrNewStart)
+      return true;
+  }
+
+  // exam finish constraints;
+  if (jobChangedOldStart > jobCurrOldFinish) {
+    if (jobChangedNewStart < jobCurrNewFinish)
+      return true;
+  }
+  if (jobChangedOldFinish > jobCurrOldFinish) {
+    if (jobChangedNewfinish < jobCurrNewFinish)
+      return true;
+  }
+
   return false;
 }
 
 // if the constraints for jobCurr.start/jobCurr.finish's upper bound change, then
 // there is possibly an influence
 bool WhetherInfluenceJobSource(const JobCEC &jobCurr, const JobCEC &jobChanged,
-                               std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder, LLint startP,
+                               std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder jobOrder, LLint startP,
                                LLint finishP) {
   if (!WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap))
     return false;
-
-  LLint jobCurrOldStart = jobOrder.GetJobStartInstancePosition(jobCurr);
-  LLint jobCurrOldFinish = jobOrder.GetJobFinishInstancePosition(jobCurr);
+  if (jobCurr == jobChanged)
+    return true;
   LLint jobChangedOldStart = jobOrder.GetJobStartInstancePosition(jobChanged);
   LLint jobChangedOldFinish = jobOrder.GetJobFinishInstancePosition(jobChanged);
+  LLint jobCurrOldStart = jobOrder.GetJobStartInstancePosition(jobCurr);
+  LLint jobCurrOldFinish = jobOrder.GetJobFinishInstancePosition(jobCurr);
 
-  // exam jobCurr.start
-  if (ExamMaxStartChange(jobCurrOldStart, jobChangedOldStart, jobChangedOldFinish, startP, finishP))
-    return true;
-  // exam jobCurr.finish
-  if (ExamMaxStartChange(jobCurrOldFinish, jobChangedOldStart, jobChangedOldFinish, startP, finishP))
+  JobPosition jobCurrNewPosition(jobCurrOldStart, jobCurrOldFinish);
+  // jobOrder.RemoveJob(jobChanged);
+  jobCurrNewPosition.UpdateAfterRemoveInstance(jobChangedOldFinish);
+  jobCurrNewPosition.UpdateAfterRemoveInstance(jobChangedOldStart);
+  // jobOrder.InsertStart(jobChanged, startP);
+  jobCurrNewPosition.UpdateAfterInsertInstance(startP);
+  // jobOrder.InsertFinish(jobChanged, finishP);
+  jobCurrNewPosition.UpdateAfterInsertInstance(finishP);
+  LLint jobCurrNewStart = jobCurrNewPosition.start_;
+  LLint jobCurrNewFinish = jobCurrNewPosition.finish_;
+
+  // jobOrder.RemoveJob(jobChanged);
+  // jobOrder.InsertStart(jobChanged, startP);
+  // jobOrder.InsertFinish(jobChanged, finishP);
+  // LLint jobCurrNewStart = jobOrder.GetJobStartInstancePosition(jobCurr);
+  // LLint jobCurrNewFinish = jobOrder.GetJobFinishInstancePosition(jobCurr);
+
+  if (ExamMaxStartChange(jobChangedOldStart, jobChangedOldFinish, startP, finishP, jobCurrOldStart,
+                         jobCurrOldFinish, jobCurrNewStart, jobCurrNewFinish))
     return true;
 
   return false;
 }
 
-bool ExamMinStartChange(LLint jobCurrP, LLint jobChangedOldStart, LLint jobChangedOldFinish,
-                        LLint jobChangedNewStart, LLint jobChangedNewfinish) {
-  if (jobChangedOldFinish < jobCurrP) {
-    if (jobChangedNewfinish > jobCurrP)
+bool ExamMinStartChange(LLint jobChangedOldStart, LLint jobChangedOldFinish, LLint jobChangedNewStart,
+                        LLint jobChangedNewfinish, LLint jobCurrOldStart, LLint jobCurrOldFinish,
+                        LLint jobCurrNewStart, LLint jobCurrNewFinish) {
+
+  // exam start
+  if (jobChangedOldFinish < jobCurrOldStart) {
+    if (jobChangedNewfinish > jobCurrNewStart)
       return true;
-  } else if (jobChangedOldStart < jobCurrP) {
-    if (jobChangedNewStart > jobCurrP)
+  }
+  if (jobChangedOldStart < jobCurrOldStart) {
+    if (jobChangedNewStart > jobCurrNewStart)
+      return true;
+  }
+
+  // exam finish
+  if (jobChangedOldFinish < jobCurrOldFinish) {
+    if (jobChangedNewfinish > jobCurrNewFinish)
+      return true;
+  }
+  if (jobChangedOldStart < jobCurrOldFinish) {
+    if (jobChangedNewStart > jobCurrNewFinish)
       return true;
   }
   return false;
@@ -239,21 +282,36 @@ bool ExamMinStartChange(LLint jobCurrP, LLint jobChangedOldStart, LLint jobChang
 // if the constraints for jobCurr.start/jobCurr.finish's lower bound change, then
 // there is possibly an influence
 bool WhetherInfluenceJobSink(const JobCEC &jobCurr, const JobCEC &jobChanged,
-                             std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder, LLint startP,
+                             std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder jobOrder, LLint startP,
                              LLint finishP) {
   if (!WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap))
     return false;
-
-  LLint jobCurrOldStart = jobOrder.GetJobStartInstancePosition(jobCurr);
-  LLint jobCurrOldFinish = jobOrder.GetJobFinishInstancePosition(jobCurr);
+  if (jobCurr == jobChanged)
+    return true;
   LLint jobChangedOldStart = jobOrder.GetJobStartInstancePosition(jobChanged);
   LLint jobChangedOldFinish = jobOrder.GetJobFinishInstancePosition(jobChanged);
+  LLint jobCurrOldStart = jobOrder.GetJobStartInstancePosition(jobCurr);
+  LLint jobCurrOldFinish = jobOrder.GetJobFinishInstancePosition(jobCurr);
 
-  // exam jobCurr.start
-  if (ExamMinStartChange(jobCurrOldStart, jobChangedOldStart, jobChangedOldFinish, startP, finishP))
-    return true;
-  // exam jobCurr.finish
-  if (ExamMinStartChange(jobCurrOldFinish, jobChangedOldStart, jobChangedOldFinish, startP, finishP))
+  JobPosition jobCurrNewPosition(jobCurrOldStart, jobCurrOldFinish);
+  // jobOrder.RemoveJob(jobChanged);
+  jobCurrNewPosition.UpdateAfterRemoveInstance(jobChangedOldFinish);
+  jobCurrNewPosition.UpdateAfterRemoveInstance(jobChangedOldStart);
+  // jobOrder.InsertStart(jobChanged, startP);
+  jobCurrNewPosition.UpdateAfterInsertInstance(startP);
+  // jobOrder.InsertFinish(jobChanged, finishP);
+  jobCurrNewPosition.UpdateAfterInsertInstance(finishP);
+  LLint jobCurrNewStart = jobCurrNewPosition.start_;
+  LLint jobCurrNewFinish = jobCurrNewPosition.finish_;
+
+  // jobOrder.RemoveJob(jobChanged);
+  // jobOrder.InsertStart(jobChanged, startP);
+  // jobOrder.InsertFinish(jobChanged, finishP);
+  // LLint jobCurrNewStart = jobOrder.GetJobStartInstancePosition(jobCurr);
+  // LLint jobCurrNewFinish = jobOrder.GetJobFinishInstancePosition(jobCurr);
+
+  if (ExamMinStartChange(jobChangedOldStart, jobChangedOldFinish, startP, finishP, jobCurrOldStart,
+                         jobCurrOldFinish, jobCurrNewStart, jobCurrNewFinish))
     return true;
 
   return false;
