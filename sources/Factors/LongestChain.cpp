@@ -185,7 +185,7 @@ std::unordered_map<JobCEC, int> ExtractIndependentJobGroups(const SFOrder &jobOr
     }
   }
   EndTimer("ExtractIndependentJobGroups");
-  std::cout << "The number of job groups in ExtractIndependentJobGroups: " << jobGroupIndex << std::endl;
+  // std::cout << "The number of job groups in ExtractIndependentJobGroups: " << jobGroupIndex << std::endl;
   return jobGroupMap;
 }
 
