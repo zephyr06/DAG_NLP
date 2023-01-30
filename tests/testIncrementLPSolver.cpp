@@ -68,6 +68,9 @@ protected:
 
 CentralVariable LPData::GenerateInitialLPWarmStart(const VectorDynamic &warmStartX,
                                                    const DAG_Model &dagTasks) {
+#ifdef PROFILE_CODE
+  BeginTimer(__FUNCTION__);
+#endif
   //   VectorDynamic xCurr_ = A_.transpose() * (AASolver_.solve(b_));
   TaskSetInfoDerived tasksInfo = TaskSetInfoDerived(dagTasks.tasks);
   int m = A_.rows();
@@ -96,7 +99,9 @@ CentralVariable LPData::GenerateInitialLPWarmStart(const VectorDynamic &warmStar
   double deltas = 0.5 * (xCurr_.transpose() * sCurr_)(0, 0) / xCurr_.sum() / 2.0;
   VectorAdd(xCurr_, deltax);
   VectorAdd(sCurr_, deltas);
-  EndTimer("GenerateInitialIPM");
+#ifdef PROFILE_CODE
+  EndTimer(__FUNCTION__);
+#endif
   return CentralVariable{xCurr_, sCurr_, lambdaCurr_};
 }
 

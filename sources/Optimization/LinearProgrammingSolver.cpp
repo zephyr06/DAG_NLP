@@ -34,10 +34,14 @@ LPData::LPData(const Eigen::SparseMatrix<double> &A, const VectorDynamic &b, con
   }
 
   AA_ = A_ * A_.transpose();
+#ifdef PROFILE_CODE
   BeginTimer("AnalyzePatternAA_");
+#endif
   AASolver_.analyzePattern(AA_);
   AASolver_.factorize(AA_);
+#ifdef PROFILE_CODE
   EndTimer("AnalyzePatternAA_");
+#endif
 
   centralVarCurr_ = GenerateInitialLP();
 }
@@ -84,7 +88,7 @@ LPData &LPData::operator=(const LPData &lpData) {
 
 CentralVariable LPData::GenerateInitialLP() {
 #ifdef PROFILE_CODE
-  EndTimer("AnalyzePatternAA_");
+  BeginTimer(__FUNCTION__);
 #endif
   // Eigen::SparseMatrix<double> AA = A_ * A_.transpose();
   // Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> AAFact(AA_);
