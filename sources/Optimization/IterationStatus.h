@@ -9,7 +9,7 @@
 #include "sources/Factors/RTDA_Factor.h"
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Optimization/SFOrder.h"
-#include "sources/Optimization/ScheduleOptimizer.h"
+// #include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Optimization/ScheduleOptions.h"
 #include "sources/Utils/OptimizeOrderUtils.h"
 #include "sources/Utils/profilier.h"

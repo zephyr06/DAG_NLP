@@ -16,7 +16,7 @@ doScheduleOptimization: 0
 doScheduleOptimizationOnlyOnce: 0
 considerSensorFusion: 0 
 selectInitialFromPool: 0 # 0 means not using this method
-FastOptimization: 1
+FastOptimization: 0
 #*************************************************************
 # Get away from local optimal setting
 RandomAccept: 0 # chance to take a possibly better solution
@@ -38,7 +38,7 @@ weightInMpRTDA: 0.5
 weightInMpSf: 0.5
 weightInMpSfPunish: 100
 weightInMpRTDAPunish: 1000
-makeProgressTimeLimit: 3 # seconds, -1 means unlimited time
+makeProgressTimeLimit: 100 # seconds, -1 means unlimited time
 enableFastSearch: 0
 enableSmallJobGroupCheck: 0
 bigJobGroupCheck: 0

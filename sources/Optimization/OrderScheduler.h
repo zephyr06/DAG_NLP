@@ -8,7 +8,7 @@
 #include "sources/Optimization/LinearProgrammingSolver.h"
 #include "sources/Optimization/ProcessorAssignment.h"
 #include "sources/Optimization/SFOrderLPOptimizer.h"
-#include "sources/Optimization/ScheduleOptimizer.h"
+// #include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Optimization/ScheduleOptions.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/JobCEC.h"

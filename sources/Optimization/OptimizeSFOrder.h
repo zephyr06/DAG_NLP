@@ -16,7 +16,7 @@
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/Optimization/ProcessorAssignment.h"
 #include "sources/Optimization/SFOrder.h"
-#include "sources/Optimization/ScheduleOptimizer.h"
+// #include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Optimization/SkipUnschedulablePermutations.h"
 #include "sources/Utils/OptimizeOrderUtils.h"
 // #include "sources/Utils/profilier.h"
@@ -315,35 +315,35 @@ ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, const ScheduleOptions &sche
   ScheduleResult scheduleRes = dagScheduleOptimizer.Optimize();
 
   // TODO(Dong) : optimize this part
-  if (scheduleOptions.doScheduleOptimization_) {
-    if (!scheduleOptions.considerSensorFusion_ || !scheduleRes.schedulable_) {
-      ScheduleOptimizer schedule_optimizer = ScheduleOptimizer(dagTasks);
-      if (scheduleOptions.considerSensorFusion_) {
-        // TODO(Dong): modify related code
-        // schedule_optimizer.OptimizeObjWeighted(dagTasks, scheduleRes);
-        // ScheduleResult result_after_optimization;
-        // result_after_optimization = schedule_optimizer.getOptimizedResult();
-        // if (result_after_optimization.objWeighted_ < scheduleRes.objWeighted_)
-        // {
-        //     scheduleRes = result_after_optimization;
-        //     std::vector<RTDA> rtda_vector;
-        //     for (auto chain : dagTasks.chains_)
-        //     {
-        //         auto res = GetRTDAFromSingleJob(tasksInfo, chain, scheduleRes.startTimeVector_);
-        //         RTDA resM = GetMaxRTDA(res);
-        //         rtda_vector.push_back(resM);
-        //     }
-        //     scheduleRes.obj_ = ObjRTDA(rtda_vector);
-        // }
-      } else {
-        schedule_optimizer.setObjType(false);
-        schedule_optimizer.Optimize(scheduleRes.startTimeVector_, scheduleRes.processorJobVec_);
-        scheduleRes.startTimeVector_ = schedule_optimizer.getOptimizedStartTimeVector();
-        scheduleRes.obj_ = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, scheduleRes.startTimeVector_,
-                                                          scheduleOptions);
-      }
-    }
-  }
+  // if (scheduleOptions.doScheduleOptimization_) {
+  //   if (!scheduleOptions.considerSensorFusion_ || !scheduleRes.schedulable_) {
+  //     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer(dagTasks);
+  //     if (scheduleOptions.considerSensorFusion_) {
+  //       // TODO(Dong): modify related code
+  //       // schedule_optimizer.OptimizeObjWeighted(dagTasks, scheduleRes);
+  //       // ScheduleResult result_after_optimization;
+  //       // result_after_optimization = schedule_optimizer.getOptimizedResult();
+  //       // if (result_after_optimization.objWeighted_ < scheduleRes.objWeighted_)
+  //       // {
+  //       //     scheduleRes = result_after_optimization;
+  //       //     std::vector<RTDA> rtda_vector;
+  //       //     for (auto chain : dagTasks.chains_)
+  //       //     {
+  //       //         auto res = GetRTDAFromSingleJob(tasksInfo, chain, scheduleRes.startTimeVector_);
+  //       //         RTDA resM = GetMaxRTDA(res);
+  //       //         rtda_vector.push_back(resM);
+  //       //     }
+  //       //     scheduleRes.obj_ = ObjRTDA(rtda_vector);
+  //       // }
+  //     } else {
+  //       schedule_optimizer.setObjType(false);
+  //       schedule_optimizer.Optimize(scheduleRes.startTimeVector_, scheduleRes.processorJobVec_);
+  //       scheduleRes.startTimeVector_ = schedule_optimizer.getOptimizedStartTimeVector();
+  //       scheduleRes.obj_ = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, scheduleRes.startTimeVector_,
+  //                                                         scheduleOptions);
+  //     }
+  //   }
+  // }
 
   if (ObjectiveFunctionBase::type_trait == "RTDAExperimentObj")
     scheduleRes.schedulable_ =
