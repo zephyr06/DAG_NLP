@@ -128,6 +128,7 @@ public:
 
     IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusBestFound = statusPrev;
     SFOrder jobOrderBestFound = jobOrderRef;
+    jobOrderRef.EstablishJobSFMap();
     SFOrder jobOrderCurrForStart = jobOrderRef;
     jobOrderCurrForStart.RemoveJob(jobRelocate);
 
@@ -150,10 +151,6 @@ public:
            finishP++) {
         if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, jobOrderRef))
           continue;
-        // TODO: WhetherStartFinishTooLong can be optimized for better efficiency
-        if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart,
-                                      startP))
-          break;
 
         // Independence analysis
         // bool debug_independence = false;
@@ -182,6 +179,11 @@ public:
           }
         }
         EndTimer("FastOptimizationExam");
+
+        // TODO: WhetherStartFinishTooLong can be optimized for better efficiency
+        if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart,
+                                      startP))
+          break;
 
         SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is still faster
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
@@ -235,6 +237,7 @@ public:
   bool CompareAndUpdateStatus(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobStartFinishInstActiveRange,
                               IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusBestFound,
                               SFOrder &jobOrderBestFound) {
+    BeginTimer("CompareAndUpdateStatus");
     VectorDynamic startTimeVector;
     std::vector<uint> processorJobVec;
     startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
@@ -246,6 +249,7 @@ public:
       if (GlobalVariablesDAGOpt::debugMode == 1)
         jobOrderCurrForFinish.print();
       infeasibleCount++;
+      EndTimer("CompareAndUpdateStatus");
       return false;
     }
 
@@ -263,11 +267,13 @@ public:
         std::cout << "start time vector: \n" << statusPrev.startTimeVector_ << "\n";
         PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
       }
+      EndTimer("CompareAndUpdateStatus");
       return true;
     } else {
       if (GlobalVariablesDAGOpt::debugMode == 1) {
         jobOrderCurrForFinish.print();
       }
+      EndTimer("CompareAndUpdateStatus");
       return false;
     }
   }
