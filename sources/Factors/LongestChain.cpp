@@ -201,7 +201,8 @@ bool ExamMaxStartChange(LLint jobCurrP, LLint jobChangedOldStart, LLint jobChang
   return false;
 }
 
-// TODO: these operations are probably safe because the constraints are still the same form!
+// if the constraints for jobCurr.start/jobCurr.finish's upper bound change, then
+// there is possibly an influence
 bool WhetherInfluenceJobSource(const JobCEC &jobCurr, const JobCEC &jobChanged,
                                std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder, LLint startP,
                                LLint finishP) {
