@@ -15,7 +15,7 @@ bool compareTimeInstance(const TimeInstance i1, const TimeInstance i2) {
 }
 
 std::vector<TimeInstance> ExtractSubInstances(const SFOrder &jobOrderCurrForFinish, JobGroupRange &jobGroup) {
-  BeginTimer("ExtractSubInstances");
+  // BeginTimer("ExtractSubInstances");
   // BeginTimer(__FUNCTION__);
   struct JobInstanceInfo {
     int start;
@@ -61,14 +61,18 @@ std::vector<TimeInstance> ExtractSubInstances(const SFOrder &jobOrderCurrForFini
     //     int a = 1;
   }
   // EndTimer(__FUNCTION__);
-  EndTimer("ExtractSubInstances");
+  // EndTimer("ExtractSubInstances");
   return instanceOrderSmall;
 }
 
 void SFOrder::EstablishJobSFMap() {
+#ifdef PROFILE_CODE
   BeginTimer(__FUNCTION__);
+#endif
   if (!whetherSFMapNeedUpdate) {
+#ifdef PROFILE_CODE
     EndTimer(__FUNCTION__);
+#endif
     return;
   }
   jobSFMap_.reserve(tasksInfo_.length);
@@ -93,7 +97,9 @@ void SFOrder::EstablishJobSFMap() {
     }
   }
   whetherSFMapNeedUpdate = false;
+#ifdef PROFILE_CODE
   EndTimer(__FUNCTION__);
+#endif
 }
 
 void SFOrder::RangeCheck(LLint index, bool allowEnd) const {

@@ -30,7 +30,9 @@ public:
 
   IterationStatus(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
                   const ScheduleOptions &scheduleOptions) {
-    // BeginTimer(__FUNCTION__);
+#ifdef PROFILE_CODE
+    BeginTimer(__FUNCTION__);
+#endif
     std::vector<uint> processorJobVec;
 
     // jobOrder_ = jobOrder;
@@ -42,19 +44,27 @@ public:
       objWeighted_ = 1e9;
     else
       objWeighted_ = ObjectiveFunctionBase::Evaluate(dagTasks, tasksInfo, startTimeVector_, scheduleOptions);
-    // EndTimer(__FUNCTION__);
+#ifdef PROFILE_CODE
+  EndTimer(__FUNCTION__);
+#endif
+
   }
 
   IterationStatus(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
                   const ScheduleOptions &scheduleOptions, VectorDynamic startTimeVector,
                   std::vector<uint> processorJobVec, bool schedulable)
       : schedulable_(schedulable), startTimeVector_(startTimeVector) {
-    // BeginTimer(__FUNCTION__);
+#ifdef PROFILE_CODE
+  BeginTimer(__FUNCTION__);
+#endif
     if (!schedulable_)
       objWeighted_ = 1e9;
     else
       objWeighted_ = ObjectiveFunctionBase::Evaluate(dagTasks, tasksInfo, startTimeVector_, scheduleOptions);
-    // EndTimer(__FUNCTION__);
+#ifdef PROFILE_CODE
+  EndTimer(__FUNCTION__);
+#endif
+
   }
 };
 

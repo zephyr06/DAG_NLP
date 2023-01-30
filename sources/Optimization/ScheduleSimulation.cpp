@@ -116,7 +116,9 @@ VectorDynamic SimulateFixedPrioritySched(const DAG_Model &dagTasks, const TaskSe
 VectorDynamic ListSchedulingLFTPA(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                   int processorNum, boost::optional<std::vector<uint> &> processorIdVec,
                                   double modifyPriorityBasedOnPrecedence) {
+#ifdef PROFILE_CODE
   BeginTimer(__FUNCTION__);
+#endif
   const TaskSet &tasks = dagTasks.tasks;
   VectorDynamic initial = GenerateVectorDynamic(tasksInfo.variableDimension);
 
@@ -160,7 +162,9 @@ VectorDynamic ListSchedulingLFTPA(const DAG_Model &dagTasks, const TaskSetInfoDe
   if (runQueue.size() != 0) {
     initial = GenerateVectorDynamic(tasksInfo.variableDimension);
   }
+#ifdef PROFILE_CODE
   EndTimer(__FUNCTION__);
+#endif
   return initial;
 }
 

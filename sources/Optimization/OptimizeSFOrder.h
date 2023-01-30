@@ -77,7 +77,9 @@ public:
   }
 
   ScheduleResult Optimize() {
-    BeginTimer("OptimizeDAG");
+#ifdef PROFILE_CODE
+    BeginTimer(__FUNCTION__);
+#endif
     while (ifContinue()) {
       countOutermostWhileLoop++;
       if (GlobalVariablesDAGOpt::debugMode == 1)
@@ -103,7 +105,9 @@ public:
         jobOrderRef, statusPrev.startTimeVector_, statusPrev.schedulable_,
         ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, statusPrev.startTimeVector_, scheduleOptions),
         processorJobVec};
-    EndTimer("OptimizeDAG");
+#ifdef PROFILE_CODE
+    EndTimer(__FUNCTION__);
+#endif
     return scheduleRes;
   }
 
@@ -144,7 +148,6 @@ public:
       double accumLengthMin = 0;
 
       warmStart_(0) = -1;
-      // BeginTimer("Iterate_through_finish");
       for (LLint finishP = startP + 1; finishP <= std::min(jobStartFinishInstActiveRange.maxIndex - 1,
                                                            static_cast<int>(tasksInfo.length) * 2 - 1) &&
                                        ifContinue();
@@ -155,7 +158,10 @@ public:
         // Independence analysis
         // bool debug_independence = false;
         if (GlobalVariablesDAGOpt::FastOptimization) {
+
+#ifdef PROFILE_CODE
           BeginTimer("FastOptimizationExam");
+#endif
           if (!WhetherJobBreakChain(jobRelocate, startP, finishP, longestJobChains_, dagTasks, jobOrderRef,
                                     tasksInfo)) {
             bool hasInfluence = false;
@@ -171,12 +177,16 @@ public:
               }
             }
             if (!hasInfluence) {
+#ifdef PROFILE_CODE
               EndTimer("FastOptimizationExam");
+#endif
               continue;
             }
             // debug_independence = true;
           }
+#ifdef PROFILE_CODE
           EndTimer("FastOptimizationExam");
+#endif
         }
 
         // TODO: WhetherStartFinishTooLong can be optimized for better efficiency
@@ -211,7 +221,6 @@ public:
         // TODO: Avoid update job order’s internal index
         jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
       }
-      // BeginTimer("Iterate_through_finish");
       jobOrderCurrForStart.RemoveInstance(jobRelocate, startP);
     }
 

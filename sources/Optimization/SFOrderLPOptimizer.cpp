@@ -98,7 +98,7 @@ void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec,
   cplexSolver_.setStart(warmStartForCplex, NULL, varArray_, NULL, NULL, NULL);
 
   // BeginTimer("Solve_LP");
-  cplexSolver_.setParam(IloCplex::RootAlg, IloCplex::Dual);
+  // cplexSolver_.setParam(IloCplex::RootAlg, IloCplex::Dual);
   bool found_feasible_solution = cplexSolver_.solve();
   // EndTimer("Solve_LP");
   IloNumArray values_optimized(env_, numVariables_);

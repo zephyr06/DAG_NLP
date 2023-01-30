@@ -72,36 +72,48 @@ public:
   static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                 const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
                                 std::vector<uint> &processorJobVec) {
+
+#ifdef PROFILE_CODE
     BeginTimer("LPOrderScheduler_schedule");
+#endif
     if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrder, scheduleOptions.processorNum_,
                                               processorJobVec)) { // SFOrder unschedulable
       VectorDynamic startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
       startTimeVector(0) = -1;
       // assign all jobs to processor 0 to avoid errors in codes, this will not affect the correctness.
       processorJobVec.resize(tasksInfo.variableDimension, 0);
+#ifdef PROFILE_CODE
       EndTimer("LPOrderScheduler_schedule");
+#endif
+
       return startTimeVector;
     }
     SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder, scheduleOptions.processorNum_);
     sfOrderLPOptimizer.Optimize(processorJobVec);
     VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
-    // TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
-    // jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
+// TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
+// jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
+#ifdef PROFILE_CODE
     EndTimer("LPOrderScheduler_schedule");
+#endif
     return startTimeVectorOptmized;
   }
   // TODO: merge same code
   static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                 const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
                                 std::vector<uint> &processorJobVec, const VectorDynamic &warmStart) {
+#ifdef PROFILE_CODE
     BeginTimer("LPOrderScheduler_schedule");
+#endif
     if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrder, scheduleOptions.processorNum_,
                                               processorJobVec)) { // SFOrder unschedulable
       VectorDynamic startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
       startTimeVector(0) = -1;
       // assign all jobs to processor 0 to avoid errors in codes, this will not affect the correctness.
       processorJobVec.resize(tasksInfo.variableDimension, 0);
+#ifdef PROFILE_CODE
       EndTimer("LPOrderScheduler_schedule");
+#endif
       return startTimeVector;
     }
     SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder, scheduleOptions.processorNum_);
@@ -110,9 +122,11 @@ public:
     else
       sfOrderLPOptimizer.Optimize(processorJobVec);
     VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
-    // TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
-    // jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
+// TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
+// jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
+#ifdef PROFILE_CODE
     EndTimer("LPOrderScheduler_schedule");
+#endif
     return startTimeVectorOptmized;
   }
 };

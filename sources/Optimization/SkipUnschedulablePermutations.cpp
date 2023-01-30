@@ -32,14 +32,14 @@ double GetInstanceMaxFinishTime(const TimeInstance &instance, const TaskSetInfoD
 }
 bool WhetherSkipInsertStart(const JobCEC &jobRelocate, LLint startP, const TaskSetInfoDerived &tasksInfo,
                             const SFOrder &jobOrderCurr) {
-  // BeginTimer(__FUNCTION__);
+
   if (startP > 0) {
     TimeInstance instancePrev = jobOrderCurr.instanceOrder_[startP - 1];
     // jP.ActivationTime <= jR.start <= jR.deadline - jR.executionTime
     double prevInstanceLeastFinishTime = GetInstanceLeastStartTime(instancePrev, tasksInfo);
     if (prevInstanceLeastFinishTime >
         GetDeadline(jobRelocate, tasksInfo) - tasksInfo.tasks[jobRelocate.taskId].executionTime) {
-      // EndTimer(__FUNCTION__);
+
       return true;
     }
   }
@@ -48,11 +48,10 @@ bool WhetherSkipInsertStart(const JobCEC &jobRelocate, LLint startP, const TaskS
     //  jR.ActivationTime <= jR.start <= nextJ.Deadline
     double nextInstanceLeastFinishTime = GetInstanceMaxFinishTime(instanceAfter, tasksInfo);
     if (GetActivationTime(jobRelocate, tasksInfo) > nextInstanceLeastFinishTime) {
-      // EndTimer(__FUNCTION__);
+
       return true;
     }
   }
-  // EndTimer(__FUNCTION__);
   return false;
 }
 
@@ -81,7 +80,10 @@ bool WhetherSkipInsertFinish(const JobCEC &jobRelocate, LLint finishP, const Tas
 bool WhetherStartFinishTooLong(double &accumLengthMin, const JobCEC &jobRelocate, LLint finishP,
                                const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrderCurrForStart,
                                LLint startP) {
-  BeginTimer("WhetherStartFinishTooLong");
+#ifdef PROFILE_CODE
+  BeginTimer(__FUNCTION__);
+#endif
+
   if (finishP >= 1 && finishP <= jobOrderCurrForStart.size()) {
     TimeInstance jobPrevInsertInst = jobOrderCurrForStart.at(finishP - 1);
     if (jobPrevInsertInst.type == 'f' &&
@@ -89,10 +91,14 @@ bool WhetherStartFinishTooLong(double &accumLengthMin, const JobCEC &jobRelocate
       accumLengthMin += tasksInfo.tasks[jobPrevInsertInst.job.taskId].executionTime;
   }
   if (accumLengthMin >= tasksInfo.tasks[jobRelocate.taskId].executionTime) {
-    EndTimer("WhetherStartFinishTooLong");
+#ifdef PROFILE_CODE
+    EndTimer(__FUNCTION__);
+#endif
     return true;
   }
-  EndTimer("WhetherStartFinishTooLong");
+#ifdef PROFILE_CODE
+  EndTimer(__FUNCTION__);
+#endif
   return false;
 }
 

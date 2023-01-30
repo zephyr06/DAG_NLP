@@ -3,8 +3,7 @@ std::mutex mtx_profiler;
 
 std::unordered_map<std::string, ProfilerData> profilerMap;
 void BeginTimer(std::string funcName) {
-  if (GlobalVariablesDAGOpt::EnableProfiler == 0 && funcName != "main")
-    return;
+
   std::lock_guard<std::mutex> lock(mtx_profiler);
   auto itr = profilerMap.find(funcName);
   if (itr == profilerMap.end()) {
@@ -15,8 +14,6 @@ void BeginTimer(std::string funcName) {
 }
 
 void EndTimer(std::string funcName, bool print) {
-  if (GlobalVariablesDAGOpt::EnableProfiler == 0 && funcName != "main")
-    return;
   std::lock_guard<std::mutex> lock(mtx_profiler);
   auto itr = profilerMap.find(funcName);
   if (itr == profilerMap.end()) {
