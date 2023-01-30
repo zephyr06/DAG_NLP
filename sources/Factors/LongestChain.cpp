@@ -218,7 +218,7 @@ bool ExamMaxStartChange(LLint jobChangedOldStart, LLint jobChangedOldFinish, LLi
 // if the constraints for jobCurr.start/jobCurr.finish's upper bound change, then
 // there is possibly an influence
 bool WhetherInfluenceJobSource(const JobCEC &jobCurr, const JobCEC &jobChanged,
-                               std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder jobOrder, LLint startP,
+                               std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder, LLint startP,
                                LLint finishP) {
   if (!WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap))
     return false;
@@ -282,7 +282,7 @@ bool ExamMinStartChange(LLint jobChangedOldStart, LLint jobChangedOldFinish, LLi
 // if the constraints for jobCurr.start/jobCurr.finish's lower bound change, then
 // there is possibly an influence
 bool WhetherInfluenceJobSink(const JobCEC &jobCurr, const JobCEC &jobChanged,
-                             std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder jobOrder, LLint startP,
+                             std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder, LLint startP,
                              LLint finishP) {
   if (!WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap))
     return false;
