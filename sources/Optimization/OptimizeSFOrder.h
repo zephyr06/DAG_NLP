@@ -165,8 +165,10 @@ public:
             for (uint kk = 0; kk < longestJobChains_.size(); kk++) {
               JobCEC sourceJob = longestJobChains_[kk][0];
               JobCEC sinkJob = longestJobChains_[kk][longestJobChains_[kk].size() - 1];
-              if (WhetherInfluenceJobSource(sourceJob, jobRelocate, jobGroupMap_) ||
-                  (WhetherInfluenceJobSink(sinkJob, jobRelocate, jobGroupMap_))) {
+              if (WhetherInfluenceJobSource(sourceJob, jobRelocate, jobGroupMap_, jobOrderRef, startP,
+                                            finishP) ||
+                  (WhetherInfluenceJobSink(sinkJob, jobRelocate, jobGroupMap_, jobOrderRef, startP,
+                                           finishP))) {
                 hasInfluence = true;
                 EndTimer("FastOptimizationExam");
                 break;

@@ -162,6 +162,23 @@ TEST_F(RTDATest1, WhetherInfluenceJobSimple) {
   EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(0, 1), JobCEC(2, 0), jobGroupMap));
   EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(1, 0), JobCEC(0, 0), jobGroupMap));
 }
+
+TEST_F(RTDATest1, WhetherInfluenceJobSource) {
+  // arg order: jobCurr, jobChanged
+  EXPECT_FALSE(WhetherInfluenceJobSource(JobCEC(0, 0), JobCEC(0, 1), jobGroupMap, jobOrder, 5, 6));
+  EXPECT_FALSE(WhetherInfluenceJobSource(JobCEC(0, 0), JobCEC(1, 0), jobGroupMap, jobOrder, 6, 7));
+  EXPECT_FALSE(WhetherInfluenceJobSource(JobCEC(0, 1), JobCEC(0, 0), jobGroupMap, jobOrder, 2, 3));
+  EXPECT_TRUE(WhetherInfluenceJobSource(JobCEC(1, 0), JobCEC(2, 0), jobGroupMap, jobOrder, 0, 1));
+}
+TEST_F(RTDATest1, WhetherInfluenceJobSink) {
+  // arg order: jobCurr, jobChanged
+  EXPECT_FALSE(WhetherInfluenceJobSink(JobCEC(0, 0), JobCEC(0, 1), jobGroupMap, jobOrder, 5, 6));
+  EXPECT_FALSE(WhetherInfluenceJobSink(JobCEC(0, 0), JobCEC(1, 0), jobGroupMap, jobOrder, 6, 7));
+  EXPECT_FALSE(WhetherInfluenceJobSink(JobCEC(0, 1), JobCEC(0, 0), jobGroupMap, jobOrder, 2, 3));
+  EXPECT_FALSE(WhetherInfluenceJobSink(JobCEC(1, 0), JobCEC(2, 0), jobGroupMap, jobOrder, 0, 1));
+  EXPECT_TRUE(WhetherInfluenceJobSink(JobCEC(1, 0), JobCEC(2, 0), jobGroupMap, jobOrder, 6, 7));
+}
+
 TEST_F(RTDATest2, WhetherInfluenceJobSimple) {
   EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(0, 0), JobCEC(0, 1), jobGroupMap));
   EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(0, 0), JobCEC(1, 1), jobGroupMap));

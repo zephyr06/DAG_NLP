@@ -188,12 +188,73 @@ std::unordered_map<JobCEC, int> ExtractIndependentJobGroups(const SFOrder &jobOr
   std::cout << "The number of job groups in ExtractIndependentJobGroups: " << jobGroupIndex << std::endl;
   return jobGroupMap;
 }
-bool WhetherInfluenceJobSource(const JobCEC &jobCurr, const JobCEC &jobChanged,
-                               std::unordered_map<JobCEC, int> &jobGroupMap) {
-  return WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap);
+
+bool ExamMaxStartChange(LLint jobCurrP, LLint jobChangedOldStart, LLint jobChangedOldFinish,
+                        LLint jobChangedNewStart, LLint jobChangedNewfinish) {
+  if (jobChangedOldStart > jobCurrP) {
+    if (jobChangedNewStart < jobCurrP)
+      return true;
+  } else if (jobChangedOldFinish > jobCurrP) {
+    if (jobChangedNewfinish < jobCurrP)
+      return true;
+  }
+  return false;
 }
+
+// TODO: these operations are probably safe because the constraints are still the same form!
+bool WhetherInfluenceJobSource(const JobCEC &jobCurr, const JobCEC &jobChanged,
+                               std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder, LLint startP,
+                               LLint finishP) {
+  if (!WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap))
+    return false;
+
+  LLint jobCurrOldStart = jobOrder.GetJobStartInstancePosition(jobCurr);
+  LLint jobCurrOldFinish = jobOrder.GetJobFinishInstancePosition(jobCurr);
+  LLint jobChangedOldStart = jobOrder.GetJobStartInstancePosition(jobChanged);
+  LLint jobChangedOldFinish = jobOrder.GetJobFinishInstancePosition(jobChanged);
+
+  // exam jobCurr.start
+  if (ExamMaxStartChange(jobCurrOldStart, jobChangedOldStart, jobChangedOldFinish, startP, finishP))
+    return true;
+  // exam jobCurr.finish
+  if (ExamMaxStartChange(jobCurrOldFinish, jobChangedOldStart, jobChangedOldFinish, startP, finishP))
+    return true;
+
+  return false;
+}
+
+bool ExamMinStartChange(LLint jobCurrP, LLint jobChangedOldStart, LLint jobChangedOldFinish,
+                        LLint jobChangedNewStart, LLint jobChangedNewfinish) {
+  if (jobChangedOldFinish < jobCurrP) {
+    if (jobChangedNewfinish > jobCurrP)
+      return true;
+  } else if (jobChangedOldStart < jobCurrP) {
+    if (jobChangedNewStart > jobCurrP)
+      return true;
+  }
+  return false;
+}
+
+// if the constraints for jobCurr.start/jobCurr.finish's lower bound change, then
+// there is possibly an influence
 bool WhetherInfluenceJobSink(const JobCEC &jobCurr, const JobCEC &jobChanged,
-                             std::unordered_map<JobCEC, int> &jobGroupMap) {
-  return WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap);
+                             std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder, LLint startP,
+                             LLint finishP) {
+  if (!WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap))
+    return false;
+
+  LLint jobCurrOldStart = jobOrder.GetJobStartInstancePosition(jobCurr);
+  LLint jobCurrOldFinish = jobOrder.GetJobFinishInstancePosition(jobCurr);
+  LLint jobChangedOldStart = jobOrder.GetJobStartInstancePosition(jobChanged);
+  LLint jobChangedOldFinish = jobOrder.GetJobFinishInstancePosition(jobChanged);
+
+  // exam jobCurr.start
+  if (ExamMinStartChange(jobCurrOldStart, jobChangedOldStart, jobChangedOldFinish, startP, finishP))
+    return true;
+  // exam jobCurr.finish
+  if (ExamMinStartChange(jobCurrOldFinish, jobChangedOldStart, jobChangedOldFinish, startP, finishP))
+    return true;
+
+  return false;
 }
 } // namespace OrderOptDAG_SPACE
