@@ -246,6 +246,27 @@ TEST_F(RTDATest4, whether_break_chain) {
   EXPECT_TRUE(
       WhetherInfluenceJobSink(sinkJob, jobRelocate, jobGroupMap_, jobOrder, startP, finishP, tasksInfo));
 }
+
+class RTDATest5 : public RTDATest1 {
+  void SetUp() override {
+    std::string taskSetName = "test_n3_v41";
+    SetUpTaskSet(taskSetName);
+    startTimeVector = GenerateVectorDynamic(17);
+    startTimeVector << 0, 1205, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 678, 5000, 0, 3173, 4000,
+        6000, 8000;
+    jobOrder = SFOrder(tasksInfo, startTimeVector);
+  }
+};
+TEST_F(RTDATest5, FindLongestCAChain) {
+  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_);
+  EXPECT_EQ(2, longestChain.size());
+
+  std::vector<JobCEC> chain0 = {JobCEC(2, 3), JobCEC(1, 1)}; // RT
+  std::vector<JobCEC> chain2 = {JobCEC(2, 2), JobCEC(1, 1)}; // RT&DA
+  AssertEqualVectorNoRepeat<JobCEC>(chain0, longestChain.longestChains_[0], 0, __LINE__);
+  AssertEqualVectorNoRepeat<JobCEC>(chain2, longestChain.longestChains_[1], 0, __LINE__);
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

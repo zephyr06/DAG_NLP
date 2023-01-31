@@ -275,6 +275,10 @@ public:
         jobOrderRef.print();
         std::cout << "\n" << statusPrev.startTimeVector_ << "\n\n";
         CoutWarning("Find a case where FastOptimization fails!");
+        double objCurr =
+            ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
+        double objPrev =
+            ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, statusPrev.startTimeVector_, scheduleOptions);
       }
     }
 
