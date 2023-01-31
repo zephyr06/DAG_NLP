@@ -15,9 +15,18 @@ struct JobCEC {
   JobCEC() : taskId(-1), jobId(0) {}
   JobCEC(int taskId, LLint jobId) : taskId(taskId), jobId(jobId) {}
   JobCEC(std::pair<int, LLint> p) : taskId(p.first), jobId(p.second) {}
+  JobCEC GetJobWithinHyperPeriod(const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) const {
+    return JobCEC(taskId, jobId % tasksInfo.sizeOfVariables[taskId]);
+  }
 
   bool operator==(const JobCEC &other) const { return taskId == other.taskId && jobId == other.jobId; }
   bool operator!=(const JobCEC &other) const { return !(*this == other); }
+
+  bool EqualWithinHyperPeriod(const JobCEC &other,
+                              const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) const {
+    return (other.taskId == taskId) &&
+           (other.jobId % tasksInfo.sizeOfVariables[taskId] == jobId % tasksInfo.sizeOfVariables[taskId]);
+  }
 
   std::string ToString() const { return "T" + std::to_string(taskId) + "_" + std::to_string(jobId); }
 };

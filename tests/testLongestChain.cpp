@@ -1,6 +1,7 @@
 
 #include "sources/Factors/LongestChain.h"
 #include "sources/Factors/RTDA_Factor.h"
+#include "sources/Optimization/OptimizeSFOrder.h"
 #include "sources/Optimization/ScheduleOptions.h"
 #include "sources/Utils/testMy.h"
 #include <functional>
@@ -165,19 +166,19 @@ TEST_F(RTDATest1, WhetherInfluenceJobSimple) {
 
 TEST_F(RTDATest1, WhetherInfluenceJobSource) {
   // arg order: jobCurr, jobChanged
-  EXPECT_FALSE(WhetherInfluenceJobSource(JobCEC(0, 0), JobCEC(0, 1), jobGroupMap, jobOrder, 5, 6));
-  EXPECT_FALSE(WhetherInfluenceJobSource(JobCEC(0, 0), JobCEC(1, 0), jobGroupMap, jobOrder, 6, 7));
-  EXPECT_FALSE(WhetherInfluenceJobSource(JobCEC(0, 1), JobCEC(0, 0), jobGroupMap, jobOrder, 2, 3));
-  EXPECT_TRUE(WhetherInfluenceJobSource(JobCEC(1, 0), JobCEC(2, 0), jobGroupMap, jobOrder, 0, 1));
+  EXPECT_FALSE(WhetherInfluenceJobSource(JobCEC(0, 0), JobCEC(0, 1), jobGroupMap, jobOrder, 5, 6, tasksInfo));
+  EXPECT_FALSE(WhetherInfluenceJobSource(JobCEC(0, 0), JobCEC(1, 0), jobGroupMap, jobOrder, 6, 7, tasksInfo));
+  EXPECT_FALSE(WhetherInfluenceJobSource(JobCEC(0, 1), JobCEC(0, 0), jobGroupMap, jobOrder, 2, 3, tasksInfo));
+  EXPECT_TRUE(WhetherInfluenceJobSource(JobCEC(1, 0), JobCEC(2, 0), jobGroupMap, jobOrder, 0, 1, tasksInfo));
 }
 TEST_F(RTDATest1, WhetherInfluenceJobSink) {
   // arg order: jobCurr, jobChanged
-  EXPECT_FALSE(WhetherInfluenceJobSink(JobCEC(0, 0), JobCEC(0, 1), jobGroupMap, jobOrder, 5, 6));
-  EXPECT_FALSE(WhetherInfluenceJobSink(JobCEC(0, 0), JobCEC(1, 0), jobGroupMap, jobOrder, 6, 7));
-  EXPECT_FALSE(WhetherInfluenceJobSink(JobCEC(0, 1), JobCEC(0, 0), jobGroupMap, jobOrder, 2, 3));
-  EXPECT_FALSE(WhetherInfluenceJobSink(JobCEC(1, 0), JobCEC(2, 0), jobGroupMap, jobOrder, 0, 1));
-  EXPECT_TRUE(WhetherInfluenceJobSink(JobCEC(1, 0), JobCEC(2, 0), jobGroupMap, jobOrder, 6, 7));
-  EXPECT_TRUE(WhetherInfluenceJobSink(JobCEC(0, 0), JobCEC(2, 0), jobGroupMap, jobOrder, 2, 3));
+  EXPECT_FALSE(WhetherInfluenceJobSink(JobCEC(0, 0), JobCEC(0, 1), jobGroupMap, jobOrder, 5, 6, tasksInfo));
+  EXPECT_FALSE(WhetherInfluenceJobSink(JobCEC(0, 0), JobCEC(1, 0), jobGroupMap, jobOrder, 6, 7, tasksInfo));
+  EXPECT_FALSE(WhetherInfluenceJobSink(JobCEC(0, 1), JobCEC(0, 0), jobGroupMap, jobOrder, 2, 3, tasksInfo));
+  EXPECT_FALSE(WhetherInfluenceJobSink(JobCEC(1, 0), JobCEC(2, 0), jobGroupMap, jobOrder, 0, 1, tasksInfo));
+  EXPECT_TRUE(WhetherInfluenceJobSink(JobCEC(1, 0), JobCEC(2, 0), jobGroupMap, jobOrder, 6, 7, tasksInfo));
+  EXPECT_TRUE(WhetherInfluenceJobSink(JobCEC(0, 0), JobCEC(2, 0), jobGroupMap, jobOrder, 2, 3, tasksInfo));
 }
 
 TEST_F(RTDATest2, WhetherInfluenceJobSimple) {
@@ -223,6 +224,28 @@ TEST_F(JobPositionTest, UpdateAfterRemoveInstance) {
   EXPECT_EQ(15, jobPosition.finish_);
 }
 
+class RTDATest4 : public RTDATest1 {
+  void SetUp() override {
+    std::string taskSetName = "test_n3_v40";
+    SetUpTaskSet(taskSetName);
+    startTimeVector = GenerateVectorDynamic(13);
+    startTimeVector << 123, 0, 1000, 0, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800;
+    jobOrder = SFOrder(tasksInfo, startTimeVector);
+  }
+};
+
+TEST_F(RTDATest4, whether_break_chain) {
+  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_);
+  std::unordered_map<JobCEC, int> jobGroupMap_ = ExtractIndependentJobGroups(jobOrder, tasksInfo);
+  JobCEC jobRelocate(2, 0);
+  LLint startP = 3;
+  LLint finishP = 4;
+  EXPECT_FALSE(
+      WhetherJobBreakChain(jobRelocate, startP, finishP, longestChain, dagTasks, jobOrder, tasksInfo));
+  JobCEC sinkJob = longestChain[0].back();
+  EXPECT_TRUE(
+      WhetherInfluenceJobSink(sinkJob, jobRelocate, jobGroupMap_, jobOrder, startP, finishP, tasksInfo));
+}
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

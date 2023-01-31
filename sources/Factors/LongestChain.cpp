@@ -134,7 +134,8 @@ bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
         if (siblingJobIndex == -1)
           continue;
         JobCEC sibJob = jobChainCurr[siblingJobIndex];
-        if (sibJob == job) // this may not be necessary, but is a safe solution
+        if (sibJob.EqualWithinHyperPeriod(job,
+                                          tasksInfo)) // this may not be necessary, but is a safe solution
         {
           // EndTimer("WhetherJobBreakChain");
           return true;
@@ -220,12 +221,13 @@ bool ExamMaxStartChange(LLint jobChangedOldStart, LLint jobChangedOldFinish, LLi
 
 // if the constraints for jobCurr.start/jobCurr.finish's upper bound change, then
 // there is possibly an influence
-bool WhetherInfluenceJobSource(const JobCEC &jobCurr, const JobCEC &jobChanged,
+bool WhetherInfluenceJobSource(JobCEC jobCurr, const JobCEC &jobChanged,
                                std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder, LLint startP,
-                               LLint finishP) {
+                               LLint finishP, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) {
+  jobCurr = jobCurr.GetJobWithinHyperPeriod(tasksInfo);
   if (!WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap))
     return false;
-  if (jobCurr == jobChanged)
+  if (jobCurr.EqualWithinHyperPeriod(jobChanged, tasksInfo))
     return true;
   LLint jobChangedOldStart = jobOrder.GetJobStartInstancePosition(jobChanged);
   LLint jobChangedOldFinish = jobOrder.GetJobFinishInstancePosition(jobChanged);
@@ -284,12 +286,13 @@ bool ExamMinStartChange(LLint jobChangedOldStart, LLint jobChangedOldFinish, LLi
 
 // if the constraints for jobCurr.start/jobCurr.finish's lower bound change, then
 // there is possibly an influence
-bool WhetherInfluenceJobSink(const JobCEC &jobCurr, const JobCEC &jobChanged,
+bool WhetherInfluenceJobSink(JobCEC jobCurr, const JobCEC &jobChanged,
                              std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder, LLint startP,
-                             LLint finishP) {
+                             LLint finishP, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) {
+  jobCurr = jobCurr.GetJobWithinHyperPeriod(tasksInfo);
   if (!WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap))
     return false;
-  if (jobCurr == jobChanged)
+  if (jobCurr.EqualWithinHyperPeriod(jobChanged, tasksInfo))
     return true;
   LLint jobChangedOldStart = jobOrder.GetJobStartInstancePosition(jobChanged);
   LLint jobChangedOldFinish = jobOrder.GetJobFinishInstancePosition(jobChanged);

@@ -156,8 +156,10 @@ public:
           continue;
 
         // Independence analysis
-        // bool debug_independence = false;
-        if (GlobalVariablesDAGOpt::FastOptimization) {
+        debug_independence_ = false;
+        // TODO: whether it skips cases that change max RTDA?
+        // if (GlobalVariablesDAGOpt::FastOptimization)
+        {
 
 #ifdef PROFILE_CODE
           BeginTimer("FastOptimizationExam");
@@ -169,9 +171,9 @@ public:
               JobCEC sourceJob = longestJobChains_[kk][0];
               JobCEC sinkJob = longestJobChains_[kk][longestJobChains_[kk].size() - 1];
               if (WhetherInfluenceJobSource(sourceJob, jobRelocate, jobGroupMap_, jobOrderRef, startP,
-                                            finishP) ||
-                  (WhetherInfluenceJobSink(sinkJob, jobRelocate, jobGroupMap_, jobOrderRef, startP,
-                                           finishP))) {
+                                            finishP, tasksInfo) ||
+                  (WhetherInfluenceJobSink(sinkJob, jobRelocate, jobGroupMap_, jobOrderRef, startP, finishP,
+                                           tasksInfo))) {
                 hasInfluence = true;
                 break;
               }
@@ -180,9 +182,9 @@ public:
 #ifdef PROFILE_CODE
               EndTimer("FastOptimizationExam");
 #endif
-              continue;
+              debug_independence_ = true;
+              // continue;
             }
-            // debug_independence = true;
           }
 #ifdef PROFILE_CODE
           EndTimer("FastOptimizationExam");
@@ -265,6 +267,17 @@ public:
         schedulable);
     countIterationStatus++;
 
+    if (debug_independence_ == true) {
+      double objCurr = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
+      double objPrev =
+          ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, statusPrev.startTimeVector_, scheduleOptions);
+      if (objCurr < objPrev) {
+        jobOrderRef.print();
+        std::cout << "\n" << statusPrev.startTimeVector_ << "\n\n";
+        CoutWarning("Find a case where FastOptimization fails!");
+      }
+    }
+
     if (MakeProgress<OrderScheduler>(statusBestFound, statusCurr)) {
       statusBestFound = statusCurr;
       jobOrderBestFound = jobOrderCurrForFinish;
@@ -302,6 +315,7 @@ public:
   VectorDynamic warmStart_;
   std::unordered_map<JobCEC, int> jobGroupMap_;
   LongestCAChain longestJobChains_;
+  bool debug_independence_ = false;
 
 }; // class DAGScheduleOptimizer
 
@@ -339,7 +353,8 @@ ScheduleResult ScheduleDAGModel(DAG_Model &dagTasks, const ScheduleOptions &sche
   //       schedule_optimizer.setObjType(false);
   //       schedule_optimizer.Optimize(scheduleRes.startTimeVector_, scheduleRes.processorJobVec_);
   //       scheduleRes.startTimeVector_ = schedule_optimizer.getOptimizedStartTimeVector();
-  //       scheduleRes.obj_ = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, scheduleRes.startTimeVector_,
+  //       scheduleRes.obj_ = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo,
+  //       scheduleRes.startTimeVector_,
   //                                                         scheduleOptions);
   //     }
   //   }
