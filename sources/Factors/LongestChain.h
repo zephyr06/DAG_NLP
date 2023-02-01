@@ -68,5 +68,6 @@ bool WhetherInfluenceJobSource(JobCEC jobCurr, const JobCEC &jobChanged,
                                const VectorDynamic &startTimeVector);
 bool WhetherInfluenceJobSink(JobCEC jobCurr, const JobCEC &jobChanged,
                              std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder, LLint startP,
-                             LLint finishP, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
+                             LLint finishP, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                                            const VectorDynamic &startTimeVector);
 } // namespace OrderOptDAG_SPACE

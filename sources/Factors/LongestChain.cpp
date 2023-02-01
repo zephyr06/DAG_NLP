@@ -238,7 +238,8 @@ bool WhetherInfluenceJobSource(JobCEC jobCurr, const JobCEC &jobChanged,
     return false;
   if (jobCurr.EqualWithinHyperPeriod(jobChanged, tasksInfo))
     return true;
-  if (GetStartTime(jobCurr, startTimeVector, tasksInfo) == GetActivationTime(jobCurr, tasksInfo))
+  if (std::abs(GetStartTime(jobCurr, startTimeVector, tasksInfo) - GetActivationTime(jobCurr, tasksInfo)) <
+      1e-3)
     return false;
   LLint jobChangedOldStart = jobOrder.GetJobStartInstancePosition(jobChanged);
   LLint jobChangedOldFinish = jobOrder.GetJobFinishInstancePosition(jobChanged);
@@ -299,12 +300,16 @@ bool ExamMinStartChange(LLint jobChangedOldStart, LLint jobChangedOldFinish, LLi
 // there is possibly an influence
 bool WhetherInfluenceJobSink(JobCEC jobCurr, const JobCEC &jobChanged,
                              std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder, LLint startP,
-                             LLint finishP, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) {
+                             LLint finishP, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                             const VectorDynamic &startTimeVector) {
   jobCurr = jobCurr.GetJobWithinHyperPeriod(tasksInfo);
   if (!WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap))
     return false;
   if (jobCurr.EqualWithinHyperPeriod(jobChanged, tasksInfo))
     return true;
+  if (std::abs(GetStartTime(jobCurr, startTimeVector, tasksInfo) + GetExecutionTime(jobCurr, tasksInfo) -
+               GetDeadline(jobCurr, tasksInfo)) < 1e-3)
+    return false;
   LLint jobChangedOldStart = jobOrder.GetJobStartInstancePosition(jobChanged);
   LLint jobChangedOldFinish = jobOrder.GetJobFinishInstancePosition(jobChanged);
   LLint jobCurrOldStart = jobOrder.GetJobStartInstancePosition(jobCurr);

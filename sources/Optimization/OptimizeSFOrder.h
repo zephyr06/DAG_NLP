@@ -171,9 +171,9 @@ public:
               JobCEC sourceJob = longestJobChains_[kk][0];
               JobCEC sinkJob = longestJobChains_[kk][longestJobChains_[kk].size() - 1];
               if (WhetherInfluenceJobSource(sourceJob, jobRelocate, jobGroupMap_, jobOrderRef, startP,
-                                            finishP, tasksInfo) ||
+                                            finishP, tasksInfo, statusPrev.startTimeVector_) ||
                   (WhetherInfluenceJobSink(sinkJob, jobRelocate, jobGroupMap_, jobOrderRef, startP, finishP,
-                                           tasksInfo))) {
+                                           tasksInfo, statusPrev.startTimeVector_))) {
                 hasInfluence = true;
                 break;
               }
