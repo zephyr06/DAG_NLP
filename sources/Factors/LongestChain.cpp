@@ -71,9 +71,17 @@ GetMaxDataAgeChains(const std::unordered_map<JobCEC, std::vector<JobCEC>> &react
     if (lengthChainCurr > maxLength) {
       longestChains.clear();
       longestChains.push_back(jobChain);
+      // longestChains.push_back(prevJobChain);
+      JobCEC prevSink(jobChain.back().taskId, (jobChain.back().jobId));
+      prevSink.jobId--;
+      longestChains.push_back({prevJobChain[0], prevSink});
       maxLength = lengthChainCurr;
     } else if (lengthChainCurr == maxLength) {
       longestChains.push_back(jobChain);
+      // longestChains.push_back(prevJobChain);
+      JobCEC prevSink(jobChain.back().taskId, (jobChain.back().jobId));
+      prevSink.jobId--;
+      longestChains.push_back({prevJobChain[0], prevSink});
     }
   }
   return longestChains;
@@ -97,10 +105,10 @@ std::vector<std::vector<JobCEC>> LongestCAChain::FindLongestCAChain(const DAG_Mo
     auto chains2 = GetMaxDataAgeChains(react_chain_map, startTimeVector, tasksInfo);
     chains.insert(chains.end(), chains2.begin(), chains2.end());
     for (uint i = 0; i < chains.size(); i++) {
-      if (sourceJobRecords.find(chains[i][0]) == sourceJobRecords.end()) {
-        longestChains.push_back(chains[i]);
-        sourceJobRecords.insert(chains[i][0]);
-      }
+      // if (sourceJobRecords.find(chains[i][0]) == sourceJobRecords.end()) {
+      longestChains.push_back(chains[i]);
+      //   sourceJobRecords.insert(chains[i][0]);
+      // }
     }
   }
   // EndTimer("FindLongestCAChain");
@@ -223,12 +231,15 @@ bool ExamMaxStartChange(LLint jobChangedOldStart, LLint jobChangedOldFinish, LLi
 // there is possibly an influence
 bool WhetherInfluenceJobSource(JobCEC jobCurr, const JobCEC &jobChanged,
                                std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder, LLint startP,
-                               LLint finishP, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) {
+                               LLint finishP, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                               const VectorDynamic &startTimeVector) {
   jobCurr = jobCurr.GetJobWithinHyperPeriod(tasksInfo);
   if (!WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap))
     return false;
   if (jobCurr.EqualWithinHyperPeriod(jobChanged, tasksInfo))
     return true;
+  if (GetStartTime(jobCurr, startTimeVector, tasksInfo) == GetActivationTime(jobCurr, tasksInfo))
+    return false;
   LLint jobChangedOldStart = jobOrder.GetJobStartInstancePosition(jobChanged);
   LLint jobChangedOldFinish = jobOrder.GetJobFinishInstancePosition(jobChanged);
   LLint jobCurrOldStart = jobOrder.GetJobStartInstancePosition(jobCurr);

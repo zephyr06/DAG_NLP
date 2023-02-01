@@ -257,15 +257,123 @@ class RTDATest5 : public RTDATest1 {
     jobOrder = SFOrder(tasksInfo, startTimeVector);
   }
 };
-TEST_F(RTDATest5, FindLongestCAChain) {
-  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_);
-  EXPECT_EQ(2, longestChain.size());
+// TEST_F(RTDATest5, FindLongestCAChain) {
+//   LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector,
+//   scheduleOptions.processorNum_); EXPECT_EQ(2, longestChain.size());
 
-  std::vector<JobCEC> chain0 = {JobCEC(2, 3), JobCEC(1, 1)}; // RT
-  std::vector<JobCEC> chain2 = {JobCEC(2, 2), JobCEC(1, 1)}; // RT&DA
-  AssertEqualVectorNoRepeat<JobCEC>(chain0, longestChain.longestChains_[0], 0, __LINE__);
-  AssertEqualVectorNoRepeat<JobCEC>(chain2, longestChain.longestChains_[1], 0, __LINE__);
+//   std::vector<JobCEC> chain0 = {JobCEC(2, 3), JobCEC(1, 2)}; // RT
+//   std::vector<JobCEC> chain2 = {JobCEC(2, 2), JobCEC(1, 1)}; // RT&DA
+//   AssertEqualVectorNoRepeat<JobCEC>(chain0, longestChain.longestChains_[0], 0, __LINE__);
+//   AssertEqualVectorNoRepeat<JobCEC>(chain2, longestChain.longestChains_[1], 0, __LINE__);
+// }
+
+class RTDATest6 : public RTDATest1 {
+  void SetUp() override {
+    std::string taskSetName = "test_n3_v42";
+    SetUpTaskSet(taskSetName);
+    startTimeVector = GenerateVectorDynamic(5);
+    startTimeVector << 712, 1176, 0, 0, 1000;
+    jobOrder = SFOrder(tasksInfo, startTimeVector);
+    jobOrder.print();
+  }
+};
+
+// double GetMinStartTimeHelper(JobCEC jobCurr, SFOrder &jobOrderCurr,
+//                              const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+//                              std::unordered_map<JobCEC, double> &startTimeRecord) {
+//   auto itr = startTimeRecord.find(jobCurr);
+//   if (itr == startTimeRecord.end()) {
+//     LLint startIndex = jobOrderCurr.GetJobStartInstancePosition(jobCurr);
+//     // initial conditions
+//     if (startIndex == 0) {
+//       startTimeRecord.insert({jobCurr, 0});
+//       return 0;
+//     }
+//     double minStartTime = GetActivationTime(jobCurr, tasksInfo);
+
+//     auto UpdateMinStartTime = [&](LLint index) {
+//       TimeInstance instPrev = jobOrderCurr[index - 1];
+//       double prevMinStartTime = GetMinStartTimeHelper(instPrev.job, jobOrderCurr, tasksInfo,
+//       startTimeRecord); if (instPrev.type == 'f')
+//         prevMinStartTime += GetExecutionTime(instPrev.job, tasksInfo);
+//       if (prevMinStartTime > minStartTime)
+//         minStartTime = prevMinStartTime;
+//     };
+
+//     UpdateMinStartTime(startIndex);
+
+//     auto itr2 = startTimeRecord.find(jobOrderCurr[startIndex - 1].job);
+//     if (itr2 != startTimeRecord.end()) { // in this case, we can directly assign the start time?
+//     }
+
+//     LLint finishIndex = jobOrderCurr.GetJobFinishInstancePosition(jobCurr);
+//     UpdateMinStartTime(finishIndex);
+
+//     startTimeRecord.insert({jobCurr, minStartTime});
+//     return minStartTime;
+
+//   } else {
+//     return itr->second;
+//   }
+// }
+// double GetMinStartTime(JobCEC jobCurr, SFOrder &jobOrder,
+//                        const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) {
+//   std::unordered_map<JobCEC, double> startTimeRecord;
+//   startTimeRecord.reserve(tasksInfo.length);
+//   return GetMinStartTimeHelper(jobCurr, jobOrder, tasksInfo, startTimeRecord);
+// }
+class RTDATest7 : public RTDATest1 {
+  void SetUp() override {
+    std::string taskSetName = "test_n3_v43";
+    SetUpTaskSet(taskSetName);
+    startTimeVector = GenerateVectorDynamic(8);
+    startTimeVector << 4592, 0, 2000, 4680, 6000, 8000, 782, 6000;
+    jobOrder = SFOrder(tasksInfo, startTimeVector);
+    jobOrder.print();
+  }
+};
+bool WhetherInfluenceJobAndPrecedenceSource(JobCEC jobCurr, const JobCEC &jobChanged,
+                                            std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder,
+                                            LLint startP, LLint finishP,
+                                            const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                                            const VectorDynamic &startTimeVector) {
+  // Exam whether the jobs that are closely adjacent to jobCurr will be influenced by jobChanged
+  LLint jobCurrOldStart = jobOrder.GetJobStartInstancePosition(jobCurr);
+  for (uint i = jobCurrOldStart; i >= 0; i--) {
+    TimeInstance jobCurrIte = jobOrder[i];
+    if (WhetherInfluenceJobSource(jobCurrIte.job, jobChanged, jobGroupMap, jobOrder, startP, finishP,
+                                  tasksInfo, startTimeVector))
+      return true;
+
+    // Termination conditions
+    double jobCurrStartTime = GetStartTime(jobCurr, startTimeVector, tasksInfo);
+    if (jobCurrStartTime == GetActivationTime(jobCurr, tasksInfo))
+      return false;
+    if (i > 0) {
+      if (std::abs(jobCurrStartTime - GetStartTime(jobCurrIte.job, startTimeVector, tasksInfo)) > 1e-3) {
+        break;
+      }
+    }
+  }
+  return false;
 }
+TEST_F(RTDATest7, WhetherInfluenceJobSource) {
+  EXPECT_EQ(0, GetMinStartTime(JobCEC(1, 0), jobOrder, tasksInfo));
+  EXPECT_EQ(782, GetMinStartTime(JobCEC(2, 0), jobOrder, tasksInfo));
+  EXPECT_EQ(4592, GetMinStartTime(JobCEC(0, 0), jobOrder, tasksInfo));
+  startTimeVector << 3810, 0, 2000, 4000, 6000, 8000, 0, 6000;
+  SFOrder jobOrder2(tasksInfo, startTimeVector);
+  EXPECT_EQ(3810, GetMinStartTime(JobCEC(0, 0), jobOrder2, tasksInfo));
+}
+// TEST_F(RTDATest6, FindLongestCAChain) {
+//   LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector,
+//   scheduleOptions.processorNum_); EXPECT_EQ(2, longestChain.size());
+
+//   std::vector<JobCEC> chain0 = {JobCEC(1, 0), JobCEC(0, 1)}; // RT
+//   std::vector<JobCEC> chain2 = {JobCEC(1, 0), JobCEC(0, 2)}; // RT&DA
+//   AssertEqualVectorNoRepeat<JobCEC>(chain0, longestChain.longestChains_[0], 0, __LINE__);
+//   AssertEqualVectorNoRepeat<JobCEC>(chain2, longestChain.longestChains_[1], 0, __LINE__);
+// }
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

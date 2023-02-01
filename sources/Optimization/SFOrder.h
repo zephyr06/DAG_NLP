@@ -120,6 +120,9 @@ public:
     } else
       return jobSFMap_.at(job).finishInstanceIndex;
   }
+  JobPosition GetJobPosition(const JobCEC &job) {
+    return JobPosition(GetJobStartInstancePosition(job), GetJobFinishInstancePosition(job));
+  }
 
   void RangeCheck(LLint index, bool allowEnd = false) const;
 
