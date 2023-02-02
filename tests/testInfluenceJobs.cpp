@@ -117,42 +117,53 @@ TEST_F(RTDATest7, WhetherImmediateAdjacent_v1) {
 }
 
 // previous adjacent job means the jobs whose finish time equals the start time of jobCurr
-std::vector<JobCEC> FindPrevAdjacentJob(JobCEC job, SFOrder &jobOrder,
-                                        const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
-                                        const VectorDynamic &startTimeVector) {
-  // LLint jobCurrOldStart = jobOrder.GetJobStartInstancePosition(job);
-  double startTime = GetStartTime(job, startTimeVector, tasksInfo);
+std::vector<JobCEC> FindForwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
+                                           const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                                           const VectorDynamic &startTimeVector) {
   std::vector<JobCEC> prevAdjacentJobs;
   prevAdjacentJobs.reserve(4 * 2); // actually, cannot be more than #core*2
 
   std::unordered_set<JobCEC> record;
   record.reserve(4 * 2);
-  auto AddAdjacentJob = [&](LLint index) {
-    for (int i = index - 1; i >= 0; i--) {
-      TimeInstance instCurr = jobOrder[i];
-      if (instCurr.type == 'f') {
-        JobCEC jobCurr = instCurr.job;
-        double jobCurrfinishTime = GetFinishTime(jobCurr, startTimeVector, tasksInfo);
-        if (std::abs(jobCurrfinishTime - startTime) < 1e-3) {
-          if (record.find(jobCurr) == record.end()) {
-            prevAdjacentJobs.push_back(jobCurr);
-            record.insert(jobCurr);
-          }
-        } else {
+
+  LLint jobStartIndex = jobOrder.GetJobStartInstancePosition(job);
+  TimeInstance instCurrJobStart = jobOrder[jobStartIndex];
+  auto AddImmediateAdjacentInstance = [&](TimeInstance &instCurrJob, LLint jobInstIndex) {
+    for (int i = jobInstIndex - 1; i >= 0; i--) {
+      TimeInstance instIte = jobOrder[i];
+      if (WhetherImmediateAdjacent(instCurrJob, instIte, tasksInfo, startTimeVector)) {
+        if (record.find(instIte.job) == record.end()) {
+          prevAdjacentJobs.push_back(instIte.job);
+          record.insert(instIte.job);
+        } else
           break;
-        }
-      }
+      } else
+        break;
     }
   };
+  AddImmediateAdjacentInstance(instCurrJobStart, jobStartIndex);
 
-  AddAdjacentJob(jobOrder.GetJobFinishInstancePosition(job));
-  AddAdjacentJob(jobOrder.GetJobStartInstancePosition(job));
+  LLint jobFinishIndex = jobOrder.GetJobFinishInstancePosition(job);
+  TimeInstance instCurrJobFinish = jobOrder[jobFinishIndex];
+  AddImmediateAdjacentInstance(instCurrJobFinish, jobFinishIndex);
   return prevAdjacentJobs;
 }
-TEST_F(RTDATest7, FindPrevAdjacentJob) {
-  auto prevAdjacentJobs = FindPrevAdjacentJob(JobCEC(0, 0), jobOrder, tasksInfo, startTimeVector);
+TEST_F(RTDATest7, FindForwardAdjacentJob) {
+  auto prevAdjacentJobs = FindForwardAdjacentJob(JobCEC(0, 0), jobOrder, tasksInfo, startTimeVector);
   EXPECT_EQ(1, prevAdjacentJobs.size());
   EXPECT_TRUE(JobCEC(2, 0) == prevAdjacentJobs[0]);
+
+  prevAdjacentJobs = FindForwardAdjacentJob(JobCEC(2, 0), jobOrder, tasksInfo, startTimeVector);
+  EXPECT_EQ(1, prevAdjacentJobs.size());
+  EXPECT_TRUE(JobCEC(1, 0) == prevAdjacentJobs[0]);
+
+  startTimeVector(5) = 9028;
+  jobOrder = SFOrder(tasksInfo, startTimeVector);
+  jobOrder.print();
+  prevAdjacentJobs = FindForwardAdjacentJob(JobCEC(2, 1), jobOrder, tasksInfo, startTimeVector);
+  EXPECT_EQ(2, prevAdjacentJobs.size());
+  EXPECT_TRUE(JobCEC(1, 3) == prevAdjacentJobs[0]);
+  EXPECT_TRUE(JobCEC(1, 4) == prevAdjacentJobs[1]);
 }
 
 // we need to exam all the jobs that are closely adjacent to jobCurr;
