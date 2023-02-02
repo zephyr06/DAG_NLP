@@ -3,6 +3,7 @@
 #include <iterator>  // for back_inserter
 
 #include "sources/Optimization/InitialEstimate.h"
+#include "sources/Optimization/JobStartAnalysis.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/MatirxConvenient.h"
 #include "sources/Utils/Parameters.h"
@@ -170,10 +171,10 @@ public:
             for (uint kk = 0; kk < longestJobChains_.size(); kk++) {
               JobCEC sourceJob = longestJobChains_[kk][0];
               JobCEC sinkJob = longestJobChains_[kk][longestJobChains_[kk].size() - 1];
-              if (WhetherInfluenceJobSource(sourceJob, jobRelocate, jobGroupMap_, jobOrderRef, startP,
-                                            finishP, tasksInfo, statusPrev.startTimeVector_) ||
-                  (WhetherInfluenceJobSink(sinkJob, jobRelocate, jobGroupMap_, jobOrderRef, startP, finishP,
-                                           tasksInfo, statusPrev.startTimeVector_))) {
+              if (WhetherJobStartLater(sourceJob, jobRelocate, jobGroupMap_, jobOrderRef, tasksInfo,
+                                       statusPrev.startTimeVector_) ||
+                  (WhetherJobStartEarlier(sinkJob, jobRelocate, jobGroupMap_, jobOrderRef, tasksInfo,
+                                          statusPrev.startTimeVector_))) {
                 hasInfluence = true;
                 break;
               }
@@ -183,7 +184,7 @@ public:
               EndTimer("FastOptimizationExam");
 #endif
               debug_independence_ = true;
-              // continue;
+              continue;
             }
           }
 #ifdef PROFILE_CODE
