@@ -77,6 +77,22 @@ public:
     jobGroupMap_ = ExtractIndependentJobGroups(jobOrderRef, tasksInfo);
   }
 
+  bool WhetherJobInfluenceChainLength(JobCEC jobRelocate) {
+    for (uint kk = 0; kk < longestJobChains_.size(); kk++) {
+      JobCEC sourceJob = longestJobChains_[kk][0];
+      JobCEC sinkJob = longestJobChains_[kk][longestJobChains_[kk].size() - 1];
+      bool influenceSource = WhetherJobStartLater(sourceJob, jobRelocate, jobGroupMap_, jobOrderRef,
+                                                  tasksInfo, statusPrev.startTimeVector_);
+      bool influenceSink = WhetherJobStartEarlier(sinkJob, jobRelocate, jobGroupMap_, jobOrderRef, tasksInfo,
+                                                  statusPrev.startTimeVector_);
+      if (influenceSource || influenceSink) {
+        // jobOrderRef.print();
+        return true;
+      }
+    }
+    return false;
+  }
+
   ScheduleResult Optimize() {
 #ifdef PROFILE_CODE
     BeginTimer(__FUNCTION__);
@@ -92,6 +108,7 @@ public:
       for (int i : taskIdSet) {
         for (LLint j = 0; j < 0 + tasksInfo.sizeOfVariables[i] && (ifContinue()); j++) {
           JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
+          whether_influence_longest_chain_ = WhetherJobInfluenceChainLength(jobRelocate);
           ImproveJobOrderPerJob(jobRelocate);
         }
       }
@@ -159,31 +176,34 @@ public:
         // Independence analysis
         debug_independence_ = false;
         // TODO: whether it skips cases that change max RTDA?
-        // if (GlobalVariablesDAGOpt::FastOptimization)
-        {
+        if (GlobalVariablesDAGOpt::FastOptimization) {
 
 #ifdef PROFILE_CODE
           BeginTimer("FastOptimizationExam");
 #endif
           if (!WhetherJobBreakChain(jobRelocate, startP, finishP, longestJobChains_, dagTasks, jobOrderRef,
                                     tasksInfo)) {
-            bool hasInfluence = false;
-            for (uint kk = 0; kk < longestJobChains_.size(); kk++) {
-              JobCEC sourceJob = longestJobChains_[kk][0];
-              JobCEC sinkJob = longestJobChains_[kk][longestJobChains_[kk].size() - 1];
-              if (WhetherJobStartLater(sourceJob, jobRelocate, jobGroupMap_, jobOrderRef, tasksInfo,
-                                       statusPrev.startTimeVector_) ||
-                  (WhetherJobStartEarlier(sinkJob, jobRelocate, jobGroupMap_, jobOrderRef, tasksInfo,
-                                          statusPrev.startTimeVector_))) {
-                hasInfluence = true;
-                break;
-              }
-            }
-            if (!hasInfluence) {
+            // bool hasInfluence = false;
+            // for (uint kk = 0; kk < longestJobChains_.size(); kk++) {
+            //   JobCEC sourceJob = longestJobChains_[kk][0];
+            //   JobCEC sinkJob = longestJobChains_[kk][longestJobChains_[kk].size() - 1];
+            //   bool influenceSource = WhetherJobStartLater(sourceJob, jobRelocate, jobGroupMap_,
+            //   jobOrderRef,
+            //                                               tasksInfo, statusPrev.startTimeVector_);
+            //   bool influenceSink = WhetherJobStartEarlier(sinkJob, jobRelocate, jobGroupMap_, jobOrderRef,
+            //                                               tasksInfo, statusPrev.startTimeVector_);
+            //   if (influenceSource || influenceSink) {
+            //     // jobOrderRef.print();
+            //     hasInfluence = true;
+            //     break;
+            //   }
+            // }
+            if (!whether_influence_longest_chain_) {
 #ifdef PROFILE_CODE
               EndTimer("FastOptimizationExam");
 #endif
               debug_independence_ = true;
+              // CoutWarning("Find a case that can be skipeed by FastOptimizationExam");
               continue;
             }
           }
@@ -321,6 +341,7 @@ public:
   std::unordered_map<JobCEC, int> jobGroupMap_;
   LongestCAChain longestJobChains_;
   bool debug_independence_ = false;
+  bool whether_influence_longest_chain_ = true;
 
 }; // class DAGScheduleOptimizer
 

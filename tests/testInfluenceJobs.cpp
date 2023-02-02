@@ -161,6 +161,52 @@ TEST_F(RTDATest8, WhetherJobStartLater_v2) {
       WhetherJobStartLater(JobCEC(2, 1), JobCEC(1, 4), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
 }
 
+TEST_F(RTDATest8, WhetherJobStartLater_v3) {
+  EXPECT_FALSE(
+      WhetherJobStartLater(JobCEC(2, 1), JobCEC(1, 1), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
+  startTimeVector << 3810, 0, 2000, 4000, 6000, 8000, 0, 6000;
+  // this function doesn't work with SimpleOrderScheduler
+  jobOrder = SFOrder(tasksInfo, startTimeVector);
+  EXPECT_TRUE(
+      WhetherJobStartLater(JobCEC(2, 1), JobCEC(1, 1), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
+}
+
+class RTDATest9 : public RTDATest1 {
+  void SetUp() override {
+    std::string taskSetName = "test_n3_v43";
+    SetUpTaskSet(taskSetName);
+    startTimeVector = GenerateVectorDynamic(8);
+    startTimeVector << 3810, 0, 2000, 4000, 7218, 9218, 0, 6190;
+    jobOrder = SFOrder(tasksInfo, startTimeVector);
+    jobOrder.print();
+    jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
+  }
+};
+TEST_F(RTDATest9, WhetherJobStartLater_v4) {
+  EXPECT_FALSE(
+      WhetherJobStartLater(JobCEC(2, 1), JobCEC(1, 1), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
+  EXPECT_FALSE(
+      WhetherJobStartLater(JobCEC(2, 0), JobCEC(1, 1), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
+}
+
+TEST_F(RTDATest9, FindBackwardAdjacentJob) {
+  auto prevAdjacentJobs = FindBackwardAdjacentJob(JobCEC(1, 1), jobOrder, tasksInfo, startTimeVector);
+  EXPECT_EQ(0, prevAdjacentJobs.size());
+}
+
+TEST_F(RTDATest8, LP_Optimality) {
+  startTimeVector << 3810, 0, 2000, 4000, 7218, 9218, 0, 6190;
+  std::cout << "Old rtda obj: "
+            << RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startTimeVector, scheduleOptions) << "\n";
+  jobOrder = SFOrder(tasksInfo, startTimeVector);
+  jobOrder.print();
+  startTimeVector << 3811, 0, 2000, 4000, 7218, 9218, 1, 6190;
+  std::cout << "new rtda obj: "
+            << RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startTimeVector, scheduleOptions) << "\n";
+  jobOrder = SFOrder(tasksInfo, startTimeVector);
+  jobOrder.print();
+}
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

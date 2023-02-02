@@ -178,7 +178,7 @@ bool WhetherJobStartLaterHelper(JobCEC jobCurr, JobCEC jobChanged,
       FindBackwardAdjacentJob(jobCurr, jobOrder, tasksInfo, startTimeVector);
   if (followAdjacentJobs.size() == 0) // this should never happen in case of LP order scheduler, and this
                                       // function should not be used with simple order scheduler
-    return true;
+    return false;
 
   bool existUnvisitedIAJ = false; // IAJ means immediate adjacent jobs
   for (auto &jobFollow : followAdjacentJobs) {
