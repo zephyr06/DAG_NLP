@@ -1,6 +1,6 @@
 #include "sources/Factors/LongestChain.h"
 #include "sources/Utils/profilier.h"
-
+#include <unordered_set>
 namespace OrderOptDAG_SPACE {
 
 // sourceJob is not used because it is equivalent as jobChain[0]
@@ -176,27 +176,48 @@ bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
   // EndTimer("WhetherJobBreakChain");
   return false;
 }
-// very fast, no need for profiler
+
 std::unordered_map<JobCEC, int> ExtractIndependentJobGroups(const SFOrder &jobOrder,
                                                             const TaskSetInfoDerived &tasksInfo) {
-  // BeginTimer("ExtractIndependentJobGroups");
+#ifdef PROFILE_CODE
+  BeginTimer("ExtractIndependentJobGroups");
+#endif
   std::unordered_map<JobCEC, int> jobGroupMap;
   int jobGroupIndex = 0;
   jobGroupMap.insert({jobOrder.at(0).job, jobGroupIndex});
+  std::unordered_set<JobCEC> jobsNotMeetFinish;
+  jobsNotMeetFinish.reserve(tasksInfo.length);
+
   for (uint i = 1; i < jobOrder.size(); i++) {
     const TimeInstance &instCurr = jobOrder.at(i);
-    if (instCurr.type == 's') {
-      auto a = jobOrder.at(i - 1).GetRangeMax(tasksInfo);
-      auto b = instCurr.GetRangeMin(tasksInfo);
-      if (a <= b) {
-        jobGroupIndex++;
+    const TimeInstance &instPrev = jobOrder.at(i - 1);
+    // if (instPrev.job == instCurr.job)
+    //   continue;
+
+    if (GetDeadline(instPrev.job, tasksInfo) <= GetActivationTime(instCurr.job, tasksInfo)) {
+      bool maxOfAll = true;
+      for (auto itr = jobsNotMeetFinish.begin(); itr != jobsNotMeetFinish.end(); itr++) {
+        JobCEC jobIte = *itr;
+        if (GetDeadline(jobIte, tasksInfo) > GetActivationTime(instCurr.job, tasksInfo)) {
+          maxOfAll = false;
+          break;
+        }
       }
+      if (maxOfAll)
+        jobGroupIndex++;
+    }
+    if (jobGroupMap.find(instCurr.job) == jobGroupMap.end())
       jobGroupMap.insert({instCurr.job, jobGroupIndex});
+
+    if (instCurr.type == 's') {
+      jobsNotMeetFinish.insert(instCurr.job);
     } else {
-      ;
+      jobsNotMeetFinish.erase(instCurr.job);
     }
   }
-  // EndTimer("ExtractIndependentJobGroups");
+#ifdef PROFILE_CODE
+  EndTimer("ExtractIndependentJobGroups");
+#endif
   // std::cout << "The number of job groups in ExtractIndependentJobGroups: " << jobGroupIndex << std::endl;
   return jobGroupMap;
 }

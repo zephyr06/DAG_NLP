@@ -166,43 +166,205 @@ TEST_F(RTDATest7, FindForwardAdjacentJob) {
   EXPECT_TRUE(JobCEC(1, 4) == prevAdjacentJobs[1]);
 }
 
-// we need to exam all the jobs that are closely adjacent to jobCurr;
-// bool WhetherInfluenceJobAndAfterSink(JobCEC jobCurr, const JobCEC &jobChanged,
-//                                      std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder,
-//                                      LLint startP, LLint finishP,
-//                                      const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
-//                                      const VectorDynamic &startTimeVector) {
-//   // Exam whether the jobs that are closely adjacent to jobCurr will be influenced by jobChanged
-//   if (WhetherInfluenceJobSource(jobCurr, jobChanged, jobGroupMap, jobOrder, startP, finishP, tasksInfo,
-//                                 startTimeVector))
-//     return true;
+// TODO: consider utilize startP and finishP
+bool WhetherJobStartEarlierHelper(JobCEC jobCurr, JobCEC jobChanged,
+                                  std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder,
+                                  const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                                  const VectorDynamic &startTimeVector,
+                                  std::unordered_set<JobCEC> &pathRecord, int &countPath) {
+  if (countPath > 10)
+    return true;
+  if (jobCurr == jobChanged) {
+    countPath++;
+    return true;
+  } else if (std::abs(GetStartTime(jobCurr, startTimeVector, tasksInfo) -
+                      GetActivationTime(jobCurr, tasksInfo)) < 1e-3)
+    return false;
 
-//   // Termination conditions
-//   double jobCurrStartTime = GetStartTime(jobCurr, startTimeVector, tasksInfo);
-//   if (jobCurrStartTime == GetActivationTime(jobCurr, tasksInfo))
-//     return false;
+  std::vector<JobCEC> prevAdjacentJobs =
+      FindForwardAdjacentJob(jobCurr, jobOrder, tasksInfo, startTimeVector);
+  if (prevAdjacentJobs.size() == 0)
+    return false;
 
-//   std::vector<JobCEC> prevAdjacentJob = FindPrevAdjacentJob(jobCurr, jobOrder, tasksInfo, startTimeVector);
-//   for (auto job : prevAdjacentJob) {
-//     if (WhetherInfluenceJobAndAfterSink(job, jobChanged, jobGroupMap, jobOrder, startP, finishP, tasksInfo,
-//                                         startTimeVector))
-//       return true;
-//   }
+  bool existUnvisitedIAJ = false; // IAJ means immediate adjacent jobs
+  for (auto &jobPrev : prevAdjacentJobs) {
+    if (pathRecord.find(jobPrev) != pathRecord.end())
+      continue; // avoid adding repeated jobs
+    else {
+      pathRecord.insert(jobPrev);
+      existUnvisitedIAJ = true;
+      if (WhetherJobStartEarlierHelper(jobPrev, jobChanged, jobGroupMap, jobOrder, tasksInfo, startTimeVector,
+                                       pathRecord, countPath) == false)
+        return false;
+      pathRecord.erase(jobPrev);
+    }
+  }
+  if (!existUnvisitedIAJ)
+    return false;
 
-//   return false;
-// }
+  return true; // all the conditions known to return false failed
+}
 
-// TEST_F(RTDATest7, WhetherInfluenceJobAndAfterSink) {
-//   LLint startP = 0;
-//   LLint finishP = 2;
-//   EXPECT_TRUE(WhetherInfluenceJobSink(JobCEC(2, 0), JobCEC(1, 0), jobGroupMap, jobOrder, startP, finishP,
-//                                       tasksInfo, startTimeVector));
+bool WhetherJobStartEarlier(JobCEC jobCurr, JobCEC jobChanged, std::unordered_map<JobCEC, int> &jobGroupMap,
+                            SFOrder &jobOrder, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                            const VectorDynamic &startTimeVector) {
+  jobCurr = jobCurr.GetJobWithinHyperPeriod(tasksInfo);
+  jobChanged = jobChanged.GetJobWithinHyperPeriod(tasksInfo);
 
-//   EXPECT_TRUE(WhetherInfluenceJobAndAfterSink(JobCEC(2, 0), JobCEC(1, 0), jobGroupMap, jobOrder, startP,
-//                                               finishP, tasksInfo, startTimeVector));
-//   EXPECT_TRUE(WhetherInfluenceJobAndAfterSink(JobCEC(0, 0), JobCEC(1, 0), jobGroupMap, jobOrder, startP,
-//                                               finishP, tasksInfo, startTimeVector));
-// }
+  // Current analysis on job group is not safe, let's' see what we can do without it
+  // if (!WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap))
+  //   return false;
+  int countPath = 0;
+  std::unordered_set<JobCEC> pathRecord;
+  pathRecord.reserve(tasksInfo.length);
+
+  return WhetherJobStartEarlierHelper(jobCurr, jobChanged, jobGroupMap, jobOrder, tasksInfo, startTimeVector,
+                                      pathRecord, countPath);
+}
+TEST_F(RTDATest7, WhetherJobStartEarlier_v1) {
+  // LLint startP = 0;
+  // LLint finishP = 2;
+
+  EXPECT_TRUE(
+      WhetherJobStartEarlier(JobCEC(2, 0), JobCEC(1, 0), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
+
+  EXPECT_TRUE(
+      WhetherJobStartEarlier(JobCEC(0, 0), JobCEC(1, 0), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
+}
+
+TEST_F(RTDATest7, WhetherJobStartEarlier_v2) {
+  EXPECT_TRUE(
+      WhetherJobStartEarlier(JobCEC(0, 0), JobCEC(1, 0), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
+}
+
+class RTDATest8 : public RTDATest1 {
+  void SetUp() override {
+    std::string taskSetName = "test_n3_v43";
+    SetUpTaskSet(taskSetName);
+    startTimeVector = GenerateVectorDynamic(8);
+    startTimeVector << 5320, 0, 2000, 4680, 6000, 9218, 782, 5408;
+    jobOrder = SFOrder(tasksInfo, startTimeVector);
+    jobOrder.print();
+    jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
+  }
+};
+
+// 'backward' means finding the jobs whose index is larger than job, i.e., -->
+std::vector<JobCEC> FindBackwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
+                                            const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                                            const VectorDynamic &startTimeVector) {
+  std::vector<JobCEC> followAdjacentJobs;
+  followAdjacentJobs.reserve(4 * 2); // actually, cannot be more than #core*2
+
+  std::unordered_set<JobCEC> record;
+  record.reserve(4 * 2);
+
+  LLint jobStartIndex = jobOrder.GetJobStartInstancePosition(job);
+  TimeInstance instCurrJobStart = jobOrder[jobStartIndex];
+  auto AddImmediateAdjacentInstance = [&](TimeInstance &instCurrJob, LLint jobInstIndex) {
+    for (uint i = jobInstIndex + 1; i < jobOrder.size(); i++) {
+      TimeInstance instIte = jobOrder[i];
+      if (WhetherImmediateAdjacent(instCurrJob, instIte, tasksInfo, startTimeVector)) {
+        if (record.find(instIte.job) == record.end()) {
+          followAdjacentJobs.push_back(instIte.job);
+          record.insert(instIte.job);
+        } else
+          break;
+      } else
+        break;
+    }
+  };
+  AddImmediateAdjacentInstance(instCurrJobStart, jobStartIndex);
+
+  LLint jobFinishIndex = jobOrder.GetJobFinishInstancePosition(job);
+  TimeInstance instCurrJobFinish = jobOrder[jobFinishIndex];
+  AddImmediateAdjacentInstance(instCurrJobFinish, jobFinishIndex);
+  return followAdjacentJobs;
+}
+TEST_F(RTDATest8, FindBackwardAdjacentJob) {
+  auto prevAdjacentJobs = FindBackwardAdjacentJob(JobCEC(0, 0), jobOrder, tasksInfo, startTimeVector);
+  EXPECT_EQ(1, prevAdjacentJobs.size());
+  EXPECT_TRUE(JobCEC(2, 1) == prevAdjacentJobs[0]);
+
+  prevAdjacentJobs = FindBackwardAdjacentJob(JobCEC(2, 1), jobOrder, tasksInfo, startTimeVector);
+  EXPECT_EQ(1, prevAdjacentJobs.size());
+  EXPECT_TRUE(JobCEC(1, 4) == prevAdjacentJobs[0]);
+}
+
+bool WhetherJobStartLaterHelper(JobCEC jobCurr, JobCEC jobChanged,
+                                std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder,
+                                const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                                const VectorDynamic &startTimeVector, std::unordered_set<JobCEC> &pathRecord,
+                                int &countPath) {
+  if (countPath > 10)
+    return true;
+  if (jobCurr == jobChanged) {
+    countPath++;
+    return true;
+  } else if (std::abs(GetFinishTime(jobCurr, startTimeVector, tasksInfo) - GetDeadline(jobCurr, tasksInfo)) <
+             1e-3)
+    return false;
+
+  std::vector<JobCEC> followAdjacentJobs =
+      FindBackwardAdjacentJob(jobCurr, jobOrder, tasksInfo, startTimeVector);
+  if (followAdjacentJobs.size() == 0) // this should never happen in case of LP order scheduler, and this
+                                      // function should not be used with simple order scheduler
+    return true;
+
+  bool existUnvisitedIAJ = false; // IAJ means immediate adjacent jobs
+  for (auto &jobFollow : followAdjacentJobs) {
+    if (pathRecord.find(jobFollow) != pathRecord.end())
+      continue; // avoid adding repeated jobs
+    else {
+      pathRecord.insert(jobFollow);
+      existUnvisitedIAJ = true;
+      if (WhetherJobStartLaterHelper(jobFollow, jobChanged, jobGroupMap, jobOrder, tasksInfo, startTimeVector,
+                                     pathRecord, countPath) == false)
+        return false;
+      pathRecord.erase(jobFollow);
+    }
+  }
+  if (!existUnvisitedIAJ)
+    return false;
+  return true;
+}
+
+// this function requires that the start time is already maximum in startTimeVector
+// this function cannot work with SimpleOrderScheduler
+bool WhetherJobStartLater(JobCEC jobCurr, JobCEC jobChanged, std::unordered_map<JobCEC, int> &jobGroupMap,
+                          SFOrder &jobOrder, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                          const VectorDynamic &startTimeVector) {
+  jobCurr = jobCurr.GetJobWithinHyperPeriod(tasksInfo);
+  jobChanged = jobChanged.GetJobWithinHyperPeriod(tasksInfo);
+
+  // Current analysis on job group is not safe, let's' see what we can do without it
+  // if (!WhetherInfluenceJobSimple(jobCurr, jobChanged, jobGroupMap))
+  //   return false;
+  int countPath = 0;
+  std::unordered_set<JobCEC> pathRecord;
+  pathRecord.reserve(tasksInfo.length);
+
+  return WhetherJobStartLaterHelper(jobCurr, jobChanged, jobGroupMap, jobOrder, tasksInfo, startTimeVector,
+                                    pathRecord, countPath);
+}
+TEST_F(RTDATest8, WhetherJobStartLater) {
+  EXPECT_TRUE(
+      WhetherJobStartLater(JobCEC(2, 0), JobCEC(1, 0), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
+  EXPECT_FALSE(
+      WhetherJobStartLater(JobCEC(1, 4), JobCEC(1, 0), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
+  EXPECT_TRUE(
+      WhetherJobStartLater(JobCEC(1, 3), JobCEC(1, 0), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
+  EXPECT_FALSE(
+      WhetherJobStartLater(JobCEC(2, 1), JobCEC(1, 0), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
+}
+TEST_F(RTDATest8, WhetherJobStartLater_v2) {
+  EXPECT_TRUE(
+      WhetherJobStartLater(JobCEC(0, 0), JobCEC(1, 4), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
+  EXPECT_TRUE(
+      WhetherJobStartLater(JobCEC(1, 2), JobCEC(1, 4), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
+  EXPECT_TRUE(
+      WhetherJobStartLater(JobCEC(2, 1), JobCEC(1, 4), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
+}
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
