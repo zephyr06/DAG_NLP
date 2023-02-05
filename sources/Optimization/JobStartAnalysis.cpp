@@ -272,6 +272,14 @@ bool WhetherJobStartLater(JobCEC jobCurr, JobCEC jobChanged, std::unordered_map<
   return WhetherJobStartLaterHelper(jobCurr, jobChanged, jobGroupMap, jobOrder, tasksInfo, startTimeVector);
 }
 
+std::vector<JobCEC> ActiveJobs::GetJobs() const {
+  std::vector<JobCEC> jobs;
+  jobs.reserve(size());
+  for (auto &jobA : activeJobs)
+    jobs.push_back(jobA.job);
+  return jobs;
+}
+
 CentralJobs FindCentralJobs(const LongestCAChain &longestChain,
                             const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) {
   std::unordered_set<JobCEC> centralSourceJobRecord;
@@ -302,7 +310,7 @@ CentralJobs FindCentralJobs(const LongestCAChain &longestChain,
 ActiveJobs FindActiveJobs(const CentralJobs &centralJobs, SFOrder &jobOrder,
                           const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
                           const VectorDynamic &startTimeVector) {
-  std::vector<JobCEC> activeJobs;
+  std::vector<ActiveJob> activeJobs;
   std::unordered_set<JobCEC> jobRecord;
   jobRecord.reserve(tasksInfo.length);
   for (uint i = 0; i < centralJobs.forwardJobs.size(); i++) {
@@ -312,7 +320,7 @@ ActiveJobs FindActiveJobs(const CentralJobs &centralJobs, SFOrder &jobOrder,
     for (uint j = 0; j < forwardJobs.size(); j++) {
       if (jobRecord.find(forwardJobs[j]) == jobRecord.end()) {
         jobRecord.insert(forwardJobs[j]);
-        activeJobs.push_back(forwardJobs[j]);
+        activeJobs.push_back(ActiveJob(forwardJobs[j], true));
       }
     }
   }
@@ -324,7 +332,7 @@ ActiveJobs FindActiveJobs(const CentralJobs &centralJobs, SFOrder &jobOrder,
     for (uint j = 0; j < backwardJobs.size(); j++) {
       if (jobRecord.find(backwardJobs[j]) == jobRecord.end()) {
         jobRecord.insert(backwardJobs[j]);
-        activeJobs.push_back(backwardJobs[j]);
+        activeJobs.push_back(ActiveJob(backwardJobs[j], false));
       }
     }
   }

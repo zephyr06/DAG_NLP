@@ -2,7 +2,6 @@
 #pragma once
 #include "sources/Factors/LongestChain.h"
 #include "sources/Factors/RTDA_Factor.h"
-#include "sources/Optimization/OptimizeSFOrder.h"
 #include "sources/Optimization/ScheduleOptions.h"
 
 namespace OrderOptDAG_SPACE {
@@ -64,12 +63,23 @@ struct CentralJobs {
   std::vector<JobCEC> forwardJobs;
   std::vector<JobCEC> backwardJobs;
 };
+
+struct ActiveJob {
+  ActiveJob() {}
+  ActiveJob(JobCEC job, bool forward) : job(job), direction_forward(forward), direction_backward(!forward) {}
+  JobCEC job;
+  bool direction_forward;
+  bool direction_backward;
+};
+
 struct ActiveJobs {
   ActiveJobs() {}
-  ActiveJobs(const std::vector<JobCEC> &activeJobs, const std::unordered_set<JobCEC> &jobRecord)
+  ActiveJobs(const std::vector<ActiveJob> &activeJobs, const std::unordered_set<JobCEC> &jobRecord)
       : activeJobs(activeJobs), jobRecord(jobRecord) {}
 
-  std::vector<JobCEC> activeJobs;
+  std::vector<JobCEC> GetJobs() const;
+  inline size_t size() const { return activeJobs.size(); }
+  std::vector<ActiveJob> activeJobs;
   std::unordered_set<JobCEC> jobRecord;
 };
 

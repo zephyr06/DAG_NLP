@@ -294,7 +294,7 @@ TEST_F(RTDATest8, FindActiveJobs) {
   CentralJobs centralJob = FindCentralJobs(longestChain, tasksInfo);
 
   auto activeJobActual = FindActiveJobs(centralJob, jobOrder, tasksInfo, startTimeVector);
-  AssertEqualVectorNoRepeat<JobCEC>(activeJob, activeJobActual.activeJobs, 1e-3, __LINE__);
+  AssertEqualVectorNoRepeat<JobCEC>(activeJob, activeJobActual.GetJobs(), 1e-3, __LINE__);
 }
 
 class RTDATest10 : public RTDATest1 {

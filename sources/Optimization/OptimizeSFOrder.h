@@ -17,6 +17,8 @@
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/Optimization/ProcessorAssignment.h"
 #include "sources/Optimization/SFOrder.h"
+
+#include "sources/Optimization/JobStartAnalysis.h"
 // #include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Optimization/SkipUnschedulablePermutations.h"
 #include "sources/Utils/OptimizeOrderUtils.h"
