@@ -279,45 +279,6 @@ TEST_F(RTDATest8, LP_Optimality) {
   jobOrder.print();
 }
 
-struct CentralJobs {
-  CentralJobs(size_t size) {
-    forwardJobs.reserve(size);
-    backwardJobs.reserve(size);
-  }
-  CentralJobs(std::vector<JobCEC> &forwardJobs, std::vector<JobCEC> &backwardJobs)
-      : forwardJobs(forwardJobs), backwardJobs(backwardJobs) {}
-
-  std::vector<JobCEC> forwardJobs;
-  std::vector<JobCEC> backwardJobs;
-};
-
-CentralJobs FindCentralJobs(const LongestCAChain &longestChain,
-                            const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) {
-  std::unordered_set<JobCEC> centralSourceJobRecord;
-  centralSourceJobRecord.reserve(tasksInfo.length);
-  std::unordered_set<JobCEC> centralSinkJobRecord;
-  centralSinkJobRecord.reserve(tasksInfo.length);
-  CentralJobs centralJobs(tasksInfo.length);
-
-  for (uint i = 0; i < longestChain.size(); i++) {
-    auto &chainCurr = longestChain.longestChains_[i];
-    if (chainCurr.size() > 0) {
-      JobCEC jobSource = chainCurr[0].GetJobWithinHyperPeriod(tasksInfo);
-      if (centralSourceJobRecord.find(jobSource) == centralSourceJobRecord.end()) {
-        centralSourceJobRecord.insert(jobSource);
-        centralJobs.backwardJobs.push_back(jobSource);
-      }
-
-      JobCEC jobSink = ((chainCurr.back())).GetJobWithinHyperPeriod(tasksInfo);
-      if (centralSinkJobRecord.find(jobSink) == centralSinkJobRecord.end()) {
-        centralSinkJobRecord.insert(jobSink);
-        centralJobs.forwardJobs.push_back(jobSink);
-      }
-    }
-  }
-  return centralJobs;
-}
-
 TEST_F(RTDATest8, FindCentralForwardJob) {
   std::vector<JobCEC> centralSourceJob = {JobCEC(2, 0), JobCEC(2, 1)};
   std::vector<JobCEC> centralSinkJob = {JobCEC(0, 0)};
@@ -327,53 +288,30 @@ TEST_F(RTDATest8, FindCentralForwardJob) {
   AssertEqualVectorNoRepeat<JobCEC>(centralSinkJob, centralJobActual.forwardJobs, 1e-3, __LINE__);
 }
 
-struct ActiveJob {
-  ActiveJob() {}
-  ActiveJob(const std::vector<JobCEC> &activeJobs, const std::unordered_set<JobCEC> &jobRecord)
-      : activeJobs(activeJobs), jobRecord(jobRecord) {}
-
-  std::vector<JobCEC> activeJobs;
-  std::unordered_set<JobCEC> jobRecord;
-};
-ActiveJob FindActiveJob(const CentralJobs &centralJobs, SFOrder &jobOrder,
-                        const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
-                        const VectorDynamic &startTimeVector) {
-  std::vector<JobCEC> activeJobs;
-  std::unordered_set<JobCEC> jobRecord;
-  jobRecord.reserve(tasksInfo.length);
-  for (uint i = 0; i < centralJobs.forwardJobs.size(); i++) {
-    JobCEC jobCurr = centralJobs.forwardJobs[i];
-    std::vector<JobCEC> forwardJobs = FindForwardAdjacentJob(jobCurr, jobOrder, tasksInfo, startTimeVector);
-    forwardJobs.push_back(jobCurr);
-    for (uint j = 0; j < forwardJobs.size(); j++) {
-      if (jobRecord.find(forwardJobs[j]) == jobRecord.end()) {
-        jobRecord.insert(forwardJobs[j]);
-        activeJobs.push_back(forwardJobs[j]);
-      }
-    }
-  }
-
-  for (uint i = 0; i < centralJobs.backwardJobs.size(); i++) {
-    JobCEC jobCurr = centralJobs.backwardJobs[i];
-    std::vector<JobCEC> backwardJobs = FindBackwardAdjacentJob(jobCurr, jobOrder, tasksInfo, startTimeVector);
-    backwardJobs.push_back(jobCurr);
-    for (uint j = 0; j < backwardJobs.size(); j++) {
-      if (jobRecord.find(backwardJobs[j]) == jobRecord.end()) {
-        jobRecord.insert(backwardJobs[j]);
-        activeJobs.push_back(backwardJobs[j]);
-      }
-    }
-  }
-  return ActiveJob(activeJobs, jobRecord);
-}
-
-TEST_F(RTDATest8, FindActiveJob) {
+TEST_F(RTDATest8, FindActiveJobs) {
   std::vector<JobCEC> activeJob = {JobCEC(0, 0), JobCEC(2, 0), JobCEC(2, 1), JobCEC(1, 4)};
   LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_);
   CentralJobs centralJob = FindCentralJobs(longestChain, tasksInfo);
 
-  auto activeJobActual = FindActiveJob(centralJob, jobOrder, tasksInfo, startTimeVector);
+  auto activeJobActual = FindActiveJobs(centralJob, jobOrder, tasksInfo, startTimeVector);
   AssertEqualVectorNoRepeat<JobCEC>(activeJob, activeJobActual.activeJobs, 1e-3, __LINE__);
+}
+
+class RTDATest10 : public RTDATest1 {
+  void SetUp() override {
+    std::string taskSetName = "test_n3_v44";
+    SetUpTaskSet(taskSetName);
+    startTimeVector = GenerateVectorDynamic(16);
+    startTimeVector << 0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 994, 0, 2000, 4000, 6000,
+        8000;
+    jobOrder = SFOrder(tasksInfo, startTimeVector);
+    jobOrder.print();
+    jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
+  }
+};
+TEST_F(RTDATest10, FindBackwardAdjacentJob) {
+  auto prevAdjacentJobs = FindBackwardAdjacentJob(JobCEC(0, 3), jobOrder, tasksInfo, startTimeVector);
+  // EXPECT_EQ(0, prevAdjacentJobs.size());
 }
 
 int main(int argc, char **argv) {

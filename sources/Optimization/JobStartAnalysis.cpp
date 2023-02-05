@@ -271,4 +271,64 @@ bool WhetherJobStartLater(JobCEC jobCurr, JobCEC jobChanged, std::unordered_map<
 
   return WhetherJobStartLaterHelper(jobCurr, jobChanged, jobGroupMap, jobOrder, tasksInfo, startTimeVector);
 }
+
+CentralJobs FindCentralJobs(const LongestCAChain &longestChain,
+                            const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) {
+  std::unordered_set<JobCEC> centralSourceJobRecord;
+  centralSourceJobRecord.reserve(tasksInfo.length);
+  std::unordered_set<JobCEC> centralSinkJobRecord;
+  centralSinkJobRecord.reserve(tasksInfo.length);
+  CentralJobs centralJobs(tasksInfo.length);
+
+  for (uint i = 0; i < longestChain.size(); i++) {
+    auto &chainCurr = longestChain.longestChains_[i];
+    if (chainCurr.size() > 0) {
+      JobCEC jobSource = chainCurr[0].GetJobWithinHyperPeriod(tasksInfo);
+      if (centralSourceJobRecord.find(jobSource) == centralSourceJobRecord.end()) {
+        centralSourceJobRecord.insert(jobSource);
+        centralJobs.backwardJobs.push_back(jobSource);
+      }
+
+      JobCEC jobSink = ((chainCurr.back())).GetJobWithinHyperPeriod(tasksInfo);
+      if (centralSinkJobRecord.find(jobSink) == centralSinkJobRecord.end()) {
+        centralSinkJobRecord.insert(jobSink);
+        centralJobs.forwardJobs.push_back(jobSink);
+      }
+    }
+  }
+  return centralJobs;
+}
+
+ActiveJobs FindActiveJobs(const CentralJobs &centralJobs, SFOrder &jobOrder,
+                          const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                          const VectorDynamic &startTimeVector) {
+  std::vector<JobCEC> activeJobs;
+  std::unordered_set<JobCEC> jobRecord;
+  jobRecord.reserve(tasksInfo.length);
+  for (uint i = 0; i < centralJobs.forwardJobs.size(); i++) {
+    JobCEC jobCurr = centralJobs.forwardJobs[i];
+    std::vector<JobCEC> forwardJobs = FindForwardAdjacentJob(jobCurr, jobOrder, tasksInfo, startTimeVector);
+    forwardJobs.push_back(jobCurr);
+    for (uint j = 0; j < forwardJobs.size(); j++) {
+      if (jobRecord.find(forwardJobs[j]) == jobRecord.end()) {
+        jobRecord.insert(forwardJobs[j]);
+        activeJobs.push_back(forwardJobs[j]);
+      }
+    }
+  }
+
+  for (uint i = 0; i < centralJobs.backwardJobs.size(); i++) {
+    JobCEC jobCurr = centralJobs.backwardJobs[i];
+    std::vector<JobCEC> backwardJobs = FindBackwardAdjacentJob(jobCurr, jobOrder, tasksInfo, startTimeVector);
+    backwardJobs.push_back(jobCurr);
+    for (uint j = 0; j < backwardJobs.size(); j++) {
+      if (jobRecord.find(backwardJobs[j]) == jobRecord.end()) {
+        jobRecord.insert(backwardJobs[j]);
+        activeJobs.push_back(backwardJobs[j]);
+      }
+    }
+  }
+  return ActiveJobs(activeJobs, jobRecord);
+}
+
 } // namespace OrderOptDAG_SPACE

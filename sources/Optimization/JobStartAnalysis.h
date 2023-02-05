@@ -53,5 +53,31 @@ bool WhetherJobStartLaterHelper(JobCEC jobCurr, JobCEC jobChanged,
 bool WhetherJobStartLater(JobCEC jobCurr, JobCEC jobChanged, std::unordered_map<JobCEC, int> &jobGroupMap,
                           SFOrder &jobOrder, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
                           const VectorDynamic &startTimeVector);
+struct CentralJobs {
+  CentralJobs(size_t size) {
+    forwardJobs.reserve(size);
+    backwardJobs.reserve(size);
+  }
+  CentralJobs(std::vector<JobCEC> &forwardJobs, std::vector<JobCEC> &backwardJobs)
+      : forwardJobs(forwardJobs), backwardJobs(backwardJobs) {}
+
+  std::vector<JobCEC> forwardJobs;
+  std::vector<JobCEC> backwardJobs;
+};
+struct ActiveJobs {
+  ActiveJobs() {}
+  ActiveJobs(const std::vector<JobCEC> &activeJobs, const std::unordered_set<JobCEC> &jobRecord)
+      : activeJobs(activeJobs), jobRecord(jobRecord) {}
+
+  std::vector<JobCEC> activeJobs;
+  std::unordered_set<JobCEC> jobRecord;
+};
+
+CentralJobs FindCentralJobs(const LongestCAChain &longestChain,
+                            const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
+
+ActiveJobs FindActiveJobs(const CentralJobs &centralJobs, SFOrder &jobOrder,
+                          const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                          const VectorDynamic &startTimeVector);
 
 } // namespace OrderOptDAG_SPACE

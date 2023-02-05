@@ -64,7 +64,7 @@ public:
   SFOrder() {}
 
   // O(n log(n))
-  SFOrder(const TaskSetInfoDerived &tasksInfo, VectorDynamic &startTimeVector) : tasksInfo_(tasksInfo) {
+  SFOrder(const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector) : tasksInfo_(tasksInfo) {
 
     instanceOrder_.reserve(tasksInfo.length * 2);
     for (int i = 0; i < tasksInfo.N; i++) {

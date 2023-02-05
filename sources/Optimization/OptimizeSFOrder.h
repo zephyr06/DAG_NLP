@@ -54,9 +54,7 @@ public:
     else
       initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
 
-    jobOrderRef = SFOrder(tasksInfo, initialSTV);
-    statusPrev = IterationStatus<OrderScheduler, ObjectiveFunctionBase>(dagTasks, tasksInfo, jobOrderRef,
-                                                                        scheduleOptions);
+    UpdateAllStatus(initialSTV);
     warmStart_ = statusPrev.startTimeVector_;
     // TODO: SelectInitialFromPool doesn't work well for simple order scheduler because it may leads into
     // unschedulable results
@@ -71,10 +69,6 @@ public:
       std::cout << "Initial SF order: " << std::endl;
       jobOrderRef.print();
     }
-
-    longestJobChains_ = LongestCAChain(dagTasks, tasksInfo, jobOrderRef, statusPrev.startTimeVector_,
-                                       scheduleOptions.processorNum_);
-    jobGroupMap_ = ExtractIndependentJobGroups(jobOrderRef, tasksInfo);
   }
 
   bool WhetherJobInfluenceChainLength(JobCEC jobRelocate) {
@@ -108,7 +102,7 @@ public:
       for (int i : taskIdSet) {
         for (LLint j = 0; j < 0 + tasksInfo.sizeOfVariables[i] && (ifContinue()); j++) {
           JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
-          whether_influence_longest_chain_ = WhetherJobInfluenceChainLength(jobRelocate);
+          // whether_influence_longest_chain_ = WhetherJobInfluenceChainLength(jobRelocate);
           ImproveJobOrderPerJob(jobRelocate);
         }
       }
@@ -253,9 +247,7 @@ public:
       findBetterJobOrderWithinIterations = true;
       countMakeProgress++;
 
-      longestJobChains_ = LongestCAChain(dagTasks, tasksInfo, jobOrderRef, statusPrev.startTimeVector_,
-                                         scheduleOptions.processorNum_);
-      jobGroupMap_ = ExtractIndependentJobGroups(jobOrderRef, tasksInfo);
+      UpdateIA_Status();
     }
 
     return findBetterJobOrderWithinIterations;
@@ -319,6 +311,19 @@ public:
       }
       return false;
     }
+  }
+
+  void UpdateIA_Status() {
+    longestJobChains_ = LongestCAChain(dagTasks, tasksInfo, jobOrderRef, statusPrev.startTimeVector_,
+                                       scheduleOptions.processorNum_);
+    jobGroupMap_ = ExtractIndependentJobGroups(jobOrderRef, tasksInfo);
+  }
+
+  void UpdateAllStatus(const VectorDynamic &startTimeVector) {
+    jobOrderRef = SFOrder(tasksInfo, startTimeVector);
+    statusPrev = IterationStatus<OrderScheduler, ObjectiveFunctionBase>(dagTasks, tasksInfo, jobOrderRef,
+                                                                        scheduleOptions);
+    UpdateIA_Status();
   }
 
   // data members
