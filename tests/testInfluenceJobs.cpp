@@ -291,8 +291,8 @@ struct CentralJobs {
   std::vector<JobCEC> backwardJobs;
 };
 
-CentralJobs FindCentralJob(const LongestCAChain &longestChain,
-                           const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) {
+CentralJobs FindCentralJobs(const LongestCAChain &longestChain,
+                            const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) {
   std::unordered_set<JobCEC> centralSourceJobRecord;
   centralSourceJobRecord.reserve(tasksInfo.length);
   std::unordered_set<JobCEC> centralSinkJobRecord;
@@ -322,7 +322,7 @@ TEST_F(RTDATest8, FindCentralForwardJob) {
   std::vector<JobCEC> centralSourceJob = {JobCEC(2, 0), JobCEC(2, 1)};
   std::vector<JobCEC> centralSinkJob = {JobCEC(0, 0)};
   LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_);
-  auto centralJobActual = FindCentralJob(longestChain, tasksInfo);
+  auto centralJobActual = FindCentralJobs(longestChain, tasksInfo);
   AssertEqualVectorNoRepeat<JobCEC>(centralSourceJob, centralJobActual.backwardJobs, 1e-3, __LINE__);
   AssertEqualVectorNoRepeat<JobCEC>(centralSinkJob, centralJobActual.forwardJobs, 1e-3, __LINE__);
 }
@@ -336,7 +336,7 @@ std::vector<JobCEC> FindActiveJob(const CentralJobs &centralJob,
 TEST_F(RTDATest8, FindActiveJob) {
   std::vector<JobCEC> activeJob = {JobCEC(0, 0), JobCEC(2, 0), JobCEC(2, 1), JobCEC(1, 4)};
   LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_);
-  CentralJobs centralJob = FindCentralJob(longestChain, tasksInfo);
+  CentralJobs centralJob = FindCentralJobs(longestChain, tasksInfo);
 
   std::vector<JobCEC> activeJobActual = FindActiveJob(centralJob, tasksInfo);
   // AssertEqualVectorNoRepeat<JobCEC>(activeJob, activeJobActual, 1e-3, __LINE__);
