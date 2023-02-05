@@ -103,6 +103,9 @@ public:
         for (LLint j = 0; j < 0 + tasksInfo.sizeOfVariables[i] && (ifContinue()); j++) {
           JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
           // whether_influence_longest_chain_ = WhetherJobInfluenceChainLength(jobRelocate);
+          if (GlobalVariablesDAGOpt::FastOptimization != 0 &&
+              activeJobs_.jobRecord.find(jobRelocate) == activeJobs_.jobRecord.end())
+            continue;
           ImproveJobOrderPerJob(jobRelocate);
         }
       }
@@ -317,6 +320,8 @@ public:
     longestJobChains_ = LongestCAChain(dagTasks, tasksInfo, jobOrderRef, statusPrev.startTimeVector_,
                                        scheduleOptions.processorNum_);
     jobGroupMap_ = ExtractIndependentJobGroups(jobOrderRef, tasksInfo);
+    auto centralJob = FindCentralJobs(longestJobChains_, tasksInfo);
+    activeJobs_ = FindActiveJobs(centralJob, jobOrderRef, tasksInfo, statusPrev.startTimeVector_);
   }
 
   void UpdateAllStatus(const VectorDynamic &startTimeVector) {
@@ -347,6 +352,7 @@ public:
   LongestCAChain longestJobChains_;
   bool debug_independence_ = false;
   bool whether_influence_longest_chain_ = true;
+  ActiveJobs activeJobs_;
 
 }; // class DAGScheduleOptimizer
 
