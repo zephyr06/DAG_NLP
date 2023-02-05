@@ -327,10 +327,44 @@ TEST_F(RTDATest8, FindCentralForwardJob) {
   AssertEqualVectorNoRepeat<JobCEC>(centralSinkJob, centralJobActual.forwardJobs, 1e-3, __LINE__);
 }
 
-std::vector<JobCEC> FindActiveJob(const CentralJobs &centralJob,
-                                  const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) {
+struct ActiveJob {
+  ActiveJob() {}
+  ActiveJob(const std::vector<JobCEC> &activeJobs, const std::unordered_set<JobCEC> &jobRecord)
+      : activeJobs(activeJobs), jobRecord(jobRecord) {}
+
   std::vector<JobCEC> activeJobs;
-  return activeJobs;
+  std::unordered_set<JobCEC> jobRecord;
+};
+ActiveJob FindActiveJob(const CentralJobs &centralJobs, SFOrder &jobOrder,
+                        const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                        const VectorDynamic &startTimeVector) {
+  std::vector<JobCEC> activeJobs;
+  std::unordered_set<JobCEC> jobRecord;
+  jobRecord.reserve(tasksInfo.length);
+  for (uint i = 0; i < centralJobs.forwardJobs.size(); i++) {
+    JobCEC jobCurr = centralJobs.forwardJobs[i];
+    std::vector<JobCEC> forwardJobs = FindForwardAdjacentJob(jobCurr, jobOrder, tasksInfo, startTimeVector);
+    forwardJobs.push_back(jobCurr);
+    for (uint j = 0; j < forwardJobs.size(); j++) {
+      if (jobRecord.find(forwardJobs[j]) == jobRecord.end()) {
+        jobRecord.insert(forwardJobs[j]);
+        activeJobs.push_back(forwardJobs[j]);
+      }
+    }
+  }
+
+  for (uint i = 0; i < centralJobs.backwardJobs.size(); i++) {
+    JobCEC jobCurr = centralJobs.backwardJobs[i];
+    std::vector<JobCEC> backwardJobs = FindBackwardAdjacentJob(jobCurr, jobOrder, tasksInfo, startTimeVector);
+    backwardJobs.push_back(jobCurr);
+    for (uint j = 0; j < backwardJobs.size(); j++) {
+      if (jobRecord.find(backwardJobs[j]) == jobRecord.end()) {
+        jobRecord.insert(backwardJobs[j]);
+        activeJobs.push_back(backwardJobs[j]);
+      }
+    }
+  }
+  return ActiveJob(activeJobs, jobRecord);
 }
 
 TEST_F(RTDATest8, FindActiveJob) {
@@ -338,8 +372,8 @@ TEST_F(RTDATest8, FindActiveJob) {
   LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_);
   CentralJobs centralJob = FindCentralJobs(longestChain, tasksInfo);
 
-  std::vector<JobCEC> activeJobActual = FindActiveJob(centralJob, tasksInfo);
-  // AssertEqualVectorNoRepeat<JobCEC>(activeJob, activeJobActual, 1e-3, __LINE__);
+  auto activeJobActual = FindActiveJob(centralJob, jobOrder, tasksInfo, startTimeVector);
+  AssertEqualVectorNoRepeat<JobCEC>(activeJob, activeJobActual.activeJobs, 1e-3, __LINE__);
 }
 
 int main(int argc, char **argv) {
