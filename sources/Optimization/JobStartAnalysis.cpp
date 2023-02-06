@@ -220,8 +220,8 @@ std::vector<JobCEC> FindBackwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
   std::vector<JobCEC> followAdjacentJobs;
   followAdjacentJobs.reserve(tasksInfo.length); // actually, cannot be more than #core*2
 
-  std::cout << "\n\n" << startTimeVector << "\n\n";
-  jobOrder.print();
+  // std::cout << "\n\n" << startTimeVector << "\n\n";
+  // jobOrder.print();
 
   std::unordered_set<JobCEC> record;
   record.reserve(tasksInfo.length);

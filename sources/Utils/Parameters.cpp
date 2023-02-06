@@ -146,5 +146,6 @@ const int doScheduleOptimizationOnlyOnce = (int)ConfigParameters["doScheduleOpti
 const int BatchTestOnlyOneMethod = (int)ConfigParameters["BatchTestOnlyOneMethod"];
 const int selectInitialFromPool = (int)ConfigParameters["selectInitialFromPool"];
 const int FastOptimization = (int)ConfigParameters["FastOptimization"];
+const int EnableHardJobORder = (int)ConfigParameters["EnableHardJobORder"];
 
 } // namespace GlobalVariablesDAGOpt

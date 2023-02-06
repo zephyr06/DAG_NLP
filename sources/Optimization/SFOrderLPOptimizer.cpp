@@ -44,6 +44,8 @@ void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec) {
   AddVariables();
   AddDBFConstraints();
   AddDDLConstraints();
+  if (GlobalVariablesDAGOpt::EnableHardJobORder)
+    AddJobOrderConstraints(sfOrder_);
   AddObjectives();
   cplexSolver_.extract(model_);
   // EndTimer("Build_LP_Model");
@@ -87,6 +89,8 @@ void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec,
   AddVariables();
   AddDBFConstraints();
   AddDDLConstraints();
+  if (GlobalVariablesDAGOpt::EnableHardJobORder)
+    AddJobOrderConstraints(sfOrder_);
   AddObjectives();
   cplexSolver_.extract(model_);
   // EndTimer("Build_LP_Model");
