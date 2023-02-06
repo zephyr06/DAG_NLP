@@ -3,11 +3,13 @@
 #include "sources/Utils/testMy.h"
 #include <CppUnitLite/TestHarness.h>
 using namespace GlobalVariablesDAGOpt;
-TEST(DAG_Optimize_schedule, v1) {
+TEST(DAG_Optimize_schedule, v1)
+{
   BeginTimer("main");
   using namespace OrderOptDAG_SPACE;
+  int chainNum = GlobalVariablesDAGOpt::NumCauseEffectChain;
   DAG_Model dagTasks =
-      ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig");
+      ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/" + testDataSetName + ".csv", "orig", chainNum);
 
   ScheduleResult sth;
   OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
@@ -47,7 +49,8 @@ TEST(DAG_Optimize_schedule, v1) {
 //     PrintTimer();
 // }
 
-int main() {
+int main()
+{
   TestResult tr;
   return TestRegistry::runAllTests(tr);
 }
