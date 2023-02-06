@@ -97,11 +97,13 @@ public:
     RangeCheck(index);
     return instanceOrder_[index];
   }
+
   TimeInstance at(LLint index) const {
     RangeCheck(index);
     TimeInstance inst = instanceOrder_[index];
     return inst;
   }
+
   LLint GetJobStartInstancePosition(const JobCEC &job) {
     EstablishJobSFMap();
     if (job.jobId >= tasksInfo_.sizeOfVariables[job.taskId]) {
@@ -135,6 +137,9 @@ public:
   void RemoveInstance(JobCEC job, LLint position);
 
   void print() const;
+
+  bool operator==(const SFOrder &anotherJobOrder) const;
+  bool operator!=(const SFOrder &anotherJobOrder) const;
 };
 
 struct JobGroupRange // include the minIndex, but not the maxIndex

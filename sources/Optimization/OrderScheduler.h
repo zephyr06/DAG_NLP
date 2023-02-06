@@ -48,21 +48,30 @@ class SimpleOrderScheduler : public OrderScheduler {
 public:
   static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                 const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder) {
-    return SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder);
+    auto stv = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder);
+    SFOrder jobOrderNew = SFOrder(tasksInfo, stv);
+    if (jobOrderNew != jobOrder) {
+      return GetInfeasibleStartTimeVector(tasksInfo);
+    }
+    return stv;
   }
   // processorJobVec will be assigned values
   static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                 const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
                                 std::vector<uint> &processorJobVec) {
-    return SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder,
-                             processorJobVec);
+    auto stv = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder,
+                                 processorJobVec);
+    SFOrder jobOrderNew = SFOrder(tasksInfo, stv);
+    if (jobOrderNew != jobOrder) {
+      return GetInfeasibleStartTimeVector(tasksInfo);
+    }
+    return stv;
   }
 
   static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                 const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
                                 std::vector<uint> &processorJobVec, const VectorDynamic &warmStart) {
-    return SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder,
-                             processorJobVec);
+    return schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
   }
 };
 // TODO: test all the components becuse LP perrforms much worse than simple in n15_v1, RTDA objective function

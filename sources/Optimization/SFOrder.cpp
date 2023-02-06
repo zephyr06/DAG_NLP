@@ -164,4 +164,16 @@ void SFOrder::print() const {
   }
 }
 
+bool SFOrder::operator==(const SFOrder &anotherJobOrder) const {
+  if (size() != anotherJobOrder.size())
+    return false;
+  for (uint i = 0; i < instanceOrder_.size(); i++) {
+    if (instanceOrder_[i].job != anotherJobOrder.at(i).job ||
+        instanceOrder_[i].type != anotherJobOrder.at(i).type)
+      return false;
+  }
+  return true;
+}
+bool SFOrder::operator!=(const SFOrder &anotherJobOrder) const { return !(*this == anotherJobOrder); }
+
 } // namespace OrderOptDAG_SPACE

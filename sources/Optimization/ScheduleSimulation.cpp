@@ -168,13 +168,6 @@ VectorDynamic ListSchedulingLFTPA(const DAG_Model &dagTasks, const TaskSetInfoDe
   return initial;
 }
 
-inline VectorDynamic GetInfeasibleStartTimeVector(const TaskSetInfoDerived &tasksInfo) {
-
-  auto startTimeVector = GenerateVectorDynamic(tasksInfo.variableDimension);
-  startTimeVector(0) = -1;
-  return startTimeVector;
-}
-
 VectorDynamic SFOrderScheduling(const TaskSet &tasks, const TaskSetInfoDerived &tasksInfo, int processorNum,
                                 const SFOrder &jobOrder,
                                 boost::optional<std::vector<uint> &> processorIdVec) {

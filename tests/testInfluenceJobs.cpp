@@ -206,9 +206,10 @@ TEST_F(RTDATest8, FindBackwardAdjacentJob) {
   EXPECT_TRUE(JobCEC(1, 4) == prevAdjacentJobs[0]);
 
   prevAdjacentJobs = FindBackwardAdjacentJob(JobCEC(0, 0), jobOrder, tasksInfo, startTimeVector);
-  EXPECT_EQ(2, prevAdjacentJobs.size());
+  EXPECT_EQ(3, prevAdjacentJobs.size());
   EXPECT_TRUE(JobCEC(1, 2) == prevAdjacentJobs[0]);
   EXPECT_TRUE(JobCEC(2, 1) == prevAdjacentJobs[1]);
+  EXPECT_TRUE(JobCEC(1, 4) == prevAdjacentJobs[2]);
 }
 
 TEST_F(RTDATest8, WhetherJobStartLater) {
