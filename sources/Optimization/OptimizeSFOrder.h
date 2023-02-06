@@ -243,7 +243,7 @@ public:
 
     if (statusPrev.objWeighted_ != statusBestFound.objWeighted_) {
       statusPrev = statusBestFound;
-      jobOrderRef = jobOrderBestFound;
+      jobOrderRef = SFOrder(tasksInfo, statusPrev.startTimeVector_); // avoid incorrect job order
       findBetterJobOrderWithinIterations = true;
       countMakeProgress++;
 
