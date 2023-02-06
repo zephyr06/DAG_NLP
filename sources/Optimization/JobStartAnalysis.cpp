@@ -98,6 +98,15 @@ std::vector<JobCEC> FindForwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
         if (record.find(instIte.job) == record.end()) {
           prevAdjacentJobs.push_back(instIte.job);
           record.insert(instIte.job);
+          // depth-first-search
+          std::vector<JobCEC> prevPrevAdjacentJobs =
+              FindForwardAdjacentJob(instIte.job, jobOrder, tasksInfo, startTimeVector);
+          for (uint j = 0; j < prevPrevAdjacentJobs.size(); j++) {
+            if (record.find(prevPrevAdjacentJobs[j]) == record.end()) {
+              prevAdjacentJobs.push_back(prevPrevAdjacentJobs[j]);
+              record.insert(prevPrevAdjacentJobs[j]);
+            }
+          }
         } else
           break;
       } else
@@ -111,6 +120,14 @@ std::vector<JobCEC> FindForwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
   AddImmediateAdjacentInstance(instCurrJobFinish, jobFinishIndex);
   return prevAdjacentJobs;
 }
+// std::vector<JobCEC> FindForwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
+//                                            const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+//                                            const VectorDynamic &startTimeVector) {
+//   std::vector<JobCEC> prevAdjacentJobs;
+//   prevAdjacentJobs.reserve(tasksInfo.length);
+//   std::unordered_set<JobCEC> record;
+//   record.reserve(tasksInfo.length);
+// }
 
 // TODO: consider utilize startP and finishP
 // Assumption: start time of jobCurr in startTimeVector cannot move earlier

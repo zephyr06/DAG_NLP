@@ -281,7 +281,24 @@ TEST_F(RTDATest4, whether_break_chain) {
   EXPECT_TRUE(WhetherInfluenceJobSink(sinkJob, jobRelocate, jobGroupMap_, jobOrder, startP, finishP,
                                       tasksInfo, startTimeVector));
 }
-
+class RTDATest8 : public RTDATest1 {
+  void SetUp() override {
+    std::string taskSetName = "test_n3_v45";
+    SetUpTaskSet(taskSetName);
+    startTimeVector = GenerateVectorDynamic(13);
+    startTimeVector << 0, 0, 1000, 33, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800;
+    jobOrder = SFOrder(tasksInfo, startTimeVector);
+  }
+};
+TEST_F(RTDATest8, whether_break_chain) {
+  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_);
+  std::unordered_map<JobCEC, int> jobGroupMap_ = ExtractIndependentJobGroups(jobOrder, tasksInfo);
+  JobCEC jobRelocate(1, 1);
+  LLint startP = 16;
+  LLint finishP = 18;
+  EXPECT_TRUE(
+      WhetherJobBreakChain(jobRelocate, startP, finishP, longestChain, dagTasks, jobOrder, tasksInfo));
+}
 // *******************************************************
 
 class RTDATest5 : public RTDATest1 {

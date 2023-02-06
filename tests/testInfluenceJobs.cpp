@@ -119,8 +119,9 @@ TEST_F(RTDATest7, WhetherImmediateAdjacent_v1) {
 
 TEST_F(RTDATest7, FindForwardAdjacentJob) {
   auto prevAdjacentJobs = FindForwardAdjacentJob(JobCEC(0, 0), jobOrder, tasksInfo, startTimeVector);
-  EXPECT_EQ(1, prevAdjacentJobs.size());
+  EXPECT_EQ(2, prevAdjacentJobs.size());
   EXPECT_TRUE(JobCEC(2, 0) == prevAdjacentJobs[0]);
+  EXPECT_TRUE(JobCEC(1, 0) == prevAdjacentJobs[1]);
 
   prevAdjacentJobs = FindForwardAdjacentJob(JobCEC(2, 0), jobOrder, tasksInfo, startTimeVector);
   EXPECT_EQ(1, prevAdjacentJobs.size());
@@ -313,7 +314,34 @@ TEST_F(RTDATest10, FindBackwardAdjacentJob) {
   auto prevAdjacentJobs = FindBackwardAdjacentJob(JobCEC(0, 3), jobOrder, tasksInfo, startTimeVector);
   // EXPECT_EQ(0, prevAdjacentJobs.size());
 }
-
+// TEST_F(RTDATest10, FindDirection) {
+//   LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector,
+//   scheduleOptions.processorNum_); CentralJobs centralJob = FindCentralJobs(longestChain, tasksInfo); auto
+//   activeJobActual = FindActiveJobs(centralJob, jobOrder, tasksInfo, startTimeVector);
+//   EXPECT_TRUE(activeJobActual.FindDirection(JobCEC(0, 0)));
+//   EXPECT_FALSE(activeJobActual.FindDirection(JobCEC(2, 0)));
+//   EXPECT_FALSE(activeJobActual.FindDirection(JobCEC(2, 1)));
+// }
+class RTDATest11 : public RTDATest1 {
+  void SetUp() override {
+    std::string taskSetName = "test_n3_v46";
+    SetUpTaskSet(taskSetName);
+    startTimeVector = GenerateVectorDynamic(8);
+    startTimeVector << 4592, 0, 2000, 5218, 6000, 9218, 782, 6190;
+    jobOrder = SFOrder(tasksInfo, startTimeVector);
+    jobOrder.print();
+    jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
+  }
+};
+TEST_F(RTDATest11, FindForwardAdjacentJob) {
+  auto prevAdjacentJobs = FindForwardAdjacentJob(JobCEC(2, 0), jobOrder, tasksInfo, startTimeVector);
+  EXPECT_EQ(1, prevAdjacentJobs.size());
+}
+TEST_F(RTDATest11, FindForwardAdjacentJob_v2) {
+  auto prevAdjacentJobs = FindForwardAdjacentJob(JobCEC(0, 0), jobOrder, tasksInfo, startTimeVector);
+  EXPECT_EQ(2, prevAdjacentJobs.size());
+  EXPECT_TRUE(JobCEC(2, 0) == prevAdjacentJobs[0]);
+}
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

@@ -104,10 +104,14 @@ public:
       for (int i : taskIdSet) {
         for (LLint j = 0; j < 0 + tasksInfo.sizeOfVariables[i] && (ifContinue()); j++) {
           JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
-          // whether_influence_longest_chain_ = WhetherJobInfluenceChainLength(jobRelocate);
+          debug_independence_ = false;
+          whether_influence_longest_chain_ = true;
           if (GlobalVariablesDAGOpt::FastOptimization != 0 &&
-              activeJobs_.jobRecord.find(jobRelocate) == activeJobs_.jobRecord.end())
-            continue;
+              activeJobs_.jobRecord.find(jobRelocate) == activeJobs_.jobRecord.end()) {
+            whether_influence_longest_chain_ = false;
+            //  continue;
+          }
+
           ImproveJobOrderPerJob(jobRelocate);
         }
       }
@@ -203,7 +207,7 @@ public:
 #endif
               debug_independence_ = true;
               // CoutWarning("Find a case that can be skipeed by FastOptimizationExam");
-              continue;
+              // continue;
             }
           }
 #ifdef PROFILE_CODE
@@ -211,21 +215,13 @@ public:
 #endif
         }
 
-        // TODO: WhetherStartFinishTooLong can be optimized for better efficiency
-        if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart,
-                                      startP))
-          break;
-
         SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is still faster
-
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
-        std::vector<uint> processorJobVec;
-        if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish,
-                                                  scheduleOptions.processorNum_, processorJobVec)) {
-
-          jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
+        // TODO: WhetherStartFinishTooLong can be optimized for better efficiency
+        if (BreakFinishPermutation(accumLengthMin, jobRelocate, startP, finishP, jobOrderCurrForStart,
+                                   jobOrderCurrForFinish))
           break;
-        }
+
         // bool findImprove =
         CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, statusBestFound,
                                jobOrderBestFound);
@@ -239,7 +235,6 @@ public:
         //   int a = 1;
         // }
 
-        // TODO: whether it's possible to avoid whetherSFMapNeedUpdate
         // TODO: Avoid update job order’s internal index
         jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
       }
@@ -256,6 +251,21 @@ public:
     }
 
     return findBetterJobOrderWithinIterations;
+  }
+
+  bool BreakFinishPermutation(double accumLengthMin, JobCEC jobRelocate, LLint startP, LLint finishP,
+                              SFOrder &jobOrderCurrForStart, SFOrder &jobOrderCurrForFinish) {
+    if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart,
+                                  startP))
+      return true;
+
+    std::vector<uint> processorJobVec;
+    if (!ProcessorAssignment::AssignProcessor(tasksInfo, jobOrderCurrForFinish, scheduleOptions.processorNum_,
+                                              processorJobVec)) {
+      jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
+      return true;
+    }
+    return false;
   }
 
   // Compare against statusPrev built from jobOrderRef, and update statusPrev and jobOrderRef if success and
