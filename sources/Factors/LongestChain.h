@@ -11,7 +11,7 @@ double GetReactionTime(const std::vector<JobCEC> &jobChain, const VectorDynamic 
 std::vector<std::vector<JobCEC>>
 GetMaxReactionTimeChains(const std::unordered_map<JobCEC, std::vector<JobCEC>> &react_chain_map,
                          const VectorDynamic &startTimeVector,
-                         const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
+                         const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, double tolerance = 1e-3);
 
 double GetDataAge(const std::vector<JobCEC> &jobChain, const std::vector<JobCEC> &prevJobChain,
                   const VectorDynamic &startTimeVector,
@@ -20,7 +20,7 @@ double GetDataAge(const std::vector<JobCEC> &jobChain, const std::vector<JobCEC>
 std::vector<std::vector<JobCEC>>
 GetMaxDataAgeChains(const std::unordered_map<JobCEC, std::vector<JobCEC>> &react_chain_map,
                     const VectorDynamic &startTimeVector,
-                    const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
+                    const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, double tolerance = 1e-3);
 
 class LongestCAChain {
 public:
@@ -69,5 +69,5 @@ bool WhetherInfluenceJobSource(JobCEC jobCurr, const JobCEC &jobChanged,
 bool WhetherInfluenceJobSink(JobCEC jobCurr, const JobCEC &jobChanged,
                              std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder, LLint startP,
                              LLint finishP, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
-                                            const VectorDynamic &startTimeVector);
+                             const VectorDynamic &startTimeVector);
 } // namespace OrderOptDAG_SPACE

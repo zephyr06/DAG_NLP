@@ -82,6 +82,20 @@ void AssertEqualVectorExact(const std::vector<T> &expected, const std::vector<T>
   return;
 }
 
+template <typename T> bool CompareVector(const std::vector<T> &expected, const std::vector<T> &actual) {
+  if (expected.size() != actual.size()) {
+    std::cout << Color::red << "Length error! " << Color::def;
+    return false;
+  }
+  for (size_t i = 0; i < expected.size(); i++) {
+    if (expected[i] != actual[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 void AssertEigenEqualVector(Eigen::Matrix<double, Eigen::Dynamic, 1> expected,
                             Eigen::Matrix<double, Eigen::Dynamic, 1> actual, int lineNumber = 0);
 

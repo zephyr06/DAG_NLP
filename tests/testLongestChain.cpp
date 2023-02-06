@@ -341,7 +341,21 @@ class RTDATest6 : public RTDATest1 {
 //   AssertEqualVectorNoRepeat<JobCEC>(chain0, longestChain.longestChains_[0], 0, __LINE__);
 //   AssertEqualVectorNoRepeat<JobCEC>(chain2, longestChain.longestChains_[1], 0, __LINE__);
 // }
+class RTDATest10 : public RTDATest1 {
+  void SetUp() override {
+    std::string taskSetName = "test_n3_v47";
+    SetUpTaskSet(taskSetName);
+    startTimeVector = GenerateVectorDynamic(12);
+    startTimeVector << 78.4, 2156.8, 4235.2, 6313.6, 8000, 470.4, 5241.6, 470.4, 2548.8, 4627.2, 6313.6, 8392;
+    jobOrder = SFOrder(tasksInfo, startTimeVector);
+    jobOrder.print();
+  }
+};
 
+TEST_F(RTDATest10, find_longest_chain) {
+  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_);
+  EXPECT_THAT(longestChain.size(), testing::Ge(10));
+}
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

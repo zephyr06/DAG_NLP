@@ -16,7 +16,7 @@ double GetReactionTime(const std::vector<JobCEC> &jobChain, const VectorDynamic 
 std::vector<std::vector<JobCEC>>
 GetMaxReactionTimeChains(const std::unordered_map<JobCEC, std::vector<JobCEC>> &react_chain_map,
                          const VectorDynamic &startTimeVector,
-                         const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) {
+                         const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, double tolerance) {
   std::vector<std::vector<JobCEC>> longestChains;
   longestChains.reserve(10); // there should be no more than 10 longest chains
   double maxLength = -2;
@@ -24,12 +24,12 @@ GetMaxReactionTimeChains(const std::unordered_map<JobCEC, std::vector<JobCEC>> &
     // const JobCEC &jobCurr = pair.first;
     const std::vector<JobCEC> &jobChain = pair.second;
     double lengthChainCurr = GetReactionTime(jobChain, startTimeVector, tasksInfo);
-    if (lengthChainCurr > maxLength) {
+    if (std::abs(lengthChainCurr - maxLength) < tolerance) {
+      longestChains.push_back(jobChain);
+    } else if (lengthChainCurr > maxLength) {
       longestChains.clear();
       longestChains.push_back(jobChain);
       maxLength = lengthChainCurr;
-    } else if (lengthChainCurr == maxLength) {
-      longestChains.push_back(jobChain);
     }
   }
   return longestChains;
@@ -55,7 +55,7 @@ double GetDataAge(const std::vector<JobCEC> &jobChain, const std::vector<JobCEC>
 std::vector<std::vector<JobCEC>>
 GetMaxDataAgeChains(const std::unordered_map<JobCEC, std::vector<JobCEC>> &react_chain_map,
                     const VectorDynamic &startTimeVector,
-                    const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) {
+                    const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, double tolerance) {
   std::vector<std::vector<JobCEC>> longestChains;
   longestChains.reserve(10); // there should be no more than 10 longest chains
   double maxLength = -2;
@@ -68,7 +68,13 @@ GetMaxDataAgeChains(const std::unordered_map<JobCEC, std::vector<JobCEC>> &react
       continue;
     const std::vector<JobCEC> &prevJobChain = react_chain_map.at(jobPrev);
     double lengthChainCurr = GetDataAge(jobChain, prevJobChain, startTimeVector, tasksInfo);
-    if (lengthChainCurr > maxLength) {
+    if (std::abs(lengthChainCurr - maxLength) < tolerance) {
+      longestChains.push_back(jobChain);
+      // longestChains.push_back(prevJobChain);
+      JobCEC prevSink(jobChain.back().taskId, (jobChain.back().jobId));
+      prevSink.jobId--;
+      longestChains.push_back({prevJobChain[0], prevSink});
+    } else if (lengthChainCurr > maxLength) {
       longestChains.clear();
       longestChains.push_back(jobChain);
       // longestChains.push_back(prevJobChain);
@@ -76,12 +82,6 @@ GetMaxDataAgeChains(const std::unordered_map<JobCEC, std::vector<JobCEC>> &react
       prevSink.jobId--;
       longestChains.push_back({prevJobChain[0], prevSink});
       maxLength = lengthChainCurr;
-    } else if (lengthChainCurr == maxLength) {
-      longestChains.push_back(jobChain);
-      // longestChains.push_back(prevJobChain);
-      JobCEC prevSink(jobChain.back().taskId, (jobChain.back().jobId));
-      prevSink.jobId--;
-      longestChains.push_back({prevJobChain[0], prevSink});
     }
   }
   return longestChains;

@@ -300,13 +300,20 @@ public:
       double objPrev =
           ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, statusPrev.startTimeVector_, scheduleOptions);
       if (objCurr < objPrev) {
-        jobOrderRef.print();
-        std::cout << "\n" << statusPrev.startTimeVector_ << "\n\n";
-        CoutWarning("Find a case where FastOptimization fails!");
-        double objCurr1 =
-            ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
-        double objPrev1 =
-            ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, statusPrev.startTimeVector_, scheduleOptions);
+        std::vector<uint> processorJobVecOld;
+        OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef, processorJobVecOld);
+        if (CompareVector(processorJobVec, processorJobVecOld)) {
+          jobOrderRef.print();
+          std::cout << "\n" << statusPrev.startTimeVector_ << "\n\n";
+          PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
+          std::cout << "\n\n";
+          PrintSchedule(tasksInfo, startTimeVector);
+          CoutWarning("Find a case where FastOptimization fails!");
+          double objCurr1 =
+              ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
+          double objPrev1 = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, statusPrev.startTimeVector_,
+                                                           scheduleOptions);
+        }
       }
     }
 
