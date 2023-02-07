@@ -161,6 +161,7 @@ void SFOrderLPOptimizer::AddDDLConstraints() {
 }
 
 void SFOrderLPOptimizer::AddJobOrderConstraints(const SFOrder &jobOrder) {
+  double tolerance = 1e-1;
   const std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
   for (uint i = 1; i < instanceOrder.size(); i++) {
     auto instCurr = instanceOrder[i];
@@ -169,21 +170,28 @@ void SFOrderLPOptimizer::AddJobOrderConstraints(const SFOrder &jobOrder) {
     int globalIdPrev = GetJobUniqueId(instPrev.job, tasksInfo_);
     if (instPrev.type == 's') {
       if (instCurr.type == 's') {
-        model_.add(varArray_[globalIdCurr] >= varArray_[globalIdPrev]);
-      } else // type == 'f'
+        if (instPrev.job.taskId <= instCurr.job.taskId)
+          model_.add(varArray_[globalIdCurr] >= varArray_[globalIdPrev]);
+        else
+          model_.add(varArray_[globalIdCurr] >= varArray_[globalIdPrev] + tolerance);
+      } else // instCurr.type == 'f'
       {
         model_.add(varArray_[globalIdCurr] + GetExecutionTime(instCurr.job, tasksInfo_) >=
-                   varArray_[globalIdPrev]);
+                   varArray_[globalIdPrev] + tolerance);
       }
-    } else // type == 'f'
+    } else // instPrev.type == 'f'
     {
       if (instCurr.type == 's') {
         model_.add(varArray_[globalIdCurr] >=
                    varArray_[globalIdPrev] + GetExecutionTime(instPrev.job, tasksInfo_));
-      } else // type == 'f'
+      } else // instCurr.type == 'f'
       {
-        model_.add(varArray_[globalIdCurr] + GetExecutionTime(instCurr.job, tasksInfo_) >=
-                   varArray_[globalIdPrev] + GetExecutionTime(instPrev.job, tasksInfo_));
+        if (instPrev.job.taskId <= instCurr.job.taskId)
+          model_.add(varArray_[globalIdCurr] + GetExecutionTime(instCurr.job, tasksInfo_) >=
+                     varArray_[globalIdPrev] + GetExecutionTime(instPrev.job, tasksInfo_));
+        else
+          model_.add(varArray_[globalIdCurr] + GetExecutionTime(instCurr.job, tasksInfo_) >=
+                     varArray_[globalIdPrev] + GetExecutionTime(instPrev.job, tasksInfo_) + tolerance);
       }
     }
   }

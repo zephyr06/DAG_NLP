@@ -147,6 +147,25 @@ void SFOrder::InsertFinish(JobCEC job, LLint position) {
   // EstablishJobSFMap();
   whetherSFMapNeedUpdate = true;
 }
+void SFOrder::RemoveStart(JobCEC job, LLint position) {
+  RangeCheck(position, true);
+  if (job == instanceOrder_.at(position).job)
+    RemoveInstance(job, position);
+  else {
+    LLint positionActual = GetJobStartInstancePosition(job);
+    RemoveInstance(job, positionActual);
+  }
+}
+
+void SFOrder::RemoveFinish(JobCEC job, LLint position) {
+  RangeCheck(position, true);
+  if (job == instanceOrder_.at(position).job)
+    RemoveInstance(job, position);
+  else {
+    LLint positionActual = GetJobFinishInstancePosition(job);
+    RemoveInstance(job, positionActual);
+  }
+}
 void SFOrder::RemoveInstance(JobCEC job, LLint position) {
   RangeCheck(position, true);
   if (job != instanceOrder_.at(position).job)

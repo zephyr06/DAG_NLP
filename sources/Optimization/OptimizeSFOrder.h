@@ -153,8 +153,6 @@ public:
     IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusBestFound = statusPrev;
     SFOrder jobOrderBestFound = jobOrderRef;
     jobOrderRef.EstablishJobSFMap();
-    SFOrder jobOrderCurrForStart = jobOrderRef;
-    jobOrderCurrForStart.RemoveJob(jobRelocate);
 
     for (LLint startP = jobStartFinishInstActiveRange.minIndex;
          startP <= std::min(jobStartFinishInstActiveRange.maxIndex - 2,
@@ -162,12 +160,13 @@ public:
          ifContinue();
          startP++) {
 
+      SFOrder jobOrderCurrForStart = jobOrderRef;
+      jobOrderCurrForStart.RemoveJob(jobRelocate);
       if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, jobOrderCurrForStart))
         continue;
 
       jobOrderCurrForStart.InsertStart(jobRelocate, startP); // must insert start first
       double accumLengthMin = 0;
-
       warmStart_(0) = -1;
       for (LLint finishP = startP + 1; finishP <= std::min(jobStartFinishInstActiveRange.maxIndex - 1,
                                                            static_cast<int>(tasksInfo.length) * 2 - 1) &&
@@ -236,14 +235,34 @@ public:
         // }
 
         // TODO: Avoid update job order’s internal index
-        jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
+        jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
       }
-      jobOrderCurrForStart.RemoveInstance(jobRelocate, startP);
+      jobOrderCurrForStart.RemoveStart(jobRelocate, startP);
     }
 
     if (statusPrev.objWeighted_ != statusBestFound.objWeighted_) {
       statusPrev = statusBestFound;
-      jobOrderRef = SFOrder(tasksInfo, statusPrev.startTimeVector_); // avoid incorrect job order
+      jobOrderRef = SFOrder(tasksInfo, statusBestFound.startTimeVector_); // avoid incorrect job order
+      if (jobOrderRef != jobOrderBestFound) {                             // TODO: no need to check there
+        // std::cout << statusBestFound.startTimeVector_ << "\n";
+        // PrintSchedule(tasksInfo, statusBestFound.startTimeVector_);
+        // jobOrderRef.print();
+        // std::cout << "\n\n\n";
+        // jobOrderBestFound.print();
+        // int a = 1;
+        std::vector<uint> processorJobVec;
+        auto startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef,
+                                                        processorJobVec, warmStart_);
+        bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
+                                                 scheduleOptions.processorNum_);
+        if (!schedulable) {
+          CoutError("An infeasible result that should never appear!");
+        }
+        IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(
+            dagTasks, tasksInfo, jobOrderRef, scheduleOptions, startTimeVector, processorJobVec, schedulable);
+        statusPrev = statusCurr;
+      }
+      // jobOrderRef = jobOrderBestFound;
       findBetterJobOrderWithinIterations = true;
       countMakeProgress++;
 
@@ -308,6 +327,7 @@ public:
           PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
           std::cout << "\n\n";
           PrintSchedule(tasksInfo, startTimeVector);
+          jobOrderCurrForFinish.print();
           CoutWarning("Find a case where FastOptimization fails!");
           double objCurr1 =
               ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
@@ -318,6 +338,11 @@ public:
     }
 
     if (MakeProgress<OrderScheduler>(statusBestFound, statusCurr)) {
+      // SFOrder jobOrderReCreate(tasksInfo, startTimeVector);
+      // if (jobOrderReCreate != jobOrderCurrForFinish)
+      //   jobOrderCurrForFinish = jobOrderReCreate; // Issue: startTimeVector is not optimal w.r.t.
+      // jobOrderRecreate, which makes the following iteation fail
+
       statusBestFound = statusCurr;
       jobOrderBestFound = jobOrderCurrForFinish;
       if (GlobalVariablesDAGOpt::debugMode == 1) {

@@ -343,6 +343,86 @@ TEST_F(RTDATest11, FindForwardAdjacentJob_v2) {
   EXPECT_EQ(2, prevAdjacentJobs.size());
   EXPECT_TRUE(JobCEC(2, 0) == prevAdjacentJobs[0]);
 }
+
+class RTDATest12 : public RTDATest1 {
+  void SetUp() override {
+    std::string taskSetName = "test_n3_v48";
+    SetUpTaskSet(taskSetName);
+    startTimeVector = GenerateVectorDynamic(16);
+    startTimeVector << 4103, 0, 1000, 2402, 3000, 4000, 5598, 6402, 7000, 8402, 9000, 402, 2402, 4103, 6402,
+        8402;
+    jobOrder = SFOrder(tasksInfo, startTimeVector);
+    jobOrder.print();
+    jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
+  }
+};
+
+TEST_F(RTDATest12, IA_permute_job_order) {
+  VectorDynamic schedule1 =
+      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
+  double obj = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, schedule1, scheduleOptions);
+
+  SFOrder jobOrder2 = jobOrder;
+  JobCEC jobCurr = JobCEC(2, 0);
+  jobOrder2.RemoveJob(jobCurr);
+  jobOrder2.InsertStart(jobCurr, 2);
+  jobOrder2.InsertFinish(jobCurr, 4);
+  VectorDynamic schedule3 =
+      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder2, processorJobVec);
+  double obj3 = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, schedule3, scheduleOptions);
+  EXPECT_EQ(obj, obj3);
+}
+
+TEST_F(RTDATest12, SFOrder_order_same_time) {
+  jobOrder.print();
+  EXPECT_THAT(jobOrder.GetJobFinishInstancePosition(JobCEC(1, 4)),
+              testing::Le(jobOrder.GetJobStartInstancePosition(JobCEC(0, 0))));
+  EXPECT_THAT(jobOrder.GetJobStartInstancePosition(JobCEC(0, 0)),
+              testing::Le(jobOrder.GetJobStartInstancePosition(JobCEC(2, 2))));
+}
+// TEST_F(RTDATest12, job_order_of_wrong_format) {
+//   double objOld = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
+//   jobOrder.RemoveInstance(JobCEC(1, 4), 13);
+//   jobOrder.RemoveInstance(JobCEC(0, 0), 13);
+//   jobOrder.RemoveInstance(JobCEC(2, 2), 13);
+
+//   jobOrder.InsertStart(JobCEC(2, 2), 13);
+//   jobOrder.InsertFinish(JobCEC(1, 4), 14);
+//   jobOrder.InsertStart(JobCEC(0, 0), 15);
+//   VectorDynamic stv =
+//       LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
+//   double obj = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
+//   EXPECT_EQ(objOld, obj);
+//   EXPECT_TRUE(gtsam::assert_equal(startTimeVector, stv));
+// }
+
+TEST_F(RTDATest12, job_order_strict_constraint) {
+  jobOrder.RemoveInstance(JobCEC(1, 4), 13);
+  jobOrder.RemoveInstance(JobCEC(0, 0), 13);
+  jobOrder.RemoveInstance(JobCEC(2, 2), 13);
+  jobOrder.InsertStart(JobCEC(2, 2), 13);
+  jobOrder.InsertFinish(JobCEC(1, 4), 14);
+  jobOrder.InsertStart(JobCEC(0, 0), 15);
+  VectorDynamic stv =
+      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
+  std::cout << "\n";
+  jobOrder.print();
+  PrintSchedule(tasksInfo, stv);
+  EXPECT_THAT(GetFinishTime(JobCEC(1, 4), stv, tasksInfo) - GetStartTime(JobCEC(2, 2), stv, tasksInfo),
+              testing::Ge(1e-1));
+}
+
+// TEST_F(RTDATest12, why_wrong_initial) {
+//   VectorDynamic initialLS = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
+//   EXPECT_FALSE(initialLS == startTimeVector);
+
+//   double objOld = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
+//   VectorDynamic schedule1 =
+//       LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
+//   double obj = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, schedule1, scheduleOptions);
+//   EXPECT_EQ(objOld, obj);
+//   EXPECT_TRUE(gtsam::assert_equal(startTimeVector, schedule1));
+// }
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

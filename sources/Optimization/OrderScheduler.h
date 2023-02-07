@@ -100,8 +100,8 @@ public:
     SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder, scheduleOptions.processorNum_);
     sfOrderLPOptimizer.Optimize(processorJobVec);
     VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
-// TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
-// jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
+    // TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
+    // jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
 #ifdef PROFILE_CODE
     EndTimer("LPOrderScheduler_schedule");
 #endif
@@ -131,8 +131,8 @@ public:
     else
       sfOrderLPOptimizer.Optimize(processorJobVec);
     VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
-// TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
-// jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
+    // TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?
+    // jobOrder = SFOrder(tasksInfo, startTimeVectorOptmized);
 #ifdef PROFILE_CODE
     EndTimer("LPOrderScheduler_schedule");
 #endif

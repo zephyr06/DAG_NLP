@@ -136,6 +136,9 @@ public:
 
   void RemoveInstance(JobCEC job, LLint position);
 
+  void RemoveStart(JobCEC job, LLint position);
+  void RemoveFinish(JobCEC job, LLint position);
+
   void print() const;
 
   bool operator==(const SFOrder &anotherJobOrder) const;
