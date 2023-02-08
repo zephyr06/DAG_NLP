@@ -332,7 +332,7 @@ public:
       double objCurr = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
       double objPrev =
           ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, statusPrev.startTimeVector_, scheduleOptions);
-      if (objCurr < objPrev) {
+      if (objCurr + 1e-3 < objPrev) {
         std::vector<uint> processorJobVecOld;
         OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef, processorJobVecOld);
         if (CompareVector(processorJobVec, processorJobVecOld)) {
