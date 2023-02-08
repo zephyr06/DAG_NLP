@@ -8,13 +8,13 @@ namespace OrderOptDAG_SPACE {
 
 bool WhetherImmediateAdjacent(const TimeInstance &instCurr, const TimeInstance &instCompare,
                               const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
-                              const VectorDynamic &startTimeVector, double tolerance = 1e-3);
+                              const VectorDynamic &startTimeVector, double tolerance = 1e-2);
 
 // returns whether instCompare is an immediate forward adjacent job to instCurr
 bool WhetherImmediateForwardAdjacent(const TimeInstance &instCurr, const TimeInstance &instCompare,
                                      const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
                                      const VectorDynamic &startTimeVector, SFOrder &jobOrder,
-                                     double tolerance = 1e-3);
+                                     double tolerance = 1e-2);
 
 // previous adjacent job means the jobs whose finish time equals the start time of jobCurr
 std::vector<JobCEC> FindForwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
@@ -35,7 +35,7 @@ bool WhetherJobStartEarlier(JobCEC jobCurr, JobCEC jobChanged, std::unordered_ma
 bool WhetherImmediateBackwardAdjacent(const TimeInstance &instCurr, const TimeInstance &instCompare,
                                       const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
                                       const VectorDynamic &startTimeVector, SFOrder &jobOrder,
-                                      double tolerance = 1e-3);
+                                      double tolerance = 1e-2);
 
 // 'backward' means finding the jobs whose index is larger than job, i.e., -->
 std::vector<JobCEC> FindBackwardAdjacentJob(JobCEC job, SFOrder &jobOrder,

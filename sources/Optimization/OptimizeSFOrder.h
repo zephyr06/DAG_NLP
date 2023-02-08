@@ -235,34 +235,48 @@ public:
         // }
 
         // TODO: Avoid update job order’s internal index
-        jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
+        // jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
       }
-      jobOrderCurrForStart.RemoveStart(jobRelocate, startP);
+      // jobOrderCurrForStart.RemoveStart(jobRelocate, startP);
     }
 
     if (statusPrev.objWeighted_ != statusBestFound.objWeighted_) {
       statusPrev = statusBestFound;
-      jobOrderRef = SFOrder(tasksInfo, statusBestFound.startTimeVector_); // avoid incorrect job order
-      if (jobOrderRef != jobOrderBestFound) {                             // TODO: no need to check there
-        // std::cout << statusBestFound.startTimeVector_ << "\n";
-        // PrintSchedule(tasksInfo, statusBestFound.startTimeVector_);
-        // jobOrderRef.print();
-        // std::cout << "\n\n\n";
-        // jobOrderBestFound.print();
-        // int a = 1;
-        std::vector<uint> processorJobVec;
-        auto startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef,
-                                                        processorJobVec, warmStart_);
-        bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
-                                                 scheduleOptions.processorNum_);
-        if (!schedulable) {
-          CoutError("An infeasible result that should never appear!");
+      auto jobOrderRefNew = SFOrder(tasksInfo, statusBestFound.startTimeVector_); // avoid incorrect job order
+      if (jobOrderRefNew != jobOrderBestFound) {
+        PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
+        std::vector<uint> processorJobVec1;
+        auto stvNew = LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRefNew,
+                                                 processorJobVec1);
+        if (stvNew != statusPrev.startTimeVector_) {
+          jobOrderBestFound.print();
+          std::cout << "\n\n\n";
+          jobOrderRefNew.print();
+          CoutError("Inconsistent job order!");
         }
-        IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(
-            dagTasks, tasksInfo, jobOrderRef, scheduleOptions, startTimeVector, processorJobVec, schedulable);
-        statusPrev = statusCurr;
       }
-      // jobOrderRef = jobOrderBestFound;
+      // if (jobOrderRef != jobOrderBestFound) {                             // TODO: no need to check there
+      //   // std::cout << statusBestFound.startTimeVector_ << "\n";
+      //   // PrintSchedule(tasksInfo, statusBestFound.startTimeVector_);
+      //   // jobOrderRef.print();
+      //   // std::cout << "\n\n\n";
+      //   // jobOrderBestFound.print();
+      //   // int a = 1;
+      //   std::vector<uint> processorJobVec;
+      //   auto startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef,
+      //                                                   processorJobVec, warmStart_);
+      //   bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
+      //                                            scheduleOptions.processorNum_);
+      //   if (!schedulable) {
+      //     CoutError("An infeasible result that should never appear!");
+      //   }
+      //   IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(
+      //       dagTasks, tasksInfo, jobOrderRef, scheduleOptions, startTimeVector, processorJobVec,
+      //       schedulable);
+      //   statusPrev = statusCurr;
+      // }
+      jobOrderRef = jobOrderBestFound;
+
       findBetterJobOrderWithinIterations = true;
       countMakeProgress++;
 
@@ -273,7 +287,7 @@ public:
   }
 
   bool BreakFinishPermutation(double accumLengthMin, JobCEC jobRelocate, LLint startP, LLint finishP,
-                              SFOrder &jobOrderCurrForStart, SFOrder &jobOrderCurrForFinish) {
+                              SFOrder &jobOrderCurrForStart, SFOrder &jobOrderCurrForFinish) const {
     if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart,
                                   startP))
       return true;
