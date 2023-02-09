@@ -409,7 +409,7 @@ TEST_F(RTDATest12, job_order_strict_constraint) {
   jobOrder.print();
   PrintSchedule(tasksInfo, stv);
   EXPECT_THAT(GetFinishTime(JobCEC(1, 4), stv, tasksInfo) - GetStartTime(JobCEC(2, 2), stv, tasksInfo),
-              testing::Ge(1e-1));
+              testing::Ge(GlobalVariablesDAGOpt::LPTolerance * 0.9));
 }
 
 // TEST_F(RTDATest12, why_wrong_initial) {

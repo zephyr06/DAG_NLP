@@ -161,7 +161,7 @@ void SFOrderLPOptimizer::AddDDLConstraints() {
 }
 
 void SFOrderLPOptimizer::AddJobOrderConstraints(const SFOrder &jobOrder) {
-  double tolerance = 1e-3;
+  double tolerance = GlobalVariablesDAGOpt::LPTolerance;
   const std::vector<TimeInstance> &instanceOrder = jobOrder.instanceOrder_;
   for (uint i = 1; i < instanceOrder.size(); i++) {
     auto instCurr = instanceOrder[i];

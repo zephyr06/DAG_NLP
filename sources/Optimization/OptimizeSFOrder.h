@@ -250,8 +250,10 @@ public:
                                                  processorJobVec1);
         if (stvNew != statusPrev.startTimeVector_) {
           jobOrderBestFound.print();
+          PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
           std::cout << "\n\n\n";
           jobOrderRefNew.print();
+          PrintSchedule(tasksInfo, stvNew);
           CoutError("Inconsistent job order!");
         }
       }

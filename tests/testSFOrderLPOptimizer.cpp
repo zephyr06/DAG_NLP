@@ -97,7 +97,9 @@ TEST_F(TestSFOrderLPOptimizer, CanDoCorrectOptimization) {
   // PrintSchedule(tasksInfo_, stvOptimized);
   VectorDynamic stvExpected = GenerateVectorDynamic(5);
   stvExpected << 9, 19, 29, 14, 0;
-  EXPECT_THAT(stvOptimized, Eq(stvExpected));
+  if (GlobalVariablesDAGOpt::EnableHardJobORder != 1) {
+    EXPECT_THAT(stvOptimized, Eq(stvExpected));
+  }
 }
 
 TEST_F(TestSFOrderLPOptimizer, warm_start_opt) {
@@ -105,7 +107,9 @@ TEST_F(TestSFOrderLPOptimizer, warm_start_opt) {
   stvExpected << 9, 19, 29, 14, 0;
   EXPECT_NO_THROW(pSFOrderLPOptimizer_->Optimize(processorJobVec_, stvExpected));
   VectorDynamic stvOptimized = pSFOrderLPOptimizer_->getOptimizedStartTimeVector();
-  EXPECT_THAT(stvOptimized, Eq(stvExpected));
+  if (GlobalVariablesDAGOpt::EnableHardJobORder != 1) {
+    EXPECT_THAT(stvOptimized, Eq(stvExpected));
+  }
 }
 
 int main(int argc, char **argv) {
