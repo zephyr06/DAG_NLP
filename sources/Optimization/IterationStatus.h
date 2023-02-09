@@ -40,14 +40,15 @@ public:
         OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
     schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec,
                                          scheduleOptions.processorNum_);
+    // IterationStatus(dagTasks, tasksInfo, jobOrder, scheduleOptions, startTimeVector_, processorJobVec,
+    //                 schedulable_);
     if (!schedulable_)
       objWeighted_ = 1e9;
     else
       objWeighted_ = ObjectiveFunctionBase::Evaluate(dagTasks, tasksInfo, startTimeVector_, scheduleOptions);
 #ifdef PROFILE_CODE
-  EndTimer(__FUNCTION__);
+    EndTimer(__FUNCTION__);
 #endif
-
   }
 
   IterationStatus(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
@@ -55,16 +56,15 @@ public:
                   std::vector<uint> processorJobVec, bool schedulable)
       : schedulable_(schedulable), startTimeVector_(startTimeVector) {
 #ifdef PROFILE_CODE
-  BeginTimer(__FUNCTION__);
+    BeginTimer(__FUNCTION__);
 #endif
     if (!schedulable_)
       objWeighted_ = 1e9;
     else
       objWeighted_ = ObjectiveFunctionBase::Evaluate(dagTasks, tasksInfo, startTimeVector_, scheduleOptions);
 #ifdef PROFILE_CODE
-  EndTimer(__FUNCTION__);
+    EndTimer(__FUNCTION__);
 #endif
-
   }
 };
 
@@ -72,14 +72,6 @@ template <typename OrderScheduler, typename ObjectiveFunctionBase>
 bool MakeProgress(const IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusPrev,
                   const IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusCurr) {
   if (!statusCurr.schedulable_) {
-    // infeasibleCount++;
-    // if (GlobalVariablesDAGOpt::debugMode == 1)
-    // {
-    //     // TaskSetInfoDerived tasksInfo(statusCurr.dagTasks_.tasks);
-    //     std::cout << "Infeasible schedule #:" << infeasibleCount << std::endl;
-    //     // PrintSchedule(tasksInfo, statusCurr.startTimeVector_);
-    //     // statusCurr.jobOrder.print();
-    // }
     return false;
   }
   if (statusCurr.objWeighted_ < statusPrev.objWeighted_)

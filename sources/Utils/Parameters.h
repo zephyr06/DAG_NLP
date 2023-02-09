@@ -162,5 +162,6 @@ extern const int BatchTestOnlyOneMethod;
 extern const int FastOptimization;
 extern const int EnableHardJobORder;
 extern const double LPTolerance;
+extern const int MakeProgressOnlyMax;
 
 } // namespace GlobalVariablesDAGOpt

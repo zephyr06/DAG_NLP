@@ -19,6 +19,7 @@ selectInitialFromPool: 0 # 0 means not using this method
 FastOptimization: 1
 EnableHardJobORder: 1
 LPTolerance: 1e-3
+MakeProgressOnlyMax: 1
 #*************************************************************
 # Get away from local optimal setting
 RandomAccept: 0 # chance to take a possibly better solution

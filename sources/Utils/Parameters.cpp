@@ -147,5 +147,6 @@ const int BatchTestOnlyOneMethod = (int)ConfigParameters["BatchTestOnlyOneMethod
 const int selectInitialFromPool = (int)ConfigParameters["selectInitialFromPool"];
 const int FastOptimization = (int)ConfigParameters["FastOptimization"];
 const int EnableHardJobORder = (int)ConfigParameters["EnableHardJobORder"];
+const int MakeProgressOnlyMax = (int)ConfigParameters["MakeProgressOnlyMax"];
 const double LPTolerance = (double)ConfigParameters["LPTolerance"];
 } // namespace GlobalVariablesDAGOpt
