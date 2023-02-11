@@ -64,7 +64,8 @@ public:
     if (!statusPrev.schedulable_)
       CoutWarning("Initial schedule is not schedulable!!!");
 
-    if (GlobalVariablesDAGOpt::debugMode == 1) {
+    // if (GlobalVariablesDAGOpt::debugMode == 1)
+    {
       std::cout << "Initial schedule: " << std::endl;
       PrintSchedule(tasksInfo, initialSTV);
       std::cout << initialSTV << std::endl;
@@ -361,11 +362,17 @@ public:
 
       statusBestFound = statusCurr;
       jobOrderBestFound = jobOrderCurrForFinish;
-      if (GlobalVariablesDAGOpt::debugMode == 1) {
+      // if (GlobalVariablesDAGOpt::debugMode == 1)
+      {
         std::cout << "Make progress!" << std::endl;
         jobOrderCurrForFinish.print();
-        std::cout << "start time vector: \n" << statusPrev.startTimeVector_ << "\n";
-        PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
+        std::cout << "start time vector: \n" << statusBestFound.startTimeVector_ << "\n";
+        PrintSchedule(tasksInfo, statusBestFound.startTimeVector_);
+        double objCurr =
+            ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
+        double objPrev =
+            ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, statusPrev.startTimeVector_, scheduleOptions);
+            int a=1;
       }
       return true;
     } else {
