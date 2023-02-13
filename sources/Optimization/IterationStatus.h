@@ -35,22 +35,20 @@ public:
     BeginTimer(__FUNCTION__);
 #endif
     std::vector<uint> processorJobVec;
-
-    // jobOrder_ = jobOrder;
     startTimeVector_ =
         OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
     schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec,
                                          scheduleOptions.processorNum_);
-    // IterationStatus(dagTasks, tasksInfo, jobOrder, scheduleOptions, startTimeVector_, processorJobVec,
-    //                 schedulable_);
-    std::vector<uint> processorJobVecSimple;
-    auto stvSimple =
-        SimpleOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVecSimple);
-    bool schedulableSimple_ = ExamBasic_Feasibility(dagTasks, tasksInfo, stvSimple, processorJobVecSimple,
-                                                    scheduleOptions.processorNum_);
-    if (schedulableSimple_) {
-      startTimeVector_ = stvSimple;
-    }
+
+    // std::vector<uint> processorJobVecSimple;
+    // auto stvSimple =
+    //     SimpleOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder,
+    //     processorJobVecSimple);
+    // bool schedulableSimple_ = ExamBasic_Feasibility(dagTasks, tasksInfo, stvSimple, processorJobVecSimple,
+    //                                                 scheduleOptions.processorNum_);
+    // if (schedulableSimple_) {
+    //   startTimeVector_ = stvSimple;
+    // }
 
     if (!schedulable_)
       objWeighted_ = 1e9;
@@ -68,14 +66,16 @@ public:
 #ifdef PROFILE_CODE
     BeginTimer(__FUNCTION__);
 #endif
-    std::vector<uint> processorJobVecSimple;
-    auto stvSimple =
-        SimpleOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVecSimple);
-    bool schedulableSimple_ = ExamBasic_Feasibility(dagTasks, tasksInfo, stvSimple, processorJobVecSimple,
-                                                    scheduleOptions.processorNum_);
-    if (schedulableSimple_) {
-      startTimeVector_ = stvSimple;
-    }
+    // std::vector<uint> processorJobVecSimple;
+    // auto stvSimple =
+    //     SimpleOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder,
+    //     processorJobVecSimple);
+    // bool schedulableSimple_ = ExamBasic_Feasibility(dagTasks, tasksInfo, stvSimple, processorJobVecSimple,
+    //                                                 scheduleOptions.processorNum_);
+    // if (schedulableSimple_) {
+    //   startTimeVector_ = stvSimple;
+    // }
+
     if (!schedulable_)
       objWeighted_ = 1e9;
     else

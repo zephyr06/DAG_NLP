@@ -7,6 +7,7 @@
 #include "sources/Utils/JobCEC.h"
 #include "sources/Utils/MatirxConvenient.h"
 #include "sources/Utils/Parameters.h"
+#include "sources/Utils/profilier.h"
 
 namespace OrderOptDAG_SPACE {
 
@@ -89,6 +90,8 @@ public:
     whetherSFMapNeedUpdate = true;
   }
 
+  SFOrder(const SFOrder &jobOrder);            // for convenience of profiling
+  SFOrder &operator=(const SFOrder &jobOrder); // for convenience of profiling
   // O(n)
   void EstablishJobSFMap();
 

@@ -65,6 +65,33 @@ std::vector<TimeInstance> ExtractSubInstances(const SFOrder &jobOrderCurrForFini
   return instanceOrderSmall;
 }
 
+SFOrder::SFOrder(const SFOrder &jobOrder) // for convenience of profiling
+{
+#ifdef PROFILE_CODE
+  BeginTimer(__FUNCTION__);
+#endif
+  tasksInfo_ = jobOrder.tasksInfo_;
+  jobSFMap_ = jobOrder.jobSFMap_;
+  instanceOrder_ = jobOrder.instanceOrder_;
+  whetherSFMapNeedUpdate = jobOrder.whetherSFMapNeedUpdate;
+#ifdef PROFILE_CODE
+  EndTimer(__FUNCTION__);
+#endif
+}
+SFOrder &SFOrder::operator=(const SFOrder &jobOrder) {
+#ifdef PROFILE_CODE
+  BeginTimer("SFOrder");
+#endif
+  tasksInfo_ = jobOrder.tasksInfo_;
+  jobSFMap_ = jobOrder.jobSFMap_;
+  instanceOrder_ = jobOrder.instanceOrder_;
+  whetherSFMapNeedUpdate = jobOrder.whetherSFMapNeedUpdate;
+#ifdef PROFILE_CODE
+  EndTimer("SFOrder");
+#endif
+  return *this;
+}
+
 void SFOrder::EstablishJobSFMap() {
 #ifdef PROFILE_CODE
   BeginTimer(__FUNCTION__);

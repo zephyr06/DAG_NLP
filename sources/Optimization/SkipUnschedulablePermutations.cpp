@@ -77,6 +77,7 @@ bool WhetherSkipInsertFinish(const JobCEC &jobRelocate, LLint finishP, const Tas
   return false;
 }
 
+// TODO: WhetherStartFinishTooLong can probably be optimized for better efficiency
 bool WhetherStartFinishTooLong(double &accumLengthMin, const JobCEC &jobRelocate, LLint finishP,
                                const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrderCurrForStart,
                                LLint startP) {

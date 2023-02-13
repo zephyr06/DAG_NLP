@@ -6,6 +6,7 @@
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/JobCEC.h"
 #include "sources/Utils/MatirxConvenient.h"
+#include "sources/Utils/profilier.h"
 
 namespace OrderOptDAG_SPACE {
 

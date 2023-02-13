@@ -22,7 +22,7 @@
 // #include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Optimization/SkipUnschedulablePermutations.h"
 #include "sources/Utils/OptimizeOrderUtils.h"
-// #include "sources/Utils/profilier.h"
+#include "sources/Utils/profilier.h"
 
 namespace OrderOptDAG_SPACE {
 namespace OptimizeSF {
@@ -58,8 +58,6 @@ public:
 
     UpdateAllStatus(initialSTV);
     warmStart_ = statusPrev.startTimeVector_;
-    // TODO: SelectInitialFromPool doesn't work well for simple order scheduler because it may leads into
-    // unschedulable results
 
     if (!statusPrev.schedulable_)
       CoutWarning("Initial schedule is not schedulable!!!");
@@ -109,7 +107,7 @@ public:
           if (GlobalVariablesDAGOpt::FastOptimization != 0 &&
               activeJobs_.jobRecord.find(jobRelocate) == activeJobs_.jobRecord.end()) {
             whether_influence_longest_chain_ = false;
-            //  continue;
+            // continue;
           }
 
           ImproveJobOrderPerJob(jobRelocate);
@@ -148,6 +146,9 @@ public:
   inline bool ifContinue() const { return (!ifTimeout()) && (!ifOptimal()); }
 
   bool ImproveJobOrderPerJob(const JobCEC &jobRelocate) {
+#ifdef PROFILE_CODE
+    BeginTimer(__FUNCTION__);
+#endif
     JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
 
     IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusBestFound = statusPrev;
@@ -205,7 +206,6 @@ public:
               EndTimer("FastOptimizationExam");
 #endif
               debug_independence_ = true;
-              // CoutWarning("Find a case that can be skipeed by FastOptimizationExam");
               // continue;
             }
           }
@@ -214,9 +214,9 @@ public:
 #endif
         }
 
-        SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; // strangely, copying by value is still faster
+        SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; //  copying by value is sometimes faster
         jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
-        // TODO: WhetherStartFinishTooLong can be optimized for better efficiency
+
         if (BreakFinishPermutation(accumLengthMin, jobRelocate, startP, finishP, jobOrderCurrForStart,
                                    jobOrderCurrForFinish))
           break;
@@ -224,18 +224,9 @@ public:
         // bool findImprove =
         CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, statusBestFound,
                                jobOrderBestFound);
-        // if (debug_independence && findImprove) {
-        //   jobOrderRef.print();
-        //   std::cout << "\n";
-        //   std::cout << "\n";
-        //   std::cout << "\n";
-        //   jobOrderCurrForFinish.print();
-        //   CoutWarning("Error situation!");
-        //   int a = 1;
-        // }
 
         // TODO: Avoid update job order’s internal index
-        // jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
+        jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
       }
       // jobOrderCurrForStart.RemoveStart(jobRelocate, startP);
     }
@@ -257,26 +248,6 @@ public:
           CoutError("Inconsistent job order!");
         }
       }
-      // if (jobOrderRef != jobOrderBestFound) {                             // TODO: no need to check there
-      //   // std::cout << statusBestFound.startTimeVector_ << "\n";
-      //   // PrintSchedule(tasksInfo, statusBestFound.startTimeVector_);
-      //   // jobOrderRef.print();
-      //   // std::cout << "\n\n\n";
-      //   // jobOrderBestFound.print();
-      //   // int a = 1;
-      //   std::vector<uint> processorJobVec;
-      //   auto startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef,
-      //                                                   processorJobVec, warmStart_);
-      //   bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
-      //                                            scheduleOptions.processorNum_);
-      //   if (!schedulable) {
-      //     CoutError("An infeasible result that should never appear!");
-      //   }
-      //   IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(
-      //       dagTasks, tasksInfo, jobOrderRef, scheduleOptions, startTimeVector, processorJobVec,
-      //       schedulable);
-      //   statusPrev = statusCurr;
-      // }
       jobOrderRef = jobOrderBestFound;
 
       findBetterJobOrderWithinIterations = true;
@@ -285,6 +256,9 @@ public:
       UpdateIA_Status();
     }
 
+#ifdef PROFILE_CODE
+    EndTimer(__FUNCTION__);
+#endif
     return findBetterJobOrderWithinIterations;
   }
 
@@ -315,12 +289,10 @@ public:
     std::vector<uint> processorJobVec;
     startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
                                                processorJobVec, warmStart_);
-    warmStart_ = startTimeVector;
+    warmStart_ = startTimeVector; // warmStart_ will be used in the next iterations
     bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
                                              scheduleOptions.processorNum_);
     if (!schedulable) {
-      // if (GlobalVariablesDAGOpt::debugMode == 1)
-      //   jobOrderCurrForFinish.print();
       infeasibleCount++;
       return false;
     }
@@ -373,20 +345,23 @@ public:
         int a = 1;
       }
       return true;
-    } else {
-      // if (GlobalVariablesDAGOpt::debugMode == 1) {
-      //   jobOrderCurrForFinish.print();
-      // }
+    } else { // not make progress
       return false;
     }
   }
 
   void UpdateIA_Status() {
+#ifdef PROFILE_CODE
+    BeginTimer(__FUNCTION__);
+#endif
     longestJobChains_ = LongestCAChain(dagTasks, tasksInfo, jobOrderRef, statusPrev.startTimeVector_,
                                        scheduleOptions.processorNum_);
     jobGroupMap_ = ExtractIndependentJobGroups(jobOrderRef, tasksInfo);
     auto centralJob = FindCentralJobs(longestJobChains_, tasksInfo);
     activeJobs_ = FindActiveJobs(centralJob, jobOrderRef, tasksInfo, statusPrev.startTimeVector_);
+#ifdef PROFILE_CODE
+    EndTimer(__FUNCTION__);
+#endif
   }
 
   void UpdateAllStatus(const VectorDynamic &startTimeVector) {

@@ -15,6 +15,8 @@ using namespace RegularTaskSystem;
 namespace OrderOptDAG_SPACE {
 namespace OptimizeSF {
 // processorIdVec is actually an argument that serves as output
+// TODO: SelectInitialFromPool doesn't work well for simple order scheduler because it may leads into
+// unschedulable results
 template <typename ObjectiveFunctionBase>
 VectorDynamic SelectInitialFromPool(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                     const ScheduleOptions &scheduleOptions,

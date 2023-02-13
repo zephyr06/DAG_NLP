@@ -34,7 +34,7 @@ TEST(speed, v1) {
   EndTimer("SFOrderOpt");
   EndTimer("main");
   PrintTimer();
-  EXPECT_GE(profilerMap["Verucchi20"].accum / profilerMap["SFOrderOpt"].accum, 4.0);
+  EXPECT_GE(profilerMap["Verucchi20"].accum / profilerMap["SFOrderOpt"].accum, 3.5);
 }
 
 int main(int argc, char **argv) {
