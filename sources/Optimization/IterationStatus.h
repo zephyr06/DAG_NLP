@@ -10,6 +10,7 @@
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Optimization/SFOrder.h"
 // #include "sources/Optimization/ScheduleOptimizer.h"
+#include "sources/Optimization/OrderScheduler.h"
 #include "sources/Optimization/ScheduleOptions.h"
 #include "sources/Utils/OptimizeOrderUtils.h"
 #include "sources/Utils/profilier.h"
@@ -42,6 +43,15 @@ public:
                                          scheduleOptions.processorNum_);
     // IterationStatus(dagTasks, tasksInfo, jobOrder, scheduleOptions, startTimeVector_, processorJobVec,
     //                 schedulable_);
+    std::vector<uint> processorJobVecSimple;
+    auto stvSimple =
+        SimpleOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVecSimple);
+    bool schedulableSimple_ = ExamBasic_Feasibility(dagTasks, tasksInfo, stvSimple, processorJobVecSimple,
+                                                    scheduleOptions.processorNum_);
+    if (schedulableSimple_) {
+      startTimeVector_ = stvSimple;
+    }
+
     if (!schedulable_)
       objWeighted_ = 1e9;
     else
@@ -58,6 +68,14 @@ public:
 #ifdef PROFILE_CODE
     BeginTimer(__FUNCTION__);
 #endif
+    std::vector<uint> processorJobVecSimple;
+    auto stvSimple =
+        SimpleOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVecSimple);
+    bool schedulableSimple_ = ExamBasic_Feasibility(dagTasks, tasksInfo, stvSimple, processorJobVecSimple,
+                                                    scheduleOptions.processorNum_);
+    if (schedulableSimple_) {
+      startTimeVector_ = stvSimple;
+    }
     if (!schedulable_)
       objWeighted_ = 1e9;
     else
