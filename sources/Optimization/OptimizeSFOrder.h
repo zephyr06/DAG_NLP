@@ -149,16 +149,13 @@ public:
 #ifdef PROFILE_CODE
     BeginTimer(__FUNCTION__);
 #endif
-    JobGroupRange jobStartFinishInstActiveRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
-
+    JobGroupRange jobIndexRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
     IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusBestFound = statusPrev;
-    SFOrder jobOrderBestFound = jobOrderRef;
     jobOrderRef.EstablishJobSFMap();
+    SFOrder jobOrderBestFound = jobOrderRef;
 
-    for (LLint startP = jobStartFinishInstActiveRange.minIndex;
-         startP <= std::min(jobStartFinishInstActiveRange.maxIndex - 2,
-                            static_cast<int>(tasksInfo.length) * 2 - 2) &&
-         ifContinue();
+    for (LLint startP = jobIndexRange.minIndex;
+         startP <= jobIndexRange.maxIndex - 2 && startP <= int(tasksInfo.length) * 2 - 2 && ifContinue();
          startP++) {
 
       SFOrder jobOrderCurrForStart = jobOrderRef;
@@ -169,18 +166,16 @@ public:
       jobOrderCurrForStart.InsertStart(jobRelocate, startP); // must insert start first
       double accumLengthMin = 0;
       warmStart_(0) = -1;
-      for (LLint finishP = startP + 1; finishP <= std::min(jobStartFinishInstActiveRange.maxIndex - 1,
-                                                           static_cast<int>(tasksInfo.length) * 2 - 1) &&
-                                       ifContinue();
+      for (LLint finishP = startP + 1;
+           finishP <= std::min(jobIndexRange.maxIndex - 1, static_cast<int>(tasksInfo.length) * 2 - 1) &&
+           ifContinue();
            finishP++) {
         if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo, jobOrderRef))
           continue;
 
         // Independence analysis
         debug_independence_ = false;
-        // TODO: whether it skips cases that change max RTDA?
         if (GlobalVariablesDAGOpt::FastOptimization) {
-
 #ifdef PROFILE_CODE
           BeginTimer("FastOptimizationExam");
 #endif
@@ -222,8 +217,7 @@ public:
           break;
 
         // bool findImprove =
-        CompareAndUpdateStatus(jobOrderCurrForFinish, jobStartFinishInstActiveRange, statusBestFound,
-                               jobOrderBestFound);
+        CompareAndUpdateStatus(jobOrderCurrForFinish, statusBestFound, jobOrderBestFound);
 
         // TODO: Avoid update job order’s internal index
         jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
@@ -235,13 +229,15 @@ public:
       statusPrev = statusBestFound;
       auto jobOrderRefNew = SFOrder(tasksInfo, statusBestFound.startTimeVector_); // avoid incorrect job order
       if (jobOrderRefNew != jobOrderBestFound) {
-        PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
         std::vector<uint> processorJobVec1;
         auto stvNew = LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRefNew,
                                                  processorJobVec1);
-        if (stvNew != statusPrev.startTimeVector_) {
+        if (stvNew != statusBestFound.startTimeVector_ &&
+            (stvNew - statusBestFound.startTimeVector_).norm() > 1e0) {
+          std::cout << "Start time vector of jobOrderBestFound:\n"
+                    << statusBestFound.startTimeVector_ << "\n\n\n";
           jobOrderBestFound.print();
-          PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
+          PrintSchedule(tasksInfo, statusBestFound.startTimeVector_);
           std::cout << "\n\n\n";
           jobOrderRefNew.print();
           PrintSchedule(tasksInfo, stvNew);
@@ -262,7 +258,7 @@ public:
     return findBetterJobOrderWithinIterations;
   }
 
-  bool BreakFinishPermutation(double accumLengthMin, JobCEC jobRelocate, LLint startP, LLint finishP,
+  bool BreakFinishPermutation(double &accumLengthMin, JobCEC jobRelocate, LLint startP, LLint finishP,
                               SFOrder &jobOrderCurrForStart, SFOrder &jobOrderCurrForFinish) const {
     if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP, tasksInfo, jobOrderCurrForStart,
                                   startP))
@@ -279,10 +275,9 @@ public:
 
   // Compare against statusPrev built from jobOrderRef, and update statusPrev and jobOrderRef if success and
   // return true
-  // TODO: jobOrderCurrForFinish may become different after optimization
   // TODO: SubGroupSchedulabilityCheck is temporarily removed, which is used to check whether the small job
   // order under influence is unschedulable
-  bool CompareAndUpdateStatus(SFOrder &jobOrderCurrForFinish, JobGroupRange &jobStartFinishInstActiveRange,
+  bool CompareAndUpdateStatus(SFOrder &jobOrderCurrForFinish,
                               IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusBestFound,
                               SFOrder &jobOrderBestFound) {
     VectorDynamic startTimeVector;

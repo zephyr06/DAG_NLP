@@ -412,6 +412,35 @@ TEST_F(RTDATest12, job_order_strict_constraint) {
               testing::Ge(GlobalVariablesDAGOpt::LPTolerance * 0.9));
 }
 
+TEST(JobOrderConstructor, v_x) {
+  ScheduleOptions scheduleOptions;
+  scheduleOptions.considerSensorFusion_ = 0;
+  scheduleOptions.freshTol_ = 1e6;
+  scheduleOptions.sensorFusionTolerance_ = 1e6;
+  scheduleOptions.weightInMpRTDA_ = 0.5;
+  scheduleOptions.weightInMpSf_ = 0.5;
+  scheduleOptions.weightPunish_ = 1000;
+  OrderOptDAG_SPACE::DAG_Model dagTasks =
+      ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n4_v3.csv", "orig");
+  TaskSet tasks = dagTasks.tasks;
+  TaskSetInfoDerived tasksInfo(tasks);
+  int processorNum = 2;
+  VectorDynamic initial = ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum);
+  initial << 383.249, 137.25, 2197, 4000, 6045.75, 8091.5, 1986, 3188.25, 4232, 6277.75, 8323.5, 186.249,
+      1789, 2000, 3202.25, 4035, 5803, 6080.75 + 1e-5, 7803, 8126.5, 9803;
+  PrintSchedule(tasksInfo, initial);
+  SFOrder jobOrder(tasksInfo, initial);
+  jobOrder.print();
+  // EXPECT_THAT(GetFinishTime(JobCEC(3, 6), initial, tasksInfo),
+  //             testing::Le(GetStartTime(JobCEC(2, 3), initial, tasksInfo)));
+  EXPECT_THAT(jobOrder.GetJobFinishInstancePosition(JobCEC(3, 6)),
+              testing::Le(jobOrder.GetJobStartInstancePosition(JobCEC(2, 3))));
+
+  // VectorDynamic initialActual = SFOrderScheduling(dagTasks.tasks, tasksInfo, processorNum, sfOrder);
+  // PrintSchedule(tasksInfo, initialActual);
+  // gtsam::assert_equal(initial, initialActual);
+}
+
 // TEST_F(RTDATest12, why_wrong_initial) {
 //   VectorDynamic initialLS = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
 //   EXPECT_FALSE(initialLS == startTimeVector);

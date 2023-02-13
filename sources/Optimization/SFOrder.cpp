@@ -3,7 +3,7 @@
 namespace OrderOptDAG_SPACE {
 
 bool compareTimeInstance(const TimeInstance i1, const TimeInstance i2) {
-  if (i1.getTime() != i2.getTime())
+  if (std::abs(i1.getTime() - i2.getTime()) > GlobalVariablesDAGOpt::LPTolerance / 10)
     return (i1.getTime() < i2.getTime());
   else {
     if (i1.type != i2.type) {

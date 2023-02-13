@@ -57,8 +57,7 @@ TEST_F(DAGScheduleOptimizerTest1, UpdateStatus) {
 
   IterationStatus<SimpleOrderScheduler, RTDAExperimentObj> statusBestFound = dagScheduleOptimizer.statusPrev;
   SFOrder jobOrderBestFound = jobOrder;
-  EXPECT_FALSE(dagScheduleOptimizer.CompareAndUpdateStatus(jobOrder, uselessRange, statusBestFound,
-                                                           jobOrderBestFound));
+  EXPECT_FALSE(dagScheduleOptimizer.CompareAndUpdateStatus(jobOrder, statusBestFound, jobOrderBestFound));
   // EXPECT_EQ(0, dagScheduleOptimizer.UpdateStatus(jobOrder, uselessRange, uselessFinishP));
 }
 
