@@ -28,10 +28,10 @@ protected:
 
     tasks = dagTasks.tasks;
     tasksInfo = TaskSetInfoDerived(tasks);
-    chain1 = {0, 2};
-    dagTasks.chains_[0] = chain1;
+    // chain1 = {0, 2};
+    // dagTasks.chains_[0] = chain1;
     timeLimits = 1;
-    scheduleOptions.processorNum_ = 2;
+    scheduleOptions.processorNum_ = 4;
     scheduleOptions.considerSensorFusion_ = 0;
     scheduleOptions.freshTol_ = 0;
     scheduleOptions.sensorFusionTolerance_ = 0;
@@ -54,6 +54,8 @@ protected:
 TEST_F(DAGScheduleOptimizerTest3, FindGlobalOptRTDA) {
   PermutationStatus permSta = FindGlobalOptRTDA(dagTasks, tasksInfo, scheduleOptions);
   permSta.print();
+  std::cout << "Cause effect chains:" << std::endl;
+  PrintChains(dagTasks.chains_);
   auto _ = permSta.GetScheduleResult();
 }
 

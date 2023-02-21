@@ -1,4 +1,5 @@
 #pragma once
+#include "sources/Optimization/IterationStatus.h"
 #include "sources/Optimization/ObjectiveFunctions.h"
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/Optimization/ScheduleOptions.h"
@@ -46,7 +47,7 @@ public:
   ScheduleOptions scheduleOptions;
   SFOrder orderOpt_;
   int totalPermutation_ = 0;
-  double valOpt_ = 1e9;
+  double valOpt_ = 1e90;
   TimerType startTime_;
   double timeLimits_ = GlobalVariablesDAGOpt::kGlobalOptimizationTimeLimit;
   bool whetherTimeOut = false;
@@ -65,10 +66,15 @@ public:
         LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
     bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeOpt, processorJobVec,
                                              scheduleOptions.processorNum_);
+    // jobOrder.print();
+
     if (!schedulable)
       return;
 
     double evalCurr = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startTimeOpt, scheduleOptions);
+#ifdef SAVE_ITERATION_STAT
+    AppendResultsToFile(evalCurr);
+#endif
     // std::cout << "startTimeOpt: " << startTimeOpt << "\n\n";
     if (evalCurr < valOpt_) {
       std::cout << "Find a better permutation with value: " << evalCurr << "\n";
@@ -100,8 +106,8 @@ public:
   bool ifTimeout() const {
     auto curr_time = std::chrono::system_clock::now();
     if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - startTime_).count() >= timeLimits_) {
-      // std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << timeLimits_
-      //           << " seconds.\n\n";
+      std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << timeLimits_
+                << " seconds.\n\n";
       return true;
     }
     return false;

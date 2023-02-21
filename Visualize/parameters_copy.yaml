@@ -1,4 +1,3 @@
-%YAML:1.0
 
 # optimization settings
 TotalMethodUnderComparison: 7 # 0: LS initial, 1: Verucchi20, 2: Wang21, 3: TOM, 4: TOM_Fast, 5: TOM_FastLP

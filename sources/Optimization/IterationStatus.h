@@ -1,9 +1,11 @@
 #pragma once
-
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/MatirxConvenient.h"
 #include "sources/Utils/Parameters.h"
+#include <cstdio>
+#include <fstream>
+#include <iostream>
 // #include "sources/Optimization/JobOrder.h"
 #include "sources/Factors/Interval.h"
 #include "sources/Factors/RTDA_Factor.h"
@@ -15,10 +17,20 @@
 #include "sources/Utils/OptimizeOrderUtils.h"
 #include "sources/Utils/profilier.h"
 
+#define SAVE_ITERATION_STAT
+
 namespace OrderOptDAG_SPACE {
 namespace OptimizeSF {
 
+inline std::string GetStatsSeqFileName() { return GlobalVariablesDAGOpt::testDataSetName + "_Stat.txt"; }
+
 // extern int infeasibleCount;
+inline void AppendResultsToFile(double val, const std::string &file = GetStatsSeqFileName()) {
+  std::ofstream outfileWrite;
+  outfileWrite.open(file, std::ios_base::app | std::ios_base::out);
+  outfileWrite << val << std::endl;
+  outfileWrite.close();
+}
 
 template <typename OrderScheduler, typename ObjectiveFunctionBase> class IterationStatus {
 public:
@@ -49,14 +61,23 @@ public:
     // if (schedulableSimple_) {
     //   startTimeVector_ = stvSimple;
     // }
-
-    if (!schedulable_)
-      objWeighted_ = 1e9;
-    else
-      objWeighted_ = ObjectiveFunctionBase::Evaluate(dagTasks, tasksInfo, startTimeVector_, scheduleOptions);
+    UpdateObjWeighted(dagTasks, tasksInfo, scheduleOptions);
 #ifdef PROFILE_CODE
     EndTimer(__FUNCTION__);
 #endif
+  }
+
+  void UpdateObjWeighted(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+                         const ScheduleOptions &scheduleOptions) {
+    if (!schedulable_)
+      objWeighted_ = 1e9;
+    else {
+      objWeighted_ = ObjectiveFunctionBase::Evaluate(dagTasks, tasksInfo, startTimeVector_, scheduleOptions);
+#ifdef SAVE_ITERATION_STAT
+      AppendResultsToFile(
+          ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, startTimeVector_, scheduleOptions));
+#endif
+    }
   }
 
   IterationStatus(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
@@ -76,10 +97,8 @@ public:
     //   startTimeVector_ = stvSimple;
     // }
 
-    if (!schedulable_)
-      objWeighted_ = 1e9;
-    else
-      objWeighted_ = ObjectiveFunctionBase::Evaluate(dagTasks, tasksInfo, startTimeVector_, scheduleOptions);
+    UpdateObjWeighted(dagTasks, tasksInfo, scheduleOptions);
+
 #ifdef PROFILE_CODE
     EndTimer(__FUNCTION__);
 #endif

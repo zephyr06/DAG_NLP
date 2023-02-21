@@ -69,6 +69,10 @@ public:
       std::cout << "Initial SF order: " << std::endl;
       jobOrderRef.print();
     }
+
+#ifdef PROFILE_CODE
+    std::remove(GetStatsSeqFileName().c_str());
+#endif
   }
 
   bool WhetherJobInfluenceChainLength(JobCEC jobRelocate) {
