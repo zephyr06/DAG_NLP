@@ -1,152 +1,118 @@
 #include "Parameters.h"
+#include <yaml-cpp/yaml.h>
 
-namespace GlobalVariablesDAGOpt {
-const std::string PROJECT_PATH = "/home/zephyr/Programming/DAG_NLP/";
-// const std::string PROJECT_PATH = "/home/dong/workspace/DAG_NLP/";
-// const std::string PROJECT_PATH = "/home/zephyr/Programming/batch_test_DAG_NLP/VerucchiOnly/N3_10/";
-//  std::string path = GlobalVariablesDAGOpt::PROJECT_PATH +  "sources/parameters.yaml";
-cv::FileStorage ConfigParameters(GlobalVariablesDAGOpt::PROJECT_PATH + "sources/parameters.yaml",
-                                 cv::FileStorage::READ);
+namespace GlobalVariablesDAGOpt
+{
+    const std::string PROJECT_PATH = std::string(PROJECT_ROOT_DIR) + "/";
+    YAML::Node loaded_doc = YAML::LoadFile(GlobalVariablesDAGOpt::PROJECT_PATH +
+                                           "sources/parameters.yaml");
 
-const double barrierBase = (double)ConfigParameters["barrierBase"];
-const double coolingRateSA = (double)ConfigParameters["coolingRateSA"];
-const double deltaInitialDogleg = (double)ConfigParameters["deltaInitialDogleg"];
-double deltaOptimizer =
-    (double)ConfigParameters["deltaOptimizer"]; // not used in the main SF optimization program
-const int timeScaleFactor = (int)ConfigParameters["timeScaleFactor"];
+    double barrierBase = loaded_doc["barrierBase"].as<double>();
+    double coolingRateSA = loaded_doc["coolingRateSA"].as<double>();
+    double deltaInitialDogleg = loaded_doc["deltaInitialDogleg"].as<double>();
+    double deltaOptimizer = loaded_doc["deltaOptimizer"].as<double>(); // not used in the main SF optimization program
+    int timeScaleFactor = loaded_doc["timeScaleFactor"].as<int>();
+    int RepeatExecution = loaded_doc["RepeatExecution"].as<int>();
 
-const int RepeatExecution = (int)ConfigParameters["RepeatExecution"];
-const double initialLambda = (double)ConfigParameters["initialLambda"];
-const double lowerLambda = (double)ConfigParameters["lowerLambda"];
-double makespanWeight =
-    (double)ConfigParameters["makespanWeight"]; // not used in the main SF optimization program
-double noiseModelSigma =
-    (double)ConfigParameters["noiseModelSigma"]; // not used in the main SF optimization program
-const double AcceptSchedulError = (double)ConfigParameters["AcceptSchedulError"];
-const double parallelFactor = (double)ConfigParameters["parallelFactor"];
-const double relativeErrorTolerance = (double)ConfigParameters["relativeErrorTolerance"];
+    double initialLambda = loaded_doc["initialLambda"].as<double>();
+    double lowerLambda = loaded_doc["lowerLambda"].as<double>();
+    double makespanWeight = loaded_doc["makespanWeight"].as<double>();   // not used in the main SF optimization program
+    double noiseModelSigma = loaded_doc["noiseModelSigma"].as<double>(); // not used in the main SF optimization program
+    double AcceptSchedulError = loaded_doc["AcceptSchedulError"].as<double>();
+    double parallelFactor = loaded_doc["parallelFactor"].as<double>();
+    double relativeErrorTolerance = loaded_doc["relativeErrorTolerance"].as<double>();
 
-const double toleranceEliminator = (double)ConfigParameters["toleranceEliminator"];
-const double upperLambda = (double)ConfigParameters["upperLambda"];
-const double weightLogBarrier = (double)ConfigParameters["weightLogBarrier"];
-const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetectTol"];
-const double stepJacobianIteration = (double)ConfigParameters["stepJacobianIteration"];
-const double NumericalPrecision = (double)ConfigParameters["NumericalPrecision"];
+    double toleranceEliminator = loaded_doc["toleranceEliminator"].as<double>();
+    double upperLambda = loaded_doc["upperLambda"].as<double>();
+    double weightLogBarrier = loaded_doc["weightLogBarrier"].as<double>();
+    double zeroJacobianDetectTol = loaded_doc["zeroJacobianDetectTol"].as<double>();
+    double stepJacobianIteration = loaded_doc["stepJacobianIteration"].as<double>();
+    double NumericalPrecision = loaded_doc["NumericalPrecision"].as<double>();
 
-int printSchedule = (int)ConfigParameters["printSchedule"];
-int bigJobGroupCheck = (int)ConfigParameters["bigJobGroupCheck"];
-const int PrintOutput = (int)ConfigParameters["PrintOutput"];
-const int ResetInnerWeightLoopMax = (int)ConfigParameters["ResetInnerWeightLoopMax"];
-const int coreNumberAva = (int)ConfigParameters["coreNumberAva"];
-int numericalJaobian =
-    (int)ConfigParameters["numericalJaobian"]; // not used in the main SF optimization program
-const int setUseFixedLambdaFactor = (int)ConfigParameters["setUseFixedLambdaFactor"];
-const int setDiagonalDamping = (int)ConfigParameters["setDiagonalDamping"];
-const int RandomDrawWeightMaxLoop = (int)ConfigParameters["RandomDrawWeightMaxLoop"];
+    int printSchedule = loaded_doc["printSchedule"].as<int>();
+    int bigJobGroupCheck = loaded_doc["bigJobGroupCheck"].as<int>();
+    int PrintOutput = loaded_doc["PrintOutput"].as<int>();
+    int ResetInnerWeightLoopMax = loaded_doc["ResetInnerWeightLoopMax"].as<int>();
+    int coreNumberAva = loaded_doc["coreNumberAva"].as<int>();
+    int numericalJaobian = loaded_doc["numericalJaobian"].as<int>();
+    int setUseFixedLambdaFactor = loaded_doc["setUseFixedLambdaFactor"].as<int>();
+    int setDiagonalDamping = loaded_doc["setDiagonalDamping"].as<int>();
+    int RandomDrawWeightMaxLoop = loaded_doc["RandomDrawWeightMaxLoop"].as<int>();
 
-// ********************* Under experiment or not useful
-int enableFastSearch = (int)ConfigParameters["enableFastSearch"];
-int enableSmallJobGroupCheck = (int)ConfigParameters["enableSmallJobGroupCheck"];
-const int subJobGroupMaxSize = (int)ConfigParameters["subJobGroupMaxSize"];
+    // ********************* Under experiment or not useful
+    int enableFastSearch = loaded_doc["enableFastSearch"].as<int>();
+    int enableSmallJobGroupCheck = loaded_doc["enableSmallJobGroupCheck"].as<int>();
+    int subJobGroupMaxSize = loaded_doc["subJobGroupMaxSize"].as<int>();
 
-// ********************* TO-FIX:
-double sensorFusionTolerance = (double)ConfigParameters["sensorFusionTolerance"];
-double freshTol = (double)ConfigParameters["freshTol"];
+    // ********************* TO-FIX:
+    double sensorFusionTolerance = loaded_doc["sensorFusionTolerance"].as<double>();
+    double freshTol = loaded_doc["freshTol"].as<double>();
+    int initializeMethod = loaded_doc["initializeMethod"].as<int>();
 
-InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initializeMethod"]);
-double weightDDL_factor =
-    (double)ConfigParameters["weightDDL_factor"]; // not used in the main SF optimization program
-double weightDAG_factor =
-    (double)ConfigParameters["weightDAG_factor"]; // not used in the main SF optimization program
-const double weightInMpRTDA = (double)ConfigParameters["weightInMpRTDA"];
-const double weightInMpSf = (double)ConfigParameters["weightInMpSf"];
-const double weightInMpSfPunish = (double)ConfigParameters["weightInMpSfPunish"];
-const double weightInMpRTDAPunish = (double)ConfigParameters["weightInMpRTDAPunish"];
-const int64_t makeProgressTimeLimit = (int)ConfigParameters["makeProgressTimeLimit"];
+    double weightDDL_factor = loaded_doc["weightDDL_factor"].as<double>(); // not used in the main SF optimization program
+    double weightDAG_factor = loaded_doc["weightDAG_factor"].as<double>(); // not used in the main SF optimization program
+    double weightInMpRTDA = loaded_doc["weightInMpRTDA"].as<double>();
+    double weightInMpSf = loaded_doc["weightInMpSf"].as<double>();
+    double weightInMpSfPunish = loaded_doc["weightInMpSfPunish"].as<double>();
+    double weightInMpRTDAPunish = loaded_doc["weightInMpRTDAPunish"].as<double>();
+    int64_t makeProgressTimeLimit = loaded_doc["makeProgressTimeLimit"].as<int64_t>();
+    double RtdaWeight = loaded_doc["RtdaWeight"].as<double>();
+    double ResetRandomWeightThreshold = loaded_doc["ResetRandomWeightThreshold"].as<double>();
+    double weightSF_factor = loaded_doc["weightSF_factor"].as<double>(); // not used in the main SF optimization program
+    int TotalMethodUnderComparison = loaded_doc["TotalMethodUnderComparison"].as<int>();
+    int processorAssignmentMode = loaded_doc["processorAssignmentMode"].as<int>();
+    int PrintInitial = loaded_doc["PrintInitial"].as<int>();
+    int debugMode = loaded_doc["debugMode"].as<int>();
 
-const double RtdaWeight = (double)ConfigParameters["RtdaWeight"];
-// const double RandomAccept = (double)ConfigParameters["RandomAccept"];
+    int exactJacobian = loaded_doc["exactJacobian"].as<int>();
+    int optimizerType = loaded_doc["optimizerType"].as<int>();
+    int randomInitialize = loaded_doc["randomInitialize"].as<int>();
+    int SA_iteration = loaded_doc["SA_iteration"].as<int>();
+    int TaskSetType = loaded_doc["temperatureSA"].as<int>();
+    int temperatureSA = loaded_doc["TaskSetType"].as<int>();
+    int tightEliminate = loaded_doc["tightEliminate"].as<int>();                             // not used in the main SF optimization program
+    int withAddedSensorFusionError = loaded_doc["withAddedSensorFusionError"].as<int>();     // not used in the main SF optimization program
+    int whetherRandomNoiseModelSigma = loaded_doc["whetherRandomNoiseModelSigma"].as<int>(); // not used in the main SF optimization program
+    int whether_ls = loaded_doc["whether_ls"].as<int>();                                     // not used in the main SF optimization program
 
-const double ResetRandomWeightThreshold = (double)ConfigParameters["ResetRandomWeightThreshold"];
-double weightSF_factor =
-    (double)ConfigParameters["weightSF_factor"]; // not used in the main SF optimization program
-const int TotalMethodUnderComparison = (int)ConfigParameters["TotalMethodUnderComparison"];
-const int processorAssignmentMode = (int)ConfigParameters["processorAssignmentMode"];
-const int PrintInitial = (int)ConfigParameters["PrintInitial"];
-int debugMode = (int)ConfigParameters["debugMode"]; // why can't it be const?
-                                                    // int debugMode=0;
-const int exactJacobian = (int)ConfigParameters["exactJacobian"];
-const int optimizerType = (int)ConfigParameters["optimizerType"];
-const int randomInitialize = (int)ConfigParameters["randomInitialize"];
-const int SA_iteration = (int)ConfigParameters["SA_iteration"];
-const int TaskSetType = (int)ConfigParameters["TaskSetType"];
-const int temperatureSA = (int)ConfigParameters["temperatureSA"];
-int tightEliminate = (int)ConfigParameters["tightEliminate"]; // not used in the main SF optimization program
-int withAddedSensorFusionError =
-    (int)ConfigParameters["withAddedSensorFusionError"]; // not used in the main SF optimization program
-int whetherRandomNoiseModelSigma =
-    (int)ConfigParameters["whetherRandomNoiseModelSigma"]; // not used in the main SF optimization program
-int whether_ls = (int)ConfigParameters["whether_ls"];      // not used in the main SF optimization program
+    int whether_shuffle_CE_chain = loaded_doc["whether_shuffle_CE_chain"].as<int>();
+    int NumCauseEffectChain = loaded_doc["NumCauseEffectChain"].as<int>();
+    int maxIterations = loaded_doc["maxIterations"].as<int>();
+    int saveGraph = loaded_doc["saveGraph"].as<int>();
+    int recordActionValue = loaded_doc["recordActionValue"].as<int>();
+    int MaxEliminateDetectIterations = loaded_doc["MaxEliminateDetectIterations"].as<int>();
 
-const int whether_shuffle_CE_chain = (int)ConfigParameters["whether_shuffle_CE_chain"];
-const int NumCauseEffectChain = (int)ConfigParameters["NumCauseEffectChain"];
+    std::string priorityMode = loaded_doc["priorityMode"].as<std::string>();
+    std::string runMode = loaded_doc["runMode"].as<std::string>();
+    std::string testDataSetName = loaded_doc["testDataSetName"].as<std::string>();
+    std::string ReOrderProblem = loaded_doc["ReOrderProblem"].as<std::string>();
+    std::string verbosityLM = loaded_doc["verbosityLM"].as<std::string>();
 
-const int maxIterations = (int)ConfigParameters["maxIterations"];
-const int saveGraph = (int)ConfigParameters["saveGraph"];
-const int recordActionValue = (int)ConfigParameters["recordActionValue"];
-// int recordRLFileCount = 0;
-const int MaxEliminateDetectIterations = (int)ConfigParameters["MaxEliminateDetectIterations"];
-const std::string priorityMode = (std::string)ConfigParameters["priorityMode"];
-const std::string runMode = (std::string)ConfigParameters["runMode"];
-const std::string testDataSetName = (std::string)ConfigParameters["testDataSetName"];
-const std::string ReOrderProblem = (std::string)ConfigParameters["ReOrderProblem"];
-const double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
-const double DataAgeThreshold = (double)ConfigParameters["DataAgeThreshold"];
-const double ReactionTimeThreshold = (double)ConfigParameters["ReactionTimeThreshold"];
-const double RoundingThreshold = (double)ConfigParameters["RoundingThreshold"];
+    double punishmentInBarrier = loaded_doc["punishmentInBarrier"].as<double>();
+    double ReactionTimeThreshold = loaded_doc["ReactionTimeThreshold"].as<double>();
+    double DataAgeThreshold = loaded_doc["DataAgeThreshold"].as<double>();
+    double RoundingThreshold = loaded_doc["RoundingThreshold"].as<double>();
 
-const std::string verbosityLM = (std::string)ConfigParameters["verbosityLM"];
-// code below is only used to show how to read vectors, but is not actually used in this project
-// std::vector<int> readVector(std::string filename)
-// {
-//     cv::FileStorage fs;
-//     fs.open(filename, cv::FileStorage::READ);
-//     cv::Mat Tt;
-//     fs["chain"] >> Tt;
-//     int rows = Tt.rows;
+    double kVerucchiReactionCost = loaded_doc["kVerucchiReactionCost"].as<double>();
+    double kVerucchiMaxReaction = loaded_doc["kVerucchiMaxReaction"].as<double>();
+    double kVerucchiMaxDataAge = loaded_doc["kVerucchiMaxDataAge"].as<double>();
+    double kVerucchiDataAgeCost = loaded_doc["kVerucchiDataAgeCost"].as<double>();
+    double kVerucchiCoreCost = loaded_doc["kVerucchiCoreCost"].as<double>();
+    double kGlobalOptimizationTimeLimit = loaded_doc["kGlobalOptimizationTimeLimit"].as<double>();
 
-//    std::vector<int> vec;
-//     vec.reserve(rows);
-//     for (int i = 0; i < rows; i++)
-//     {
-//         vec.push_back(Tt.at<int>(i, 0));
-//     }
-//     return vec;
-// }
-// std::vector<int> CA_CHAIN = readVector(GlobalVariablesDAGOpt::PROJECT_PATH +  "sources/parameters.yaml");
+    int64_t kVerucchiTimeLimit = loaded_doc["kVerucchiTimeLimit"].as<int64_t>();
+    int64_t kWangRtss21IcNlpTimeLimit = loaded_doc["kWangRtss21IcNlpTimeLimit"].as<int64_t>();
+    double kCplexInequalityThreshold = loaded_doc["kCplexInequalityThreshold"].as<double>();
 
-const int64_t kVerucchiTimeLimit = (int)ConfigParameters["kVerucchiTimeLimit"];
-const double kVerucchiReactionCost = (double)ConfigParameters["kVerucchiReactionCost"];
-const double kVerucchiMaxReaction = (double)ConfigParameters["kVerucchiMaxReaction"];
-const double kVerucchiDataAgeCost = (double)ConfigParameters["kVerucchiDataAgeCost"];
-const double kVerucchiMaxDataAge = (double)ConfigParameters["kVerucchiMaxDataAge"];
-const double kVerucchiCoreCost = (double)ConfigParameters["kVerucchiCoreCost"];
-const double kGlobalOptimizationTimeLimit = (double)ConfigParameters["kGlobalOptimizationTimeLimit"];
+    int doScheduleOptimization = loaded_doc["doScheduleOptimization"].as<int>();
+    // probably figure out where this variable is used, clean related code
+    int considerSensorFusion = loaded_doc["considerSensorFusion"].as<int>();
+    int doScheduleOptimizationOnlyOnce = loaded_doc["doScheduleOptimizationOnlyOnce"].as<int>();
+    int BatchTestOnlyOneMethod = loaded_doc["BatchTestOnlyOneMethod"].as<int>();
+    int selectInitialFromPool = loaded_doc["selectInitialFromPool"].as<int>();
+    int FastOptimization = loaded_doc["FastOptimization"].as<int>();
+    int EnableHardJobORder = loaded_doc["EnableHardJobORder"].as<int>();
+    int MakeProgressOnlyMax = loaded_doc["MakeProgressOnlyMax"].as<int>();
 
-const int64_t kWangRtss21IcNlpTimeLimit = (int)ConfigParameters["kWangRtss21IcNlpTimeLimit"];
-
-const double kCplexInequalityThreshold = (double)ConfigParameters["kCplexInequalityThreshold"];
-
-const int doScheduleOptimization = (int)ConfigParameters["doScheduleOptimization"];
-// probably figure out where this variable is used, clean related code
-int considerSensorFusion =
-    (int)ConfigParameters["considerSensorFusion"]; // previous code heavily depended on its value, but we must
-                                                   // treat it as a const int in the future
-const int doScheduleOptimizationOnlyOnce = (int)ConfigParameters["doScheduleOptimizationOnlyOnce"];
-const int BatchTestOnlyOneMethod = (int)ConfigParameters["BatchTestOnlyOneMethod"];
-const int selectInitialFromPool = (int)ConfigParameters["selectInitialFromPool"];
-const int FastOptimization = (int)ConfigParameters["FastOptimization"];
-const int EnableHardJobORder = (int)ConfigParameters["EnableHardJobORder"];
-const int MakeProgressOnlyMax = (int)ConfigParameters["MakeProgressOnlyMax"];
-const double LPTolerance = (double)ConfigParameters["LPTolerance"];
+    double LPTolerance = loaded_doc["LPTolerance"].as<double>();
 } // namespace GlobalVariablesDAGOpt

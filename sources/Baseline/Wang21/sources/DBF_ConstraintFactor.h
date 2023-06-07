@@ -109,7 +109,7 @@ public:
     mapIndex_True2Compress = MapIndex_True2Compress(maskForEliminate);
   }
 
-  Vector evaluateError(const VectorDynamic &startTimeVector,
+  gtsam::Vector evaluateError(const VectorDynamic &startTimeVector,
                        boost::optional<Matrix &> H = boost::none) const override {
     BeginTimer("DBF_All");
     if (H) {

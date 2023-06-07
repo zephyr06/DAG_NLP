@@ -4,12 +4,21 @@
 #include <vector>
 // #include <Eigen/Geometry>
 #include "sources/Utils/testMy.h"
-#include <opencv2/core/core.hpp>
+// #include <opencv2/core/core.hpp>
 // using namespace std;
 // All the global variables should be const
 
-enum InitializeMethod { IndexMode, FixedRelativeStart, RM, RM_DAG, Custom_DAG, ListScheduling };
-inline InitializeMethod Transform_enum(int a) {
+enum InitializeMethod
+{
+  IndexMode,
+  FixedRelativeStart,
+  RM,
+  RM_DAG,
+  Custom_DAG,
+  ListScheduling
+};
+inline InitializeMethod Transform_enum(int a)
+{
   if (a == 0)
     return IndexMode;
   else if (a == 1)
@@ -22,146 +31,124 @@ inline InitializeMethod Transform_enum(int a) {
     return Custom_DAG;
   else if (a == 5)
     return ListScheduling;
-  else {
+  else
+  {
     CoutError("Not recognized enum InitializeMethod\n");
     return IndexMode;
   }
 }
 
-namespace GlobalVariablesDAGOpt {
-extern const std::string PROJECT_PATH;
-// const std::string PROJECT_PATH = "/home/dong/workspace/DAG_NLP/";
-// const std::string PROJECT_PATH = "/home/zephyr/Programming/batch_test_DAG_NLP/VerucchiOnly/N3_10/";
-//  std::string path = GlobalVariablesDAGOpt::PROJECT_PATH +  "sources/parameters.yaml";
-extern cv::FileStorage ConfigParameters;
+namespace GlobalVariablesDAGOpt
+{
+  extern const std::string PROJECT_PATH;
 
-extern const double barrierBase;
-extern const double coolingRateSA;
-extern const double deltaInitialDogleg;
-extern double deltaOptimizer; // not used in the main SF optimization program
-extern const int timeScaleFactor;
+  extern double barrierBase;
+  extern double coolingRateSA;
+  extern double deltaInitialDogleg;
+  extern double deltaOptimizer; // not used in the main SF optimization program
+  extern int timeScaleFactor;
 
-extern const double initialLambda;
-extern const double lowerLambda;
-extern double makespanWeight;  // not used in the main SF optimization program
-extern double noiseModelSigma; // not used in the main SF optimization program
-extern const double AcceptSchedulError;
-extern const double parallelFactor;
-extern const double relativeErrorTolerance;
+  extern double initialLambda;
+  extern double lowerLambda;
+  extern double makespanWeight;  // not used in the main SF optimization program
+  extern double noiseModelSigma; // not used in the main SF optimization program
+  extern double AcceptSchedulError;
+  extern double parallelFactor;
+  extern double relativeErrorTolerance;
 
-extern const double toleranceEliminator;
-extern const double upperLambda;
-extern const double weightLogBarrier;
-extern const double zeroJacobianDetectTol;
-extern const double stepJacobianIteration;
+  extern double toleranceEliminator;
+  extern double upperLambda;
+  extern double weightLogBarrier;
+  extern double zeroJacobianDetectTol;
+  extern double stepJacobianIteration;
 
-extern int printSchedule;
-extern int bigJobGroupCheck;
-extern const int PrintOutput;
-extern const int ResetInnerWeightLoopMax;
-extern const int coreNumberAva;
-extern int numericalJaobian; // not used in the main SF optimization program
-extern const int setUseFixedLambdaFactor;
-extern const int setDiagonalDamping;
-extern const int RandomDrawWeightMaxLoop;
+  extern int printSchedule;
+  extern int bigJobGroupCheck;
+  extern int PrintOutput;
+  extern int ResetInnerWeightLoopMax;
+  extern int coreNumberAva;
+  extern int numericalJaobian; // not used in the main SF optimization program
+  extern int setUseFixedLambdaFactor;
+  extern int setDiagonalDamping;
+  extern int RandomDrawWeightMaxLoop;
 
-// ********************* Under experiment or not useful
-extern int enableFastSearch;
-extern int enableSmallJobGroupCheck;
-extern const int RepeatExecution;
+  // ********************* Under experiment or not useful
+  extern int enableFastSearch;
+  extern int enableSmallJobGroupCheck;
+  extern int RepeatExecution;
 
-extern const int subJobGroupMaxSize;
+  extern int subJobGroupMaxSize;
 
-// ********************* TO-FIX:
-extern double sensorFusionTolerance;
-extern double freshTol;
+  // ********************* TO-FIX:
+  extern double sensorFusionTolerance;
+  extern double freshTol;
 
-extern InitializeMethod initializeMethod;
-extern double weightDDL_factor; // not used in the main SF optimization program
-extern double weightDAG_factor; // not used in the main SF optimization program
-extern const double weightInMpRTDA;
-extern const double weightInMpSf;
-extern const double weightInMpSfPunish;
-extern const double weightInMpRTDAPunish;
-extern const int64_t makeProgressTimeLimit;
-extern const double NumericalPrecision;
+  extern int initializeMethod;
+  extern double weightDDL_factor; // not used in the main SF optimization program
+  extern double weightDAG_factor; // not used in the main SF optimization program
+  extern double weightInMpRTDA;
+  extern double weightInMpSf;
+  extern double weightInMpSfPunish;
+  extern double weightInMpRTDAPunish;
+  extern int64_t makeProgressTimeLimit;
+  extern double NumericalPrecision;
 
-extern const double RtdaWeight;
-extern const double ResetRandomWeightThreshold;
-extern double weightSF_factor; // not used in the main SF optimization program
-extern const int TotalMethodUnderComparison;
-extern const int processorAssignmentMode;
-extern const int PrintInitial;
-extern int debugMode; // why can't it be const?
-// int debugMode=0;
-extern const int exactJacobian;
-extern const int optimizerType;
-extern const int randomInitialize;
-extern const int SA_iteration;
-extern const int TaskSetType;
-extern const int temperatureSA;
-extern int tightEliminate;               // not used in the main SF optimization program
-extern int withAddedSensorFusionError;   // not used in the main SF optimization program
-extern int whetherRandomNoiseModelSigma; // not used in the main SF optimization program
-extern int whether_ls;                   // not used in the main SF optimization program
+  extern double RtdaWeight;
+  extern double ResetRandomWeightThreshold;
+  extern double weightSF_factor; // not used in the main SF optimization program
+  extern int TotalMethodUnderComparison;
+  extern int processorAssignmentMode;
+  extern int PrintInitial;
+  extern int debugMode;
+  extern int exactJacobian;
+  extern int optimizerType;
+  extern int randomInitialize;
+  extern int SA_iteration;
+  extern int TaskSetType;
+  extern int temperatureSA;
+  extern int tightEliminate;               // not used in the main SF optimization program
+  extern int withAddedSensorFusionError;   // not used in the main SF optimization program
+  extern int whetherRandomNoiseModelSigma; // not used in the main SF optimization program
+  extern int whether_ls;                   // not used in the main SF optimization program
 
-extern const int whether_shuffle_CE_chain;
-extern const int NumCauseEffectChain;
+  extern int whether_shuffle_CE_chain;
+  extern int NumCauseEffectChain;
 
-extern const int maxIterations;
-extern const int saveGraph;
-extern const int recordActionValue;
-extern const int MaxEliminateDetectIterations;
-extern const std::string priorityMode;
-extern const std::string runMode;
-extern const std::string testDataSetName;
-extern const std::string ReOrderProblem;
-extern const double punishmentInBarrier;
-extern const double DataAgeThreshold;
-extern const double ReactionTimeThreshold;
-extern const double RoundingThreshold;
+  extern int maxIterations;
+  extern int saveGraph;
+  extern int recordActionValue;
+  extern int MaxEliminateDetectIterations;
+  extern std::string priorityMode;
+  extern std::string runMode;
+  extern std::string testDataSetName;
+  extern std::string ReOrderProblem;
+  extern double punishmentInBarrier;
+  extern double DataAgeThreshold;
+  extern double ReactionTimeThreshold;
+  extern double RoundingThreshold;
 
-extern const std::string verbosityLM;
-// code below is only used to show how to read vectors, but is not actually used in this project
-// std::vector<int> readVector(std::string filename)
-// {
-//     cv::FileStorage fs;
-//     fs.open(filename, cv::FileStorage::READ);
-//     cv::Mat Tt;
-//     fs["chain"] >> Tt;
-//     int rows = Tt.rows;
+  extern std::string verbosityLM;
+  extern int64_t kVerucchiTimeLimit;
+  extern double kVerucchiReactionCost;
+  extern double kVerucchiMaxReaction;
+  extern double kVerucchiDataAgeCost;
+  extern double kVerucchiMaxDataAge;
+  extern double kVerucchiCoreCost;
+  extern double kGlobalOptimizationTimeLimit;
 
-//    std::vector<int> vec;
-//     vec.reserve(rows);
-//     for (int i = 0; i < rows; i++)
-//     {
-//         vec.push_back(Tt.at<int>(i, 0));
-//     }
-//     return vec;
-// }
-// std::vector<int> CA_CHAIN = readVector(GlobalVariablesDAGOpt::PROJECT_PATH +  "sources/parameters.yaml");
+  extern int64_t kWangRtss21IcNlpTimeLimit;
 
-extern const int64_t kVerucchiTimeLimit;
-extern const double kVerucchiReactionCost;
-extern const double kVerucchiMaxReaction;
-extern const double kVerucchiDataAgeCost;
-extern const double kVerucchiMaxDataAge;
-extern const double kVerucchiCoreCost;
-extern const double kGlobalOptimizationTimeLimit;
+  extern double kCplexInequalityThreshold;
 
-extern const int64_t kWangRtss21IcNlpTimeLimit;
-
-extern const double kCplexInequalityThreshold;
-
-extern const int selectInitialFromPool;
-extern const int doScheduleOptimization;
-extern int considerSensorFusion; // previous code heavily depended on its value, but we must treat it as a
-                                 // const int in the future
-extern const int doScheduleOptimizationOnlyOnce;
-extern const int BatchTestOnlyOneMethod;
-extern const int FastOptimization;
-extern const int EnableHardJobORder;
-extern const double LPTolerance;
-extern const int MakeProgressOnlyMax;
+  extern int selectInitialFromPool;
+  extern int doScheduleOptimization;
+  extern int considerSensorFusion; // previous code heavily depended on its value, but we must treat it as a
+                                   // const int in the future
+  extern int doScheduleOptimizationOnlyOnce;
+  extern int BatchTestOnlyOneMethod;
+  extern int FastOptimization;
+  extern int EnableHardJobORder;
+  extern double LPTolerance;
+  extern int MakeProgressOnlyMax;
 
 } // namespace GlobalVariablesDAGOpt

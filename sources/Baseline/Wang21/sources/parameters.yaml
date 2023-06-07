@@ -30,7 +30,7 @@ maxIterations: 100 # set to 100 ude to unexpected time out, suggest 1000
 moreElimination: 0
 weightPrior_factor: 0
 initializeMethod: 2
-timeScaleFactor: 1e2
+timeScaleFactor: 100
 stepJacobianIteration: 1.5
 maxJacobianIteration: 25
 priorityMode: RM
