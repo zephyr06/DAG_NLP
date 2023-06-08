@@ -161,6 +161,8 @@ namespace RTSS21IC_NLP
                 params.setRelativeErrorTol(relativeErrorTolerance);
                 params.setMaxIterations(maxIterations);
                 params.setUseFixedLambdaFactor(setUseFixedLambdaFactor);
+                std::cout << "**************\n";
+                initialEstimateFG.print();
                 LevenbergMarquardtOptimizer optimizer(graph, initialEstimateFG, params);
                 result = optimizer.optimize();
             }
