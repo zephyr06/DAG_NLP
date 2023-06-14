@@ -1,5 +1,7 @@
 # Dependencies:
 - [GTSAM](https://github.com/borglab/gtsam)
+    - Please install the old version GTSAM (commit `9902ccc0a`) to avoid API issues
+    - Add `set (GTSAM_USE_SYSTEM_EIGEN 1)` to `CMakeLists.txt` in case of Eigen library issues
 - boost
 - OpenCV, C++
 - Python
