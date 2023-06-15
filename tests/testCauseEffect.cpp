@@ -10,7 +10,9 @@ using namespace OrderOptDAG_SPACE;
 using namespace std;
 using namespace gtsam;
 using namespace GlobalVariablesDAGOpt;
-TEST(GetStartTime, v1) {
+
+TEST(GetStartTime, v1)
+{
   using namespace OrderOptDAG_SPACE;
   DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v1.csv",
                                      "orig"); // single-rate dag
@@ -29,10 +31,10 @@ TEST(GetStartTime, v1) {
   EXPECT_LONGS_EQUAL(401, GetStartTime({0, 2}, initialEstimateFG, tasksInfo));
   EXPECT_LONGS_EQUAL(403, GetStartTime({2, 2}, initialEstimateFG, tasksInfo));
   EXPECT_LONGS_EQUAL(405, GetStartTime({4, 2}, initialEstimateFG, tasksInfo));
-  // EXPECT_LONGS_EQUAL(405, GetStartTime({5, 2}, initialEstimateFG, tasksInfo));
 }
 
-TEST(CauseAffect, v1) {
+TEST(CauseAffect, v1)
+{
   using namespace OrderOptDAG_SPACE;
   DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v1.csv",
                                      "orig"); // single-rate dag
@@ -48,7 +50,8 @@ TEST(CauseAffect, v1) {
   EXPECT_LONGS_EQUAL(414, resM.reactionTime);
   EXPECT_LONGS_EQUAL(414, resM.dataAge);
 }
-TEST(CA, V2) {
+TEST(CA, V2)
+{
   using namespace OrderOptDAG_SPACE;
   DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v2.csv",
                                      "orig"); // single-rate dag
@@ -65,7 +68,8 @@ TEST(CA, V2) {
   EXPECT_LONGS_EQUAL(314, resM.dataAge);
 }
 
-TEST(CA, v3) {
+TEST(CA, v3)
+{
   using namespace OrderOptDAG_SPACE;
   DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v4.csv", "orig");
   TaskSet tasks = dagTasks.tasks;
@@ -80,7 +84,8 @@ TEST(CA, v3) {
   EXPECT_LONGS_EQUAL(312, resM.dataAge);
 }
 
-TEST(CA_customize, v1) {
+TEST(CA_customize, v1)
+{
   using namespace OrderOptDAG_SPACE;
   OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(
       GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n6_v1.csv", "orig");
@@ -97,7 +102,8 @@ TEST(CA_customize, v1) {
   // EXPECT_LONGS_EQUAL(312, resM.dataAge);
 }
 
-TEST(RTDA, v2) {
+TEST(RTDA, v2)
+{
   using namespace OrderOptDAG_SPACE;
   OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(
       GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v13.csv", "orig");
@@ -123,7 +129,8 @@ TEST(RTDA, v2) {
   std::cout << std::endl;
   resM.print();
 }
-TEST(RTDA, v1) {
+TEST(RTDA, v1)
+{
   using namespace OrderOptDAG_SPACE;
   OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(
       GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n4_v1.csv", "orig");
@@ -139,7 +146,8 @@ TEST(RTDA, v1) {
   EXPECT_LONGS_EQUAL(6, resM.dataAge);
 }
 
-TEST(RTDA, v3) {
+TEST(RTDA, v3)
+{
   using namespace OrderOptDAG_SPACE;
   OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(
       GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v79.csv", "orig");
@@ -165,7 +173,8 @@ TEST(RTDA, v3) {
   EXPECT(ExamAll_Feasibility(dagTasks, tasksInfo, initialEstimate, processorJobVec, processorNum, 1e9, 1e9));
 }
 
-TEST(CA, accept_reaction_within_precision) {
+TEST(CA, accept_reaction_within_precision)
+{
   using namespace OrderOptDAG_SPACE;
   DAG_Model dagTasks =
       ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
@@ -185,7 +194,8 @@ TEST(CA, accept_reaction_within_precision) {
   EXPECT_LONGS_EQUAL(14, resM.reactionTime);
   EXPECT_DOUBLES_EQUAL(4.0, resM.dataAge, 1e-4);
 }
-int main() {
+int main()
+{
   TestResult tr;
   return TestRegistry::runAllTests(tr);
 }
