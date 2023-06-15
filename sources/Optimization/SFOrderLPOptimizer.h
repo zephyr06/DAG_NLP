@@ -1,14 +1,7 @@
 #ifndef SFORDER_LP_OPTIMIZER_H_
 #define SFORDER_LP_OPTIMIZER_H_
-// #include <iostream>
-// #include <memory>
-// #include <vector>
-// #include <unordered_map>
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/OptimizeOrderUtils.h"
-// #include "sources/Utils/Parameters.h"
-// #include "sources/Factors/RTDA_Factor.h"
-// #include "sources/Factors/SensorFusionFactor.h"
 #include "ilcplex/cplex.h"
 #include "ilcplex/ilocplex.h"
 
@@ -21,7 +14,6 @@ namespace OrderOptDAG_SPACE
         : dagTasks_(dagTasks), sfOrder_(sfOrder), processorNum_(processorNum)
     {
       env_.end();
-      useWeightedObj_ = false;
       hasBeenInitialized_ = false;
     }
 
@@ -29,9 +21,6 @@ namespace OrderOptDAG_SPACE
     void ClearCplexMemory();
 
     void Optimize(const std::vector<uint> &processorJobVec);
-
-    // useWeightedObj_ will decide whether optimize max RTDAs or weighted objectives
-    inline void setUseWeightedObjType(bool useWeightedObj = false) { useWeightedObj_ = useWeightedObj; }
 
     VectorDynamic getOptimizedStartTimeVector();
 
@@ -45,8 +34,7 @@ namespace OrderOptDAG_SPACE
         const std::unordered_map<JobCEC, std::vector<JobCEC>> &react_chain_map);
     void AddSensorFusionConstraints();
     void AddObjectives();
-    void AddNormalObjectives();   // RTDA obj
-    void AddWeightedObjectives(); // weighted obj
+    void AddNormalObjectives(); // RTDA obj
     IloExpr GetStartTimeExpression(JobCEC &jobCEC);
     IloExpr GetFinishTimeExpression(JobCEC &jobCEC);
     void UpdateOptimizedStartTimeVector(IloNumArray &values_optimized);
@@ -80,7 +68,6 @@ namespace OrderOptDAG_SPACE
     const DAG_Model &dagTasks_;
     SFOrder &sfOrder_;
     int numVariables_;
-    bool useWeightedObj_;
     bool hasBeenInitialized_;
     int processorNum_;
   };

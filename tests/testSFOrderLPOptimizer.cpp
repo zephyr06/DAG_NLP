@@ -93,7 +93,6 @@ TEST_F(TestSFOrderLPOptimizer, CanAddDBFConstraintsUsingSFOrder)
 }
 TEST_F(TestSFOrderLPOptimizer, CanAddNormalObjectives)
 {
-  pSFOrderLPOptimizer_->setUseWeightedObjType(false);
   EXPECT_NO_THROW(pSFOrderLPOptimizer_->AddDBFConstraints());
   EXPECT_NO_THROW(pSFOrderLPOptimizer_->AddObjectives());
 }
