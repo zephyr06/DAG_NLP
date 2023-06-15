@@ -7,22 +7,24 @@
 #include <Eigen/SparseCore>
 #include <gtest/gtest.h>
 
-#include "sources/Factors/JacobianAnalyze.h"
+// #include "sources/Factors/JacobianAnalyze.h"
 #include "sources/Optimization/GlobalOptimization.h"
-#include "sources/Optimization/LinearProgrammingSolver.h"
+// #include "sources/Optimization/LinearProgrammingSolver.h"
 #include "sources/Optimization/ObjectiveFunctions.h"
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/TaskModel/DAG_Model.h"
-#include "sources/Utils/IncrementQR.h"
+// #include "sources/Utils/IncrementQR.h"
 
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
 using namespace GlobalVariablesDAGOpt;
-using namespace LPOptimizer;
+// using namespace LPOptimizer;
 // TODO: Fix DDL issue, rhs should minus execution time;
-class DAGScheduleOptimizerTest1 : public ::testing::Test {
+class DAGScheduleOptimizerTest1 : public ::testing::Test
+{
 protected:
-  void SetUp() override {
+  void SetUp() override
+  {
     dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v30.csv", "orig", 1);
     tasks = dagTasks.tasks;
     tasksInfo = TaskSetInfoDerived(tasks);
@@ -56,9 +58,11 @@ protected:
   VectorDynamic initial;
 };
 
-class DAGScheduleOptimizerTest2 : public ::testing::Test {
+class DAGScheduleOptimizerTest2 : public ::testing::Test
+{
 protected:
-  void SetUp() override {
+  void SetUp() override
+  {
     dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n2_v2.csv", "orig", 1);
     tasks = dagTasks.tasks;
     tasksInfo = TaskSetInfoDerived(tasks);
@@ -79,7 +83,8 @@ protected:
   ScheduleOptions scheduleOptions;
 };
 
-TEST_F(DAGScheduleOptimizerTest2, IterateTimeInstanceSeq) {
+TEST_F(DAGScheduleOptimizerTest2, IterateTimeInstanceSeq)
+{
   PermutationStatus permutationStatus(dagTasks, tasksInfo, scheduleOptions);
   std::vector<TimeInstance> prevSeq;
   prevSeq.reserve(2 * tasksInfo.length);
@@ -103,7 +108,8 @@ TEST_F(DAGScheduleOptimizerTest2, IterateTimeInstanceSeq) {
     EXPECT_TRUE(instanceOrderOpt[j] == permutationStatus.orderOpt_.instanceOrder_[j]);
 }
 
-TEST_F(DAGScheduleOptimizerTest1, FindAllJobOrderPermutations) {
+TEST_F(DAGScheduleOptimizerTest1, FindAllJobOrderPermutations)
+{
   PermutationStatus permSta = FindGlobalOptRTDA(dagTasks, tasksInfo, scheduleOptions);
   // std::vector<std::vector<TimeInstance>> instSeqAllActual = FindAllJobOrderPermutations(dagTasks,
   // tasksInfo);
@@ -112,19 +118,23 @@ TEST_F(DAGScheduleOptimizerTest1, FindAllJobOrderPermutations) {
   EXPECT_THAT(90, testing::Ge(permSta.totalPermutation_));
 }
 
-TEST_F(DAGScheduleOptimizerTest2, FindGlobalOptRTDA) {
+TEST_F(DAGScheduleOptimizerTest2, FindGlobalOptRTDA)
+{
   PermutationStatus permSta = FindGlobalOptRTDA(dagTasks, tasksInfo, scheduleOptions);
   EXPECT_EQ(3 + 3, permSta.valOpt_);
 }
 
-TEST_F(DAGScheduleOptimizerTest1, FindGlobalOptRTDA) {
+TEST_F(DAGScheduleOptimizerTest1, FindGlobalOptRTDA)
+{
   PermutationStatus permSta = FindGlobalOptRTDA(dagTasks, tasksInfo, scheduleOptions);
   EXPECT_EQ(4 + 4, permSta.valOpt_);
 }
 
-class DAGScheduleOptimizerTest3 : public ::testing::Test {
+class DAGScheduleOptimizerTest3 : public ::testing::Test
+{
 protected:
-  void SetUp() override {
+  void SetUp() override
+  {
     dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig", 1);
     tasks = dagTasks.tasks;
     tasksInfo = TaskSetInfoDerived(tasks);
@@ -151,12 +161,14 @@ protected:
   VectorDynamic initial;
 };
 
-TEST_F(DAGScheduleOptimizerTest3, FindGlobalOptRTDA) {
+TEST_F(DAGScheduleOptimizerTest3, FindGlobalOptRTDA)
+{
   PermutationStatus permSta = FindGlobalOptRTDA(dagTasks, tasksInfo, scheduleOptions);
   EXPECT_EQ(5 + 4, permSta.valOpt_);
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

@@ -82,6 +82,7 @@ TEST(SF, error_v2)
     VectorDynamic actual = factor.f(initial);
     EXPECT(assert_equal(expect, actual));
 }
+
 int main()
 {
     TestResult tr;
