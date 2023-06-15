@@ -67,7 +67,6 @@ namespace OrderOptDAG_SPACE
           initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
 
         UpdateAllStatus(initialSTV);
-        warmStart_ = statusPrev.startTimeVector_;
 
         if (!statusPrev.schedulable_)
           CoutWarning("Initial schedule is not schedulable!!!");
@@ -192,7 +191,6 @@ namespace OrderOptDAG_SPACE
 
           jobOrderCurrForStart.InsertStart(jobRelocate, startP); // must insert start first
           double accumLengthMin = 0;
-          warmStart_(0) = -1;
           for (LLint finishP = startP + 1;
                finishP <= std::min(jobIndexRange.maxIndex - 1, static_cast<int>(tasksInfo.length) * 2 - 1) &&
                ifContinue();
@@ -320,8 +318,8 @@ namespace OrderOptDAG_SPACE
         VectorDynamic startTimeVector;
         std::vector<uint> processorJobVec;
         startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
-                                                   processorJobVec, warmStart_);
-        warmStart_ = startTimeVector; // warmStart_ will be used in the next iterations
+                                                   processorJobVec);
+
         bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
                                                  scheduleOptions.processorNum_);
         if (!schedulable)
@@ -431,7 +429,6 @@ namespace OrderOptDAG_SPACE
 
       SFOrder jobOrderRef;
       IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusPrev;
-      VectorDynamic warmStart_;
       std::unordered_map<JobCEC, int> jobGroupMap_;
       LongestCAChain longestJobChains_;
       bool debug_independence_ = false;

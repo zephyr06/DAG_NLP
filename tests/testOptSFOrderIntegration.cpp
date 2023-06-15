@@ -6,9 +6,11 @@
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
 using namespace GlobalVariablesDAGOpt;
-class DAGScheduleOptimizerTest1 : public ::testing::Test {
+class DAGScheduleOptimizerTest1 : public ::testing::Test
+{
 protected:
-  void SetUp() override {
+  void SetUp() override
+  {
     dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v79.csv",
                              "orig"); // single-rate dag
     tasks = dagTasks.tasks;
@@ -36,9 +38,11 @@ protected:
   ScheduleOptions scheduleOptions;
   DAGScheduleOptimizer<SimpleOrderScheduler, RTDAExperimentObj> dagScheduleOptimizer;
 };
-class DAGScheduleOptimizerTest2 : public DAGScheduleOptimizerTest1 {
+class DAGScheduleOptimizerTest2 : public DAGScheduleOptimizerTest1
+{
 protected:
-  void SetUp() override {
+  void SetUp() override
+  {
     DAGScheduleOptimizerTest1::SetUp();
     dagScheduleOptimizer2 =
         DAGScheduleOptimizer<LPOrderScheduler, RTDAExperimentObj>(dagTasks, scheduleOptions, timeLimits);
@@ -48,12 +52,13 @@ protected:
 };
 
 // TODO: add a case that evaluates initial to be schedulable
-TEST_F(DAGScheduleOptimizerTest1, UpdateStatus) {
+TEST_F(DAGScheduleOptimizerTest1, UpdateStatus)
+{
   VectorDynamic initial = GenerateVectorDynamic(19);
   initial << 0, 199, 200, 300, 499, 511, 1, 198, 200, 399, 400, 599, 187, 201, 500, 178, 490, 107, 307;
   SFOrder jobOrder(tasksInfo, initial);
   JobGroupRange uselessRange(0, 100);
-  LLint uselessFinishP = 100;
+  // LLint uselessFinishP = 100;
 
   IterationStatus<SimpleOrderScheduler, RTDAExperimentObj> statusBestFound = dagScheduleOptimizer.statusPrev;
   SFOrder jobOrderBestFound = jobOrder;
@@ -61,7 +66,8 @@ TEST_F(DAGScheduleOptimizerTest1, UpdateStatus) {
   // EXPECT_EQ(0, dagScheduleOptimizer.UpdateStatus(jobOrder, uselessRange, uselessFinishP));
 }
 
-TEST(IntegrationTest, v1) {
+TEST(IntegrationTest, v1)
+{
   using namespace OrderOptDAG_SPACE;
   DAG_Model dagTasks =
       ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v27.csv", "orig");
@@ -77,7 +83,8 @@ TEST(IntegrationTest, v1) {
   EXPECT_THAT(sth.obj_, testing::Le(8338 * 2));
 }
 
-TEST(IntegrationTest, v2) {
+TEST(IntegrationTest, v2)
+{
   using namespace OrderOptDAG_SPACE;
   DAG_Model dagTasks =
       ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v28.csv", "orig");
@@ -112,7 +119,8 @@ TEST(IntegrationTest, v2) {
 //     SFOrderCompareStatus::Infeasible);
 // }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
