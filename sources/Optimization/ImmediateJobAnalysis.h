@@ -6,6 +6,7 @@
 
 namespace OrderOptDAG_SPACE
 {
+    std::vector<JobCEC> GetVectorFromSet(const std::unordered_set<JobCEC> &record);
 
     bool WhetherImmediateAdjacent(const TimeInstance &instCurr, const TimeInstance &instCompare,
                                   const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
@@ -16,10 +17,7 @@ namespace OrderOptDAG_SPACE
                                          const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
                                          const VectorDynamic &startTimeVector, SFOrder &jobOrder,
                                          double tolerance = 1e-2);
-    std::vector<JobCEC> GetVectorFromSet(const std::unordered_set<JobCEC> &record);
-    std::vector<JobCEC> FindForwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
-                                               const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
-                                               const VectorDynamic &startTimeVector);
+
     void FindForwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
                                 const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
                                 const VectorDynamic &startTimeVector, std::unordered_set<JobCEC> &record);
@@ -27,10 +25,15 @@ namespace OrderOptDAG_SPACE
     std::vector<JobCEC> FindForwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
                                                const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
                                                const VectorDynamic &startTimeVector);
+
     bool WhetherImmediateBackwardAdjacent(const TimeInstance &instCurr, const TimeInstance &instCompare,
                                           const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
                                           const VectorDynamic &startTimeVector, SFOrder &jobOrder,
                                           double tolerance = 1e-2);
+
+    void FindBackwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
+                                 const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                                 const VectorDynamic &startTimeVector, std::unordered_set<JobCEC> &record);
 
     // 'backward' means finding the jobs whose index is larger than job, i.e., -->
     std::vector<JobCEC> FindBackwardAdjacentJob(JobCEC job, SFOrder &jobOrder,

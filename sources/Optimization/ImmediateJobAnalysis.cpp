@@ -3,6 +3,16 @@
 
 namespace OrderOptDAG_SPACE
 {
+  std::vector<JobCEC> GetVectorFromSet(const std::unordered_set<JobCEC> &record)
+  {
+    std::vector<JobCEC> vec;
+    vec.reserve(record.size());
+    for (auto itr = record.begin(); itr != record.end(); itr++)
+    {
+      vec.push_back(*itr);
+    }
+    return vec;
+  }
 
   bool WhetherImmediateAdjacent(const TimeInstance &instCurr, const TimeInstance &instCompare,
                                 const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
@@ -142,17 +152,6 @@ namespace OrderOptDAG_SPACE
     AddImmediateForwardInstance(jobFinishIndex, instCurrJobFinish, jobOrder, tasksInfo, startTimeVector, record);
   }
 
-  std::vector<JobCEC> GetVectorFromSet(const std::unordered_set<JobCEC> &record)
-  {
-    std::vector<JobCEC> vec;
-    vec.reserve(record.size());
-    for (auto itr = record.begin(); itr != record.end(); itr++)
-    {
-      vec.push_back(*itr);
-    }
-    return vec;
-  }
-
   std::vector<JobCEC> FindForwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
                                              const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
                                              const VectorDynamic &startTimeVector)
@@ -218,58 +217,48 @@ namespace OrderOptDAG_SPACE
     return false;
   }
 
+  void AddImmediateBackwardInstance(LLint jobInstIndex, TimeInstance instCurrJob, SFOrder &jobOrder, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                                    const VectorDynamic &startTimeVector, std::unordered_set<JobCEC> &record)
+  {
+    for (uint i = jobInstIndex + 1; i < jobOrder.size(); i++)
+    {
+      TimeInstance instIte = jobOrder[i];
+      if (WhetherImmediateBackwardAdjacent(instCurrJob, instIte, tasksInfo, startTimeVector, jobOrder))
+      {
+        if (record.find(instIte.job) == record.end())
+        {
+          record.insert(instIte.job);
+          FindBackwardAdjacentJob(instIte.job, jobOrder, tasksInfo, startTimeVector, record);
+        }
+        else
+          break;
+      }
+      else
+        break;
+    }
+  }
+
+  void FindBackwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
+                               const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                               const VectorDynamic &startTimeVector, std::unordered_set<JobCEC> &record)
+  {
+    LLint jobStartIndex = jobOrder.GetJobStartInstancePosition(job);
+    TimeInstance instCurrJobStart = jobOrder[jobStartIndex];
+    AddImmediateBackwardInstance(jobStartIndex, instCurrJobStart, jobOrder, tasksInfo, startTimeVector, record);
+
+    LLint jobFinishIndex = jobOrder.GetJobFinishInstancePosition(job);
+    TimeInstance instCurrJobFinish = jobOrder[jobFinishIndex];
+    AddImmediateBackwardInstance(jobFinishIndex, instCurrJobFinish, jobOrder, tasksInfo, startTimeVector, record);
+  }
+
   // 'backward' means finding the jobs whose index is larger than job, i.e., -->
   std::vector<JobCEC> FindBackwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
                                               const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
                                               const VectorDynamic &startTimeVector)
   {
-    std::vector<JobCEC> followAdjacentJobs;
-    followAdjacentJobs.reserve(tasksInfo.length); // actually, cannot be more than #core*2
-
-    // std::cout << "\n\n" << startTimeVector << "\n\n";
-    // jobOrder.print();
-
     std::unordered_set<JobCEC> record;
-    record.reserve(tasksInfo.length);
-
-    LLint jobStartIndex = jobOrder.GetJobStartInstancePosition(job);
-    TimeInstance instCurrJobStart = jobOrder[jobStartIndex];
-    auto AddImmediateAdjacentInstance = [&](TimeInstance &instCurrJob, LLint jobInstIndex)
-    {
-      for (uint i = jobInstIndex + 1; i < jobOrder.size(); i++)
-      {
-        TimeInstance instIte = jobOrder[i];
-        if (WhetherImmediateBackwardAdjacent(instCurrJob, instIte, tasksInfo, startTimeVector, jobOrder))
-        {
-          if (record.find(instIte.job) == record.end())
-          {
-            followAdjacentJobs.push_back(instIte.job);
-            record.insert(instIte.job);
-
-            std::vector<JobCEC> backBackJobs =
-                FindBackwardAdjacentJob(instIte.job, jobOrder, tasksInfo, startTimeVector);
-            for (auto jobBackBack : backBackJobs)
-            {
-              if (record.find(jobBackBack) == record.end())
-              {
-                followAdjacentJobs.push_back(jobBackBack);
-                record.insert(jobBackBack);
-              }
-            }
-          }
-          else
-            break;
-        }
-        else
-          break;
-      }
-    };
-    AddImmediateAdjacentInstance(instCurrJobStart, jobStartIndex);
-
-    LLint jobFinishIndex = jobOrder.GetJobFinishInstancePosition(job);
-    TimeInstance instCurrJobFinish = jobOrder[jobFinishIndex];
-    AddImmediateAdjacentInstance(instCurrJobFinish, jobFinishIndex);
-    return followAdjacentJobs;
+    record.reserve(tasksInfo.length); // actually, cannot be more than #core*2
+    FindBackwardAdjacentJob(job, jobOrder, tasksInfo, startTimeVector, record);
+    return GetVectorFromSet(record);
   }
-
 } // namespace OrderOptDAG_SPACE
