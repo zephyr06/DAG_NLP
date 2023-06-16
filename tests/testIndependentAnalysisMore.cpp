@@ -79,7 +79,33 @@ TEST_F(RTDATest_n5_v84, WhetherImmediateForwardAdjacent_v1)
   // sth = FindBackwardAdjacentJob(JobCEC(4, 0), jobOrderRef, tasksInfo, startTimeVector);
   // sth = FindBackwardAdjacentJob(JobCEC(4, 1), jobOrderRef, tasksInfo, startTimeVector);
 }
-
+class RTDATest_n5_v84 : public RTDATest_n5_v84
+{
+  void SetUp() override
+  {
+    std::string taskSetName = "test_n5_v85";
+    SetUpTaskSet(taskSetName);
+    startTimeVector = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
+    jobOrder = SFOrder(tasksInfo, startTimeVector);
+    jobOrder.print();
+  }
+};
+TEST_F(RTDATest_n5_v85, WhetherImmediateForwardAdjacent_v1)
+{
+  startTimeVector = 998.001,
+  3831,
+  998,
+  3000,
+  0.001,
+  2256,
+  5002,
+  1274,
+  3831,
+  0,
+  2833,
+  5002;
+  // TODO: analyze the longest DA job chain;
+}
 int main(int argc, char **argv)
 {
   ::testing::InitGoogleTest(&argc, argv);
