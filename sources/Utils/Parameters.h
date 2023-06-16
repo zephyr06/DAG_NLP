@@ -146,7 +146,7 @@ namespace GlobalVariablesDAGOpt
                                    // const int in the future
   extern int doScheduleOptimizationOnlyOnce;
   extern int BatchTestOnlyOneMethod;
-  extern int FastOptimization;
+  extern int enableIndependentAnalysis;
   extern int EnableHardJobORder;
   extern double LPTolerance;
   extern int MakeProgressOnlyMax;

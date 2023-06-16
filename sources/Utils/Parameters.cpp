@@ -110,7 +110,7 @@ namespace GlobalVariablesDAGOpt
     int doScheduleOptimizationOnlyOnce = loaded_doc["doScheduleOptimizationOnlyOnce"].as<int>();
     int BatchTestOnlyOneMethod = loaded_doc["BatchTestOnlyOneMethod"].as<int>();
     int selectInitialFromPool = loaded_doc["selectInitialFromPool"].as<int>();
-    int FastOptimization = loaded_doc["FastOptimization"].as<int>();
+    int enableIndependentAnalysis = loaded_doc["enableIndependentAnalysis"].as<int>();
     int EnableHardJobORder = loaded_doc["EnableHardJobORder"].as<int>();
     int MakeProgressOnlyMax = loaded_doc["MakeProgressOnlyMax"].as<int>();
 

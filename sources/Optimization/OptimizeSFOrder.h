@@ -28,8 +28,6 @@ namespace OrderOptDAG_SPACE
 {
   namespace OptimizeSF
   {
-    // extern int infeasibleCount;
-
     std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks);
 
     // return the range of index that the start instnace of jobRelocate could be, inclusive on both ends;
@@ -109,7 +107,7 @@ namespace OrderOptDAG_SPACE
 #ifdef PROFILE_CODE
         BeginTimer(__FUNCTION__);
 #endif
-        while (ifContinue())
+        do
         {
           countOutermostWhileLoop++;
           if (GlobalVariablesDAGOpt::debugMode == 1)
@@ -120,12 +118,12 @@ namespace OrderOptDAG_SPACE
           std::vector<int> taskIdSet = GetTaskIdWithChainOrder(dagTasks);
           for (int i : taskIdSet)
           {
-            for (LLint j = 0; j < 0 + tasksInfo.sizeOfVariables[i] && (ifContinue()); j++)
+            for (LLint j = 0; j < tasksInfo.sizeOfVariables[i] && (ifContinue()); j++)
             {
-              JobCEC jobRelocate(i, j % tasksInfo.sizeOfVariables[i]);
+              JobCEC jobRelocate(i, j);
               debug_independence_ = false;
               whether_influence_longest_chain_ = true;
-              if (GlobalVariablesDAGOpt::FastOptimization != 0 &&
+              if (GlobalVariablesDAGOpt::enableIndependentAnalysis != 0 &&
                   activeJobs_.jobRecord.find(jobRelocate) == activeJobs_.jobRecord.end())
               {
                 whether_influence_longest_chain_ = false;
@@ -138,7 +136,7 @@ namespace OrderOptDAG_SPACE
 
           if (!findBetterJobOrderWithinIterations)
             break;
-        }
+        } while (ifContinue() && findBetterJobOrderWithinIterations);
 
         std::vector<uint> processorJobVec;
         auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef, processorJobVec);
@@ -183,7 +181,6 @@ namespace OrderOptDAG_SPACE
              startP <= jobIndexRange.maxIndex - 2 && startP <= int(tasksInfo.length) * 2 - 2 && ifContinue();
              startP++)
         {
-
           SFOrder jobOrderCurrForStart = jobOrderRef;
           jobOrderCurrForStart.RemoveJob(jobRelocate);
           if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo, jobOrderCurrForStart))
@@ -201,10 +198,10 @@ namespace OrderOptDAG_SPACE
 
             // Independence analysis
             debug_independence_ = false;
-            if (GlobalVariablesDAGOpt::FastOptimization)
+            if (GlobalVariablesDAGOpt::enableIndependentAnalysis)
             {
 #ifdef PROFILE_CODE
-              BeginTimer("FastOptimizationExam");
+              BeginTimer("enableIndependentAnalysisExam");
 #endif
               if (!WhetherJobBreakChain(jobRelocate, startP, finishP, longestJobChains_, dagTasks, jobOrderRef,
                                         tasksInfo))
@@ -227,14 +224,14 @@ namespace OrderOptDAG_SPACE
                 if (!whether_influence_longest_chain_)
                 {
 #ifdef PROFILE_CODE
-                  EndTimer("FastOptimizationExam");
+                  EndTimer("enableIndependentAnalysisExam");
 #endif
                   debug_independence_ = true;
                   // continue;
                 }
               }
 #ifdef PROFILE_CODE
-              EndTimer("FastOptimizationExam");
+              EndTimer("enableIndependentAnalysisExam");
 #endif
             }
 
@@ -264,7 +261,7 @@ namespace OrderOptDAG_SPACE
             auto stvNew = LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRefNew,
                                                      processorJobVec1);
             if (stvNew != statusBestFound.startTimeVector_ &&
-                (stvNew - statusBestFound.startTimeVector_).norm() > 1e0)
+                (stvNew - statusBestFound.startTimeVector_).norm() > 1e0) // print some info
             {
               std::cout << "Start time vector of jobOrderBestFound:\n"
                         << statusBestFound.startTimeVector_ << "\n\n\n";
@@ -351,7 +348,7 @@ namespace OrderOptDAG_SPACE
               std::cout << "\n\n";
               PrintSchedule(tasksInfo, startTimeVector);
               jobOrderCurrForFinish.print();
-              CoutWarning("Find a case where FastOptimization fails!");
+              CoutWarning("Find a case where enableIndependentAnalysis fails!");
               // double objCurr1 =
               //     ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
               // double objPrev1 = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, statusPrev.startTimeVector_,
