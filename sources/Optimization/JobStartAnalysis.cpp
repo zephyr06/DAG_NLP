@@ -108,6 +108,27 @@ namespace OrderOptDAG_SPACE
     return false;
   }
 
+  void AddImmediateForwardInstance(LLint jobInstIndex, TimeInstance instCurrJob, SFOrder &jobOrder, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
+                                   const VectorDynamic &startTimeVector, std::unordered_set<JobCEC> &record)
+  {
+    for (int i = jobInstIndex - 1; i >= 0; i--)
+    {
+      TimeInstance instIte = jobOrder[i];
+      if (WhetherImmediateForwardAdjacent(instCurrJob, instIte, tasksInfo, startTimeVector, jobOrder))
+      {
+        if (record.find(instIte.job) == record.end())
+        {
+          record.insert(instIte.job);
+          FindForwardAdjacentJob(instIte.job, jobOrder, tasksInfo, startTimeVector, record);
+        }
+        else
+          break;
+      }
+      else
+        break;
+    }
+  }
+
   // previous adjacent job means the jobs whose finish time equals the start time of jobCurr
   // in-place update to record
   // TODO: update FindBackwardAdjacentJob
@@ -117,32 +138,11 @@ namespace OrderOptDAG_SPACE
   {
     LLint jobStartIndex = jobOrder.GetJobStartInstancePosition(job);
     TimeInstance instCurrJobStart = jobOrder[jobStartIndex];
+    AddImmediateForwardInstance(jobStartIndex, instCurrJobStart, jobOrder, tasksInfo, startTimeVector, record);
 
-    // TODO: make the following an individual function
-    auto AddImmediateAdjacentInstance = [&](TimeInstance &instCurrJob, LLint jobInstIndex)
-    {
-      for (int i = jobInstIndex - 1; i >= 0; i--)
-      {
-        TimeInstance instIte = jobOrder[i];
-        if (WhetherImmediateForwardAdjacent(instCurrJob, instIte, tasksInfo, startTimeVector, jobOrder))
-        {
-          if (record.find(instIte.job) == record.end())
-          {
-            record.insert(instIte.job);
-            FindForwardAdjacentJob(instIte.job, jobOrder, tasksInfo, startTimeVector, record);
-          }
-          else
-            break;
-        }
-        else
-          break;
-      }
-    };
-
-    AddImmediateAdjacentInstance(instCurrJobStart, jobStartIndex);
     LLint jobFinishIndex = jobOrder.GetJobFinishInstancePosition(job);
     TimeInstance instCurrJobFinish = jobOrder[jobFinishIndex];
-    AddImmediateAdjacentInstance(instCurrJobFinish, jobFinishIndex);
+    AddImmediateForwardInstance(jobFinishIndex, instCurrJobFinish, jobOrder, tasksInfo, startTimeVector, record);
   }
 
   std::vector<JobCEC> GetVectorFromSet(const std::unordered_set<JobCEC> &record)
@@ -155,6 +155,7 @@ namespace OrderOptDAG_SPACE
     }
     return vec;
   }
+
   std::vector<JobCEC> FindForwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
                                              const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
                                              const VectorDynamic &startTimeVector)
