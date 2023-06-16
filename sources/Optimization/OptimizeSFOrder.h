@@ -3,7 +3,7 @@
 #include <iterator>  // for back_inserter
 
 #include "sources/Optimization/InitialEstimate.h"
-#include "sources/Optimization/JobStartAnalysis.h"
+#include "sources/Optimization/IndependentAnalysis.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/MatirxConvenient.h"
 #include "sources/Utils/Parameters.h"
@@ -18,7 +18,7 @@
 #include "sources/Optimization/ProcessorAssignment.h"
 #include "sources/Optimization/SFOrder.h"
 
-#include "sources/Optimization/JobStartAnalysis.h"
+#include "sources/Optimization/IndependentAnalysis.h"
 // #include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Optimization/SkipUnschedulablePermutations.h"
 #include "sources/Utils/OptimizeOrderUtils.h"
