@@ -68,9 +68,12 @@ TEST_F(RTDATest_n5_v84, WhetherImmediateForwardAdjacent_v1)
   std::vector<JobCEC> forwardJobs = FindForwardAdjacentJob(JobCEC(0, 1), jobOrderRef, tasksInfo, startTimeVector);
   EXPECT_EQ(3, forwardJobs.size());
   // Note: the order in the following test doesn't matter
-  EXPECT_EQ(JobCEC(0, 1), forwardJobs[0]);
-  EXPECT_EQ(JobCEC(1, 1), forwardJobs[1]);
-  EXPECT_EQ(JobCEC(3, 1), forwardJobs[2]);
+  // EXPECT_EQ(JobCEC(0, 1), forwardJobs[0]);
+  // EXPECT_EQ(JobCEC(1, 1), forwardJobs[1]);
+  // EXPECT_EQ(JobCEC(3, 1), forwardJobs[2]);
+  EXPECT_TRUE(ifExist(JobCEC(0, 1), forwardJobs));
+  EXPECT_TRUE(ifExist(JobCEC(1, 1), forwardJobs));
+  EXPECT_TRUE(ifExist(JobCEC(3, 1), forwardJobs));
   // auto activeJobs_ = FindActiveJobs(centralJob, jobOrderRef, tasksInfo, startTimeVector);
   // auto sth = FindForwardAdjacentJob(JobCEC(0, 0), jobOrderRef, tasksInfo, startTimeVector);
   // sth = FindBackwardAdjacentJob(JobCEC(4, 0), jobOrderRef, tasksInfo, startTimeVector);

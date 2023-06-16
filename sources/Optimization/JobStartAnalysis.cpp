@@ -110,6 +110,7 @@ namespace OrderOptDAG_SPACE
 
   // previous adjacent job means the jobs whose finish time equals the start time of jobCurr
   // in-place update to record
+  // TODO: update FindBackwardAdjacentJob
   void FindForwardAdjacentJob(JobCEC job, SFOrder &jobOrder,
                               const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
                               const VectorDynamic &startTimeVector, std::unordered_set<JobCEC> &record)
