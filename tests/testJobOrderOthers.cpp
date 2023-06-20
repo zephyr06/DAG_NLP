@@ -15,9 +15,11 @@ using namespace OrderOptDAG_SPACE::OptimizeSF;
 using namespace GlobalVariablesDAGOpt;
 // using namespace LPOptimizer;
 
-class RTDATest1 : public ::testing::Test {
+class RTDATest1 : public ::testing::Test
+{
 protected:
-  void SetUp() override {
+  void SetUp() override
+  {
     std::string taskSetName = "test_n3_v18";
     SetUpTaskSet(taskSetName);
     startTimeVector = GenerateVectorDynamic(4);
@@ -27,7 +29,8 @@ protected:
     jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
   }
 
-  void SetUpTaskSet(std::string taskSet) {
+  void SetUpTaskSet(std::string taskSet)
+  {
     dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/" + taskSet + ".csv", "orig");
     tasks = dagTasks.tasks;
     tasksInfo = TaskSetInfoDerived(tasks);
@@ -56,8 +59,10 @@ protected:
   JobCEC job2 = JobCEC(0, 2);
   JobCEC job3 = JobCEC(0, 3);
 };
-class RTDATest9 : public RTDATest1 {
-  void SetUp() override {
+class RTDATest9 : public RTDATest1
+{
+  void SetUp() override
+  {
     std::string taskSetName = "test_n3_v18";
     SetUpTaskSet(taskSetName);
     startTimeVector = GenerateVectorDynamic(4);
@@ -67,11 +72,18 @@ class RTDATest9 : public RTDATest1 {
     jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
   }
 };
-TEST_F(RTDATest9, order_new_constructor) {
+TEST_F(RTDATest9, order_new_constructor)
+{
   EXPECT_THAT(jobOrder.GetJobStartInstancePosition((JobCEC(0, 0))),
               testing::Le(jobOrder.GetJobStartInstancePosition((JobCEC(1, 0)))));
 }
-int main(int argc, char **argv) {
+TEST_F(RTDATest1, GetJobWithinHyperPeriod)
+{
+  JobCEC job(0, -5);
+  EXPECT_EQ(1, job.GetJobWithinHyperPeriod(tasksInfo).jobId);
+}
+int main(int argc, char **argv)
+{
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
