@@ -42,6 +42,9 @@ TEST_F(ObjExperimentObjTest1, RTDAEvaluate1)
     initialEstimate << 1, 2, 3, 4, 5; // the chain starts at 0 and ends at 3+12+200+200=415
 
     EXPECT_EQ(RTDAExperimentObj::Evaluate(dagTasks, tasksInfo, initialEstimate, scheduleOptions), (414 + 414) * 2 * 0.5 + 414 + 414); // There are two job-level chains even though hyper-period equals 200
+
+    EXPECT_EQ(ReactionTimeObj::Evaluate(dagTasks, tasksInfo, initialEstimate, scheduleOptions), (414 + 414) * 0.5 + 414);
+    EXPECT_EQ(DataAgeObj::Evaluate(dagTasks, tasksInfo, initialEstimate, scheduleOptions), (414 + 414) * 0.5 + 414);
 }
 TEST_F(ObjExperimentObjTest1, SFEvaluate1)
 {
@@ -52,7 +55,7 @@ TEST_F(ObjExperimentObjTest1, SFEvaluate1)
     EXPECT_EQ(RTSS21ICObj::Evaluate(dagTasks, tasksInfo, initialEstimate, scheduleOptions), 42 + 9108);
 }
 
-TEST(aaa, nonWorkConserveCase)
+TEST(test_n3_v18, nonWorkConserveCase)
 {
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
@@ -72,13 +75,13 @@ TEST(aaa, nonWorkConserveCase)
     VectorDynamic expect = GenerateVectorDynamic(4);
     expect << 0, 10, 11, 1;
     EXPECT_TRUE(assert_equal(expect, initialSTV));
-    EXPECT_EQ(RTDAExperimentObj::Evaluate(dagTasks, tasksInfo, initialSTV, scheduleOptions), (4 + 14) + (4 + 4 + 14 - 1 + 4 + 4) * 0.5);
+    EXPECT_EQ(RTDAExperimentObj::Evaluate(dagTasks, tasksInfo, initialSTV, scheduleOptions), (4 + 14) + (4 + 4 + 14 + 4 + 4) * 0.5);
 
     initial << 2, 10, 0, 0;
     PrintSchedule(tasksInfo, initial);
     SFOrder sfOrder2(tasksInfo, initial);
     sfOrder2.print();
-    EXPECT_EQ(RTDAExperimentObj::Evaluate(dagTasks, tasksInfo, initial, scheduleOptions), (21 + 13) + (21 + -1 + 13 + 13 + 21 + -1) * 0.5);
+    EXPECT_EQ(RTDAExperimentObj::Evaluate(dagTasks, tasksInfo, initial, scheduleOptions), (21 + 13) + (21 + 13 + 13 + 21) * 0.5);
 }
 TEST(Obj, RTDA_v1)
 {
@@ -98,8 +101,8 @@ TEST(Obj, RTDA_v1)
     scheduleOptions.weightPunish_ = 10;
     scheduleOptions.freshTol_ = 0;
 
-    EXPECT_EQ(RTDAExperimentObj::Evaluate(dagTasks, tasksInfo, initial, scheduleOptions), 32.5);
-    EXPECT_EQ(RTSS21ICObj::Evaluate(dagTasks, tasksInfo, initial, scheduleOptions), 180 + 29 * 0.5);
+    EXPECT_EQ(RTDAExperimentObj::Evaluate(dagTasks, tasksInfo, initial, scheduleOptions), 33);
+    EXPECT_EQ(RTSS21ICObj::Evaluate(dagTasks, tasksInfo, initial, scheduleOptions), 180 + 30 * 0.5);
 
     // EXPECT_LONGS_EQUAL(18, status.ReadObj());
     // EXPECT_DOUBLES_EQUAL(32.5, status.ObjWeighted(), 0.1);
@@ -109,13 +112,49 @@ TEST(Obj, RTDA_v1)
     // EXPECT_LONGS_EQUAL(18, status2.ObjBarrier());
     // EXPECT_DOUBLES_EQUAL(32.5, status2.ObjWeighted(), 0.1);
     scheduleOptions.freshTol_ = 100;
-    EXPECT_EQ(RTDAExperimentObj::Evaluate(dagTasks, tasksInfo, initial, scheduleOptions), 32.5);
+    EXPECT_EQ(RTDAExperimentObj::Evaluate(dagTasks, tasksInfo, initial, scheduleOptions), 33);
 }
 
 TEST(ObjectiveFunctionBase, type)
 {
     EXPECT_EQ("RTDAExperimentObj", RTDAExperimentObj::type_trait);
     EXPECT_EQ("RTSS21ICObj", RTSS21ICObj::type_trait);
+}
+
+class ObjExperimentObjTest_n5_v2 : public ::testing::Test
+{
+protected:
+    void SetUp() override
+    {
+        dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v2.csv", "orig"); // single-rate dag
+        tasks = dagTasks.tasks;
+        tasksInfo = TaskSetInfoDerived(tasks);
+        chain1 = {0, 1, 2};
+        dagTasks.chains_[0] = chain1;
+
+        scheduleOptions.considerSensorFusion_ = 1;
+        scheduleOptions.freshTol_ = 0;
+        scheduleOptions.sensorFusionTolerance_ = 0;
+        scheduleOptions.weightInMpRTDA_ = 0.5;
+        scheduleOptions.weightInMpSf_ = 0.5;
+        scheduleOptions.weightPunish_ = 10;
+    }
+    DAG_Model dagTasks;
+    TaskSet tasks;
+    TaskSetInfoDerived tasksInfo;
+    std::vector<int> chain1;
+    ScheduleOptions scheduleOptions;
+};
+TEST_F(ObjExperimentObjTest_n5_v2, RTDAEvaluate1)
+{
+    VectorDynamic initialEstimate = GenerateVectorDynamic(6);
+    initialEstimate << 1, 100, 2, 3, 4, 5; // the chain starts at 0 and ends at 3+12+200+200=415
+    // Within a hyper-period, RT is 414, 315, DA is 315
+
+    EXPECT_EQ(ReactionTimeObj::Evaluate(dagTasks, tasksInfo, initialEstimate, scheduleOptions), (414 + 315 + 414) * 0.5 + 414);
+    EXPECT_EQ(ReactionTimeObj::TrueObj(dagTasks, tasksInfo, initialEstimate, scheduleOptions), 414);
+    EXPECT_EQ(DataAgeObj::Evaluate(dagTasks, tasksInfo, initialEstimate, scheduleOptions), (315) * 0.5 + 315);
+    EXPECT_EQ(DataAgeObj::TrueObj(dagTasks, tasksInfo, initialEstimate, scheduleOptions), 315);
 }
 int main(int argc, char **argv)
 {

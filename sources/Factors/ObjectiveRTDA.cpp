@@ -1,4 +1,4 @@
-#include "sources/Factors/ObjectiveFunctions.h"
+#include "sources/Factors/ObjectiveRTDA.h"
 
 namespace OrderOptDAG_SPACE
 {
@@ -6,7 +6,8 @@ namespace OrderOptDAG_SPACE
     {
         const std::string ObjectiveFunctionBase::type_trait("ObjectiveFunctionBase");
         const std::string RTDAExperimentObj::type_trait("RTDAExperimentObj");
-        const std::string RTSS21ICObj::type_trait("RTSS21ICObj");
+        const std::string ReactionTimeObj::type_trait("ReactionTimeObj");
+        const std::string DataAgeObj::type_trait("DataAgeObj");
 
         std::vector<std::vector<RTDA>> GetRTDAFromAllChains(
             const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
@@ -37,6 +38,22 @@ namespace OrderOptDAG_SPACE
             for (uint i = 0; i < rtdaVec.size(); i++)
                 overallRTDA += ObjRTDA(rtdaVec[i]);
             return overallRTDA;
+        }
+        double GetOverallRt(const std::vector<std::vector<RTDA>> &rtdaVec)
+        {
+            double overall = 0;
+            for (uint i = 0; i < rtdaVec.size(); i++)
+                overall += ObjRT(rtdaVec[i]);
+            return overall;
+        }
+        double GetOverallDa(const std::vector<std::vector<RTDA>> &rtdaVec)
+        {
+            double overall = 0;
+            for (uint i = 0; i < rtdaVec.size(); i++)
+            {
+                overall += ObjDA(rtdaVec[i]);
+            }
+            return overall;
         }
 
         double RTDAExperimentObj::TrueObj(const DAG_Model &dagTasks,
@@ -69,7 +86,20 @@ namespace OrderOptDAG_SPACE
             return res;
         }
 
-        double RTSS21ICObj::EvaluateRTDA(const DAG_Model &dagTasks,
+        double ReactionTimeObj::TrueObj(const DAG_Model &dagTasks,
+                                        const TaskSetInfoDerived &tasksInfo,
+                                        const VectorDynamic &startTimeVector,
+                                        const ScheduleOptions scheduleOptions)
+        {
+            std::vector<std::vector<RTDA>> rtdaVec =
+                GetRTDAFromAllChains(dagTasks, tasksInfo, startTimeVector);
+            std::vector<RTDA> maxRtda = GetMaxRTDAs(rtdaVec);
+
+            double res = ObjRT(maxRtda);
+            return res;
+        }
+
+        double ReactionTimeObj::Evaluate(const DAG_Model &dagTasks,
                                          const TaskSetInfoDerived &tasksInfo,
                                          const VectorDynamic &startTimeVector,
                                          const ScheduleOptions scheduleOptions)
@@ -77,53 +107,36 @@ namespace OrderOptDAG_SPACE
             std::vector<std::vector<RTDA>> rtdaVec =
                 GetRTDAFromAllChains(dagTasks, tasksInfo, startTimeVector);
             std::vector<RTDA> maxRtda = GetMaxRTDAs(rtdaVec);
-            double overallRTDA = GetOverallRtda(rtdaVec);
-
-            double resFromRTDA = overallRTDA * scheduleOptions.weightInMpRTDA_;
-            for (uint i = 0; i < dagTasks.chains_.size(); i++)
-            {
-                resFromRTDA +=
-                    Barrier(scheduleOptions.freshTol_ - maxRtda[i].reactionTime) *
-                        scheduleOptions.weightPunish_ +
-                    Barrier(scheduleOptions.freshTol_ - maxRtda[i].dataAge) *
-                        scheduleOptions.weightPunish_;
-            }
-            return resFromRTDA;
+            double overallRt = GetOverallRt(rtdaVec);
+            double res =
+                overallRt * scheduleOptions.weightInMpRTDA_ + ObjRT(maxRtda);
+            return res;
         }
-
-        double RTSS21ICObj::EvaluateSF(const DAG_Model &dagTasks,
-                                       const TaskSetInfoDerived &tasksInfo,
-                                       const VectorDynamic &startTimeVector,
-                                       const ScheduleOptions scheduleOptions)
+        double DataAgeObj::TrueObj(const DAG_Model &dagTasks,
+                                   const TaskSetInfoDerived &tasksInfo,
+                                   const VectorDynamic &startTimeVector,
+                                   const ScheduleOptions scheduleOptions)
         {
-            VectorDynamic sfVec =
-                ObtainSensorFusionError(dagTasks, tasksInfo, startTimeVector);
+            std::vector<std::vector<RTDA>> rtdaVec =
+                GetRTDAFromAllChains(dagTasks, tasksInfo, startTimeVector);
+            std::vector<RTDA> maxRtda = GetMaxRTDAs(rtdaVec);
 
-            double sfOverall = sfVec.sum();
-            double resSF = sfOverall * scheduleOptions.weightInMpSf_;
-            if (sfVec.rows() > 0)
-                resSF +=
-                    Barrier(scheduleOptions.sensorFusionTolerance_ - sfVec.maxCoeff()) *
-                    scheduleOptions.weightPunish_;
-            return resSF;
+            double res = ObjDA(maxRtda);
+            return res;
         }
 
-        double RTSS21ICObj::Evaluate(const DAG_Model &dagTasks,
-                                     const TaskSetInfoDerived &tasksInfo,
-                                     const VectorDynamic &startTimeVector,
-                                     const ScheduleOptions scheduleOptions)
-        {
-            return EvaluateRTDA(dagTasks, tasksInfo, startTimeVector, scheduleOptions) +
-                   EvaluateSF(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
-        }
-
-        double RTSS21ICObj::TrueObj(const DAG_Model &dagTasks,
+        double DataAgeObj::Evaluate(const DAG_Model &dagTasks,
                                     const TaskSetInfoDerived &tasksInfo,
                                     const VectorDynamic &startTimeVector,
                                     const ScheduleOptions scheduleOptions)
         {
-            return EvaluateRTDA(dagTasks, tasksInfo, startTimeVector, scheduleOptions) +
-                   EvaluateSF(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
+            std::vector<std::vector<RTDA>> rtdaVec =
+                GetRTDAFromAllChains(dagTasks, tasksInfo, startTimeVector);
+            std::vector<RTDA> maxRtda = GetMaxRTDAs(rtdaVec);
+            double overallDa = GetOverallDa(rtdaVec);
+            double res =
+                overallDa * scheduleOptions.weightInMpRTDA_ + ObjDA(maxRtda);
+            return res;
         }
 
     } // namespace OptimizeSF
