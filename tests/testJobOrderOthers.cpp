@@ -82,6 +82,20 @@ TEST_F(RTDATest1, GetJobWithinHyperPeriod)
   JobCEC job(0, -5);
   EXPECT_EQ(1, job.GetJobWithinHyperPeriod(tasksInfo).jobId);
 }
+
+TEST_F(RTDATest1, MapJobIndexToHpInfo)
+{
+  JobCEC job(0, -5);
+  JobIndexHelper info = MapJobIndexToHpInfo(job, tasksInfo);
+  EXPECT_EQ(1, info.job_within_hp.jobId);
+  EXPECT_EQ(-24, info.index_offset);
+
+  JobCEC job2(0, 5);
+  info = MapJobIndexToHpInfo(job2, tasksInfo);
+  EXPECT_EQ(1, info.job_within_hp.jobId);
+  EXPECT_EQ(16, info.index_offset);
+}
+
 int main(int argc, char **argv)
 {
   ::testing::InitGoogleTest(&argc, argv);
