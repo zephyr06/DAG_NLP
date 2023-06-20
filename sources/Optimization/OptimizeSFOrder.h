@@ -150,23 +150,6 @@ namespace OrderOptDAG_SPACE
         return scheduleRes;
       }
 
-      inline SFOrder GetJobOrder() const { return jobOrderRef; }
-
-      bool ifTimeout() const
-      {
-        auto curr_time = std::chrono::system_clock::now();
-        if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= timeLimits)
-        {
-          std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << timeLimits << " seconds.\n\n";
-          return true;
-        }
-        return false;
-      }
-
-      inline bool ifOptimal() const { return statusPrev.objWeighted_ == 0; }
-
-      inline bool ifContinue() const { return (!ifTimeout()) && (!ifOptimal()); }
-
       bool ImproveJobOrderPerJob(const JobCEC &jobRelocate)
       {
 #ifdef PROFILE_CODE
@@ -410,6 +393,22 @@ namespace OrderOptDAG_SPACE
         UpdateIA_Status();
       }
 
+      inline SFOrder GetJobOrder() const { return jobOrderRef; }
+
+      bool ifTimeout() const
+      {
+        auto curr_time = std::chrono::system_clock::now();
+        if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= timeLimits)
+        {
+          std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << timeLimits << " seconds.\n\n";
+          return true;
+        }
+        return false;
+      }
+
+      inline bool ifOptimal() const { return statusPrev.objWeighted_ == 0; }
+
+      inline bool ifContinue() const { return (!ifTimeout()) && (!ifOptimal()); }
       // data members
       std::chrono::high_resolution_clock::time_point start_time;
       double timeLimits;
