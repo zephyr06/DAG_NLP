@@ -13,7 +13,7 @@
 #include "sources/Factors/RTDA_Factor.h"
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Optimization/IterationStatus.h"
-#include "sources/Optimization/ObjectiveFunctions.h"
+#include "sources/Factors/ObjectiveFunctions.h"
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/Optimization/ProcessorAssignment.h"
 #include "sources/Optimization/SFOrder.h"

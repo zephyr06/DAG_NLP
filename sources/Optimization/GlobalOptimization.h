@@ -1,6 +1,6 @@
 #pragma once
 #include "sources/Optimization/IterationStatus.h"
-#include "sources/Optimization/ObjectiveFunctions.h"
+#include "sources/Factors/ObjectiveFunctions.h"
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/Optimization/ScheduleOptions.h"
 #include "sources/TaskModel/DAG_Model.h"

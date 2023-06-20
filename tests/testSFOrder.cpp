@@ -4,7 +4,7 @@
 #include "sources/Optimization/SFOrder.h"
 #include "sources/Optimization/OptimizeSFOrder.h"
 #include "sources/Optimization/ScheduleSimulation.h"
-#include "sources/Optimization/ObjectiveFunctions.h"
+#include "sources/Factors/ObjectiveFunctions.h"
 
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;

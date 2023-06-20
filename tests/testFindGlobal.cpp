@@ -10,7 +10,7 @@
 // #include "sources/Factors/JacobianAnalyze.h"
 #include "sources/Optimization/GlobalOptimization.h"
 // #include "sources/Optimization/LinearProgrammingSolver.h"
-#include "sources/Optimization/ObjectiveFunctions.h"
+#include "sources/Factors/ObjectiveFunctions.h"
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/TaskModel/DAG_Model.h"
 // #include "sources/Utils/IncrementQR.h"

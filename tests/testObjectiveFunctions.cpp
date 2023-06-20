@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "sources/TaskModel/DAG_Model.h"
-#include "sources/Optimization/ObjectiveFunctions.h"
+#include "sources/Factors/ObjectiveFunctions.h"
 #include "sources/Optimization/IterationStatus.h"
 #include "sources/Optimization/OrderScheduler.h"
 using namespace OrderOptDAG_SPACE;
