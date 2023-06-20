@@ -109,7 +109,6 @@ namespace OrderOptDAG_SPACE
                                                                       const VectorDynamic &startTimeVector,
                                                                       int processorNum)
   {
-    // BeginTimer("FindLongestCAChain");
     std::vector<std::vector<JobCEC>> longestChains;
     longestChains.reserve(dagTasks.chains_.size() * 3); // 3x is usually not necessary, though
 
@@ -130,7 +129,6 @@ namespace OrderOptDAG_SPACE
         // }
       }
     }
-    // EndTimer("FindLongestCAChain");
     return longestChains;
   }
 

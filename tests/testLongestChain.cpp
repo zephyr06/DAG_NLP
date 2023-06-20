@@ -79,6 +79,42 @@ TEST_F(RTDATest1, GetReactionTime)
   EXPECT_EQ(-1, GetDataAge(chain3, prevChain3, startTimeVector, tasksInfo));
 }
 
+class ObjExperimentObjTest_n5_v2 : public ::testing::Test
+{
+protected:
+  void SetUp() override
+  {
+    dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v2.csv", "orig"); // single-rate dag
+    tasks = dagTasks.tasks;
+    tasksInfo = TaskSetInfoDerived(tasks);
+    chain1 = {0, 1, 2};
+    dagTasks.chains_[0] = chain1;
+
+    scheduleOptions.considerSensorFusion_ = 1;
+    scheduleOptions.freshTol_ = 0;
+    scheduleOptions.sensorFusionTolerance_ = 0;
+    scheduleOptions.weightInMpRTDA_ = 0.5;
+    scheduleOptions.weightInMpSf_ = 0.5;
+    scheduleOptions.weightPunish_ = 10;
+  }
+  DAG_Model dagTasks;
+  TaskSet tasks;
+  TaskSetInfoDerived tasksInfo;
+  std::vector<int> chain1;
+  ScheduleOptions scheduleOptions;
+};
+TEST_F(ObjExperimentObjTest_n5_v2, GetDataAgeChainMap)
+{
+  VectorDynamic initialEstimate = GenerateVectorDynamic(6);
+  initialEstimate << 1, 100, 2, 3, 4, 5;
+  SFOrder jobOrder(tasksInfo, initialEstimate);
+  jobOrder.print();
+  auto react_chain_map = GetDataAgeChainMap(dagTasks, tasksInfo, jobOrder, scheduleOptions.processorNum_,
+                                            dagTasks.chains_[0], 0);
+  auto chain_actual = react_chain_map.at(JobCEC(2, 0));
+  std::vector<JobCEC> chain_expected = {JobCEC(0, -3), JobCEC(1, -1), JobCEC(2, 0)};
+  AssertEqualVectorExact<JobCEC>(chain_expected, chain_actual, 0, __LINE__);
+}
 // TODO: FIX THIS TEST
 // TEST_F(RTDATest1, longest_chain) {
 

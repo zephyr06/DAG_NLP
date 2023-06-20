@@ -43,5 +43,8 @@ namespace OrderOptDAG_SPACE
   std::unordered_map<JobCEC, std::vector<JobCEC>>
   GetReactionChainMap(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
                       int processorNum, const std::vector<int> &causeEffectChain, int chainIndex);
+  std::unordered_map<JobCEC, std::vector<JobCEC>>
+  GetDataAgeChainMap(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
+                     int processorNum, const std::vector<int> &causeEffectChain, int chainIndex);
 
 } // namespace OrderOptDAG_SPACE

@@ -174,6 +174,7 @@ namespace OrderOptDAG_SPACE
     {
       JobCEC firstJob = {causeEffectChain[0], (startInstanceIndex)};
       std::vector<JobCEC> react_chain;
+      react_chain.reserve(causeEffectChain.size());
       react_chain.push_back(firstJob);
       for (uint j = 1; j < causeEffectChain.size(); j++)
       {
@@ -198,5 +199,44 @@ namespace OrderOptDAG_SPACE
       firstReactionChainMap[startJobCurr] = react_chain;
     }
     return firstReactionChainMap;
+  }
+
+  std::unordered_map<JobCEC, std::vector<JobCEC>>
+  GetDataAgeChainMap(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
+                     int processorNum, const std::vector<int> &causeEffectChain, int chainIndex)
+  {
+    std::unordered_map<JobCEC, std::vector<JobCEC>> lastReadingChainMap;
+    LLint totalStartJobs = tasksInfo.hyperPeriod / tasksInfo.tasks[causeEffectChain.back()].period;
+
+    for (LLint startInstanceIndex = 0; startInstanceIndex < totalStartJobs; startInstanceIndex++)
+    {
+      JobCEC lastJob = {causeEffectChain.back(), startInstanceIndex};
+      std::vector<JobCEC> job_chain;
+      job_chain.reserve(causeEffectChain.size());
+      job_chain.push_back(lastJob);
+      for (int j = causeEffectChain.size() - 2; j >= 0; j--)
+      {
+        LLint instIndexFirstJob = jobOrder.GetJobStartInstancePosition(lastJob);
+        LLint jobIndex = 100; // TODO: provide a better estimation
+        while (true)
+        {
+          JobCEC jobCurr{causeEffectChain[j], jobIndex};
+          if (jobOrder.GetJobFinishInstancePosition(jobCurr) < instIndexFirstJob)
+            break;
+          jobIndex--;
+          if (jobIndex < -10000)
+          {
+            CoutError("didn't find a match in GetDataAgeChainMap!");
+          }
+        }
+        lastJob = {causeEffectChain[j], jobIndex};
+        job_chain.push_back(lastJob);
+      }
+
+      std::reverse(job_chain.begin(), job_chain.end());
+      JobCEC startJobCurr(causeEffectChain.back(), startInstanceIndex);
+      lastReadingChainMap[startJobCurr] = job_chain;
+    }
+    return lastReadingChainMap;
   }
 } // namespace OrderOptDAG_SPACE
