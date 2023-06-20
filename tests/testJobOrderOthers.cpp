@@ -89,11 +89,29 @@ TEST_F(RTDATest1, MapJobIndexToHpInfo)
   JobIndexHelper info = MapJobIndexToHpInfo(job, tasksInfo);
   EXPECT_EQ(1, info.job_within_hp.jobId);
   EXPECT_EQ(-24, info.index_offset);
+  job.jobId = -4;
+  info = MapJobIndexToHpInfo(job, tasksInfo);
+  EXPECT_EQ(0, info.job_within_hp.jobId);
+  EXPECT_EQ(-16, info.index_offset);
 
   JobCEC job2(0, 5);
   info = MapJobIndexToHpInfo(job2, tasksInfo);
   EXPECT_EQ(1, info.job_within_hp.jobId);
   EXPECT_EQ(16, info.index_offset);
+  job.jobId = 4;
+  info = MapJobIndexToHpInfo(job, tasksInfo);
+  EXPECT_EQ(0, info.job_within_hp.jobId);
+  EXPECT_EQ(16, info.index_offset);
+
+  JobCEC job3(1, -1);
+  info = MapJobIndexToHpInfo(job3, tasksInfo);
+  EXPECT_EQ(0, info.job_within_hp.jobId);
+  EXPECT_EQ(-8, info.index_offset);
+
+  JobCEC job4(1, 1);
+  info = MapJobIndexToHpInfo(job4, tasksInfo);
+  EXPECT_EQ(0, info.job_within_hp.jobId);
+  EXPECT_EQ(8, info.index_offset);
 }
 
 int main(int argc, char **argv)

@@ -30,8 +30,16 @@ namespace OrderOptDAG_SPACE
     }
     else // (job.jobId < 0)
     {
-      JobCEC jobWithinSingleHP{job.taskId, job.jobId % job_num_within_hp + job_num_within_hp};
-      return JobIndexHelper(jobWithinSingleHP, (job.jobId / job_num_within_hp - 1) * tasksInfo.length * 2);
+      if (job.jobId % job_num_within_hp == 0)
+      {
+        JobCEC jobWithinSingleHP{job.taskId, job.jobId % job_num_within_hp};
+        return JobIndexHelper(jobWithinSingleHP, (job.jobId / job_num_within_hp) * tasksInfo.length * 2);
+      }
+      else
+      {
+        JobCEC jobWithinSingleHP{job.taskId, job.jobId % job_num_within_hp + job_num_within_hp};
+        return JobIndexHelper(jobWithinSingleHP, (job.jobId / job_num_within_hp - 1) * tasksInfo.length * 2);
+      }
     }
   }
 

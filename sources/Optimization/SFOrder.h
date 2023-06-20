@@ -132,26 +132,30 @@ namespace OrderOptDAG_SPACE
     LLint GetJobStartInstancePosition(const JobCEC &job)
     {
       EstablishJobSFMap();
-      if (job.jobId >= tasksInfo_.sizeOfVariables[job.taskId])
-      {
-        JobCEC jobWithinSingleHP{job.taskId, job.jobId % tasksInfo_.sizeOfVariables[job.taskId]};
-        return jobSFMap_.at(jobWithinSingleHP).startInstanceIndex +
-               job.jobId / tasksInfo_.sizeOfVariables[job.taskId] * tasksInfo_.length * 2;
-      }
+      JobIndexHelper job_info = MapJobIndexToHpInfo(job, tasksInfo_);
+      if (jobSFMap_.count(job_info.job_within_hp) > 0)
+        return jobSFMap_.at(job_info.job_within_hp).startInstanceIndex + job_info.index_offset;
       else
-        return jobSFMap_.at(job).startInstanceIndex;
+        CoutError("Job not found in GetJobStartInstancePosition!");
+      return -1;
     }
     LLint GetJobFinishInstancePosition(const JobCEC &job)
     {
       EstablishJobSFMap();
-      if (job.jobId >= tasksInfo_.sizeOfVariables[job.taskId])
-      {
-        JobCEC jobWithinSingleHP{job.taskId, job.jobId % tasksInfo_.sizeOfVariables[job.taskId]};
-        return jobSFMap_.at(jobWithinSingleHP).finishInstanceIndex +
-               job.jobId / tasksInfo_.sizeOfVariables[job.taskId] * tasksInfo_.length * 2;
-      }
+      JobIndexHelper job_info = MapJobIndexToHpInfo(job, tasksInfo_);
+      if (jobSFMap_.count(job_info.job_within_hp) > 0)
+        return jobSFMap_.at(job_info.job_within_hp).finishInstanceIndex + job_info.index_offset;
       else
-        return jobSFMap_.at(job).finishInstanceIndex;
+        CoutError("Job not found in GetJobFinishInstancePosition!");
+      return -1;
+      // if (job.jobId >= tasksInfo_.sizeOfVariables[job.taskId])
+      // {
+      //   JobCEC jobWithinSingleHP{job.taskId, job.jobId % tasksInfo_.sizeOfVariables[job.taskId]};
+      //   return jobSFMap_.at(jobWithinSingleHP).finishInstanceIndex +
+      //          job.jobId / tasksInfo_.sizeOfVariables[job.taskId] * tasksInfo_.length * 2;
+      // }
+      // else
+      //   return jobSFMap_.at(job).finishInstanceIndex;
     }
 
     JobPosition GetJobPosition(const JobCEC &job)
