@@ -210,10 +210,8 @@ namespace OrderOptDAG_SPACE
           if (jobOrderRefNew != jobOrderBestFound)
             CheckLPConsistency(jobOrderRefNew, statusBestFound, jobOrderBestFound);
           jobOrderRef = jobOrderBestFound;
-
           findBetterJobOrderWithinIterations = true;
           countMakeProgress++;
-
           UpdateIA_Status();
         }
 
@@ -383,6 +381,7 @@ namespace OrderOptDAG_SPACE
       inline bool ifOptimal() const { return statusPrev.objWeighted_ == 0; }
 
       inline bool ifContinue() const { return (!ifTimeout()) && (!ifOptimal()); }
+
       // data members
       std::chrono::high_resolution_clock::time_point start_time;
       double timeLimits;
