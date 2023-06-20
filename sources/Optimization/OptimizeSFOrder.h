@@ -180,11 +180,10 @@ namespace OrderOptDAG_SPACE
             // Independence analysis
             if (GlobalVariablesDAGOpt::enableIndependentAnalysis)
             {
-              if (!WhetherInfluenceActiveJobs(jobRelocate))
+              if (!WhetherInfluenceActiveJobs(jobRelocate) && !WhetherJobBreakChain(jobRelocate, startP, finishP, longestJobChains_, dagTasks, jobOrderRef,
+                                                                                    tasksInfo))
                 if_IA_skip = true;
-              // TODO: add WhetherJobBreakChain and WhetherJobInfluenceChainLength into IA?
-              // WhetherJobBreakChain(jobRelocate, startP, finishP, longestJobChains_, dagTasks, jobOrderRef,
-              //                                         tasksInfo)
+              // TODO: add  WhetherJobInfluenceChainLength into IA?
             }
 
             SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; //  copying by value is sometimes faster
