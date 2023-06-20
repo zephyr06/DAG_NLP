@@ -64,7 +64,7 @@ namespace OrderOptDAG_SPACE
         else
           initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo, scheduleOptions.processorNum_);
 
-        UpdateAllStatus(initialSTV);
+        InitializeStatus(initialSTV);
 
         if (!statusPrev.schedulable_)
           CoutWarning("Initial schedule is not schedulable!!!");
@@ -385,7 +385,7 @@ namespace OrderOptDAG_SPACE
 #endif
       }
 
-      void UpdateAllStatus(const VectorDynamic &startTimeVector)
+      void InitializeStatus(const VectorDynamic &startTimeVector)
       {
         jobOrderRef = SFOrder(tasksInfo, startTimeVector);
         statusPrev = IterationStatus<OrderScheduler, ObjectiveFunctionBase>(dagTasks, tasksInfo, jobOrderRef,
