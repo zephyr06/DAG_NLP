@@ -121,15 +121,6 @@ namespace OrderOptDAG_SPACE
             for (LLint j = 0; j < tasksInfo.sizeOfVariables[i] && (ifContinue()); j++)
             {
               JobCEC jobRelocate(i, j);
-              debug_independence_ = false;
-              whether_influence_longest_chain_ = true;
-              if (GlobalVariablesDAGOpt::enableIndependentAnalysis != 0 &&
-                  activeJobs_.jobRecord.find(jobRelocate) == activeJobs_.jobRecord.end())
-              {
-                whether_influence_longest_chain_ = false;
-                // continue;
-              }
-
               ImproveJobOrderPerJob(jobRelocate);
             }
           }
@@ -150,11 +141,18 @@ namespace OrderOptDAG_SPACE
         return scheduleRes;
       }
 
+      inline bool WhetherInfluenceActiveJobs(JobCEC jobRelocate)
+      {
+        return activeJobs_.jobRecord.find(jobRelocate) != activeJobs_.jobRecord.end();
+      }
+
       bool ImproveJobOrderPerJob(const JobCEC &jobRelocate)
       {
 #ifdef PROFILE_CODE
         BeginTimer(__FUNCTION__);
 #endif
+        // TODO: skip this function if jobRelocate is not an active job
+
         JobGroupRange jobIndexRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
         IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusBestFound = statusPrev;
         jobOrderRef.EstablishJobSFMap();
@@ -180,42 +178,13 @@ namespace OrderOptDAG_SPACE
               continue;
 
             // Independence analysis
-            debug_independence_ = false;
             if (GlobalVariablesDAGOpt::enableIndependentAnalysis)
             {
-#ifdef PROFILE_CODE
-              BeginTimer("enableIndependentAnalysisExam");
-#endif
-              if (!WhetherJobBreakChain(jobRelocate, startP, finishP, longestJobChains_, dagTasks, jobOrderRef,
-                                        tasksInfo))
-              {
-                // bool hasInfluence = false;
-                // for (uint kk = 0; kk < longestJobChains_.size(); kk++) {
-                //   JobCEC sourceJob = longestJobChains_[kk][0];
-                //   JobCEC sinkJob = longestJobChains_[kk][longestJobChains_[kk].size() - 1];
-                //   bool influenceSource = WhetherJobStartLater(sourceJob, jobRelocate, jobGroupMap_,
-                //   jobOrderRef,
-                //                                               tasksInfo, statusPrev.startTimeVector_);
-                //   bool influenceSink = WhetherJobStartEarlier(sinkJob, jobRelocate, jobGroupMap_, jobOrderRef,
-                //                                               tasksInfo, statusPrev.startTimeVector_);
-                //   if (influenceSource || influenceSink) {
-                //     // jobOrderRef.print();
-                //     hasInfluence = true;
-                //     break;
-                //   }
-                // }
-                if (!whether_influence_longest_chain_)
-                {
-#ifdef PROFILE_CODE
-                  EndTimer("enableIndependentAnalysisExam");
-#endif
-                  debug_independence_ = true;
-                  // continue;
-                }
-              }
-#ifdef PROFILE_CODE
-              EndTimer("enableIndependentAnalysisExam");
-#endif
+              if (!WhetherInfluenceActiveJobs(jobRelocate))
+                if_IA_skip = true;
+              // TODO: add WhetherJobBreakChain and WhetherJobInfluenceChainLength into IA?
+              // WhetherJobBreakChain(jobRelocate, startP, finishP, longestJobChains_, dagTasks, jobOrderRef,
+              //                                         tasksInfo)
             }
 
             SFOrder jobOrderCurrForFinish = jobOrderCurrForStart; //  copying by value is sometimes faster
@@ -239,23 +208,7 @@ namespace OrderOptDAG_SPACE
           statusPrev = statusBestFound;
           auto jobOrderRefNew = SFOrder(tasksInfo, statusBestFound.startTimeVector_); // avoid incorrect job order
           if (jobOrderRefNew != jobOrderBestFound)
-          {
-            std::vector<uint> processorJobVec1;
-            auto stvNew = LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRefNew,
-                                                     processorJobVec1);
-            if (stvNew != statusBestFound.startTimeVector_ &&
-                (stvNew - statusBestFound.startTimeVector_).norm() > 1e0) // print some info
-            {
-              std::cout << "Start time vector of jobOrderBestFound:\n"
-                        << statusBestFound.startTimeVector_ << "\n\n\n";
-              jobOrderBestFound.print();
-              PrintSchedule(tasksInfo, statusBestFound.startTimeVector_);
-              std::cout << "\n\n\n";
-              jobOrderRefNew.print();
-              PrintSchedule(tasksInfo, stvNew);
-              CoutError("Inconsistent job order!");
-            }
-          }
+            CheckLPConsistency(jobOrderRefNew, statusBestFound, jobOrderBestFound);
           jobOrderRef = jobOrderBestFound;
 
           findBetterJobOrderWithinIterations = true;
@@ -268,6 +221,27 @@ namespace OrderOptDAG_SPACE
         EndTimer(__FUNCTION__);
 #endif
         return findBetterJobOrderWithinIterations;
+      }
+
+      void CheckLPConsistency(SFOrder &jobOrderRefNew,
+                              IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusBestFound,
+                              SFOrder &jobOrderBestFound)
+      {
+        std::vector<uint> processorJobVec1;
+        auto stvNew = LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRefNew,
+                                                 processorJobVec1);
+        if (stvNew != statusBestFound.startTimeVector_ &&
+            (stvNew - statusBestFound.startTimeVector_).norm() > 1e0) // print some info
+        {
+          std::cout << "Start time vector of jobOrderBestFound:\n"
+                    << statusBestFound.startTimeVector_ << "\n\n\n";
+          jobOrderBestFound.print();
+          PrintSchedule(tasksInfo, statusBestFound.startTimeVector_);
+          std::cout << "\n\n\n";
+          jobOrderRefNew.print();
+          PrintSchedule(tasksInfo, stvNew);
+          CoutError("Inconsistent job order!");
+        }
       }
 
       bool BreakFinishPermutation(double &accumLengthMin, JobCEC jobRelocate, LLint startP, LLint finishP,
@@ -313,7 +287,7 @@ namespace OrderOptDAG_SPACE
             schedulable);
         countIterationStatus++;
 
-        if (debug_independence_ == true)
+        if (if_IA_skip == true)
         {
           double objCurr = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
           double objPrev =
@@ -427,7 +401,7 @@ namespace OrderOptDAG_SPACE
       IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusPrev;
       std::unordered_map<JobCEC, int> jobGroupMap_;
       LongestCAChain longestJobChains_;
-      bool debug_independence_ = false;
+      bool if_IA_skip = true;
       bool whether_influence_longest_chain_ = true;
       ActiveJobs activeJobs_;
 
