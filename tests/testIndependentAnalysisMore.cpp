@@ -62,7 +62,7 @@ TEST_F(RTDATest_n5_v84, WhetherImmediateForwardAdjacent_v1)
   PrintSchedule(tasksInfo, startTimeVector);
   auto jobOrderRef = jobOrder;
   auto longestJobChains_ = LongestCAChain(dagTasks, tasksInfo, jobOrderRef, startTimeVector,
-                                          scheduleOptions.processorNum_);
+                                          scheduleOptions.processorNum_, "RTDAExperimentObj");
   auto jobGroupMap_ = ExtractIndependentJobGroups(jobOrderRef, tasksInfo);
   auto centralJob = FindCentralJobs(longestJobChains_, tasksInfo);
   std::vector<JobCEC> forwardJobs = FindForwardAdjacentJob(JobCEC(0, 1), jobOrderRef, tasksInfo, startTimeVector);

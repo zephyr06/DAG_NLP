@@ -348,7 +348,7 @@ namespace OrderOptDAG_SPACE
         BeginTimer(__FUNCTION__);
 #endif
         longestJobChains_ = LongestCAChain(dagTasks, tasksInfo, jobOrderRef, statusPrev.startTimeVector_,
-                                           scheduleOptions.processorNum_);
+                                           scheduleOptions.processorNum_, ObjectiveFunctionBase::type_trait);
         jobGroupMap_ = ExtractIndependentJobGroups(jobOrderRef, tasksInfo);
         auto centralJob = FindCentralJobs(longestJobChains_, tasksInfo);
         activeJobs_ = FindActiveJobs(centralJob, jobOrderRef, tasksInfo, statusPrev.startTimeVector_);
