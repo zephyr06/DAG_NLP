@@ -217,7 +217,9 @@ namespace OrderOptDAG_SPACE
       for (int j = causeEffectChain.size() - 2; j >= 0; j--)
       {
         LLint instIndexFirstJob = jobOrder.GetJobStartInstancePosition(lastJob);
-        LLint jobIndex = 100; // TODO: provide a better estimation
+        LLint max_last_job_start_time = GetDeadline(lastJob, tasksInfo) - GetExecutionTime(lastJob, tasksInfo);
+        int max_prev_job_index = max_last_job_start_time / tasksInfo.tasks[causeEffectChain[j]].period + 1; // probably does not need +1
+        LLint jobIndex = max_prev_job_index;
         while (true)
         {
           JobCEC jobCurr{causeEffectChain[j], jobIndex};
