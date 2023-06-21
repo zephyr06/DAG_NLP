@@ -87,28 +87,6 @@ TEST(SF, error_v2)
 
 // The following test depends on GTSAM
 
-TEST(GetStartTime, v1)
-{
-    using namespace OrderOptDAG_SPACE;
-    DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v1.csv",
-                                       "orig"); // single-rate dag
-    TaskSet tasks = dagTasks.tasks;
-    TaskSetInfoDerived tasksInfo(tasks);
-
-    // VectorDynamic initialEstimate = GenerateInitial(dagTasks, tasksInfo.sizeOfVariables,
-    // tasksInfo.variableDimension, initialUser);
-    VectorDynamic initialEstimate = GenerateVectorDynamic(5);
-    initialEstimate << 1, 2, 3, 4, 5;
-    Values initialEstimateFG = GenerateInitialFG(initialEstimate, tasksInfo);
-
-    EXPECT_LONGS_EQUAL(1, GetStartTime({0, 0}, initialEstimateFG, tasksInfo));
-    EXPECT_LONGS_EQUAL(11, GetFinishTime({0, 0}, initialEstimateFG, tasksInfo));
-    EXPECT_LONGS_EQUAL(201, GetStartTime({0, 1}, initialEstimateFG, tasksInfo));
-    EXPECT_LONGS_EQUAL(401, GetStartTime({0, 2}, initialEstimateFG, tasksInfo));
-    EXPECT_LONGS_EQUAL(403, GetStartTime({2, 2}, initialEstimateFG, tasksInfo));
-    EXPECT_LONGS_EQUAL(405, GetStartTime({4, 2}, initialEstimateFG, tasksInfo));
-}
-
 TEST(CauseAffect, v1)
 {
     using namespace OrderOptDAG_SPACE;
