@@ -142,7 +142,7 @@ namespace OrderOptDAG_SPACE
       for (uint j = 1; j < causeEffectChain.size(); j++)
       {
         double currentJobFT = GetFinishTime(firstJob, x, tasksInfo);
-        LLint jobIndex = 0;
+        LLint jobIndex = 0; // TODO: test efficiency and consider whether make this faster
         while (GetStartTime({causeEffectChain[j], jobIndex}, x, tasksInfo) < currentJobFT)
         {
           jobIndex++;

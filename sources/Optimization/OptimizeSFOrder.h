@@ -180,9 +180,9 @@ namespace OrderOptDAG_SPACE
             // Independence analysis
             if (GlobalVariablesDAGOpt::enableIndependentAnalysis)
             {
-              // TODO: whetherJobBreakChain depends on the type of obj
-              if (!WhetherInfluenceActiveJobs(jobRelocate) && !WhetherJobBreakChain(jobRelocate, startP, finishP, longestJobChains_, dagTasks, jobOrderRef,
-                                                                                    tasksInfo))
+              // TODO: WhetherJobBreakChainRT depends on the type of obj
+              if (!WhetherInfluenceActiveJobs(jobRelocate) && !WhetherJobBreakChainRT(jobRelocate, startP, finishP, longestJobChains_, dagTasks, jobOrderRef,
+                                                                                      tasksInfo))
                 if_IA_skip = true;
               // TODO: add WhetherJobInfluenceChainLength into IA?
             }

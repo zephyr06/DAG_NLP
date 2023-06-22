@@ -208,6 +208,7 @@ class RTDATest8 : public RTDATest1
     startTimeVector << 5320, 0, 2000, 4626, 6000, 9218, 782, 5408;
     jobOrder = SFOrder(tasksInfo, startTimeVector);
     jobOrder.print();
+    PrintSchedule(tasksInfo, startTimeVector);
     jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
   }
 };
@@ -308,9 +309,9 @@ TEST_F(RTDATest8, LP_Optimality)
 
 TEST_F(RTDATest8, FindCentralForwardJob)
 {
-  std::vector<JobCEC> centralSourceJob = {JobCEC(2, 0), JobCEC(2, 1)};
+  std::vector<JobCEC> centralSourceJob = {JobCEC(2, 1)};
   std::vector<JobCEC> centralSinkJob = {JobCEC(0, 0)};
-  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "RTDAExperimentObj");
+  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "ReactionTimeObj");
   auto centralJobActual = FindCentralJobs(longestChain, tasksInfo);
   AssertEqualVectorNoRepeat<JobCEC>(centralSourceJob, centralJobActual.backwardJobs, 1e-3, __LINE__);
   AssertEqualVectorNoRepeat<JobCEC>(centralSinkJob, centralJobActual.forwardJobs, 1e-3, __LINE__);
@@ -318,8 +319,8 @@ TEST_F(RTDATest8, FindCentralForwardJob)
 
 TEST_F(RTDATest8, FindActiveJobs)
 {
-  std::vector<JobCEC> activeJob = {JobCEC(0, 0), JobCEC(2, 0), JobCEC(2, 1), JobCEC(1, 4)};
-  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "RTDAExperimentObj");
+  std::vector<JobCEC> activeJob = {JobCEC(0, 0), JobCEC(1, 4), JobCEC(2, 1)};
+  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "ReactionTimeObj");
   CentralJobs centralJob = FindCentralJobs(longestChain, tasksInfo);
 
   auto activeJobActual = FindActiveJobs(centralJob, jobOrder, tasksInfo, startTimeVector);

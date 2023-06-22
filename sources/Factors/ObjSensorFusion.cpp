@@ -4,6 +4,7 @@ namespace OrderOptDAG_SPACE
 {
     namespace OptimizeSF
     {
+        // TODO: add "SensorFusionObj"
         const std::string RTSS21ICObj::type_trait("RTSS21ICObj");
 
         double RTSS21ICObj::EvaluateRTDA(const DAG_Model &dagTasks,

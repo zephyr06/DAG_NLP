@@ -80,7 +80,6 @@ namespace OrderOptDAG_SPACE
                                   const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
                                   std::vector<uint> &processorJobVec)
     {
-
 #ifdef PROFILE_CODE
       BeginTimer("LPOrderScheduler_schedule");
 #endif

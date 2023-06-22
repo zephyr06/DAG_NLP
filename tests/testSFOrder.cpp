@@ -249,7 +249,7 @@ TEST(sensorFusion, v1_no_fork)
 TEST(SFOrder, opt_v1)
 {
     OrderOptDAG_SPACE::DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v9.csv", "orig");
-    TaskSet tasks = dagTasks.tasks;
+    TaskSet tasks = dagTasks.tasks; // chains: [0, 1, 2]
     TaskSetInfoDerived tasksInfo(tasks);
 
     ScheduleOptions scheduleOptions;
@@ -258,7 +258,7 @@ TEST(SFOrder, opt_v1)
     scheduleOptions.considerSensorFusion_ = 0;
 
     // enableFastSearch = 0;
-    ScheduleResult sRes = ScheduleDAGModel<SimpleOrderScheduler, RTDAExperimentObj>(dagTasks, scheduleOptions);
+    ScheduleResult sRes = ScheduleDAGModel<SimpleOrderScheduler, ReactionTimeObj>(dagTasks, scheduleOptions);
     PrintSchedule(tasksInfo, sRes.startTimeVector_);
     VectorDynamic expect = sRes.startTimeVector_;
     expect << 0, 2, 3;

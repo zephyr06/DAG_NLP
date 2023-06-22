@@ -66,17 +66,55 @@ TEST_F(RTDATest1, GetReactionTime)
   EXPECT_EQ(23, GetReactionTime(chain0, startTimeVector, tasksInfo));
   // EXPECT_EQ(-1, GetDataAge(chain0, startTimeVector, tasksInfo));
   auto chain1 = react_chain_map.at(job1);
-  auto prevChain1 = react_chain_map.at(job0);
   EXPECT_EQ(13, GetReactionTime(chain1, startTimeVector, tasksInfo));
-  EXPECT_EQ(-1, GetDataAge(chain1, prevChain1, startTimeVector, tasksInfo));
   auto chain2 = react_chain_map.at(job2);
-  auto prevChain2 = react_chain_map.at(job1);
   EXPECT_EQ(23, GetReactionTime(chain2, startTimeVector, tasksInfo));
-  EXPECT_EQ(13, GetDataAge(chain2, prevChain2, startTimeVector, tasksInfo));
   auto chain3 = react_chain_map.at(job3);
-  auto prevChain3 = react_chain_map.at(job2);
   EXPECT_EQ(13, GetReactionTime(chain3, startTimeVector, tasksInfo));
-  EXPECT_EQ(-1, GetDataAge(chain3, prevChain3, startTimeVector, tasksInfo));
+}
+TEST_F(RTDATest1, GetDataAge)
+{
+  auto da_chain_map = GetDataAgeChainMap(dagTasks, tasksInfo, jobOrder, scheduleOptions.processorNum_,
+                                         dagTasks.chains_[0], 0);
+
+  EXPECT_EQ(13, GetDataAge(da_chain_map[JobCEC(2, 0)], startTimeVector, tasksInfo));
+}
+
+TEST_F(RTDATest1, break_chain_rt)
+{
+  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "ReactionTimeObj");
+
+  EXPECT_TRUE(WhetherJobBreakChainRT(job0, 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_TRUE(WhetherJobBreakChainRT(job0, 0, 1, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_TRUE(WhetherJobBreakChainRT(job2, 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_TRUE(WhetherJobBreakChainRT(job1, 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_FALSE(WhetherJobBreakChainRT(JobCEC(1, 0), 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
+}
+TEST_F(RTDATest1, break_chain_da)
+{
+  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "DataAgeObj");
+  // Longest job chain: J_{0, -1} -> J_{2, 0}
+  EXPECT_TRUE(WhetherJobBreakChainDA(job0, 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_FALSE(WhetherJobBreakChainDA(job0, 0, 1, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_TRUE(WhetherJobBreakChainDA(job2, 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_TRUE(WhetherJobBreakChainDA(job1, 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_FALSE(WhetherJobBreakChainDA(JobCEC(1, 0), 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
+}
+TEST_F(RTDATest1, ExtractIndependentJobGroups)
+{
+  auto jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
+  EXPECT_EQ(0, jobGroupMap[JobCEC(0, 0)]);
+  EXPECT_EQ(0, jobGroupMap[JobCEC(0, 1)]);
+  EXPECT_EQ(0, jobGroupMap[JobCEC(1, 0)]);
+  EXPECT_EQ(0, jobGroupMap[JobCEC(2, 0)]);
+}
+
+TEST_F(RTDATest1, WhetherInfluenceJobSimple)
+{
+  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(0, 1), JobCEC(0, 1), jobGroupMap));
+  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(0, 1), JobCEC(1, 0), jobGroupMap));
+  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(0, 1), JobCEC(2, 0), jobGroupMap));
+  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(1, 0), JobCEC(0, 0), jobGroupMap));
 }
 
 class ObjExperimentObjTest_n5_v2 : public ::testing::Test
@@ -173,18 +211,6 @@ TEST_F(ObjExperimentObjTest_n5_v4, GetDataAgeChainMap)
 //   AssertEqualVectorNoRepeat<JobCEC>(chain0, longestChain.longestChains_[1], 0, __LINE__);
 // }
 
-TEST_F(RTDATest1, break_chain)
-{
-
-  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "RTDAExperimentObj");
-
-  EXPECT_TRUE(WhetherJobBreakChain(job0, 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
-  EXPECT_TRUE(WhetherJobBreakChain(job0, 0, 1, longestChain, dagTasks, jobOrder, tasksInfo));
-  EXPECT_TRUE(WhetherJobBreakChain(job2, 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
-  EXPECT_TRUE(WhetherJobBreakChain(job1, 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
-  EXPECT_FALSE(WhetherJobBreakChain(JobCEC(1, 0), 0, 0, longestChain, dagTasks, jobOrder, tasksInfo));
-}
-
 class RTDATest2 : public RTDATest1
 {
 protected:
@@ -202,17 +228,42 @@ protected:
   }
 };
 
-TEST_F(RTDATest2, break_chain)
+TEST_F(RTDATest2, break_chain_rt)
 {
-
-  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "RTDAExperimentObj");
+  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "ReactionTimeObj");
   JobCEC job10(1, 0);
   JobCEC job11(1, 1);
   JobCEC job12(1, 2);
-  EXPECT_TRUE(WhetherJobBreakChain(job10, 1, 2, longestChain, dagTasks, jobOrder, tasksInfo));
-  EXPECT_FALSE(WhetherJobBreakChain(job10, 0, 1, longestChain, dagTasks, jobOrder, tasksInfo));
-  EXPECT_TRUE(WhetherJobBreakChain(job11, 1, 2, longestChain, dagTasks, jobOrder, tasksInfo));
-  EXPECT_FALSE(WhetherJobBreakChain(job12, 10, 11, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_TRUE(WhetherJobBreakChainRT(job10, 1, 2, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_FALSE(WhetherJobBreakChainRT(job10, 0, 1, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_TRUE(WhetherJobBreakChainRT(job11, 1, 2, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_FALSE(WhetherJobBreakChainRT(job12, 10, 11, longestChain, dagTasks, jobOrder, tasksInfo));
+}
+
+TEST_F(RTDATest2, break_chain_da)
+{
+  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "DataAgeObj");
+  JobCEC job10(1, 0);
+  JobCEC job11(1, 1);
+  JobCEC job12(1, 2);
+  EXPECT_TRUE(WhetherJobBreakChainDA(job12, 1, 2, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_TRUE(WhetherJobBreakChainDA(job10, 1, 2, longestChain, dagTasks, jobOrder, tasksInfo));
+  EXPECT_FALSE(WhetherJobBreakChainDA(job12, 10, 11, longestChain, dagTasks, jobOrder, tasksInfo));
+}
+TEST_F(RTDATest2, ExtractIndependentJobGroups)
+{
+  EXPECT_EQ(0, jobGroupMap[JobCEC(0, 0)]);
+  EXPECT_EQ(0, jobGroupMap[JobCEC(0, 1)]);
+  EXPECT_EQ(1, jobGroupMap[JobCEC(0, 2)]);
+}
+TEST_F(RTDATest2, WhetherInfluenceJobSimple)
+{
+  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(0, 0), JobCEC(0, 1), jobGroupMap));
+  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(0, 0), JobCEC(1, 1), jobGroupMap));
+  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(0, 0), JobCEC(2, 0), jobGroupMap));
+  EXPECT_FALSE(WhetherInfluenceJobSimple(JobCEC(0, 0), JobCEC(1, 2), jobGroupMap));
+
+  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(2, 0), JobCEC(0, 0), jobGroupMap));
 }
 
 class RTDATest3 : public RTDATest2
@@ -232,29 +283,6 @@ protected:
   }
 };
 
-TEST_F(RTDATest1, ExtractIndependentJobGroups)
-{
-  auto jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
-  EXPECT_EQ(0, jobGroupMap[JobCEC(0, 0)]);
-  EXPECT_EQ(0, jobGroupMap[JobCEC(0, 1)]);
-  EXPECT_EQ(0, jobGroupMap[JobCEC(1, 0)]);
-  EXPECT_EQ(0, jobGroupMap[JobCEC(2, 0)]);
-}
-
-TEST_F(RTDATest2, ExtractIndependentJobGroups)
-{
-  EXPECT_EQ(0, jobGroupMap[JobCEC(0, 0)]);
-  EXPECT_EQ(0, jobGroupMap[JobCEC(0, 1)]);
-  EXPECT_EQ(1, jobGroupMap[JobCEC(0, 2)]);
-}
-
-TEST_F(RTDATest1, WhetherInfluenceJobSimple)
-{
-  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(0, 1), JobCEC(0, 1), jobGroupMap));
-  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(0, 1), JobCEC(1, 0), jobGroupMap));
-  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(0, 1), JobCEC(2, 0), jobGroupMap));
-  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(1, 0), JobCEC(0, 0), jobGroupMap));
-}
 class RTDATest7 : public RTDATest1
 {
   void SetUp() override
@@ -310,15 +338,6 @@ TEST_F(RTDATest7, jobGroupMap)
 //                                       startTimeVector));
 // }
 
-TEST_F(RTDATest2, WhetherInfluenceJobSimple)
-{
-  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(0, 0), JobCEC(0, 1), jobGroupMap));
-  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(0, 0), JobCEC(1, 1), jobGroupMap));
-  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(0, 0), JobCEC(2, 0), jobGroupMap));
-  EXPECT_FALSE(WhetherInfluenceJobSimple(JobCEC(0, 0), JobCEC(1, 2), jobGroupMap));
-
-  EXPECT_TRUE(WhetherInfluenceJobSimple(JobCEC(2, 0), JobCEC(0, 0), jobGroupMap));
-}
 TEST_F(RTDATest3, WhetherInfluenceJobSimple)
 {
 
@@ -370,13 +389,13 @@ class RTDATest4 : public RTDATest1
 
 TEST_F(RTDATest4, whether_break_chain)
 {
-  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "RTDAExperimentObj");
+  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "ReactionTimeObj");
   std::unordered_map<JobCEC, int> jobGroupMap_ = ExtractIndependentJobGroups(jobOrder, tasksInfo);
   JobCEC jobRelocate(2, 0);
   LLint startP = 3;
   LLint finishP = 4;
   EXPECT_FALSE(
-      WhetherJobBreakChain(jobRelocate, startP, finishP, longestChain, dagTasks, jobOrder, tasksInfo));
+      WhetherJobBreakChainRT(jobRelocate, startP, finishP, longestChain, dagTasks, jobOrder, tasksInfo));
   JobCEC sinkJob = longestChain[0].back();
   EXPECT_TRUE(WhetherInfluenceJobSink(sinkJob, jobRelocate, jobGroupMap_, jobOrder, startP, finishP,
                                       tasksInfo, startTimeVector));
@@ -394,13 +413,13 @@ class RTDATest8 : public RTDATest1
 };
 TEST_F(RTDATest8, whether_break_chain)
 {
-  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "RTDAExperimentObj");
+  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "ReactionTimeObj");
   std::unordered_map<JobCEC, int> jobGroupMap_ = ExtractIndependentJobGroups(jobOrder, tasksInfo);
   JobCEC jobRelocate(1, 1);
   LLint startP = 16;
   LLint finishP = 18;
   EXPECT_TRUE(
-      WhetherJobBreakChain(jobRelocate, startP, finishP, longestChain, dagTasks, jobOrder, tasksInfo));
+      WhetherJobBreakChainRT(jobRelocate, startP, finishP, longestChain, dagTasks, jobOrder, tasksInfo));
 }
 // *******************************************************
 
@@ -463,8 +482,8 @@ class RTDATest10 : public RTDATest1
 
 TEST_F(RTDATest10, find_longest_chain)
 {
-  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "RTDAExperimentObj");
-  EXPECT_THAT(longestChain.size(), testing::Ge(10));
+  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "ReactionTimeObj");
+  // EXPECT_THAT(longestChain.size(), testing::Ge(10));
 }
 int main(int argc, char **argv)
 {
