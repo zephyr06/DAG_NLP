@@ -397,7 +397,7 @@ class RTDATest12 : public RTDATest1
 TEST_F(RTDATest12, IA_permute_job_order)
 {
   VectorDynamic schedule1 =
-      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
+      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec, "ReactionTimeObj");
   double obj = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, schedule1, scheduleOptions);
 
   SFOrder jobOrder2 = jobOrder;
@@ -406,7 +406,7 @@ TEST_F(RTDATest12, IA_permute_job_order)
   jobOrder2.InsertStart(jobCurr, 2);
   jobOrder2.InsertFinish(jobCurr, 4);
   VectorDynamic schedule3 =
-      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder2, processorJobVec);
+      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder2, processorJobVec, "ReactionTimeObj");
   double obj3 = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, schedule3, scheduleOptions);
   EXPECT_EQ(obj, obj3);
 }
@@ -444,7 +444,7 @@ TEST_F(RTDATest12, job_order_strict_constraint)
   jobOrder.InsertFinish(JobCEC(1, 4), 14);
   jobOrder.InsertStart(JobCEC(0, 0), 15);
   VectorDynamic stv =
-      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
+      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec, "ReactionTimeObj");
   std::cout << "\n";
   jobOrder.print();
   PrintSchedule(tasksInfo, stv);

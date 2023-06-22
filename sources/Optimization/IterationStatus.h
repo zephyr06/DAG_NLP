@@ -54,7 +54,7 @@ namespace OrderOptDAG_SPACE
 #endif
         std::vector<uint> processorJobVec;
         startTimeVector_ =
-            OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
+            OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec, ObjectiveFunctionBase::type_trait);
         schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector_, processorJobVec,
                                              scheduleOptions.processorNum_);
 

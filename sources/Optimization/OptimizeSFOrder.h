@@ -130,7 +130,7 @@ namespace OrderOptDAG_SPACE
         } while (ifContinue() && findBetterJobOrderWithinIterations);
 
         std::vector<uint> processorJobVec;
-        auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef, processorJobVec);
+        auto stv = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef, processorJobVec, ObjectiveFunctionBase::type_trait);
         ScheduleResult scheduleRes{
             jobOrderRef, statusPrev.startTimeVector_, statusPrev.schedulable_,
             ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo, statusPrev.startTimeVector_, scheduleOptions),
@@ -151,6 +151,7 @@ namespace OrderOptDAG_SPACE
 #ifdef PROFILE_CODE
         BeginTimer(__FUNCTION__);
 #endif
+        if_IA_skip = false;
         // TODO: skip this function if jobRelocate is not an active job
 
         JobGroupRange jobIndexRange = FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
@@ -227,7 +228,7 @@ namespace OrderOptDAG_SPACE
       {
         std::vector<uint> processorJobVec1;
         auto stvNew = LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRefNew,
-                                                 processorJobVec1);
+                                                 processorJobVec1, ObjectiveFunctionBase::type_trait);
         if (stvNew != statusBestFound.startTimeVector_ &&
             (stvNew - statusBestFound.startTimeVector_).norm() > 1e0) // print some info
         {
@@ -270,7 +271,7 @@ namespace OrderOptDAG_SPACE
         VectorDynamic startTimeVector;
         std::vector<uint> processorJobVec;
         startTimeVector = OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
-                                                   processorJobVec);
+                                                   processorJobVec, ObjectiveFunctionBase::type_trait);
 
         bool schedulable = ExamBasic_Feasibility(dagTasks, tasksInfo, startTimeVector, processorJobVec,
                                                  scheduleOptions.processorNum_);
@@ -293,7 +294,7 @@ namespace OrderOptDAG_SPACE
           if (objCurr + 1e-3 < objPrev)
           {
             std::vector<uint> processorJobVecOld;
-            OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef, processorJobVecOld);
+            OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrderRef, processorJobVecOld, ObjectiveFunctionBase::type_trait);
             if (CompareVector(processorJobVec, processorJobVecOld))
             {
               jobOrderRef.print();

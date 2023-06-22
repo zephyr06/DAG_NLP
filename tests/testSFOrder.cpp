@@ -365,10 +365,10 @@ TEST(optimize_schedule_when_search_job_order_, v1)
     DAG_Model dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v18.csv", "orig");
     TaskSet tasks = dagTasks.tasks;
     TaskSetInfoDerived tasksInfo(tasks);
-    ScheduleResult sRes = ScheduleDAGModel<SimpleOrderScheduler, RTDAExperimentObj>(dagTasks, scheduleOptions);
+    ScheduleResult sRes = ScheduleDAGModel<SimpleOrderScheduler, ReactionTimeObj>(dagTasks, scheduleOptions);
     PrintSchedule(tasksInfo, sRes.startTimeVector_);
     std::cout << "Obj: " << sRes.obj_ << std::endl;
-    EXPECT(sRes.obj_ <= 18);
+    EXPECT(sRes.obj_ <= 10 + 4);
 }
 TEST(Schedule, jobOrder)
 {
