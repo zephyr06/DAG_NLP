@@ -160,7 +160,7 @@ namespace OrderOptDAG_SPACE
     }
     return firstReactionChainMap;
   }
-
+  // TODO: rm processorNum and chainIndex from arguments?
   std::unordered_map<JobCEC, std::vector<JobCEC>>
   GetReactionChainMap(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
                       int processorNum, const std::vector<int> &causeEffectChain, int chainIndex)

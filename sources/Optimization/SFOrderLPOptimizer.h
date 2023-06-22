@@ -10,8 +10,8 @@ namespace OrderOptDAG_SPACE
   class SFOrderLPOptimizer
   {
   public:
-    SFOrderLPOptimizer(const DAG_Model &dagTasks, SFOrder &sfOrder, int processorNum)
-        : dagTasks_(dagTasks), sfOrder_(sfOrder), processorNum_(processorNum)
+    SFOrderLPOptimizer(const DAG_Model &dagTasks, SFOrder &sfOrder, int processorNum, std::string obj_type)
+        : dagTasks_(dagTasks), sfOrder_(sfOrder), processorNum_(processorNum), obj_type_trait_(obj_type)
     {
       env_.end();
       hasBeenInitialized_ = false;
@@ -29,12 +29,16 @@ namespace OrderOptDAG_SPACE
     void AddDBFConstraints();
     void AddDDLConstraints();
     void AddJobOrderConstraints(const SFOrder &jobOrder);
-    void AddCauseEffectiveChainConstraints();
     void AddCauseEffectiveChainConstraintsFromReactMap(
         const std::unordered_map<JobCEC, std::vector<JobCEC>> &react_chain_map);
+    void AddCauseEffectiveChainConstraintsFromDaMap(
+        const std::unordered_map<JobCEC, std::vector<JobCEC>> &da_chain_map);
     void AddSensorFusionConstraints();
     void AddObjectives();
     void AddNormalObjectives(); // RTDA obj
+    void AddReactionTimeObj();
+    void AddDataAgeObj();
+    void AddSensorFusionObj();
     IloExpr GetStartTimeExpression(JobCEC &jobCEC);
     IloExpr GetFinishTimeExpression(JobCEC &jobCEC);
     void UpdateOptimizedStartTimeVector(IloNumArray &values_optimized);
@@ -55,6 +59,11 @@ namespace OrderOptDAG_SPACE
       processorJobVec_ = processorJobVec;
     }
     inline void setTasksInfo(const TaskSetInfoDerived &info) { tasksInfo_ = info; }
+    inline void WriteModelToFile(const std::string file_name = "LP_Model.lp")
+    {
+      cplexSolver_.extract(model_);
+      cplexSolver_.exportModel(file_name.c_str());
+    }
 
   public:
     IloEnv env_;
@@ -70,6 +79,7 @@ namespace OrderOptDAG_SPACE
     int numVariables_;
     bool hasBeenInitialized_;
     int processorNum_;
+    std::string obj_type_trait_;
   };
 } // namespace OrderOptDAG_SPACE
 #endif // SFORDER_LP_OPTIMIZER_H_

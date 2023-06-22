@@ -26,15 +26,14 @@ namespace OrderOptDAG_SPACE
     // processorJobVec will be assigned values
     OrderScheduler() {}
     static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
-                                  const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
-                                  std::vector<uint> &processorJobVec)
+                                  const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder)
     {
       CoutError("Never call base function!");
       return GenerateVectorDynamic1D(0);
     }
-
     static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
-                                  const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder)
+                                  const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
+                                  std::vector<uint> &processorJobVec, std::string obj_type = "none")
     {
       CoutError("Never call base function!");
       return GenerateVectorDynamic1D(0);
@@ -58,7 +57,7 @@ namespace OrderOptDAG_SPACE
     // processorJobVec will be assigned values
     static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                   const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
-                                  std::vector<uint> &processorJobVec)
+                                  std::vector<uint> &processorJobVec, std::string obj_type = "none")
     {
       auto stv = SFOrderScheduling(dagTasks.tasks, tasksInfo, scheduleOptions.processorNum_, jobOrder,
                                    processorJobVec);
@@ -78,7 +77,7 @@ namespace OrderOptDAG_SPACE
     // TODO: add setStart() as an advanced initialization
     static VectorDynamic schedule(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
                                   const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
-                                  std::vector<uint> &processorJobVec)
+                                  std::vector<uint> &processorJobVec, std::string obj_type = "none")
     {
 #ifdef PROFILE_CODE
       BeginTimer("LPOrderScheduler_schedule");
@@ -93,10 +92,10 @@ namespace OrderOptDAG_SPACE
 #ifdef PROFILE_CODE
         EndTimer("LPOrderScheduler_schedule");
 #endif
-
         return startTimeVector;
       }
-      SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder, scheduleOptions.processorNum_);
+
+      SFOrderLPOptimizer sfOrderLPOptimizer(dagTasks, jobOrder, scheduleOptions.processorNum_, obj_type);
       sfOrderLPOptimizer.Optimize(processorJobVec);
       VectorDynamic startTimeVectorOptmized = sfOrderLPOptimizer.getOptimizedStartTimeVector();
       // TODO: need to check carefully whether the code in `OptimizeSFOrder.cpp/.h` support changing joborder?

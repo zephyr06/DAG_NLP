@@ -94,6 +94,8 @@ namespace OrderOptDAG_SPACE
   LLint GetJobUniqueId(const JobCEC &jobCEC, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo)
   {
     LLint id = jobCEC.jobId % tasksInfo.sizeOfVariables[jobCEC.taskId];
+    if (id < 0)
+      id += tasksInfo.sizeOfVariables[jobCEC.taskId];
     for (int i = 0; i < jobCEC.taskId; i++)
     {
       id += tasksInfo.sizeOfVariables[i];

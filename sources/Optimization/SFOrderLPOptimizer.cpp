@@ -82,6 +82,8 @@ namespace OrderOptDAG_SPACE
 
       UpdateOptimizedStartTimeVector(values_optimized);
     }
+    if (GlobalVariablesDAGOpt::debugMode)
+      WriteModelToFile();
     this->ClearCplexMemory();
   }
 
@@ -142,6 +144,8 @@ namespace OrderOptDAG_SPACE
       auto instPrev = instanceOrder[i - 1];
       int globalIdCurr = GetJobUniqueId(instCurr.job, tasksInfo_);
       int globalIdPrev = GetJobUniqueId(instPrev.job, tasksInfo_);
+      if (globalIdCurr == globalIdPrev)
+        continue;
       if (instPrev.type == 's')
       {
         if (instCurr.type == 's')
@@ -175,17 +179,8 @@ namespace OrderOptDAG_SPACE
         }
       }
     }
-  }
-
-  // TODO(Dong): Deprecated, delete this function after LP with SFOrder works.
-  void SFOrderLPOptimizer::AddCauseEffectiveChainConstraints()
-  {
-    for (auto chain : dagTasks_.chains_)
-    {
-      // auto react_chain_map = GetRTDAReactChainsFromSingleJob(tasksInfo_, chain, initialStartTimeVector_);
-      auto react_chain_map = GetReactionChainMap(dagTasks_, tasksInfo_, sfOrder_, 1, chain, 1);
-      AddCauseEffectiveChainConstraintsFromReactMap(react_chain_map);
-    }
+    if (GlobalVariablesDAGOpt::debugMode)
+      WriteModelToFile("JobOrderConst.lp");
   }
 
   void SFOrderLPOptimizer::AddCauseEffectiveChainConstraintsFromReactMap(
@@ -214,6 +209,32 @@ namespace OrderOptDAG_SPACE
         }
       }
     }
+  }
+
+  void SFOrderLPOptimizer::AddCauseEffectiveChainConstraintsFromDaMap(
+      const std::unordered_map<JobCEC, std::vector<JobCEC>> &da_chain_map)
+  {
+    for (auto pair : da_chain_map)
+    {
+      auto &job_chain = pair.second;
+      if (job_chain.size() > 1)
+      {
+        JobCEC sink_job = pair.first;
+        for (auto i = int(job_chain.size()) - 2; i >= 0; i--)
+        {
+          JobCEC curr_job = job_chain[i];
+          JobCEC curr_job_next(curr_job.taskId, curr_job.jobId + 1);
+          model_.add(GetFinishTimeExpression(curr_job) <= GetStartTimeExpression(sink_job));
+
+          // Cplex only support weak inequality, a threshold is added to enforce strict inequality
+          model_.add(GetStartTimeExpression(sink_job) + GlobalVariablesDAGOpt::kCplexInequalityThreshold <= GetFinishTimeExpression(curr_job_next));
+
+          sink_job = curr_job;
+        }
+      }
+    }
+    if (GlobalVariablesDAGOpt::debugMode)
+      WriteModelToFile("CauseEffectChainConst.lp");
   }
 
   void SFOrderLPOptimizer::AddSensorFusionConstraints()
@@ -261,11 +282,14 @@ namespace OrderOptDAG_SPACE
 
   void SFOrderLPOptimizer::AddObjectives()
   {
-    if (GlobalVariablesDAGOpt::considerSensorFusion)
-    {
-      AddSensorFusionConstraints();
-    }
-    AddNormalObjectives(); // will also add cause effective chain constraints
+    if (obj_type_trait_ == "ReactionTimeObj")
+      AddReactionTimeObj();
+    else if (obj_type_trait_ == "DataAgeObj")
+      AddDataAgeObj();
+    else if (obj_type_trait_ == "SensorFusionObj")
+      AddSensorFusionObj();
+    else
+      CoutError("Unrecognized type_trait in AddObjectives()!");
   }
 
   void SFOrderLPOptimizer::AddNormalObjectives()
@@ -316,6 +340,60 @@ namespace OrderOptDAG_SPACE
     rtda_expression.end();
   }
 
+  void SFOrderLPOptimizer::AddReactionTimeObj()
+  {
+    IloExpr rtda_expression(env_);
+    int chain_count = 0;
+    for (auto chain : dagTasks_.chains_)
+    {
+      std::string var_name = "Chain_" + std::to_string(chain_count++) + "_RT";
+      auto theta_rt = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, var_name.c_str());
+      auto react_chain_map = GetReactionChainMap(dagTasks_, tasksInfo_, sfOrder_, 1, chain, 1); // 1 and 1 are unused parameters in the function
+
+      // add cause effective chain constraints together with objectives to save time
+      AddCauseEffectiveChainConstraintsFromReactMap(react_chain_map);
+
+      LLint total_start_jobs = tasksInfo_.hyperPeriod / tasksInfo_.tasks[chain[0]].period;
+      for (LLint start_instance_index = 0; start_instance_index < total_start_jobs; start_instance_index++)
+      {
+        JobCEC start_job = {chain[0], (start_instance_index)};
+        JobCEC first_react_job = react_chain_map[start_job].back();
+        model_.add(theta_rt >= (GetFinishTimeExpression(first_react_job) - GetStartTimeExpression(start_job)));
+      }
+      rtda_expression += theta_rt;
+    }
+    model_.add(IloMinimize(env_, rtda_expression));
+    rtda_expression.end();
+  }
+  void SFOrderLPOptimizer::AddDataAgeObj()
+  {
+    IloExpr rtda_expression(env_);
+    int chain_count = 0;
+    for (auto chain : dagTasks_.chains_)
+    {
+      std::string var_name = "Chain_" + std::to_string(chain_count++) + "_DA";
+      auto theta_da = IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, var_name.c_str());
+      auto da_chain_map = GetDataAgeChainMap(dagTasks_, tasksInfo_, sfOrder_, 1, chain, 1); // 1 and 1 are unused parameters in the function
+
+      // add cause effective chain constraints together with objectives to save time
+      AddCauseEffectiveChainConstraintsFromDaMap(da_chain_map);
+
+      LLint total_start_jobs = tasksInfo_.hyperPeriod / tasksInfo_.tasks[chain.back()].period;
+      for (LLint start_instance_index = 0; start_instance_index < total_start_jobs; start_instance_index++)
+      {
+        JobCEC sink_job = {chain.back(), (start_instance_index)};
+        JobCEC last_reading_job = da_chain_map[sink_job][0];
+        model_.add(theta_da >= (GetFinishTimeExpression(sink_job) - GetStartTimeExpression(last_reading_job)));
+      }
+      rtda_expression += theta_da;
+    }
+    model_.add(IloMinimize(env_, rtda_expression));
+    rtda_expression.end();
+    if (GlobalVariablesDAGOpt::debugMode)
+      WriteModelToFile("AddDataAgeObj.lp");
+  }
+  void SFOrderLPOptimizer::AddSensorFusionObj() { CoutError("Not implemented!"); }
+
   IloExpr SFOrderLPOptimizer::GetStartTimeExpression(JobCEC &jobCEC)
   {
     IloExpr exp(env_);
@@ -325,7 +403,10 @@ namespace OrderOptDAG_SPACE
     }
     int jobNumInHyperPeriod = tasksInfo_.hyperPeriod / tasksInfo_.tasks[jobCEC.taskId].period;
     exp += varArray_[GetJobUniqueId(jobCEC, tasksInfo_)];
-    exp += jobCEC.jobId / jobNumInHyperPeriod * tasksInfo_.hyperPeriod;
+    if (jobCEC.jobId >= 0 || jobCEC.jobId % jobNumInHyperPeriod == 0)
+      exp += jobCEC.jobId / jobNumInHyperPeriod * tasksInfo_.hyperPeriod;
+    else
+      exp += (jobCEC.jobId / jobNumInHyperPeriod + 1) * tasksInfo_.hyperPeriod;
     return exp;
   }
 
