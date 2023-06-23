@@ -476,18 +476,20 @@ ScheduleResult ScheduleDAGModel(
     //   }
     // }
 
-    if (ObjectiveFunctionBase::type_trait == "RTDAExperimentObj")
+    if (ObjectiveFunctionBase::type_trait == "ReactionTimeObj" ||
+        ObjectiveFunctionBase::type_trait == "DataAgeObj")
         scheduleRes.schedulable_ = ExamBasic_Feasibility(
             dagTasks, tasksInfo, scheduleRes.startTimeVector_,
             scheduleRes.processorJobVec_, scheduleOptions.processorNum_);
-    else if (ObjectiveFunctionBase::type_trait == "RTSS21ICObj")
-        scheduleRes.schedulable_ = ExamAll_Feasibility(
-            dagTasks, tasksInfo, scheduleRes.startTimeVector_,
-            scheduleRes.processorJobVec_, scheduleOptions.processorNum_,
-            GlobalVariablesDAGOpt::sensorFusionTolerance,
-            GlobalVariablesDAGOpt::freshTol);
+    // else if (ObjectiveFunctionBase::type_trait == "RTSS21ICObj")
+    //     scheduleRes.schedulable_ = ExamAll_Feasibility(
+    //         dagTasks, tasksInfo, scheduleRes.startTimeVector_,
+    //         scheduleRes.processorJobVec_, scheduleOptions.processorNum_,
+    //         GlobalVariablesDAGOpt::sensorFusionTolerance,
+    // GlobalVariablesDAGOpt::freshTol);
     else
-        scheduleRes.schedulable_ = false;
+        // scheduleRes.schedulable_ = false;
+        CoutError("Unknown obj type in ScheduleDAGModel");
     std::cout << "Outermost while loop count: "
               << dagScheduleOptimizer.countOutermostWhileLoop << std::endl;
     std::cout << "Make progress count: "
