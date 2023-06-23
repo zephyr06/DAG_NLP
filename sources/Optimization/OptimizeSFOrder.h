@@ -183,13 +183,13 @@ class DAGScheduleOptimizer {
 
                 // Independence analysis
                 if (GlobalVariablesDAGOpt::enableIndependentAnalysis) {
-                    // TODO: WhetherJobBreakChainRT depends on the type of obj
                     if (!WhetherInfluenceActiveJobs(jobRelocate) &&
-                        !WhetherJobBreakChainRT(jobRelocate, startP, finishP,
-                                                longestJobChains_, dagTasks,
-                                                jobOrderRef, tasksInfo))
+                        !WhetherJobBreakChain(
+                            jobRelocate, startP, finishP, longestJobChains_,
+                            dagTasks, jobOrderRef, tasksInfo,
+                            ObjectiveFunctionBase::type_trait)) {
                         if_IA_skip = true;
-                    else
+                    } else
                         if_IA_skip = false;
                     // TODO: add WhetherJobInfluenceChainLength into IA?
                 }
@@ -320,6 +320,7 @@ class DAGScheduleOptimizer {
                     std::cout << "\n\n";
                     PrintSchedule(tasksInfo, startTimeVector);
                     jobOrderCurrForFinish.print();
+                    std::cout << "\n" << startTimeVector << "\n\n";
                     CoutWarning(
                         "Find a case where enableIndependentAnalysis fails!");
                     // double objCurr1 =
