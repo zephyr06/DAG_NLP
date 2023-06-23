@@ -236,10 +236,10 @@ TEST_F(ObjExperimentObjTest_n5_v79, DAEvaluate1) {
                                   scheduleOptions),
               600);
     initialEstimate << 0, 103, 200, 300, 400, 500, 0, 103, 200, 300, 400, 500,
-        10, 201, 401, 1, 301, 10, 301,
-        EXPECT_EQ(DataAgeObj::TrueObj(dagTasks, tasksInfo, initialEstimate,
-                                      scheduleOptions),
-                  500);
+        10, 201, 401, 1, 301, 10, 301;
+    EXPECT_EQ(DataAgeObj::TrueObj(dagTasks, tasksInfo, initialEstimate,
+                                  scheduleOptions),
+              500);
 }
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
