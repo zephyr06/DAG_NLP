@@ -18,7 +18,7 @@ TEST(DAG_Optimize_schedule, v1) {
     scheduleOption.LoadParametersYaml();
     // LPOrderScheduler
     sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
-        LPOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::DataAgeObj>(
+        LPOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::ReactionTimeObj>(
         dagTasks, scheduleOption);
     PrintResultAnalyzation(sth, dagTasks);
     std::cout << "Schedulable? " << sth.schedulable_ << std::endl;
