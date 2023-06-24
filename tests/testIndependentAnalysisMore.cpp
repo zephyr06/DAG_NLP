@@ -101,6 +101,66 @@ TEST_F(RTDATest_n5_v85, WhetherImmediateForwardAdjacent_v1) {
     // TODO: analyze the longest DA job chain;
 }
 
+class ObjExperimentObjTest_n3_v57 : public ::testing::Test {
+   protected:
+    void SetUp() override {
+        dagTasks = ReadDAG_Tasks(
+            GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n3_v57.csv",
+            "orig");  // single-rate dag
+        tasks = dagTasks.tasks;
+        tasksInfo = TaskSetInfoDerived(tasks);
+        chain1 = {2, 1, 0};
+        dagTasks.chains_[0] = chain1;
+
+        scheduleOptions.considerSensorFusion_ = 0;
+        scheduleOptions.freshTol_ = 0;
+        scheduleOptions.sensorFusionTolerance_ = 0;
+        scheduleOptions.weightInMpRTDA_ = 0.5;
+        scheduleOptions.weightInMpSf_ = 0.5;
+        scheduleOptions.weightPunish_ = 10;
+    }
+    DAG_Model dagTasks;
+    TaskSet tasks;
+    TaskSetInfoDerived tasksInfo;
+    std::vector<int> chain1;
+    ScheduleOptions scheduleOptions;
+};
+// TEST_F(ObjExperimentObjTest_n3_v57, PredictInstanceIndex) {
+//     VectorDynamic initialEstimate = GenerateVectorDynamic(5);
+//     initialEstimate << 0, 1000, 0, 253, 1504;
+//     SFOrder jobOrderRef(tasksInfo, initialEstimate);
+//     jobOrderRef.print();
+
+//     JobCEC jobRelocate(2, 0);
+//     int startP = 1;
+//     int finishP = 2;
+//     EXPECT_EQ(-7, PredictInstanceIndexAfterRemoveInsertJob(
+//                       jobOrderRef.GetJobStartInstancePosition(JobCEC(1, -1)),
+//                       jobOrderRef.GetJobStartInstancePosition(jobRelocate),
+//                       jobOrderRef.GetJobFinishInstancePosition(jobRelocate),
+//                       startP, finishP));
+//     EXPECT_EQ(-8, PredictInstanceIndexAfterRemoveInsertJob(
+//                       jobOrderRef.GetJobFinishInstancePosition(JobCEC(2,
+//                       -2)),
+//                       jobOrderRef.GetJobStartInstancePosition(jobRelocate),
+//                       jobOrderRef.GetJobFinishInstancePosition(jobRelocate),
+//                       startP, finishP));
+// }
+
+TEST_F(ObjExperimentObjTest_n3_v57, WhetherJobBreakChainDA) {
+    VectorDynamic initialEstimate = GenerateVectorDynamic(5);
+    initialEstimate << 0, 1000, 0, 253, 1504;
+    SFOrder jobOrderRef(tasksInfo, initialEstimate);
+    jobOrderRef.print();
+    JobCEC jobRelocate(2, 0);
+    int startP = 1;
+    int finishP = 2;
+    auto longestJobChains_ = LongestCAChain(dagTasks, tasksInfo, jobOrderRef,
+                                            initialEstimate, 2, "DataAgeObj");
+    EXPECT_TRUE(WhetherJobBreakChainDA(jobRelocate, startP, finishP,
+                                       longestJobChains_, dagTasks, jobOrderRef,
+                                       tasksInfo));
+}
 class ObjExperimentObjTest_n5_v79 : public ::testing::Test {
    protected:
     void SetUp() override {

@@ -210,23 +210,29 @@ bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
 // it assumes the input jobOrder will first remove job, and then insert its
 // start/finish instances at startP/finishP If you want to be safer, return more
 // 'true' no need for profiler
-bool WhetherJobBreakChainRT(const JobCEC &job, LLint startP, LLint finishP,
+bool WhetherJobBreakChainRT(const JobCEC &jobRelocate, LLint startP,
+                            LLint finishP,
                             const LongestCAChain &longestJobChains,
                             const DAG_Model &dagTasks, SFOrder &jobOrder,
                             const TaskSetInfoDerived &tasksInfo) {
+    SFOrder jobOrderNew = jobOrder;
+    jobOrderNew.RemoveJob(jobRelocate);
+    jobOrderNew.InsertStart(jobRelocate, startP);
+    jobOrderNew.InsertFinish(jobRelocate, finishP);
     for (auto &taskChainCurr : dagTasks.chains_) {
-        auto itr =
-            std::find(taskChainCurr.begin(), taskChainCurr.end(), job.taskId);
+        auto itr = std::find(taskChainCurr.begin(), taskChainCurr.end(),
+                             jobRelocate.taskId);
         if (itr != taskChainCurr.end()) {
             for (uint i = 0; i < longestJobChains.size(); i++) {
                 const std::vector<JobCEC> &jobChainCurr =
                     longestJobChains[i];  // iterate through each job chain;
-                int siblingJobIndex = FindSiblingJobIndex(job, jobChainCurr);
+                int siblingJobIndex =
+                    FindSiblingJobIndex(jobRelocate, jobChainCurr);
                 if (siblingJobIndex == -1)
                     continue;  // job doesn't appear in this taskChainCurr
                 JobCEC sibJob = jobChainCurr[siblingJobIndex];
                 if (sibJob.EqualWithinHyperPeriod(
-                        job,
+                        jobRelocate,
                         tasksInfo))  // this may not be necessary, but is a safe
                                      // solution
                 {
@@ -239,52 +245,50 @@ bool WhetherJobBreakChainRT(const JobCEC &job, LLint startP, LLint finishP,
                         jobChainCurr[siblingJobIndex +
                                      1];  // assume the length of the chain is
                                           // longer than 1
-                    if (sibJob.jobId < job.jobId &&
+                    if (sibJob.jobId < jobRelocate.jobId &&
                         finishP <
                             jobOrder.GetJobStartInstancePosition(afterSibJob)) {
                         return true;
                     }
                 } else {  // the job is not a source task's job
-                    if (sibJob.jobId < job.jobId)
+                    if (sibJob.jobId < jobRelocate.jobId)
                         continue;  // the job cannot react earlier than sibJob,
                                    // and so cannot change reaction relationship
                     JobCEC sibJobImmediateSourceJob =
                         jobChainCurr[siblingJobIndex - 1];
-                    LLint sibImmeSourJobFinish =
-                        jobOrder.GetJobFinishInstancePosition(
-                            sibJobImmediateSourceJob);
-                    sibImmeSourJobFinish =
-                        PredictInstanceIndexAfterRemoveInsertJob(
-                            sibImmeSourJobFinish,
-                            jobOrder.GetJobStartInstancePosition(job),
-                            jobOrder.GetJobFinishInstancePosition(job), startP,
-                            finishP);
-                    if (sibImmeSourJobFinish <= startP &&
-                        job.jobId < sibJob.jobId) {
+                    JobCEC first_react_job_in_new_job_order =
+                        FindFirstReactJob(sibJobImmediateSourceJob,
+                                          jobRelocate.taskId, jobOrderNew);
+                    if (first_react_job_in_new_job_order != sibJob)
                         return true;
-                    }
                 }
             }
         }
     }
     return false;
 }
-bool WhetherJobBreakChainDA(const JobCEC &job, LLint startP, LLint finishP,
+bool WhetherJobBreakChainDA(const JobCEC &jobRelocate, LLint startP,
+                            LLint finishP,
                             const LongestCAChain &longestJobChains,
                             const DAG_Model &dagTasks, SFOrder &jobOrder,
                             const TaskSetInfoDerived &tasksInfo) {
+    SFOrder jobOrderNew = jobOrder;
+    jobOrderNew.RemoveJob(jobRelocate);
+    jobOrderNew.InsertStart(jobRelocate, startP);
+    jobOrderNew.InsertFinish(jobRelocate, finishP);
     for (auto &taskChainCurr : dagTasks.chains_) {
-        auto itr =
-            std::find(taskChainCurr.begin(), taskChainCurr.end(), job.taskId);
+        auto itr = std::find(taskChainCurr.begin(), taskChainCurr.end(),
+                             jobRelocate.taskId);
         if (itr != taskChainCurr.end()) {
             for (uint i = 0; i < longestJobChains.size(); i++) {
                 const std::vector<JobCEC> &jobChainCurr =
                     longestJobChains[i];  // iterate through each job chain;
-                int siblingJobIndex = FindSiblingJobIndex(job, jobChainCurr);
+                int siblingJobIndex =
+                    FindSiblingJobIndex(jobRelocate, jobChainCurr);
                 if (siblingJobIndex == -1)
                     continue;  // job doesn't appear in this taskChainCurr
                 JobCEC sibJob = jobChainCurr[siblingJobIndex];
-                if (sibJob.EqualWithinHyperPeriod(job, tasksInfo))
+                if (sibJob.EqualWithinHyperPeriod(jobRelocate, tasksInfo))
                     return true;
 
                 if (siblingJobIndex ==
@@ -295,32 +299,23 @@ bool WhetherJobBreakChainDA(const JobCEC &job, LLint startP, LLint finishP,
                         jobChainCurr[siblingJobIndex -
                                      1];  // assume the length of the chain is
                                           // longer than 1
-                    if (job.jobId < sibJob.jobId &&
+                    if (jobRelocate.jobId < sibJob.jobId &&
                         jobOrder.GetJobFinishInstancePosition(beforeSibJob) <
                             startP) {
                         return true;
                     }
                 } else {  // the job is not a source task's job
-                    if (job.jobId < sibJob.jobId)
+                    if (jobRelocate.jobId < sibJob.jobId)
                         continue;  // the job cannot finish later than sibJob,
                                    // and so cannot change immediate backward
                                    // job chain
                     JobCEC sibJobImmediateFollowJob =
                         jobChainCurr[siblingJobIndex + 1];
-                    LLint sibImmeFollJobStart =
-                        jobOrder.GetJobStartInstancePosition(
-                            sibJobImmediateFollowJob);
-                    // predict position change
-                    sibImmeFollJobStart =
-                        PredictInstanceIndexAfterRemoveInsertJob(
-                            sibImmeFollJobStart,
-                            jobOrder.GetJobStartInstancePosition(job),
-                            jobOrder.GetJobFinishInstancePosition(job), startP,
-                            finishP);
-                    if (finishP <= sibImmeFollJobStart &&
-                        job.jobId > sibJob.jobId) {
+                    JobCEC last_read_job_in_new_job_order = FindLastReadingJob(
+                        sibJobImmediateFollowJob, jobRelocate.taskId,
+                        jobOrderNew, tasksInfo);
+                    if (last_read_job_in_new_job_order != sibJob)
                         return true;
-                    }
                 }
             }
         }
