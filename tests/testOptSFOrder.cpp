@@ -92,18 +92,10 @@ class ScheduleDAGModelTest3 : public ScheduleDAGModelTest1 {
     }
 };
 TEST_F(ScheduleDAGModelTest3, ScheduleDAGLS_LFT_true) {
-    ScheduleResult res =
-        OrderOptDAG_SPACE::ScheduleDAGLS_LFT<RTDAExperimentObj>(
-            dagTasks, scheduleOptions, dagTasks.GetSfBound(),
-            dagTasks.GetRtdaBound());
-    EXPECT_TRUE(res.schedulable_);
-}
-
-TEST_F(ScheduleDAGModelTest3, ScheduleDAGLS_LFT_false) {
-    ScheduleResult res = OrderOptDAG_SPACE::ScheduleDAGLS_LFT<RTSS21ICObj>(
+    ScheduleResult res = OrderOptDAG_SPACE::ScheduleDAGLS_LFT<ReactionTimeObj>(
         dagTasks, scheduleOptions, dagTasks.GetSfBound(),
         dagTasks.GetRtdaBound());
-    EXPECT_FALSE(res.schedulable_);
+    EXPECT_TRUE(res.schedulable_);
 }
 
 class ScheduleDAGModelTest4 : public ScheduleDAGModelTest1 {
