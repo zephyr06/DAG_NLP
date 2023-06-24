@@ -239,22 +239,22 @@ bool WhetherJobBreakChainRT(const JobCEC &jobRelocate, LLint startP,
                     jobRelocate,
                     tasksInfo))  // this may not be necessary, but is a safe
                                  // solution
-            {
                 return true;
-            }
 
             if (siblingJobIndex == 0) {  // new source job may initiate a
                                          // different cause-effect chain
-                JobCEC afterSibJob =
-                    jobChainCurr[siblingJobIndex +
-                                 1];  // assume the length of the
-                                      // chain is longer than 1
-                if (sibJob.jobId < jobRelocate.jobId &&
-                    finishP <
-                        jobOrder.GetJobStartInstancePosition(afterSibJob)) {
-                    return true;
-                }
-            } else {  // the job is not a source task's job
+                // JobCEC afterSibJob =
+                //     jobChainCurr[siblingJobIndex +
+                //                  1];  // assume the length of the
+                //                       // chain is longer than 1
+                // if (sibJob.jobId < jobRelocate.jobId &&
+                //     finishP <
+                //         jobOrder.GetJobStartInstancePosition(afterSibJob)) {
+                //     return true;
+                // }
+                continue;  // it seems like no possible situations will break
+                           // the chain in this case
+            } else {       // the job is not a source task's job
                 if (sibJob.jobId < jobRelocate.jobId)
                     continue;  // the job cannot react earlier than sibJob,
                                // and so cannot change reaction relationship
@@ -294,16 +294,18 @@ bool WhetherJobBreakChainDA(const JobCEC &jobRelocate, LLint startP,
             if (siblingJobIndex ==
                 jobChainCurr.size() - 1) {  // new source job may initiate a
                                             // different cause-effect chain
-                JobCEC beforeSibJob =
-                    jobChainCurr[siblingJobIndex -
-                                 1];  // assume the length of the chain is
-                                      // longer than 1
-                if (jobRelocate.jobId < sibJob.jobId &&
-                    jobOrder.GetJobFinishInstancePosition(beforeSibJob) <
-                        startP) {
-                    return true;
-                }
-            } else {  // the job is not a source task's job
+                // JobCEC beforeSibJob =
+                //     jobChainCurr[siblingJobIndex -
+                //                  1];  // assume the length of the chain is
+                //                       // longer than 1
+                // if (jobRelocate.jobId < sibJob.jobId &&
+                //     jobOrder.GetJobFinishInstancePosition(beforeSibJob) <
+                //         startP) {
+                //     return true;
+                // }
+                continue;  // it seems like no possible situations will break
+                           // the chain in this case
+            } else {       // the job is not a source task's job
                 if (jobRelocate.jobId < sibJob.jobId)
                     continue;  // the job cannot finish later than sibJob,
                                // and so cannot change immediate backward
