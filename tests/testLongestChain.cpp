@@ -92,8 +92,8 @@ TEST_F(RTDATest1, break_chain_rt) {
                                        jobOrder, tasksInfo));
     EXPECT_TRUE(WhetherJobBreakChainRT(job0, 0, 1, longestChain, dagTasks,
                                        jobOrder, tasksInfo));
-    EXPECT_TRUE(WhetherJobBreakChainRT(job1, 0, 0, longestChain, dagTasks,
-                                       jobOrder, tasksInfo));
+    EXPECT_FALSE(WhetherJobBreakChainRT(job1, 6, 7, longestChain, dagTasks,
+                                        jobOrder, tasksInfo));
     EXPECT_FALSE(WhetherJobBreakChainRT(JobCEC(1, 0), 0, 0, longestChain,
                                         dagTasks, jobOrder, tasksInfo));
 }
