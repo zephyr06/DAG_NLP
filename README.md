@@ -17,6 +17,11 @@
 cd build
 make check.UnitTests -j2
 ```
+# Generate random task sets
+```
+make GenerateTaskSet
+ ./tests/GenerateTaskSet --taskSetNumber 1000 
+```
 
 # Run the scripts for large-scale experiments
 ```

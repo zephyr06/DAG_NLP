@@ -340,7 +340,10 @@ class DAGScheduleOptimizer {
                     //                            statusPrev.startTimeVector_,
                     //                            tasksInfo))
                     //           << "\n";
-                    CoutWarning(
+                    // CoutWarning(
+                    //     "Find a case where enableIndependentAnalysis
+                    //     fails!");
+                    CoutError(
                         "Find a case where enableIndependentAnalysis fails!");
                 }
             }
