@@ -17,7 +17,7 @@
 #include "sources/Utils/OptimizeOrderUtils.h"
 #include "sources/Utils/profilier.h"
 
-#define SAVE_ITERATION_STAT
+// #define SAVE_ITERATION_STAT
 
 namespace OrderOptDAG_SPACE
 {
