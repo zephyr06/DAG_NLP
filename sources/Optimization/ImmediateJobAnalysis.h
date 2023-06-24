@@ -35,7 +35,7 @@ bool WhetherImmediateBackwardAdjacent(
     const TimeInstance &instCurr, const TimeInstance &instCompare,
     const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
     const VectorDynamic &startTimeVector, SFOrder &jobOrder,
-    double tolerance = 1e-2);
+    double tolerance = GlobalVariablesDAGOpt::LPTolerance + 1e-2);
 
 void FindBackwardAdjacentJob(
     JobCEC job, SFOrder &jobOrder,
