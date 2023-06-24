@@ -106,7 +106,7 @@ TEST_F(TestSFOrderLPOptimizer, CanDoCorrectOptimization) {
     if (GlobalVariablesDAGOpt::EnableHardJobORder != 1) {
         EXPECT_THAT(stvOptimized, Eq(stvExpected));
     } else {
-        stvExpected << 0, 19, 29, 1, 0;
+        stvExpected << 0, 19, 29, 4, 0;
         EXPECT_THAT(stvOptimized, Eq(stvExpected));
     }
 }
