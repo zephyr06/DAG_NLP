@@ -227,6 +227,44 @@ TEST_F(ObjExperimentObjTest_n5_v79, PredictInstanceIndex) {
     EXPECT_EQ(6, PredictInstanceIndexAfterRemoveInsertJob(5, 3, 6, 4, 5));
 }
 
+class ObjExperimentObjTest_n5_v86 : public ::testing::Test {
+   protected:
+    void SetUp() override {
+        dagTasks = ReadDAG_Tasks(
+            GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v86.csv",
+            "orig");  // single-rate dag
+        tasks = dagTasks.tasks;
+        tasksInfo = TaskSetInfoDerived(tasks);
+        dagTasks.chains_ = {{4, 3, 0}, {4, 2, 1}};
+
+        scheduleOptions.considerSensorFusion_ = 0;
+        scheduleOptions.freshTol_ = 0;
+        scheduleOptions.sensorFusionTolerance_ = 0;
+        scheduleOptions.weightInMpRTDA_ = 0.5;
+        scheduleOptions.weightInMpSf_ = 0.5;
+        scheduleOptions.weightPunish_ = 10;
+    }
+    DAG_Model dagTasks;
+    TaskSet tasks;
+    TaskSetInfoDerived tasksInfo;
+    ScheduleOptions scheduleOptions;
+};
+
+TEST_F(ObjExperimentObjTest_n5_v86, WhetherJobBreakChainDA) {
+    VectorDynamic initialEstimate = GenerateVectorDynamic(15);
+    initialEstimate << 1900, 2000, 4236, 2000, 4236, 929, 3165, 0, 1791, 2853,
+        3000, 4127, 5089, 663.999, 3000;
+    SFOrder jobOrderRef(tasksInfo, initialEstimate);
+    jobOrderRef.print();
+    auto longestJobChains_ =
+        LongestCAChain(dagTasks, tasksInfo, jobOrderRef, initialEstimate,
+                       scheduleOptions.processorNum_, "DataAgeObj");
+    auto centralJob = FindCentralJobs(longestJobChains_, tasksInfo);
+    auto activeJobs =
+        FindActiveJobs(centralJob, jobOrderRef, tasksInfo, initialEstimate);
+    std::vector<JobCEC> jobs = activeJobs.GetJobs();
+    EXPECT_TRUE(ifExist<JobCEC>(JobCEC(0, 2), jobs));
+}
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

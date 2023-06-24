@@ -320,16 +320,28 @@ class DAGScheduleOptimizer {
                     std::cout << "\n\n";
                     PrintSchedule(tasksInfo, startTimeVector);
                     jobOrderCurrForFinish.print();
-                    std::cout << "\n" << startTimeVector << "\n\n";
+                    // std::cout << "\n" << startTimeVector << "\n\n";
+                    // std::cout
+                    //     << std::setprecision(10)
+                    //     << GetStartTime(JobCEC(1, 0),
+                    //                     statusPrev.startTimeVector_,
+                    //                     tasksInfo)
+                    //     << "\n";
+                    // std::cout
+                    //     << std::setprecision(10)
+                    //     << GetFinishTime(JobCEC(2, 0),
+                    //                      statusPrev.startTimeVector_,
+                    //                      tasksInfo)
+                    //     << "\n";
+                    // std::cout << (GetFinishTime(JobCEC(2, 0),
+                    //                             statusPrev.startTimeVector_,
+                    //                             tasksInfo) <=
+                    //               GetStartTime(JobCEC(1, 0),
+                    //                            statusPrev.startTimeVector_,
+                    //                            tasksInfo))
+                    //           << "\n";
                     CoutWarning(
                         "Find a case where enableIndependentAnalysis fails!");
-                    // double objCurr1 =
-                    //     ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo,
-                    //     startTimeVector, scheduleOptions);
-                    // double objPrev1 =
-                    // ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo,
-                    // statusPrev.startTimeVector_,
-                    //                                                  scheduleOptions);
                 }
             }
         }
@@ -367,6 +379,11 @@ class DAGScheduleOptimizer {
 #ifdef PROFILE_CODE
         BeginTimer(__FUNCTION__);
 #endif
+
+        // VectorDynamic stv_copy = statusPrev.startTimeVector_;
+        // for (uint i = 0; i < stv_copy.rows(); i++)
+        //     stv_copy(i) = round(stv_copy(i));
+        // jobOrderRef = SFOrder(tasksInfo, stv_copy);
         longestJobChains_ = LongestCAChain(
             dagTasks, tasksInfo, jobOrderRef, statusPrev.startTimeVector_,
             scheduleOptions.processorNum_, ObjectiveFunctionBase::type_trait);

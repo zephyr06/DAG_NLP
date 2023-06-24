@@ -89,8 +89,9 @@ VectorDynamic SFOrderLPOptimizer::getOptimizedStartTimeVector() {
 
 void SFOrderLPOptimizer::AddVariables() {
     numVariables_ = tasksInfo_.variableDimension;
-    varArray_ = IloNumVarArray(env_, numVariables_, 0, tasksInfo_.hyperPeriod,
-                               IloNumVar::Float);
+    varArray_ = IloNumVarArray(
+        env_, numVariables_, 0, tasksInfo_.hyperPeriod,
+        IloNumVar::Float);  // IloNumVar::Float, IloNumVar::Int, IloNumVar::Bool
 }
 
 void SFOrderLPOptimizer::AddDBFConstraints() {
