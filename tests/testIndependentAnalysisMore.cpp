@@ -342,6 +342,51 @@ TEST_F(ObjExperimentObjTest_n3_v60, WhetherJobBreakChainDA) {
     std::vector<JobCEC> jobs = activeJobs.GetJobs();
     EXPECT_TRUE(ifExist<JobCEC>(JobCEC(0, 3), jobs));
 }
+class ObjExperimentObjTest_n5_v88 : public ::testing::Test {
+   protected:
+    void SetUp() override {
+        dagTasks = ReadDAG_Tasks(
+            GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v88.csv",
+            "orig");  // single-rate dag
+        tasks = dagTasks.tasks;
+        tasksInfo = TaskSetInfoDerived(tasks);
+        dagTasks.chains_ = {{3, 1}, {4, 2, 0}};
+
+        scheduleOptions.considerSensorFusion_ = 0;
+        scheduleOptions.freshTol_ = 0;
+        scheduleOptions.sensorFusionTolerance_ = 0;
+        scheduleOptions.weightInMpRTDA_ = 0.5;
+        scheduleOptions.weightInMpSf_ = 0.5;
+        scheduleOptions.weightPunish_ = 10;
+    }
+    DAG_Model dagTasks;
+    TaskSet tasks;
+    TaskSetInfoDerived tasksInfo;
+    ScheduleOptions scheduleOptions;
+};
+
+TEST_F(ObjExperimentObjTest_n5_v88, WhetherJobBreakChainDA) {
+    VectorDynamic initialEstimate = GenerateVectorDynamic(32);
+    initialEstimate << 0, 117, 235, 387, 400, 560, 614, 787, 800, 902, 15, 268,
+        413, 690, 814, 0, 103, 200, 336, 400, 546, 600, 773, 800, 900, 130, 573,
+        14, 247, 414, 684, 813;
+    SFOrder jobOrderRef(tasksInfo, initialEstimate);
+    jobOrderRef.print();
+    auto longestJobChains =
+        LongestCAChain(dagTasks, tasksInfo, jobOrderRef, initialEstimate,
+                       scheduleOptions.processorNum_, "DataAgeObj");
+    auto centralJob = FindCentralJobs(longestJobChains, tasksInfo);
+    auto activeJobs =
+        FindActiveJobs(centralJob, jobOrderRef, tasksInfo, initialEstimate);
+    std::vector<JobCEC> jobs = activeJobs.GetJobs();
+    // EXPECT_TRUE(ifExist<JobCEC>(JobCEC(2, 9), jobs));
+    LLint startP = 61, finishP = 63;
+    JobCEC job(2, 9);
+    EXPECT_TRUE(
+        ifExist<JobCEC>(JobCEC(2, 9 - 10), longestJobChains.longestChains_[1]));
+    EXPECT_TRUE(WhetherJobBreakChainDA(job, startP, finishP, longestJobChains,
+                                       dagTasks, jobOrderRef, tasksInfo));
+}
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
