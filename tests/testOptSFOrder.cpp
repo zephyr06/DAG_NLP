@@ -93,8 +93,7 @@ class ScheduleDAGModelTest3 : public ScheduleDAGModelTest1 {
 };
 TEST_F(ScheduleDAGModelTest3, ScheduleDAGLS_LFT_true) {
     ScheduleResult res = OrderOptDAG_SPACE::ScheduleDAGLS_LFT<ReactionTimeObj>(
-        dagTasks, scheduleOptions, dagTasks.GetSfBound(),
-        dagTasks.GetRtdaBound());
+        dagTasks, scheduleOptions);
     EXPECT_TRUE(res.schedulable_);
 }
 

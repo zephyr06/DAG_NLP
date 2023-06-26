@@ -99,13 +99,6 @@ TEST(GetRandomChains, DAG_Model)
     EXPECT(dagTasks.chains_.size() > 0);
     std::cout << dagTasks.chains_.size() << std::endl;
 }
-TEST(dag_model, GetSfBound)
-{
-    string path = GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n30_v3.csv";
-    DAG_Model dagTasks = ReadDAG_Tasks(path, "orig");
-    EXPECT_LONGS_EQUAL(6409, dagTasks.GetSfBound());
-    EXPECT_LONGS_EQUAL(253533, dagTasks.GetRtdaBound());
-}
 int main()
 {
     TestResult tr;

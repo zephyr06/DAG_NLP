@@ -94,14 +94,12 @@ bool ExamAll_Feasibility(const DAG_Model &dagTasks,
                          const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
                          const VectorDynamic &startTimeVector,
                          const std::vector<uint> &processorJobVec,
-                         int processorNum, double sfBound,
-                         double freshnessBound);
+                         int processorNum);
 
 template <typename ObjectiveFunctionBase>
 ScheduleResult ScheduleDAGLS_LFT(
     const DAG_Model &dagTasks,
-    const OptimizeSF::ScheduleOptions &scheduleOptions, double sfBound,
-    double freshnessBound) {
+    const OptimizeSF::ScheduleOptions &scheduleOptions) {
     const TaskSet &tasks = dagTasks.tasks;
     RegularTaskSystem::TaskSetInfoDerived tasksInfo(tasks);
     std::vector<uint> processorJobVec;
