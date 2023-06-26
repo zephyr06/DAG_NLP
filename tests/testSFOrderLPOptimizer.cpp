@@ -205,6 +205,51 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v56, CanDoCorrectOptimization) {
     //     EXPECT_THAT(stvOptimized, Eq(stvExpected));
     // }
 }
+
+class TestSFOrderLPOptimizer_da_n3_v61 : public Test {
+   public:
+    OrderOptDAG_SPACE::DAG_Model dagTasks;
+    int processorNum;
+    SFOrder sfOrder;
+    TaskSetInfoDerived tasksInfo;
+    std::vector<uint> processorJobVec;
+    OptimizeSF::ScheduleOptions scheduleOptions;
+
+    void SetUp() override {
+        processorNum = 2;
+        dagTasks =
+            ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v61.csv", "orig", 1);
+        TaskSet tasks = dagTasks.tasks;
+        tasksInfo = TaskSetInfoDerived(tasks);
+        VectorDynamic initialSTV = ListSchedulingLFTPA(
+            dagTasks, tasksInfo, processorNum, processorJobVec);
+        sfOrder = SFOrder(tasksInfo, initialSTV);
+        PrintSchedule(tasksInfo, initialSTV);
+        sfOrder.print();
+        scheduleOptions.causeEffectChainNumber_ = 1;
+    }
+};
+// TEST_F(TestSFOrderLPOptimizer_da_n3_v61, CanDoCorrectOptimization) {
+//     VectorDynamic initialSTV =
+//         ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
+//     initialSTV << 0, 10, 0, 6;
+//     sfOrder = SFOrder(tasksInfo, initialSTV);
+//     SFOrderLPOptimizer pSFOrderLPOptimizer(dagTasks, sfOrder, processorNum,
+//                                            "SensorFusionObj");
+//     EXPECT_NO_THROW(pSFOrderLPOptimizer.Optimize(processorJobVec));
+//     VectorDynamic stvOptimized =
+//         pSFOrderLPOptimizer.getOptimizedStartTimeVector();
+//     std::cout << stvOptimized << "\n";
+//     PrintSchedule(tasksInfo, stvOptimized);
+//     EXPECT_TRUE(ExamBasic_Feasibility(dagTasks, tasksInfo, stvOptimized,
+//                                       processorJobVec,
+//                                       scheduleOptions.processorNum_));
+//     EXPECT_EQ(
+//         stvOptimized(0),
+//         stvOptimized(
+//             2));  // job 0-0 and job 1-0 are the last-reading job of job 2-0
+//     EXPECT_THAT(stvOptimized(0), ::testing::Le(stvOptimized(3)));
+// }
 int main(int argc, char **argv) {
     ::testing::InitGoogleMock(&argc, argv);
     return RUN_ALL_TESTS();
