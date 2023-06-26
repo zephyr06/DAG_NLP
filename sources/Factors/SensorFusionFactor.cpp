@@ -108,7 +108,7 @@ namespace OrderOptDAG_SPACE
         {
             return sensor_map;
         }
-        LLint hyperPeriod = tasksInfo.hyperPeriod;
+        LLint hyperPeriod = tasksInfo.hyper_period;
         const TaskSet &tasks = tasksInfo.tasks;
         LLint totalStartJobs = hyperPeriod / tasks[task_id].period + 1;
 

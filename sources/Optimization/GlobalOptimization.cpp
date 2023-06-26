@@ -67,7 +67,7 @@ PermutationStatus FindGlobalOptRTDA(const DAG_Model &dagTasks, const TaskSetInfo
   jobQueueTaskSet.reserve(N);
   for (int i = 0; i < N; i++)
     jobQueueTaskSet.push_back(
-        JobQueueOfATask(dagTasks.tasks[i], tasksInfo.hyperPeriod / dagTasks.tasks[i].period));
+        JobQueueOfATask(dagTasks.tasks[i], tasksInfo.hyper_period / dagTasks.tasks[i].period));
 
   std::vector<TimeInstance> prevSeq;
   prevSeq.reserve(2 * tasksInfo.length);

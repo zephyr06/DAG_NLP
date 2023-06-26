@@ -10,10 +10,10 @@ namespace OrderOptDAG_SPACE
     {
       CoutError("GetStartTime receives invalid jobCEC!");
     }
-    int jobNumInHyperPeriod = tasksInfo.hyperPeriod / tasksInfo.tasks[jobCEC.taskId].period;
+    int jobNumInHyperPeriod = tasksInfo.hyper_period / tasksInfo.tasks[jobCEC.taskId].period;
 
     double res = x.at<VectorDynamic>(GenerateKey(jobCEC.taskId, jobCEC.jobId % jobNumInHyperPeriod))(0) +
-                 jobCEC.jobId / jobNumInHyperPeriod * tasksInfo.hyperPeriod;
+                 jobCEC.jobId / jobNumInHyperPeriod * tasksInfo.hyper_period;
     return res;
   }
 
@@ -24,15 +24,15 @@ namespace OrderOptDAG_SPACE
     {
       CoutError("GetStartTime receives invalid jobCEC!");
     }
-    int jobNumInHyperPeriod = tasksInfo.hyperPeriod / tasksInfo.tasks[jobCEC.taskId].period;
+    int jobNumInHyperPeriod = tasksInfo.hyper_period / tasksInfo.tasks[jobCEC.taskId].period;
     if (jobCEC.jobId >= 0 || jobCEC.jobId % jobNumInHyperPeriod == 0)
       return x(IndexTran_Instance2Overall(jobCEC.taskId, jobCEC.jobId % jobNumInHyperPeriod,
                                           tasksInfo.sizeOfVariables)) +
-             jobCEC.jobId / jobNumInHyperPeriod * tasksInfo.hyperPeriod;
+             jobCEC.jobId / jobNumInHyperPeriod * tasksInfo.hyper_period;
     else // if (jobCEC.jobId <0 )
       return x(IndexTran_Instance2Overall(jobCEC.taskId, jobCEC.jobId % jobNumInHyperPeriod + jobNumInHyperPeriod,
                                           tasksInfo.sizeOfVariables)) +
-             jobCEC.jobId / jobNumInHyperPeriod * tasksInfo.hyperPeriod - tasksInfo.hyperPeriod;
+             jobCEC.jobId / jobNumInHyperPeriod * tasksInfo.hyper_period - tasksInfo.hyper_period;
   }
 
   std::vector<std::pair<std::pair<double, double>, JobCEC>>
@@ -146,7 +146,7 @@ namespace OrderOptDAG_SPACE
     int finishHpIndex = jobFinish.jobId / tasksInfo.sizeOfVariables[jobFinish.taskId];
     if (finishHpIndex < startHpIndex)
       CoutError("Wrong order of jobStart and jobFinish!");
-    return (finishHpIndex - startHpIndex) * tasksInfo.hyperPeriod;
+    return (finishHpIndex - startHpIndex) * tasksInfo.hyper_period;
   }
 
 } // namespace OrderOptDAG_SPACE

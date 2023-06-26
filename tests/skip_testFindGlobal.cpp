@@ -94,7 +94,7 @@ TEST_F(DAGScheduleOptimizerTest2, IterateTimeInstanceSeq)
   jobQueueTaskSet.reserve(N);
   for (int i = 0; i < N; i++)
     jobQueueTaskSet.push_back(
-        JobQueueOfATask(dagTasks.tasks[i], tasksInfo.hyperPeriod / dagTasks.tasks[i].period));
+        JobQueueOfATask(dagTasks.tasks[i], tasksInfo.hyper_period / dagTasks.tasks[i].period));
 
   IterateTimeInstanceSeq(prevSeq, jobQueueTaskSet, permutationStatus);
   // EXPECT_EQ(6, permutationStatus.totalPermutation_);

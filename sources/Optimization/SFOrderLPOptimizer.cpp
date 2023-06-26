@@ -90,7 +90,7 @@ VectorDynamic SFOrderLPOptimizer::getOptimizedStartTimeVector() {
 void SFOrderLPOptimizer::AddVariables() {
     numVariables_ = tasksInfo_.variableDimension;
     varArray_ = IloNumVarArray(
-        env_, numVariables_, 0, tasksInfo_.hyperPeriod,
+        env_, numVariables_, 0, tasksInfo_.hyper_period,
         IloNumVar::Float);  // IloNumVar::Float, IloNumVar::Int, IloNumVar::Bool
 }
 
@@ -294,7 +294,7 @@ void SFOrderLPOptimizer::AddNormalObjectives() {
     IloExpr rtda_expression(env_);
     std::stringstream var_name;
     int chain_count = 0;
-    LLint hyper_period = tasksInfo_.hyperPeriod;
+    LLint hyper_period = tasksInfo_.hyper_period;
     const TaskSet &tasks = tasksInfo_.tasks;
 
     for (auto chain : dagTasks_.chains_) {
@@ -359,7 +359,7 @@ void SFOrderLPOptimizer::AddReactionTimeObj() {
         AddCauseEffectiveChainConstraintsFromReactMap(react_chain_map);
 
         LLint total_start_jobs =
-            tasksInfo_.hyperPeriod / tasksInfo_.tasks[chain[0]].period;
+            tasksInfo_.hyper_period / tasksInfo_.tasks[chain[0]].period;
         for (LLint start_instance_index = 0;
              start_instance_index < total_start_jobs; start_instance_index++) {
             JobCEC start_job = {chain[0], (start_instance_index)};
@@ -388,7 +388,7 @@ void SFOrderLPOptimizer::AddDataAgeObj() {
         AddCauseEffectiveChainConstraintsFromDaMap(da_chain_map);
 
         LLint total_start_jobs =
-            tasksInfo_.hyperPeriod / tasksInfo_.tasks[chain.back()].period;
+            tasksInfo_.hyper_period / tasksInfo_.tasks[chain.back()].period;
         for (LLint start_instance_index = 0;
              start_instance_index < total_start_jobs; start_instance_index++) {
             JobCEC sink_job = {chain.back(), (start_instance_index)};
@@ -411,13 +411,13 @@ IloExpr SFOrderLPOptimizer::GetStartTimeExpression(JobCEC &jobCEC) {
         CoutError("GetStartTime receives invalid jobCEC!");
     }
     int jobNumInHyperPeriod =
-        tasksInfo_.hyperPeriod / tasksInfo_.tasks[jobCEC.taskId].period;
+        tasksInfo_.hyper_period / tasksInfo_.tasks[jobCEC.taskId].period;
     exp += varArray_[GetJobUniqueId(jobCEC, tasksInfo_)];
     if (jobCEC.jobId >= 0 || jobCEC.jobId % jobNumInHyperPeriod == 0)
-        exp += jobCEC.jobId / jobNumInHyperPeriod * tasksInfo_.hyperPeriod;
+        exp += jobCEC.jobId / jobNumInHyperPeriod * tasksInfo_.hyper_period;
     else
         exp +=
-            (jobCEC.jobId / jobNumInHyperPeriod - 1) * tasksInfo_.hyperPeriod;
+            (jobCEC.jobId / jobNumInHyperPeriod - 1) * tasksInfo_.hyper_period;
     return exp;
 }
 

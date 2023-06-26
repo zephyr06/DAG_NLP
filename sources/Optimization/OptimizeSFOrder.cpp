@@ -52,7 +52,7 @@ JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate, SFOrder &jobOrderR
     }
 
     int nextInstance = ceil(GetDeadline(jobRelocate, tasksInfo) / double(tasksInfo.tasks[i].period));
-    if (nextInstance < tasksInfo.hyperPeriod / tasksInfo.tasks[i].period) {
+    if (nextInstance < tasksInfo.hyper_period / tasksInfo.tasks[i].period) {
       JobCEC jobNext(i, nextInstance);
       range.maxIndex = std::min(range.maxIndex, int(jobOrderRef.GetJobStartInstancePosition(jobNext)));
     }

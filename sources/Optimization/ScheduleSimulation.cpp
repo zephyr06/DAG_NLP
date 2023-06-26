@@ -94,7 +94,7 @@ VectorDynamic SimulateFixedPrioritySched(const DAG_Model &dagTasks, const TaskSe
   std::vector<LLint> nextFree(processorNum, -1);
   // LLint nextFree;
 
-  for (LLint timeNow = timeInitial; timeNow < tasksInfo.hyperPeriod; timeNow++) {
+  for (LLint timeNow = timeInitial; timeNow < tasksInfo.hyper_period; timeNow++) {
     // check whether to add new instances
     AddTasksToRunQueues(runQueues, tasks, processorId2Index, timeNow);
 
@@ -136,7 +136,7 @@ VectorDynamic ListSchedulingLFTPA(const DAG_Model &dagTasks, const TaskSetInfoDe
   if (processorIdVec)
     *processorIdVec = Eigen2Vector<uint>(initial);
 
-  for (LLint timeNow = timeInitial; timeNow < tasksInfo.hyperPeriod;) {
+  for (LLint timeNow = timeInitial; timeNow < tasksInfo.hyper_period;) {
     AddTasksToRunQueue(runQueue, tasks, timeNow, eventPool);
 
     for (int processorId = 0; processorId < processorNum; processorId++) {

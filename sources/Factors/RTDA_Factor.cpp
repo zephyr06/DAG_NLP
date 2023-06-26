@@ -19,7 +19,7 @@ std::vector<RTDA> GetRTDAFromSingleJob(const TaskSetInfoDerived &tasksInfo,
     if (causeEffectChain.size() == 0) {
         return {RTDA(0, 0)};
     }
-    LLint hyperPeriod = tasksInfo.hyperPeriod;
+    LLint hyperPeriod = tasksInfo.hyper_period;
     const TaskSet &tasks = tasksInfo.tasks;
     LLint totalStartJobs = hyperPeriod / tasks[causeEffectChain[0]].period + 1;
     RTDA res;
@@ -123,7 +123,7 @@ std::unordered_map<JobCEC, std::vector<JobCEC>> GetRTDAReactChainsFromSingleJob(
     if (causeEffectChain.size() == 0) {
         return firstReactionChainMap;
     }
-    LLint hyperPeriod = tasksInfo.hyperPeriod;
+    LLint hyperPeriod = tasksInfo.hyper_period;
     const TaskSet &tasks = tasksInfo.tasks;
     LLint totalStartJobs = hyperPeriod / tasks[causeEffectChain[0]].period + 1;
 
@@ -173,7 +173,7 @@ std::unordered_map<JobCEC, std::vector<JobCEC>> GetReactionChainMap(
     SFOrder &jobOrder, int processorNum,
     const std::vector<int> &causeEffectChain, int chainIndex) {
     std::unordered_map<JobCEC, std::vector<JobCEC>> firstReactionChainMap;
-    LLint hyperPeriod = tasksInfo.hyperPeriod;
+    LLint hyperPeriod = tasksInfo.hyper_period;
     const TaskSet &tasks = tasksInfo.tasks;
     LLint totalStartJobs = hyperPeriod / tasks[causeEffectChain[0]].period + 1;
 
@@ -221,7 +221,7 @@ std::unordered_map<JobCEC, std::vector<JobCEC>> GetDataAgeChainMap(
     const std::vector<int> &causeEffectChain, int chainIndex) {
     std::unordered_map<JobCEC, std::vector<JobCEC>> lastReadingChainMap;
     LLint totalStartJobs =
-        tasksInfo.hyperPeriod / tasksInfo.tasks[causeEffectChain.back()].period;
+        tasksInfo.hyper_period / tasksInfo.tasks[causeEffectChain.back()].period;
 
     for (LLint startInstanceIndex = 0; startInstanceIndex < totalStartJobs;
          startInstanceIndex++) {
