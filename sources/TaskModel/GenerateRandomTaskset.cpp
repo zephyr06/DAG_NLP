@@ -76,27 +76,19 @@ TaskSet GenerateTaskSet(int N, double totalUtilization, int numberOfProcessor,
     }
     return tasks;
 }
-void WriteTaskSets(std::ofstream &file, TaskSet &tasks) {
-    int N = tasks.size();
-    file << "JobID,Offset,Period,Overhead,ExecutionTime,DeadLine,processorId,"
-            "coreRequire\n";
-    for (int i = 0; i < N; i++) {
-        file << tasks[i].id << "," << tasks[i].offset << "," << tasks[i].period
-             << "," << tasks[i].overhead << "," << tasks[i].executionTime << ","
-             << tasks[i].deadline << "," << tasks[i].processorId << ","
-             << tasks[i].coreRequire << "\n";
-    }
-}
 
 using namespace OrderOptDAG_SPACE;
 DAG_Model GenerateDAG(int N, double totalUtilization, int numberOfProcessor,
                       int periodMin, int periodMax, int coreRequireMax,
-                      int taskSetType, int deadlineType) {
+                      int sf_fork_num, int fork_sensor_num_min,
+                      int fork_sensor_num_max, int taskSetType,
+                      int deadlineType) {
     TaskSet tasks =
         GenerateTaskSet(N, totalUtilization, numberOfProcessor, periodMin,
                         periodMax, coreRequireMax, taskSetType, deadlineType);
     MAP_Prev mapPrev;
-    DAG_Model dagModel(tasks, mapPrev);
+    DAG_Model dagModel;
+    dagModel.tasks = tasks;
     // add edges randomly
     for (int i = 0; i < N; i++) {
         for (int j = i + 1; j < N; j++) {
@@ -107,14 +99,63 @@ DAG_Model GenerateDAG(int N, double totalUtilization, int numberOfProcessor,
         }
     }
 
-    return dagModel;
+    return DAG_Model(tasks, dagModel.mapPrev, sf_fork_num, fork_sensor_num_min,
+                     fork_sensor_num_max);
 }
 
-void WriteDAG(std::ofstream &file, DAG_Model &tasksDAG) {
-    WriteTaskSets(file, tasksDAG.tasks);
-    for (auto itr = tasksDAG.mapPrev.begin(); itr != tasksDAG.mapPrev.end();
+void WriteTaskSets(std::ofstream &file, const TaskSet &tasks) {
+    int N = tasks.size();
+    file << "JobID,Period,ExecutionTime,DeadLine,processorId"
+            "\n";
+    for (int i = 0; i < N; i++) {
+        file << tasks[i].id
+             // << "," << tasks[i].offset
+             << ","
+             << tasks[i].period
+             //  << "," << tasks[i].overhead
+             << "," << tasks[i].executionTime << "," << tasks[i].deadline << ","
+             << tasks[i].processorId
+
+             // << "," << tasks[i].coreRequire
+             << "\n";
+    }
+}
+void WriteDAG(std::ofstream &file, DAG_Model &dag_tasks) {
+    // WriteTaskSets(file, dag_tasks.tasks);
+    const TaskSet &tasks = dag_tasks.tasks;
+    int N = dag_tasks.tasks.size();
+    file << "JobID,Period,ExecutionTime,DeadLine,processorId"
+            "\n";
+    for (int i = 0; i < N; i++) {
+        file << tasks[i].id
+             // << "," << tasks[i].offset
+             << ","
+             << tasks[i].period
+             //  << "," << tasks[i].overhead
+             << "," << tasks[i].executionTime << "," << tasks[i].deadline << ","
+             << tasks[i].processorId
+
+             // << "," << tasks[i].coreRequire
+             << "\n";
+    }
+
+    file << "Note: "
+         << "*a,b"
+         << " means a->b, i.e., a writes data and b reads data from it\n";
+    for (const auto &chain : dag_tasks.chains_) {
+        file << "@Chain:";
+        for (int x : chain) file << x << ", ";
+        file << "\n";
+    }
+    for (const auto &sf_fork : dag_tasks.sf_forks_) {
+        file << "@Fork_source:";
+        for (int x : sf_fork.source) file << x << ", ";
+        file << "\n";
+        file << "@Fork_sink:" << sf_fork.sink << ", \n";
+    }
+    for (auto itr = dag_tasks.mapPrev.begin(); itr != dag_tasks.mapPrev.end();
          itr++) {
         for (uint i = 0; i < itr->second.size(); i++)
-            file << "*" << (itr->first) << "," << ((itr->second)[i].id) << "\n";
+            file << "*" << ((itr->second)[i].id) << "," << (itr->first) << "\n";
     }
 }
