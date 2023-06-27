@@ -81,8 +81,8 @@ using namespace OrderOptDAG_SPACE;
 DAG_Model GenerateDAG(int N, double totalUtilization, int numberOfProcessor,
                       int periodMin, int periodMax, int coreRequireMax,
                       int sf_fork_num, int fork_sensor_num_min,
-                      int fork_sensor_num_max, int taskSetType,
-                      int deadlineType) {
+                      int fork_sensor_num_max, int numCauseEffectChain,
+                      int taskSetType, int deadlineType) {
     TaskSet tasks =
         GenerateTaskSet(N, totalUtilization, numberOfProcessor, periodMin,
                         periodMax, coreRequireMax, taskSetType, deadlineType);
@@ -100,7 +100,7 @@ DAG_Model GenerateDAG(int N, double totalUtilization, int numberOfProcessor,
     }
 
     return DAG_Model(tasks, dagModel.mapPrev, sf_fork_num, fork_sensor_num_min,
-                     fork_sensor_num_max);
+                     fork_sensor_num_max, numCauseEffectChain);
 }
 
 void WriteTaskSets(std::ofstream &file, const TaskSet &tasks) {

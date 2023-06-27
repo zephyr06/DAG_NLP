@@ -33,7 +33,7 @@ void WriteTaskSets(std::ofstream &file, TaskSet &tasks);
 DAG_Model GenerateDAG(int N, double totalUtilization, int numberOfProcessor,
                       int periodMin, int periodMax, int coreRequireMax,
                       int sf_fork_num, int fork_sensor_num_min,
-                      int fork_sensor_num_max, int taskSetType = 1,
-                      int deadlineType = 0);
+                      int fork_sensor_num_max, int numCauseEffectChain,
+                      int taskSetType = 1, int deadlineType = 0);
 
 void WriteDAG(std::ofstream &file, DAG_Model &tasksDAG);

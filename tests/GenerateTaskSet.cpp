@@ -115,6 +115,12 @@ int main(int argc, char *argv[]) {
             "the maximum number of sensor tasks for each fork in SF "
             "experiments")
         .scan<'i', int>();
+    program.add_argument("--numCauseEffectChain")
+        .default_value(1)
+        .help(
+            "the number of random cause-effect chains, default value will read "
+            "from config.yaml")
+        .scan<'i', int>();
 
     // program.add_argument("--parallelismFactor")
     //     .default_value(1000)
@@ -152,6 +158,7 @@ int main(int argc, char *argv[]) {
     int SF_ForkNum = program.get<int>("--SF_ForkNum");
     int fork_sensor_num_min = program.get<int>("--fork_sensor_num_min");
     int fork_sensor_num_max = program.get<int>("--fork_sensor_num_max");
+    int numCauseEffectChain = program.get<int>("--numCauseEffectChain");
 
     if (randomSeed < 0) {
         srand(time(0));
@@ -210,6 +217,9 @@ int main(int argc, char *argv[]) {
         << "the minimum number of sensor tasks for each fork in SF experiments "
            "(--fork_sensor_num_max): "
         << fork_sensor_num_max << std::endl
+        << "numCauseEffectChain, the number of random cause-effect chains,"
+           "default value will read from config.yaml (--numCauseEffectChain): "
+        << numCauseEffectChain << std::endl
         << std::endl;
 
     std::string outDirectory = GlobalVariablesDAGOpt::PROJECT_PATH + outDir;
@@ -217,7 +227,7 @@ int main(int argc, char *argv[]) {
     // "Energy_Opt_NLP/TaskData/task_number/";
     deleteDirectoryContents(outDirectory);
 
-    for (size_t i = 0; i < DAG_taskSetNumber; i++) {
+    for (int i = 0; i < DAG_taskSetNumber; i++) {
         if (useRandomUtilization) {
             totalUtilization =
                 numberOfProcessor *
@@ -230,54 +240,61 @@ int main(int argc, char *argv[]) {
             CoutError("Not recognized type, needs implementation");
         } else if (taskType == 1)  // DAG task set
         {
-            while (true) {
-                DAG_Model tasks = GenerateDAG(
-                    N, totalUtilization, numberOfProcessor, periodMin,
-                    periodMax, coreRequireMax, SF_ForkNum, fork_sensor_num_min,
-                    fork_sensor_num_max, taskSetType, deadlineType);
-                if (excludeEmptyEdgeDag == 1) {
-                    bool whether_empty_edges = true;
-                    for (auto pair : tasks.mapPrev) {
-                        if (pair.second.size() > 0) {
-                            whether_empty_edges = false;
-                            break;
-                        }
-                    }
-                    if (whether_empty_edges) {
-                        continue;
+            DAG_Model dag_tasks =
+                GenerateDAG(N, totalUtilization, numberOfProcessor, periodMin,
+                            periodMax, coreRequireMax, SF_ForkNum,
+                            fork_sensor_num_min, fork_sensor_num_max,
+                            numCauseEffectChain, taskSetType, deadlineType);
+            if (excludeEmptyEdgeDag == 1) {
+                bool whether_empty_edges = true;
+                for (auto pair : dag_tasks.mapPrev) {
+                    if (pair.second.size() > 0) {
+                        whether_empty_edges = false;
+                        break;
                     }
                 }
-                if (excludeUnschedulable == 1) {
-                    // rt_num_opt::RTA_DAG_Model rta(tasks);
-                    // std::cout << rta.CheckSchedulability() << std::endl;
-                    TaskSet &taskSet = tasks.tasks;
-                    TaskSetInfoDerived tasksInfo(taskSet);
-                    std::vector<uint> processorJobVec;
-                    // std::optional<JobOrderMultiCore> emptyOrder;
-                    VectorDynamic initialSTV = ListSchedulingLFTPA(
-                        tasks, tasksInfo, numberOfProcessor, processorJobVec);
-                    if ((considerSensorFusion == 0 &&
-                         (!ExamBasic_Feasibility(tasks, tasksInfo, initialSTV,
-                                                 processorJobVec,
-                                                 numberOfProcessor))) ||
-                        (considerSensorFusion != 0 &&
-                         (!ExamDDL_Feasibility(tasks, tasksInfo,
-                                               initialSTV)))) {
-                        if (GlobalVariablesDAGOpt::debugMode) {
-                            std::cout << "Un feasible case, skipped.\n";
-                        }
-                        continue;
-                    }
+                if (whether_empty_edges) {
+                    i--;
+                    continue;
                 }
-                string fileName = "dag-set-N" + to_string(N) + "-" +
-                                  string(3 - to_string(i).size(), '0') +
-                                  to_string(i) + "-syntheticJobs" + ".csv";
-                std::ofstream myfile;
-                myfile.open(outDirectory + fileName);
-                WriteDAG(myfile, tasks);
-                myfile.close();
-                break;
             }
+            if (excludeUnschedulable == 1) {
+                // rt_num_opt::RTA_DAG_Model rta(tasks);
+                // std::cout << rta.CheckSchedulability() << std::endl;
+                TaskSet &taskSet = dag_tasks.tasks;
+                TaskSetInfoDerived tasksInfo(taskSet);
+                std::vector<uint> processorJobVec;
+                // std::optional<JobOrderMultiCore> emptyOrder;
+                VectorDynamic initialSTV = ListSchedulingLFTPA(
+                    dag_tasks, tasksInfo, numberOfProcessor, processorJobVec);
+                if (!ExamBasic_Feasibility(dag_tasks, tasksInfo, initialSTV,
+                                           processorJobVec,
+                                           numberOfProcessor)) {
+                    i--;
+                    continue;
+                }
+            }
+
+            if (SF_ForkNum > 0) {
+                if (dag_tasks.sf_forks_.size() < SF_ForkNum) {
+                    i--;
+                    continue;
+                }
+            }
+            if (numCauseEffectChain > 0) {
+                if (dag_tasks.chains_.size() < numCauseEffectChain) {
+                    i--;
+                    continue;
+                }
+            }
+
+            string fileName = "dag-set-N" + to_string(N) + "-" +
+                              string(3 - to_string(i).size(), '0') +
+                              to_string(i) + "-syntheticJobs" + ".csv";
+            std::ofstream myfile;
+            myfile.open(outDirectory + fileName);
+            WriteDAG(myfile, dag_tasks);
+            myfile.close();
         }
     }
 
