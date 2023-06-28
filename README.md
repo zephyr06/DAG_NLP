@@ -20,7 +20,7 @@ make check.UnitTests -j2
 # Generate random task sets
 ```
 make GenerateTaskSet
- ./tests/GenerateTaskSet --taskSetNumber 1000 
+ ./tests/GenerateTaskSet --N 10 --taskSetNumber 10 --SF_ForkNum 2 --numCauseEffectChain 2
 ```
 
 # Run the scripts for large-scale experiments

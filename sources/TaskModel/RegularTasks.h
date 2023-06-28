@@ -5,6 +5,10 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
+// #include <filesystem>
+#include <boost/function.hpp>
+#include <boost/integer/common_factor.hpp>
+// #include <CppUnitLite/TestHarness.h>
 
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/Utils/Parameters.h"
@@ -119,7 +123,7 @@ class Task {
         else
             CoutError("Priority settings not recognized!");
         return -1;
-    }  // namespace RegularTaskSystem
+    }
     /**
      * only used in ReadTaskSet because the input parameter's type is int
      **/
@@ -190,6 +194,7 @@ long long int lcm(long long int a, long long int b);
 
 long long int HyperPeriod(const TaskSet &tasks);
 
+// should not be used anymore
 TaskSet Reorder(TaskSet tasks, std::string priorityType);
 TaskSet ReadTaskSet(std::string path, std::string priorityType = "RM",
                     int taskSetType = 1);

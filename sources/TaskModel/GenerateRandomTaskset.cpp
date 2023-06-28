@@ -20,30 +20,59 @@ std::vector<double> Uunifast(int N, double utilAll, bool boundU) {
 }
 
 TaskSet GenerateTaskSet(int N, double totalUtilization, int numberOfProcessor,
-                        int coreRequireMax, int taskSetType, int deadlineType) {
+                        int periodMin, int periodMax, int coreRequireMax,
+                        int taskSetType, int deadlineType) {
     std::vector<double> utilVec = Uunifast(N, totalUtilization);
     TaskSet tasks;
+    int periodMaxRatio = periodMax / periodMin;
 
     for (int i = 0; i < N; i++) {
         int periodCurr = 0;
         int processorId = rand() % numberOfProcessor;
         int coreRequire = 1 + rand() % (coreRequireMax);
-
-        // automobile periods with WATERS distribution
-        int probability = rand() % PeriodCDFWaters.back();
-        int period_idx = 0;
-        while (probability > PeriodCDFWaters[period_idx]) {
-            period_idx++;
-        }
-        periodCurr = int(PeriodSetWaters[period_idx]);
-        double deadline = periodCurr;
-        if (deadlineType == 1)
-            deadline = round(RandRange(
-                std::max(1.0, ceil(periodCurr * utilVec[i])), periodCurr));
-        Task task(0, periodCurr, 0,
-                  std::max(1.0, ceil(periodCurr * utilVec[i])), deadline, i,
-                  processorId, coreRequire);
-        tasks.push_back(task);
+        if (taskSetType == 1)  // fully random task set
+        {
+            periodCurr = (1 + rand() % periodMaxRatio) * periodMin;
+            double deadline = periodCurr;
+            if (deadlineType == 1)
+                deadline = RandRange(ceil(periodCurr * utilVec[i]), periodCurr);
+            Task task(0, periodCurr, 0,
+                      std::max(1.0, ceil(periodCurr * utilVec[i])), deadline, i,
+                      processorId, coreRequire);
+            tasks.push_back(task);
+        } else if (taskSetType ==
+                   2)  // random choice from AutoMobile set 'PeriodSetAM'
+        {
+            periodCurr = int(PeriodSetAM[rand() % PeriodSetAM.size()] *
+                             GlobalVariablesDAGOpt::timeScaleFactor);
+            double deadline = periodCurr;
+            if (deadlineType == 1)
+                deadline = round(RandRange(
+                    std::max(1.0, ceil(periodCurr * utilVec[i])), periodCurr));
+            Task task(0, periodCurr, 0,
+                      std::max(1.0, ceil(periodCurr * utilVec[i])), deadline, i,
+                      processorId, coreRequire);
+            tasks.push_back(task);
+        } else if (taskSetType ==
+                   3)  // automobile periods with WATERS distribution
+        {
+            int probability = rand() % PeriodCDFWaters.back();
+            int period_idx = 0;
+            while (probability > PeriodCDFWaters[period_idx]) {
+                period_idx++;
+            }
+            periodCurr = int(PeriodSetWaters[period_idx] *
+                             GlobalVariablesDAGOpt::timeScaleFactor);
+            double deadline = periodCurr;
+            if (deadlineType == 1)
+                deadline = round(RandRange(
+                    std::max(1.0, ceil(periodCurr * utilVec[i])), periodCurr));
+            Task task(0, periodCurr, 0,
+                      std::max(1.0, ceil(periodCurr * utilVec[i])), deadline, i,
+                      processorId, coreRequire);
+            tasks.push_back(task);
+        } else
+            CoutError("Not recognized taskSetType!");
     }
     return tasks;
 }
@@ -61,9 +90,10 @@ DAG_Model GenerateDAG(int N, double totalUtilization, int numberOfProcessor,
     DAG_Model dagModel;
     dagModel.tasks = tasks;
     // add edges randomly
-    for (int i = 0; i < tasks_params.N; i++) {
-        for (int j = i + 1; j < tasks_params.N; j++) {
-            if (double(rand()) / RAND_MAX < tasks_params.parallelismFactor) {
+    for (int i = 0; i < N; i++) {
+        for (int j = i + 1; j < N; j++) {
+            if (double(rand()) / RAND_MAX <
+                GlobalVariablesDAGOpt::parallelFactor) {
                 dagModel.addEdge(i, j);
             }
         }
