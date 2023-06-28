@@ -17,6 +17,7 @@
 #include <utility>
 #include <utility>  // for std::pair
 
+#include "sources/TaskModel/Edge.h"
 #include "sources/TaskModel/RegularTasks.h"
 
 typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::bidirectionalS,
@@ -110,4 +111,5 @@ class DAG_Model {
 DAG_Model ReadDAG_Tasks(std::string path, std::string priorityType = "orig",
                         int chainNum = 1);
 
+std::vector<std::vector<int>> GetChainsForSF(const DAG_Model &dag_tasks);
 }  // namespace OrderOptDAG_SPACE

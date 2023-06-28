@@ -2,6 +2,23 @@
 
 namespace OrderOptDAG_SPACE {
 
+std::vector<std::vector<int>> GetChainsForSF(const DAG_Model &dag_tasks) {
+    std::vector<std::vector<int>> chains;
+    std::unordered_set<Edge> edge_record;
+    for (const auto &fork_curr : dag_tasks.sf_forks_) {
+        int sink_task_id = fork_curr.sink;
+        const std::vector<int> &source_tasks = fork_curr.source;
+        for (int source_id : source_tasks) {
+            Edge edge_curr(source_id, sink_task_id);
+            if (edge_record.find(edge_curr) == edge_record.end()) {
+                edge_record.insert(edge_curr);
+                chains.push_back({source_id, sink_task_id});
+            }
+        }
+    }
+    return chains;
+}
+
 std::vector<int> shortest_paths(Vertex root, Vertex target, Graph const &g) {
     std::vector<int> path;
     // find shortest paths from the root

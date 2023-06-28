@@ -276,6 +276,7 @@ int main(int argc, char *argv[]) {
             }
 
             if (SF_ForkNum > 0) {
+                dag_tasks.chains_ = GetChainsForSF(dag_tasks);
                 if (dag_tasks.sf_forks_.size() < SF_ForkNum) {
                     i--;
                     continue;
