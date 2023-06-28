@@ -2,9 +2,9 @@
 #define SFORDER_LP_OPTIMIZER_H_
 #include "ilcplex/cplex.h"
 #include "ilcplex/ilocplex.h"
+#include "sources/Factors/ObjSensorFusion.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/OptimizeOrderUtils.h"
-
 namespace OrderOptDAG_SPACE {
 class SFOrderLPOptimizer {
    public:
@@ -39,9 +39,13 @@ class SFOrderLPOptimizer {
     void AddNormalObjectives();  // RTDA obj
     void AddReactionTimeObj();
     void AddDataAgeObj();
+
+    void AddSensorFusionObjFromSourceJobs(
+        const std::vector<JobCEC> &last_reading_jobs,
+        const IloNumVar &theta_sf);
     void AddSensorFusionObj();
-    IloExpr GetStartTimeExpression(JobCEC &jobCEC);
-    IloExpr GetFinishTimeExpression(JobCEC &jobCEC);
+    IloExpr GetStartTimeExpression(const JobCEC &jobCEC);
+    IloExpr GetFinishTimeExpression(const JobCEC &jobCEC);
     void UpdateOptimizedStartTimeVector(IloNumArray &values_optimized);
     inline void setInitialStartTimeVector(
         const VectorDynamic &initialStartTimeVector) {

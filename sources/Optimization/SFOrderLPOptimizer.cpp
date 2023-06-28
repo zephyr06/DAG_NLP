@@ -120,6 +120,8 @@ void SFOrderLPOptimizer::AddDBFConstraints() {
     }
 
     // EndTimer("LPAddDBFConstraints");
+    if (GlobalVariablesDAGOpt::debugMode)
+        WriteModelToFile("AddDBFConstraints.lp");
 }
 
 void SFOrderLPOptimizer::AddDDLConstraints() {
@@ -403,9 +405,60 @@ void SFOrderLPOptimizer::AddDataAgeObj() {
     if (GlobalVariablesDAGOpt::debugMode)
         WriteModelToFile("AddDataAgeObj.lp");
 }
-void SFOrderLPOptimizer::AddSensorFusionObj() { CoutError("Not implemented!"); }
 
-IloExpr SFOrderLPOptimizer::GetStartTimeExpression(JobCEC &jobCEC) {
+void SFOrderLPOptimizer::AddSensorFusionObjFromSourceJobs(
+    const std::vector<JobCEC> &last_reading_jobs, const IloNumVar &theta_sf) {
+    for (uint i = 0; i < last_reading_jobs.size(); i++) {
+        for (uint j = i + 1; j < last_reading_jobs.size(); j++) {
+            model_.add(theta_sf >=
+                       (GetFinishTimeExpression(last_reading_jobs[i]) -
+                        GetFinishTimeExpression(last_reading_jobs[j])));
+            model_.add(theta_sf >=
+                       (GetFinishTimeExpression(last_reading_jobs[j]) -
+                        GetFinishTimeExpression(last_reading_jobs[i])));
+        }
+    }
+}
+
+void SFOrderLPOptimizer::AddSensorFusionObj() {
+    IloExpr rtda_expression(env_);
+    int fork_count = 0;
+
+    for (auto chain : dagTasks_.chains_) {
+        auto da_chain_map = GetDataAgeChainMap(
+            dagTasks_, tasksInfo_, sfOrder_, 1, chain,
+            1);  // 1 and 1 are unused parameters in the function
+
+        // add cause effective chain constraints together with objectives to
+        // save time
+        AddCauseEffectiveChainConstraintsFromDaMap(da_chain_map);
+    }
+
+    for (auto &sf_fork : dagTasks_.sf_forks_) {
+        std::string var_name = "Fork_" + std::to_string(fork_count++);
+        auto theta_sf =
+            IloNumVar(env_, 0, IloInfinity, IloNumVar::Float, var_name.c_str());
+        int sink_id = sf_fork.sink;
+        auto source_ids = sf_fork.source;
+        for (int sink_job_id = 0;
+             sink_job_id <
+             tasksInfo_.hyper_period / tasksInfo_.tasks[sink_job_id].period;
+             sink_job_id++) {
+            std::vector<JobCEC> last_reading_jobs =
+                OptimizeSF::GetLastReadingJobs(JobCEC(sink_id, sink_job_id),
+                                               source_ids, sfOrder_,
+                                               tasksInfo_);
+            AddSensorFusionObjFromSourceJobs(last_reading_jobs, theta_sf);
+        }
+        rtda_expression += theta_sf;
+    }
+    model_.add(IloMinimize(env_, rtda_expression));
+    rtda_expression.end();
+    if (GlobalVariablesDAGOpt::debugMode)
+        WriteModelToFile("AddSensorFusionObj.lp");
+}
+
+IloExpr SFOrderLPOptimizer::GetStartTimeExpression(const JobCEC &jobCEC) {
     IloExpr exp(env_);
     if (jobCEC.taskId < 0 || jobCEC.taskId >= tasksInfo_.N) {
         CoutError("GetStartTime receives invalid jobCEC!");
@@ -421,7 +474,7 @@ IloExpr SFOrderLPOptimizer::GetStartTimeExpression(JobCEC &jobCEC) {
     return exp;
 }
 
-IloExpr SFOrderLPOptimizer::GetFinishTimeExpression(JobCEC &jobCEC) {
+IloExpr SFOrderLPOptimizer::GetFinishTimeExpression(const JobCEC &jobCEC) {
     return GetStartTimeExpression(jobCEC) +
            GetExecutionTime(jobCEC, tasksInfo_);
 }

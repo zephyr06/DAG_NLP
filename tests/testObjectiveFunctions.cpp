@@ -241,7 +241,38 @@ TEST_F(ObjExperimentObjTest_n5_v79, DAEvaluate1) {
                                   scheduleOptions),
               500);
 }
-int main(int argc, char **argv) {
+
+class TestSFOrderLPOptimizer_da_n3_v61 : public ::testing::Test {
+   public:
+    OrderOptDAG_SPACE::DAG_Model dagTasks;
+    int processorNum;
+    SFOrder sfOrder;
+    TaskSetInfoDerived tasksInfo;
+    std::vector<uint> processorJobVec;
+    OptimizeSF::ScheduleOptions scheduleOptions;
+
+    void SetUp() override {
+        processorNum = 2;
+        dagTasks =
+            ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v61.csv", "orig", 1);
+        TaskSet tasks = dagTasks.tasks;
+        tasksInfo = TaskSetInfoDerived(tasks);
+        VectorDynamic initialSTV = ListSchedulingLFTPA(
+            dagTasks, tasksInfo, processorNum, processorJobVec);
+        sfOrder = SFOrder(tasksInfo, initialSTV);
+        PrintSchedule(tasksInfo, initialSTV);
+        // sfOrder.print();
+        scheduleOptions.causeEffectChainNumber_ = 1;
+    }
+};
+TEST_F(TestSFOrderLPOptimizer_da_n3_v61, SF_Fork_analyze) {
+    VectorDynamic initialSTV =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
+    initialSTV << 0, 10, 1, 15;
+    sfOrder = SFOrder(tasksInfo, initialSTV);
+    sfOrder.print();
+}
+int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

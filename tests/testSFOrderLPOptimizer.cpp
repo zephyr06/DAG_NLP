@@ -225,31 +225,32 @@ class TestSFOrderLPOptimizer_da_n3_v61 : public Test {
             dagTasks, tasksInfo, processorNum, processorJobVec);
         sfOrder = SFOrder(tasksInfo, initialSTV);
         PrintSchedule(tasksInfo, initialSTV);
-        sfOrder.print();
+        // sfOrder.print();
         scheduleOptions.causeEffectChainNumber_ = 1;
     }
 };
-// TEST_F(TestSFOrderLPOptimizer_da_n3_v61, CanDoCorrectOptimization) {
-//     VectorDynamic initialSTV =
-//         ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
-//     initialSTV << 0, 10, 0, 6;
-//     sfOrder = SFOrder(tasksInfo, initialSTV);
-//     SFOrderLPOptimizer pSFOrderLPOptimizer(dagTasks, sfOrder, processorNum,
-//                                            "SensorFusionObj");
-//     EXPECT_NO_THROW(pSFOrderLPOptimizer.Optimize(processorJobVec));
-//     VectorDynamic stvOptimized =
-//         pSFOrderLPOptimizer.getOptimizedStartTimeVector();
-//     std::cout << stvOptimized << "\n";
-//     PrintSchedule(tasksInfo, stvOptimized);
-//     EXPECT_TRUE(ExamBasic_Feasibility(dagTasks, tasksInfo, stvOptimized,
-//                                       processorJobVec,
-//                                       scheduleOptions.processorNum_));
-//     EXPECT_EQ(
-//         stvOptimized(0),
-//         stvOptimized(
-//             2));  // job 0-0 and job 1-0 are the last-reading job of job 2-0
-//     EXPECT_THAT(stvOptimized(0), ::testing::Le(stvOptimized(3)));
-// }
+TEST_F(TestSFOrderLPOptimizer_da_n3_v61, CanDoCorrectOptimization) {
+    VectorDynamic initialSTV =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
+    initialSTV << 0, 10, 1, 15;
+    sfOrder = SFOrder(tasksInfo, initialSTV);
+    sfOrder.print();
+    SFOrderLPOptimizer pSFOrderLPOptimizer(dagTasks, sfOrder, processorNum,
+                                           "SensorFusionObj");
+    EXPECT_NO_THROW(pSFOrderLPOptimizer.Optimize(processorJobVec));
+    VectorDynamic stvOptimized =
+        pSFOrderLPOptimizer.getOptimizedStartTimeVector();
+    std::cout << stvOptimized << "\n";
+    PrintSchedule(tasksInfo, stvOptimized);
+    EXPECT_TRUE(ExamBasic_Feasibility(dagTasks, tasksInfo, stvOptimized,
+                                      processorJobVec,
+                                      scheduleOptions.processorNum_));
+    EXPECT_EQ(
+        stvOptimized(2) + 2,
+        stvOptimized(
+            1));  // job 0-0 and job 1-0 are the last-reading job of job 2-0
+    // EXPECT_THAT(stvOptimized(0), ::testing::Le(stvOptimized(3)));
+}
 int main(int argc, char **argv) {
     ::testing::InitGoogleMock(&argc, argv);
     return RUN_ALL_TESTS();

@@ -1,9 +1,12 @@
 JobID,Period,ExecutionTime,DeadLine,processorId
 0,10,1,10,1
 
-1,20,2,20,1
+1,20,2,20,0
 
-2,20,3,20,1
-
+2,20,3,20,0
+@Chain:0, 2, 
+@Chain:1, 2, 
+@Fork_source:0, 1, 
+@Fork_sink:2, 
 *0,2
 *1,2
