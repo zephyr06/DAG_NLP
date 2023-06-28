@@ -79,24 +79,24 @@ class DAGScheduleOptimizer {
 #endif
     }
 
-    bool WhetherJobInfluenceChainLength(JobCEC jobRelocate) {
-        for (uint kk = 0; kk < longestJobChains_.size(); kk++) {
-            JobCEC sourceJob = longestJobChains_[kk][0];
-            JobCEC sinkJob =
-                longestJobChains_[kk][longestJobChains_[kk].size() - 1];
-            bool influenceSource = WhetherJobStartLater(
-                sourceJob, jobRelocate, jobGroupMap_, jobOrderRef, tasksInfo,
-                statusPrev.startTimeVector_);
-            bool influenceSink = WhetherJobStartEarlier(
-                sinkJob, jobRelocate, jobGroupMap_, jobOrderRef, tasksInfo,
-                statusPrev.startTimeVector_);
-            if (influenceSource || influenceSink) {
-                // jobOrderRef.print();
-                return true;
-            }
-        }
-        return false;
-    }
+    // bool WhetherJobInfluenceChainLength(JobCEC jobRelocate) {
+    //     for (uint kk = 0; kk < longestJobChains_.size(); kk++) {
+    //         JobCEC sourceJob = longestJobChains_[kk][0];
+    //         JobCEC sinkJob =
+    //             longestJobChains_[kk][longestJobChains_[kk].size() - 1];
+    //         bool influenceSource = WhetherJobStartLater(
+    //             sourceJob, jobRelocate, jobGroupMap_, jobOrderRef, tasksInfo,
+    //             statusPrev.startTimeVector_);
+    //         bool influenceSink = WhetherJobStartEarlier(
+    //             sinkJob, jobRelocate, jobGroupMap_, jobOrderRef, tasksInfo,
+    //             statusPrev.startTimeVector_);
+    //         if (influenceSource || influenceSink) {
+    //             // jobOrderRef.print();
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
 
     ScheduleResult Optimize() {
 #ifdef PROFILE_CODE
@@ -140,11 +140,6 @@ class DAGScheduleOptimizer {
         return scheduleRes;
     }
 
-    inline bool WhetherInfluenceActiveJobs(JobCEC jobRelocate) {
-        return activeJobs_.jobRecord.find(jobRelocate) !=
-               activeJobs_.jobRecord.end();
-    }
-
     bool ImproveJobOrderPerJob(const JobCEC &jobRelocate) {
 #ifdef PROFILE_CODE
         BeginTimer(__FUNCTION__);
@@ -183,14 +178,8 @@ class DAGScheduleOptimizer {
 
                 // Independence analysis
                 if (GlobalVariablesDAGOpt::enableIndependentAnalysis) {
-                    if (!WhetherInfluenceActiveJobs(jobRelocate) &&
-                        !WhetherJobBreakChain(
-                            jobRelocate, startP, finishP, longestJobChains_,
-                            dagTasks, jobOrderRef, tasksInfo,
-                            ObjectiveFunctionBase::type_trait)) {
-                        if_IA_skip = true;
-                    } else
-                        if_IA_skip = false;
+                    if_IA_skip = independent_analysis_.WhetherSafeSkip(
+                        jobRelocate, startP, finishP, jobOrderRef);
                     // TODO: add WhetherJobInfluenceChainLength into IA?
                 }
 
@@ -225,7 +214,8 @@ class DAGScheduleOptimizer {
             jobOrderRef = jobOrderBestFound;
             findBetterJobOrderWithinIterations = true;
             countMakeProgress++;
-            UpdateIA_Status();
+            independent_analysis_.UpdateStatus(jobOrderRef,
+                                               statusPrev.startTimeVector_);
         }
 
 #ifdef PROFILE_CODE
@@ -378,32 +368,13 @@ class DAGScheduleOptimizer {
         }
     }
 
-    void UpdateIA_Status() {
-#ifdef PROFILE_CODE
-        BeginTimer(__FUNCTION__);
-#endif
-
-        // VectorDynamic stv_copy = statusPrev.startTimeVector_;
-        // for (uint i = 0; i < stv_copy.rows(); i++)
-        //     stv_copy(i) = round(stv_copy(i));
-        // jobOrderRef = SFOrder(tasksInfo, stv_copy);
-        longestJobChains_ = LongestCAChain(
-            dagTasks, tasksInfo, jobOrderRef, statusPrev.startTimeVector_,
-            scheduleOptions.processorNum_, ObjectiveFunctionBase::type_trait);
-        jobGroupMap_ = ExtractIndependentJobGroups(jobOrderRef, tasksInfo);
-        auto centralJob = FindCentralJobs(longestJobChains_, tasksInfo);
-        activeJobs_ = FindActiveJobs(centralJob, jobOrderRef, tasksInfo,
-                                     statusPrev.startTimeVector_);
-#ifdef PROFILE_CODE
-        EndTimer(__FUNCTION__);
-#endif
-    }
-
     void InitializeStatus(const VectorDynamic &startTimeVector) {
         jobOrderRef = SFOrder(tasksInfo, startTimeVector);
         statusPrev = IterationStatus<OrderScheduler, ObjectiveFunctionBase>(
             dagTasks, tasksInfo, jobOrderRef, scheduleOptions);
-        UpdateIA_Status();
+        independent_analysis_ = IndependentAnalysis(
+            dagTasks, tasksInfo, jobOrderRef, statusPrev.startTimeVector_,
+            scheduleOptions.processorNum_, ObjectiveFunctionBase::type_trait);
     }
 
     inline SFOrder GetJobOrder() const { return jobOrderRef; }
@@ -441,12 +412,8 @@ class DAGScheduleOptimizer {
 
     SFOrder jobOrderRef;
     IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusPrev;
-    std::unordered_map<JobCEC, int> jobGroupMap_;
-    LongestCAChain longestJobChains_;
     bool if_IA_skip = false;
-    bool whether_influence_longest_chain_ = true;
-    ActiveJobs activeJobs_;
-
+    IndependentAnalysis independent_analysis_;
 };  // class DAGScheduleOptimizer
 
 template <typename OrderScheduler, typename ObjectiveFunctionBase>

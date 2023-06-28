@@ -91,4 +91,65 @@ ActiveJobs FindActiveJobs(
     const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
     const VectorDynamic &startTimeVector);
 
+class IndependentAnalysis {
+   public:
+    IndependentAnalysis() {}
+
+    IndependentAnalysis(const DAG_Model &dagInput,
+                        const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrder,
+                        const VectorDynamic &startTimeVector, int processorNum,
+                        std::string obj_type)
+        : obj_type_(obj_type),
+          dagTasks_(dagInput),
+          tasksInfo_(tasksInfo),
+          processorNum_(processorNum) {
+        UpdateStatus(jobOrder, startTimeVector);
+    }
+
+    inline bool WhetherInfluenceActiveJobs(JobCEC jobRelocate) {
+        return activeJobs_.jobRecord.find(jobRelocate) !=
+               activeJobs_.jobRecord.end();
+    }
+
+    void UpdateStatus(SFOrder &jobOrder, const VectorDynamic &startTimeVector) {
+        if (obj_type_ == "ReactionTimeObj" || obj_type_ == "DataAgeObj") {
+            longestJobChains_ =
+                LongestCAChain(dagTasks_, tasksInfo_, jobOrder, startTimeVector,
+                               processorNum_, obj_type_);
+            // TODO: add this function or not?
+            // jobGroupMap_ = ExtractIndependentJobGroups(jobOrderRef,
+            // tasksInfo);
+
+            auto centralJob = FindCentralJobs(longestJobChains_, tasksInfo_);
+            activeJobs_ = FindActiveJobs(centralJob, jobOrder, tasksInfo_,
+                                         startTimeVector);
+        } else
+            CoutError("Need implementation in UpdateStatus");
+    }
+    bool WhetherSafeSkip(const JobCEC jobRelocate, LLint startP, LLint finishP,
+                         SFOrder &jobOrderRef) {
+        if (obj_type_ == "ReactionTimeObj" || obj_type_ == "DataAgeObj") {
+            if (!WhetherInfluenceActiveJobs(jobRelocate) &&
+                !WhetherJobBreakChain(jobRelocate, startP, finishP,
+                                      longestJobChains_, dagTasks_, jobOrderRef,
+                                      tasksInfo_, obj_type_)) {
+                return true;
+            } else
+                return false;
+        } else
+            CoutError("Need implementation in UpdateStatus");
+        return false;
+    }
+
+    // data members
+    std::string obj_type_;
+    DAG_Model dagTasks_;
+    TaskSetInfoDerived tasksInfo_;
+    int processorNum_;
+    LongestCAChain longestJobChains_;
+    bool whether_influence_longest_chain_ = true;
+    ActiveJobs activeJobs_;
+    std::unordered_map<JobCEC, int> jobGroupMap_;
+};
+
 }  // namespace OrderOptDAG_SPACE
