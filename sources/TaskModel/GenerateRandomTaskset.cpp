@@ -47,6 +47,32 @@ TaskSet GenerateTaskSet(int N, double totalUtilization, int numberOfProcessor,
     }
     return tasks;
 }
+
+using namespace OrderOptDAG_SPACE;
+DAG_Model GenerateDAG(int N, double totalUtilization, int numberOfProcessor,
+                      int periodMin, int periodMax, int coreRequireMax,
+                      int sf_fork_num, int fork_sensor_num_min,
+                      int fork_sensor_num_max, int numCauseEffectChain,
+                      int taskSetType, int deadlineType) {
+    TaskSet tasks =
+        GenerateTaskSet(N, totalUtilization, numberOfProcessor, periodMin,
+                        periodMax, coreRequireMax, taskSetType, deadlineType);
+    MAP_Prev mapPrev;
+    DAG_Model dagModel;
+    dagModel.tasks = tasks;
+    // add edges randomly
+    for (int i = 0; i < tasks_params.N; i++) {
+        for (int j = i + 1; j < tasks_params.N; j++) {
+            if (double(rand()) / RAND_MAX < tasks_params.parallelismFactor) {
+                dagModel.addEdge(i, j);
+            }
+        }
+    }
+
+    return DAG_Model(tasks, dagModel.mapPrev, sf_fork_num, fork_sensor_num_min,
+                     fork_sensor_num_max, numCauseEffectChain);
+}
+
 void WriteTaskSets(std::ofstream &file, const TaskSet &tasks) {
     int N = tasks.size();
     file << "JobID,Period,ExecutionTime,DeadLine,processorId"
@@ -64,33 +90,25 @@ void WriteTaskSets(std::ofstream &file, const TaskSet &tasks) {
              << "\n";
     }
 }
-
-using namespace OrderOptDAG_SPACE;
-DAG_Model GenerateDAG(const TaskSetGenerationParameters &tasks_params) {
-    double totalUtilization = RandRange(tasks_params.totalUtilization_min,
-                                        tasks_params.totalUtilization_max);
-    TaskSet tasks = GenerateTaskSet(
-        tasks_params.N, totalUtilization, tasks_params.numberOfProcessor,
-        tasks_params.coreRequireMax, tasks_params.period_generation_type,
-        tasks_params.deadlineType);
-    MAP_Prev mapPrev;
-    DAG_Model dagModel(tasks, mapPrev, 0);
-    // add edges randomly
-    for (int i = 0; i < tasks_params.N; i++) {
-        for (int j = i + 1; j < tasks_params.N; j++) {
-            if (double(rand()) / RAND_MAX < tasks_params.parallelismFactor) {
-                dagModel.addEdge(i, j);
-            }
-        }
-    }
-    return DAG_Model(tasks, dagModel.mapPrev, tasks_params.numCauseEffectChain,
-                     tasks_params.chain_length, tasks_params.SF_ForkNum,
-                     tasks_params.fork_sensor_num_min,
-                     tasks_params.fork_sensor_num_max);
-}
-
 void WriteDAG(std::ofstream &file, DAG_Model &dag_tasks) {
-    WriteTaskSets(file, dag_tasks.GetTaskSet());
+    // WriteTaskSets(file, dag_tasks.tasks);
+    const TaskSet &tasks = dag_tasks.tasks;
+    int N = dag_tasks.tasks.size();
+    file << "JobID,Period,ExecutionTime,DeadLine,processorId"
+            "\n";
+    for (int i = 0; i < N; i++) {
+        file << tasks[i].id
+             // << "," << tasks[i].offset
+             << ","
+             << tasks[i].period
+             //  << "," << tasks[i].overhead
+             << "," << tasks[i].executionTime << "," << tasks[i].deadline << ","
+             << tasks[i].processorId
+
+             // << "," << tasks[i].coreRequire
+             << "\n";
+    }
+
     file << "Note: "
          << "*a,b"
          << " means a->b, i.e., a writes data and b reads data from it\n";

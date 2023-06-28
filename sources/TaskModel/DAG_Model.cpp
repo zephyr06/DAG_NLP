@@ -32,6 +32,24 @@ void PrintChains(const std::vector<std::vector<int>>& chains) {
   }
 }
 
+std::vector<SF_Fork> DAG_Model::GetRandomForks(int num_fork,
+                                               int fork_sensor_num_min,
+                                               int fork_sensor_num_max) {
+    std::vector<SF_Fork> res;
+    res.reserve(mapPrev.size());
+    for (const auto &[sink, source_tasks] : mapPrev) {
+        if (source_tasks.size() > 1 &&
+            source_tasks.size() >= fork_sensor_num_min &&
+            source_tasks.size() <= fork_sensor_num_max) {
+            res.push_back(SF_Fork(GetIDVec(source_tasks), sink));
+        }
+    }
+    auto rng = std::default_random_engine{};
+    std::shuffle(std::begin(res), std::end(res), rng);
+    if (num_fork < res.size())
+        res.resize(num_fork);
+    return res;
+}
 // *2, 1 means task 2 depend on task 1, or task 1 must execute before task 2;
 // 1 would be the first in MAP_Prev, while 2 is one task in TaskSet
 // MAP_Prev maps one task to all the tasks it depends on
@@ -204,61 +222,88 @@ std::vector<int> Str2VecInt(const std::string& str) {
   return vect;
 }
 
+// transform a string to a vectof of int
+std::vector<int> Str2VecInt(const std::string &str) {
+    std::vector<int> vect;
+    std::stringstream ss(str);
+    for (int i; ss >> i;) {
+        vect.push_back(i);
+        if (ss.peek() == ',')
+            ss.ignore();
+    }
+    return vect;
+}
+
 DAG_Model ReadDAG_Tasks(std::string path, std::string priorityType,
                         int chainNum) {  // , int fork_num
-  using namespace std;
-  TaskSet tasks = ReadTaskSet(path, priorityType);
+    using namespace std;
+    TaskSet tasks = ReadTaskSet(path, priorityType);
 
-  std::unordered_map<int, int> task_id2position;
-  for (int i = 0; i < static_cast<int>(tasks.size()); i++) {
-    task_id2position[tasks[i].id] = i;
-  }
-  // some default parameters in this function
-  std::string delimiter = ",";
-  std::string token;
-  std::string line;
-  size_t pos = 0;
-
-  MAP_Prev mapPrev;
-
-  std::vector<std::vector<int>> chains;
-  std::vector<SF_Fork> sf_forks;
-  SF_Fork fork_temp;  // for read purpose
-
-  fstream file;
-  file.open(path, ios::in);
-  if (file.is_open()) {
+    std::unordered_map<int, int> task_id2position;
+    for (int i = 0; i < static_cast<int>(tasks.size()); i++) {
+        task_id2position[tasks[i].id] = i;
+    }
+    // some default parameters in this function
+    std::string delimiter = ",";
+    std::string token;
     std::string line;
-    while (getline(file, line)) {
-      if (line[0] != '*' && line[0] != '@') continue;
-      if (line[0] == '*') {
-        line = line.substr(1, int(line.size()) - 1);
-        std::vector<int> dataInLine;
-        while ((pos = line.find(delimiter)) != std::string::npos) {
-          token = line.substr(0, pos);
-          int temp = atoi(token.c_str());
-          dataInLine.push_back(temp);
-          line.erase(0, pos + delimiter.length());
+    size_t pos = 0;
+
+    MAP_Prev mapPrev;
+
+    std::vector<std::vector<int>> chains;
+    std::vector<SF_Fork> sf_forks;
+    SF_Fork fork_temp;  // for read purpose
+
+    fstream file;
+    file.open(path, ios::in);
+    if (file.is_open()) {
+        std::string line;
+        while (getline(file, line)) {
+            if (line[0] != '*' && line[0] != '@')
+                continue;
+            if (line[0] == '*') {
+                line = line.substr(1, int(line.size()) - 1);
+                std::vector<int> dataInLine;
+                while ((pos = line.find(delimiter)) != std::string::npos) {
+                    token = line.substr(0, pos);
+                    int temp = atoi(token.c_str());
+                    dataInLine.push_back(temp);
+                    line.erase(0, pos + delimiter.length());
+                }
+                dataInLine.push_back(atoi(line.c_str()));
+                mapPrev[dataInLine[1]].push_back(
+                    tasks[task_id2position[dataInLine[0]]]);
+            } else if (line[0] == '@') {
+                if (line.find("Chain:") != std::string::npos) {
+                    int name_length = 7;
+                    chains.push_back(Str2VecInt(line.substr(
+                        name_length, line.size() - name_length - 1)));
+                } else if (line.find("Fork_source:") != std::string::npos) {
+                    int name_length = 13;
+                    fork_temp.source = Str2VecInt(line.substr(
+                        name_length, line.size() - name_length - 1));
+                } else if (line.find("Fork_sink:") != std::string::npos) {
+                    int name_length = 11;
+                    fork_temp.sink = Str2VecInt(line.substr(
+                        name_length, line.size() - name_length - 1))[0];
+                    sf_forks.push_back(fork_temp);
+                }
+            }
         }
-        dataInLine.push_back(atoi(line.c_str()));
-        mapPrev[dataInLine[1]].push_back(
-            tasks[task_id2position[dataInLine[0]]]);
-      } else if (line[0] == '@') {
-        if (line.find("Chain:") != std::string::npos) {
-          int name_length = 7;
-          chains.push_back(Str2VecInt(
-              line.substr(name_length, line.size() - name_length - 1)));
-        } else if (line.find("Fork_source:") != std::string::npos) {
-          int name_length = 13;
-          fork_temp.source = Str2VecInt(
-              line.substr(name_length, line.size() - name_length - 1));
-        } else if (line.find("Fork_sink:") != std::string::npos) {
-          int name_length = 11;
-          fork_temp.sink = Str2VecInt(
-              line.substr(name_length, line.size() - name_length - 1))[0];
-          sf_forks.push_back(fork_temp);
-        }
-      }
+
+        DAG_Model ttt(tasks, mapPrev, chainNum);
+        if (chains.size() > 0)
+            ttt.chains_ = chains;
+        if (chainNum < chains.size())
+            ttt.chains_.resize(chainNum);
+        ttt.sf_forks_ = sf_forks;
+        return ttt;
+    } else {
+        std::cout << Color::red << "The path does not exist in ReadTaskSet!"
+                  << std::endl
+                  << path << Color::def << std::endl;
+        throw;
     }
 
     DAG_Model ttt(tasks, mapPrev, chainNum);

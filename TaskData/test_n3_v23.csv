@@ -1,7 +1,7 @@
-JobID,Offset,Period,Overhead,ExecutionTime,DeadLine,processorId,coreRequire
-0,0,30000,0,8592,30000,0,1
-1,0,20000,0,3735,20000,0,1
-2,0,30000,0,5911,30000,1,1
+JobID,Period,ExecutionTime,DeadLine,processorId
+0,30000,8592,30000,0
+1,20000,3735,20000,0
+2,30000,5911,30000,1
 *1,0
 @SF_Bound:18078
 @RTDA_Bound:104513

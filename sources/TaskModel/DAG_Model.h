@@ -59,21 +59,19 @@ using namespace RegularTaskSystem;
 class DAG_Model {
    public:
     DAG_Model() {}
-
-    DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev, int numCauseEffectChain,
-              int chain_length, int num_fork, int fork_sensor_num_min,
-              int fork_sensor_num_max)
+    DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev, int num_fork,
+              int fork_sensor_num_min, int fork_sensor_num_max,
+              int numCauseEffectChain = 1)
         : tasks(tasks), mapPrev(mapPrev) {
         RecordTaskPosition();
         std::tie(graph_, indexesBGL_) = GenerateGraphForTaskSet();
-        chains_ = GetRandomChains(numCauseEffectChain, chain_length);
-        CategorizeTaskSet();
+        chains_ = GetRandomChains(numCauseEffectChain);
         sf_forks_ =
             GetRandomForks(num_fork, fork_sensor_num_min, fork_sensor_num_max);
     }
 
     DAG_Model(TaskSet &tasks, MAP_Prev &mapPrev, int numCauseEffectChain)
-        : DAG_Model(tasks, mapPrev, numCauseEffectChain, 0, 0, 0, 1e3) {}
+        : DAG_Model(tasks, mapPrev, 0, 0, 0, numCauseEffectChain) {}
 
     std::pair<Graph, indexVertexMap> GenerateGraphForTaskSet() const;
 
@@ -86,11 +84,11 @@ class DAG_Model {
     void printChains();
 
     int edgeNumber();
+    std::vector<SF_Fork> GetRandomForks(int num_fork, int fork_sensor_num_min,
+                                        int fork_sensor_num_max);
 
     std::vector<std::vector<int>> GetRandomChains(int numOfChains,
                                                   int chain_length = 0);
-    std::vector<SF_Fork> GetRandomForks(int num_fork, int fork_sensor_num_min,
-                                        int fork_sensor_num_max);
     void SetChains(std::vector<std::vector<int>> &chains) { chains_ = chains; }
     std::vector<int> FindSourceTaskIds() const;
     std::vector<int> FindSinkTaskIds() const;

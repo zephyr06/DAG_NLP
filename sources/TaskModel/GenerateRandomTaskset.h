@@ -1,5 +1,6 @@
 #include <time.h>
 
+#include <boost/program_options/options_description.hpp>
 #include <cmath>
 
 #include "sources/TaskModel/DAG_Model.h"
@@ -21,30 +22,17 @@ static const std::vector<int> PeriodCDFWaters = {3,  5,  7,  32, 57,
 
 std::vector<double> Uunifast(int N, double utilAll, bool boundU = true);
 
-struct TaskSetGenerationParameters {
-    // data members
-    int N;
-    double totalUtilization_min;
-    double totalUtilization_max;
-    int numberOfProcessor;
-    int coreRequireMax;
-    double parallelismFactor;
-    int period_generation_type;
-    int deadlineType;
-    int numCauseEffectChain;
-    int chain_length;
-    int SF_ForkNum;
-    int fork_sensor_num_min;
-    int fork_sensor_num_max;
-};
-
 TaskSet GenerateTaskSet(int N, double totalUtilization, int numberOfProcessor,
-                        int coreRequireMax, int taskSetType = 1,
-                        int deadlineType = 0);
-
-void WriteTaskSets(std::ofstream &file, TaskSet &tasks);
+                        int periodMin, int periodMax, int coreRequireMax,
+                        int taskSetType = 1, int deadlineType = 0);
 
 using namespace OrderOptDAG_SPACE;
-DAG_Model GenerateDAG(const TaskSetGenerationParameters &tasks_gene_param);
+void WriteTaskSets(std::ofstream &file, TaskSet &tasks);
+
+DAG_Model GenerateDAG(int N, double totalUtilization, int numberOfProcessor,
+                      int periodMin, int periodMax, int coreRequireMax,
+                      int sf_fork_num, int fork_sensor_num_min,
+                      int fork_sensor_num_max, int numCauseEffectChain,
+                      int taskSetType = 1, int deadlineType = 0);
 
 void WriteDAG(std::ofstream &file, DAG_Model &tasksDAG);
