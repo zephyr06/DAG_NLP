@@ -146,9 +146,16 @@ class IndependentAnalysis {
     DAG_Model dagTasks_;
     TaskSetInfoDerived tasksInfo_;
     int processorNum_;
-    LongestCAChain longestJobChains_;
-    bool whether_influence_longest_chain_ = true;
+
     ActiveJobs activeJobs_;
+
+    // for RT / DA
+    LongestCAChain longestJobChains_;
+
+    // for SF
+    // WorstSF_Fork worst_sf_fork_;
+
+    // not used for now
     std::unordered_map<JobCEC, int> jobGroupMap_;
 };
 

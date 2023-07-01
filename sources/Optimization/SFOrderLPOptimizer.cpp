@@ -442,7 +442,7 @@ void SFOrderLPOptimizer::AddSensorFusionObj() {
         auto source_ids = sf_fork.source;
         for (int sink_job_id = 0;
              sink_job_id <
-             tasksInfo_.hyper_period / tasksInfo_.tasks[sink_job_id].period;
+             tasksInfo_.hyper_period / tasksInfo_.tasks[sink_id].period;
              sink_job_id++) {
             std::vector<JobCEC> last_reading_jobs =
                 OptimizeSF::GetLastReadingJobs(JobCEC(sink_id, sink_job_id),

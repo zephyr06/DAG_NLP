@@ -9,34 +9,46 @@
  *
  */
 #pragma once
-#include "sources/Utils/Parameters.h"
-#include "sources/Utils/DeclareDAG.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/TaskModel/RegularTasks.h"
+#include "sources/Utils/DeclareDAG.h"
 #include "sources/Utils/JobCEC.h"
+#include "sources/Utils/Parameters.h"
 
-namespace OrderOptDAG_SPACE
-{
-    using namespace RegularTaskSystem;
-    LLint CountSFError(const DAG_Model &dagTasks, const std::vector<LLint> &sizeOfVariables);
+namespace OrderOptDAG_SPACE {
+using namespace RegularTaskSystem;
+LLint CountSFError(const DAG_Model &dagTasks,
+                   const std::vector<LLint> &sizeOfVariables);
 
-    struct IndexData
-    {
-        LLint index;
-        double time;
-    };
+struct IndexData {
+    LLint index;
+    double time;
+};
 
-    std::pair<int, int> ExtractMaxDistance(std::vector<IndexData> &sourceFinishTime);
+struct SF_JobFork {
+    SF_JobFork() {}
+    SF_JobFork(JobCEC sink_job, std::vector<JobCEC> source_jobs)
+        : sink_job(sink_job), source_jobs(source_jobs) {}
 
-    inline double ExtractMaxDistance(std::vector<double> &sourceFinishTime)
-    {
-        return *max_element(sourceFinishTime.begin(), sourceFinishTime.end()) -
-               *min_element(sourceFinishTime.begin(), sourceFinishTime.end());
-    }
+    // data members
+    JobCEC sink_job;
+    std::vector<JobCEC> source_jobs;
+};
 
-    VectorDynamic ObtainSensorFusionError(const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo, const VectorDynamic &startTimeVector);
+std::pair<int, int> ExtractMaxDistance(
+    std::vector<IndexData> &sourceFinishTime);
 
-    std::unordered_map<JobCEC, std::vector<JobCEC>> GetSensorMapFromSingleJob(
-        const TaskSetInfoDerived &tasksInfo, const int task_id, const TaskSet &precede_tasks, const VectorDynamic &x);
-
+inline double ExtractMaxDistance(std::vector<double> &sourceFinishTime) {
+    return *max_element(sourceFinishTime.begin(), sourceFinishTime.end()) -
+           *min_element(sourceFinishTime.begin(), sourceFinishTime.end());
 }
+
+VectorDynamic ObtainSensorFusionError(const DAG_Model &dagTasks,
+                                      const TaskSetInfoDerived &tasksInfo,
+                                      const VectorDynamic &startTimeVector);
+
+std::unordered_map<JobCEC, std::vector<JobCEC>> GetSensorMapFromSingleJob(
+    const TaskSetInfoDerived &tasksInfo, const int task_id,
+    const TaskSet &precede_tasks, const VectorDynamic &x);
+
+}  // namespace OrderOptDAG_SPACE
