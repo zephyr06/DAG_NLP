@@ -424,6 +424,39 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v61, WorstSF_JobFork) {
     EXPECT_TRUE(ifExist<JobCEC>(JobCEC(0, 1), worst_sf_fork[0].source_jobs));
     EXPECT_TRUE(ifExist<JobCEC>(JobCEC(1, 0), worst_sf_fork[0].source_jobs));
 }
+
+TEST_F(TestSFOrderLPOptimizer_da_n3_v61, FindCentralJobs_sf_v1) {
+    VectorDynamic initialSTV =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
+    initialSTV << 0, 10, 1, 15;
+    sfOrder = SFOrder(tasksInfo, initialSTV);
+    sfOrder.print();
+    WorstSF_JobFork worst_sf_fork(dagTasks, tasksInfo, sfOrder, initialSTV, 2);
+    CentralJobs central_jobs = FindCentralJobs(worst_sf_fork, tasksInfo);
+    EXPECT_EQ(0, central_jobs.forwardJobs.size());
+    EXPECT_EQ(2, central_jobs.backwardJobs.size());
+    EXPECT_TRUE(ifExist<JobCEC>(JobCEC(0, 1), central_jobs.backwardJobs));
+    EXPECT_TRUE(ifExist<JobCEC>(JobCEC(1, 0), central_jobs.backwardJobs));
+}
+TEST_F(TestSFOrderLPOptimizer_da_n3_v61, FindActiveJobs_sf_v2) {
+    VectorDynamic initialSTV =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
+    initialSTV << 0, 10, 1, 11;
+    sfOrder = SFOrder(tasksInfo, initialSTV);
+    sfOrder.print();
+    WorstSF_JobFork worst_sf_fork(dagTasks, tasksInfo, sfOrder, initialSTV, 2);
+    CentralJobs central_jobs = FindCentralJobs(worst_sf_fork, tasksInfo);
+    auto activeJobs =
+        FindActiveJobs(central_jobs, sfOrder, tasksInfo, initialSTV);
+    EXPECT_EQ(0, central_jobs.forwardJobs.size());
+    EXPECT_EQ(2, central_jobs.backwardJobs.size());
+    EXPECT_TRUE(activeJobs.jobRecord.count(JobCEC(0, 1)) > 0);
+    EXPECT_TRUE(activeJobs.jobRecord.count(JobCEC(1, 0)) > 0);
+    EXPECT_TRUE(activeJobs.jobRecord.count(JobCEC(2, 0)) > 0);
+    EXPECT_TRUE(activeJobs.activeJobs[0].direction_backward);
+    EXPECT_FALSE(activeJobs.activeJobs[0].direction_forward);
+}
+
 TEST_F(TestSFOrderLPOptimizer_da_n3_v61, WorstSF_JobFork_v2) {
     VectorDynamic initialSTV =
         ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
@@ -474,6 +507,24 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v63, WorstSF_JobFork) {
     EXPECT_TRUE(ifExist<JobCEC>(JobCEC(1, 0), worst_sf_fork[0].source_jobs));
     EXPECT_TRUE(ifExist<JobCEC>(JobCEC(0, 0), worst_sf_fork[1].source_jobs));
     EXPECT_TRUE(ifExist<JobCEC>(JobCEC(1, 0), worst_sf_fork[1].source_jobs));
+}
+TEST_F(TestSFOrderLPOptimizer_da_n3_v63, FindActiveJobs_sf_v2) {
+    VectorDynamic initialSTV =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
+    initialSTV << 0, 100, 0, 50, 100;
+    sfOrder = SFOrder(tasksInfo, initialSTV);
+    sfOrder.print();
+    WorstSF_JobFork worst_sf_fork(dagTasks, tasksInfo, sfOrder, initialSTV, 2);
+    CentralJobs central_jobs = FindCentralJobs(worst_sf_fork, tasksInfo);
+    auto activeJobs =
+        FindActiveJobs(central_jobs, sfOrder, tasksInfo, initialSTV);
+    EXPECT_TRUE(activeJobs.jobRecord.count(JobCEC(0, 0)) > 0);
+    EXPECT_TRUE(activeJobs.jobRecord.count(JobCEC(0, 1)) > 0);
+    EXPECT_TRUE(activeJobs.jobRecord.count(JobCEC(1, 0)) > 0);
+    EXPECT_TRUE(activeJobs.jobRecord.count(JobCEC(2, 0)) > 0);
+    EXPECT_TRUE(activeJobs.jobRecord.count(JobCEC(2, 1)) > 0);
+    EXPECT_TRUE(activeJobs.activeJobs[0].direction_backward);
+    EXPECT_FALSE(activeJobs.activeJobs[0].direction_forward);
 }
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

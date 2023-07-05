@@ -2,6 +2,7 @@
 #pragma once
 #include "sources/Factors/LongestChain.h"
 #include "sources/Factors/RTDA_Factor.h"
+#include "sources/Factors/WorstSF_Fork.h"
 #include "sources/Optimization/ImmediateJobAnalysis.h"
 #include "sources/Optimization/ScheduleOptions.h"
 
@@ -34,7 +35,9 @@ bool WhetherJobStartLater(
     std::unordered_map<JobCEC, int> &jobGroupMap, SFOrder &jobOrder,
     const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
     const VectorDynamic &startTimeVector);
+
 struct CentralJobs {
+    CentralJobs() {}
     CentralJobs(size_t size) {
         forwardJobs.reserve(size);
         backwardJobs.reserve(size);
@@ -43,8 +46,11 @@ struct CentralJobs {
                 std::vector<JobCEC> &backwardJobs)
         : forwardJobs(forwardJobs), backwardJobs(backwardJobs) {}
 
-    std::vector<JobCEC> forwardJobs;
-    std::vector<JobCEC> backwardJobs;
+    // TODO: make the name consistent with standard definitions in cause-effect
+    // chains
+    std::vector<JobCEC> forwardJobs;  // e.g., sink jobs in cause-effect chains
+    std::vector<JobCEC>
+        backwardJobs;  // e.g., source jobs in cause-effect chains
 };
 
 struct ActiveJob {
@@ -86,6 +92,10 @@ CentralJobs FindCentralJobs(
     const LongestCAChain &longestChain,
     const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
 
+CentralJobs FindCentralJobs(
+    const WorstSF_JobFork &worst_sf_fork,
+    const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
+
 ActiveJobs FindActiveJobs(
     const CentralJobs &centralJobs, SFOrder &jobOrder,
     const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
@@ -112,6 +122,7 @@ class IndependentAnalysis {
     }
 
     void UpdateStatus(SFOrder &jobOrder, const VectorDynamic &startTimeVector) {
+        CentralJobs centralJob;
         if (obj_type_ == "ReactionTimeObj" || obj_type_ == "DataAgeObj") {
             longestJobChains_ =
                 LongestCAChain(dagTasks_, tasksInfo_, jobOrder, startTimeVector,
@@ -119,13 +130,17 @@ class IndependentAnalysis {
             // TODO: add this function or not?
             // jobGroupMap_ = ExtractIndependentJobGroups(jobOrderRef,
             // tasksInfo);
-
-            auto centralJob = FindCentralJobs(longestJobChains_, tasksInfo_);
-            activeJobs_ = FindActiveJobs(centralJob, jobOrder, tasksInfo_,
-                                         startTimeVector);
+            centralJob = FindCentralJobs(longestJobChains_, tasksInfo_);
+        } else if (obj_type_ == "SensorFusionObj") {
+            worst_sf_fork_ = WorstSF_JobFork(dagTasks_, tasksInfo_, jobOrder,
+                                             startTimeVector, processorNum_);
+            centralJob = FindCentralJobs(worst_sf_fork_, tasksInfo_);
         } else
-            CoutError("Need implementation in UpdateStatus");
+            CoutError("Need implementation for obj_type_ in UpdateStatus");
+        activeJobs_ =
+            FindActiveJobs(centralJob, jobOrder, tasksInfo_, startTimeVector);
     }
+
     bool WhetherSafeSkip(const JobCEC jobRelocate, LLint startP, LLint finishP,
                          SFOrder &jobOrderRef) {
         if (obj_type_ == "ReactionTimeObj" || obj_type_ == "DataAgeObj") {
@@ -137,7 +152,7 @@ class IndependentAnalysis {
             } else
                 return false;
         } else
-            CoutError("Need implementation in UpdateStatus");
+            CoutError("Need implementation in WhetherSafeSkip");
         return false;
     }
 
@@ -153,7 +168,7 @@ class IndependentAnalysis {
     LongestCAChain longestJobChains_;
 
     // for SF
-    // WorstSF_Fork worst_sf_fork_;
+    WorstSF_JobFork worst_sf_fork_;
 
     // not used for now
     std::unordered_map<JobCEC, int> jobGroupMap_;
