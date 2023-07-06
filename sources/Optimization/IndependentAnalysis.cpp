@@ -200,12 +200,12 @@ ActiveJobs FindActiveJobs(
     }
     return ActiveJobs(activeJobs, jobRecord);
 }
-
-bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
-                          const LongestCAChain &longestJobChains,
-                          const DAG_Model &dagTasks, SFOrder &jobOrder,
-                          const TaskSetInfoDerived &tasksInfo,
-                          std::string obj_type) {
+// todo: RENAME OR REMOVE?
+bool WhetherJobBreakChainRTDA(const JobCEC &job, LLint startP, LLint finishP,
+                              const LongestCAChain &longestJobChains,
+                              const DAG_Model &dagTasks, SFOrder &jobOrder,
+                              const TaskSetInfoDerived &tasksInfo,
+                              std::string obj_type) {
     if (obj_type == "ReactionTimeObj")
         return WhetherJobBreakChainRT(job, startP, finishP, longestJobChains,
                                       dagTasks, jobOrder, tasksInfo);

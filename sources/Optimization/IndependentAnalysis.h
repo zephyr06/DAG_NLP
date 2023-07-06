@@ -118,11 +118,11 @@ bool WhetherJobBreakChainSF(const JobCEC &job, LLint startP, LLint finishP,
                             const DAG_Model &dagTasks, SFOrder &jobOrder,
                             const TaskSetInfoDerived &tasksInfo);
 
-bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
-                          const LongestCAChain &longestJobChains,
-                          const DAG_Model &dagTasks, SFOrder &jobOrder,
-                          const TaskSetInfoDerived &tasksInfo,
-                          std::string obj_type);
+bool WhetherJobBreakChainRTDA(const JobCEC &job, LLint startP, LLint finishP,
+                              const LongestCAChain &longestJobChains,
+                              const DAG_Model &dagTasks, SFOrder &jobOrder,
+                              const TaskSetInfoDerived &tasksInfo,
+                              std::string obj_type);
 
 class IndependentAnalysis {
    public:
@@ -166,17 +166,24 @@ class IndependentAnalysis {
 
     bool WhetherSafeSkip(const JobCEC jobRelocate, LLint startP, LLint finishP,
                          SFOrder &jobOrderRef) {
-        if (obj_type_ == "ReactionTimeObj" || obj_type_ == "DataAgeObj" ||
-            obj_type_ == "SensorFusionObj") {
+        if (obj_type_ == "ReactionTimeObj" || obj_type_ == "DataAgeObj") {
             if (!WhetherInfluenceActiveJobs(jobRelocate) &&
-                !WhetherJobBreakChain(jobRelocate, startP, finishP,
-                                      longestJobChains_, dagTasks_, jobOrderRef,
-                                      tasksInfo_, obj_type_)) {
+                !WhetherJobBreakChainRTDA(jobRelocate, startP, finishP,
+                                          longestJobChains_, dagTasks_,
+                                          jobOrderRef, tasksInfo_, obj_type_)) {
                 return true;
             } else
                 return false;
-        } else
-            CoutError("Need implementation in WhetherSafeSkip");
+        } else if (obj_type_ == "SensorFusionObj") {
+            if (!WhetherInfluenceActiveJobs(jobRelocate) &&
+                !WhetherJobBreakChainSF(jobRelocate, startP, finishP,
+                                        worst_sf_fork_, dagTasks_, jobOrderRef,
+                                        tasksInfo_)) {
+                return true;
+            } else
+                return false;
+        }
+        CoutError("Need implementation in WhetherSafeSkip");
         return false;
     }
 
