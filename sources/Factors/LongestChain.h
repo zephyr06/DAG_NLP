@@ -71,24 +71,6 @@ class LongestCAChain {
 
 int FindSiblingJobIndex(const JobCEC &job,
                         const std::vector<JobCEC> &jobChainCurr);
-// The input jobOrder is the same as jobOrderRef
-// it assumes the input jobOrder will first remove job, and then insert its
-// start/finish instances at startP/finishP If you want to be safer, return more
-// 'true'
-bool WhetherJobBreakChainRT(const JobCEC &job, LLint startP, LLint finishP,
-                            const LongestCAChain &longestJobChains,
-                            const DAG_Model &dagTasks, SFOrder &jobOrder,
-                            const TaskSetInfoDerived &tasksInfo);
-bool WhetherJobBreakChainDA(const JobCEC &job, LLint startP, LLint finishP,
-                            const LongestCAChain &longestJobChains,
-                            const DAG_Model &dagTasks, SFOrder &jobOrder,
-                            const TaskSetInfoDerived &tasksInfo);
-
-bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
-                          const LongestCAChain &longestJobChains,
-                          const DAG_Model &dagTasks, SFOrder &jobOrder,
-                          const TaskSetInfoDerived &tasksInfo,
-                          std::string obj_type);
 
 std::unordered_map<JobCEC, int> ExtractIndependentJobGroups(
     const SFOrder &jobOrder, const TaskSetInfoDerived &tasksInfo);

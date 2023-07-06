@@ -101,6 +101,29 @@ ActiveJobs FindActiveJobs(
     const RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
     const VectorDynamic &startTimeVector);
 
+// The input jobOrder is the same as jobOrderRef
+// it assumes the input jobOrder will first remove the job, and then insert its
+// start/finish instances at startP/finishP
+// If you want to be safer, return more 'true'
+bool WhetherJobBreakChainRT(const JobCEC &job, LLint startP, LLint finishP,
+                            const LongestCAChain &longestJobChains,
+                            const DAG_Model &dagTasks, SFOrder &jobOrder,
+                            const TaskSetInfoDerived &tasksInfo);
+bool WhetherJobBreakChainDA(const JobCEC &job, LLint startP, LLint finishP,
+                            const LongestCAChain &longestJobChains,
+                            const DAG_Model &dagTasks, SFOrder &jobOrder,
+                            const TaskSetInfoDerived &tasksInfo);
+bool WhetherJobBreakChainSF(const JobCEC &job, LLint startP, LLint finishP,
+                            const LongestCAChain &longestJobChains,
+                            const DAG_Model &dagTasks, SFOrder &jobOrder,
+                            const TaskSetInfoDerived &tasksInfo);
+
+bool WhetherJobBreakChain(const JobCEC &job, LLint startP, LLint finishP,
+                          const LongestCAChain &longestJobChains,
+                          const DAG_Model &dagTasks, SFOrder &jobOrder,
+                          const TaskSetInfoDerived &tasksInfo,
+                          std::string obj_type);
+
 class IndependentAnalysis {
    public:
     IndependentAnalysis() {}
@@ -143,7 +166,8 @@ class IndependentAnalysis {
 
     bool WhetherSafeSkip(const JobCEC jobRelocate, LLint startP, LLint finishP,
                          SFOrder &jobOrderRef) {
-        if (obj_type_ == "ReactionTimeObj" || obj_type_ == "DataAgeObj") {
+        if (obj_type_ == "ReactionTimeObj" || obj_type_ == "DataAgeObj" ||
+            obj_type_ == "SensorFusionObj") {
             if (!WhetherInfluenceActiveJobs(jobRelocate) &&
                 !WhetherJobBreakChain(jobRelocate, startP, finishP,
                                       longestJobChains_, dagTasks_, jobOrderRef,
