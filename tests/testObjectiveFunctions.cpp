@@ -63,6 +63,9 @@ TEST_F(ObjExperimentObjTest1, SFEvaluate1) {
     EXPECT_EQ(RTSS21ICObj::EvaluateSF(dagTasks, tasksInfo, initialEstimate,
                                       scheduleOptions),
               4 * 0.5 + 4 * 10);
+    EXPECT_EQ(SensorFusionObj::Evaluate(dagTasks, tasksInfo, initialEstimate,
+                                        scheduleOptions),
+              4 * 0.5 + 4 * 10);
     EXPECT_EQ(RTSS21ICObj::Evaluate(dagTasks, tasksInfo, initialEstimate,
                                     scheduleOptions),
               42 + 9108);

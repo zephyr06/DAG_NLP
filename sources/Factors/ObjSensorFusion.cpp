@@ -4,6 +4,7 @@ namespace OrderOptDAG_SPACE {
 namespace OptimizeSF {
 // TODO: add "SensorFusionObj"
 const std::string RTSS21ICObj::type_trait("RTSS21ICObj");
+const std::string SensorFusionObj::type_trait("SensorFusionObj");
 
 double RTSS21ICObj::EvaluateRTDA(const DAG_Model &dagTasks,
                                  const TaskSetInfoDerived &tasksInfo,
@@ -68,6 +69,22 @@ std::vector<JobCEC> GetLastReadingJobs(JobCEC sink_job,
             FindLastReadingJob(sink_job, source_id, jobOrder, tasksInfo));
     }
     return last_reading_jobs;
+}
+
+double SensorFusionObj::TrueObj(const DAG_Model &dagTasks,
+                                const TaskSetInfoDerived &tasksInfo,
+                                const VectorDynamic &startTimeVector,
+                                const ScheduleOptions scheduleOptions) {
+    return RTSS21ICObj::EvaluateSF(dagTasks, tasksInfo, startTimeVector,
+                                   scheduleOptions);
+}
+
+double SensorFusionObj::Evaluate(const DAG_Model &dagTasks,
+                                 const TaskSetInfoDerived &tasksInfo,
+                                 const VectorDynamic &startTimeVector,
+                                 const ScheduleOptions scheduleOptions) {
+    return RTSS21ICObj::EvaluateSF(dagTasks, tasksInfo, startTimeVector,
+                                   scheduleOptions);
 }
 }  // namespace OptimizeSF
 }  // namespace OrderOptDAG_SPACE

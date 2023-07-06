@@ -33,5 +33,18 @@ std::vector<JobCEC> GetLastReadingJobs(JobCEC sink_job,
                                        SFOrder &jobOrder,
                                        const TaskSetInfoDerived &tasksInfo);
 
+class SensorFusionObj : ObjectiveFunctionBase {
+   public:
+    static const std::string type_trait;
+    static double TrueObj(const DAG_Model &dagTasks,
+                          const TaskSetInfoDerived &tasksInfo,
+                          const VectorDynamic &startTimeVector,
+                          const ScheduleOptions scheduleOptions);
+
+    static double Evaluate(const DAG_Model &dagTasks,
+                           const TaskSetInfoDerived &tasksInfo,
+                           const VectorDynamic &startTimeVector,
+                           const ScheduleOptions scheduleOptions);
+};
 }  // namespace OptimizeSF
 }  // namespace OrderOptDAG_SPACE
