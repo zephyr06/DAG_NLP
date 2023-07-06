@@ -425,6 +425,30 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v61, WorstSF_JobFork) {
     EXPECT_TRUE(ifExist<JobCEC>(JobCEC(1, 0), worst_sf_fork[0].source_jobs));
 }
 
+TEST_F(TestSFOrderLPOptimizer_da_n3_v61, WhetherJobBreakChainSF) {
+    VectorDynamic initialSTV =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
+    initialSTV << 0, 10, 1, 15;
+    SFOrder jobOrderRef(tasksInfo, initialSTV);
+    jobOrderRef.print();
+    WorstSF_JobFork worst_sf_fork(dagTasks, tasksInfo, jobOrderRef, initialSTV,
+                                  2);
+
+    LLint startP = 0, finishP = 1;
+    JobCEC job(2, 0);
+    EXPECT_TRUE(WhetherJobBreakChainSF(job, startP, finishP, worst_sf_fork,
+                                       dagTasks, jobOrderRef, tasksInfo));
+    EXPECT_TRUE(WhetherJobBreakChainSF(job, 6, 7, worst_sf_fork, dagTasks,
+                                       jobOrderRef, tasksInfo));
+    EXPECT_TRUE(WhetherJobBreakChainSF(job, 5, 6, worst_sf_fork, dagTasks,
+                                       jobOrderRef, tasksInfo));
+    EXPECT_TRUE(WhetherJobBreakChainSF(JobCEC(0, 1), 6, 7, worst_sf_fork,
+                                       dagTasks, jobOrderRef, tasksInfo));
+    EXPECT_TRUE(WhetherJobBreakChainSF(JobCEC(1, 0), 4, 5, worst_sf_fork,
+                                       dagTasks, jobOrderRef, tasksInfo));
+    EXPECT_TRUE(WhetherJobBreakChainSF(JobCEC(1, 0), 0, 1, worst_sf_fork,
+                                       dagTasks, jobOrderRef, tasksInfo));
+}
 TEST_F(TestSFOrderLPOptimizer_da_n3_v61, FindCentralJobs_sf_v1) {
     VectorDynamic initialSTV =
         ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
@@ -525,6 +549,39 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v63, FindActiveJobs_sf_v2) {
     EXPECT_TRUE(activeJobs.jobRecord.count(JobCEC(2, 1)) > 0);
     EXPECT_TRUE(activeJobs.activeJobs[0].direction_backward);
     EXPECT_FALSE(activeJobs.activeJobs[0].direction_forward);
+}
+class TestSFOrderLPOptimizer_da_n3_v64 : public ::testing::Test {
+   public:
+    OrderOptDAG_SPACE::DAG_Model dagTasks;
+    int processorNum;
+    SFOrder sfOrder;
+    TaskSetInfoDerived tasksInfo;
+    std::vector<uint> processorJobVec;
+    OptimizeSF::ScheduleOptions scheduleOptions;
+
+    void SetUp() override {
+        processorNum = 2;
+        dagTasks =
+            ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v64.csv", "orig", 1);
+        TaskSet tasks = dagTasks.tasks;
+        tasksInfo = TaskSetInfoDerived(tasks);
+        VectorDynamic initialSTV = ListSchedulingLFTPA(
+            dagTasks, tasksInfo, processorNum, processorJobVec);
+    }
+};
+TEST_F(TestSFOrderLPOptimizer_da_n3_v64, WhetherJobBreakChainSF) {
+    VectorDynamic initialSTV =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
+    initialSTV << 0, 190, 0, 50, 100;
+    SFOrder jobOrderRef(tasksInfo, initialSTV);
+    jobOrderRef.print();
+    WorstSF_JobFork worst_sf_fork(dagTasks, tasksInfo, jobOrderRef, initialSTV,
+                                  2);
+
+    EXPECT_FALSE(WhetherJobBreakChainSF(JobCEC(0, 1), 8, 9, worst_sf_fork,
+                                        dagTasks, jobOrderRef, tasksInfo));
+    EXPECT_TRUE(WhetherJobBreakChainSF(JobCEC(0, 1), 6, 7, worst_sf_fork,
+                                       dagTasks, jobOrderRef, tasksInfo));
 }
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

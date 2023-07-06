@@ -114,7 +114,7 @@ bool WhetherJobBreakChainDA(const JobCEC &job, LLint startP, LLint finishP,
                             const DAG_Model &dagTasks, SFOrder &jobOrder,
                             const TaskSetInfoDerived &tasksInfo);
 bool WhetherJobBreakChainSF(const JobCEC &job, LLint startP, LLint finishP,
-                            const LongestCAChain &longestJobChains,
+                            const WorstSF_JobFork &worst_sf_fork,
                             const DAG_Model &dagTasks, SFOrder &jobOrder,
                             const TaskSetInfoDerived &tasksInfo);
 

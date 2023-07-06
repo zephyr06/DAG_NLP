@@ -346,42 +346,24 @@ bool WhetherJobBreakChainDA(const JobCEC &jobRelocate, LLint startP,
 }
 
 bool WhetherJobBreakChainSF(const JobCEC &jobRelocate, LLint startP,
-                            LLint finishP,
-                            const LongestCAChain &longestJobChains,
+                            LLint finishP, const WorstSF_JobFork &worst_sf_fork,
                             const DAG_Model &dagTasks, SFOrder &jobOrder,
                             const TaskSetInfoDerived &tasksInfo) {
     SFOrder jobOrderNew = jobOrder;
     jobOrderNew.RemoveJob(jobRelocate);
     jobOrderNew.InsertStart(jobRelocate, startP);
     jobOrderNew.InsertFinish(jobRelocate, finishP);
-    for (uint i = 0; i < longestJobChains.size(); i++) {
-        const std::vector<JobCEC> &jobChainCurr =
-            longestJobChains[i];  // iterate through each job chain;
-        if (JobChainContainTask(jobChainCurr, jobRelocate.taskId)) {
-            int siblingJobIndex =
-                FindSiblingJobIndex(jobRelocate, jobChainCurr);
-            if (siblingJobIndex == -1)
-                continue;  // job doesn't appear in this taskChainCurr
-            JobCEC sibJob = jobChainCurr[siblingJobIndex];
-            if (sibJob.EqualWithinHyperPeriod(jobRelocate, tasksInfo))
+    for (const SF_JobFork &sf_job_fork : worst_sf_fork.worst_fork_) {
+        for (const JobCEC &job_source : sf_job_fork.source_jobs) {
+            std::vector<JobCEC> jobChainCurr;
+            jobChainCurr.reserve(2);
+            jobChainCurr.push_back(job_source);
+            jobChainCurr.push_back(sf_job_fork.sink_job);
+            bool whetherJobBreakJobChain = WhetherJobBreakJobChainDA(
+                jobRelocate, startP, finishP, jobOrder, tasksInfo, jobOrderNew,
+                jobChainCurr);
+            if (whetherJobBreakJobChain)
                 return true;
-
-            if (siblingJobIndex == jobChainCurr.size() - 1) {
-                continue;  // it seems like no possible situations will break
-                           // the chain in this case
-            } else {       // the job is not a source task's job
-                if (jobRelocate.jobId < sibJob.jobId)
-                    continue;  // the job cannot finish later than sibJob,
-                               // and so cannot change immediate backward
-                               // job chain
-                JobCEC sibJobImmediateFollowJob =
-                    jobChainCurr[siblingJobIndex + 1];
-                JobCEC last_read_job_in_new_job_order = FindLastReadingJob(
-                    sibJobImmediateFollowJob, jobRelocate.taskId, jobOrderNew,
-                    tasksInfo);
-                if (last_read_job_in_new_job_order != sibJob)
-                    return true;
-            }
         }
     }
     return false;
