@@ -109,7 +109,8 @@ ScheduleResult ScheduleDAGLS_LFT(
     ScheduleResult res;
     res.startTimeVector_ = initialSTV;
     if (ObjectiveFunctionBase::type_trait == "ReactionTimeObj" ||
-        ObjectiveFunctionBase::type_trait == "DataAgeObj") {
+        ObjectiveFunctionBase::type_trait == "DataAgeObj" ||
+        ObjectiveFunctionBase::type_trait == "SensorFusionObj") {
         res.schedulable_ = ExamBasic_Feasibility(dagTasks, tasksInfo,
                                                  initialSTV, processorJobVec,
                                                  scheduleOptions.processorNum_);
