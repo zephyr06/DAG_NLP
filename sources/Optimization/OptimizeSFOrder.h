@@ -27,6 +27,9 @@ namespace OrderOptDAG_SPACE {
 namespace OptimizeSF {
 std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks);
 
+void CheckValidDAGTaskSetGivenObjType(const DAG_Model &dagTasks,
+                                      std::string obj_type);
+
 // return the range of index that the start instnace of jobRelocate could be,
 // inclusive on both ends; the index of JobGroupRange is based on the original
 // jobOrderRef without removing jobRelocate To use the found JobGroupRange, user
@@ -416,19 +419,6 @@ class DAGScheduleOptimizer {
     IndependentAnalysis independent_analysis_;
 };  // class DAGScheduleOptimizer
 
-void CheckValidDAGTaskSetGivenObjType(const DAG_Model &dagTasks,
-                                      std::string obj_type) {
-    if (obj_type == "ReactionTimeObj" || obj_type == "DataAgeObj") {
-        if (dagTasks.chains_.size() == 0)
-            CoutError(
-                "Need to provide cause-effect chains to perform optimization!");
-    } else if (obj_type == "SensorFusionObj") {
-        if (dagTasks.sf_forks_.size() == 0) {
-            CoutError(
-                "Need to provide sensor fusion forks to perform optimization!");
-        }
-    }
-}
 template <typename OrderScheduler, typename ObjectiveFunctionBase>
 ScheduleResult ScheduleDAGModel(
     DAG_Model &dagTasks, const ScheduleOptions &scheduleOptions,
@@ -479,7 +469,8 @@ ScheduleResult ScheduleDAGModel(
     // }
 
     if (ObjectiveFunctionBase::type_trait == "ReactionTimeObj" ||
-        ObjectiveFunctionBase::type_trait == "DataAgeObj")
+        ObjectiveFunctionBase::type_trait == "DataAgeObj" ||
+        ObjectiveFunctionBase::type_trait == "SensorFusionObj")
         scheduleRes.schedulable_ = ExamBasic_Feasibility(
             dagTasks, tasksInfo, scheduleRes.startTimeVector_,
             scheduleRes.processorJobVec_, scheduleOptions.processorNum_);
