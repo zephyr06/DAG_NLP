@@ -416,10 +416,25 @@ class DAGScheduleOptimizer {
     IndependentAnalysis independent_analysis_;
 };  // class DAGScheduleOptimizer
 
+void CheckValidDAGTaskSetGivenObjType(const DAG_Model &dagTasks,
+                                      std::string obj_type) {
+    if (obj_type == "ReactionTimeObj" || obj_type == "DataAgeObj") {
+        if (dagTasks.chains_.size() == 0)
+            CoutError(
+                "Need to provide cause-effect chains to perform optimization!");
+    } else if (obj_type == "SensorFusionObj") {
+        if (dagTasks.sf_forks_.size() == 0) {
+            CoutError(
+                "Need to provide sensor fusion forks to perform optimization!");
+        }
+    }
+}
 template <typename OrderScheduler, typename ObjectiveFunctionBase>
 ScheduleResult ScheduleDAGModel(
     DAG_Model &dagTasks, const ScheduleOptions &scheduleOptions,
     double timeLimits = GlobalVariablesDAGOpt::makeProgressTimeLimit) {
+    CheckValidDAGTaskSetGivenObjType(dagTasks,
+                                     ObjectiveFunctionBase::type_trait);
     DAGScheduleOptimizer<OrderScheduler, ObjectiveFunctionBase>
         dagScheduleOptimizer(dagTasks, scheduleOptions, timeLimits);
     const TaskSetInfoDerived &tasksInfo = dagScheduleOptimizer.tasksInfo;
