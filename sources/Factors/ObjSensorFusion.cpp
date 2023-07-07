@@ -75,8 +75,9 @@ double SensorFusionObj::TrueObj(const DAG_Model &dagTasks,
                                 const TaskSetInfoDerived &tasksInfo,
                                 const VectorDynamic &startTimeVector,
                                 const ScheduleOptions scheduleOptions) {
-    return RTSS21ICObj::EvaluateSF(dagTasks, tasksInfo, startTimeVector,
-                                   scheduleOptions);
+    VectorDynamic sfVec =
+        ObtainSensorFusionError(dagTasks, tasksInfo, startTimeVector);
+    return sfVec.maxCoeff();
 }
 
 double SensorFusionObj::Evaluate(const DAG_Model &dagTasks,
