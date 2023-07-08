@@ -147,7 +147,7 @@ EarliestAndLatestFinishedJob FindEarlyAndLateJob(
     JobCEC earliest_job;
     double earliest_finish_time = 1e9;
     JobCEC latest_job;
-    double latest_finish_time = 0;
+    double latest_finish_time = -1e9;
     for (JobCEC job_curr : job_fork.source_jobs) {
         double finish_time =
             GetFinishTime(job_curr, startTimeVector, tasksInfo);
