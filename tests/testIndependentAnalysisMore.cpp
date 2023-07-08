@@ -639,6 +639,17 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v67, WhetherSafeSkip_SF) {
     independent_analysis.UpdateStatus(jobOrderRef, initialSTV);
     EXPECT_TRUE(independent_analysis.WhetherInfluenceActiveJobs(JobCEC(2, 3)));
 }
+TEST_F(TestSFOrderLPOptimizer_da_n3_v67, find_worst_sf_fork) {
+    VectorDynamic initialSTV =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
+    initialSTV << 954, 4001, 1855, 2000, 4902, 236, 1000, 2000, 3236, 4000,
+        5236;
+    sfOrder = SFOrder(tasksInfo, initialSTV);
+    sfOrder.print();
+    WorstSF_JobFork worst_sf_fork(dagTasks, tasksInfo, sfOrder, initialSTV, 2);
+    EXPECT_EQ(JobCEC(2, 3), worst_sf_fork[0].sink_job);
+    EXPECT_EQ(JobCEC(2, 4), worst_sf_fork[1].sink_job);
+}
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

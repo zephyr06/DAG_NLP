@@ -309,7 +309,40 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v66, SF_Obj) {
               SensorFusionObj::TrueObj(dagTasks, tasksInfo, initialSTV,
                                        scheduleOptions));
 }
+class TestSFOrderLPOptimizer_da_n3_v67 : public ::testing::Test {
+   public:
+    OrderOptDAG_SPACE::DAG_Model dagTasks;
+    int processorNum;
+    SFOrder sfOrder;
+    TaskSetInfoDerived tasksInfo;
+    std::vector<uint> processorJobVec;
+    OptimizeSF::ScheduleOptions scheduleOptions;
 
+    void SetUp() override {
+        processorNum = 2;
+        dagTasks =
+            ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v67.csv", "orig", 1);
+        TaskSet tasks = dagTasks.tasks;
+        tasksInfo = TaskSetInfoDerived(tasks);
+        VectorDynamic initialSTV = ListSchedulingLFTPA(
+            dagTasks, tasksInfo, processorNum, processorJobVec);
+        sfOrder = SFOrder(tasksInfo, initialSTV);
+        PrintSchedule(tasksInfo, initialSTV);
+        // sfOrder.print();
+        scheduleOptions.causeEffectChainNumber_ = 1;
+    }
+};
+TEST_F(TestSFOrderLPOptimizer_da_n3_v67, SF_Obj) {
+    VectorDynamic initialSTV =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
+    initialSTV << 954, 4001, 1855, 2000, 4902, 236, 1000, 2000, 3236, 4000,
+        5236;
+    sfOrder = SFOrder(tasksInfo, initialSTV);
+    sfOrder.print();
+    EXPECT_EQ(2145 - 2000,
+              SensorFusionObj::TrueObj(dagTasks, tasksInfo, initialSTV,
+                                       scheduleOptions));
+}
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
