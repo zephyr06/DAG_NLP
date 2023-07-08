@@ -456,10 +456,12 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v61, FindCentralJobs_sf_v1) {
     sfOrder = SFOrder(tasksInfo, initialSTV);
     sfOrder.print();
     WorstSF_JobFork worst_sf_fork(dagTasks, tasksInfo, sfOrder, initialSTV, 2);
-    CentralJobs central_jobs = FindCentralJobs(worst_sf_fork, tasksInfo);
-    EXPECT_EQ(0, central_jobs.forwardJobs.size());
-    EXPECT_EQ(2, central_jobs.backwardJobs.size());
-    EXPECT_TRUE(ifExist<JobCEC>(JobCEC(0, 1), central_jobs.backwardJobs));
+    CentralJobs central_jobs =
+        FindCentralJobs(worst_sf_fork, initialSTV, tasksInfo);
+    EXPECT_EQ(2, central_jobs.forwardJobs.size());
+    EXPECT_EQ(1, central_jobs.backwardJobs.size());
+    EXPECT_TRUE(ifExist<JobCEC>(JobCEC(0, 1), central_jobs.forwardJobs));
+    EXPECT_TRUE(ifExist<JobCEC>(JobCEC(2, 0), central_jobs.forwardJobs));
     EXPECT_TRUE(ifExist<JobCEC>(JobCEC(1, 0), central_jobs.backwardJobs));
 }
 TEST_F(TestSFOrderLPOptimizer_da_n3_v61, FindActiveJobs_sf_v2) {
@@ -469,16 +471,17 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v61, FindActiveJobs_sf_v2) {
     sfOrder = SFOrder(tasksInfo, initialSTV);
     sfOrder.print();
     WorstSF_JobFork worst_sf_fork(dagTasks, tasksInfo, sfOrder, initialSTV, 2);
-    CentralJobs central_jobs = FindCentralJobs(worst_sf_fork, tasksInfo);
+    CentralJobs central_jobs =
+        FindCentralJobs(worst_sf_fork, initialSTV, tasksInfo);
     auto activeJobs =
         FindActiveJobs(central_jobs, sfOrder, tasksInfo, initialSTV);
-    EXPECT_EQ(0, central_jobs.forwardJobs.size());
-    EXPECT_EQ(2, central_jobs.backwardJobs.size());
+    EXPECT_EQ(2, central_jobs.forwardJobs.size());
+    EXPECT_EQ(1, central_jobs.backwardJobs.size());
     EXPECT_TRUE(activeJobs.jobRecord.count(JobCEC(0, 1)) > 0);
     EXPECT_TRUE(activeJobs.jobRecord.count(JobCEC(1, 0)) > 0);
     EXPECT_TRUE(activeJobs.jobRecord.count(JobCEC(2, 0)) > 0);
     EXPECT_TRUE(activeJobs.activeJobs[0].direction_backward);
-    EXPECT_FALSE(activeJobs.activeJobs[0].direction_forward);
+    EXPECT_TRUE(activeJobs.activeJobs[1].direction_forward);
 }
 
 TEST_F(TestSFOrderLPOptimizer_da_n3_v61, WorstSF_JobFork_v2) {
@@ -539,7 +542,8 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v63, FindActiveJobs_sf_v2) {
     sfOrder = SFOrder(tasksInfo, initialSTV);
     sfOrder.print();
     WorstSF_JobFork worst_sf_fork(dagTasks, tasksInfo, sfOrder, initialSTV, 2);
-    CentralJobs central_jobs = FindCentralJobs(worst_sf_fork, tasksInfo);
+    CentralJobs central_jobs =
+        FindCentralJobs(worst_sf_fork, initialSTV, tasksInfo);
     auto activeJobs =
         FindActiveJobs(central_jobs, sfOrder, tasksInfo, initialSTV);
     EXPECT_TRUE(activeJobs.jobRecord.count(JobCEC(0, 0)) > 0);
@@ -548,7 +552,7 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v63, FindActiveJobs_sf_v2) {
     EXPECT_TRUE(activeJobs.jobRecord.count(JobCEC(2, 0)) > 0);
     EXPECT_TRUE(activeJobs.jobRecord.count(JobCEC(2, 1)) > 0);
     EXPECT_TRUE(activeJobs.activeJobs[0].direction_backward);
-    EXPECT_FALSE(activeJobs.activeJobs[0].direction_forward);
+    EXPECT_TRUE(activeJobs.activeJobs.back().direction_forward);
 }
 class TestSFOrderLPOptimizer_da_n3_v64 : public ::testing::Test {
    public:

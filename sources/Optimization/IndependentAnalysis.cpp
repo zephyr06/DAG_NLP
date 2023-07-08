@@ -148,19 +148,44 @@ CentralJobs FindCentralJobs(
 }
 
 CentralJobs FindCentralJobs(
-    const WorstSF_JobFork &worst_sf_fork,
+    const WorstSF_JobFork &worst_sf_fork, const VectorDynamic &startTimeVector,
     const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) {
     std::unordered_set<JobCEC> centralSourceJobRecord;
     centralSourceJobRecord.reserve(tasksInfo.length);
+    std::unordered_set<JobCEC> centralSinkJobRecord;
+    centralSinkJobRecord.reserve(tasksInfo.length);
     CentralJobs centralJobs(worst_sf_fork.size() *
                             5);  // safe but not necessary reservation
     for (const auto &sf_fork : worst_sf_fork.worst_fork_) {
-        for (JobCEC job : sf_fork.source_jobs) {
-            job = job.GetJobWithinHyperPeriod(tasksInfo);
-            if (centralSourceJobRecord.count(job) == 0) {
-                centralSourceJobRecord.insert(job);
-                centralJobs.backwardJobs.push_back(job);
-            }
+        // for (JobCEC job : sf_fork.source_jobs) {
+        //     job = job.GetJobWithinHyperPeriod(tasksInfo);
+        //     if (centralSourceJobRecord.count(job) == 0) {
+        //         centralSourceJobRecord.insert(job);
+        //         centralJobs.backwardJobs.push_back(job);
+        //     }
+        // }
+        EarliestAndLatestFinishedJob early_late_jobs =
+            FindEarlyAndLateJob(sf_fork, startTimeVector, tasksInfo);
+
+        // add the earliest job
+        JobCEC early_job =
+            early_late_jobs.early_job.GetJobWithinHyperPeriod(tasksInfo);
+        if (centralSourceJobRecord.count(early_job) == 0) {
+            centralSourceJobRecord.insert(early_job);
+            centralJobs.backwardJobs.push_back(early_job);
+        }
+        // add the latest job
+        JobCEC late_job =
+            early_late_jobs.late_job.GetJobWithinHyperPeriod(tasksInfo);
+        if (centralSinkJobRecord.count(late_job) == 0) {
+            centralSinkJobRecord.insert(late_job);
+            centralJobs.forwardJobs.push_back(late_job);
+        }
+
+        JobCEC jobSink = sf_fork.sink_job.GetJobWithinHyperPeriod(tasksInfo);
+        if (centralSinkJobRecord.find(jobSink) == centralSinkJobRecord.end()) {
+            centralSinkJobRecord.insert(jobSink);
+            centralJobs.forwardJobs.push_back(jobSink);
         }
     }
     return centralJobs;
@@ -173,18 +198,6 @@ ActiveJobs FindActiveJobs(
     std::vector<ActiveJob> activeJobs;
     std::unordered_set<JobCEC> jobRecord;
     jobRecord.reserve(tasksInfo.length);
-    for (uint i = 0; i < centralJobs.forwardJobs.size(); i++) {
-        JobCEC jobCurr = centralJobs.forwardJobs[i];
-        std::vector<JobCEC> forwardJobs = FindForwardAdjacentJob(
-            jobCurr, jobOrder, tasksInfo, startTimeVector);
-        forwardJobs.push_back(jobCurr);
-        for (uint j = 0; j < forwardJobs.size(); j++) {
-            if (jobRecord.find(forwardJobs[j]) == jobRecord.end()) {
-                jobRecord.insert(forwardJobs[j]);
-                activeJobs.push_back(ActiveJob(forwardJobs[j], true));
-            }
-        }
-    }
 
     for (uint i = 0; i < centralJobs.backwardJobs.size(); i++) {
         JobCEC jobCurr = centralJobs.backwardJobs[i];
@@ -195,6 +208,18 @@ ActiveJobs FindActiveJobs(
             if (jobRecord.find(backwardJobs[j]) == jobRecord.end()) {
                 jobRecord.insert(backwardJobs[j]);
                 activeJobs.push_back(ActiveJob(backwardJobs[j], false));
+            }
+        }
+    }
+    for (uint i = 0; i < centralJobs.forwardJobs.size(); i++) {
+        JobCEC jobCurr = centralJobs.forwardJobs[i];
+        std::vector<JobCEC> forwardJobs = FindForwardAdjacentJob(
+            jobCurr, jobOrder, tasksInfo, startTimeVector);
+        forwardJobs.push_back(jobCurr);
+        for (uint j = 0; j < forwardJobs.size(); j++) {
+            if (jobRecord.find(forwardJobs[j]) == jobRecord.end()) {
+                jobRecord.insert(forwardJobs[j]);
+                activeJobs.push_back(ActiveJob(forwardJobs[j], true));
             }
         }
     }

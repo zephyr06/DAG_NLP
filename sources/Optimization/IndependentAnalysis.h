@@ -93,7 +93,7 @@ CentralJobs FindCentralJobs(
     const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
 
 CentralJobs FindCentralJobs(
-    const WorstSF_JobFork &worst_sf_fork,
+    const WorstSF_JobFork &worst_sf_fork, const VectorDynamic &startTimeVector,
     const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
 
 ActiveJobs FindActiveJobs(
@@ -157,7 +157,8 @@ class IndependentAnalysis {
         } else if (obj_type_ == "SensorFusionObj") {
             worst_sf_fork_ = WorstSF_JobFork(dagTasks_, tasksInfo_, jobOrder,
                                              startTimeVector, processorNum_);
-            centralJob = FindCentralJobs(worst_sf_fork_, tasksInfo_);
+            centralJob =
+                FindCentralJobs(worst_sf_fork_, startTimeVector, tasksInfo_);
         } else
             CoutError("Need implementation for obj_type_ in UpdateStatus");
         activeJobs_ =
