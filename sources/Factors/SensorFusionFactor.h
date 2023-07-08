@@ -35,6 +35,17 @@ struct SF_JobFork {
     std::vector<JobCEC> source_jobs;
 };
 
+struct EarliestAndLatestFinishedJob {
+    EarliestAndLatestFinishedJob() {}
+    EarliestAndLatestFinishedJob(JobCEC early, JobCEC late)
+        : early_job(early), late_job(late) {}
+    JobCEC early_job;
+    JobCEC late_job;
+};
+EarliestAndLatestFinishedJob FindEarlyAndLateJob(
+    const SF_JobFork &job_fork, const VectorDynamic &startTimeVector,
+    const TaskSetInfoDerived &tasksInfo);
+
 std::pair<int, int> ExtractMaxDistance(
     std::vector<IndexData> &sourceFinishTime);
 

@@ -583,6 +583,58 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v64, WhetherJobBreakChainSF) {
     EXPECT_TRUE(WhetherJobBreakChainSF(JobCEC(0, 1), 6, 7, worst_sf_fork,
                                        dagTasks, jobOrderRef, tasksInfo));
 }
+class TestSFOrderLPOptimizer_da_n3_v67 : public ::testing::Test {
+   public:
+    OrderOptDAG_SPACE::DAG_Model dagTasks;
+    int processorNum;
+    SFOrder sfOrder;
+    TaskSetInfoDerived tasksInfo;
+    std::vector<uint> processorJobVec;
+    OptimizeSF::ScheduleOptions scheduleOptions;
+
+    void SetUp() override {
+        processorNum = 2;
+        dagTasks =
+            ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v67.csv", "orig", 1);
+        TaskSet tasks = dagTasks.tasks;
+        tasksInfo = TaskSetInfoDerived(tasks);
+        VectorDynamic initialSTV = ListSchedulingLFTPA(
+            dagTasks, tasksInfo, processorNum, processorJobVec);
+    }
+};
+TEST_F(TestSFOrderLPOptimizer_da_n3_v67, FindEarlyAndLateJob) {
+    VectorDynamic initialSTV =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
+    initialSTV << 954, 4001, 1855, 2856, 4901, 236, 1000, 2236, 3000, 4000,
+        5236;
+    SFOrder jobOrderRef(tasksInfo, initialSTV);
+    jobOrderRef.print();
+    WorstSF_JobFork worst_sf_fork(dagTasks, tasksInfo, jobOrderRef, initialSTV,
+                                  2);  // sink job is (2,4)
+    auto res = FindEarlyAndLateJob(worst_sf_fork.worst_fork_[0], initialSTV,
+                                   tasksInfo);
+    EXPECT_EQ(JobCEC(0, 0), res.early_job);
+    EXPECT_EQ(JobCEC(1, 1), res.late_job);
+}
+TEST_F(TestSFOrderLPOptimizer_da_n3_v67, WhetherSafeSkip_SF) {
+    VectorDynamic initialSTV =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
+    initialSTV << 954, 4001, 1855, 2856, 4901, 236, 1000, 2236, 3000, 4000,
+        5236;
+    SFOrder jobOrderRef(tasksInfo, initialSTV);
+    jobOrderRef.print();
+    WorstSF_JobFork worst_sf_fork(dagTasks, tasksInfo, jobOrderRef, initialSTV,
+                                  2);  // sink job is (2,4)
+
+    EXPECT_TRUE(WhetherJobBreakChainSF(JobCEC(2, 4), 14, 15, worst_sf_fork,
+                                       dagTasks, jobOrderRef, tasksInfo));
+    EXPECT_FALSE(WhetherJobBreakChainSF(JobCEC(2, 3), 12, 13, worst_sf_fork,
+                                        dagTasks, jobOrderRef, tasksInfo));
+    IndependentAnalysis independent_analysis(dagTasks, tasksInfo, jobOrderRef,
+                                             initialSTV, 2, "SensorFusionObj");
+    independent_analysis.UpdateStatus(jobOrderRef, initialSTV);
+    EXPECT_TRUE(independent_analysis.WhetherInfluenceActiveJobs(JobCEC(2, 3)));
+}
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
