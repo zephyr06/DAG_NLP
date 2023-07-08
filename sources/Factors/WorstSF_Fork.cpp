@@ -6,7 +6,7 @@ double GetMaxFinishTimeDiff(const std::vector<JobCEC> &last_reading_jobs,
                             const TaskSetInfoDerived &tasksInfo,
                             const VectorDynamic &startTimeVector) {
     double min_finish_time = 1e8;
-    double max_finish_time = 0;
+    double max_finish_time = -1e8;
     for (auto job : last_reading_jobs) {
         double finish_time_curr =
             GetFinishTime(job, startTimeVector, tasksInfo);
