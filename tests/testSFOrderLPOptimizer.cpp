@@ -1,5 +1,6 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "sources/Factors/ObjSensorFusion.h"
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/Optimization/SFOrder.h"
 #include "sources/Optimization/SFOrderLPOptimizer.h"
@@ -251,6 +252,7 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v61, CanDoCorrectOptimization) {
             1));  // job 0-0 and job 1-0 are the last-reading job of job 2-0
     // EXPECT_THAT(stvOptimized(0), ::testing::Le(stvOptimized(3)));
 }
+
 int main(int argc, char **argv) {
     ::testing::InitGoogleMock(&argc, argv);
     return RUN_ALL_TESTS();

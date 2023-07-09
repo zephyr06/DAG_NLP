@@ -650,6 +650,42 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v67, find_worst_sf_fork) {
     EXPECT_EQ(JobCEC(2, 3), worst_sf_fork[0].sink_job);
     EXPECT_EQ(JobCEC(2, 4), worst_sf_fork[1].sink_job);
 }
+
+class TestSFOrderLPOptimizer_da_n5_v90 : public ::testing::Test {
+   public:
+    OrderOptDAG_SPACE::DAG_Model dagTasks;
+    int processorNum;
+    SFOrder sfOrder;
+    TaskSetInfoDerived tasksInfo;
+    std::vector<uint> processorJobVec;
+    OptimizeSF::ScheduleOptions scheduleOptions;
+
+    void SetUp() override {
+        processorNum = 2;
+        dagTasks =
+            ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n5_v90.csv", "orig", 1);
+        TaskSet tasks = dagTasks.tasks;
+        tasksInfo = TaskSetInfoDerived(tasks);
+        VectorDynamic initialSTV = ListSchedulingLFTPA(
+            dagTasks, tasksInfo, processorNum, processorJobVec);
+        sfOrder = SFOrder(tasksInfo, initialSTV);
+        // PrintSchedule(tasksInfo, initialSTV);
+        // sfOrder.print();
+        scheduleOptions.causeEffectChainNumber_ = 1;
+    }
+};
+
+TEST_F(TestSFOrderLPOptimizer_da_n5_v90, CanDoCorrectOptimization) {
+    VectorDynamic initialSTV =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
+    initialSTV << 1292, 3158, 1594, 3424.67, 999, 2327.33, 4158, 621, 1778,
+        2000, 3000, 4000, 5778, 778, 1778, 2106.33, 3000, 4000, 5778;
+    sfOrder = SFOrder(tasksInfo, initialSTV);
+    sfOrder.print();
+
+    WorstSF_JobFork worst_sf_fork(dagTasks, tasksInfo, sfOrder, initialSTV, 2);
+    EXPECT_EQ(4, worst_sf_fork.size());
+}
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

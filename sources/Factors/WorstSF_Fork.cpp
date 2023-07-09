@@ -36,7 +36,7 @@ std::vector<SF_JobFork> WorstSF_JobFork::FindWorstFork_DAG_Level(
 std::vector<SF_JobFork> WorstSF_JobFork::FindWosrtFork(
     const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
     SFOrder &jobOrder, const VectorDynamic &startTimeVector, int processorNum,
-    const SF_Fork &sf_fork) {
+    const SF_Fork &sf_fork, double tolerance) {
     double worst_case_sf_val = 0;
     std::vector<SF_JobFork> worst_sf;
     worst_sf.reserve(10);  // should be safe but not necessary
@@ -48,12 +48,13 @@ std::vector<SF_JobFork> WorstSF_JobFork::FindWosrtFork(
             JobCEC(sink_id, sink_job_id), sf_fork.source, jobOrder, tasksInfo);
         double source_time_dispa =
             GetMaxFinishTimeDiff(last_reading_jobs, tasksInfo, startTimeVector);
-        if (source_time_dispa > worst_case_sf_val) {
-            worst_case_sf_val = source_time_dispa;
-            worst_sf.clear();
+
+        if (abs(source_time_dispa - worst_case_sf_val) <= tolerance) {
             worst_sf.push_back(
                 SF_JobFork(JobCEC(sink_id, sink_job_id), last_reading_jobs));
-        } else if (source_time_dispa == worst_case_sf_val) {
+        } else if (source_time_dispa > worst_case_sf_val) {
+            worst_case_sf_val = source_time_dispa;
+            worst_sf.clear();
             worst_sf.push_back(
                 SF_JobFork(JobCEC(sink_id, sink_job_id), last_reading_jobs));
         }

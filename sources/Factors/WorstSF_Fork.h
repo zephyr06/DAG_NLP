@@ -24,12 +24,10 @@ class WorstSF_JobFork {
         SFOrder &jobOrder, const VectorDynamic &startTimeVector,
         int processorNum);
 
-    std::vector<SF_JobFork> FindWosrtFork(const DAG_Model &dagTasks,
-                                          const TaskSetInfoDerived &tasksInfo,
-                                          SFOrder &jobOrder,
-                                          const VectorDynamic &startTimeVector,
-                                          int processorNum,
-                                          const SF_Fork &sf_fork);
+    std::vector<SF_JobFork> FindWosrtFork(
+        const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+        SFOrder &jobOrder, const VectorDynamic &startTimeVector,
+        int processorNum, const SF_Fork &sf_fork, double tolerance = 0.1);
 
     size_t size() const { return worst_fork_.size(); }
     SF_JobFork operator[](size_t index) const { return worst_fork_[index]; }
