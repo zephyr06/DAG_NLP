@@ -25,7 +25,7 @@ make GenerateTaskSet
 
 # Generate performance test code
 
-./tests/GenerateTaskSet --N 3 --taskSetNumber 10 --SF_ForkNum 1 --numCauseEffectChain 1 --taskSetType 2
+./tests/GenerateTaskSet --N 5 --taskSetNumber 100 --SF_ForkNum 1 --numCauseEffectChain 1 --taskSetType 2
 ```
 
 # Run the scripts for large-scale experiments
