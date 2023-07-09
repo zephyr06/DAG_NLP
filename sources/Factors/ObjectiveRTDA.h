@@ -1,7 +1,7 @@
 
 #pragma once
 #include "sources/Factors/RTDA_Analyze.h"
-#include "sources/Factors/SensorFusionFactor.h"
+#include "sources/Factors/SensorFusion_Analyze.h"
 #include "sources/Optimization/ScheduleOptions.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/JobCEC.h"

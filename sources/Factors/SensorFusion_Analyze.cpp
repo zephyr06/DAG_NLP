@@ -1,5 +1,5 @@
 
-#include "sources/Factors/SensorFusionFactor.h"
+#include "sources/Factors/SensorFusion_Analyze.h"
 
 namespace OrderOptDAG_SPACE {
 LLint CountSFError(const DAG_Model &dagTasks,

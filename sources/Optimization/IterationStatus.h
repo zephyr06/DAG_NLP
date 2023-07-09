@@ -9,7 +9,7 @@
 // #include "sources/Optimization/JobOrder.h"
 #include "sources/Factors/Interval.h"
 #include "sources/Factors/RTDA_Analyze.h"
-#include "sources/Factors/SensorFusionFactor.h"
+#include "sources/Factors/SensorFusion_Analyze.h"
 #include "sources/Optimization/SFOrder.h"
 // #include "sources/Optimization/ScheduleOptimizer.h"
 #include "sources/Optimization/OrderScheduler.h"
