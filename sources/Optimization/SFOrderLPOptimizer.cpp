@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "sources/Factors/RTDA_Factor.h"
+#include "sources/Factors/RTDA_Analyze.h"
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Utils/Parameters.h"
 

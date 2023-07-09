@@ -1,7 +1,7 @@
 
 #include <CppUnitLite/TestHarness.h>
 #include "sources/Baseline/VerucchiScheduling.h"
-#include "sources/Factors/RTDA_Factor.h"
+#include "sources/Factors/RTDA_Analyze.h"
 #include "sources/Baseline/VerucchiRTDABridge.h"
 #include "sources/Utils/profilier.h"
 // *************************

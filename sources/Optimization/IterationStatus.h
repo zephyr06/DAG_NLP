@@ -8,7 +8,7 @@
 #include <iostream>
 // #include "sources/Optimization/JobOrder.h"
 #include "sources/Factors/Interval.h"
-#include "sources/Factors/RTDA_Factor.h"
+#include "sources/Factors/RTDA_Analyze.h"
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Optimization/SFOrder.h"
 // #include "sources/Optimization/ScheduleOptimizer.h"

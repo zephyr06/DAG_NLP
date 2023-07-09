@@ -6,7 +6,7 @@
 #include <functional>
 
 #include "sources/Factors/LongestChain.h"
-#include "sources/Factors/RTDA_Factor.h"
+#include "sources/Factors/RTDA_Analyze.h"
 #include "sources/Factors/WorstSF_Fork.h"
 #include "sources/Optimization/IndependentAnalysis.h"
 #include "sources/Optimization/OptimizeSFOrder.h"

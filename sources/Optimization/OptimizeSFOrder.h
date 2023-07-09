@@ -11,7 +11,7 @@
 #include "sources/Factors/Interval.h"
 #include "sources/Factors/LongestChain.h"
 #include "sources/Factors/ObjectiveFunctions.h"
-#include "sources/Factors/RTDA_Factor.h"
+#include "sources/Factors/RTDA_Analyze.h"
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Optimization/IndependentAnalysis.h"
 #include "sources/Optimization/IterationStatus.h"

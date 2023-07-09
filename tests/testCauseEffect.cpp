@@ -1,6 +1,6 @@
 #include <CppUnitLite/TestHarness.h>
 
-#include "sources/Factors/RTDA_Factor.h"
+#include "sources/Factors/RTDA_Analyze.h"
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/Utils/OptimizeOrderUtils.h"

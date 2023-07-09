@@ -1,7 +1,7 @@
 
 #pragma once
 #include "sources/Factors/LongestChain.h"
-#include "sources/Factors/RTDA_Factor.h"
+#include "sources/Factors/RTDA_Analyze.h"
 #include "sources/Optimization/ScheduleOptions.h"
 
 namespace OrderOptDAG_SPACE {

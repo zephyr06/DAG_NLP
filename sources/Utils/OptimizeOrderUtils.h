@@ -4,7 +4,7 @@
 #include "sources/Utils/Parameters.h"
 // #include "sources/Factors/DDL_ConstraintFactor.h"
 #include "sources/Factors/Interval.h"
-#include "sources/Factors/RTDA_Factor.h"
+#include "sources/Factors/RTDA_Analyze.h"
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/Optimization/SFOrder.h"
 #include "sources/Optimization/ScheduleOptions.h"

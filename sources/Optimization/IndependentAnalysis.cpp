@@ -2,7 +2,7 @@
 #include "sources/Optimization/IndependentAnalysis.h"
 
 #include "sources/Factors/LongestChain.h"
-#include "sources/Factors/RTDA_Factor.h"
+#include "sources/Factors/RTDA_Analyze.h"
 #include "sources/Optimization/OptimizeSFOrder.h"
 #include "sources/Optimization/ScheduleOptions.h"
 
@@ -225,7 +225,7 @@ ActiveJobs FindActiveJobs(
     }
     return ActiveJobs(activeJobs, jobRecord);
 }
-// todo: RENAME OR REMOVE?
+
 bool WhetherJobBreakChainRTDA(const JobCEC &job, LLint startP, LLint finishP,
                               const LongestCAChain &longestJobChains,
                               const DAG_Model &dagTasks, SFOrder &jobOrder,

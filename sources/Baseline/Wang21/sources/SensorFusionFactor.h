@@ -2,7 +2,7 @@
 
 #include "DeclareDAG.h"
 
-#include "sources/Factors/RTDA_Factor.h"
+#include "sources/Factors/RTDA_Analyze.h"
 #include "sources/Factors/SensorFusionFactor.h"
 #include "sources/TaskModel/DAG_Model.h"
 #include "sources/Utils/profilier.h"
