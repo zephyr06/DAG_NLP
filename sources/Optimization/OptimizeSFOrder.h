@@ -55,14 +55,8 @@ class DAGScheduleOptimizer {
         if (dagTasks.chains_.size() == 0)
             CoutWarning("No chain is provided for the given dag!");
 
-        VectorDynamic initialSTV;
-        // TODO: move to arguments
-        if (scheduleOptions.selectInitialFromPoolCandidate_ != 0)
-            initialSTV = SelectInitialFromPool<ObjectiveFunctionBase>(
-                dagTasks, tasksInfo, scheduleOptions);
-        else
-            initialSTV = ListSchedulingLFTPA(dagTasks, tasksInfo,
-                                             scheduleOptions.processorNum_);
+        VectorDynamic initialSTV = ListSchedulingLFTPA(
+            dagTasks, tasksInfo, scheduleOptions.processorNum_);
 
         InitializeStatus(initialSTV);
 
