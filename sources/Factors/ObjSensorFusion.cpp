@@ -75,17 +75,58 @@ double SensorFusionObj::TrueObj(const DAG_Model &dagTasks,
                                 const TaskSetInfoDerived &tasksInfo,
                                 const VectorDynamic &startTimeVector,
                                 const ScheduleOptions scheduleOptions) {
-    VectorDynamic sfVec =
-        ObtainSensorFusionError(dagTasks, tasksInfo, startTimeVector);
-    return sfVec.maxCoeff();
+    // VectorDynamic sfVec =
+    //     ObtainSensorFusionError(dagTasks, tasksInfo, startTimeVector);
+    // return sfVec.maxCoeff();
+    SFOrder jobOrder(tasksInfo, startTimeVector);
+    double total_sf_error = 0;
+    for (auto &sf_fork : dagTasks.sf_forks_) {
+        int sink_id = sf_fork.sink;
+        auto source_ids = sf_fork.source;
+        double max_sf_diff = 0;
+        for (int sink_job_id = 0;
+             sink_job_id <
+             tasksInfo.hyper_period / tasksInfo.tasks[sink_id].period;
+             sink_job_id++) {
+            JobCEC sink_job(sink_id, sink_job_id);
+            std::vector<JobCEC> last_reading_jobs =
+                GetLastReadingJobs(sink_job, source_ids, jobOrder, tasksInfo);
+            double sf_obj_curr_fork =
+                FindEarlyAndLateJob(SF_JobFork(sink_job, last_reading_jobs),
+                                    startTimeVector, tasksInfo)
+                    .GetFinishTimeDiff(startTimeVector, tasksInfo);
+            max_sf_diff = std::max(max_sf_diff, sf_obj_curr_fork);
+        }
+        total_sf_error += max_sf_diff;
+    }
+    return total_sf_error;
 }
 
 double SensorFusionObj::Evaluate(const DAG_Model &dagTasks,
                                  const TaskSetInfoDerived &tasksInfo,
                                  const VectorDynamic &startTimeVector,
                                  const ScheduleOptions scheduleOptions) {
-    return RTSS21ICObj::EvaluateSF(dagTasks, tasksInfo, startTimeVector,
-                                   scheduleOptions);
+    SFOrder jobOrder(tasksInfo, startTimeVector);
+    double total_sf_error = 0;
+    for (auto &sf_fork : dagTasks.sf_forks_) {
+        int sink_id = sf_fork.sink;
+        auto source_ids = sf_fork.source;
+        double max_sf_diff = 0;
+        for (int sink_job_id = 0;
+             sink_job_id <
+             tasksInfo.hyper_period / tasksInfo.tasks[sink_id].period;
+             sink_job_id++) {
+            JobCEC sink_job(sink_id, sink_job_id);
+            std::vector<JobCEC> last_reading_jobs =
+                GetLastReadingJobs(sink_job, source_ids, jobOrder, tasksInfo);
+            double sf_obj_curr_fork =
+                FindEarlyAndLateJob(SF_JobFork(sink_job, last_reading_jobs),
+                                    startTimeVector, tasksInfo)
+                    .GetFinishTimeDiff(startTimeVector, tasksInfo);
+            total_sf_error += sf_obj_curr_fork;
+        }
+    }
+    return total_sf_error;
 }
 }  // namespace OptimizeSF
 }  // namespace OrderOptDAG_SPACE

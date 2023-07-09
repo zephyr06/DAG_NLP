@@ -39,6 +39,12 @@ struct EarliestAndLatestFinishedJob {
     EarliestAndLatestFinishedJob() {}
     EarliestAndLatestFinishedJob(JobCEC early, JobCEC late)
         : early_job(early), late_job(late) {}
+
+    inline double GetFinishTimeDiff(const VectorDynamic &startTimeVector,
+                                    const TaskSetInfoDerived &tasksInfo) {
+        return GetFinishTime(late_job, startTimeVector, tasksInfo) -
+               GetFinishTime(early_job, startTimeVector, tasksInfo);
+    }
     JobCEC early_job;
     JobCEC late_job;
 };

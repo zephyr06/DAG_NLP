@@ -63,12 +63,13 @@ TEST_F(ObjExperimentObjTest1, SFEvaluate1) {
     EXPECT_EQ(RTSS21ICObj::EvaluateSF(dagTasks, tasksInfo, initialEstimate,
                                       scheduleOptions),
               4 * 0.5 + 4 * 10);
-    EXPECT_EQ(SensorFusionObj::Evaluate(dagTasks, tasksInfo, initialEstimate,
-                                        scheduleOptions),
-              4 * 0.5 + 4 * 10);
     EXPECT_EQ(RTSS21ICObj::Evaluate(dagTasks, tasksInfo, initialEstimate,
                                     scheduleOptions),
               42 + 9108);
+    dagTasks.sf_forks_.push_back(SF_Fork({0, 1}, 2));
+    EXPECT_EQ(SensorFusionObj::Evaluate(dagTasks, tasksInfo, initialEstimate,
+                                        scheduleOptions),
+              2);
 }
 
 TEST(test_n3_v18, nonWorkConserveCase) {
@@ -340,6 +341,39 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v67, SF_Obj) {
     sfOrder = SFOrder(tasksInfo, initialSTV);
     sfOrder.print();
     EXPECT_EQ(2145 - 2000,
+              SensorFusionObj::TrueObj(dagTasks, tasksInfo, initialSTV,
+                                       scheduleOptions));
+}
+class TestSFOrderLPOptimizer_da_n3_v68 : public ::testing::Test {
+   public:
+    OrderOptDAG_SPACE::DAG_Model dagTasks;
+    int processorNum;
+    SFOrder sfOrder;
+    TaskSetInfoDerived tasksInfo;
+    std::vector<uint> processorJobVec;
+    OptimizeSF::ScheduleOptions scheduleOptions;
+
+    void SetUp() override {
+        processorNum = 2;
+        dagTasks =
+            ReadDAG_Tasks(PROJECT_PATH + "TaskData/test_n3_v68.csv", "orig", 1);
+        TaskSet tasks = dagTasks.tasks;
+        tasksInfo = TaskSetInfoDerived(tasks);
+        VectorDynamic initialSTV = ListSchedulingLFTPA(
+            dagTasks, tasksInfo, processorNum, processorJobVec);
+        sfOrder = SFOrder(tasksInfo, initialSTV);
+        PrintSchedule(tasksInfo, initialSTV);
+        // sfOrder.print();
+        scheduleOptions.causeEffectChainNumber_ = 1;
+    }
+};
+TEST_F(TestSFOrderLPOptimizer_da_n3_v68, SF_Obj) {
+    VectorDynamic initialSTV =
+        ListSchedulingLFTPA(dagTasks, tasksInfo, processorNum, processorJobVec);
+    initialSTV << 551, 0, 1741, 2000, 0, 1271, 2000;
+    sfOrder = SFOrder(tasksInfo, initialSTV);
+    sfOrder.print();
+    EXPECT_EQ(259 - (1741 - 3000),
               SensorFusionObj::TrueObj(dagTasks, tasksInfo, initialSTV,
                                        scheduleOptions));
 }

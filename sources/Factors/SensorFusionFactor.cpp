@@ -89,7 +89,8 @@ VectorDynamic ObtainSensorFusionError(const DAG_Model &dagTasks,
                     else {
                         if (jCurr.jobId == 0)
                             jCurr.jobId =
-                                tasksInfo.sizeOfVariables[jCurr.taskId] - 1;
+                                tasksInfo.sizeOfVariables[jCurr.taskId] -
+                                1;  // This part is wrong!!
                         else
                             jCurr.jobId--;
                         sourceFinishTime.push_back(
