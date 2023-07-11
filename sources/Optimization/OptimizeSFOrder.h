@@ -25,7 +25,7 @@
 
 namespace OrderOptDAG_SPACE {
 namespace OptimizeSF {
-#define CHECK_IA_CORRECTNESS
+// #define CHECK_IA_CORRECTNESS
 
 std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks);
 
@@ -142,15 +142,7 @@ class DAGScheduleOptimizer {
 #ifdef PROFILE_CODE
         BeginTimer(__FUNCTION__);
 #endif
-// TODO: skip this function if jobRelocate is not an active job
-#ifndef CHECK_IA_CORRECTNESS  // perform some Independent Analysis to
-                              // speedup iterations
-        if (!independent_analysis_.IfActiveJob(jobRelocate)) {
-            findBetterJobOrderWithinIterations = false;
-            return;
-        }
 
-#endif
         JobGroupRange jobIndexRange =
             FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
         IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusBestFound =
