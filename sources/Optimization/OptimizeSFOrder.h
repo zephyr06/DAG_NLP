@@ -138,17 +138,19 @@ class DAGScheduleOptimizer {
         return scheduleRes;
     }
 
-    bool ImproveJobOrderPerJob(const JobCEC &jobRelocate) {
+    void ImproveJobOrderPerJob(const JobCEC &jobRelocate) {
 #ifdef PROFILE_CODE
         BeginTimer(__FUNCTION__);
 #endif
-        // TODO: skip this function if jobRelocate is not an active job
-        // #ifndef CHECK_IA_CORRECTNESS  // perform some Independent Analysis to
-        // speedup
-        //                               // iterations
-        //         if (!independent_analysis_.IfActiveJob(jobRelocate))
-        //             return false;
-        // #endif
+// TODO: skip this function if jobRelocate is not an active job
+#ifndef CHECK_IA_CORRECTNESS  // perform some Independent Analysis to
+                              // speedup iterations
+        if (!independent_analysis_.IfActiveJob(jobRelocate)) {
+            findBetterJobOrderWithinIterations = false;
+            return;
+        }
+
+#endif
         JobGroupRange jobIndexRange =
             FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
         IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusBestFound =
@@ -229,7 +231,7 @@ class DAGScheduleOptimizer {
 #ifdef PROFILE_CODE
         EndTimer(__FUNCTION__);
 #endif
-        return findBetterJobOrderWithinIterations;
+        return;
     }
 
     void CheckLPConsistency(
