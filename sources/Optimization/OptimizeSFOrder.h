@@ -25,6 +25,8 @@
 
 namespace OrderOptDAG_SPACE {
 namespace OptimizeSF {
+#define CHECK_IA_CORRECTNESS
+
 std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks);
 
 void CheckValidDAGTaskSetGivenObjType(const DAG_Model &dagTasks,
@@ -38,7 +40,6 @@ JobGroupRange FindJobActivateRange(const JobCEC &jobRelocate,
                                    SFOrder &jobOrderRef,
                                    const TaskSetInfoDerived &tasksInfo);
 
-enum SFOrderCompareStatus { Infeasible, InferiorFeasible, BetterFeasible };
 template <typename OrderScheduler, typename ObjectiveFunctionBase>
 class DAGScheduleOptimizer {
    public:
@@ -142,7 +143,12 @@ class DAGScheduleOptimizer {
         BeginTimer(__FUNCTION__);
 #endif
         // TODO: skip this function if jobRelocate is not an active job
-
+        // #ifndef CHECK_IA_CORRECTNESS  // perform some Independent Analysis to
+        // speedup
+        //                               // iterations
+        //         if (!independent_analysis_.IfActiveJob(jobRelocate))
+        //             return false;
+        // #endif
         JobGroupRange jobIndexRange =
             FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
         IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusBestFound =
@@ -175,9 +181,13 @@ class DAGScheduleOptimizer {
 
                 // Independence analysis
                 if (GlobalVariablesDAGOpt::enableIndependentAnalysis) {
+                    // TODO: add WhetherJobInfluenceChainLength into IA?
                     if_IA_skip = independent_analysis_.WhetherSafeSkip(
                         jobRelocate, startP, finishP, jobOrderRef);
-                    // TODO: add WhetherJobInfluenceChainLength into IA?
+#ifndef CHECK_IA_CORRECTNESS
+                    if (if_IA_skip)
+                        continue;
+#endif
                 }
 
                 SFOrder jobOrderCurrForFinish =
@@ -185,6 +195,7 @@ class DAGScheduleOptimizer {
                                            //  faster
                 jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
+                // TODO: rename this function?
                 if (BreakFinishPermutation(accumLengthMin, jobRelocate, startP,
                                            finishP, jobOrderCurrForStart,
                                            jobOrderCurrForFinish))
@@ -289,6 +300,7 @@ class DAGScheduleOptimizer {
             startTimeVector, processorJobVec, schedulable);
         countIterationStatus++;
 
+#ifdef CHECK_IA_CORRECTNESS
         if (if_IA_skip == true) {
             double objCurr = ObjectiveFunctionBase::TrueObj(
                 dagTasks, tasksInfo, startTimeVector, scheduleOptions);
@@ -307,34 +319,12 @@ class DAGScheduleOptimizer {
                     std::cout << "\n\n";
                     PrintSchedule(tasksInfo, startTimeVector);
                     jobOrderCurrForFinish.print();
-                    // std::cout << "\n" << startTimeVector << "\n\n";
-                    // std::cout
-                    //     << std::setprecision(10)
-                    //     << GetStartTime(JobCEC(1, 0),
-                    //                     statusPrev.startTimeVector_,
-                    //                     tasksInfo)
-                    //     << "\n";
-                    // std::cout
-                    //     << std::setprecision(10)
-                    //     << GetFinishTime(JobCEC(2, 0),
-                    //                      statusPrev.startTimeVector_,
-                    //                      tasksInfo)
-                    //     << "\n";
-                    // std::cout << (GetFinishTime(JobCEC(2, 0),
-                    //                             statusPrev.startTimeVector_,
-                    //                             tasksInfo) <=
-                    //               GetStartTime(JobCEC(1, 0),
-                    //                            statusPrev.startTimeVector_,
-                    //                            tasksInfo))
-                    //           << "\n";
-                    // CoutWarning(
-                    //     "Find a case where enableIndependentAnalysis
-                    //     fails!");
-                    CoutError(
+                    CoutWarning(
                         "Find a case where enableIndependentAnalysis fails!");
                 }
             }
         }
+#endif
 
         if (MakeProgress<OrderScheduler>(statusBestFound, statusCurr)) {
             // SFOrder jobOrderReCreate(tasksInfo, startTimeVector);
@@ -369,6 +359,7 @@ class DAGScheduleOptimizer {
         jobOrderRef = SFOrder(tasksInfo, startTimeVector);
         statusPrev = IterationStatus<OrderScheduler, ObjectiveFunctionBase>(
             dagTasks, tasksInfo, jobOrderRef, scheduleOptions);
+
         independent_analysis_ = IndependentAnalysis(
             dagTasks, tasksInfo, jobOrderRef, statusPrev.startTimeVector_,
             scheduleOptions.processorNum_, ObjectiveFunctionBase::type_trait);
@@ -425,57 +416,13 @@ ScheduleResult ScheduleDAGModel(
     const SFOrder &jobOrderRef = dagScheduleOptimizer.GetJobOrder();
     ScheduleResult scheduleRes = dagScheduleOptimizer.Optimize();
 
-    // TODO(Dong) : optimize this part
-    // if (scheduleOptions.doScheduleOptimization_) {
-    //   if (!scheduleOptions.considerSensorFusion_ ||
-    //   !scheduleRes.schedulable_) {
-    //     ScheduleOptimizer schedule_optimizer = ScheduleOptimizer(dagTasks);
-    //     if (scheduleOptions.considerSensorFusion_) {
-    //       // TODO(Dong): modify related code
-    //       // schedule_optimizer.OptimizeObjWeighted(dagTasks, scheduleRes);
-    //       // ScheduleResult result_after_optimization;
-    //       // result_after_optimization =
-    //       schedule_optimizer.getOptimizedResult();
-    //       // if (result_after_optimization.objWeighted_ <
-    //       scheduleRes.objWeighted_)
-    //       // {
-    //       //     scheduleRes = result_after_optimization;
-    //       //     std::vector<RTDA> rtda_vector;
-    //       //     for (auto chain : dagTasks.chains_)
-    //       //     {
-    //       //         auto res = GetRTDAFromSingleJob(tasksInfo, chain,
-    //       scheduleRes.startTimeVector_);
-    //       //         RTDA resM = GetMaxRTDA(res);
-    //       //         rtda_vector.push_back(resM);
-    //       //     }
-    //       //     scheduleRes.obj_ = ObjRTDA(rtda_vector);
-    //       // }
-    //     } else {
-    //       schedule_optimizer.setObjType(false);
-    //       schedule_optimizer.Optimize(scheduleRes.startTimeVector_,
-    //       scheduleRes.processorJobVec_); scheduleRes.startTimeVector_ =
-    //       schedule_optimizer.getOptimizedStartTimeVector(); scheduleRes.obj_
-    //       = ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo,
-    //       scheduleRes.startTimeVector_,
-    //                                                         scheduleOptions);
-    //     }
-    //   }
-    // }
-
     if (ObjectiveFunctionBase::type_trait == "ReactionTimeObj" ||
         ObjectiveFunctionBase::type_trait == "DataAgeObj" ||
         ObjectiveFunctionBase::type_trait == "SensorFusionObj")
         scheduleRes.schedulable_ = ExamBasic_Feasibility(
             dagTasks, tasksInfo, scheduleRes.startTimeVector_,
             scheduleRes.processorJobVec_, scheduleOptions.processorNum_);
-    // else if (ObjectiveFunctionBase::type_trait == "RTSS21ICObj")
-    //     scheduleRes.schedulable_ = ExamAll_Feasibility(
-    //         dagTasks, tasksInfo, scheduleRes.startTimeVector_,
-    //         scheduleRes.processorJobVec_, scheduleOptions.processorNum_,
-    //         GlobalVariablesDAGOpt::sensorFusionTolerance,
-    // GlobalVariablesDAGOpt::freshTol);
     else
-        // scheduleRes.schedulable_ = false;
         CoutError("Unknown obj type in ScheduleDAGModel");
     std::cout << "Outermost while loop count: "
               << dagScheduleOptimizer.countOutermostWhileLoop << std::endl;

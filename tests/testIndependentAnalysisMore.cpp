@@ -637,7 +637,7 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v67, WhetherSafeSkip_SF) {
     IndependentAnalysis independent_analysis(dagTasks, tasksInfo, jobOrderRef,
                                              initialSTV, 2, "SensorFusionObj");
     independent_analysis.UpdateStatus(jobOrderRef, initialSTV);
-    EXPECT_TRUE(independent_analysis.WhetherInfluenceActiveJobs(JobCEC(2, 3)));
+    EXPECT_TRUE(independent_analysis.IfActiveJob(JobCEC(2, 3)));
 }
 TEST_F(TestSFOrderLPOptimizer_da_n3_v67, find_worst_sf_fork) {
     VectorDynamic initialSTV =

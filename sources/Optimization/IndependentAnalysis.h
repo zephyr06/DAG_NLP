@@ -139,7 +139,7 @@ class IndependentAnalysis {
         UpdateStatus(jobOrder, startTimeVector);
     }
 
-    inline bool WhetherInfluenceActiveJobs(JobCEC jobRelocate) {
+    inline bool IfActiveJob(JobCEC jobRelocate) {
         return activeJobs_.jobRecord.find(jobRelocate) !=
                activeJobs_.jobRecord.end();
     }
@@ -168,7 +168,7 @@ class IndependentAnalysis {
     bool WhetherSafeSkip(const JobCEC jobRelocate, LLint startP, LLint finishP,
                          SFOrder &jobOrderRef) {
         if (obj_type_ == "ReactionTimeObj" || obj_type_ == "DataAgeObj") {
-            if (!WhetherInfluenceActiveJobs(jobRelocate) &&
+            if (!IfActiveJob(jobRelocate) &&
                 !WhetherJobBreakChainRTDA(jobRelocate, startP, finishP,
                                           longestJobChains_, dagTasks_,
                                           jobOrderRef, tasksInfo_, obj_type_)) {
@@ -176,7 +176,7 @@ class IndependentAnalysis {
             } else
                 return false;
         } else if (obj_type_ == "SensorFusionObj") {
-            if (!WhetherInfluenceActiveJobs(jobRelocate) &&
+            if (!IfActiveJob(jobRelocate) &&
                 !WhetherJobBreakChainSF(jobRelocate, startP, finishP,
                                         worst_sf_fork_, dagTasks_, jobOrderRef,
                                         tasksInfo_)) {
