@@ -25,7 +25,6 @@
 
 namespace OrderOptDAG_SPACE {
 namespace OptimizeSF {
-// #define CHECK_IA_CORRECTNESS
 
 std::vector<int> GetTaskIdWithChainOrder(DAG_Model &dagTasks);
 
@@ -76,25 +75,6 @@ class DAGScheduleOptimizer {
         std::remove(GetStatsSeqFileName().c_str());
 #endif
     }
-
-    // bool WhetherJobInfluenceChainLength(JobCEC jobRelocate) {
-    //     for (uint kk = 0; kk < longestJobChains_.size(); kk++) {
-    //         JobCEC sourceJob = longestJobChains_[kk][0];
-    //         JobCEC sinkJob =
-    //             longestJobChains_[kk][longestJobChains_[kk].size() - 1];
-    //         bool influenceSource = WhetherJobStartLater(
-    //             sourceJob, jobRelocate, jobGroupMap_, jobOrderRef, tasksInfo,
-    //             statusPrev.startTimeVector_);
-    //         bool influenceSink = WhetherJobStartEarlier(
-    //             sinkJob, jobRelocate, jobGroupMap_, jobOrderRef, tasksInfo,
-    //             statusPrev.startTimeVector_);
-    //         if (influenceSource || influenceSink) {
-    //             // jobOrderRef.print();
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-    // }
 
     ScheduleResult Optimize() {
 #ifdef PROFILE_CODE
@@ -173,17 +153,6 @@ class DAGScheduleOptimizer {
                                             jobOrderRef))
                     continue;
 
-                // Independence analysis
-                if (GlobalVariablesDAGOpt::enableIndependentAnalysis) {
-                    // TODO: add WhetherJobInfluenceChainLength into IA?
-                    if_IA_skip = independent_analysis_.WhetherSafeSkip(
-                        jobRelocate, startP, finishP, jobOrderRef);
-#ifndef CHECK_IA_CORRECTNESS
-                    if (if_IA_skip)
-                        continue;
-#endif
-                }
-
                 SFOrder jobOrderCurrForFinish =
                     jobOrderCurrForStart;  //  copying by value is sometimes
                                            //  faster
@@ -216,8 +185,6 @@ class DAGScheduleOptimizer {
             jobOrderRef = jobOrderBestFound;
             findBetterJobOrderWithinIterations = true;
             countMakeProgress++;
-            independent_analysis_.UpdateStatus(jobOrderRef,
-                                               statusPrev.startTimeVector_);
         }
 
 #ifdef PROFILE_CODE
@@ -294,32 +261,6 @@ class DAGScheduleOptimizer {
             startTimeVector, processorJobVec, schedulable);
         countIterationStatus++;
 
-#ifdef CHECK_IA_CORRECTNESS
-        if (if_IA_skip == true) {
-            double objCurr = ObjectiveFunctionBase::TrueObj(
-                dagTasks, tasksInfo, startTimeVector, scheduleOptions);
-            double objPrev = ObjectiveFunctionBase::TrueObj(
-                dagTasks, tasksInfo, statusPrev.startTimeVector_,
-                scheduleOptions);
-            if (objCurr + 1e-3 < objPrev) {
-                std::vector<uint> processorJobVecOld;
-                OrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions,
-                                         jobOrderRef, processorJobVecOld,
-                                         ObjectiveFunctionBase::type_trait);
-                if (CompareVector(processorJobVec, processorJobVecOld)) {
-                    jobOrderRef.print();
-                    std::cout << "\n" << statusPrev.startTimeVector_ << "\n\n";
-                    PrintSchedule(tasksInfo, statusPrev.startTimeVector_);
-                    std::cout << "\n\n";
-                    PrintSchedule(tasksInfo, startTimeVector);
-                    jobOrderCurrForFinish.print();
-                    CoutWarning(
-                        "Find a case where enableIndependentAnalysis fails!");
-                }
-            }
-        }
-#endif
-
         if (MakeProgress<OrderScheduler>(statusBestFound, statusCurr)) {
             // SFOrder jobOrderReCreate(tasksInfo, startTimeVector);
             // if (jobOrderReCreate != jobOrderCurrForFinish)
@@ -353,10 +294,6 @@ class DAGScheduleOptimizer {
         jobOrderRef = SFOrder(tasksInfo, startTimeVector);
         statusPrev = IterationStatus<OrderScheduler, ObjectiveFunctionBase>(
             dagTasks, tasksInfo, jobOrderRef, scheduleOptions);
-
-        independent_analysis_ = IndependentAnalysis(
-            dagTasks, tasksInfo, jobOrderRef, statusPrev.startTimeVector_,
-            scheduleOptions.processorNum_, ObjectiveFunctionBase::type_trait);
     }
 
     inline SFOrder GetJobOrder() const { return jobOrderRef; }
@@ -394,8 +331,6 @@ class DAGScheduleOptimizer {
 
     SFOrder jobOrderRef;
     IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusPrev;
-    bool if_IA_skip = false;
-    IndependentAnalysis independent_analysis_;
 };  // class DAGScheduleOptimizer
 
 template <typename OrderScheduler, typename ObjectiveFunctionBase>
