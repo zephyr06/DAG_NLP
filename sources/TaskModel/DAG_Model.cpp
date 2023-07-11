@@ -201,6 +201,7 @@ std::vector<int> Str2VecInt(const std::string &str) {
     return vect;
 }
 
+// chainNum is actually not useful if cause effect chains are specified
 DAG_Model ReadDAG_Tasks(std::string path, std::string priorityType,
                         int chainNum) {  // , int fork_num
     using namespace std;

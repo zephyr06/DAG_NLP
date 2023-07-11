@@ -17,32 +17,17 @@
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Optimization/OptimizeSFOrder.h"
 #include "sources/Utils/BatchUtils.h"
+#include "sources/Utils/ScheduleResults.h"
 
 using namespace std::chrono;
 namespace OrderOptDAG_SPACE {
-enum BaselineMethods {
-    InitialMethod,  // 0
-    Verucchi20,     // 1
-    Wang21,         // 2
-    TOM,            // 3
-    TOM_Fast,       // 4
-    TOM_FastLP,     // 5
-    GlobalOpt       // 6
-};
-// if adding more methods, need to update WriteScheduleToFile() and
-// GlobalVariablesDAGOpt::TotalMethodUnderComparison
 
-struct BatchResult {
-    double schedulableRatio;
-    double performance;
-    double runTime;
-};
 void ClearResultFiles(std::string dataSetFolder);
 
 template <typename ObjectiveFunctionBase>
 OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
     DAG_Model &dagTasks, OptimizeSF::ScheduleOptions &scheduleOptions,
-    BaselineMethods batchTestMethod) {
+    BASELINEMETHODS batchTestMethod) {
     ScheduleResult res;
     switch (batchTestMethod) {
         case InitialMethod:
@@ -58,7 +43,7 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
                                        scheduleOptions.processorNum_, 15.0,
                                        400000.0, 15.0, 400000.0, 15.0);
             break;
-        case Wang21:
+        case Wang21:  // should not be used
             if (GlobalVariablesDAGOpt::considerSensorFusion == 0)
                 CoutError(
                     "ScheduleRTSS21IC is called with zero "
@@ -83,15 +68,7 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
                                                              scheduleOptions);
             break;
 
-        case TOM_FastLP:
-            scheduleOptions.doScheduleOptimization_ = 1;
-            scheduleOptions.doScheduleOptimizationOnlyOnce_ = 1;
-            res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
-                SimpleOrderScheduler, ObjectiveFunctionBase>(dagTasks,
-                                                             scheduleOptions);
-            break;
-
-        case GlobalOpt: {
+        case GlobalOpt: {  // should only be used in a few situations
             PermutationStatus permSta =
                 FindGlobalOptRTDA(dagTasks, scheduleOptions);
             res = permSta.GetScheduleResult();
@@ -107,28 +84,21 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
 }
 
 template <typename ObjectiveFunctionBase>
-std::vector<BatchResult> BatchOptimizeOrder(
-    std::vector<OrderOptDAG_SPACE::BaselineMethods> &baselineMethods,
+std::unordered_map<OrderOptDAG_SPACE::BASELINEMETHODS, BatchResult>
+BatchOptimizeOrder(
+    std::vector<OrderOptDAG_SPACE::BASELINEMETHODS> &baselineMethods,
     std::string dataSetFolder = GlobalVariablesDAGOpt::PROJECT_PATH +
-                                "TaskData/dagTasks/",
-    int chainNum = GlobalVariablesDAGOpt::NumCauseEffectChain) {
+                                "TaskData/dagTasks/") {
     std::string dirStr = dataSetFolder;
     const char *pathDataset = (dirStr).c_str();
     std::cout << "Dataset Directory: " << pathDataset << std::endl;
-    std::vector<std::vector<double>> runTimeAll(
-        GlobalVariablesDAGOpt::TotalMethodUnderComparison);
-    std::vector<std::vector<double>> objsAll(
-        GlobalVariablesDAGOpt::TotalMethodUnderComparison);
 
-    std::vector<std::vector<double>> objsAllNorm = objsAll;
-    std::vector<std::vector<int>> schedulableAll(
-        GlobalVariablesDAGOpt::TotalMethodUnderComparison);  // values could
-                                                             // only be 0 / 1
-
-    std::vector<std::string> errorFiles;
-    std::vector<std::string> worseFiles;
-    std::vector<std::string> files = ReadFilesInDirectory(pathDataset);
+    // Prepare intermediate data records
+    ResultsManager results_man(baselineMethods);
     std::vector<bool> validFileIndex(1000, true);
+    std::vector<std::string> errorFiles;
+
+    std::vector<std::string> files = ReadFilesInDirectory(pathDataset);
     int fileIndex = 0;
     for (const auto &file : files) {
         std::string delimiter = "-";
@@ -139,10 +109,8 @@ std::vector<BatchResult> BatchOptimizeOrder(
             std::string path = dataSetFolder + file;
             OrderOptDAG_SPACE::DAG_Model dagTasks =
                 OrderOptDAG_SPACE::ReadDAG_Tasks(
-                    path, GlobalVariablesDAGOpt::priorityMode, chainNum);
+                    path, GlobalVariablesDAGOpt::priorityMode);
 
-            // int N = dagTasks.tasks.size();
-            AssertBool(true, dagTasks.chains_.size() > 0, __LINE__);
             for (auto batchTestMethod : baselineMethods) {
                 OrderOptDAG_SPACE::ScheduleResult res;
                 OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOptions;
@@ -170,117 +138,113 @@ std::vector<BatchResult> BatchOptimizeOrder(
                 if (res.timeTaken_ >
                         GlobalVariablesDAGOpt::kGlobalOptimizationTimeLimit -
                             10 &&
-                    batchTestMethod == BaselineMethods::GlobalOpt) {
+                    batchTestMethod == BASELINEMETHODS::GlobalOpt) {
                     validFileIndex[fileIndex] = false;
                 }
 
-                if (ObjectiveFunctionBase::type_trait == "RTDAExperimentObj" &&
-                    res.schedulable_ == false) {
-                    if (objsAll[0].size() == 0)
-                        CoutError("Initial method is not feasible in " + file);
-                    res.obj_ = objsAll[0].back();
-                    if (batchTestMethod >= 3)
-                        errorFiles.push_back(file);
+                if (res.schedulable_ == false && batchTestMethod == TOM) {
+                    errorFiles.push_back(file);
                 }
-                WriteToResultFile(pathDataset, file, res, batchTestMethod);
-                if (res.schedulable_ == true &&
-                    res.startTimeVector_.cols() > 0 &&
-                    res.startTimeVector_.rows() > 0)
-                    WriteScheduleToFile(pathDataset, file, dagTasks, res,
-                                        batchTestMethod);
 
-                runTimeAll[batchTestMethod].push_back(res.timeTaken_);
-                schedulableAll[batchTestMethod].push_back(
-                    (res.schedulable_ ? 1 : 0));
-                objsAll[batchTestMethod].push_back(res.obj_);
-                objsAllNorm[batchTestMethod].push_back(res.obj_ /
-                                                       objsAll[0][fileIndex]);
-            }
-            if (objsAll[2].size() > 0 &&
-                objsAll[1].back() > objsAll[2].back()) {
-                CoutWarning(
-                    "One case where proposed method performs worse is found: " +
-                    file);
-                worseFiles.push_back(file);
+                results_man.add(batchTestMethod, res, file);
+                WriteToResultFile(pathDataset, file, res, batchTestMethod);
+                WriteScheduleToFile(pathDataset, file, dagTasks, res,
+                                    batchTestMethod);
             }
             fileIndex++;
         }
     }
 
-    int n = objsAll[0].size();
-    if (n != 0 && ObjectiveFunctionBase::type_trait == "RTDAExperimentObj") {
-        VariadicTable<std::string, double, double, double, double> vt(
-            {"Method", "Schedulable ratio",
-             "Obj (Only used in RTDA experiment)", "Obj(Norm)", "TimeTaken"},
-            10);
+    // result analysis
+    results_man.PrintWorseCase(BASELINEMETHODS::InitialMethod,
+                               BASELINEMETHODS::TOM);
+    results_man.PrintResultTable(baselineMethods);
+    // if (std::find(baselineMethods.begin(), baselineMethods.end(),
+    //               BASELINEMETHODS::TOM_WSkip) != baselineMethods.end())
+    //     results_man.PrintLongestCase(BASELINEMETHODS::TOM_WSkip);
+    results_man.PrintTimeOutCase();
+    results_man.PrintTimeOutRatio();
 
-        vt.addRow("Initial", Average(schedulableAll[0]),
-                  Average(objsAll[0], validFileIndex), Average(objsAllNorm[0]),
-                  Average(runTimeAll[0]));
-        vt.addRow("Verucchi20", Average(schedulableAll[1]), Average(objsAll[1]),
-                  Average(objsAllNorm[1]), Average(runTimeAll[1]));
-        vt.addRow("Wang21", Average(schedulableAll[2]), Average(objsAll[2]),
-                  Average(objsAllNorm[2]), Average(runTimeAll[2]));
-        vt.addRow("TOM", Average(schedulableAll[3]),
-                  Average(objsAll[3], validFileIndex),
-                  Average(objsAllNorm[3], validFileIndex),
-                  Average(runTimeAll[3], validFileIndex));
-        vt.addRow("TOM_Fast", Average(schedulableAll[4]), Average(objsAll[4]),
-                  Average(objsAllNorm[4]), Average(runTimeAll[4]));
-        vt.addRow("TOM_FastLP", Average(schedulableAll[5]), Average(objsAll[5]),
-                  Average(objsAllNorm[5]), Average(runTimeAll[5]));
-        vt.addRow("GlobalOptimal", Average(schedulableAll[6]),
-                  Average(objsAll[6], validFileIndex),
-                  Average(objsAllNorm[6], validFileIndex),
-                  Average(runTimeAll[6], validFileIndex));
-        vt.print(std::cout);
-    } else if (n != 0 && ObjectiveFunctionBase::type_trait == "RTSS21ICObj") {
-        VariadicTable<std::string, double, double> vt(
-            {"Method", "Schedulable ratio", "TimeTaken"}, 10);
+    // int n = objsAll[0].size();
+    // if (n != 0 && ObjectiveFunctionBase::type_trait == "RTDAExperimentObj") {
+    //     VariadicTable<std::string, double, double, double, double> vt(
+    //         {"Method", "Schedulable ratio",
+    //          "Obj (Only used in RTDA experiment)", "Obj(Norm)", "TimeTaken"},
+    //         10);
 
-        vt.addRow("Initial", Average(schedulableAll[0]),
-                  Average(runTimeAll[0]));
-        vt.addRow("Verucchi20", Average(schedulableAll[1]),
-                  Average(runTimeAll[1]));
-        vt.addRow("Wang21", Average(schedulableAll[2]), Average(runTimeAll[2]));
-        vt.addRow("TOM", Average(schedulableAll[3]), Average(runTimeAll[3]));
-        vt.addRow("TOM_Fast", Average(schedulableAll[4]),
-                  Average(runTimeAll[4]));
-        vt.addRow("TOM_FastLP", Average(schedulableAll[5]),
-                  Average(runTimeAll[5]));
-        vt.print(std::cout);
-    }
+    //     vt.addRow("Initial", Average(schedulableAll[0]),
+    //               Average(objsAll[0], validFileIndex),
+    //               Average(objsAllNorm[0]), Average(runTimeAll[0]));
+    //     vt.addRow("Verucchi20", Average(schedulableAll[1]),
+    //     Average(objsAll[1]),
+    //               Average(objsAllNorm[1]), Average(runTimeAll[1]));
+    //     vt.addRow("Wang21", Average(schedulableAll[2]), Average(objsAll[2]),
+    //               Average(objsAllNorm[2]), Average(runTimeAll[2]));
+    //     vt.addRow("TOM", Average(schedulableAll[3]),
+    //               Average(objsAll[3], validFileIndex),
+    //               Average(objsAllNorm[3], validFileIndex),
+    //               Average(runTimeAll[3], validFileIndex));
+    //     vt.addRow("TOM_Fast", Average(schedulableAll[4]),
+    //     Average(objsAll[4]),
+    //               Average(objsAllNorm[4]), Average(runTimeAll[4]));
+    //     vt.addRow("TOM_FastLP", Average(schedulableAll[5]),
+    //     Average(objsAll[5]),
+    //               Average(objsAllNorm[5]), Average(runTimeAll[5]));
+    //     vt.addRow("GlobalOptimal", Average(schedulableAll[6]),
+    //               Average(objsAll[6], validFileIndex),
+    //               Average(objsAllNorm[6], validFileIndex),
+    //               Average(runTimeAll[6], validFileIndex));
+    //     vt.print(std::cout);
+    // } else if (n != 0 && ObjectiveFunctionBase::type_trait == "RTSS21ICObj")
+    // {
+    //     VariadicTable<std::string, double, double> vt(
+    //         {"Method", "Schedulable ratio", "TimeTaken"}, 10);
 
-    std::cout << "The number of error files: " << errorFiles.size()
-              << std::endl;
-    for (std::string file : errorFiles) std::cout << file << std::endl;
+    //     vt.addRow("Initial", Average(schedulableAll[0]),
+    //               Average(runTimeAll[0]));
+    //     vt.addRow("Verucchi20", Average(schedulableAll[1]),
+    //               Average(runTimeAll[1]));
+    //     vt.addRow("Wang21", Average(schedulableAll[2]),
+    //     Average(runTimeAll[2])); vt.addRow("TOM", Average(schedulableAll[3]),
+    //     Average(runTimeAll[3])); vt.addRow("TOM_Fast",
+    //     Average(schedulableAll[4]),
+    //               Average(runTimeAll[4]));
+    //     vt.addRow("TOM_FastLP", Average(schedulableAll[5]),
+    //               Average(runTimeAll[5]));
+    //     vt.print(std::cout);
+    // }
 
-    std::cout << "The number of files where OrderOpt performs worse: "
-              << worseFiles.size() << std::endl;
-    for (std::string file : worseFiles) std::cout << file << std::endl;
+    // std::cout << "The number of error files: " << errorFiles.size()
+    //           << std::endl;
+    // for (std::string file : errorFiles) std::cout << file << std::endl;
 
-    std::vector<OrderOptDAG_SPACE::BaselineMethods> baselineMethodsAll = {
-        InitialMethod,  // 0
-        Verucchi20,     // 1
-        Wang21,         // 2
-        TOM,            // 3
-        TOM_Fast,       // 4
-        TOM_FastLP,     // 5
-        GlobalOpt       // 6
-    };
-    std::vector<BatchResult> batchResVec;
-    for (auto method : baselineMethodsAll) {
-        int i = method;
-        BatchResult batchRes{Average(schedulableAll[i]), Average(objsAll[i]),
-                             Average(runTimeAll[i])};
-        batchResVec.push_back(batchRes);
-    }
-    std::cout << "Case that takes the longest time in TOM: "
-              << int((std::max_element(runTimeAll[3].begin(),
-                                       runTimeAll[3].end())) -
-                     runTimeAll[3].begin())
-              << "\n";
+    // std::cout << "The number of files where OrderOpt performs worse: "
+    //           << worseFiles.size() << std::endl;
+    // for (std::string file : worseFiles) std::cout << file << std::endl;
 
-    return batchResVec;
+    // std::vector<OrderOptDAG_SPACE::BASELINEMETHODS> baselineMethodsAll = {
+    //     InitialMethod,  // 0
+    //     Verucchi20,     // 1
+    //     Wang21,         // 2
+    //     TOM,            // 3
+    //     TOM_Fast,       // 4
+    //     TOM_FastLP,     // 5
+    //     GlobalOpt       // 6
+    // };
+    // std::vector<BatchResult> batchResVec;
+    // for (auto method : baselineMethodsAll) {
+    //     int i = method;
+    //     BatchResult batchRes{Average(schedulableAll[i]), Average(objsAll[i]),
+    //                          Average(runTimeAll[i])};
+    //     batchResVec.push_back(batchRes);
+    // }
+    // std::cout << "Case that takes the longest time in TOM: "
+    //           << int((std::max_element(runTimeAll[3].begin(),
+    //                                    runTimeAll[3].end())) -
+    //                  runTimeAll[3].begin())
+    //           << "\n";
+    // return batchResVec;
+
+    return results_man.GetBatchResVec(baselineMethods);
 }
 }  // namespace OrderOptDAG_SPACE
