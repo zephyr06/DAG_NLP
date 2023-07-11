@@ -148,8 +148,9 @@ BatchOptimizeOrder(
 
                 results_man.add(batchTestMethod, res, file);
                 WriteToResultFile(pathDataset, file, res, batchTestMethod);
-                WriteScheduleToFile(pathDataset, file, dagTasks, res,
-                                    batchTestMethod);
+                if (res.schedulable_ == true && res.startTimeVector_.rows() > 0)
+                    WriteScheduleToFile(pathDataset, file, dagTasks, res,
+                                        batchTestMethod);
             }
             fileIndex++;
         }
