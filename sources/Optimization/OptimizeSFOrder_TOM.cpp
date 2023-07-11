@@ -1,4 +1,4 @@
-#include "OptimizeSFOrder.h"
+#include "sources/Optimization/OptimizeSFOrder_TOM.h"
 
 namespace OrderOptDAG_SPACE {
 // template <typename OrderScheduler>

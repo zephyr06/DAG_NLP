@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "sources/Optimization/OptimizeSFOrder.h"
+#include "sources/Optimization/OptimizeSFOrder_TOM.h"
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
 using namespace GlobalVariablesDAGOpt;

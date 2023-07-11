@@ -1,6 +1,6 @@
 
 #include <CppUnitLite/TestHarness.h>
-#include "sources/Optimization/OptimizeSFOrder.h"
+#include "sources/Optimization/OptimizeSFOrder_TOM.h"
 #include "sources/Utils/testMy.h"
 using namespace GlobalVariablesDAGOpt;
 TEST(DAG_Optimize_schedule, v1)

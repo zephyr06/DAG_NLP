@@ -1,7 +1,7 @@
 #include "gtsam/base/Testable.h" // assert_equal
 #include "ilcplex/cplex.h"
 #include "ilcplex/ilocplex.h"
-#include "sources/Optimization/OptimizeSFOrder.h"
+#include "sources/Optimization/OptimizeSFOrder_TOM.h"
 #include "sources/Optimization/SFOrder.h"
 #include "sources/Optimization/ScheduleOptions.h"
 #include "gmock/gmock.h" // Brings in gMock.

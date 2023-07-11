@@ -9,7 +9,7 @@
 #include "sources/Factors/RTDA_Analyze.h"
 #include "sources/Factors/WorstSF_Fork.h"
 #include "sources/Optimization/IndependentAnalysis.h"
-#include "sources/Optimization/OptimizeSFOrder.h"
+#include "sources/Optimization/OptimizeSFOrder_TOM.h"
 #include "sources/Optimization/ScheduleOptions.h"
 #include "sources/Utils/testMy.h"
 

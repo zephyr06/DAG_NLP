@@ -15,7 +15,7 @@
 #include "sources/Baseline/VerucchiScheduling.h"
 #include "sources/Optimization/GlobalOptimization.h"
 #include "sources/Optimization/InitialEstimate.h"
-#include "sources/Optimization/OptimizeSFOrder.h"
+#include "sources/Optimization/OptimizeSFOrder_TOM.h"
 #include "sources/Utils/BatchUtils.h"
 #include "sources/Utils/ScheduleResults.h"
 

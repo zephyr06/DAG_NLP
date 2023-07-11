@@ -1,7 +1,7 @@
 #include <CppUnitLite/TestHarness.h>
 
 #include "sources/Factors/ObjectiveFunctions.h"
-#include "sources/Optimization/OptimizeSFOrder.h"
+#include "sources/Optimization/OptimizeSFOrder_TOM.h"
 #include "sources/Optimization/SFOrder.h"
 #include "sources/Optimization/ScheduleSimulation.h"
 #include "sources/Utils/Parameters.h"
