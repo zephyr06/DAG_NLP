@@ -36,13 +36,9 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
                 dagTasks, scheduleOptions);
             break;
         case Verucchi20:
-            if (GlobalVariablesDAGOpt::considerSensorFusion != 0)
-                CoutError(
-                    "ScheduleVerucchiRTDA is called with non-zero "
-                    "considerSensorFusion!");
             res = ScheduleVerucchiRTDA(dagTasks, dagTasks.chains_,
-                                       scheduleOptions.processorNum_, 15.0,
-                                       400000.0, 15.0, 400000.0, 15.0);
+                                       scheduleOptions.processorNum_,
+                                       ObjectiveFunctionBase::type_trait);
             break;
         case Wang21:  // should not be used
             if (GlobalVariablesDAGOpt::considerSensorFusion == 0)
