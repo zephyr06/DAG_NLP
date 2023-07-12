@@ -14,7 +14,6 @@ RepeatExecution: 0
 NumericalPrecision: 1e-3
 doScheduleOptimization: 0
 doScheduleOptimizationOnlyOnce: 0
-considerSensorFusion: 0 
 selectInitialFromPool: 0 # 0 means not using this method
 EnableHardJobORder: 1
 LPTolerance: 1e0

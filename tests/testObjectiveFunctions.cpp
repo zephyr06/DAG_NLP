@@ -19,7 +19,6 @@ class ObjExperimentObjTest1 : public ::testing::Test {
         chain1 = {0, 1, 2};
         dagTasks.chains_[0] = chain1;
 
-        scheduleOptions.considerSensorFusion_ = 1;
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;
         scheduleOptions.weightInMpRTDA_ = 0.5;
@@ -55,17 +54,17 @@ TEST_F(ObjExperimentObjTest1, RTDAEvaluate1) {
 TEST_F(ObjExperimentObjTest1, SFEvaluate1) {
     VectorDynamic initialEstimate = GenerateVectorDynamic(5);
     initialEstimate << 1, 2, 3, 4, 5;
-    EXPECT_EQ(RTSS21ICObj::EvaluateRTDA(dagTasks, tasksInfo, initialEstimate,
-                                        scheduleOptions),
-              (414 + 414) * 2 * 0.5 +
-                  (414 + 414) * 10);  // There are two job-level chains even
-                                      // though hyper-period equals 200
-    EXPECT_EQ(RTSS21ICObj::EvaluateSF(dagTasks, tasksInfo, initialEstimate,
-                                      scheduleOptions),
-              4 * 0.5 + 4 * 10);
-    EXPECT_EQ(RTSS21ICObj::Evaluate(dagTasks, tasksInfo, initialEstimate,
-                                    scheduleOptions),
-              42 + 9108);
+    // EXPECT_EQ(RTSS21ICObj::EvaluateRTDA(dagTasks, tasksInfo, initialEstimate,
+    //                                     scheduleOptions),
+    //           (414 + 414) * 2 * 0.5 +
+    //               (414 + 414) * 10);  // There are two job-level chains even
+    //                                   // though hyper-period equals 200
+    // EXPECT_EQ(RTSS21ICObj::EvaluateSF(dagTasks, tasksInfo, initialEstimate,
+    //                                   scheduleOptions),
+    //           4 * 0.5 + 4 * 10);
+    // EXPECT_EQ(RTSS21ICObj::Evaluate(dagTasks, tasksInfo, initialEstimate,
+    //                                 scheduleOptions),
+    //           42 + 9108);
     dagTasks.sf_forks_.push_back(SF_Fork({0, 1}, 2));
     EXPECT_EQ(SensorFusionObj::Evaluate(dagTasks, tasksInfo, initialEstimate,
                                         scheduleOptions),
@@ -131,9 +130,9 @@ TEST(Obj, RTDA_v1) {
     EXPECT_EQ(RTDAExperimentObj::Evaluate(dagTasks, tasksInfo, initial,
                                           scheduleOptions),
               33);
-    EXPECT_EQ(
-        RTSS21ICObj::Evaluate(dagTasks, tasksInfo, initial, scheduleOptions),
-        180 + 30 * 0.5);
+    // EXPECT_EQ(
+    //     RTSS21ICObj::Evaluate(dagTasks, tasksInfo, initial, scheduleOptions),
+    //     180 + 30 * 0.5);
 
     // EXPECT_LONGS_EQUAL(18, status.ReadObj());
     // EXPECT_DOUBLES_EQUAL(32.5, status.ObjWeighted(), 0.1);
@@ -148,11 +147,6 @@ TEST(Obj, RTDA_v1) {
               33);
 }
 
-TEST(ObjectiveFunctionBase, type) {
-    EXPECT_EQ("RTDAExperimentObj", RTDAExperimentObj::type_trait);
-    EXPECT_EQ("RTSS21ICObj", RTSS21ICObj::type_trait);
-}
-
 class ObjExperimentObjTest_n5_v2 : public ::testing::Test {
    protected:
     void SetUp() override {
@@ -164,7 +158,6 @@ class ObjExperimentObjTest_n5_v2 : public ::testing::Test {
         chain1 = {0, 1, 2};
         dagTasks.chains_[0] = chain1;
 
-        scheduleOptions.considerSensorFusion_ = 1;
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;
         scheduleOptions.weightInMpRTDA_ = 0.5;
@@ -208,7 +201,6 @@ class ObjExperimentObjTest_n5_v79 : public ::testing::Test {
         chain1 = {3, 2, 1, 0};
         dagTasks.chains_[0] = chain1;
 
-        scheduleOptions.considerSensorFusion_ = 0;
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;
         scheduleOptions.weightInMpRTDA_ = 0.5;

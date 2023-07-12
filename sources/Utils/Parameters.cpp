@@ -133,8 +133,6 @@ double kCplexInequalityThreshold =
     loaded_doc["kCplexInequalityThreshold"].as<double>();
 
 int doScheduleOptimization = loaded_doc["doScheduleOptimization"].as<int>();
-// probably figure out where this variable is used, clean related code
-int considerSensorFusion = loaded_doc["considerSensorFusion"].as<int>();
 int doScheduleOptimizationOnlyOnce =
     loaded_doc["doScheduleOptimizationOnlyOnce"].as<int>();
 int BatchTestOnlyOneMethod = loaded_doc["BatchTestOnlyOneMethod"].as<int>();

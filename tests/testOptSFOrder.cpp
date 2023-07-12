@@ -26,7 +26,7 @@ class ScheduleDAGModelTest1 : public ::testing::Test {
         chain1 = {0, 2};
         dagTasks.chains_[0] = chain1;
 
-        scheduleOptions.considerSensorFusion_ = 0;
+        
         scheduleOptions.freshTol_ = 1e6;
         scheduleOptions.sensorFusionTolerance_ = 1e6;
         scheduleOptions.weightInMpRTDA_ = 0.5;

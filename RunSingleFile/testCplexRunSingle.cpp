@@ -21,7 +21,6 @@ protected:
         dagTasks.chains_[0] = chain1;
         timeLimits = 1;
         scheduleOptions.processorNum_ = 2;
-        scheduleOptions.considerSensorFusion_ = 0;
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;
         scheduleOptions.weightInMpRTDA_ = 0.5;

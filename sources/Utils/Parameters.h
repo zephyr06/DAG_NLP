@@ -142,8 +142,6 @@ namespace GlobalVariablesDAGOpt
 
   extern int selectInitialFromPool;
   extern int doScheduleOptimization;
-  extern int considerSensorFusion; // previous code heavily depended on its value, but we must treat it as a
-                                   // const int in the future
   extern int doScheduleOptimizationOnlyOnce;
   extern int BatchTestOnlyOneMethod;
   extern int EnableHardJobORder;

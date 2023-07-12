@@ -279,7 +279,6 @@ TEST(SFOrder, opt_v1) {
     ScheduleOptions scheduleOptions;
     scheduleOptions.causeEffectChainNumber_ = 1;
     scheduleOptions.processorNum_ = 1;
-    scheduleOptions.considerSensorFusion_ = 0;
 
     // enableFastSearch = 0;
     ScheduleResult sRes =
@@ -392,7 +391,6 @@ TEST(optimize_schedule_when_search_job_order_, v1) {
     ScheduleOptions scheduleOptions;
     scheduleOptions.causeEffectChainNumber_ = 1;
     scheduleOptions.processorNum_ = 2;
-    scheduleOptions.considerSensorFusion_ = 0;
 
     // enableFastSearch = 0;
     DAG_Model dagTasks = ReadDAG_Tasks(
@@ -411,7 +409,7 @@ TEST(Schedule, overall_opt_rt) {
     ScheduleOptions scheduleOptions;
     scheduleOptions.causeEffectChainNumber_ = 1;
     scheduleOptions.processorNum_ = 1;
-    scheduleOptions.considerSensorFusion_ = 0;
+
     OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(
         GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n6_v1.csv",
         "orig");
@@ -424,7 +422,7 @@ TEST(Schedule, overall_opt_da) {
     ScheduleOptions scheduleOptions;
     scheduleOptions.causeEffectChainNumber_ = 1;
     scheduleOptions.processorNum_ = 1;
-    scheduleOptions.considerSensorFusion_ = 0;
+
     OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(
         GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n6_v1.csv",
         "orig");

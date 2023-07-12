@@ -35,7 +35,6 @@ class RTDATest_n5_v84 : public ::testing::Test {
         tasks = dagTasks.tasks;
         tasksInfo = TaskSetInfoDerived(tasks);
 
-        scheduleOptions.considerSensorFusion_ = 0;
         scheduleOptions.freshTol_ = 1e6;
         scheduleOptions.sensorFusionTolerance_ = 1e6;
         scheduleOptions.weightInMpRTDA_ = 0.5;
@@ -113,7 +112,6 @@ class ObjExperimentObjTest_n3_v57 : public ::testing::Test {
         chain1 = {2, 1, 0};
         dagTasks.chains_[0] = chain1;
 
-        scheduleOptions.considerSensorFusion_ = 0;
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;
         scheduleOptions.weightInMpRTDA_ = 0.5;
@@ -173,7 +171,6 @@ class ObjExperimentObjTest_n5_v79 : public ::testing::Test {
         chain1 = {3, 2, 1, 0};
         dagTasks.chains_[0] = chain1;
 
-        scheduleOptions.considerSensorFusion_ = 0;
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;
         scheduleOptions.weightInMpRTDA_ = 0.5;
@@ -238,7 +235,6 @@ class ObjExperimentObjTest_n5_v86 : public ::testing::Test {
         tasksInfo = TaskSetInfoDerived(tasks);
         dagTasks.chains_ = {{4, 3, 0}, {4, 2, 1}};
 
-        scheduleOptions.considerSensorFusion_ = 0;
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;
         scheduleOptions.weightInMpRTDA_ = 0.5;
@@ -277,7 +273,6 @@ class ObjExperimentObjTest_n3_v59 : public ::testing::Test {
         tasksInfo = TaskSetInfoDerived(tasks);
         dagTasks.chains_ = {{1, 0}};
 
-        scheduleOptions.considerSensorFusion_ = 0;
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;
         scheduleOptions.weightInMpRTDA_ = 0.5;
@@ -315,7 +310,6 @@ class ObjExperimentObjTest_n3_v60 : public ::testing::Test {
         tasksInfo = TaskSetInfoDerived(tasks);
         dagTasks.chains_ = {{2, 0}, {2, 1}};
 
-        scheduleOptions.considerSensorFusion_ = 0;
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;
         scheduleOptions.weightInMpRTDA_ = 0.5;
@@ -353,7 +347,6 @@ class ObjExperimentObjTest_n5_v88 : public ::testing::Test {
         tasksInfo = TaskSetInfoDerived(tasks);
         dagTasks.chains_ = {{3, 1}, {4, 2, 0}};
 
-        scheduleOptions.considerSensorFusion_ = 0;
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;
         scheduleOptions.weightInMpRTDA_ = 0.5;

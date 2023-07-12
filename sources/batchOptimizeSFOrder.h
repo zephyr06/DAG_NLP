@@ -41,13 +41,10 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
                                        ObjectiveFunctionBase::type_trait);
             break;
         case Wang21:  // should not be used
-            if (GlobalVariablesDAGOpt::considerSensorFusion == 0)
-                CoutError(
-                    "ScheduleRTSS21IC is called with zero "
-                    "considerSensorFusion!");
-            res = OrderOptDAG_SPACE::ScheduleRTSS21IC(
-                dagTasks, GlobalVariablesDAGOpt::sensorFusionTolerance,
-                GlobalVariablesDAGOpt::freshTol);
+            CoutError("Wang21 is not used in current experiments!");
+            // res = OrderOptDAG_SPACE::ScheduleRTSS21IC(
+            //     dagTasks, GlobalVariablesDAGOpt::sensorFusionTolerance,
+            //     GlobalVariablesDAGOpt::freshTol);
             break;
         case TOM:
             scheduleOptions.doScheduleOptimization_ = 1;

@@ -35,7 +35,7 @@ protected:
     tasks = dagTasks.tasks;
     tasksInfo = TaskSetInfoDerived(tasks);
 
-    scheduleOptions.considerSensorFusion_ = 0;
+    
     scheduleOptions.freshTol_ = 1e6;
     scheduleOptions.sensorFusionTolerance_ = 1e6;
     scheduleOptions.weightInMpRTDA_ = 0.5;

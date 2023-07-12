@@ -34,7 +34,6 @@ class RTDATest1 : public ::testing::Test {
         tasks = dagTasks.tasks;
         tasksInfo = TaskSetInfoDerived(tasks);
 
-        scheduleOptions.considerSensorFusion_ = 0;
         scheduleOptions.freshTol_ = 1e6;
         scheduleOptions.sensorFusionTolerance_ = 1e6;
         scheduleOptions.weightInMpRTDA_ = 0.5;
@@ -140,7 +139,6 @@ class ObjExperimentObjTest_n5_v2 : public ::testing::Test {
         chain1 = {0, 1, 2};
         dagTasks.chains_[0] = chain1;
 
-        scheduleOptions.considerSensorFusion_ = 1;
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;
         scheduleOptions.weightInMpRTDA_ = 0.5;
@@ -177,8 +175,6 @@ class ObjExperimentObjTest_n5_v4 : public ::testing::Test {
         tasksInfo = TaskSetInfoDerived(tasks);
         chain1 = {0, 1, 2};
         dagTasks.chains_ = {chain1};
-
-        scheduleOptions.considerSensorFusion_ = 1;
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;
         scheduleOptions.weightInMpRTDA_ = 0.5;
