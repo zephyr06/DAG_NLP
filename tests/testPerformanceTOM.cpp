@@ -16,10 +16,9 @@ TEST(average_performance, v1) {
     auto batchResVec =
         OrderOptDAG_SPACE::BatchOptimizeOrder<OptimizeSF::DataAgeObj>(
             baselineMethods, dataSetFolder);
-    EXPECT_THAT(
-        batchResVec[BASELINEMETHODS::TOM].performance,
-        testing::Le(18744.6 * 1.015));  // remove 1.015 if deciding giving up
-                                        // selectInitialFromPool
+    EXPECT_THAT(batchResVec[BASELINEMETHODS::TOM].performance,
+                testing::Le(11074 * 1.015));  // remove 1.015 if deciding giving
+                                              // up selectInitialFromPool
     // 18744.6 is achieved if simpleOrderScheduler finds feasible schedule for
     // unschedulable job order
     EXPECT_DOUBLE_EQ(1.0, batchResVec[BASELINEMETHODS::TOM].schedulableRatio);
