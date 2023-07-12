@@ -66,8 +66,7 @@ double weightInMpRTDA = loaded_doc["weightInMpRTDA"].as<double>();
 double weightInMpSf = loaded_doc["weightInMpSf"].as<double>();
 double weightInMpSfPunish = loaded_doc["weightInMpSfPunish"].as<double>();
 double weightInMpRTDAPunish = loaded_doc["weightInMpRTDAPunish"].as<double>();
-int64_t OPTIMIZE_TIME_LIMIT =
-    loaded_doc["OPTIMIZE_TIME_LIMIT"].as<int64_t>();
+int64_t OPTIMIZE_TIME_LIMIT = loaded_doc["OPTIMIZE_TIME_LIMIT"].as<int64_t>();
 double RtdaWeight = loaded_doc["RtdaWeight"].as<double>();
 double ResetRandomWeightThreshold =
     loaded_doc["ResetRandomWeightThreshold"].as<double>();
@@ -129,7 +128,6 @@ double kGlobalOptimizationTimeLimit =
 double kCplexInequalityThreshold =
     loaded_doc["kCplexInequalityThreshold"].as<double>();
 
-int BatchTestOnlyOneMethod = loaded_doc["BatchTestOnlyOneMethod"].as<int>();
 int selectInitialFromPool = loaded_doc["selectInitialFromPool"].as<int>();
 int EnableHardJobORder = loaded_doc["EnableHardJobORder"].as<int>();
 int MakeProgressOnlyMax = loaded_doc["MakeProgressOnlyMax"].as<int>();
