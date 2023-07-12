@@ -314,7 +314,7 @@ OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     DAG bestDAG = FindTheBestDagWhileCreatingDagsWithTimeLimit(
         taskSetVeru, tasksVecVeru, causeEffectChains, processorsAvailable,
         reactCost, maxReact, ageCost, maxAge, coreCost,
-        GlobalVariablesDAGOpt::kVerucchiTimeLimit);
+        GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT);
 
     OrderOptDAG_SPACE::RTDA rtdaOpt = GetRTDAFromBestDag(
         bestDAG, tasksInfo, causeEffectChains, processorsAvailable);

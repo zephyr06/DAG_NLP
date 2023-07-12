@@ -82,7 +82,7 @@ void ResultsManager::PrintTimeOutCaseSingleMethod(
                      ":\n";
     for (uint i = 0; i < runTimeAll_.at(method).size(); i++) {
         if (runTimeAll_.at(method)[i] >=
-            GlobalVariablesDAGOpt::makeProgressTimeLimit - 5) {
+            GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT - 5) {
             std::cout << i << "\n";
         }
     }
@@ -95,7 +95,7 @@ void ResultsManager::PrintTimeOutRatio(BASELINEMETHODS method) const {
     float time_out_count = 0;
     for (uint i = 0; i < runTimeAll_.at(method).size(); i++) {
         if (runTimeAll_.at(method)[i] >=
-            GlobalVariablesDAGOpt::makeProgressTimeLimit) {
+            GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT) {
             time_out_count++;
         }
     }

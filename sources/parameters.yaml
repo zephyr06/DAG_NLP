@@ -38,7 +38,7 @@ weightInMpRTDA: 0.5
 weightInMpSf: 0.5
 weightInMpSfPunish: 100
 weightInMpRTDAPunish: 1000
-makeProgressTimeLimit: 60 # seconds, -1 means unlimited time
+OPTIMIZE_TIME_LIMIT: 60 # seconds, -1 means unlimited time
 enableFastSearch: 0
 enableSmallJobGroupCheck: 0
 bigJobGroupCheck: 0
@@ -67,7 +67,7 @@ temperatureSA: 100000000
 SA_iteration: 100000
 #*************************************************************
 # Verucchi20 settings
-kVerucchiTimeLimit: 60 # seconds, -1 means unlimited time
+# OPTIMIZE_TIME_LIMIT: 60 # seconds, -1 means unlimited time
 kVerucchiReactionCost: 15.0
 kVerucchiMaxReaction: 400000.0
 kVerucchiDataAgeCost: 15.0
@@ -76,7 +76,7 @@ kVerucchiCoreCost: 0.0
 #*************************************************************
 #*************************************************************
 # Wang RTSS21IC_NLP settings
-kWangRtss21IcNlpTimeLimit: 600 # seconds, -1 means unlimited time
+# OPTIMIZE_TIME_LIMIT: 600 # seconds, -1 means unlimited time
 
 #*************************************************************
 

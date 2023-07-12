@@ -66,8 +66,8 @@ double weightInMpRTDA = loaded_doc["weightInMpRTDA"].as<double>();
 double weightInMpSf = loaded_doc["weightInMpSf"].as<double>();
 double weightInMpSfPunish = loaded_doc["weightInMpSfPunish"].as<double>();
 double weightInMpRTDAPunish = loaded_doc["weightInMpRTDAPunish"].as<double>();
-int64_t makeProgressTimeLimit =
-    loaded_doc["makeProgressTimeLimit"].as<int64_t>();
+int64_t OPTIMIZE_TIME_LIMIT =
+    loaded_doc["OPTIMIZE_TIME_LIMIT"].as<int64_t>();
 double RtdaWeight = loaded_doc["RtdaWeight"].as<double>();
 double ResetRandomWeightThreshold =
     loaded_doc["ResetRandomWeightThreshold"].as<double>();
@@ -126,9 +126,6 @@ double kVerucchiCoreCost = loaded_doc["kVerucchiCoreCost"].as<double>();
 double kGlobalOptimizationTimeLimit =
     loaded_doc["kGlobalOptimizationTimeLimit"].as<double>();
 
-int64_t kVerucchiTimeLimit = loaded_doc["kVerucchiTimeLimit"].as<int64_t>();
-int64_t kWangRtss21IcNlpTimeLimit =
-    loaded_doc["kWangRtss21IcNlpTimeLimit"].as<int64_t>();
 double kCplexInequalityThreshold =
     loaded_doc["kCplexInequalityThreshold"].as<double>();
 

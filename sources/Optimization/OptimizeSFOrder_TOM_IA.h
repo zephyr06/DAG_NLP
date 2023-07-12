@@ -23,7 +23,7 @@ class DAGScheduleOptimizer_IA
 
     DAGScheduleOptimizer_IA(
         const DAG_Model &dagInput, const ScheduleOptions &scheduleOptions,
-        double timeLimits = GlobalVariablesDAGOpt::makeProgressTimeLimit)
+        double timeLimits = GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT)
         : DAGScheduleOptimizer<OrderScheduler, ObjectiveFunctionBase>(
               dagInput, scheduleOptions, timeLimits) {}
 
@@ -193,7 +193,7 @@ class DAGScheduleOptimizer_IA
 template <typename OrderScheduler, typename ObjectiveFunctionBase>
 ScheduleResult ScheduleDAGModel_IA(
     DAG_Model &dagTasks, const ScheduleOptions &scheduleOptions,
-    double timeLimits = GlobalVariablesDAGOpt::makeProgressTimeLimit) {
+    double timeLimits = GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT) {
     CheckValidDAGTaskSetGivenObjType(dagTasks,
                                      ObjectiveFunctionBase::type_trait);
     DAGScheduleOptimizer_IA<OrderScheduler, ObjectiveFunctionBase>

@@ -231,7 +231,7 @@ namespace RTSS21IC_NLP
         {
             auto start_time = std::chrono::system_clock::now();
             auto curr_time = std::chrono::system_clock::now();
-            int64_t time_limit_in_seconds = GlobalVariablesDAGOpt::kWangRtss21IcNlpTimeLimit;
+            int64_t time_limit_in_seconds = GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT;
             if (time_limit_in_seconds < 0)
             {
                 time_limit_in_seconds = INT64_MAX;

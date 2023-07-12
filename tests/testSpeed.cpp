@@ -35,7 +35,7 @@ TEST(speed, v1) {
                         GlobalVariablesDAGOpt::kVerucchiDataAgeCost,
                         GlobalVariablesDAGOpt::kVerucchiMaxDataAge,
                         GlobalVariablesDAGOpt::kVerucchiCoreCost,
-                        GlobalVariablesDAGOpt::kVerucchiTimeLimit);
+                        GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT);
     }
     EndTimer("Verucchi20");
     EndTimer("main");

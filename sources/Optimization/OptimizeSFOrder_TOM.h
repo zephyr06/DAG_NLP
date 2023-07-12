@@ -46,9 +46,9 @@ class DAGScheduleOptimizer {
 
     DAGScheduleOptimizer(
         const DAG_Model &dagInput, const ScheduleOptions &scheduleOptions,
-        double timeLimits = GlobalVariablesDAGOpt::makeProgressTimeLimit)
+        double timeLimits = GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT)
         : start_time(std::chrono::system_clock::now()),
-          timeLimits(GlobalVariablesDAGOpt::makeProgressTimeLimit),
+          timeLimits(GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT),
           dagTasks(dagInput),
           tasksInfo(TaskSetInfoDerived(dagTasks.tasks)),
           scheduleOptions(scheduleOptions) {
@@ -345,7 +345,7 @@ class DAGScheduleOptimizer {
 template <typename OrderScheduler, typename ObjectiveFunctionBase>
 ScheduleResult ScheduleDAGModel(
     DAG_Model &dagTasks, const ScheduleOptions &scheduleOptions,
-    double timeLimits = GlobalVariablesDAGOpt::makeProgressTimeLimit) {
+    double timeLimits = GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT) {
     CheckValidDAGTaskSetGivenObjType(dagTasks,
                                      ObjectiveFunctionBase::type_trait);
     DAGScheduleOptimizer<OrderScheduler, ObjectiveFunctionBase>

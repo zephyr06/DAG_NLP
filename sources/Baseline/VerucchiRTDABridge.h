@@ -42,7 +42,7 @@ DAG FindTheBestDagWhileCreatingDagsWithTimeLimit(
     int processorsAvailable = GlobalVariablesDAGOpt::coreNumberAva,
     float reactCost = 15.0, float maxReact = 400.0, float ageCost = 15.0,
     float maxAge = 400.0, unsigned coreCost = 50,
-    int64_t seconds = GlobalVariablesDAGOpt::kVerucchiTimeLimit);
+    int64_t seconds = GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT);
 
 OrderOptDAG_SPACE::RTDA GetRTDAFromBestDag(
     const DAG &bestDAG, RegularTaskSystem::TaskSetInfoDerived &tasksInfo,
@@ -56,18 +56,18 @@ OrderOptDAG_SPACE::RTDA GetVerucchiRTDA(
     int processorsAvailable = GlobalVariablesDAGOpt::coreNumberAva,
     float reactCost = 15.0, float maxReact = 400.0, float ageCost = 15.0,
     float maxAge = 400.0, unsigned coreCost = 50,
-    int64_t time_limit = GlobalVariablesDAGOpt::kVerucchiTimeLimit);
+    int64_t time_limit = GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT);
 
 OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     OrderOptDAG_SPACE::DAG_Model &dagTasks,
     std::vector<std::vector<int>> causeEffectChains, int processorsAvailable,
     float reactCost = 15.0, float maxReact = 400.0, float ageCost = 15.0,
     float maxAge = 400.0, unsigned coreCost = 50,
-    int64_t time_limit = GlobalVariablesDAGOpt::kVerucchiTimeLimit);
+    int64_t time_limit = GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT);
 
 OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     OrderOptDAG_SPACE::DAG_Model &dagTasks,
     std::vector<std::vector<int>> causeEffectChains, int processorsAvailable,
     std::string obj_type, unsigned coreCost = 50,
-    int64_t time_limit = GlobalVariablesDAGOpt::kVerucchiTimeLimit);
+    int64_t time_limit = GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT);
 #endif  // VERUCCHI_RTDA_BRDIGE_H_
