@@ -175,22 +175,28 @@ class DAGScheduleOptimizer {
         }
 
         if (statusPrev.objWeighted_ != statusBestFound.objWeighted_) {
-            statusPrev = statusBestFound;
-            auto jobOrderRefNew = SFOrder(
-                tasksInfo,
-                statusBestFound.startTimeVector_);  // avoid incorrect job order
-            if (jobOrderRefNew != jobOrderBestFound)
-                CheckLPConsistency(jobOrderRefNew, statusBestFound,
-                                   jobOrderBestFound);
-            jobOrderRef = jobOrderBestFound;
-            findBetterJobOrderWithinIterations = true;
-            countMakeProgress++;
+            ApplyBestAdjacentJobOrderOfOneJob(statusBestFound,
+                                              jobOrderBestFound);
         }
 
 #ifdef PROFILE_CODE
         EndTimer(__FUNCTION__);
 #endif
         return;
+    }
+    void ApplyBestAdjacentJobOrderOfOneJob(
+        IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusBestFound,
+        SFOrder &jobOrderBestFound) {
+        statusPrev = statusBestFound;
+        auto jobOrderRefNew = SFOrder(
+            tasksInfo,
+            statusBestFound.startTimeVector_);  // avoid incorrect job order
+        if (jobOrderRefNew != jobOrderBestFound)
+            CheckLPConsistency(jobOrderRefNew, statusBestFound,
+                               jobOrderBestFound);
+        jobOrderRef = jobOrderBestFound;
+        findBetterJobOrderWithinIterations = true;
+        countMakeProgress++;
     }
 
     void CheckLPConsistency(

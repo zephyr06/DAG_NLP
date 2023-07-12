@@ -16,6 +16,7 @@
 #include "sources/Optimization/GlobalOptimization.h"
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Optimization/OptimizeSFOrder_TOM.h"
+#include "sources/Optimization/OptimizeSFOrder_TOM_IA.h"
 #include "sources/Utils/BatchUtils.h"
 #include "sources/Utils/ScheduleResults.h"
 
@@ -56,6 +57,14 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
             scheduleOptions.doScheduleOptimization_ = 1;
             scheduleOptions.doScheduleOptimizationOnlyOnce_ = 0;
             res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
+                LPOrderScheduler, ObjectiveFunctionBase>(dagTasks,
+                                                         scheduleOptions);
+            break;
+
+        case TOM_IA:
+            scheduleOptions.doScheduleOptimization_ = 1;
+            scheduleOptions.doScheduleOptimizationOnlyOnce_ = 0;
+            res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel_IA<
                 LPOrderScheduler, ObjectiveFunctionBase>(dagTasks,
                                                          scheduleOptions);
             break;

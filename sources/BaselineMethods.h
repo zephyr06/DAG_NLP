@@ -9,14 +9,16 @@ namespace OrderOptDAG_SPACE {
 // if adding more methods, need to update WriteScheduleToFile() and
 // GlobalVariablesDAGOpt::TotalMethodUnderComparison
 enum BASELINEMETHODS {
-    InitialMethod,  // 0
-    Verucchi20,     // 1
-    Wang21,         // 2
-    TOM,            // 3
-    TOM_Fast,       // 4
-    GlobalOpt       // 5
+    InitialMethod,
+    Verucchi20,
+    Wang21,
+    TOM,
+    TOM_Fast,
+    TOM_IA,
+    GlobalOpt
 };
 const std::vector<std::string> BaselineMethodNames = {
-    "InitialMethod", "Verucchi20", "Wang21", "TOM", "TOM_Fast", "GlobalOpt"};
+    "InitialMethod", "Verucchi20", "Wang21",   "TOM",
+    "TOM_Fast",      "TOM_IA",     "GlobalOpt"};
 
 }  // namespace OrderOptDAG_SPACE
