@@ -15,7 +15,7 @@ TEST(IntegrationTest, v3) {
     ScheduleResult sth;
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
     scheduleOption.LoadParametersYaml();
-    scheduleOption.doScheduleOptimization_ = 0;
+    
 
     sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
         LPOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::ReactionTimeObj>(
@@ -31,7 +31,7 @@ TEST(IntegrationTest, v1rt) {
     ScheduleResult sth;
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
     scheduleOption.LoadParametersYaml();
-    scheduleOption.doScheduleOptimization_ = 0;
+    
 
     sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
         SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::ReactionTimeObj>(
@@ -49,7 +49,7 @@ TEST(IntegrationTest, v1da) {
     ScheduleResult sth;
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
     scheduleOption.LoadParametersYaml();
-    scheduleOption.doScheduleOptimization_ = 0;
+    
 
     sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
         SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::DataAgeObj>(
@@ -68,7 +68,7 @@ TEST(IntegrationTest, v2rt) {
     ScheduleResult sth;
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
     scheduleOption.LoadParametersYaml();
-    scheduleOption.doScheduleOptimization_ = 0;
+    
 
     sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
         SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::ReactionTimeObj>(
@@ -84,7 +84,7 @@ TEST(IntegrationTest, v2da) {
     ScheduleResult sth;
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
     scheduleOption.LoadParametersYaml();
-    scheduleOption.doScheduleOptimization_ = 0;
+    
 
     sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
         SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::DataAgeObj>(

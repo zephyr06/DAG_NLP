@@ -5,7 +5,6 @@ namespace OrderOptDAG_SPACE {
 namespace OptimizeSF {
 struct ScheduleOptions {
     int causeEffectChainNumber_;
-    bool doScheduleOptimization_;
     int processorNum_;
 
     // some weights used in objective function evaluation
@@ -19,7 +18,6 @@ struct ScheduleOptions {
 
     ScheduleOptions()
         : causeEffectChainNumber_(1),
-          doScheduleOptimization_(0),
           processorNum_(2),
           freshTol_(100),
           sensorFusionTolerance_(100),
@@ -30,7 +28,6 @@ struct ScheduleOptions {
 
     void LoadParametersYaml() {
         causeEffectChainNumber_ = GlobalVariablesDAGOpt::NumCauseEffectChain;
-        doScheduleOptimization_ = GlobalVariablesDAGOpt::doScheduleOptimization;
         processorNum_ = GlobalVariablesDAGOpt::coreNumberAva;
 
         freshTol_ = GlobalVariablesDAGOpt::freshTol;

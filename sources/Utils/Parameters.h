@@ -141,7 +141,6 @@ namespace GlobalVariablesDAGOpt
   extern double kCplexInequalityThreshold;
 
   extern int selectInitialFromPool;
-  extern int doScheduleOptimization;
   extern int BatchTestOnlyOneMethod;
   extern int EnableHardJobORder;
   extern double LPTolerance;

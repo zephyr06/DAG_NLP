@@ -47,24 +47,18 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
             //     GlobalVariablesDAGOpt::freshTol);
             break;
         case TOM:
-            scheduleOptions.doScheduleOptimization_ = 1;
-
             res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
                 LPOrderScheduler, ObjectiveFunctionBase>(dagTasks,
                                                          scheduleOptions);
             break;
 
         case TOM_IA:
-            scheduleOptions.doScheduleOptimization_ = 1;
-
             res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel_IA<
                 LPOrderScheduler, ObjectiveFunctionBase>(dagTasks,
                                                          scheduleOptions);
             break;
 
         case TOM_Fast:
-            scheduleOptions.doScheduleOptimization_ = 0;
-
             res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
                 SimpleOrderScheduler, ObjectiveFunctionBase>(dagTasks,
                                                              scheduleOptions);

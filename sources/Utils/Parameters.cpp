@@ -132,7 +132,6 @@ int64_t kWangRtss21IcNlpTimeLimit =
 double kCplexInequalityThreshold =
     loaded_doc["kCplexInequalityThreshold"].as<double>();
 
-int doScheduleOptimization = loaded_doc["doScheduleOptimization"].as<int>();
 int BatchTestOnlyOneMethod = loaded_doc["BatchTestOnlyOneMethod"].as<int>();
 int selectInitialFromPool = loaded_doc["selectInitialFromPool"].as<int>();
 int EnableHardJobORder = loaded_doc["EnableHardJobORder"].as<int>();
