@@ -112,9 +112,10 @@ BatchOptimizeOrder(
                 OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOptions;
                 scheduleOptions.LoadParametersYaml();
 
-                if (VerifyResFileExist(pathDataset, file, batchTestMethod)) {
-                    res =
-                        ReadFromResultFile(pathDataset, file, batchTestMethod);
+                if (VerifyResFileExist(pathDataset, file, batchTestMethod,
+                                       ObjectiveFunctionBase::type_trait)) {
+                    res = ReadFromResultFile(pathDataset, file, batchTestMethod,
+                                             ObjectiveFunctionBase::type_trait);
                 } else {
                     auto start = std::chrono::high_resolution_clock::now();
                     res = PerformSingleScheduling<ObjectiveFunctionBase>(
@@ -143,10 +144,12 @@ BatchOptimizeOrder(
                 }
 
                 results_man.add(batchTestMethod, res, file);
-                WriteToResultFile(pathDataset, file, res, batchTestMethod);
-                if (res.schedulable_ == true && res.startTimeVector_.rows() > 0)
-                    WriteScheduleToFile(pathDataset, file, dagTasks, res,
-                                        batchTestMethod);
+                WriteToResultFile(pathDataset, file, res, batchTestMethod,
+                                  ObjectiveFunctionBase::type_trait);
+                // if (res.schedulable_ == true && res.startTimeVector_.rows() >
+                // 0)
+                //     WriteScheduleToFile(pathDataset, file, dagTasks, res,
+                //                         batchTestMethod);
             }
             fileIndex++;
         }
