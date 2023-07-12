@@ -262,18 +262,22 @@ class DAGScheduleOptimizer {
             return false;
         }
 
+        return WhetherMakeProgressAndUpdateBestFoundStatus(
+            startTimeVector, processorJobVec, schedulable,
+            jobOrderCurrForFinish, statusBestFound, jobOrderBestFound);
+    }
+
+    bool WhetherMakeProgressAndUpdateBestFoundStatus(
+        const VectorDynamic &startTimeVector,
+        const std::vector<uint> &processorJobVec, bool schedulable,
+        SFOrder &jobOrderCurrForFinish,
+        IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusBestFound,
+        SFOrder &jobOrderBestFound) {
         IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(
             dagTasks, tasksInfo, jobOrderCurrForFinish, scheduleOptions,
             startTimeVector, processorJobVec, schedulable);
         countIterationStatus++;
-
         if (MakeProgress<OrderScheduler>(statusBestFound, statusCurr)) {
-            // SFOrder jobOrderReCreate(tasksInfo, startTimeVector);
-            // if (jobOrderReCreate != jobOrderCurrForFinish)
-            //   jobOrderCurrForFinish = jobOrderReCreate; // Issue:
-            //   startTimeVector is not optimal w.r.t.
-            // jobOrderRecreate, which makes the following iteation fail
-
             statusBestFound = statusCurr;
             jobOrderBestFound = jobOrderCurrForFinish;
             if (GlobalVariablesDAGOpt::debugMode == 1) {

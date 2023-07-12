@@ -148,11 +148,6 @@ class DAGScheduleOptimizer_IA
             return false;
         }
 
-        IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusCurr(
-            dagTasks, tasksInfo, jobOrderCurrForFinish, scheduleOptions,
-            startTimeVector, processorJobVec, schedulable);
-        Base::countIterationStatus++;
-
 #ifdef CHECK_IA_CORRECTNESS
         if (if_IA_skip == true) {
             double objCurr = ObjectiveFunctionBase::TrueObj(
@@ -179,33 +174,9 @@ class DAGScheduleOptimizer_IA
         }
 #endif
 
-        if (MakeProgress<OrderScheduler>(statusBestFound, statusCurr)) {
-            // SFOrder jobOrderReCreate(tasksInfo, startTimeVector);
-            // if (jobOrderReCreate != jobOrderCurrForFinish)
-            //   jobOrderCurrForFinish = jobOrderReCreate; // Issue:
-            //   startTimeVector is not optimal w.r.t.
-            // jobOrderRecreate, which makes the following iteation fail
-
-            statusBestFound = statusCurr;
-            jobOrderBestFound = jobOrderCurrForFinish;
-            if (GlobalVariablesDAGOpt::debugMode == 1) {
-                std::cout << "Make progress!" << std::endl;
-                jobOrderCurrForFinish.print();
-                std::cout << "start time vector: \n"
-                          << statusBestFound.startTimeVector_ << "\n";
-                PrintSchedule(tasksInfo, statusBestFound.startTimeVector_);
-                // double objCurr =
-                //     ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo,
-                //     startTimeVector, scheduleOptions);
-                // double objPrev =
-                //     ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo,
-                //     statusPrev.startTimeVector_, scheduleOptions);
-                // int a = 1;
-            }
-            return true;
-        } else {  // not make progress
-            return false;
-        }
+        return Base::WhetherMakeProgressAndUpdateBestFoundStatus(
+            startTimeVector, processorJobVec, schedulable,
+            jobOrderCurrForFinish, statusBestFound, jobOrderBestFound);
     }
 
     void InitializeStatus(const VectorDynamic &startTimeVector) {
