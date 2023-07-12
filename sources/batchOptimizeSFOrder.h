@@ -48,7 +48,7 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
             break;
         case TOM:
             scheduleOptions.doScheduleOptimization_ = 1;
-            scheduleOptions.doScheduleOptimizationOnlyOnce_ = 0;
+
             res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
                 LPOrderScheduler, ObjectiveFunctionBase>(dagTasks,
                                                          scheduleOptions);
@@ -56,7 +56,7 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
 
         case TOM_IA:
             scheduleOptions.doScheduleOptimization_ = 1;
-            scheduleOptions.doScheduleOptimizationOnlyOnce_ = 0;
+
             res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel_IA<
                 LPOrderScheduler, ObjectiveFunctionBase>(dagTasks,
                                                          scheduleOptions);
@@ -64,7 +64,7 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
 
         case TOM_Fast:
             scheduleOptions.doScheduleOptimization_ = 0;
-            scheduleOptions.doScheduleOptimizationOnlyOnce_ = 0;
+
             res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
                 SimpleOrderScheduler, ObjectiveFunctionBase>(dagTasks,
                                                              scheduleOptions);

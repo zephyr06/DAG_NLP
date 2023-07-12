@@ -142,7 +142,6 @@ namespace GlobalVariablesDAGOpt
 
   extern int selectInitialFromPool;
   extern int doScheduleOptimization;
-  extern int doScheduleOptimizationOnlyOnce;
   extern int BatchTestOnlyOneMethod;
   extern int EnableHardJobORder;
   extern double LPTolerance;

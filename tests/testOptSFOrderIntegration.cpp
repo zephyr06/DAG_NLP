@@ -16,7 +16,7 @@ TEST(IntegrationTest, v3) {
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
     scheduleOption.LoadParametersYaml();
     scheduleOption.doScheduleOptimization_ = 0;
-    scheduleOption.doScheduleOptimizationOnlyOnce_ = 0;
+
     sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
         LPOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::ReactionTimeObj>(
         dagTasks, scheduleOption);
@@ -32,7 +32,7 @@ TEST(IntegrationTest, v1rt) {
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
     scheduleOption.LoadParametersYaml();
     scheduleOption.doScheduleOptimization_ = 0;
-    scheduleOption.doScheduleOptimizationOnlyOnce_ = 0;
+
     sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
         SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::ReactionTimeObj>(
         dagTasks, scheduleOption);
@@ -50,7 +50,7 @@ TEST(IntegrationTest, v1da) {
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
     scheduleOption.LoadParametersYaml();
     scheduleOption.doScheduleOptimization_ = 0;
-    scheduleOption.doScheduleOptimizationOnlyOnce_ = 0;
+
     sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
         SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::DataAgeObj>(
         dagTasks, scheduleOption);
@@ -69,7 +69,7 @@ TEST(IntegrationTest, v2rt) {
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
     scheduleOption.LoadParametersYaml();
     scheduleOption.doScheduleOptimization_ = 0;
-    scheduleOption.doScheduleOptimizationOnlyOnce_ = 0;
+
     sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
         SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::ReactionTimeObj>(
         dagTasks, scheduleOption);
@@ -85,7 +85,7 @@ TEST(IntegrationTest, v2da) {
     OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOption;
     scheduleOption.LoadParametersYaml();
     scheduleOption.doScheduleOptimization_ = 0;
-    scheduleOption.doScheduleOptimizationOnlyOnce_ = 0;
+
     sth = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
         SimpleOrderScheduler, OrderOptDAG_SPACE::OptimizeSF::DataAgeObj>(
         dagTasks, scheduleOption);
@@ -103,7 +103,7 @@ class DAGScheduleOptimizerTest1 : public ::testing::Test {
         dagTasks.chains_[0] = chain1;
         timeLimits = 1;
         scheduleOptions.processorNum_ = 2;
-        
+
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;
         scheduleOptions.weightInMpRTDA_ = 0.5;
