@@ -82,28 +82,24 @@ class DAGScheduleOptimizer_IA
                     continue;
 
                 // Independence analysis
-                if (GlobalVariablesDAGOpt::enableIndependentAnalysis) {
-                    // TODO: add WhetherJobInfluenceChainLength into IA?
-                    if_IA_skip = independent_analysis_.WhetherSafeSkip(
-                        jobRelocate, startP, finishP, jobOrderRef);
+                // TODO: add WhetherJobInfluenceChainLength into IA?
+                if_IA_skip = independent_analysis_.WhetherSafeSkip(
+                    jobRelocate, startP, finishP, jobOrderRef);
 #ifndef CHECK_IA_CORRECTNESS
-                    if (if_IA_skip)
-                        continue;
+                if (if_IA_skip)
+                    continue;
 #endif
-                }
 
                 SFOrder jobOrderCurrForFinish =
                     jobOrderCurrForStart;  //  copying by value is sometimes
                                            //  faster
                 jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
-                // TODO: rename this function?
-                if (Base::BreakFinishPermutation(
+                if (Base::WhetherFinishPositionInfeasible(
                         accumLengthMin, jobRelocate, startP, finishP,
                         jobOrderCurrForStart, jobOrderCurrForFinish))
                     break;
 
-                // bool findImprove =
                 CompareAndUpdateStatus(jobOrderCurrForFinish, statusBestFound,
                                        jobOrderBestFound);
 

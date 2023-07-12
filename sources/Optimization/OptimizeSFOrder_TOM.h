@@ -158,13 +158,11 @@ class DAGScheduleOptimizer {
                                            //  faster
                 jobOrderCurrForFinish.InsertFinish(jobRelocate, finishP);
 
-                // TODO: rename this function?
-                if (BreakFinishPermutation(accumLengthMin, jobRelocate, startP,
-                                           finishP, jobOrderCurrForStart,
-                                           jobOrderCurrForFinish))
+                if (WhetherFinishPositionInfeasible(
+                        accumLengthMin, jobRelocate, startP, finishP,
+                        jobOrderCurrForStart, jobOrderCurrForFinish))
                     break;
 
-                // bool findImprove =
                 CompareAndUpdateStatus(jobOrderCurrForFinish, statusBestFound,
                                        jobOrderBestFound);
 
@@ -222,10 +220,11 @@ class DAGScheduleOptimizer {
         }
     }
 
-    bool BreakFinishPermutation(double &accumLengthMin, JobCEC jobRelocate,
-                                LLint startP, LLint finishP,
-                                SFOrder &jobOrderCurrForStart,
-                                SFOrder &jobOrderCurrForFinish) const {
+    bool WhetherFinishPositionInfeasible(double &accumLengthMin,
+                                         JobCEC jobRelocate, LLint startP,
+                                         LLint finishP,
+                                         SFOrder &jobOrderCurrForStart,
+                                         SFOrder &jobOrderCurrForFinish) const {
         if (WhetherStartFinishTooLong(accumLengthMin, jobRelocate, finishP,
                                       tasksInfo, jobOrderCurrForStart, startP))
             return true;
