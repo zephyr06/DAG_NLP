@@ -102,22 +102,25 @@ class DAGScheduleOptimizer {
                 break;
         } while (ifContinue() && findBetterJobOrderWithinIterations);
 
-        std::vector<uint> processorJobVec;
-        auto stv = OrderScheduler::schedule(
-            dagTasks, tasksInfo, scheduleOptions, jobOrderRef, processorJobVec,
-            ObjectiveFunctionBase::type_trait);
-        ScheduleResult scheduleRes{
-            jobOrderRef, statusPrev.startTimeVector_, statusPrev.schedulable_,
-            ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo,
-                                           statusPrev.startTimeVector_,
-                                           scheduleOptions),
-            processorJobVec};
+             auto scheduleRes = GetScheduleResult();
 #ifdef PROFILE_CODE
         EndTimer(__FUNCTION__);
 #endif
         return scheduleRes;
     }
 
+    ScheduleResult GetScheduleResult() {
+        std::vector<uint> processorJobVec;
+        auto stv = OrderScheduler::schedule(
+            dagTasks, tasksInfo, scheduleOptions, jobOrderRef, processorJobVec,
+            ObjectiveFunctionBase::type_trait);
+        return ScheduleResult(
+            jobOrderRef, statusPrev.startTimeVector_, statusPrev.schedulable_,
+            ObjectiveFunctionBase::TrueObj(dagTasks, tasksInfo,
+                                           statusPrev.startTimeVector_,
+                                           scheduleOptions),
+            processorJobVec);
+    }
     void ImproveJobOrderPerJob(const JobCEC &jobRelocate) {
 #ifdef PROFILE_CODE
         BeginTimer(__FUNCTION__);

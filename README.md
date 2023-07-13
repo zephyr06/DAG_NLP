@@ -29,6 +29,8 @@ make GenerateTaskSet
 
 
 ./tests/GenerateTaskSet --N 15 --taskSetNumber 100 --SF_ForkNum 0 --numCauseEffectChain 2 --taskSetType 2
+
+./tests/GenerateTaskSet --N 5 --taskSetNumber 10 --SF_ForkNum 0 --numCauseEffectChain 2 --taskSetType 2
 ```
 
 # Run the scripts for large-scale experiments

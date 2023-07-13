@@ -25,7 +25,11 @@ class DAGScheduleOptimizer_IA
         const DAG_Model &dagInput, const ScheduleOptions &scheduleOptions,
         double timeLimits = GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT)
         : DAGScheduleOptimizer<OrderScheduler, ObjectiveFunctionBase>(
-              dagInput, scheduleOptions, timeLimits) {}
+              dagInput, scheduleOptions, timeLimits) {
+        independent_analysis_ = IndependentAnalysis(
+            dagTasks, tasksInfo, jobOrderRef, statusPrev.startTimeVector_,
+            scheduleOptions.processorNum_, ObjectiveFunctionBase::type_trait);
+    }
 
     // bool WhetherJobInfluenceChainLength(JobCEC jobRelocate) {
     //     for (uint kk = 0; kk < longestJobChains_.size(); kk++) {
@@ -45,6 +49,38 @@ class DAGScheduleOptimizer_IA
     //     }
     //     return false;
     // }
+
+    ScheduleResult Optimize() {
+#ifdef PROFILE_CODE
+        BeginTimer(__FUNCTION__);
+#endif
+        do {
+            Base::countOutermostWhileLoop++;
+            if (GlobalVariablesDAGOpt::debugMode == 1)
+                std::cout << "Outer loop count: "
+                          << Base::countOutermostWhileLoop << std::endl;
+            Base::findBetterJobOrderWithinIterations =
+                false;  // iterations stop unless a better job order is found
+
+            // search the tasks related to task chain at first
+            std::vector<int> taskIdSet = GetTaskIdWithChainOrder(dagTasks);
+            for (int i : taskIdSet) {
+                for (LLint j = 0;
+                     j < tasksInfo.sizeOfVariables[i] && (ifContinue()); j++) {
+                    JobCEC jobRelocate(i, j);
+                    ImproveJobOrderPerJob(jobRelocate);
+                }
+            }
+
+            if (!Base::findBetterJobOrderWithinIterations)
+                break;
+        } while (ifContinue() && Base::findBetterJobOrderWithinIterations);
+        auto scheduleRes = Base::GetScheduleResult();
+#ifdef PROFILE_CODE
+        EndTimer(__FUNCTION__);
+#endif
+        return scheduleRes;
+    }
 
     void ImproveJobOrderPerJob(const JobCEC &jobRelocate) {
 #ifdef PROFILE_CODE
@@ -173,16 +209,6 @@ class DAGScheduleOptimizer_IA
         return Base::WhetherMakeProgressAndUpdateBestFoundStatus(
             startTimeVector, processorJobVec, schedulable,
             jobOrderCurrForFinish, statusBestFound, jobOrderBestFound);
-    }
-
-    void InitializeStatus(const VectorDynamic &startTimeVector) {
-        jobOrderRef = SFOrder(tasksInfo, startTimeVector);
-        statusPrev = IterationStatus<OrderScheduler, ObjectiveFunctionBase>(
-            dagTasks, tasksInfo, jobOrderRef, scheduleOptions);
-
-        independent_analysis_ = IndependentAnalysis(
-            dagTasks, tasksInfo, jobOrderRef, statusPrev.startTimeVector_,
-            scheduleOptions.processorNum_, ObjectiveFunctionBase::type_trait);
     }
 
     // extra data members
