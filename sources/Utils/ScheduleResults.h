@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-#include "sources/BaselineMethods.h"
+#include "sources/BatchOptimization/BaselineMethods.h"
 #include "sources/Utils/DeclareDAG.h"
 #include "sources/Utils/OptimizeOrderUtils.h"  // import ScheduleResult class
 #include "sources/Utils/VariadicTable.h"

@@ -4,7 +4,7 @@
 
 #include "sources/Utils/Parameters.h"
 // #include "sources/Optimization/OptimizeOrder.h"
-#include "sources/BaselineMethods.h"
+#include "sources/BatchOptimization/BaselineMethods.h"
 #include "sources/Utils/OptimizeOrderUtils.h"
 #include "yaml-cpp/yaml.h"
 

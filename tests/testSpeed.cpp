@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 #include "sources/Utils/profilier.h"
-#include "sources/batchOptimizeSFOrder.h"
+#include "sources/BatchOptimization/batchOptimizeSFOrder.h"
 
 using namespace OrderOptDAG_SPACE;
 TEST(speed, v1) {

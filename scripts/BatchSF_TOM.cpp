@@ -1,4 +1,4 @@
-#include "sources/batchOptimizeSFOrder.h"
+#include "sources/BatchOptimization/batchOptimizeSFOrder.h"
 
 int main() {
     std::vector<OrderOptDAG_SPACE::BASELINEMETHODS> baselineMethods = {
