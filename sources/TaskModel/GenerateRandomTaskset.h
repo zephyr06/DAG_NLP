@@ -30,7 +30,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization, int numberOfProcessor,
 using namespace OrderOptDAG_SPACE;
 void WriteTaskSets(std::ofstream &file, TaskSet &tasks);
 
-DAG_Model GenerateDAG(int N, double totalUtilization, int numberOfProcessor,
+DAG_Model GenerateDAG_He21(int N, double totalUtilization, int numberOfProcessor,
                       int periodMin, int periodMax, int coreRequireMax,
                       int sf_fork_num, int fork_sensor_num_min,
                       int fork_sensor_num_max, int numCauseEffectChain,
