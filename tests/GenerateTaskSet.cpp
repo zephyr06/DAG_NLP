@@ -1,4 +1,5 @@
 #include "sources/TaskModel/GenerateRandomTaskset.h"
+#include "sources/TaskModel/GenerateRandomTasksetWATERS.h"
 #include "sources/Utils/argparse.hpp"
 // #include "sources/Optimization/OptimizeOrder.h"
 #include "sources/Baseline/RTSS21IC.h"
@@ -54,7 +55,7 @@ int main(int argc, char *argv[]) {
       .help("the maximum period of tasks in DAG, used only when taskType is 0")
       .scan<'i', int>();
   program.add_argument("--taskType")
-      .default_value(1)
+      .default_value(2)
       .help("type of tasksets, 0 means normal, 1 means DAG")
       .scan<'i', int>();
   program.add_argument("--deadlineType")
@@ -155,46 +156,51 @@ int main(int argc, char *argv[]) {
   } else {
     totalUtilization = program.get<double>("--totalUtilization");
   }
-
-  std::cout << "Task configuration: " << std::endl
-            << "the number of tasks in DAG(--N): " << N << std::endl
-            << "DAG_taskSetNumber(--taskSetNumber): " << DAG_taskSetNumber << std::endl
-            << "NumberOfProcessor(--NumberOfProcessor): " << numberOfProcessor << std::endl
-            << "totalUtilization(--totalUtilization): " << totalUtilization << std::endl
-            << "aveUtilization(--aveUtilization): " << aveUtilization << std::endl
-            << "whether use random utilization(--useRandomUtilization): " << useRandomUtilization << std::endl
-            << "minimum utilization per core, only work in random utilization "
-               "mode(--minUtilizationPerCore): "
-            << minUtilizationPerCore << std::endl
-            << "maximum utilization per core, only work in random utilization "
-               "mode(--maxUtilizationPerCore): "
-            << maxUtilizationPerCore << std::endl
-            << "periodMin, only work in normal(random) taskSetType(--periodMin), : " << periodMin << std::endl
-            << "periodMax, only work in normal(random) taskSetType(--periodMax): " << periodMax << std::endl
-            << "taskType(--taskType), 0 means normal, 1 means DAG: " << taskType << std::endl
-            << "deadlineType(--deadlineType), 1 means random, 0 means implicit: " << deadlineType << std::endl
-            << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile, 3 "
-               "means automobile with "
-               "WATERS distribution: "
-            << taskSetType << std::endl
-            << "coreRequireMax(--coreRequireMax): " << coreRequireMax << std::endl
-            << "excludeUnschedulable(--excludeUnschedulable): " << excludeUnschedulable << std::endl
-            << "excludeEmptyEdgeDag(--excludeEmptyEdgeDag): " << excludeEmptyEdgeDag << std::endl
-            << "randomSeed, negative will use current time, otherwise use the "
-               "given seed(--randomSeed): "
-            << randomSeed << std::endl
-            << "SF_ForkNum, the number of forks (--SF_ForkNum): " << SF_ForkNum << std::endl
-            << "the minimum number of sensor tasks for each fork in SF experiments "
-               "(--fork_sensor_num_min): "
-            << fork_sensor_num_min << std::endl
-            << "the minimum number of sensor tasks for each fork in SF experiments "
-               "(--fork_sensor_num_max): "
-            << fork_sensor_num_max << std::endl
-            << "numCauseEffectChain, the number of random cause-effect chains,"
-               "default value will read from config.yaml (--numCauseEffectChain): "
-            << numCauseEffectChain << std::endl
-            << std::endl;
-
+  {
+    std::cout << "Task configuration: " << std::endl
+              << "the number of tasks in DAG(--N): " << N << std::endl
+              << "DAG_taskSetNumber(--taskSetNumber): " << DAG_taskSetNumber << std::endl
+              << "NumberOfProcessor(--NumberOfProcessor): " << numberOfProcessor << std::endl
+              << "totalUtilization(--totalUtilization): " << totalUtilization << std::endl
+              << "aveUtilization(--aveUtilization): " << aveUtilization << std::endl
+              << "whether use random utilization(--useRandomUtilization): " << useRandomUtilization
+              << std::endl
+              << "minimum utilization per core, only work in random utilization "
+                 "mode(--minUtilizationPerCore): "
+              << minUtilizationPerCore << std::endl
+              << "maximum utilization per core, only work in random utilization "
+                 "mode(--maxUtilizationPerCore): "
+              << maxUtilizationPerCore << std::endl
+              << "periodMin, only work in normal(random) taskSetType(--periodMin), : " << periodMin
+              << std::endl
+              << "periodMax, only work in normal(random) taskSetType(--periodMax): " << periodMax << std::endl
+              << "taskType(--taskType), 0 means normal, 1 means DAG, 2 means DAG with WATERS15 cause-effect "
+                 "chains: "
+              << taskType << std::endl
+              << "deadlineType(--deadlineType), 1 means random, 0 means implicit: " << deadlineType
+              << std::endl
+              << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile, 3 "
+                 "means automobile with "
+                 "WATERS distribution: "
+              << taskSetType << std::endl
+              << "coreRequireMax(--coreRequireMax): " << coreRequireMax << std::endl
+              << "excludeUnschedulable(--excludeUnschedulable): " << excludeUnschedulable << std::endl
+              << "excludeEmptyEdgeDag(--excludeEmptyEdgeDag): " << excludeEmptyEdgeDag << std::endl
+              << "randomSeed, negative will use current time, otherwise use the "
+                 "given seed(--randomSeed): "
+              << randomSeed << std::endl
+              << "SF_ForkNum, the number of forks (--SF_ForkNum): " << SF_ForkNum << std::endl
+              << "the minimum number of sensor tasks for each fork in SF experiments "
+                 "(--fork_sensor_num_min): "
+              << fork_sensor_num_min << std::endl
+              << "the minimum number of sensor tasks for each fork in SF experiments "
+                 "(--fork_sensor_num_max): "
+              << fork_sensor_num_max << std::endl
+              << "numCauseEffectChain, the number of random cause-effect chains,"
+                 "default value will read from config.yaml (--numCauseEffectChain): "
+              << numCauseEffectChain << std::endl
+              << std::endl;
+  }
   std::string outDirectory = GlobalVariablesDAGOpt::PROJECT_PATH + outDir;
   // std::string outDirectory = GlobalVariablesDAGOpt::PROJECT_PATH +
   // "Energy_Opt_NLP/TaskData/task_number/";
@@ -209,11 +215,18 @@ int main(int argc, char *argv[]) {
     if (taskType == 0) // normal task set
     {
       CoutError("Not recognized type, needs implementation");
-    } else if (taskType == 1) // DAG task set
+    } else if (taskType == 1 || taskType == 2) // DAG task set
     {
-      DAG_Model dag_tasks = GenerateDAG_He21(
-          N, totalUtilization, numberOfProcessor, periodMin, periodMax, coreRequireMax, SF_ForkNum,
-          fork_sensor_num_min, fork_sensor_num_max, numCauseEffectChain, taskSetType, deadlineType);
+      DAG_Model dag_tasks;
+      if (taskType == 1)
+        dag_tasks = GenerateDAG_He21(N, totalUtilization, numberOfProcessor, periodMin, periodMax,
+                                     coreRequireMax, SF_ForkNum, fork_sensor_num_min, fork_sensor_num_max,
+                                     numCauseEffectChain, taskSetType, deadlineType);
+      else if (taskType == 2)
+        dag_tasks = GenerateDAG_WATERS15(N, totalUtilization, numberOfProcessor, periodMin, periodMax,
+                                         coreRequireMax, SF_ForkNum, fork_sensor_num_min, fork_sensor_num_max,
+                                         numCauseEffectChain, taskSetType, deadlineType);
+
       if (excludeEmptyEdgeDag == 1) {
         bool whether_empty_edges = true;
         for (auto pair : dag_tasks.mapPrev) {
