@@ -67,6 +67,20 @@ TaskSet GenerateTaskSet(int N, double totalUtilization, int numberOfProcessor, i
   return tasks;
 }
 
+DAG_Model AddEdges2DAG_He21(DAG_Model &dag_tasks, int N) {
+  MAP_Prev mapPrev;
+  // add edges randomly
+  for (int i = 0; i < N; i++) {
+    for (int j = i + 1; j < N; j++) {
+      if (double(rand()) / RAND_MAX < GlobalVariablesDAGOpt::parallelFactor) {
+        dag_tasks.addEdge(i, j);
+      }
+    }
+  }
+  dag_tasks.ConstructBGL_Graph();
+  return dag_tasks;
+}
+
 using namespace OrderOptDAG_SPACE;
 DAG_Model GenerateDAG_He21(int N, double totalUtilization, int numberOfProcessor, int periodMin,
                            int periodMax, int coreRequireMax, int sf_fork_num, int fork_sensor_num_min,
@@ -74,17 +88,10 @@ DAG_Model GenerateDAG_He21(int N, double totalUtilization, int numberOfProcessor
                            int deadlineType) {
   TaskSet tasks = GenerateTaskSet(N, totalUtilization, numberOfProcessor, periodMin, periodMax,
                                   coreRequireMax, taskSetType, deadlineType);
-  MAP_Prev mapPrev;
+
   DAG_Model dagModel;
   dagModel.tasks = tasks;
-  // add edges randomly
-  for (int i = 0; i < N; i++) {
-    for (int j = i + 1; j < N; j++) {
-      if (double(rand()) / RAND_MAX < GlobalVariablesDAGOpt::parallelFactor) {
-        dagModel.addEdge(i, j);
-      }
-    }
-  }
+  AddEdges2DAG_He21(dagModel, N);
 
   return DAG_Model(tasks, dagModel.mapPrev, sf_fork_num, fork_sensor_num_min, fork_sensor_num_max,
                    numCauseEffectChain);
