@@ -86,8 +86,7 @@ double GetHyperPeriodDiff(const JobCEC &jobStart, const JobCEC &jobFinish,
 
 template <> struct std::hash<OrderOptDAG_SPACE::JobCEC> {
   std::size_t operator()(const OrderOptDAG_SPACE::JobCEC &jobCEC) const {
-    std::string str = std::to_string(jobCEC.taskId) + ", " + std::to_string(jobCEC.jobId);
-    return std::hash<std::string>{}(str);
+    return jobCEC.taskId * 1e4 + jobCEC.jobId;
   }
 };
 
