@@ -1,7 +1,7 @@
-JobID,Offset,Period,Overhead,ExecutionTime,DeadLine,processorId,coreRequire
-0,0,10000,0,5544,10000,1,1
-1,0,10000,0,374,10000,0,1
-2,0,2000,0,1035,2000,0,1
+JobID,Period,ExecutionTime,DeadLine,processorId
+0,10000,5544,10000,1
+1,10000,374,10000,0
+2,2000,1035,2000,0
 *1,0
 *2,0
 *2,1

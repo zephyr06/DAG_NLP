@@ -15,9 +15,9 @@ RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks" # tBatch's result path
 methods_result_dir_name=( "Initial_Res" "TOM_Res" "TOM_Res_LoopCount" ) # only do Initial and OrderOpt
 target_method_res_name="TOM_Res"
 TASKSETS_PATH="$ROOT_PATH/CompareWithBaseline/TasksetsForRTAS2023/RTDATasksets"
-makeProgressTimeLimit=100
-kVerucchiTimeLimit=100
-kWangRtss21IcNlpTimeLimit=100
+OPTIMIZE_TIME_LIMIT=100
+OPTIMIZE_TIME_LIMIT=100
+OPTIMIZE_TIME_LIMIT=100
 coreNumberAva=2
 keep_current_result_and_continue_previous_running=1 # 0 will delete all current results and rerun, 1 will attach results to current result files
 ## setting for generating task sets
@@ -71,9 +71,9 @@ python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "considerSensorFusion
 # python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "debugMode" --value 1
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "coreNumberAva" --value $coreNumberAva
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "TaskSetType" --value $taskSetType
-python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "makeProgressTimeLimit" --value $makeProgressTimeLimit
-python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "kVerucchiTimeLimit" --value $kVerucchiTimeLimit
-python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "kWangRtss21IcNlpTimeLimit" --value $kWangRtss21IcNlpTimeLimit
+python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "OPTIMIZE_TIME_LIMIT" --value $OPTIMIZE_TIME_LIMIT
+python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "OPTIMIZE_TIME_LIMIT" --value $OPTIMIZE_TIME_LIMIT
+python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "OPTIMIZE_TIME_LIMIT" --value $OPTIMIZE_TIME_LIMIT
 cp $ROOT_PATH/sources/parameters.yaml $ROOT_PATH/CompareWithBaseline/$title/scripts_and_figures_backup
 cp $ROOT_PATH/CompareWithBaseline/$title/run$title.sh $ROOT_PATH/CompareWithBaseline/$title/scripts_and_figures_backup
 # build the project

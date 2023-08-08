@@ -29,7 +29,7 @@ weightInMpRTDA: 0.5
 weightInMpSf: 1
 weightInMpSfPunish: 10
 weightInMpRTDAPunish: 10
-makeProgressTimeLimit: 100 # seconds, -1 means unlimited time
+OPTIMIZE_TIME_LIMIT: 100 # seconds, -1 means unlimited time
 
 #*************************************************************
 # factors to be included
@@ -54,7 +54,7 @@ temperatureSA: 100000000
 SA_iteration: 100000
 #*************************************************************
 # Verucchi20 settings
-kVerucchiTimeLimit: 100 # seconds, -1 means unlimited time
+OPTIMIZE_TIME_LIMIT: 100 # seconds, -1 means unlimited time
 kVerucchiReactionCost: 15.0
 kVerucchiMaxReaction: 400000.0
 kVerucchiDataAgeCost: 15.0
@@ -63,7 +63,7 @@ kVerucchiCoreCost: 0.0
 #*************************************************************
 #*************************************************************
 # Wang RTSS21IC_NLP settings
-kWangRtss21IcNlpTimeLimit: 100 # seconds, -1 means unlimited time
+OPTIMIZE_TIME_LIMIT: 100 # seconds, -1 means unlimited time
 
 #*************************************************************
 

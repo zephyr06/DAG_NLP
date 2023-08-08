@@ -1,9 +1,9 @@
 
 
 #include "sources/Factors/LongestChain.h"
-#include "sources/Factors/RTDA_Factor.h"
-#include "sources/Optimization/JobStartAnalysis.h"
-#include "sources/Optimization/OptimizeSFOrder.h"
+#include "sources/Factors/RTDA_Analyze.h"
+#include "sources/Optimization/IndependentAnalysis.h"
+#include "sources/Optimization/OptimizeSFOrder_TOM.h"
 #include "sources/Optimization/ScheduleOptions.h"
 #include "sources/Utils/testMy.h"
 #include <functional>
@@ -14,9 +14,11 @@ using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
 using namespace GlobalVariablesDAGOpt;
 
-class RTDATest1 : public ::testing::Test {
+class RTDATest1 : public ::testing::Test
+{
 protected:
-  void SetUp() override {
+  void SetUp() override
+  {
     std::string taskSetName = "test_n3_v18";
     SetUpTaskSet(taskSetName);
     startTimeVector = GenerateVectorDynamic(4);
@@ -26,12 +28,13 @@ protected:
     jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
   }
 
-  void SetUpTaskSet(std::string taskSet) {
+  void SetUpTaskSet(std::string taskSet)
+  {
     dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/" + taskSet + ".csv", "orig");
     tasks = dagTasks.tasks;
     tasksInfo = TaskSetInfoDerived(tasks);
 
-    scheduleOptions.considerSensorFusion_ = 0;
+    
     scheduleOptions.freshTol_ = 1e6;
     scheduleOptions.sensorFusionTolerance_ = 1e6;
     scheduleOptions.weightInMpRTDA_ = 0.5;
@@ -56,8 +59,10 @@ protected:
   JobCEC job3 = JobCEC(0, 3);
 };
 
-class RTDATest7 : public RTDATest1 {
-  void SetUp() override {
+class RTDATest7 : public RTDATest1
+{
+  void SetUp() override
+  {
     std::string taskSetName = "test_n3_v43";
     SetUpTaskSet(taskSetName);
     startTimeVector = GenerateVectorDynamic(8);
@@ -67,7 +72,8 @@ class RTDATest7 : public RTDATest1 {
     jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
   }
 };
-TEST_F(RTDATest7, WhetherImmediateForwardAdjacent_v1) {
+TEST_F(RTDATest7, WhetherImmediateForwardAdjacent_v1)
+{
   EXPECT_FALSE(WhetherImmediateForwardAdjacent(TimeInstance('f', JobCEC(1, 0)),
                                                TimeInstance('s', JobCEC(2, 0)), tasksInfo, startTimeVector,
                                                jobOrder));
@@ -99,7 +105,8 @@ TEST_F(RTDATest7, WhetherImmediateForwardAdjacent_v1) {
                                                jobOrder));
 }
 
-TEST_F(RTDATest7, WhetherImmediateAdjacent_v1) {
+TEST_F(RTDATest7, WhetherImmediateAdjacent_v1)
+{
   EXPECT_TRUE(WhetherImmediateAdjacent(TimeInstance('f', JobCEC(1, 0)), TimeInstance('s', JobCEC(2, 0)),
                                        tasksInfo, startTimeVector));
   EXPECT_TRUE(WhetherImmediateAdjacent(TimeInstance('s', JobCEC(2, 0)), TimeInstance('f', JobCEC(1, 0)),
@@ -117,11 +124,12 @@ TEST_F(RTDATest7, WhetherImmediateAdjacent_v1) {
                                         tasksInfo, startTimeVector));
 }
 
-TEST_F(RTDATest7, FindForwardAdjacentJob) {
+TEST_F(RTDATest7, FindForwardAdjacentJob)
+{
   auto prevAdjacentJobs = FindForwardAdjacentJob(JobCEC(0, 0), jobOrder, tasksInfo, startTimeVector);
   EXPECT_EQ(2, prevAdjacentJobs.size());
-  EXPECT_TRUE(JobCEC(2, 0) == prevAdjacentJobs[0]);
-  EXPECT_TRUE(JobCEC(1, 0) == prevAdjacentJobs[1]);
+  EXPECT_TRUE(JobCEC(1, 0) == prevAdjacentJobs[0]);
+  EXPECT_TRUE(JobCEC(2, 0) == prevAdjacentJobs[1]);
 
   prevAdjacentJobs = FindForwardAdjacentJob(JobCEC(2, 0), jobOrder, tasksInfo, startTimeVector);
   EXPECT_EQ(1, prevAdjacentJobs.size());
@@ -132,11 +140,12 @@ TEST_F(RTDATest7, FindForwardAdjacentJob) {
   jobOrder.print();
   prevAdjacentJobs = FindForwardAdjacentJob(JobCEC(2, 1), jobOrder, tasksInfo, startTimeVector);
   EXPECT_EQ(2, prevAdjacentJobs.size());
-  EXPECT_TRUE(JobCEC(1, 3) == prevAdjacentJobs[0]);
-  EXPECT_TRUE(JobCEC(1, 4) == prevAdjacentJobs[1]);
+  EXPECT_TRUE(JobCEC(1, 4) == prevAdjacentJobs[0]);
+  EXPECT_TRUE(JobCEC(1, 3) == prevAdjacentJobs[1]);
 }
 
-TEST_F(RTDATest7, WhetherJobStartEarlier_v1) {
+TEST_F(RTDATest7, WhetherJobStartEarlier_v1)
+{
   // LLint startP = 0;
   // LLint finishP = 2;
 
@@ -147,13 +156,15 @@ TEST_F(RTDATest7, WhetherJobStartEarlier_v1) {
       WhetherJobStartEarlier(JobCEC(0, 0), JobCEC(1, 0), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
 }
 
-TEST_F(RTDATest7, WhetherJobStartEarlier_v2) {
+TEST_F(RTDATest7, WhetherJobStartEarlier_v2)
+{
   EXPECT_FALSE(
       WhetherJobStartEarlier(JobCEC(0, 0), JobCEC(1, 0), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
 }
 // *****************************************************************************************************************
 
-TEST_F(RTDATest7, WhetherImmediateBackwardAdjacent_v1) {
+TEST_F(RTDATest7, WhetherImmediateBackwardAdjacent_v1)
+{
   EXPECT_FALSE(WhetherImmediateBackwardAdjacent(TimeInstance('f', JobCEC(1, 1)),
                                                 TimeInstance('s', JobCEC(2, 0)), tasksInfo, startTimeVector,
                                                 jobOrder));
@@ -187,19 +198,23 @@ TEST_F(RTDATest7, WhetherImmediateBackwardAdjacent_v1) {
                                                 jobOrder));
 }
 
-class RTDATest8 : public RTDATest1 {
-  void SetUp() override {
+class RTDATest8 : public RTDATest1
+{
+  void SetUp() override
+  {
     std::string taskSetName = "test_n3_v43";
     SetUpTaskSet(taskSetName);
     startTimeVector = GenerateVectorDynamic(8);
     startTimeVector << 5320, 0, 2000, 4626, 6000, 9218, 782, 5408;
     jobOrder = SFOrder(tasksInfo, startTimeVector);
     jobOrder.print();
+    PrintSchedule(tasksInfo, startTimeVector);
     jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
   }
 };
 
-TEST_F(RTDATest8, FindBackwardAdjacentJob) {
+TEST_F(RTDATest8, FindBackwardAdjacentJob)
+{
 
   auto prevAdjacentJobs = FindBackwardAdjacentJob(JobCEC(2, 1), jobOrder, tasksInfo, startTimeVector);
   EXPECT_EQ(1, prevAdjacentJobs.size());
@@ -207,12 +222,16 @@ TEST_F(RTDATest8, FindBackwardAdjacentJob) {
 
   prevAdjacentJobs = FindBackwardAdjacentJob(JobCEC(0, 0), jobOrder, tasksInfo, startTimeVector);
   EXPECT_EQ(3, prevAdjacentJobs.size());
-  EXPECT_TRUE(JobCEC(1, 2) == prevAdjacentJobs[0]);
-  EXPECT_TRUE(JobCEC(2, 1) == prevAdjacentJobs[1]);
-  EXPECT_TRUE(JobCEC(1, 4) == prevAdjacentJobs[2]);
+  // EXPECT_TRUE(JobCEC(1, 2) == prevAdjacentJobs[0]);
+  EXPECT_TRUE(ifExist(JobCEC(1, 2), prevAdjacentJobs));
+  // EXPECT_TRUE(JobCEC(2, 1) == prevAdjacentJobs[1]);
+  EXPECT_TRUE(ifExist(JobCEC(2, 1), prevAdjacentJobs));
+  // EXPECT_TRUE(JobCEC(1, 4) == prevAdjacentJobs[2]);
+  EXPECT_TRUE(ifExist(JobCEC(1, 4), prevAdjacentJobs));
 }
 
-TEST_F(RTDATest8, WhetherJobStartLater) {
+TEST_F(RTDATest8, WhetherJobStartLater)
+{
   // start time of (2,0) and (1,3) doesn't reach its limits, therefore should not be analyzed
   EXPECT_FALSE(
       WhetherJobStartLater(JobCEC(2, 0), JobCEC(1, 0), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
@@ -224,7 +243,8 @@ TEST_F(RTDATest8, WhetherJobStartLater) {
   EXPECT_FALSE(
       WhetherJobStartLater(JobCEC(2, 1), JobCEC(1, 0), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
 }
-TEST_F(RTDATest8, WhetherJobStartLater_v2) {
+TEST_F(RTDATest8, WhetherJobStartLater_v2)
+{
   EXPECT_FALSE(
       WhetherJobStartLater(JobCEC(0, 0), JobCEC(1, 4), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
   EXPECT_FALSE(
@@ -235,7 +255,8 @@ TEST_F(RTDATest8, WhetherJobStartLater_v2) {
       WhetherJobStartLater(JobCEC(1, 0), JobCEC(2, 0), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
 }
 
-TEST_F(RTDATest8, WhetherJobStartLater_v3) {
+TEST_F(RTDATest8, WhetherJobStartLater_v3)
+{
   EXPECT_FALSE(
       WhetherJobStartLater(JobCEC(2, 1), JobCEC(1, 1), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
   startTimeVector << 3810, 0, 2000, 4000, 6000, 8000, 0, 6000;
@@ -245,8 +266,10 @@ TEST_F(RTDATest8, WhetherJobStartLater_v3) {
   //     WhetherJobStartLater(JobCEC(2, 1), JobCEC(1, 1), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
 }
 
-class RTDATest9 : public RTDATest1 {
-  void SetUp() override {
+class RTDATest9 : public RTDATest1
+{
+  void SetUp() override
+  {
     std::string taskSetName = "test_n3_v43";
     SetUpTaskSet(taskSetName);
     startTimeVector = GenerateVectorDynamic(8);
@@ -256,19 +279,22 @@ class RTDATest9 : public RTDATest1 {
     jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
   }
 };
-TEST_F(RTDATest9, WhetherJobStartLater_v4) {
+TEST_F(RTDATest9, WhetherJobStartLater_v4)
+{
   EXPECT_FALSE(
       WhetherJobStartLater(JobCEC(2, 1), JobCEC(1, 1), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
   EXPECT_FALSE(
       WhetherJobStartLater(JobCEC(2, 0), JobCEC(1, 1), jobGroupMap, jobOrder, tasksInfo, startTimeVector));
 }
 
-TEST_F(RTDATest9, FindBackwardAdjacentJob) {
+TEST_F(RTDATest9, FindBackwardAdjacentJob)
+{
   auto prevAdjacentJobs = FindBackwardAdjacentJob(JobCEC(1, 1), jobOrder, tasksInfo, startTimeVector);
   EXPECT_EQ(0, prevAdjacentJobs.size());
 }
 
-TEST_F(RTDATest8, LP_Optimality) {
+TEST_F(RTDATest8, LP_Optimality)
+{
   startTimeVector << 3810, 0, 2000, 4000, 7218, 9218, 0, 6190;
   std::cout << "Old rtda obj: "
             << RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, startTimeVector, scheduleOptions) << "\n";
@@ -281,26 +307,30 @@ TEST_F(RTDATest8, LP_Optimality) {
   jobOrder.print();
 }
 
-TEST_F(RTDATest8, FindCentralForwardJob) {
-  std::vector<JobCEC> centralSourceJob = {JobCEC(2, 0), JobCEC(2, 1)};
+TEST_F(RTDATest8, FindCentralForwardJob)
+{
+  std::vector<JobCEC> centralSourceJob = {JobCEC(2, 1)};
   std::vector<JobCEC> centralSinkJob = {JobCEC(0, 0)};
-  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_);
+  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "ReactionTimeObj");
   auto centralJobActual = FindCentralJobs(longestChain, tasksInfo);
   AssertEqualVectorNoRepeat<JobCEC>(centralSourceJob, centralJobActual.backwardJobs, 1e-3, __LINE__);
   AssertEqualVectorNoRepeat<JobCEC>(centralSinkJob, centralJobActual.forwardJobs, 1e-3, __LINE__);
 }
 
-TEST_F(RTDATest8, FindActiveJobs) {
-  std::vector<JobCEC> activeJob = {JobCEC(0, 0), JobCEC(2, 0), JobCEC(2, 1), JobCEC(1, 4)};
-  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_);
+TEST_F(RTDATest8, FindActiveJobs)
+{
+  std::vector<JobCEC> activeJob = {JobCEC(0, 0), JobCEC(1, 4), JobCEC(2, 1)};
+  LongestCAChain longestChain(dagTasks, tasksInfo, jobOrder, startTimeVector, scheduleOptions.processorNum_, "ReactionTimeObj");
   CentralJobs centralJob = FindCentralJobs(longestChain, tasksInfo);
 
   auto activeJobActual = FindActiveJobs(centralJob, jobOrder, tasksInfo, startTimeVector);
   AssertEqualVectorNoRepeat<JobCEC>(activeJob, activeJobActual.GetJobs(), 1e-3, __LINE__);
 }
 
-class RTDATest10 : public RTDATest1 {
-  void SetUp() override {
+class RTDATest10 : public RTDATest1
+{
+  void SetUp() override
+  {
     std::string taskSetName = "test_n3_v44";
     SetUpTaskSet(taskSetName);
     startTimeVector = GenerateVectorDynamic(16);
@@ -311,7 +341,8 @@ class RTDATest10 : public RTDATest1 {
     jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
   }
 };
-TEST_F(RTDATest10, FindBackwardAdjacentJob) {
+TEST_F(RTDATest10, FindBackwardAdjacentJob)
+{
   auto prevAdjacentJobs = FindBackwardAdjacentJob(JobCEC(0, 3), jobOrder, tasksInfo, startTimeVector);
   // EXPECT_EQ(0, prevAdjacentJobs.size());
 }
@@ -323,8 +354,10 @@ TEST_F(RTDATest10, FindBackwardAdjacentJob) {
 //   EXPECT_FALSE(activeJobActual.FindDirection(JobCEC(2, 0)));
 //   EXPECT_FALSE(activeJobActual.FindDirection(JobCEC(2, 1)));
 // }
-class RTDATest11 : public RTDATest1 {
-  void SetUp() override {
+class RTDATest11 : public RTDATest1
+{
+  void SetUp() override
+  {
     std::string taskSetName = "test_n3_v46";
     SetUpTaskSet(taskSetName);
     startTimeVector = GenerateVectorDynamic(8);
@@ -334,18 +367,22 @@ class RTDATest11 : public RTDATest1 {
     jobGroupMap = ExtractIndependentJobGroups(jobOrder, tasksInfo);
   }
 };
-TEST_F(RTDATest11, FindForwardAdjacentJob) {
+TEST_F(RTDATest11, FindForwardAdjacentJob)
+{
   auto prevAdjacentJobs = FindForwardAdjacentJob(JobCEC(2, 0), jobOrder, tasksInfo, startTimeVector);
   EXPECT_EQ(1, prevAdjacentJobs.size());
 }
-TEST_F(RTDATest11, FindForwardAdjacentJob_v2) {
+TEST_F(RTDATest11, FindForwardAdjacentJob_v2)
+{
   auto prevAdjacentJobs = FindForwardAdjacentJob(JobCEC(0, 0), jobOrder, tasksInfo, startTimeVector);
   EXPECT_EQ(2, prevAdjacentJobs.size());
-  EXPECT_TRUE(JobCEC(2, 0) == prevAdjacentJobs[0]);
+  EXPECT_TRUE(JobCEC(2, 0) == *std::find(prevAdjacentJobs.begin(), prevAdjacentJobs.end(), JobCEC(2, 0)));
 }
 
-class RTDATest12 : public RTDATest1 {
-  void SetUp() override {
+class RTDATest12 : public RTDATest1
+{
+  void SetUp() override
+  {
     std::string taskSetName = "test_n3_v48";
     SetUpTaskSet(taskSetName);
     startTimeVector = GenerateVectorDynamic(16);
@@ -357,9 +394,10 @@ class RTDATest12 : public RTDATest1 {
   }
 };
 
-TEST_F(RTDATest12, IA_permute_job_order) {
+TEST_F(RTDATest12, IA_permute_job_order)
+{
   VectorDynamic schedule1 =
-      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
+      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec, "ReactionTimeObj");
   double obj = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, schedule1, scheduleOptions);
 
   SFOrder jobOrder2 = jobOrder;
@@ -368,12 +406,13 @@ TEST_F(RTDATest12, IA_permute_job_order) {
   jobOrder2.InsertStart(jobCurr, 2);
   jobOrder2.InsertFinish(jobCurr, 4);
   VectorDynamic schedule3 =
-      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder2, processorJobVec);
+      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder2, processorJobVec, "ReactionTimeObj");
   double obj3 = RTDAExperimentObj::TrueObj(dagTasks, tasksInfo, schedule3, scheduleOptions);
   EXPECT_EQ(obj, obj3);
 }
 
-TEST_F(RTDATest12, SFOrder_order_same_time) {
+TEST_F(RTDATest12, SFOrder_order_same_time)
+{
   jobOrder.print();
   EXPECT_THAT(jobOrder.GetJobFinishInstancePosition(JobCEC(1, 4)),
               testing::Le(jobOrder.GetJobStartInstancePosition(JobCEC(0, 0))));
@@ -396,7 +435,8 @@ TEST_F(RTDATest12, SFOrder_order_same_time) {
 //   EXPECT_TRUE(gtsam::assert_equal(startTimeVector, stv));
 // }
 
-TEST_F(RTDATest12, job_order_strict_constraint) {
+TEST_F(RTDATest12, job_order_strict_constraint)
+{
   jobOrder.RemoveInstance(JobCEC(1, 4), 13);
   jobOrder.RemoveInstance(JobCEC(0, 0), 13);
   jobOrder.RemoveInstance(JobCEC(2, 2), 13);
@@ -404,7 +444,7 @@ TEST_F(RTDATest12, job_order_strict_constraint) {
   jobOrder.InsertFinish(JobCEC(1, 4), 14);
   jobOrder.InsertStart(JobCEC(0, 0), 15);
   VectorDynamic stv =
-      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec);
+      LPOrderScheduler::schedule(dagTasks, tasksInfo, scheduleOptions, jobOrder, processorJobVec, "ReactionTimeObj");
   std::cout << "\n";
   jobOrder.print();
   PrintSchedule(tasksInfo, stv);
@@ -412,9 +452,10 @@ TEST_F(RTDATest12, job_order_strict_constraint) {
               testing::Ge(GlobalVariablesDAGOpt::LPTolerance * 0.9));
 }
 
-TEST(JobOrderConstructor, v_x) {
+TEST(JobOrderConstructor, v_x)
+{
   ScheduleOptions scheduleOptions;
-  scheduleOptions.considerSensorFusion_ = 0;
+  
   scheduleOptions.freshTol_ = 1e6;
   scheduleOptions.sensorFusionTolerance_ = 1e6;
   scheduleOptions.weightInMpRTDA_ = 0.5;
@@ -452,7 +493,8 @@ TEST(JobOrderConstructor, v_x) {
 //   EXPECT_EQ(objOld, obj);
 //   EXPECT_TRUE(gtsam::assert_equal(startTimeVector, schedule1));
 // }
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

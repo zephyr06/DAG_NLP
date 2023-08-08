@@ -16,9 +16,9 @@ SCRIPT_PATH="$ROOT_PATH/CompareWithBaseline/RTAS2023SupplementaryExperiment/$tit
 methods_result_dir_name=( "Initial_Res" "TOM_Fast_Res" "TOM_Fast_Res_LoopCount" ) # only do Initial and TOM_Fast
 target_method_res_name="TOM_Fast_Res"
 TASKSETS_PATH="$ROOT_PATH/CompareWithBaseline/RTAS2023SupplementaryExperiment/TasksetsForRTAS2023SE/RTDATasksets"
-makeProgressTimeLimit=600
-kVerucchiTimeLimit=600
-kWangRtss21IcNlpTimeLimit=600
+OPTIMIZE_TIME_LIMIT=600
+OPTIMIZE_TIME_LIMIT=600
+OPTIMIZE_TIME_LIMIT=600
 coreNumberAva=2
 keep_current_result_and_continue_previous_running=1 # 0 will delete all current results and rerun, 1 will attach results to current result files
 ## setting for generating task sets
@@ -75,9 +75,9 @@ python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "considerSensorFusion
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "NumCauseEffectChain" --value $NumCauseEffectChain
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "coreNumberAva" --value $coreNumberAva
 python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "TaskSetType" --value $taskSetType
-python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "makeProgressTimeLimit" --value $makeProgressTimeLimit
-python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "kVerucchiTimeLimit" --value $kVerucchiTimeLimit
-python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "kWangRtss21IcNlpTimeLimit" --value $kWangRtss21IcNlpTimeLimit
+python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "OPTIMIZE_TIME_LIMIT" --value $OPTIMIZE_TIME_LIMIT
+python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "OPTIMIZE_TIME_LIMIT" --value $OPTIMIZE_TIME_LIMIT
+python $ROOT_PATH/CompareWithBaseline/edit_yaml.py --entry "OPTIMIZE_TIME_LIMIT" --value $OPTIMIZE_TIME_LIMIT
 
 cp $ROOT_PATH/sources/parameters.yaml $SCRIPT_PATH/scripts_and_figures_backup
 cp $SCRIPT_PATH/run$title.sh $SCRIPT_PATH/scripts_and_figures_backup

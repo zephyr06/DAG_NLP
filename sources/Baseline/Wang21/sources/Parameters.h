@@ -2,17 +2,19 @@
 #include <vector>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <opencv2/core/core.hpp>
-#include "testMy.h"
+#include <yaml-cpp/yaml.h>
+#include <iostream>
+#include <sys/stat.h>
+#include <filesystem>
+#include "sources/Utils/testMy.h"
 #include "sources/Utils/Parameters.h"
 namespace RTSS21IC_NLP
 {
-    static std::vector<uint> processorIdVecGlobal; // global variable
-    static int processorNumGlobal = 2;             // global variable
-    static const std::string PROJECT_PATH_IC = GlobalVariablesDAGOpt::PROJECT_PATH + "sources/Baseline/Wang21/";
-    // const std::string PROJECT_PATH = "/home/dong/workspace/DAG_NLP/";
-    //  std::string path = GlobalVariablesDAGOpt::PROJECT_PATH +  "sources/parameters.yaml";
-    static cv::FileStorage ConfigParameters(PROJECT_PATH_IC + "sources/parameters.yaml", cv::FileStorage::READ);
+    extern std::vector<uint> processorIdVecGlobal; // global variable
+    extern int processorNumGlobal;                 // global variable
+
+    extern const std::string PROJECT_PATH_IC;
+
     using namespace std;
     enum InitializeMethod
     {
@@ -37,52 +39,56 @@ namespace RTSS21IC_NLP
             return IndexMode;
         }
     }
-    static const double barrierBase = (double)ConfigParameters["barrierBase"];
-    static const double coolingRateSA = (double)ConfigParameters["coolingRateSA"];
-    static const double deltaInitialDogleg = (double)ConfigParameters["deltaInitialDogleg"];
-    static const double deltaOptimizer = (double)ConfigParameters["deltaOptimizer"];
-    static const int timeScaleFactor = (int)ConfigParameters["timeScaleFactor"];
 
-    static const double initialLambda = (double)ConfigParameters["initialLambda"];
-    static const double lowerLambda = (double)ConfigParameters["lowerLambda"];
-    static double makespanWeight = (double)ConfigParameters["makespanWeight"];
-    static const double noiseModelSigma = (double)ConfigParameters["noiseModelSigma"];
-    static const double AcceptSchedulError = (double)ConfigParameters["AcceptSchedulError"];
-    static const double parallelFactor = (double)ConfigParameters["parallelFactor"];
-    static const double relativeErrorTolerance = (double)ConfigParameters["relativeErrorTolerance"];
-    static double sensorFusionTolerance = (double)ConfigParameters["sensorFusionTolerance"] * timeScaleFactor;
-    static const double toleranceEliminator = (double)ConfigParameters["toleranceEliminator"];
-    static const double upperLambda = (double)ConfigParameters["upperLambda"];
-    static const double weightLogBarrier = (double)ConfigParameters["weightLogBarrier"];
-    static const double zeroJacobianDetectTol = (double)ConfigParameters["zeroJacobianDetectTol"];
-    static double freshTol = (double)ConfigParameters["freshTol"];
-    static const double stepJacobianIteration = (double)ConfigParameters["stepJacobianIteration"];
+    extern double barrierBase;
+    extern double coolingRateSA;
+    extern double deltaInitialDogleg;
+    extern double deltaOptimizer;
+    extern int timeScaleFactor;
 
-    static const int moreElimination = (int)ConfigParameters["moreElimination"];
-    static const int ElimnateLoop_Max = (int)ConfigParameters["ElimnateLoop_Max"];
+    extern double initialLambda;
+    extern double lowerLambda;
+    extern double makespanWeight;
+    extern double noiseModelSigma;
+    extern double AcceptSchedulError;
+    extern double parallelFactor;
+    extern double relativeErrorTolerance;
 
-    static int numericalJaobian = (int)ConfigParameters["numericalJaobian"];
-    static const int setUseFixedLambdaFactor = (int)ConfigParameters["setUseFixedLambdaFactor"];
-    static InitializeMethod initializeMethod = Transform_enum((int)ConfigParameters["initializeMethod"]);
-    static const double weightPrior_factor = (double)ConfigParameters["weightPrior_factor"];
-    static const double weightDDL_factor = (double)ConfigParameters["weightDDL_factor"];
-    static int debugMode = (int)ConfigParameters["debugMode"];
-    static const int exactJacobian = (int)ConfigParameters["exactJacobian"];
-    static const int batchTestMethod = (int)ConfigParameters["batchTestMethod"];
-    static const int optimizerType = (int)ConfigParameters["optimizerType"];
-    static const int overlapMode = (int)ConfigParameters["overlapMode"];
-    static const int randomInitialize = (int)ConfigParameters["randomInitialize"];
-    static const int SA_iteration = (int)ConfigParameters["SA_iteration"];
-    static const int TaskSetType = (int)ConfigParameters["TaskSetType"];
-    static const int temperatureSA = (int)ConfigParameters["temperatureSA"];
-    static int tightEliminate = (int)ConfigParameters["tightEliminate"];
-    static int withAddedSensorFusionError = (int)ConfigParameters["withAddedSensorFusionError"];
-    static const int maxIterations = (int)ConfigParameters["maxIterations"];
-    static const int maxJacobianIteration = (int)ConfigParameters["maxJacobianIteration"];
-    static string priorityMode = (std::string)ConfigParameters["priorityMode"];
-    static const string readTaskMode = (std::string)ConfigParameters["readTaskMode"];
-    static const string runMode = (std::string)ConfigParameters["runMode"];
-    static const string testDataSetName = (std::string)ConfigParameters["testDataSetName"];
-    static double punishmentInBarrier = (double)ConfigParameters["punishmentInBarrier"];
+    extern double sensorFusionTolerance;
+    extern double toleranceEliminator;
+    extern double upperLambda;
+    extern double weightLogBarrier;
+    extern double zeroJacobianDetectTol;
+    extern double freshTol;
+    extern double stepJacobianIteration;
+
+    extern int moreElimination;
+    extern int ElimnateLoop_Max;
+    extern int numericalJaobian;
+    extern int setUseFixedLambdaFactor;
+    extern int initializeMethod;
+
+    extern double weightDDL_factor;
+    extern double weightPrior_factor;
+
+    extern int debugMode;
+    extern int exactJacobian;
+    extern int batchTestMethod;
+    extern int optimizerType;
+    extern int overlapMode;
+    extern int randomInitialize;
+    extern int SA_iteration;
+    extern int TaskSetType;
+    extern int temperatureSA;
+    extern int tightEliminate;
+    extern int withAddedSensorFusionError;
+    extern int maxIterations;
+    extern int maxJacobianIteration;
+
+    extern std::string priorityMode;
+    extern std::string readTaskMode;
+    extern std::string runMode;
+    extern std::string testDataSetName;
+    extern double punishmentInBarrier;
 
 } // namespace RTSS21IC_NLP

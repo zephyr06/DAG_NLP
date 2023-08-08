@@ -11,8 +11,8 @@ ROOT_PATH="/home/dong/workspace/DAG_NLP"
 RESULTS_PATH="$ROOT_PATH/TaskData/dagTasks"
 # methods_result_dir_name=( "Initial_Res" "OptOrder_Res" "Verucchi_Res" "NLP_Res" )
 methods_result_dir_name=( "Initial_Res" "OptOrder_Res" "Verucchi_Res" )
-makeProgressTimeLimit=20
-kVerucchiTimeLimit=20
+OPTIMIZE_TIME_LIMIT=20
+OPTIMIZE_TIME_LIMIT=20
 coreNumberAva=2
 keep_current_result=False
 ## setting for generating task sets

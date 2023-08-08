@@ -11,9 +11,6 @@ include(GtsamBuildTypes)
 include(GtsamTesting)
 
 include_directories(${CMAKE_SOURCE_DIR})
-include_directories("/usr/include/opencv4/opencv2")
-include_directories("/usr/include/opencv4")
-
 # for unittest scripts
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${GTSAM_DIR}/../GTSAMCMakeTools")
 set(CMAKE_WARN_DEPRECATED OFF)
@@ -25,7 +22,6 @@ unset(CMAKE_WARN_DEPRECATED)
 # Boost - same requirement as gtsam
 find_package(Boost 1.50 REQUIRED)
 # find_package(CppUnitLite REQUIRED)
-find_package( OpenCV REQUIRED )
 find_package(yaml-cpp)
 include_directories(${Boost_INCLUDE_DIR})
 include_directories(includeMoe)
@@ -35,8 +31,11 @@ file(GLOB_RECURSE sources "sources/*.cpp" "sources/*.h")
 set(CONVENIENCE_LIB_NAME ${PROJECT_NAME})
 
 
+
+add_definitions(-DPROJECT_ROOT_DIR="${PROJECT_SOURCE_DIR}")
+
 # Config Cplex
-# set(ENV{CPLEX_ROOT_DIR} "/opt/ibm/ILOG/CPLEX_Studio221")
+set(ENV{CPLEX_ROOT_DIR} "./CPLEX")
 if (DEFINED ENV{CPLEX_ROOT_DIR})
   message("Find Cplex installed at " $ENV{CPLEX_ROOT_DIR})
   set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -49,17 +48,16 @@ else()
 endif()
 
 
-
 # google test
-include(FetchContent)
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/912db742531bf82efb01194bc08140416e3b3467.zip
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-# find_package(GTest REQUIRED)
+# include(FetchContent)
+# FetchContent_Declare(
+#   googletest
+#   URL https://github.com/google/googletest/archive/912db742531bf82efb01194bc08140416e3b3467.zip
+# )
+# # For Windows: Prevent overriding the parent project's compiler/linker settings
+# set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+# FetchContent_MakeAvailable(googletest)
+find_package(GTest REQUIRED)
 # include(GoogleTest)
 
 add_library(${CONVENIENCE_LIB_NAME} SHARED ${sources})
@@ -68,11 +66,11 @@ add_library(${CONVENIENCE_LIB_NAME} SHARED ${sources})
 target_link_libraries(${CONVENIENCE_LIB_NAME} gtsam)
 target_link_libraries(${CONVENIENCE_LIB_NAME} ${Boost_LIBRARIES})
 # target_link_libraries(${CONVENIENCE_LIB_NAME} CppUnitLite)
-target_link_libraries(${CONVENIENCE_LIB_NAME} ${OpenCV_LIBS} )
 target_link_libraries(${CONVENIENCE_LIB_NAME} yaml-cpp)
 target_link_libraries(${CONVENIENCE_LIB_NAME} "stdc++fs")
-target_link_libraries(${CONVENIENCE_LIB_NAME} gtest_main)
+# target_link_libraries(${CONVENIENCE_LIB_NAME} gtest_main)
 target_link_libraries(${CONVENIENCE_LIB_NAME}  gmock)
+target_link_libraries(${CONVENIENCE_LIB_NAME}  GTest::GTest)
 find_package(Eigen3 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
 if (CPLEX_FOUND)

@@ -2,7 +2,7 @@
 #pragma once
 #include "unordered_map"
 
-#include "sources/Optimization/ObjectiveFunctions.h"
+#include "sources/Factors/ObjectiveFunctions.h"
 #include "sources/Optimization/ScheduleOptions.h"
 #include "sources/Optimization/ScheduleSimulation.h"
 #include "sources/Optimization/TopologicalSort.h"

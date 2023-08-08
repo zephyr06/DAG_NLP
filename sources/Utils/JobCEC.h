@@ -9,6 +9,9 @@
 #include "sources/TaskModel/RegularTasks.h"
 
 namespace OrderOptDAG_SPACE {
+
+inline int GetPositiveQuotient(int a, int divisor) { return (a % divisor + divisor) % divisor; }
+
 struct JobCEC {
   int taskId;
   LLint jobId;
@@ -16,7 +19,10 @@ struct JobCEC {
   JobCEC(int taskId, LLint jobId) : taskId(taskId), jobId(jobId) {}
   JobCEC(std::pair<int, LLint> p) : taskId(p.first), jobId(p.second) {}
   JobCEC GetJobWithinHyperPeriod(const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) const {
-    return JobCEC(taskId, jobId % tasksInfo.sizeOfVariables[taskId]);
+    int jobIdWithinHp = jobId % tasksInfo.sizeOfVariables[taskId];
+    if (jobIdWithinHp < 0)
+      jobIdWithinHp += tasksInfo.sizeOfVariables[taskId];
+    return JobCEC(taskId, jobIdWithinHp);
   }
 
   bool operator==(const JobCEC &other) const { return taskId == other.taskId && jobId == other.jobId; }
@@ -24,8 +30,8 @@ struct JobCEC {
 
   bool EqualWithinHyperPeriod(const JobCEC &other,
                               const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) const {
-    return (other.taskId == taskId) &&
-           (other.jobId % tasksInfo.sizeOfVariables[taskId] == jobId % tasksInfo.sizeOfVariables[taskId]);
+    return (other.taskId == taskId) && (GetPositiveQuotient(other.jobId, tasksInfo.sizeOfVariables[taskId]) ==
+                                        GetPositiveQuotient(jobId, tasksInfo.sizeOfVariables[taskId]));
   }
 
   std::string ToString() const { return "T" + std::to_string(taskId) + "_" + std::to_string(jobId); }
@@ -65,7 +71,8 @@ void PrintSchedule(const RegularTaskSystem::TaskSetInfoDerived &tasksInfo, const
 // map the job to the first hyper period and return job's unique id
 LLint GetJobUniqueId(const JobCEC &jobCEC, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
 
-// similar as above, except that it maps jobs outside of a hyper-period into one hyper-period
+// similar as above, except that it maps jobs outside of a hyper-period into one
+// hyper-period
 LLint GetJobUniqueIdWithinHyperPeriod(const JobCEC &jobCEC,
                                       const RegularTaskSystem::TaskSetInfoDerived &tasksInfo);
 
@@ -75,8 +82,8 @@ inline double GetExecutionTime(LLint id, const RegularTaskSystem::TaskSetInfoDer
   return tasksInfo.tasks[GetJobCECFromUniqueId(id, tasksInfo).taskId].executionTime;
 }
 inline double GetExecutionTime(const JobCEC &jobCEC, const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) {
-  // return tasksInfo.tasks[GetJobCECFromUniqueId(GetJobUniqueId(jobCEC, tasksInfo),
-  // tasksInfo).taskId].executionTime;
+  // return tasksInfo.tasks[GetJobCECFromUniqueId(GetJobUniqueId(jobCEC,
+  // tasksInfo), tasksInfo).taskId].executionTime;
   return tasksInfo.tasks[jobCEC.taskId].executionTime;
 }
 
