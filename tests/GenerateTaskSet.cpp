@@ -21,9 +21,11 @@ int main(int argc, char *argv[]) {
       .help("the number DAGs to create")
       .scan<'i', int>();
   program.add_argument("--NumberOfProcessor")
-      .default_value(2)
+      .default_value(4)
       .help("the NumberOfProcessor of tasks in DAG")
       .scan<'i', int>();
+  // NOTE!!!!!! THE actual utilization may be lower than the given values due to being upper-bounded by 1.0
+  // for each task;
   program.add_argument("--totalUtilization")
       .default_value(0.4)
       .help("the total utilization of tasks in each DAG")

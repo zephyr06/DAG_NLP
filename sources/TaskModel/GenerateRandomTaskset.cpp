@@ -15,7 +15,7 @@ std::vector<double> Uunifast(int N, double utilAll, bool boundU) {
     }
     sumU = nextU;
   }
-  utilVec[N - 1] = nextU;
+  utilVec[N - 1] = nextU; // Note: this may lead into utilization exceeding 1.0
   return utilVec;
 }
 
