@@ -21,7 +21,7 @@ make check.UnitTests -j2
 ```
 make GenerateTaskSet 
 
-./tests/GenerateTaskSet --N 10 --taskSetNumber 10 --numCauseEffectChain 30
+./tests/GenerateTaskSet --N 10 --taskSetNumber 10 --numCauseEffectChain 20
 
 # Generate performance test code
 
