@@ -242,20 +242,6 @@ int main(int argc, char *argv[]) {
           continue;
         }
       }
-      if (excludeUnschedulable == 1) {
-        // rt_num_opt::RTA_DAG_Model rta(tasks);
-        // std::cout << rta.CheckSchedulability() << std::endl;
-        TaskSet &taskSet = dag_tasks.tasks;
-        TaskSetInfoDerived tasksInfo(taskSet);
-        std::vector<uint> processorJobVec;
-        // std::optional<JobOrderMultiCore> emptyOrder;
-        VectorDynamic initialSTV =
-            ListSchedulingLFTPA(dag_tasks, tasksInfo, numberOfProcessor, processorJobVec);
-        if (!ExamBasic_Feasibility(dag_tasks, tasksInfo, initialSTV, processorJobVec, numberOfProcessor)) {
-          i--;
-          continue;
-        }
-      }
 
       if (SF_ForkNum > 0) {
         dag_tasks.chains_ = GetChainsForSF(dag_tasks);
@@ -266,6 +252,21 @@ int main(int argc, char *argv[]) {
       }
       if (numCauseEffectChain > 0) {
         if (dag_tasks.chains_.size() < numCauseEffectChain) {
+          i--;
+          continue;
+        }
+      }
+
+      if (excludeUnschedulable == 1) {
+        // rt_num_opt::RTA_DAG_Model rta(tasks);
+        // std::cout << rta.CheckSchedulability() << std::endl;
+        TaskSet &taskSet = dag_tasks.tasks;
+        TaskSetInfoDerived tasksInfo(taskSet);
+        std::vector<uint> processorJobVec;
+        // std::optional<JobOrderMultiCore> emptyOrder;
+        VectorDynamic initialSTV =
+            ListSchedulingLFTPA(dag_tasks, tasksInfo, numberOfProcessor, processorJobVec);
+        if (!ExamBasic_Feasibility(dag_tasks, tasksInfo, initialSTV, processorJobVec, numberOfProcessor)) {
           i--;
           continue;
         }
