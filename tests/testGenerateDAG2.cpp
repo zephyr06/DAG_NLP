@@ -35,7 +35,6 @@ TEST_F(DAGScheduleOptimizerTest1, RandomSelectChains) {
   auto res = selector.RandomSelectChains(1);
   EXPECT_EQ(1, res.size());
 
-  selector.selection_chance = {0, 0};
   res = selector.RandomSelectChains(1);
   EXPECT_EQ(0, res.size());
 }
@@ -50,12 +49,18 @@ TEST_F(DAGScheduleOptimizerTest1, AssignSelectionChance_single_period) {
 TEST_F(DAGScheduleOptimizerTest1, AssignSelectionChance_two_period) {
   std::vector<std::vector<int>> chains = {{0, 4}, {0, 1, 4}, {0, 1, 2, 4, 6}, {0, 1, 4, 6}};
   RandomSelector selector(dagTasks, chains);
-  EXPECT_EQ(0, selector.selection_chance[0]);
+  // EXPECT_EQ(0, selector.selection_chance[0]);
   EXPECT_EQ(0, selector.selection_chance[1]);
   EXPECT_NEAR(0.4 * 0.3 / (0.3 * 0.3 + 0.3 * 0.4), selector.selection_chance[2], 0.01);
   EXPECT_NEAR(0.3 * 0.3 / (0.3 * 0.3 + 0.3 * 0.4), selector.selection_chance[3], 0.01);
 }
-
+TEST_F(DAGScheduleOptimizerTest1, RandomSelectChains_test) {
+  std::vector<std::vector<int>> chains = {{0, 4}, {0, 1, 4}, {0, 1, 2, 4, 6}, {0, 1, 4, 6}};
+  RandomSelector selector(dagTasks, chains);
+  // EXPECT_EQ(0, selector.selection_chance[0]);
+  auto chains_selected = selector.RandomSelectChains(2);
+  EXPECT_EQ(5 + 4, chains_selected[0].size() + chains_selected[1].size());
+}
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

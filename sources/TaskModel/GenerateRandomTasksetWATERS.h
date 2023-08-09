@@ -28,6 +28,115 @@ template <typename T> void shuffleRowsIn2DVector(std::vector<std::vector<T>> &tw
   twoDVector = std::move(shuffledTwoDVector);
 }
 
+class RandomSelector {
+public:
+  RandomSelector() {}
+  RandomSelector(const DAG_Model &dag_tasks, const std::vector<std::vector<int>> &chains)
+      : chains(chains), chain_count(chains.size()) {
+    AssignSelectionChance(dag_tasks, chains);
+  }
+
+  void AssignSelectionChance(const DAG_Model &dag_tasks, const std::vector<std::vector<int>> &chains) {
+    selection_chance = std::vector<double>(chain_count, 1.0 / chain_count);
+    for (uint i = 0; i < chain_count; i++) {
+      selection_chance[i] = EvaluateChainSelectionChance(dag_tasks, chains[i]);
+    }
+    NormalizeSelectionChance();
+  }
+
+  void NormalizeSelectionChance() {
+    double sum = std::accumulate(selection_chance.begin(), selection_chance.end(), 0.0);
+    for (uint i = 0; i < chain_count; i++)
+      selection_chance[i] /= sum;
+  }
+
+  double EvaluateChainSelectionChance(const DAG_Model &dag_tasks, const std::vector<int> &chain) {
+    std::unordered_map<int, int> period_count_map;
+    for (int task_id : chain) {
+      int period_curr = dag_tasks.tasks[task_id].period;
+      if (period_count_map.count(period_curr) > 0)
+        period_count_map[period_curr]++;
+      else
+        period_count_map[period_curr] = 1;
+    }
+
+    double chance = 1;
+    for (auto period_count_pair : period_count_map) {
+      switch (period_count_pair.second) {
+      case 2:
+        chance *= 0.3;
+        break;
+      case 3:
+        chance *= 0.4;
+        break;
+      case 4:
+        chance *= 0.2;
+        break;
+      case 5:
+        chance *= 0.1;
+        break;
+      default: // <= 1 or > 5
+        chance *= 0;
+        break;
+      }
+    }
+    return chance;
+  }
+
+  std::vector<std::vector<int>> RandomSelectChains(size_t select_num) {
+    if (chain_count < select_num)
+      return {};
+
+    RemoveInvalidChains();
+
+    // Create a distribution for generating random numbers
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dis(0.0, 1.0);
+    std::vector<std::vector<int>> chains_selected;
+    for (uint i = 0; i < select_num; ++i) {
+      double randNum = dis(gen); // Generate a random number between 0 and 1
+
+      // Select an object based on its probability
+      double cumulativeProb = 0.0;
+      for (int j = 0; j < static_cast<int>(chains.size()); j++) {
+        cumulativeProb += selection_chance[j];
+        if (randNum <= cumulativeProb) {
+          chains_selected.push_back(chains[j]);
+          RemoveChain(j);
+          break;
+        }
+      }
+    }
+    return chains_selected;
+  }
+
+  void RemoveChain(size_t chain_index) {
+    chains.erase(chains.begin() + chain_index);
+    selection_chance.erase(selection_chance.begin() + chain_index);
+    NormalizeSelectionChance();
+    chain_count--;
+  }
+
+  void RemoveInvalidChains() {
+    for (int i = chain_count - 1; i >= 0; i--) {
+      if (selection_chance[i] == 0)
+        RemoveChain(i);
+    }
+  }
+
+  // data members
+  std::vector<std::vector<int>> chains;
+  size_t chain_count;
+  std::vector<double> selection_chance;
+};
+
+inline std::vector<std::vector<int>> RandomSampleChains(const std::vector<std::vector<int>> &chains,
+                                                        const DAG_Model &dag_tasks, int target_size) {
+  RandomSelector selector(dag_tasks, chains);
+  return selector.RandomSelectChains(target_size);
+}
+
 class RandomChainsGenerator {
 public:
   RandomChainsGenerator() {}
@@ -40,8 +149,8 @@ public:
   std::vector<std::vector<int>> GenerateChain(int chain_num) {
     std::vector<std::vector<int>> chains;
     chains.reserve(chain_num);
-    for (int source_id = 0; source_id < dag_tasks_.tasks.size(); source_id++) {
-      for (int sink_id = 0; sink_id < dag_tasks_.tasks.size(); sink_id++) {
+    for (uint source_id = 0; source_id < dag_tasks_.tasks.size(); source_id++) {
+      for (uint sink_id = 0; sink_id < dag_tasks_.tasks.size(); sink_id++) {
         if (source_id == sink_id)
           continue;
         std::vector<int> path = shortest_paths(source_id, sink_id, dag_tasks_.graph_);
@@ -75,11 +184,11 @@ public:
     std::vector<double> chain_dist = {0.7, 0.2, 0.1};
     for (int period_type = 1; period_type <= 3; period_type++) {
       std::vector<std::vector<int>> &chains_curr = chains_all_period_[period_type - 1];
-      shuffleRowsIn2DVector<int>(chains_curr);
-      int target_size = round(chain_num * chain_dist[period_type - 1]);
-      if (chains_curr.size() >= target_size)
-        chains_curr.resize(target_size);
-      else
+      // shuffleRowsIn2DVector<int>(chains_curr);
+      size_t target_size = round(chain_num * chain_dist[period_type - 1]);
+      // chains_curr.resize(target_size);
+      chains_curr = RandomSampleChains(chains_curr, dag_tasks_, target_size);
+      if (chains_curr.size() == 0)
         return {};
       chains.insert(chains.end(), chains_curr.begin(), chains_curr.end());
     }
