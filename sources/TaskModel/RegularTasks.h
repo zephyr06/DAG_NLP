@@ -24,7 +24,7 @@ inline bool CompareStringNoCase(const std::string &s1, const std::string s2) {
     return strcasecmp(s1.c_str(), s2.c_str()) == 0;
 }
 class Task {
-   public:
+    public:
     // Member list
     int offset;
     int period;
@@ -53,58 +53,58 @@ class Task {
           taskType(0),
           priority_(-1) {}
     Task(int offset, int period, int overhead, double executionTime,
-         int deadline)
+            int deadline)
         : offset(offset),
-          period(period),
-          overhead(overhead),
-          executionTime(executionTime),
-          deadline(deadline),
-          taskType(0) {
+            period(period),
+            overhead(overhead),
+            executionTime(executionTime),
+            deadline(deadline),
+            taskType(0) {
         id = -1;
         processorId = -1;
         coreRequire = 1;
         priorityType_ = GlobalVariablesDAGOpt::priorityMode;
     }
     Task(int offset, int period, int overhead, double executionTime,
-         int deadline, int id, int processorId)
+            int deadline, int id, int processorId)
         : offset(offset),
-          period(period),
-          overhead(overhead),
-          executionTime(executionTime),
-          deadline(deadline),
-          id(id),
-          processorId(processorId),
-          taskType(0),
-          priority_(-1) {
+            period(period),
+            overhead(overhead),
+            executionTime(executionTime),
+            deadline(deadline),
+            id(id),
+            processorId(processorId),
+            taskType(0),
+            priority_(-1) {
         coreRequire = 1;
         priorityType_ = GlobalVariablesDAGOpt::priorityMode;
     }
     Task(int offset, int period, int overhead, double executionTime,
-         int deadline, int id, int processorId, int coreRequire)
+            int deadline, int id, int processorId, int coreRequire)
         : offset(offset),
-          period(period),
-          overhead(overhead),
-          executionTime(executionTime),
-          deadline(deadline),
-          id(id),
-          processorId(processorId),
-          coreRequire(coreRequire),
-          taskType(0),
-          priority_(-1) {
+            period(period),
+            overhead(overhead),
+            executionTime(executionTime),
+            deadline(deadline),
+            id(id),
+            processorId(processorId),
+            coreRequire(coreRequire),
+            taskType(0),
+            priority_(-1) {
         priorityType_ = GlobalVariablesDAGOpt::priorityMode;
     }
     Task(int offset, int period, int overhead, double executionTime,
-         int deadline, int id, int processorId, int coreRequire, int taskType)
+            int deadline, int id, int processorId, int coreRequire, int taskType)
         : offset(offset),
-          period(period),
-          overhead(overhead),
-          executionTime(executionTime),
-          deadline(deadline),
-          id(id),
-          processorId(processorId),
-          coreRequire(coreRequire),
-          taskType(taskType),
-          priority_(-1) {
+            period(period),
+            overhead(overhead),
+            executionTime(executionTime),
+            deadline(deadline),
+            id(id),
+            processorId(processorId),
+            coreRequire(coreRequire),
+            taskType(taskType),
+            priority_(-1) {
         priorityType_ = GlobalVariablesDAGOpt::priorityMode;
     }
 
@@ -129,17 +129,33 @@ class Task {
      **/
     Task(std::vector<double> dataInLine) {
         if (dataInLine.size() != 8) {
+            id = dataInLine[0];
+            period = dataInLine[1];
+            executionTime = dataInLine[2];
+            deadline = dataInLine[3];
+            processorId = dataInLine[4];
+            taskType = 0;
             // std::cout << Color::red << "The length of dataInLine in Task
             // constructor is wrong! Must be 8!\n"
             //       << Color::def <<std::endl;
             //  throw;
         }
-        id = dataInLine[0];
-        period = dataInLine[1];
-        executionTime = dataInLine[2];
-        deadline = dataInLine[3];
-        processorId = dataInLine[4];
-        taskType = 0;
+        else {
+            id = dataInLine[0];
+            offset = dataInLine[1];
+            period = dataInLine[2];
+            overhead = dataInLine[3];
+            executionTime = dataInLine[4];
+            deadline = dataInLine[5];
+            processorId = dataInLine[6];
+            coreRequire = dataInLine[7];
+            taskType = 0;
+            if (dataInLine.size() > 8)
+                taskType = dataInLine[8];
+            if (coreRequire < 1)
+                coreRequire = 1;
+        }
+
         // if (dataInLine.size() > 8) taskType = dataInLine[8];
         if (coreRequire < 1)
             coreRequire = 1;
@@ -147,10 +163,10 @@ class Task {
 
     void print() {
         std::cout << "The period is: " << period << " The executionTime is "
-                  << executionTime << " The deadline is " << deadline
-                  << " The overhead is " << overhead << " The offset is "
-                  << offset << " The coreRequire is " << coreRequire
-                  << " The taskType is " << taskType << std::endl;
+                    << executionTime << " The deadline is " << deadline
+                    << " The overhead is " << overhead << " The offset is "
+                    << offset << " The coreRequire is " << coreRequire
+                    << " The taskType is " << taskType << std::endl;
     }
 
     double utilization() const { return double(executionTime) / period; }
@@ -211,7 +227,7 @@ void UpdateTaskSetExecutionTime(TaskSet &taskSet,
 ProcessorTaskSet ExtractProcessorTaskSet(const TaskSet &tasks);
 
 class TaskSetInfoDerived {
-   public:
+public:
     TaskSet tasks;
     int N;
     LLint hyper_period;
