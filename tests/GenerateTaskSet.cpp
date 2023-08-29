@@ -20,6 +20,10 @@ int main(int argc, char *argv[]) {
       .default_value(10)
       .help("the number DAGs to create")
       .scan<'i', int>();
+  program.add_argument("--taskSetNameStartIndex")
+      .default_value(0)
+      .help("the start index of DAG's name to create")
+      .scan<'i', int>();
   program.add_argument("--NumberOfProcessor")
       .default_value(4)
       .help("the NumberOfProcessor of tasks in DAG")
@@ -91,6 +95,10 @@ int main(int argc, char *argv[]) {
   program.add_argument("--outDir")
       .default_value(std::string("TaskData/dagTasks/"))
       .help("directory to save task sets, only within the root folder");
+  program.add_argument("--clearOutputDir")
+      .default_value(1)
+      .help("whether clean the output directory")
+      .scan<'i', int>();
   program.add_argument("--SF_ForkNum")
       .default_value(0)
       .help("the number of forks that constitute sensor fusion objective "
@@ -102,13 +110,14 @@ int main(int argc, char *argv[]) {
             "experiments")
       .scan<'i', int>();
   program.add_argument("--fork_sensor_num_max")
-      .default_value(2)
+      .default_value(9)
       .help("the maximum number of sensor tasks for each fork in SF "
             "experiments")
       .scan<'i', int>();
   program.add_argument("--numCauseEffectChain")
-      .default_value(1)
-      .help("the number of random cause-effect chains")
+      .default_value(0)
+      .help("the number of random cause-effect chains, a non-positive number will"
+            "use 1.5 to 3 times of tasks number as the number of chains")
       .scan<'i', int>();
 
   // program.add_argument("--parallelismFactor")
@@ -126,6 +135,7 @@ int main(int argc, char *argv[]) {
 
   int N = program.get<int>("--N");
   int DAG_taskSetNumber = program.get<int>("--taskSetNumber");
+  int DAG_taskSetNameStartIndex = program.get<int>("--taskSetNameStartIndex");
   int numberOfProcessor = program.get<int>("--NumberOfProcessor");
   double totalUtilization;
   double aveUtilization = program.get<double>("--aveUtilization");
@@ -142,6 +152,7 @@ int main(int argc, char *argv[]) {
   int excludeEmptyEdgeDag = program.get<int>("--excludeEmptyEdgeDag");
   int randomSeed = program.get<int>("--randomSeed");
   std::string outDir = program.get<std::string>("--outDir");
+  int clearOutputDir = program.get<int>("--clearOutputDir");
   int SF_ForkNum = program.get<int>("--SF_ForkNum");
   int fork_sensor_num_min = program.get<int>("--fork_sensor_num_min");
   int fork_sensor_num_max = program.get<int>("--fork_sensor_num_max");
@@ -161,6 +172,8 @@ int main(int argc, char *argv[]) {
     std::cout << "Task configuration: " << std::endl
               << "the number of tasks in DAG(--N): " << N << std::endl
               << "DAG_taskSetNumber(--taskSetNumber): " << DAG_taskSetNumber << std::endl
+              << "DAG_taskSetNameStartIndex(--taskSetNameStartIndex): "
+              << DAG_taskSetNameStartIndex << std::endl
               << "NumberOfProcessor(--NumberOfProcessor): " << numberOfProcessor << std::endl
               << "totalUtilization(--totalUtilization): " << totalUtilization << std::endl
               << "aveUtilization(--aveUtilization): " << aveUtilization << std::endl
@@ -190,6 +203,12 @@ int main(int argc, char *argv[]) {
               << "randomSeed, negative will use current time, otherwise use the "
                  "given seed(--randomSeed): "
               << randomSeed << std::endl
+              << "outDir, directory to save task sets, only within the root folder "
+                "(--outDir): "
+              << outDir << std::endl
+              << "clearOutputDir, whether clean the output directory "
+                "(--clearOutputDir): "
+              << clearOutputDir << std::endl
               << "SF_ForkNum, the number of forks (--SF_ForkNum): " << SF_ForkNum << std::endl
               << "the minimum number of sensor tasks for each fork in SF experiments "
                  "(--fork_sensor_num_min): "
@@ -205,13 +224,21 @@ int main(int argc, char *argv[]) {
   std::string outDirectory = GlobalVariablesDAGOpt::PROJECT_PATH + outDir;
   // std::string outDirectory = GlobalVariablesDAGOpt::PROJECT_PATH +
   // "Energy_Opt_NLP/TaskData/task_number/";
-  deleteDirectoryContents(outDirectory);
+  if (clearOutputDir > 0) {
+    deleteDirectoryContents(outDirectory);
+  }
 
-  for (int i = 0; i < DAG_taskSetNumber; i++) {
+  for (int i = DAG_taskSetNameStartIndex; i < DAG_taskSetNumber; i++) {
     if (useRandomUtilization) {
       totalUtilization =
           numberOfProcessor * (minUtilizationPerCore +
                                (double(rand()) / RAND_MAX) * (maxUtilizationPerCore - minUtilizationPerCore));
+    }
+    int targetNumCauseEffectChain;
+    if (numCauseEffectChain > 0) {
+      targetNumCauseEffectChain = numCauseEffectChain;
+    } else {
+      targetNumCauseEffectChain = min(round(N * (1.5 + (double(rand()) / RAND_MAX) * 1.5 )), round(0.15 * N * N));
     }
     if (taskType == 0) // normal task set
     {
@@ -222,11 +249,11 @@ int main(int argc, char *argv[]) {
       if (taskType == 1)
         dag_tasks = GenerateDAG_He21(N, totalUtilization, numberOfProcessor, periodMin, periodMax,
                                      coreRequireMax, SF_ForkNum, fork_sensor_num_min, fork_sensor_num_max,
-                                     numCauseEffectChain, taskSetType, deadlineType);
+                                     targetNumCauseEffectChain, taskSetType, deadlineType);
       else if (taskType == 2)
         dag_tasks = GenerateDAG_WATERS15(N, totalUtilization, numberOfProcessor, periodMin, periodMax,
                                          coreRequireMax, SF_ForkNum, fork_sensor_num_min, fork_sensor_num_max,
-                                         numCauseEffectChain, taskSetType, deadlineType);
+                                         targetNumCauseEffectChain, taskSetType, deadlineType);
 
       if (excludeEmptyEdgeDag == 1) {
         bool whether_empty_edges = true;
@@ -249,8 +276,8 @@ int main(int argc, char *argv[]) {
           continue;
         }
       }
-      if (numCauseEffectChain > 0) {
-        if (dag_tasks.chains_.size() < numCauseEffectChain) {
+      if (targetNumCauseEffectChain > 0) {
+        if (dag_tasks.chains_.size() < targetNumCauseEffectChain) {
           i--;
           continue;
         }

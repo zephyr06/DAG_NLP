@@ -197,6 +197,13 @@ public:
       }
       idx++;
     }
+    while (target_sum > chain_num) {
+      if (round(chain_num * chain_dist[idx - 1]) != round(chain_num * chain_dist[idx - 1] - 0.5)) {
+        target_size_vec[idx]--;
+        target_sum--;
+      }
+      idx++;
+    }
 
     for (int period_type = 1; period_type <= 3; period_type++) {
       std::vector<std::vector<int>> &chains_curr = chains_all_period_[period_type - 1];
