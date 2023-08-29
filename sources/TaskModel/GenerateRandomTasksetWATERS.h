@@ -84,10 +84,11 @@ public:
   }
 
   std::vector<std::vector<int>> RandomSelectChains(size_t select_num) {
-    if (chain_count < select_num)
-      return {};
 
     RemoveInvalidChains();
+
+    if (chain_count < select_num)
+      return {};
 
     // Create a distribution for generating random numbers
     std::random_device rd;
@@ -182,14 +183,27 @@ public:
 
     std::vector<std::vector<int>> chains;
     std::vector<double> chain_dist = {0.7, 0.2, 0.1};
+    std::vector<int> target_size_vec;
+    int target_sum = 0;
+    for (int period_type = 1; period_type <= 3; period_type++) {
+      target_size_vec.push_back(round(chain_num * chain_dist[period_type - 1]));
+      target_sum += target_size_vec.back();
+    }
+    int idx = 0;
+    while (target_sum < chain_num) {
+      if (round(chain_num * chain_dist[idx - 1]) != round(chain_num * chain_dist[idx - 1] + 0.5)) {
+        target_size_vec[idx]++;
+        target_sum++;
+      }
+      idx++;
+    }
+
     for (int period_type = 1; period_type <= 3; period_type++) {
       std::vector<std::vector<int>> &chains_curr = chains_all_period_[period_type - 1];
       // shuffleRowsIn2DVector<int>(chains_curr);
-      size_t target_size = round(chain_num * chain_dist[period_type - 1]);
+      size_t target_size = target_size_vec[period_type - 1];
       // chains_curr.resize(target_size);
       chains_curr = RandomSampleChains(chains_curr, dag_tasks_, target_size);
-      if (chains_curr.size() == 0)
-        return {};
       chains.insert(chains.end(), chains_curr.begin(), chains_curr.end());
     }
     shuffleRowsIn2DVector<int>(chains);

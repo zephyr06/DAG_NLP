@@ -108,8 +108,7 @@ int main(int argc, char *argv[]) {
       .scan<'i', int>();
   program.add_argument("--numCauseEffectChain")
       .default_value(1)
-      .help("the number of random cause-effect chains, default value will read "
-            "from config.yaml")
+      .help("the number of random cause-effect chains")
       .scan<'i', int>();
 
   // program.add_argument("--parallelismFactor")
@@ -198,8 +197,8 @@ int main(int argc, char *argv[]) {
               << "the minimum number of sensor tasks for each fork in SF experiments "
                  "(--fork_sensor_num_max): "
               << fork_sensor_num_max << std::endl
-              << "numCauseEffectChain, the number of random cause-effect chains,"
-                 "default value will read from config.yaml (--numCauseEffectChain): "
+              << "numCauseEffectChain, the number of random cause-effect chains "
+                 "(--numCauseEffectChain): "
               << numCauseEffectChain << std::endl
               << std::endl;
   }
