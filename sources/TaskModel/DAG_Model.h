@@ -105,4 +105,10 @@ public:
 DAG_Model ReadDAG_Tasks(std::string path, std::string priorityType = "orig", int chainNum = 100);
 
 std::vector<std::vector<int>> GetChainsForSF(const DAG_Model &dag_tasks);
+
+inline std::string GetTaskSetName(int file_index, int N) {
+  return "dag-set-N" + std::to_string(N) + "-" +
+         std::string(3 - std::to_string(file_index).size(), '0') +
+         std::to_string(file_index) + "-syntheticJobs" + ".csv";
+}
 } // namespace OrderOptDAG_SPACE

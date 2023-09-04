@@ -79,12 +79,34 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
     return res;
 }
 
+struct BatchSettings {
+  BatchSettings()
+      : N(5),
+        file_index_begin(0),
+        file_index_end(10),
+        folder_relative_path("TaskData/dagTasks/") {}
+  BatchSettings(int N, int begin, int end,
+                const std::string &folder_relative_path)
+      : N(N),
+        file_index_begin(begin),
+        file_index_end(end),
+        folder_relative_path(folder_relative_path) {}
+
+  // data members
+  int N;  // number of nodes in DAG
+  int file_index_begin;
+  int file_index_end;
+  std::string folder_relative_path;
+};
+
 template <typename ObjectiveFunctionBase>
 std::unordered_map<OrderOptDAG_SPACE::BASELINEMETHODS, BatchResult>
 BatchOptimizeOrder(
     std::vector<OrderOptDAG_SPACE::BASELINEMETHODS> &baselineMethods,
+    BatchSettings batchSettings = BatchSettings()) {
+    
     std::string dataSetFolder = GlobalVariablesDAGOpt::PROJECT_PATH +
-                                "TaskData/dagTasks/") {
+                                batchSettings.folder_relative_path;
     std::string dirStr = dataSetFolder;
     const char *pathDataset = (dirStr).c_str();
     std::cout << "Dataset Directory: " << pathDataset << std::endl;
@@ -94,65 +116,61 @@ BatchOptimizeOrder(
     std::vector<bool> validFileIndex(1000, true);
     std::vector<std::string> errorFiles;
 
-    std::vector<std::string> files = ReadFilesInDirectory(pathDataset);
-    int fileIndex = 0;
-    for (const auto &file : files) {
-        std::string delimiter = "-";
-        if (file.substr(0, file.find(delimiter)) == "dag" &&
-            file.find("Res") == std::string::npos &&
-            file.find("LoopCount") == std::string::npos) {
-            std::cout << file << std::endl;
-            std::string path = dataSetFolder + file;
-            OrderOptDAG_SPACE::DAG_Model dagTasks =
-                OrderOptDAG_SPACE::ReadDAG_Tasks(
-                    path, GlobalVariablesDAGOpt::priorityMode);
+    for (int fileIndex = batchSettings.file_index_begin; fileIndex < batchSettings.file_index_end; fileIndex++) {
+        std::string file = GetTaskSetName(fileIndex, batchSettings.N);
+        std::cout << file << std::endl;
+        
+        std::string path = dataSetFolder + file;
+        OrderOptDAG_SPACE::DAG_Model dagTasks =
+            OrderOptDAG_SPACE::ReadDAG_Tasks(
+                path, GlobalVariablesDAGOpt::priorityMode);
 
-            for (auto batchTestMethod : baselineMethods) {
-                OrderOptDAG_SPACE::ScheduleResult res;
-                OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOptions;
-                scheduleOptions.LoadParametersYaml();
+        for (auto batchTestMethod : baselineMethods) {
+            OrderOptDAG_SPACE::ScheduleResult res;
+            OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOptions;
+            scheduleOptions.LoadParametersYaml();
+            scheduleOptions.causeEffectChainNumber_ = dagTasks.chains_.size();
 
-                if (VerifyResFileExist(pathDataset, file, batchTestMethod,
-                                       ObjectiveFunctionBase::type_trait)) {
-                    res = ReadFromResultFile(pathDataset, file, batchTestMethod,
-                                             ObjectiveFunctionBase::type_trait);
-                } else {
-                    auto start = std::chrono::high_resolution_clock::now();
-                    res = PerformSingleScheduling<ObjectiveFunctionBase>(
-                        dagTasks, scheduleOptions, batchTestMethod);
-                    auto stop = std::chrono::high_resolution_clock::now();
-                    auto duration = duration_cast<microseconds>(stop - start);
-                    res.timeTaken_ = double(duration.count()) / 1e6;
-                }
-                std::cout << "Schedulable? " << res.schedulable_ << std::endl;
-                std::cout << Color::green << "Objective: " << res.obj_
-                          << Color::def << std::endl;
-                std::cout << "res.timeTaken_: " << res.timeTaken_ << "\n\n";
-
-                // if timeTaken_ approaches 600s and the method is GlobalOpt,
-                // then we'll skip its results because cannot guarantee global
-                // optimal
-                if (res.timeTaken_ >
-                        GlobalVariablesDAGOpt::kGlobalOptimizationTimeLimit -
-                            10 &&
-                    batchTestMethod == BASELINEMETHODS::GlobalOpt) {
-                    validFileIndex[fileIndex] = false;
-                }
-
-                if (res.schedulable_ == false && batchTestMethod == TOM) {
-                    errorFiles.push_back(file);
-                }
-
-                results_man.add(batchTestMethod, res, file);
-                WriteToResultFile(pathDataset, file, res, batchTestMethod,
-                                  ObjectiveFunctionBase::type_trait);
-                // if (res.schedulable_ == true && res.startTimeVector_.rows() >
-                // 0)
-                //     WriteScheduleToFile(pathDataset, file, dagTasks, res,
-                //                         batchTestMethod);
+            if (VerifyResFileExist(pathDataset, file, batchTestMethod,
+                                    ObjectiveFunctionBase::type_trait)) {
+                res = ReadFromResultFile(pathDataset, file, batchTestMethod,
+                                            ObjectiveFunctionBase::type_trait);
+            } else {
+                auto start = std::chrono::high_resolution_clock::now();
+                res = PerformSingleScheduling<ObjectiveFunctionBase>(
+                    dagTasks, scheduleOptions, batchTestMethod);
+                auto stop = std::chrono::high_resolution_clock::now();
+                auto duration = duration_cast<microseconds>(stop - start);
+                res.timeTaken_ = double(duration.count()) / 1e6;
             }
-            fileIndex++;
+            std::cout << "Schedulable? " << res.schedulable_ << std::endl;
+            std::cout << Color::green << "Objective: " << res.obj_
+                        << Color::def << std::endl;
+            std::cout << "res.timeTaken_: " << res.timeTaken_ << "\n\n";
+
+            // if timeTaken_ approaches 600s and the method is GlobalOpt,
+            // then we'll skip its results because cannot guarantee global
+            // optimal
+            if (res.timeTaken_ >
+                    GlobalVariablesDAGOpt::kGlobalOptimizationTimeLimit -
+                        10 &&
+                batchTestMethod == BASELINEMETHODS::GlobalOpt) {
+                validFileIndex[fileIndex] = false;
+            }
+
+            if (res.schedulable_ == false && batchTestMethod == TOM) {
+                errorFiles.push_back(file);
+            }
+
+            results_man.add(batchTestMethod, res, file);
+            WriteToResultFile(pathDataset, file, res, batchTestMethod,
+                                ObjectiveFunctionBase::type_trait);
+            // if (res.schedulable_ == true && res.startTimeVector_.rows() >
+            // 0)
+            //     WriteScheduleToFile(pathDataset, file, dagTasks, res,
+            //                         batchTestMethod);
         }
+        fileIndex++;
     }
 
     // result analysis
@@ -247,4 +265,5 @@ BatchOptimizeOrder(
 
     return results_man.GetBatchResVec(baselineMethods);
 }
+
 }  // namespace OrderOptDAG_SPACE
