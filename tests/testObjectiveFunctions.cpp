@@ -17,7 +17,8 @@ class ObjExperimentObjTest1 : public ::testing::Test {
         tasks = dagTasks.tasks;
         tasksInfo = TaskSetInfoDerived(tasks);
         chain1 = {0, 1, 2};
-        dagTasks.chains_[0] = chain1;
+        dagTasks.chains_.clear();
+        dagTasks.chains_.push_back(chain1);
 
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;
@@ -156,7 +157,8 @@ class ObjExperimentObjTest_n5_v2 : public ::testing::Test {
         tasks = dagTasks.tasks;
         tasksInfo = TaskSetInfoDerived(tasks);
         chain1 = {0, 1, 2};
-        dagTasks.chains_[0] = chain1;
+        dagTasks.chains_.clear();
+        dagTasks.chains_.push_back(chain1);
 
         scheduleOptions.freshTol_ = 0;
         scheduleOptions.sensorFusionTolerance_ = 0;

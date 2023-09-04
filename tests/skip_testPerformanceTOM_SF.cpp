@@ -10,12 +10,14 @@ TEST(average_performance, v1) {
     BeginTimer("main");
     std::string dataSetFolder =
         GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/dagTasksPerfTest/";
+    OrderOptDAG_SPACE::BatchSettings batch_test_settings(
+        3, 0, 100, "TaskData/dagTasksPerfTest/");
     ClearResultFiles(dataSetFolder);
     std::vector<OrderOptDAG_SPACE::BASELINEMETHODS> baselineMethods = {
         OrderOptDAG_SPACE::InitialMethod, OrderOptDAG_SPACE::TOM};
     std::vector<BatchResult> batchResVec =
         OrderOptDAG_SPACE::BatchOptimizeOrder<OptimizeSF::SensorFusionObj>(
-            baselineMethods, dataSetFolder, 1);
+            baselineMethods, batch_test_settings);
     EXPECT_THAT(
         batchResVec[BASELINEMETHODS::TOM].performance,
         testing::Le(18744.6 * 1.015));  // remove 1.015 if deciding giving up

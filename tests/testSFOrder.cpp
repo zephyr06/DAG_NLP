@@ -413,6 +413,7 @@ TEST(Schedule, overall_opt_rt) {
     OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(
         GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n6_v1.csv",
         "orig");
+    dagTasks.chains_.resize(1);
     ScheduleResult res =
         ScheduleDAGModel<SimpleOrderScheduler, ReactionTimeObj>(
             dagTasks, scheduleOptions);
@@ -426,6 +427,7 @@ TEST(Schedule, overall_opt_da) {
     OrderOptDAG_SPACE::DAG_Model dagTasks = OrderOptDAG_SPACE::ReadDAG_Tasks(
         GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n6_v1.csv",
         "orig");
+    dagTasks.chains_.resize(1);
     ScheduleResult res = ScheduleDAGModel<SimpleOrderScheduler, DataAgeObj>(
         dagTasks, scheduleOptions);
     EXPECT(99 >= res.obj_);

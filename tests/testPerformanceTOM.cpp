@@ -10,12 +10,14 @@ TEST(average_performance, v1) {
     BeginTimer("main");
     std::string dataSetFolder =
         GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/dagTasksPerfTest/";
+    OrderOptDAG_SPACE::BatchSettings batch_test_settings(
+        3, 0, 100, "TaskData/dagTasksPerfTest/");
     ClearResultFiles(dataSetFolder);
     std::vector<OrderOptDAG_SPACE::BASELINEMETHODS> baselineMethods = {
         OrderOptDAG_SPACE::InitialMethod, OrderOptDAG_SPACE::TOM};
     auto batchResVec =
         OrderOptDAG_SPACE::BatchOptimizeOrder<OptimizeSF::DataAgeObj>(
-            baselineMethods, dataSetFolder);
+            baselineMethods, batch_test_settings);
     EXPECT_THAT(batchResVec[BASELINEMETHODS::TOM].performance,
                 testing::Le(11074 * 1.015));  // remove 1.015 if deciding giving
                                               // up selectInitialFromPool

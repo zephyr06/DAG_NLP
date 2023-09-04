@@ -8,18 +8,18 @@
 #include "gtsam/base/Testable.h"  // assert_equal
 #include "ilcplex/cplex.h"
 #include "ilcplex/ilocplex.h"
-#include "sources/Factors/JacobianAnalyze.h"
+// #include "sources/Factors/JacobianAnalyze.h"
 #include "sources/Factors/ObjectiveFunctions.h"
 #include "sources/Optimization/GlobalOptimization.h"
-#include "sources/Optimization/LinearProgrammingSolver.h"
+// #include "sources/Optimization/LinearProgrammingSolver.h"
 #include "sources/Optimization/OrderScheduler.h"
 #include "sources/TaskModel/DAG_Model.h"
-#include "sources/Utils/IncrementQR.h"
+// #include "sources/Utils/IncrementQR.h"
 
 using namespace OrderOptDAG_SPACE;
 using namespace OrderOptDAG_SPACE::OptimizeSF;
 using namespace GlobalVariablesDAGOpt;
-using namespace LPOptimizer;
+// using namespace LPOptimizer;
 class DAGScheduleOptimizerTest3 : public ::testing::Test {
    protected:
     void SetUp() override {
