@@ -24,9 +24,9 @@ int main(int argc, char *argv[]) {
       .default_value(0)
       .help("the start index of DAG's name to create")
       .scan<'i', int>();
-  program.add_argument("--NumberOfProcessor")
+  program.add_argument("--numberOfProcessor")
       .default_value(4)
-      .help("the NumberOfProcessor of tasks in DAG")
+      .help("the numberOfProcessor of tasks in DAG")
       .scan<'i', int>();
   // NOTE!!!!!! THE actual utilization may be lower than the given values due to being upper-bounded by 1.0
   // for each task;
@@ -100,9 +100,10 @@ int main(int argc, char *argv[]) {
       .help("whether clean the output directory")
       .scan<'i', int>();
   program.add_argument("--SF_ForkNum")
-      .default_value(0)
+      .default_value(-1)
       .help("the number of forks that constitute sensor fusion objective "
-            "functions")
+            "functions, a negative number will generate random number of Fork "
+            "range from 0.25N to N, default -1")
       .scan<'i', int>();
   program.add_argument("--fork_sensor_num_min")
       .default_value(2)
@@ -115,8 +116,8 @@ int main(int argc, char *argv[]) {
             "experiments")
       .scan<'i', int>();
   program.add_argument("--numCauseEffectChain")
-      .default_value(0)
-      .help("the number of random cause-effect chains, a non-positive number will"
+      .default_value(-1)
+      .help("the number of random cause-effect chains, a negative number will"
             "use 1.5 to 3 times of tasks number as the number of chains")
       .scan<'i', int>();
 
@@ -136,7 +137,7 @@ int main(int argc, char *argv[]) {
   int N = program.get<int>("--N");
   int DAG_taskSetNumber = program.get<int>("--taskSetNumber");
   int DAG_taskSetNameStartIndex = program.get<int>("--taskSetNameStartIndex");
-  int numberOfProcessor = program.get<int>("--NumberOfProcessor");
+  int numberOfProcessor = program.get<int>("--numberOfProcessor");
   double totalUtilization;
   double aveUtilization = program.get<double>("--aveUtilization");
   int useRandomUtilization = program.get<int>("--useRandomUtilization");
@@ -174,7 +175,7 @@ int main(int argc, char *argv[]) {
               << "DAG_taskSetNumber(--taskSetNumber): " << DAG_taskSetNumber << std::endl
               << "DAG_taskSetNameStartIndex(--taskSetNameStartIndex): "
               << DAG_taskSetNameStartIndex << std::endl
-              << "NumberOfProcessor(--NumberOfProcessor): " << numberOfProcessor << std::endl
+              << "numberOfProcessor(--numberOfProcessor): " << numberOfProcessor << std::endl
               << "totalUtilization(--totalUtilization): " << totalUtilization << std::endl
               << "aveUtilization(--aveUtilization): " << aveUtilization << std::endl
               << "whether use random utilization(--useRandomUtilization): " << useRandomUtilization
@@ -209,15 +210,16 @@ int main(int argc, char *argv[]) {
               << "clearOutputDir, whether clean the output directory "
                 "(--clearOutputDir): "
               << clearOutputDir << std::endl
-              << "SF_ForkNum, the number of forks (--SF_ForkNum): " << SF_ForkNum << std::endl
+              << "SF_ForkNum, the number of forks, a negative number will generate random number of Fork "
+                "range from 0.25N to N, default -1. (--SF_ForkNum): " << SF_ForkNum << std::endl
               << "the minimum number of sensor tasks for each fork in SF experiments "
                  "(--fork_sensor_num_min): "
               << fork_sensor_num_min << std::endl
               << "the minimum number of sensor tasks for each fork in SF experiments "
                  "(--fork_sensor_num_max): "
               << fork_sensor_num_max << std::endl
-              << "numCauseEffectChain, the number of random cause-effect chains "
-                 "(--numCauseEffectChain): "
+              << "numCauseEffectChain, the number of random cause-effect chains, a negative number "
+                "will use 1.5 to 3 times of tasks number as the number of chains (--numCauseEffectChain): "
               << numCauseEffectChain << std::endl
               << std::endl;
   }
@@ -235,10 +237,16 @@ int main(int argc, char *argv[]) {
                                (double(rand()) / RAND_MAX) * (maxUtilizationPerCore - minUtilizationPerCore));
     }
     int targetNumCauseEffectChain;
-    if (numCauseEffectChain > 0) {
+    if (numCauseEffectChain >= 0) {
       targetNumCauseEffectChain = numCauseEffectChain;
     } else {
       targetNumCauseEffectChain = min(round(N * (1.5 + (double(rand()) / RAND_MAX) * 1.5 )), round(0.15 * N * N));
+    }
+    int targetSFForkNum;
+    if (SF_ForkNum >= 0) {
+      targetSFForkNum = SF_ForkNum;
+    } else {
+      targetSFForkNum = floor((0.25 + (double(rand()) / RAND_MAX) * 0.75 ) * N);
     }
     if (taskType == 0) // normal task set
     {
@@ -248,11 +256,11 @@ int main(int argc, char *argv[]) {
       DAG_Model dag_tasks;
       if (taskType == 1)
         dag_tasks = GenerateDAG_He21(N, totalUtilization, numberOfProcessor, periodMin, periodMax,
-                                     coreRequireMax, SF_ForkNum, fork_sensor_num_min, fork_sensor_num_max,
+                                     coreRequireMax, targetSFForkNum, fork_sensor_num_min, fork_sensor_num_max,
                                      targetNumCauseEffectChain, taskSetType, deadlineType);
       else if (taskType == 2)
         dag_tasks = GenerateDAG_WATERS15(N, totalUtilization, numberOfProcessor, periodMin, periodMax,
-                                         coreRequireMax, SF_ForkNum, fork_sensor_num_min, fork_sensor_num_max,
+                                         coreRequireMax, targetSFForkNum, fork_sensor_num_min, fork_sensor_num_max,
                                          targetNumCauseEffectChain, taskSetType, deadlineType);
 
       if (excludeEmptyEdgeDag == 1) {
@@ -269,9 +277,8 @@ int main(int argc, char *argv[]) {
         }
       }
 
-      if (SF_ForkNum > 0) {
-        dag_tasks.chains_ = GetChainsForSF(dag_tasks);
-        if (dag_tasks.sf_forks_.size() < SF_ForkNum) {
+      if (targetSFForkNum > 0) {
+        if (dag_tasks.sf_forks_.size() < targetSFForkNum) {
           i--;
           continue;
         }

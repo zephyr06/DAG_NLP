@@ -30,6 +30,10 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
     DAG_Model &dagTasks, OptimizeSF::ScheduleOptions &scheduleOptions,
     BASELINEMETHODS batchTestMethod) {
     ScheduleResult res;
+    if (ObjectiveFunctionBase::type_trait == "SensorFusionObj") {
+        // if optimizing SF, update chains that are related with Forks
+        dagTasks.chains_ = GetChainsForSF(dagTasks);
+    }
     switch (batchTestMethod) {
         case InitialMethod:
             res = OrderOptDAG_SPACE::ScheduleDAGLS_LFT<ObjectiveFunctionBase>(
