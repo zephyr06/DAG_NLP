@@ -37,7 +37,8 @@ int main(int argc, char *argv[]) {
         N, begin_index, end_index, "TaskData/N" + std::to_string(N) + "/");
     
     std::vector<OrderOptDAG_SPACE::BASELINEMETHODS> baselineMethods = {
-        OrderOptDAG_SPACE::InitialMethod, OrderOptDAG_SPACE::TOM};
+        OrderOptDAG_SPACE::InitialMethod, OrderOptDAG_SPACE::TOM_Fast,
+        OrderOptDAG_SPACE::TOM, OrderOptDAG_SPACE::TOM_IA};
     OrderOptDAG_SPACE::BatchOptimizeOrder<
         OrderOptDAG_SPACE::OptimizeSF::SensorFusionObj>(baselineMethods, batch_test_settings);
 }

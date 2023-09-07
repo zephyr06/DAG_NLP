@@ -10,6 +10,8 @@ TaskData/periodic-set-*
 TaskData/*/periodic-set-*
 TaskData/dagTasks/*
 TaskData/*/dag-set*
+**/dag-set-N*
+**/configs.log
 CompareWithBaseline/data_buffer_energy_task_number.txt
 CompareWithBaseline/time_task_number.txt
 Visualize/currGraph.gv.pdf
@@ -40,3 +42,10 @@ CompareWithBaseline_deprecated/
 **/TOM_FastLP_Res
 **/TOM_Fast_Res_LoopCount
 **/TOM_FastLP_Res_LoopCount
+
+# ignore arc batch logs
+**/slurm-*.out
+**/Batch*.out
+**/ARC_Backup-*/
+**/ARC_Results_Backup-*/
+TaskData/configs.log
