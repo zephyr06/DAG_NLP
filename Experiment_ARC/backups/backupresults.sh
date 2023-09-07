@@ -1,4 +1,4 @@
-ROOT_PATH=/projects/rtss_let/DAG_NLP
+ROOT_PATH=/projects/rtss_let/dong/DAG_NLP
 # ROOT_PATH=/home/dong/workspace/DAG_NLP
 # ROOT_PATH=/home/zephyr/Programming/DAG_NLP
 if [[ -n "${TMPDIR}" ]]; then

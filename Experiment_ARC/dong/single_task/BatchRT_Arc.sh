@@ -23,7 +23,7 @@ perform_optimization() {
 }
 
 
-ROOT_PATH=/projects/rtss_let/DAG_NLP
+ROOT_PATH=/projects/rtss_let/dong/DAG_NLP
 cd $ROOT_PATH/Experiments/dong/single_task
 mkdir log
 

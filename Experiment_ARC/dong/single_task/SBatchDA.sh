@@ -13,7 +13,7 @@
 echo "Current job id is: $SLURM_JOB_ID"
 
 ## change directory and load modules ##
-ROOT_PATH=/projects/rtss_let/DAG_NLP
+ROOT_PATH=/projects/rtss_let/dong/DAG_NLP
 # ROOT_PATH=/home/dong/workspace/DAG_NLP
 cd $ROOT_PATH/release
 module reset
