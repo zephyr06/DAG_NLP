@@ -14,12 +14,11 @@ echo "Current job id is: $SLURM_JOB_ID"
 
 ## change directory and load modules ##
 ROOT_PATH=/projects/rtss_let/dong/DAG_NLP
-# ROOT_PATH=/projects/rtss_let/dong/DAG_NLP_SFTable
 # ROOT_PATH=/home/dong/workspace/DAG_NLP
 cd $ROOT_PATH/release
+module reset
 export MODULEPATH="/projects/rtss_let/modules/tinkercliffs-rome/all:$MODULEPATH"
 module --ignore_cache spider GTSAM
-module reset
 module load GTSAM/4.1.1-foss-2021b
 
 ## No more needed after success compilation ##
