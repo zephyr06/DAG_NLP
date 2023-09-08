@@ -65,10 +65,6 @@ void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec) {
                       << "\n";
         }
 
-        // TODO(Dong): need to find a way to pass the initial obj (the obj
-        // before optimization) right now will update the optimized start time
-        // vec no matter whether find a better obj or not
-
         // double optimized_obj = cplexSolver_.getObjValue();
         // if (optimized_obj < result_to_be_optimized_.obj_)
         // {
