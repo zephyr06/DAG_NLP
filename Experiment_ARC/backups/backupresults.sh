@@ -10,14 +10,14 @@ fi
 backup_file_name=ARC_Results_Backup_DAG_NLP_$(date +"%Y%m%d%H%M%S")
 echo "backup in $ROOT_PATH/Experiment_ARC/backups/${backup_file_name}.tar.gz"
 
-cd ${TEMP_PATH}/Experiments/backups
+cd ${TEMP_PATH}/Experiment_ARC/backups
 mkdir ${backup_file_name}
 
 cp $ROOT_PATH/TaskData/configs.log ./${backup_file_name}/
 cp -r $ROOT_PATH/TaskData/N* ./${backup_file_name}/
 
-# cp -r $ROOT_PATH/Experiments/dong ./${backup_file_name}/slurm_outputs/
-# cp $ROOT_PATH/Experiments/*.out ./${backup_file_name}/slurm_outputs/
+# cp -r $ROOT_PATH/Experiment_ARC/dong ./${backup_file_name}/slurm_outputs/
+# cp $ROOT_PATH/Experiment_ARC/*.out ./${backup_file_name}/slurm_outputs/
 
 tar -czf ${backup_file_name}.tar.gz ${backup_file_name}
 rm ${backup_file_name} -r

@@ -24,7 +24,7 @@ perform_optimization() {
 
 
 ROOT_PATH=/projects/rtss_let/dong/DAG_NLP
-cd $ROOT_PATH/Experiments/dong/single_task
+cd $ROOT_PATH/Experiment_ARC/dong/single_task
 mkdir log
 
 for task_number_index in $(seq 0 1 $TOTAL_TASK_NUMBER); do
