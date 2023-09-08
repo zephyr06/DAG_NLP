@@ -287,9 +287,10 @@ OrderOptDAG_SPACE::RTDA GetVerucchiRTDA(
                               processorsAvailable);
 }
 
-OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
+OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDAwithObj(
     OrderOptDAG_SPACE::DAG_Model &dagTasks,
     std::vector<std::vector<int>> causeEffectChains, int processorsAvailable,
+    std::string obj_type,
     float reactCost, float maxReact, float ageCost, float maxAge,
     unsigned coreCost, int64_t time_limit) {
     OrderOptDAG_SPACE::ScheduleResult res;
@@ -325,23 +326,26 @@ OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     } else {
         res.schedulable_ = true;
     }
-    res.obj_ = ObjRTDA(rtdaOpt);
+    
+    if (obj_type == "ReactionTimeObj") {
+        res.obj_ = rtdaOpt.reactionTime;
+    } else if (obj_type == "DataAgeObj") {
+        res.obj_ = rtdaOpt.dataAge;
+    }
+    
     return res;
 }
 
-// TODO(Dong): check the arguments of the following code
 OrderOptDAG_SPACE::ScheduleResult ScheduleVerucchiRTDA(
     OrderOptDAG_SPACE::DAG_Model &dagTasks,
     std::vector<std::vector<int>> causeEffectChains, int processorsAvailable,
-    std::string obj_type, unsigned coreCost, int64_t time_limit) {
+    std::string obj_type, int64_t time_limit) {
     if (obj_type == "ReactionTimeObj") {
-        return ScheduleVerucchiRTDA(dagTasks, causeEffectChains,
-                                    processorsAvailable, 15, 1e9, 0, 1e9, 15,
-                                    time_limit);
+        return ScheduleVerucchiRTDAwithObj(dagTasks, causeEffectChains, processorsAvailable, 
+                                    obj_type, 15, 1e9, 0, 1e9, 15, time_limit);
     } else if (obj_type == "DataAgeObj") {
-        return ScheduleVerucchiRTDA(dagTasks, causeEffectChains,
-                                    processorsAvailable, 0, 1e9, 15, 1e9, 15,
-                                    time_limit);
+        return ScheduleVerucchiRTDAwithObj(dagTasks, causeEffectChains, processorsAvailable,
+                                    obj_type, 0, 1e9, 15, 1e9, 15, time_limit);
     } else
         CoutError("Unrecognized obj_type in ScheduleVerucchiRTDA");
     return OrderOptDAG_SPACE::ScheduleResult();
