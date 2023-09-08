@@ -174,7 +174,6 @@ BatchOptimizeOrder(
             //     WriteScheduleToFile(pathDataset, file, dagTasks, res,
             //                         batchTestMethod);
         }
-        fileIndex++;
     }
 
     // result analysis
