@@ -23,8 +23,8 @@ def plot_Obj_results(task_set_number_range, method_names, obj, exclude_time_out=
     plt.xlabel("Task Number", fontsize=font_size)
     plt.ylabel("Relative gap(%)", fontsize=font_size)
 
-    if (obj == "ReactionTime" or obj == "DataAge"):
-        splot.set_ylim([-82, 5])
+    # if (obj == "ReactionTime" or obj == "DataAge"):
+        # splot.set_ylim([-82, 5])
 
     # # Shrink current axis's height by 10% at the botom
     # box = ax.get_position()
@@ -41,8 +41,9 @@ def plot_Obj_results(task_set_number_range, method_names, obj, exclude_time_out=
     #     plt.legend(handles, labels, loc='lower center', bbox_to_anchor=(0.5, -0.32), ncol=3)
     # else:
     #     plt.legend()
-    ax.get_legend().remove()
+    # ax.get_legend().remove()
 
+    ax.set_title(f"{obj} Objective")
     plt.grid(linestyle="--")
     if(output_file_name==""):
         plt.savefig(ROOT_CompareWithBaseline_PATH + obj +
@@ -85,7 +86,9 @@ def plot_Runtime_results(task_set_number_range, method_names, obj, exclude_time_
     #     plt.legend(handles, labels, loc='lower center', bbox_to_anchor=(0.5, -0.32), ncol=3)
     # else:
     #     plt.legend()
-    ax.get_legend().remove()
+    # ax.get_legend().remove()
+    
+    ax.set_title(f'{obj} Running Time')
     
     plt.grid(linestyle="--")
 

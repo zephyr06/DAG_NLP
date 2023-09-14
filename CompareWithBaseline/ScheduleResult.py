@@ -17,7 +17,7 @@ class ScheduleResult:
 def ReadScheduleResult(file_path):
     file = open(file_path, 'r')
     lines = file.readlines()
-    return ScheduleResult(lines[0][lines[0].find(":")+2:], int(lines[1][lines[1].find(":")+2:]), float(lines[2][lines[2].find(":")+2:]), file_path)
+    return ScheduleResult(lines[0][lines[0].find(":")+2:], float(lines[1][lines[1].find(":")+2:]), float(lines[2][lines[2].find(":")+2:]), file_path)
 
 
 def PrintResultVec(res_vec):
@@ -49,7 +49,7 @@ def Normalize(obj_vec, obj_base):
 #     return (obj_vec) / float(obj_base)*100.0
 
 
-def Average(res_vec, base_vec, obj_type="DataAge", task_num=5, exclude_time_out=False, excluded_table=[]):
+def Average(res_vec, base_vec, obj_type="DataAge", task_num=5, method_name = "TOM", exclude_time_out=False, excluded_table=[]):
     average_obj = 0
     average_runtime = 0
     total_case = len(res_vec)
@@ -60,8 +60,12 @@ def Average(res_vec, base_vec, obj_type="DataAge", task_num=5, exclude_time_out=
             total_case -= 1
             continue
         if (obj_type == "ReactionTime" or obj_type == "DataAge"):
-            if (float(res_vec[i].obj) / base_vec[i].obj > 1.1):
-                print("Find an error result!")
+            # if Verucchi has no result, populate the initial solution
+            if method_name == 'Verucchi20' and res_vec[i].obj < 0:
+                res_vec[i].obj = base_vec[i].obj
+                
+            if (float(res_vec[i].obj) / base_vec[i].obj > 1.1 and method_name != 'Verucchi20'):
+                print("Find an error result! N{}_{}_{}_{}".format(task_num, i, method_name, obj_type))
             average_obj += Normalize(res_vec[i].obj, base_vec[i].obj)
             average_runtime += res_vec[i].runtime
         elif obj_type=="SensorFusion":
