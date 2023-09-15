@@ -124,6 +124,13 @@ bool WhetherJobBreakChainRTDA(const JobCEC &job, LLint startP, LLint finishP,
                               const TaskSetInfoDerived &tasksInfo,
                               std::string obj_type);
 
+// TODO: finish this function
+// check if job's job id is the same or adjacent to the job in longestJobChains; if so, return true; else, return false;
+// bool WhetherJobBreakChainRTDA_Fast(const JobCEC &job,const LongestCAChain &longestJobChains,
+//                               const DAG_Model &dagTasks, SFOrder &jobOrder,
+//                               const TaskSetInfoDerived &tasksInfo,
+//                               std::string obj_type );
+
 class IndependentAnalysis {
    public:
     IndependentAnalysis() {}
@@ -187,6 +194,29 @@ class IndependentAnalysis {
         CoutError("Need implementation in WhetherSafeSkip");
         return false;
     }
+
+    // TODO: finish this function for IA
+    // bool WhetherSafeSkipFast(const JobCEC jobRelocate, SFOrder &jobOrderRef) {
+    //     if (obj_type_ == "ReactionTimeObj" || obj_type_ == "DataAgeObj") {
+    //         if (!IfActiveJob(jobRelocate) &&
+    //             !WhetherJobBreakChainRTDA_Fast(jobRelocate, 
+    //                                       longestJobChains_, dagTasks_,
+    //                                       jobOrderRef, tasksInfo_, obj_type_)) {
+    //             return true;
+    //         } else
+    //             return false;
+    //     } else if (obj_type_ == "SensorFusionObj") {
+    //         if (!IfActiveJob(jobRelocate) &&
+    //             !WhetherJobBreakChainSF_Fast(jobRelocate, 
+    //                                     worst_sf_fork_, dagTasks_, jobOrderRef,
+    //                                     tasksInfo_)) {
+    //             return true;
+    //         } else
+    //             return false;
+    //     }
+    //     CoutError("Need implementation in WhetherSafeSkip");
+    //     return false;
+    // }
 
     // data members
     std::string obj_type_;
