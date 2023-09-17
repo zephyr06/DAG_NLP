@@ -86,10 +86,9 @@ class DAGScheduleOptimizer_IA
 #ifdef PROFILE_CODE
         BeginTimer(__FUNCTION__);
 #endif
-    // TODO(Important) : 
-    // if(independent_analysis_.WhetherSafeSkipFast(
-    //                 jobRelocate, jobOrderRef))
-    //                 return;
+
+        if(independent_analysis_.WhetherSafeSkipFast(jobRelocate, jobOrderRef))
+            return;
         JobGroupRange jobIndexRange =
             FindJobActivateRange(jobRelocate, jobOrderRef, tasksInfo);
         IterationStatus<OrderScheduler, ObjectiveFunctionBase> statusBestFound =

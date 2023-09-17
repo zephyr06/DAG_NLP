@@ -34,6 +34,16 @@ struct JobCEC {
                                         GetPositiveQuotient(jobId, tasksInfo.sizeOfVariables[taskId]));
   }
 
+  bool DirectAdjacent(const JobCEC &other,
+                      const RegularTaskSystem::TaskSetInfoDerived &tasksInfo) const {
+    int otherQuotient = GetPositiveQuotient(other.jobId, tasksInfo.sizeOfVariables[taskId]);
+    int jobQuotient = GetPositiveQuotient(jobId, tasksInfo.sizeOfVariables[taskId]);
+    return (other.taskId == taskId &&
+             (abs(otherQuotient - jobQuotient) <= 1 // direct adjacent
+             || abs(otherQuotient - jobQuotient) == tasksInfo.sizeOfVariables[taskId] - 1)); // also adjacent for the first and last instance
+  }
+
+
   std::string ToString() const { return "T" + std::to_string(taskId) + "_" + std::to_string(jobId); }
 };
 
