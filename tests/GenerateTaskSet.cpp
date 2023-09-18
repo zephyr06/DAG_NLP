@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
   program.add_argument("--numCauseEffectChain")
       .default_value(-1)
       .help("the number of random cause-effect chains, a negative number will"
-            "use 1.5 to 3 times of tasks number as the number of chains")
+            "use 1 to 2 times of tasks number as the number of chains")
       .scan<'i', int>();
 
   // program.add_argument("--parallelismFactor")
@@ -219,7 +219,7 @@ int main(int argc, char *argv[]) {
                  "(--fork_sensor_num_max): "
               << fork_sensor_num_max << std::endl
               << "numCauseEffectChain, the number of random cause-effect chains, a negative number "
-                "will use 1.5 to 3 times of tasks number as the number of chains (--numCauseEffectChain): "
+                "will use 1 to 2 times of tasks number as the number of chains (--numCauseEffectChain): "
               << numCauseEffectChain << std::endl
               << std::endl;
   }
@@ -240,7 +240,7 @@ int main(int argc, char *argv[]) {
     if (numCauseEffectChain >= 0) {
       targetNumCauseEffectChain = numCauseEffectChain;
     } else {
-      targetNumCauseEffectChain = min(round(N * (1.5 + (double(rand()) / RAND_MAX) * 1.5 )), round(0.15 * N * N));
+      targetNumCauseEffectChain = min(round(N * (1.0 + (double(rand()) / RAND_MAX) * 1.0 )), round(0.1 * N * N));
     }
     int targetSFForkNum;
     if (SF_ForkNum >= 0) {
