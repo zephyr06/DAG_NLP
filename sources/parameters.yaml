@@ -37,7 +37,7 @@ weightInMpRTDA: 0.5
 weightInMpSf: 0.5
 weightInMpSfPunish: 100
 weightInMpRTDAPunish: 1000
-OPTIMIZE_TIME_LIMIT: 600 # seconds
+OPTIMIZE_TIME_LIMIT: 1000 # seconds
 enableFastSearch: 0
 enableSmallJobGroupCheck: 0
 bigJobGroupCheck: 0
