@@ -278,6 +278,14 @@ MultiRateTaskset::createDAGs(std::chrono::_V2::system_clock::time_point start_ti
 	{
 		numPermutations = maxPermutations;
 	}
+	bool overflow = false;
+	for (int k = permutSets.size() - 1; k >= 0; k--) {
+		if (overflow || permutSets[k] < 0 || permutSets[k] > maxPermutations) {
+			permutSets[k] = maxPermutations;
+			overflow = true;
+		}
+	}
+
 	if (GlobalVariablesDAGOpt::debugMode)
 	{
 		std::cout << numPermutations << " Permutations available" << std::endl;
