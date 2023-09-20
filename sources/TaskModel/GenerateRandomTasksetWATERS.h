@@ -230,5 +230,5 @@ void AddChains2DAG(DAG_Model &dag_tasks, int numCauseEffectChain);
 
 DAG_Model GenerateDAG_WATERS15(int N, double totalUtilization, int numberOfProcessor, int periodMin,
                                int periodMax, int coreRequireMax, int sf_fork_num, int fork_sensor_num_min,
-                               int fork_sensor_num_max, int numCauseEffectChain, int taskSetType,
+                               int fork_sensor_num_max, int numCauseEffectChain, int taskType,
                                int deadlineType);

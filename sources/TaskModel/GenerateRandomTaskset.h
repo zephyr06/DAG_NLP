@@ -23,7 +23,7 @@ static const std::vector<int> PeriodCDFWaters = {3, 5, 7, 32, 57, 60, 80, 81, 85
 std::vector<double> Uunifast(int N, double utilAll, bool boundU = true);
 
 TaskSet GenerateTaskSet(int N, double totalUtilization, int numberOfProcessor, int periodMin, int periodMax,
-                        int coreRequireMax, int taskSetType = 1, int deadlineType = 0);
+                        int coreRequireMax, int taskType = 2, int deadlineType = 0);
 
 using namespace OrderOptDAG_SPACE;
 void WriteTaskSets(std::ofstream &file, TaskSet &tasks);
@@ -32,7 +32,7 @@ DAG_Model AddEdges2DAG_He21(DAG_Model &dag_tasks, int N);
 
 DAG_Model GenerateDAG_He21(int N, double totalUtilization, int numberOfProcessor, int periodMin,
                            int periodMax, int coreRequireMax, int sf_fork_num, int fork_sensor_num_min,
-                           int fork_sensor_num_max, int numCauseEffectChain, int taskSetType = 1,
+                           int fork_sensor_num_max, int numCauseEffectChain, int taskType = 1,
                            int deadlineType = 0);
 
 void WriteDAG(std::ofstream &file, DAG_Model &tasksDAG);

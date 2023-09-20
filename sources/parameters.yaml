@@ -27,7 +27,7 @@ priorityMode: orig
 
 # task set generator settings
 parallelFactor: 0.9 # percentage of edges in generated dag
-TaskSetType: 3 # 1 means total random, 2 means automobile tasksets, 3 means automobile with WATERS distribution
+TaskSetType: 2 # 0 means total random, 1 means automobile tasksets with random cause effect chains, 2 means automobile with chains comform to WATERS15 distribution
 timeScaleFactor: 10 # used to scale minimum period to 1 or larger, as currently only support integer periods
 
 

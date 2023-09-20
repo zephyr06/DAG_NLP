@@ -20,7 +20,7 @@ std::vector<double> Uunifast(int N, double utilAll, bool boundU) {
 }
 
 TaskSet GenerateTaskSet(int N, double totalUtilization, int numberOfProcessor, int periodMin, int periodMax,
-                        int coreRequireMax, int taskSetType, int deadlineType) {
+                        int coreRequireMax, int taskType, int deadlineType) {
   std::vector<double> utilVec = Uunifast(N, totalUtilization);
   TaskSet tasks;
   int periodMaxRatio = periodMax / periodMin;
@@ -29,7 +29,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization, int numberOfProcessor, i
     int periodCurr = 0;
     int processorId = rand() % numberOfProcessor;
     int coreRequire = 1 + rand() % (coreRequireMax);
-    if (taskSetType == 1) // fully random task set
+    if (taskType == 0) // fully random task set
     {
       periodCurr = (1 + rand() % periodMaxRatio) * periodMin;
       double deadline = periodCurr;
@@ -38,7 +38,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization, int numberOfProcessor, i
       Task task(0, periodCurr, 0, std::max(1.0, ceil(periodCurr * utilVec[i])), deadline, i, processorId,
                 coreRequire);
       tasks.push_back(task);
-    } else if (taskSetType == 2) // random choice from AutoMobile set 'PeriodSetAM'
+    } else if (taskType == 1) // random choice from AutoMobile set 'PeriodSetAM'
     {
       periodCurr = int(PeriodSetAM[rand() % PeriodSetAM.size()] * GlobalVariablesDAGOpt::timeScaleFactor);
       double deadline = periodCurr;
@@ -47,7 +47,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization, int numberOfProcessor, i
       Task task(0, periodCurr, 0, std::max(1.0, ceil(periodCurr * utilVec[i])), deadline, i, processorId,
                 coreRequire);
       tasks.push_back(task);
-    } else if (taskSetType == 3) // automobile periods with WATERS distribution
+    } else if (taskType == 2) // automobile periods with WATERS distribution
     {
       int probability = rand() % PeriodCDFWaters.back();
       int period_idx = 0;
@@ -62,7 +62,7 @@ TaskSet GenerateTaskSet(int N, double totalUtilization, int numberOfProcessor, i
                 coreRequire);
       tasks.push_back(task);
     } else
-      CoutError("Not recognized taskSetType!");
+      CoutError("Not recognized taskType!");
   }
   return tasks;
 }
@@ -84,10 +84,10 @@ DAG_Model AddEdges2DAG_He21(DAG_Model &dag_tasks, int N) {
 using namespace OrderOptDAG_SPACE;
 DAG_Model GenerateDAG_He21(int N, double totalUtilization, int numberOfProcessor, int periodMin,
                            int periodMax, int coreRequireMax, int sf_fork_num, int fork_sensor_num_min,
-                           int fork_sensor_num_max, int numCauseEffectChain, int taskSetType,
+                           int fork_sensor_num_max, int numCauseEffectChain, int taskType,
                            int deadlineType) {
   TaskSet tasks = GenerateTaskSet(N, totalUtilization, numberOfProcessor, periodMin, periodMax,
-                                  coreRequireMax, taskSetType, deadlineType);
+                                  coreRequireMax, taskType, deadlineType);
 
   DAG_Model dagModel;
   dagModel.tasks = tasks;

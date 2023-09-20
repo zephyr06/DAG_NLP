@@ -62,7 +62,8 @@ int main(int argc, char *argv[]) {
       .scan<'i', int>();
   program.add_argument("--taskType")
       .default_value(2)
-      .help("type of tasksets, 0 means normal, 1 means DAG")
+      .help("type of task period generation method, 0 means normal, 1 means random choice from predefined set, "
+            "2 means automobile tasks with WATERS distribution")
       .scan<'i', int>();
   program.add_argument("--deadlineType")
       .default_value(0)
@@ -70,9 +71,9 @@ int main(int argc, char *argv[]) {
       .scan<'i', int>();
   program.add_argument("--taskSetType")
       .default_value(3)
-      .help("type of taskset period generation method, 1 means normal, 2 means "
-            "automobile method, 3 means "
-            "automobile with WATERS distribution")
+      .help("type of tasksets, 0 means normal, "
+            "1 means DAG with random chains, "
+            "2 means DAG with chains conforms to WATERS15 distribution")
       .scan<'i', int>();
   program.add_argument("--coreRequireMax")
       .default_value(1)
@@ -189,14 +190,14 @@ int main(int argc, char *argv[]) {
               << "periodMin, only work in normal(random) taskSetType(--periodMin), : " << periodMin
               << std::endl
               << "periodMax, only work in normal(random) taskSetType(--periodMax): " << periodMax << std::endl
-              << "taskType(--taskType), 0 means normal, 1 means DAG, 2 means DAG with WATERS15 cause-effect "
-                 "chains: "
+              << "taskType(--taskType), 0 means normal, 1 means random choice from predefined set, "
+              << "2 means automobile tasks with WATERS distribution: "
               << taskType << std::endl
               << "deadlineType(--deadlineType), 1 means random, 0 means implicit: " << deadlineType
               << std::endl
-              << "taskSetType(--taskSetType), 1 means normal, 2 means AutoMobile, 3 "
-                 "means automobile with "
-                 "WATERS distribution: "
+              << "taskSetType(--taskSetType), 0 means normal, "
+              << "1 means DAG with random chains, "
+              << "2 means DAG with chains conforms to WATERS15 distribution: "
               << taskSetType << std::endl
               << "coreRequireMax(--coreRequireMax): " << coreRequireMax << std::endl
               << "excludeUnschedulable(--excludeUnschedulable): " << excludeUnschedulable << std::endl
@@ -248,20 +249,20 @@ int main(int argc, char *argv[]) {
     } else {
       targetSFForkNum = floor((0.25 + (double(rand()) / RAND_MAX) * 0.75 ) * N);
     }
-    if (taskType == 0) // normal task set
+    if (taskSetType == 0) // normal task set
     {
       CoutError("Not recognized type, needs implementation");
-    } else if (taskType == 1 || taskType == 2) // DAG task set
+    } else if (taskSetType == 1 || taskSetType == 2) // DAG task set
     {
       DAG_Model dag_tasks;
-      if (taskType == 1)
+      if (taskSetType == 1)
         dag_tasks = GenerateDAG_He21(N, totalUtilization, numberOfProcessor, periodMin, periodMax,
                                      coreRequireMax, targetSFForkNum, fork_sensor_num_min, fork_sensor_num_max,
-                                     targetNumCauseEffectChain, taskSetType, deadlineType);
-      else if (taskType == 2)
+                                     targetNumCauseEffectChain, taskType, deadlineType);
+      else if (taskSetType == 2)
         dag_tasks = GenerateDAG_WATERS15(N, totalUtilization, numberOfProcessor, periodMin, periodMax,
                                          coreRequireMax, targetSFForkNum, fork_sensor_num_min, fork_sensor_num_max,
-                                         targetNumCauseEffectChain, taskSetType, deadlineType);
+                                         targetNumCauseEffectChain, taskType, deadlineType);
 
       if (excludeEmptyEdgeDag == 1) {
         bool whether_empty_edges = true;
