@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
       .help("type of tasksets, 0 means implicit, 1 means random")
       .scan<'i', int>();
   program.add_argument("--taskSetType")
-      .default_value(3)
+      .default_value(2)
       .help("type of tasksets, 0 means normal, "
             "1 means DAG with random chains, "
             "2 means DAG with chains conforms to WATERS15 distribution")
@@ -161,7 +161,7 @@ int main(int argc, char *argv[]) {
   int numCauseEffectChain = program.get<int>("--numCauseEffectChain");
 
   if (randomSeed < 0) {
-    srand(time(0));
+    srand(time(0) + (int64_t)&SF_ForkNum);
   } else {
     srand(randomSeed);
   }
