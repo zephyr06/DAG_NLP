@@ -1,4 +1,5 @@
 1. copy the target task set to TaskData/
 2. disable profiler: undefine the macro PROFILE_CODE in sources/Utils/profilier.h
 3. check the OPTIMIZE_TIME_LIMIT has the correct value in sources/parameters.yaml
-3. rebuild the target
+4. check the GlobalVariablesDAGOpt::breakChainThresholdIA has the correct value in sources/parameters.yaml
+5. rebuild the target

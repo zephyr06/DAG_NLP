@@ -79,6 +79,8 @@ extern int subJobGroupMaxSize;
 extern double sensorFusionTolerance;
 extern double freshTol;
 
+extern int breakChainThresholdIA;
+
 extern int initializeMethod;
 extern double weightDDL_factor;  // not used in the main SF optimization program
 extern double weightDAG_factor;  // not used in the main SF optimization program

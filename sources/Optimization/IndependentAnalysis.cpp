@@ -398,7 +398,6 @@ bool WhetherJobBreakChainRTDA_Fast(const JobCEC &jobRelocate,const LongestCAChai
                                    const DAG_Model &dagTasks, SFOrder &jobOrder,
                                    const TaskSetInfoDerived &tasksInfo,
                                    std::string obj_type ) {
-    int breakthreshold = 2;
     if (obj_type == "ReactionTimeObj" || obj_type == "DataAgeObj") {
         int breakCount = 0;
         for (uint i = 0; i < longestJobChains.size(); i++) {
@@ -411,7 +410,7 @@ bool WhetherJobBreakChainRTDA_Fast(const JobCEC &jobRelocate,const LongestCAChai
                     continue;  // job doesn't appear in this taskChainCurr
                 JobCEC sibJob = jobChainCurr[siblingJobIndex];
                 if (sibJob.DirectAdjacent(jobRelocate, tasksInfo)) // this might result in unsafe skip
-                    if (++breakCount >= breakthreshold)
+                    if (++breakCount >= GlobalVariablesDAGOpt::breakChainThresholdIA)
                         return true;
             }
         }
@@ -426,18 +425,17 @@ bool WhetherJobBreakChainSF_Fast(const JobCEC &jobRelocate,
                                  const WorstSF_JobFork &worst_sf_fork,
                                  const DAG_Model &dagTasks, SFOrder &jobOrder,
                                  const TaskSetInfoDerived &tasksInfo) {
-    int breakthreshold = 2;
     int breakCount = 0;
     for (const SF_JobFork &sf_job_fork : worst_sf_fork.worst_fork_) {
         if (jobRelocate.taskId == sf_job_fork.sink_job.taskId) {
             if (jobRelocate.DirectAdjacent(sf_job_fork.sink_job, tasksInfo)) // this might result in unsafe skip
-                if (++breakCount >= breakthreshold)
+                if (++breakCount >= GlobalVariablesDAGOpt::breakChainThresholdIA)
                     return true;
         }
         for (const JobCEC &job_source : sf_job_fork.source_jobs) {
             if (jobRelocate.taskId == job_source.taskId) {
                 if (jobRelocate.DirectAdjacent(job_source, tasksInfo)) // this might result in unsafe skip
-                    if (++breakCount >= breakthreshold)
+                    if (++breakCount >= GlobalVariablesDAGOpt::breakChainThresholdIA)
                         return true;
             }
         }

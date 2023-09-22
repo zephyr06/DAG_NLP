@@ -57,6 +57,7 @@ makespanWeight: 0
 sensorFusionTolerance: 6409
 freshTol: 253533
 withAddedSensorFusionError: 1
+breakChainThresholdIA: 3
 #*************************************************************
 
 # used in SA
