@@ -94,9 +94,10 @@ VectorDynamic SimulateFixedPrioritySched(const DAG_Model &dagTasks, const TaskSe
   std::vector<LLint> nextFree(processorNum, -1);
   // LLint nextFree;
 
-  for (LLint timeNow = timeInitial; timeNow < tasksInfo.hyper_period; timeNow++) {
+  for (LLint timeNow = timeInitial; timeNow <= tasksInfo.hyper_period; timeNow++) {
     // check whether to add new instances
-    AddTasksToRunQueues(runQueues, tasks, processorId2Index, timeNow);
+    if (timeNow < tasksInfo.hyper_period)
+      AddTasksToRunQueues(runQueues, tasks, processorId2Index, timeNow);
 
     for (int i = 0; i < processorNum; i++) {
       if (timeNow >= nextFree[i]) {
