@@ -204,11 +204,15 @@ ActiveJobs FindActiveJobs(
         std::vector<JobCEC> backwardJobs = FindBackwardAdjacentJob(
             jobCurr, jobOrder, tasksInfo, startTimeVector);
         backwardJobs.push_back(jobCurr);
+        LLint jobFinishIndex = jobOrder.GetJobFinishInstancePosition(jobCurr);
+        TimeInstance instCurrJobFinish = jobOrder[jobFinishIndex];
         for (uint j = 0; j < backwardJobs.size(); j++) {
-            if (jobRecord.find(backwardJobs[j]) == jobRecord.end()) {
-                jobRecord.insert(backwardJobs[j]);
-                activeJobs.push_back(ActiveJob(backwardJobs[j], false));
-            }
+            if (instCurrJobFinish.getTime() + GlobalVariablesDAGOpt::activeJobThresholdIA
+                 > jobOrder[jobOrder.GetJobStartInstancePosition(backwardJobs[j])].getTime())
+                if (jobRecord.find(backwardJobs[j]) == jobRecord.end()) {
+                    jobRecord.insert(backwardJobs[j]);
+                    activeJobs.push_back(ActiveJob(backwardJobs[j], false));
+                }
         }
     }
     for (uint i = 0; i < centralJobs.forwardJobs.size(); i++) {
@@ -216,11 +220,15 @@ ActiveJobs FindActiveJobs(
         std::vector<JobCEC> forwardJobs = FindForwardAdjacentJob(
             jobCurr, jobOrder, tasksInfo, startTimeVector);
         forwardJobs.push_back(jobCurr);
+        LLint jobStartIndex = jobOrder.GetJobStartInstancePosition(jobCurr);
+        TimeInstance instCurrJobStart = jobOrder[jobStartIndex];
         for (uint j = 0; j < forwardJobs.size(); j++) {
-            if (jobRecord.find(forwardJobs[j]) == jobRecord.end()) {
-                jobRecord.insert(forwardJobs[j]);
-                activeJobs.push_back(ActiveJob(forwardJobs[j], true));
-            }
+            if (instCurrJobStart.getTime() - GlobalVariablesDAGOpt::activeJobThresholdIA
+                 < jobOrder[jobOrder.GetJobFinishInstancePosition(forwardJobs[j])].getTime())
+                if (jobRecord.find(forwardJobs[j]) == jobRecord.end()) {
+                    jobRecord.insert(forwardJobs[j]);
+                    activeJobs.push_back(ActiveJob(forwardJobs[j], true));
+                }
         }
     }
     return ActiveJobs(activeJobs, jobRecord);

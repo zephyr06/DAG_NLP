@@ -56,6 +56,7 @@ double sensorFusionTolerance = loaded_doc["sensorFusionTolerance"].as<double>();
 double freshTol = loaded_doc["freshTol"].as<double>();
 int initializeMethod = loaded_doc["initializeMethod"].as<int>();
 int breakChainThresholdIA = loaded_doc["breakChainThresholdIA"].as<int>();
+double activeJobThresholdIA = loaded_doc["activeJobThresholdIA"].as<double>();
 
 double weightDDL_factor =
     loaded_doc["weightDDL_factor"]

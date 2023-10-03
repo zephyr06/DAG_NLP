@@ -49,8 +49,7 @@ struct CentralJobs {
     // TODO: make the name consistent with standard definitions in cause-effect
     // chains
     std::vector<JobCEC> forwardJobs;  // e.g., sink jobs in cause-effect chains
-    std::vector<JobCEC>
-        backwardJobs;  // e.g., source jobs in cause-effect chains
+    std::vector<JobCEC> backwardJobs;  // e.g., source jobs in cause-effect chains
 };
 
 struct ActiveJob {

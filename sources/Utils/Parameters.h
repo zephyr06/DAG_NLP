@@ -80,6 +80,7 @@ extern double sensorFusionTolerance;
 extern double freshTol;
 
 extern int breakChainThresholdIA;
+extern double activeJobThresholdIA;
 
 extern int initializeMethod;
 extern double weightDDL_factor;  // not used in the main SF optimization program
