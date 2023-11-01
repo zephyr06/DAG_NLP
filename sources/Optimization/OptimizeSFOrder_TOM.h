@@ -121,7 +121,7 @@ class DAGScheduleOptimizer {
                                            scheduleOptions),
             processorJobVec);
     }
-    void ImproveJobOrderPerJob(const JobCEC &jobRelocate) {
+    virtual void ImproveJobOrderPerJob(const JobCEC &jobRelocate) {
 #ifdef PROFILE_CODE
         BeginTimer(__FUNCTION__);
 #endif
@@ -168,9 +168,6 @@ class DAGScheduleOptimizer {
 
                 CompareAndUpdateStatus(jobOrderCurrForFinish, statusBestFound,
                                        jobOrderBestFound);
-
-                // TODO: Avoid update job order’s internal index
-                jobOrderCurrForFinish.RemoveFinish(jobRelocate, finishP);
             }
             // jobOrderCurrForStart.RemoveStart(jobRelocate, startP);
         }
@@ -246,7 +243,7 @@ class DAGScheduleOptimizer {
     // and jobOrderRef if success and return true
     // TODO: SubGroupSchedulabilityCheck is temporarily removed, which is used
     // to check whether the small job order under influence is unschedulable
-    bool CompareAndUpdateStatus(
+    virtual bool CompareAndUpdateStatus(
         SFOrder &jobOrderCurrForFinish,
         IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusBestFound,
         SFOrder &jobOrderBestFound) {
