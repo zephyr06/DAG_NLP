@@ -41,7 +41,7 @@ std::vector<RTDA> GetRTDAFromSingleJob(const TaskSetInfoDerived &tasksInfo,
                        precision <
                    currentJobFT) {
                 jobIndex++;
-                if (jobIndex > 10000) {
+                if (jobIndex > 100000) {
                     CoutError("didn't find a match!");
                 }
             }
@@ -139,7 +139,7 @@ std::unordered_map<JobCEC, std::vector<JobCEC>> GetRTDAReactChainsFromSingleJob(
             while (GetStartTime({causeEffectChain[j], jobIndex}, x, tasksInfo) <
                    currentJobFT) {
                 jobIndex++;
-                if (jobIndex > 10000) {
+                if (jobIndex > 100000) {
                     CoutError("didn't find a match!");
                 }
             }
@@ -161,7 +161,7 @@ JobCEC FindFirstReactJob(JobCEC source, int next_task_id, SFOrder &jobOrder) {
         if (jobOrder.GetJobStartInstancePosition(jobCurr) > instIndexFirstJob)
             break;
         jobIndex++;
-        if (jobIndex > 10000) {
+        if (jobIndex > 100000) {
             CoutError("didn't find a match in GetJacobianCauseEffectChainOrg!");
         }
     }
@@ -209,7 +209,7 @@ JobCEC FindLastReadingJob(JobCEC sink_job, int source_task_id,
         if (jobOrder.GetJobFinishInstancePosition(jobCurr) < instIndexFirstJob)
             break;
         jobIndex--;
-        if (jobIndex < -10000) {
+        if (jobIndex < -100000) {
             CoutError("didn't find a match in GetDataAgeChainMap!");
         }
     }
