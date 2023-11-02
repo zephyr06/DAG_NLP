@@ -42,7 +42,7 @@ class DAGScheduleOptimizer_Threshold
         double simple_scheduler_obj = ObjectiveFunctionBase::Evaluate(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
         double simple_threshold = 0;
         for (auto &chain: dagTasks.chains_) {
-            simple_threshold += dagTasks.tasks[chain[0]].period;
+            simple_threshold += dagTasks.tasks[chain[0]].period - dagTasks.tasks[chain[0]].executionTime;
         }
         if (simple_scheduler_obj - simple_threshold > statusBestFound.objWeighted_)
             return false;
