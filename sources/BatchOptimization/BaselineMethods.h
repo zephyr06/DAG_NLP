@@ -15,10 +15,12 @@ enum BASELINEMETHODS {
     TOM,
     TOM_Fast,
     TOM_IA,
+    TOM_Threshold,
     GlobalOpt
 };
 const std::vector<std::string> BaselineMethodNames = {
     "InitialMethod", "Verucchi20", "Wang21",   "TOM",
-    "TOM_Fast",      "TOM_IA",     "GlobalOpt"};
+    "TOM_Fast",      "TOM_IA",     "TOM_Threshold",
+    "GlobalOpt"};
 
 }  // namespace OrderOptDAG_SPACE

@@ -17,6 +17,7 @@
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Optimization/OptimizeSFOrder_TOM.h"
 #include "sources/Optimization/OptimizeSFOrder_TOM_IA.h"
+#include "sources/Optimization/OptimizeSFOrder_TOM_Threshold.h"
 #include "sources/Utils/BatchUtils.h"
 #include "sources/Utils/ScheduleResults.h"
 
@@ -66,6 +67,12 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
             res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<
                 SimpleOrderScheduler, ObjectiveFunctionBase>(dagTasks,
                                                              scheduleOptions);
+            break;
+        
+        case TOM_Threshold:
+            res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel_Threshold<
+                LPOrderScheduler, ObjectiveFunctionBase>(dagTasks,
+                                                         scheduleOptions);
             break;
 
         case GlobalOpt: {  // should only be used in a few situations
@@ -135,6 +142,8 @@ BatchOptimizeOrder(
             scheduleOptions.LoadParametersYaml();
             scheduleOptions.causeEffectChainNumber_ = dagTasks.chains_.size();
 
+            std::cout << Color::blue << "Method: " << BaselineMethodNames[batchTestMethod]
+                        << Color::def << std::endl;
             if (VerifyResFileExist(pathDataset, file, batchTestMethod,
                                     ObjectiveFunctionBase::type_trait)) {
                 res = ReadFromResultFile(pathDataset, file, batchTestMethod,
@@ -176,7 +185,7 @@ BatchOptimizeOrder(
         }
     }
 
-    // result analysis
+   // result analysis
     results_man.PrintWorseCase(BASELINEMETHODS::InitialMethod,
                                BASELINEMETHODS::TOM);
     results_man.PrintResultTable(baselineMethods);
