@@ -36,16 +36,22 @@ class DAGScheduleOptimizer_Threshold
         override{
         VectorDynamic startTimeVector;
         std::vector<uint> processorJobVec;
-        startTimeVector = SimpleOrderScheduler::schedule(
+
+        auto simple_scheduler_startTimeVector = SimpleOrderScheduler::schedule(
             dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
             processorJobVec, ObjectiveFunctionBase::type_trait);
-        double simple_scheduler_obj = ObjectiveFunctionBase::Evaluate(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
-        double simple_threshold = 0;
-        for (auto &chain: dagTasks.chains_) {
-            simple_threshold += dagTasks.tasks[chain[0]].period - dagTasks.tasks[chain[0]].executionTime;
+        double simple_scheduler_obj = ObjectiveFunctionBase::Evaluate(dagTasks, tasksInfo, simple_scheduler_startTimeVector, scheduleOptions);
+        bool simple_scheduler_schedulable = ExamBasic_Feasibility(
+            dagTasks, tasksInfo, simple_scheduler_startTimeVector, processorJobVec,
+            scheduleOptions.processorNum_);
+        if (simple_scheduler_schedulable) {
+            double simple_threshold = 0;
+            for (auto &chain: dagTasks.chains_) {
+                simple_threshold += dagTasks.tasks[chain[0]].period - dagTasks.tasks[chain[0]].executionTime;
+            }
+            if (simple_scheduler_obj - simple_threshold > statusBestFound.objWeighted_)
+                return false;
         }
-        if (simple_scheduler_obj - simple_threshold > statusBestFound.objWeighted_)
-            return false;
 
         startTimeVector = OrderScheduler::schedule(
             dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
@@ -58,6 +64,24 @@ class DAGScheduleOptimizer_Threshold
             Base::infeasibleCount++;
             return false;
         }
+
+        // double lp_obj = ObjectiveFunctionBase::Evaluate(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
+        // if (simple_scheduler_schedulable && lp_obj < statusBestFound.objWeighted_ && simple_scheduler_obj - simple_threshold > statusBestFound.objWeighted_) {
+        //     std::cout << "Will skip this job order:\n"
+        //         << "threshold_obj: " << simple_scheduler_obj << " , simple_threshold: " << simple_threshold
+        //         << "\n" << simple_scheduler_startTimeVector
+        //         << "\nBest obj found: " << statusBestFound.objWeighted_
+        //         << "\nLP obj: " << lp_obj
+        //         << "\n" << startTimeVector
+        //         << "\n";
+        //     jobOrderCurrForFinish.print();
+        //     std::cout<<"\n";
+
+        //     simple_scheduler_startTimeVector = SimpleOrderScheduler::schedule(
+        //     dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
+        //     processorJobVec, ObjectiveFunctionBase::type_trait);
+        //     // dagTasks.tasks
+        // }
 
         return Base::WhetherMakeProgressAndUpdateBestFoundStatus(
             startTimeVector, processorJobVec, schedulable,

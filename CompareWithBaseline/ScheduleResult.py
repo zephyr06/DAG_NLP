@@ -52,7 +52,7 @@ def Normalize(obj_vec, obj_base):
 def Average(res_vec, base_vec, obj_type="DataAge", task_num=5, method_name = "TOM", exclude_time_out=False, excluded_table=[]):
     average_obj = 0
     average_runtime = 0
-    total_case = len(res_vec)
+    total_case = len(base_vec)
     # for res in res_vec:
     for i in range(len(res_vec)):
         if exclude_time_out and excluded_table[i]:
