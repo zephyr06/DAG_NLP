@@ -19,7 +19,7 @@ marker_map = {"InitialMethod": "o",
               "TOM_Threshold": "s",
               "Bardatsch16": "X"}
 marker_size_map = {"InitialMethod": 8,
-                   "TOM": 8,
+                   "TOM": 12,
                    "TOM_IA": 12,
                    "TOM_Fast": 12,
                    "Verucchi20": 8,
