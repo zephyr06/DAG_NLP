@@ -25,7 +25,9 @@ class DAGScheduleOptimizer_Threshold
         const DAG_Model &dagInput, const ScheduleOptions &scheduleOptions,
         double timeLimits = GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT)
         : DAGScheduleOptimizer<OrderScheduler, ObjectiveFunctionBase>(
-              dagInput, scheduleOptions, timeLimits) {}
+              dagInput, scheduleOptions, timeLimits) {
+                threshold_diff_vec_.resize(0);
+              }
 
     // Compare against statusPrev built from jobOrderRef, and update statusPrev
     // and jobOrderRef if success and return true
@@ -44,10 +46,28 @@ class DAGScheduleOptimizer_Threshold
         bool simple_scheduler_schedulable = ExamBasic_Feasibility(
             dagTasks, tasksInfo, simple_scheduler_startTimeVector, processorJobVec,
             scheduleOptions.processorNum_);
+        double simple_threshold = 0;
         if (simple_scheduler_schedulable) {
-            double simple_threshold = 0;
+            LongestCAChain longestJobChains = LongestCAChain(dagTasks, tasksInfo, jobOrderBestFound, simple_scheduler_startTimeVector,
+                               scheduleOptions.processorNum_, ObjectiveFunctionBase::type_trait);
             for (auto &chain: dagTasks.chains_) {
                 simple_threshold += dagTasks.tasks[chain[0]].period - dagTasks.tasks[chain[0]].executionTime;
+                for (auto & longestJobChain: longestJobChains.longestChains_) {
+                    if (longestJobChain.size() == chain.size()) {
+                        bool match = true;
+                        for (int chainIdx = 0; chainIdx < chain.size(); chainIdx++) {
+                            if (chain[chainIdx] != longestJobChain[chainIdx].taskId) {
+                                match = false;
+                                break;
+                            }
+                        }
+                        if (match) {
+                            simple_threshold -= GetStartTime(longestJobChain[0], simple_scheduler_startTimeVector, tasksInfo) 
+                                - longestJobChain[0].jobId * dagTasks.tasks[longestJobChain[0].taskId].period;
+                            break;
+                        }
+                    }
+                }
             }
             if (simple_scheduler_obj - simple_threshold > statusBestFound.objWeighted_)
                 return false;
@@ -66,6 +86,15 @@ class DAGScheduleOptimizer_Threshold
         }
 
         // double lp_obj = ObjectiveFunctionBase::Evaluate(dagTasks, tasksInfo, startTimeVector, scheduleOptions);
+        // if (simple_scheduler_schedulable) {
+        //     threshold_diff_vec_.push_back(simple_threshold - (simple_scheduler_obj - lp_obj));
+        //     if (threshold_diff_vec_.size() % 5 == 0) {
+        //         std::cout << "Threshold diff statistics:  Avg. " << accumulate(threshold_diff_vec_.begin(), threshold_diff_vec_.end(), 0) / threshold_diff_vec_.size()
+        //             << " , total count: " << threshold_diff_vec_.size()
+        //             << std::endl;
+        //     }
+        // }
+
         // if (simple_scheduler_schedulable && lp_obj < statusBestFound.objWeighted_ && simple_scheduler_obj - simple_threshold > statusBestFound.objWeighted_) {
         //     std::cout << "Will skip this job order:\n"
         //         << "threshold_obj: " << simple_scheduler_obj << " , simple_threshold: " << simple_threshold
@@ -77,9 +106,11 @@ class DAGScheduleOptimizer_Threshold
         //     jobOrderCurrForFinish.print();
         //     std::cout<<"\n";
 
-        //     simple_scheduler_startTimeVector = SimpleOrderScheduler::schedule(
-        //     dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
-        //     processorJobVec, ObjectiveFunctionBase::type_trait);
+        //     CoutError("Wrong threshold skip.");
+
+        //     // simple_scheduler_startTimeVector = SimpleOrderScheduler::schedule(
+        //     // dagTasks, tasksInfo, scheduleOptions, jobOrderCurrForFinish,
+        //     // processorJobVec, ObjectiveFunctionBase::type_trait);
         //     // dagTasks.tasks
         // }
 
@@ -87,6 +118,8 @@ class DAGScheduleOptimizer_Threshold
             startTimeVector, processorJobVec, schedulable,
             jobOrderCurrForFinish, statusBestFound, jobOrderBestFound);
     }
+
+    std::vector<double> threshold_diff_vec_;
 
 };  // class DAGScheduleOptimizer_Threshold
 

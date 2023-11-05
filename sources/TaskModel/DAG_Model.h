@@ -102,7 +102,7 @@ public:
   std::vector<SF_Fork> sf_forks_;
 };
 
-DAG_Model ReadDAG_Tasks(std::string path, std::string priorityType = "orig", int chainNum = 100);
+DAG_Model ReadDAG_Tasks(std::string path, std::string priorityType = "orig", int chainNum = 1000);
 
 std::vector<std::vector<int>> GetChainsForSF(const DAG_Model &dag_tasks);
 
