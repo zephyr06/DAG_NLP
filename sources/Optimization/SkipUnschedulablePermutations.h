@@ -19,10 +19,18 @@ namespace OrderOptDAG_SPACE
 
         // the time that the instance happens must be smaller than the return value
         double GetInstanceMaxFinishTime(const TimeInstance &instance, const TaskSetInfoDerived &tasksInfo);
-
+        
         bool WhetherSkipInsertStart(const JobCEC &jobRelocate, LLint startP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr);
 
+        bool WhetherSkipInsertStartByPreviousInstance(const JobCEC &jobRelocate, LLint startP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr);
+
+        bool WhetherSkipInsertStartByFollowingInstance(const JobCEC &jobRelocate, LLint startP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr);
+
         bool WhetherSkipInsertFinish(const JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr);
+        
+        bool WhetherSkipInsertFinishByPreviousInstance(const JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr);
+        
+        bool WhetherSkipInsertFinishByFollowingInstance(const JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, const SFOrder &jobOrderCurr);
 
         // This version is safer than the last version
         bool WhetherStartFinishTooLong(double &accumLengthMin, const JobCEC &jobRelocate, LLint finishP, const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrderCurrForStart, LLint startP);

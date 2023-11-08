@@ -139,9 +139,12 @@ class DAGScheduleOptimizer {
              startP++) {
             SFOrder jobOrderCurrForStart = jobOrderRef;
             jobOrderCurrForStart.RemoveJob(jobRelocate);
-            if (WhetherSkipInsertStart(jobRelocate, startP, tasksInfo,
-                                       jobOrderCurrForStart))
-                continue;
+            if (WhetherSkipInsertStartByPreviousInstance(jobRelocate, startP, tasksInfo, 
+                                                        jobOrderCurrForStart))
+                break; // following instance position will also fail the schedulability test
+            if (WhetherSkipInsertStartByFollowingInstance(jobRelocate, startP, tasksInfo,
+                                                        jobOrderCurrForStart))
+                continue; // following instance might improve schedulability
 
             jobOrderCurrForStart.InsertStart(
                 jobRelocate, startP);  // must insert start first
@@ -152,9 +155,12 @@ class DAGScheduleOptimizer {
                               static_cast<int>(tasksInfo.length) * 2 - 1) &&
                  ifContinue();
                  finishP++) {
-                if (WhetherSkipInsertFinish(jobRelocate, finishP, tasksInfo,
-                                            jobOrderRef))
-                    continue;
+                if (WhetherSkipInsertFinishByPreviousInstance(jobRelocate, finishP, tasksInfo,
+                                                            jobOrderCurrForStart))
+                    break; // following instance position will also fail the schedulability test
+                if (WhetherSkipInsertFinishByFollowingInstance(jobRelocate, finishP, tasksInfo,
+                                                            jobOrderCurrForStart))
+                    continue; // following instance might improve schedulability
 
                 SFOrder jobOrderCurrForFinish =
                     jobOrderCurrForStart;  //  copying by value is sometimes
@@ -233,7 +239,6 @@ class DAGScheduleOptimizer {
         if (!ProcessorAssignment::AssignProcessor(
                 tasksInfo, jobOrderCurrForFinish, scheduleOptions.processorNum_,
                 processorJobVec)) {
-            jobOrderCurrForFinish.RemoveInstance(jobRelocate, finishP);
             return true;
         }
         return false;
