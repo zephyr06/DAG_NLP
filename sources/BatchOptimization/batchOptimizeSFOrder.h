@@ -18,6 +18,7 @@
 #include "sources/Optimization/OptimizeSFOrder_TOM.h"
 #include "sources/Optimization/OptimizeSFOrder_TOM_IA.h"
 #include "sources/Optimization/OptimizeSFOrder_TOM_Threshold.h"
+#include "sources/Optimization/OptimizeSFOrder_TOM_RandomSearch.h"
 #include "sources/Utils/BatchUtils.h"
 #include "sources/Utils/ScheduleResults.h"
 
@@ -75,6 +76,12 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
                                                          scheduleOptions);
             break;
 
+        case TOM_RandomSearch:
+            res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel_RandomSearch<
+                LPOrderScheduler, ObjectiveFunctionBase>(dagTasks,
+                                                         scheduleOptions);
+            break;
+
         case GlobalOpt: {  // should only be used in a few situations
             PermutationStatus permSta =
                 FindGlobalOptRTDA(dagTasks, scheduleOptions);
@@ -116,6 +123,8 @@ BatchOptimizeOrder(
     std::vector<OrderOptDAG_SPACE::BASELINEMETHODS> &baselineMethods,
     BatchSettings batchSettings = BatchSettings()) {
     
+    srand(time(0));
+
     std::string dataSetFolder = GlobalVariablesDAGOpt::PROJECT_PATH +
                                 batchSettings.folder_relative_path;
     std::string dirStr = dataSetFolder;
