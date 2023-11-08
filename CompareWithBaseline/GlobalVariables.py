@@ -7,6 +7,7 @@ baseline_method_labels = {"InitialMethod": "List Scheduling",
                           "TOM_IA": "TOM_IA",
                           "TOM_Fast": "TOM_Fast",
                           "TOM_Threshold": "TOM_Threshold",
+                          "TOM_RandomSearch": "TOM_RandomSearch",
                           "Verucchi20": "Verucchi20"}
 
 marker_map = {"InitialMethod": "o",
@@ -17,6 +18,7 @@ marker_map = {"InitialMethod": "o",
               "Martinez18": "D",
               "TOM_Sort_Offset": "P",
               "TOM_Threshold": "s",
+              "TOM_RandomSearch": "P",
               "Bardatsch16": "X"}
 marker_size_map = {"InitialMethod": 8,
                    "TOM": 12,
@@ -26,6 +28,7 @@ marker_size_map = {"InitialMethod": 8,
                    "Martinez18": 8,
                    "TOM_Sort_Offset": 8,
                    "TOM_Threshold": 8,
+                   "TOM_RandomSearch": 8,
                    "Bardatsch16": 4}
 # marker_size_map = {"InitialMethod": 6,
 #                    "ImplicitCommunication": 10,
@@ -43,6 +46,7 @@ color_map = {"InitialMethod": "#0084DB",
              "TOM_Threshold": "#19ffba",
              "Martinez18": "purple",
              "TOM_Sort_Offset": "k",
+             "TOM_RandomSearch": "k",
              "Bardatsch16": "#00FFFF"}
 
 # marker_list = ["o", "*", "D", "^", "s", "D", "P", "X"]
