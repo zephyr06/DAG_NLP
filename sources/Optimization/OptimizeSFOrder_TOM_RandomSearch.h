@@ -38,7 +38,7 @@ class DAGScheduleOptimizer_RandomSearch
         VectorDynamic startTimeVector;
         std::vector<uint> processorJobVec;
 
-        if ((double(rand()) / RAND_MAX) < 0.5) {
+        if ((double(rand()) / RAND_MAX) > GlobalVariablesDAGOpt::chanceRandomSearch) {
             return false;
         }
 

@@ -42,6 +42,7 @@ enableFastSearch: 0
 enableSmallJobGroupCheck: 0
 bigJobGroupCheck: 0
 subJobGroupMaxSize: 10
+chanceRandomSearch: 0.1
 
 #*************************************************************
 # factors to be included

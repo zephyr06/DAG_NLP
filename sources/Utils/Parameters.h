@@ -91,6 +91,7 @@ extern double weightInMpSfPunish;
 extern double weightInMpRTDAPunish;
 extern int64_t OPTIMIZE_TIME_LIMIT;
 extern double NumericalPrecision;
+extern double chanceRandomSearch;
 
 extern double RtdaWeight;
 extern double ResetRandomWeightThreshold;

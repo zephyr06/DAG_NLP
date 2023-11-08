@@ -68,6 +68,7 @@ double weightInMpRTDA = loaded_doc["weightInMpRTDA"].as<double>();
 double weightInMpSf = loaded_doc["weightInMpSf"].as<double>();
 double weightInMpSfPunish = loaded_doc["weightInMpSfPunish"].as<double>();
 double weightInMpRTDAPunish = loaded_doc["weightInMpRTDAPunish"].as<double>();
+double chanceRandomSearch = loaded_doc["chanceRandomSearch"].as<double>();
 int64_t OPTIMIZE_TIME_LIMIT = loaded_doc["OPTIMIZE_TIME_LIMIT"].as<int64_t>();
 double RtdaWeight = loaded_doc["RtdaWeight"].as<double>();
 double ResetRandomWeightThreshold =
