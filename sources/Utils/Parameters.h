@@ -140,7 +140,6 @@ extern double kGlobalOptimizationTimeLimit;
 extern double kCplexInequalityThreshold;
 
 extern int selectInitialFromPool;
-extern int EnableHardJobORder;
 extern double LPTolerance;
 extern int MakeProgressOnlyMax;
 

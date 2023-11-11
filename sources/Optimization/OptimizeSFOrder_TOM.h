@@ -203,7 +203,7 @@ class DAGScheduleOptimizer {
         countMakeProgress++;
     }
 
-    void CheckLPConsistency(
+    virtual void CheckLPConsistency(
         SFOrder &jobOrderRefNew,
         IterationStatus<OrderScheduler, ObjectiveFunctionBase> &statusBestFound,
         SFOrder &jobOrderBestFound) {

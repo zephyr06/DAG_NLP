@@ -40,7 +40,9 @@ int main(int argc, char *argv[]) {
         OrderOptDAG_SPACE::InitialMethod, 
         OrderOptDAG_SPACE::TOM_Fast,
         // OrderOptDAG_SPACE::TOM_IA,
-        OrderOptDAG_SPACE::TOM};
+        OrderOptDAG_SPACE::TOM,
+        OrderOptDAG_SPACE::TOM_Raw,
+        OrderOptDAG_SPACE::TOM_FarReach};
     OrderOptDAG_SPACE::BatchOptimizeOrder<
         OrderOptDAG_SPACE::OptimizeSF::SensorFusionObj>(baselineMethods, batch_test_settings);
 }

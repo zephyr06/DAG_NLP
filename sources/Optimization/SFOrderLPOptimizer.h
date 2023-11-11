@@ -21,7 +21,7 @@ class SFOrderLPOptimizer {
     void Init();
     void ClearCplexMemory();
 
-    void Optimize(const std::vector<uint> &processorJobVec);
+    void Optimize(const std::vector<uint> &processorJobVec, bool enableHardJobORder = true);
 
     VectorDynamic getOptimizedStartTimeVector();
 

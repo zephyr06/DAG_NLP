@@ -132,7 +132,6 @@ double kCplexInequalityThreshold =
     loaded_doc["kCplexInequalityThreshold"].as<double>();
 
 int selectInitialFromPool = loaded_doc["selectInitialFromPool"].as<int>();
-int EnableHardJobORder = loaded_doc["EnableHardJobORder"].as<int>();
 int MakeProgressOnlyMax = loaded_doc["MakeProgressOnlyMax"].as<int>();
 
 double LPTolerance = loaded_doc["LPTolerance"].as<double>();

@@ -37,7 +37,7 @@ void SFOrderLPOptimizer::ClearCplexMemory() {
 }
 
 // function Optimize() will optimize RTDA
-void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec) {
+void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec, bool enableHardJobORder) {
     // BeginTimer("Build_LP_Model");
     this->Init();
     setProcessorJobVec(processorJobVec);
@@ -45,7 +45,7 @@ void SFOrderLPOptimizer::Optimize(const std::vector<uint> &processorJobVec) {
     AddVariables();
     AddDBFConstraints();
     AddDDLConstraints();
-    if (GlobalVariablesDAGOpt::EnableHardJobORder)
+    if (enableHardJobORder)
         AddJobOrderConstraints(sfOrder_);
     AddObjectives();
     cplexSolver_.extract(model_);

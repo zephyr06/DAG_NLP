@@ -19,6 +19,8 @@
 #include "sources/Optimization/OptimizeSFOrder_TOM_IA.h"
 #include "sources/Optimization/OptimizeSFOrder_TOM_Threshold.h"
 #include "sources/Optimization/OptimizeSFOrder_TOM_RandomSearch.h"
+#include "sources/Optimization/OptimizeSFOrder_TOM_Raw.h"
+#include "sources/Optimization/OptimizeSFOrder_TOM_FarReach.h"
 #include "sources/Utils/BatchUtils.h"
 #include "sources/Utils/ScheduleResults.h"
 
@@ -79,6 +81,18 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(
         case TOM_RandomSearch:
             res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel_RandomSearch<
                 LPOrderScheduler, ObjectiveFunctionBase>(dagTasks,
+                                                         scheduleOptions);
+            break;
+
+        case TOM_Raw:
+            res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel_Raw<
+                LPOrderScheduler, ObjectiveFunctionBase>(dagTasks,
+                                                         scheduleOptions);
+            break;
+
+        case TOM_FarReach:
+            res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel_FarReach<
+                LPOrderSchedulerFlexJobOrder, ObjectiveFunctionBase>(dagTasks,
                                                          scheduleOptions);
             break;
 

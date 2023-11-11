@@ -104,12 +104,7 @@ TEST_F(TestSFOrderLPOptimizer, CanDoCorrectOptimization) {
     // PrintSchedule(tasksInfo_, stvOptimized);
     VectorDynamic stvExpected = GenerateVectorDynamic(5);
     stvExpected << 9, 19, 29, 14, 0;
-    if (GlobalVariablesDAGOpt::EnableHardJobORder != 1) {
-        EXPECT_THAT(stvOptimized, Eq(stvExpected));
-    } else {
-        stvExpected << 0, 19, 29, 4, 0;
-        EXPECT_THAT(stvOptimized, Eq(stvExpected));
-    }
+    EXPECT_THAT(stvOptimized, Eq(stvExpected));
 }
 
 class TestSFOrderLPOptimizer_da : public Test {
@@ -151,14 +146,8 @@ TEST_F(TestSFOrderLPOptimizer_da, CanDoCorrectOptimization) {
     std::cout << stvOptimized << "\n";
     // PrintSchedule(tasksInfo_, stvOptimized);
     VectorDynamic stvExpected = GenerateVectorDynamic(5);
-    if (GlobalVariablesDAGOpt::EnableHardJobORder == 1) {
-        stvExpected << 4, 10, 29, 5, 10;
-        EXPECT_THAT(stvOptimized, Eq(stvExpected));
-    } else {
-        stvExpected << 0, 19, 29, 1,
-            6;  // what matters is that the minimum possible data age is 11;
-        EXPECT_THAT(stvOptimized, Eq(stvExpected));
-    }
+    stvExpected << 4, 10, 29, 5, 10;
+    EXPECT_THAT(stvOptimized, Eq(stvExpected));
 }
 class TestSFOrderLPOptimizer_da_n3_v56 : public Test {
    public:
@@ -196,15 +185,8 @@ TEST_F(TestSFOrderLPOptimizer_da_n3_v56, CanDoCorrectOptimization) {
                                       scheduleOptions.processorNum_));
 
     // VectorDynamic stvExpected = GenerateVectorDynamic(5);
-    // if (GlobalVariablesDAGOpt::EnableHardJobORder == 1) {
-    //     stvExpected << 4, 10, 29, 5, 10;
-    //     EXPECT_THAT(stvOptimized, Eq(stvExpected));
-    // } else {
-    //     stvExpected << 0, 19, 29, 1,
-    //         6;  // what matters is that the minimum possible data age is
-    // 11;
-    //     EXPECT_THAT(stvOptimized, Eq(stvExpected));
-    // }
+    // stvExpected << 4, 10, 29, 5, 10;
+    // EXPECT_THAT(stvOptimized, Eq(stvExpected));
 }
 
 class TestSFOrderLPOptimizer_da_n3_v61 : public Test {

@@ -106,4 +106,32 @@ class LPOrderScheduler : public OrderScheduler {
     }
 };
 
+
+class LPOrderSchedulerFlexJobOrder : public OrderScheduler {
+   public:
+    static VectorDynamic schedule(
+        const DAG_Model &dagTasks, const TaskSetInfoDerived &tasksInfo,
+        const OptimizeSF::ScheduleOptions &scheduleOptions, SFOrder &jobOrder,
+        std::vector<uint> &processorJobVec, std::string obj_type = "none") {
+        if (!ProcessorAssignment::AssignProcessor(
+                tasksInfo, jobOrder, scheduleOptions.processorNum_,
+                processorJobVec)) {  // SFOrder unschedulable
+            VectorDynamic startTimeVector =
+                GenerateVectorDynamic(tasksInfo.variableDimension);
+            startTimeVector(0) = -1;
+            // assign all jobs to processor 0 to avoid errors in codes, this
+            // will not affect the correctness.
+            processorJobVec.resize(tasksInfo.variableDimension, 0);
+            return startTimeVector;
+        }
+
+        SFOrderLPOptimizer sfOrderLPOptimizer(
+            dagTasks, jobOrder, scheduleOptions.processorNum_, obj_type);
+        sfOrderLPOptimizer.Optimize(processorJobVec, false);
+        VectorDynamic startTimeVectorOptmized =
+            sfOrderLPOptimizer.getOptimizedStartTimeVector();
+        return startTimeVectorOptmized;
+    }
+};
+
 }  // namespace OrderOptDAG_SPACE
