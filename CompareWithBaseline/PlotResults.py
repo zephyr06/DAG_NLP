@@ -103,28 +103,21 @@ def plot_Runtime_results(task_set_number_range, method_names, obj, exclude_time_
 
 
 def draw_RT_results(task_set_number_range):
-    method_names = ["InitialMethod", "TOM", "TOM_Fast", "TOM_Threshold", "TOM_RandomSearch"]
+    method_names = ["InitialMethod", "TOM", "TOM_Fast", "TOM_Raw", "TOM_FarReach"]
                     # "TOM_IA", "Verucchi20"]
     plot_Obj_results(task_set_number_range, method_names, "ReactionTime")
     plot_Runtime_results(task_set_number_range, method_names, "ReactionTime")
 
 
 def draw_DA_results(task_set_number_range):
-    method_names = ["InitialMethod", "TOM", "TOM_Fast", "TOM_Threshold", "TOM_RandomSearch"]
+    method_names = ["InitialMethod", "TOM", "TOM_Fast", "TOM_Raw", "TOM_FarReach"]
                     # "TOM_IA", "Verucchi20"]
     plot_Obj_results(task_set_number_range, method_names, "DataAge")
     plot_Runtime_results(task_set_number_range, method_names, "DataAge")
 
-def draw_DA_results3Chains(task_set_number_range):
-    method_names = ["InitialMethod", "ImplicitCommunication",
-                    "TOM_Sort_Offset", "Bardatsch16", "TOM_BF", "TOM_WSkip", "TOM_Sort"]
-    plot_Obj_results(task_set_number_range, method_names, "DataAge", output_file_name="DataAge3Chains")
-    plot_Runtime_results(task_set_number_range, method_names, "DataAge", output_file_name="DataAge3Chains")
-
-
 
 def draw_SF_results(task_set_number_range, exclude_time_out=False):
-    method_names = ["InitialMethod", "TOM", "TOM_Fast", "TOM_IA"]
+    method_names = ["InitialMethod", "TOM", "TOM_Fast", "TOM_Raw", "TOM_FarReach"]
     plot_Obj_results(task_set_number_range, method_names,
                      "SensorFusion", exclude_time_out)
     plot_Runtime_results(task_set_number_range, method_names,

@@ -42,9 +42,8 @@ int main(int argc, char *argv[]) {
         OrderOptDAG_SPACE::TOM_Fast,
         OrderOptDAG_SPACE::TOM,
         OrderOptDAG_SPACE::TOM_Raw,
-        OrderOptDAG_SPACE::TOM_FarReach
-        };
-        // OrderOptDAG_SPACE::Verucchi20};
+        OrderOptDAG_SPACE::TOM_FarReach,
+        OrderOptDAG_SPACE::Verucchi20};
     auto batch_results = OrderOptDAG_SPACE::BatchOptimizeOrder<
         OrderOptDAG_SPACE::OptimizeSF::ReactionTimeObj>(baselineMethods, batch_test_settings);
 }
