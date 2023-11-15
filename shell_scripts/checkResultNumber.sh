@@ -7,11 +7,11 @@ COUNT_PATH="/home/dong/workspace/DAG_NLP/TaskData"
 # echo current results count in dir: $COUNT_PATH
 
 
-for N in {5..21}; do
-    for idx in {000..999}; do
+for N in {10..21}; do
+    for idx in {000..099}; do
         file_prefix="${COUNT_PATH}/N${N}/dag-set-N$N-$idx*"
         cnt=$(ls $file_prefix | wc -l)
-        if [[ cnt -lt 15 ]]; then
+        if [[ cnt -lt 11 ]]; then
             echo $N-$idx: $cnt
         fi
     done
