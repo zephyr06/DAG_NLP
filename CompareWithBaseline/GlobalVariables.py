@@ -21,7 +21,7 @@ marker_map = {"InitialMethod": "o",
               "TOM_FarReach": "P",
               "Bardatsch16": "X"}
 marker_size_map = {"InitialMethod": 8,
-                   "TOM": 12,
+                   "TOM": 10,
                    "TOM_IA": 12,
                    "TOM_Fast": 12,
                    "Verucchi20": 8,
@@ -61,5 +61,8 @@ color_map = {"InitialMethod": "#0084DB",
 
 ROOT_PATH = str(pathlib.Path(__file__).parent.resolve().parent.resolve()) + "/"
 ROOT_CompareWithBaseline_PATH = ROOT_PATH + "CompareWithBaseline/"
+
+axis_label_font_size=15
+tick_font_size=12
 
 verbose_mode = False
