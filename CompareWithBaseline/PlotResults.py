@@ -28,7 +28,7 @@ def plot_Obj_results(task_set_number_range, method_names, obj, exclude_time_out=
     else:
         splot.set_ylim([-62, 5])
         
-    splot.set_xticks([i for i in range(5,20,2)])
+    splot.set_xticks([i for i in range(5,22,2)])
     # ax.get_legend().remove()
 
     # ax.set_title(f"{obj}", fontsize=axis_label_font_size)
