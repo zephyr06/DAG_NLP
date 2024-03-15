@@ -2,6 +2,7 @@
 
 #include "../parameters/SAParameters.hpp"
 #include "NumericAlgorithmImpl.hpp"
+#include "sources/Utils/profilier.h"
 
 namespace moe {
 
@@ -13,9 +14,13 @@ public:
                                                          std::numeric_limits<GenotypeType>::max()});
   SimulatedAnnealing(const SAParameters<GenotypeType> &_parameters);
 
-  void run(unsigned int _iterations) override;
-  void runSA(unsigned int _iterations, std::vector<double> initialSA, int whetherRandomInitialize) {
+  typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimerType;
 
+  void run(unsigned int _iterations) override;
+  void runSA(unsigned int _iterations, std::vector<double> initialSA, int whetherRandomInitialize,
+             double time_limit = 1e5) {
+    start_time_ = CurrentTimeInProfiler;
+    time_limit_ = time_limit;
     // this->init(_iterations);
     m_iterations = _iterations;
 
@@ -30,6 +35,8 @@ public:
     m_initial_fitness = Algorithm<GenotypeType>::m_bestMoe.fitness;
 
     for (unsigned int i = 0; i < m_iterations; i++) {
+      if (ifTimeout(start_time_))
+        break;
       Moe<GenotypeType> candidate;
       //   candidate.genotype = NumericAlgorithm<GenotypeType>::getRandomGenotype();
       candidate.genotype = GenerateRandomStartTimes();
@@ -73,8 +80,20 @@ public:
     return start_times;
   }
 
+  bool ifTimeout(TimerType start_time) {
+    auto curr_time = std::chrono::system_clock::now();
+    if (std::chrono::duration_cast<std::chrono::seconds>(curr_time - start_time).count() >= time_limit_) {
+      std::cout << "\nTime out when running OptimizeOrder. Maximum time is " << time_limit_
+                << " seconds.\n\n";
+      return true;
+    }
+    return false;
+  }
+
   // added public data
   std::vector<std::pair<int, int>> job_min_max_start_time_range_;
+  TimerType start_time_;
+  double time_limit_;
 
 protected:
   void init(unsigned int _iterations) override;

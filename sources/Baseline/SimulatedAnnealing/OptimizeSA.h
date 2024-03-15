@@ -34,6 +34,7 @@ ScheduleResult OptimizeSchedulingSA(OrderOptDAG_SPACE::DAG_Model &dagTasks,
                                               .withDimensions(tasks_info.variableDimension + 1)
                                               .withRange({0, double(tasks_info.hyper_period)}));
   moether.AddJobMinMaxStartTimeRange(GetJobMinMaxStartTimeRange(tasks_info));
+
   moether.setFitnessFunction([&](auto startTimeVec) -> double {
     VectorDynamic startTimeVector = Vector2Eigen<double>(startTimeVec.genotype);
     // VectorDynamic startTimeVector;
@@ -53,7 +54,8 @@ ScheduleResult OptimizeSchedulingSA(OrderOptDAG_SPACE::DAG_Model &dagTasks,
   if (GlobalVariablesDAGOpt::debugMode)
     std::cout << "Initial estimation for SA is " << initialEstimate << std::endl;
   auto initialSA = Eigen2Vector<double>(initialEstimate);
-  moether.runSA(GlobalVariablesDAGOpt::SA_iteration, initialSA, GlobalVariablesDAGOpt::randomInitialize);
+  moether.runSA(GlobalVariablesDAGOpt::SA_iteration, initialSA, GlobalVariablesDAGOpt::randomInitialize,
+                timeLimits);
 
   auto end = std::chrono::high_resolution_clock::now();
   std::chrono::duration<float> diff = end - start;
