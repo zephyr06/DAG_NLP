@@ -61,13 +61,32 @@ TEST(run_sa, v1) {
   EXPECT_LE(res.obj_, 23); // 23 is initial solution in case of 4 cores
 }
 
-TEST(run_sa, v2) {
+TEST(run_sa, v2_RT) {
   auto dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n10_v5.csv", "orig");
   OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOptions;
   scheduleOptions.LoadParametersYaml();
   auto res = OptimizeSchedulingSA<ReactionTimeObj>(dagTasks, scheduleOptions, 3);
+  std::cout<<"Reaction time: " << res.obj_ << std::endl;
   EXPECT_TRUE(res.schedulable_);
 }
+TEST(run_sa, v2_DA) {
+  auto dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n10_v5.csv", "orig");
+  OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOptions;
+  scheduleOptions.LoadParametersYaml();
+  auto res = OptimizeSchedulingSA<DataAgeObj>(dagTasks, scheduleOptions, 3);
+  std::cout<<"Data age: " << res.obj_ << std::endl;
+  EXPECT_TRUE(res.schedulable_);
+}
+TEST(run_sa, v2_SF) {
+  auto dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n10_v5.csv", "orig");
+  OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOptions;
+  scheduleOptions.LoadParametersYaml();
+  auto res = OptimizeSchedulingSA<SensorFusionObj>(dagTasks, scheduleOptions, 3);
+  std::cout<<"Time disparity: " << res.obj_ << std::endl;
+  EXPECT_TRUE(res.schedulable_);
+}
+
+
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

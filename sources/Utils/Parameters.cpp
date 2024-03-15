@@ -86,8 +86,8 @@ int exactJacobian = loaded_doc["exactJacobian"].as<int>();
 int optimizerType = loaded_doc["optimizerType"].as<int>();
 int randomInitialize = loaded_doc["randomInitialize"].as<int>();
 int SA_iteration = loaded_doc["SA_iteration"].as<int>();
-int TaskSetType = loaded_doc["temperatureSA"].as<int>();
-int temperatureSA = loaded_doc["TaskSetType"].as<int>();
+int TaskSetType = loaded_doc["TaskSetType"].as<int>();
+int temperatureSA = loaded_doc["temperatureSA"].as<int>();
 int tightEliminate =
     loaded_doc["tightEliminate"]
         .as<int>();  // not used in the main SF optimization program

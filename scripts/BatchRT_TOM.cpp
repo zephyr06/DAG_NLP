@@ -38,6 +38,7 @@ int main(int argc, char *argv[]) {
     
     std::vector<OrderOptDAG_SPACE::BASELINEMETHODS> baselineMethods = {
         OrderOptDAG_SPACE::InitialMethod, 
+        OrderOptDAG_SPACE::SimulatedAnnealing,
         // OrderOptDAG_SPACE::TOM_IA, 
         OrderOptDAG_SPACE::TOM_Fast,
         OrderOptDAG_SPACE::TOM,

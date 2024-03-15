@@ -12,6 +12,7 @@
 // #include "sources/Baseline/RTSS21IC.h"
 #include "sources/Baseline/VerucchiRTDABridge.h"
 #include "sources/Baseline/VerucchiScheduling.h"
+#include "sources/Baseline/SimulatedAnnealing/OptimizeSA.h"
 #include "sources/Optimization/GlobalOptimization.h"
 #include "sources/Optimization/InitialEstimate.h"
 #include "sources/Optimization/OptimizeSFOrder_TOM.h"
@@ -51,6 +52,11 @@ OrderOptDAG_SPACE::ScheduleResult PerformSingleScheduling(DAG_Model &dagTasks,
     //     dagTasks, GlobalVariablesDAGOpt::sensorFusionTolerance,
     //     GlobalVariablesDAGOpt::freshTol);
     break;
+
+  case SimulatedAnnealing:
+    res = OptimizeSchedulingSA<ObjectiveFunctionBase>(dagTasks, scheduleOptions);
+    break;
+    
   case TOM:
     res = OrderOptDAG_SPACE::OptimizeSF::ScheduleDAGModel<LPOrderScheduler, ObjectiveFunctionBase>(
         dagTasks, scheduleOptions);

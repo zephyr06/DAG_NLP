@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
     program.add_argument("-v", "--verbose"); // parameter packing
 
     program.add_argument("--N")
-        .default_value(5)
+        .default_value(3)
         .help("the folder of task sets to run experiments")
         .scan<'i', int>();
     program.add_argument("--begin")
@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
         .help("the first file index that's going to be optimized")
         .scan<'i', int>();
     program.add_argument("--end")
-        .default_value(1000)
+        .default_value(1)
         .help(
             "the last file index that's going to be optimized (Not INCLUSIVE)")
         .scan<'i', int>();
@@ -38,6 +38,7 @@ int main(int argc, char *argv[]) {
     
     std::vector<OrderOptDAG_SPACE::BASELINEMETHODS> baselineMethods = {
         OrderOptDAG_SPACE::InitialMethod, 
+        OrderOptDAG_SPACE::SimulatedAnnealing,
         OrderOptDAG_SPACE::TOM_Fast,
         // OrderOptDAG_SPACE::TOM_IA,
         OrderOptDAG_SPACE::TOM,

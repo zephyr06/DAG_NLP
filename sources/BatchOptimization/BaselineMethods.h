@@ -12,6 +12,7 @@ enum BASELINEMETHODS {
     InitialMethod,
     Verucchi20,
     Wang21,
+    SimulatedAnnealing,
     TOM,
     TOM_Fast,
     TOM_IA,
@@ -22,7 +23,7 @@ enum BASELINEMETHODS {
     GlobalOpt
 };
 const std::vector<std::string> BaselineMethodNames = {
-    "InitialMethod", "Verucchi20", "Wang21",   "TOM",
+    "InitialMethod", "Verucchi20", "Wang21",  "SimulatedAnnealing", "TOM",
     "TOM_Fast", "TOM_IA", "TOM_Threshold", "TOM_RandomSearch",
     "TOM_Raw", "TOM_FarReach", "GlobalOpt"};
 
