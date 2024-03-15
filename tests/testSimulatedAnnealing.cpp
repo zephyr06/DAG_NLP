@@ -29,6 +29,27 @@ TEST(GetJobMinMaxStartTimeRange, V1) {
   }
 }
 
+TEST(GenerateRandomStartTimes, V1) {
+  auto dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v3.csv", "orig");
+  OrderOptDAG_SPACE::OptimizeSF::ScheduleOptions scheduleOptions;
+  scheduleOptions.LoadParametersYaml();
+  RegularTaskSystem::TaskSetInfoDerived tasks_info(dagTasks.tasks);
+
+  moe::SimulatedAnnealing<double> moether(moe::SAParameters<double>()
+                                              .withTemperature(GlobalVariablesDAGOpt::temperatureSA)
+                                              .withCoolingRate(GlobalVariablesDAGOpt::coolingRateSA)
+                                              .withDimensions(tasks_info.variableDimension + 1)
+                                              .withRange({0, double(tasks_info.hyper_period)}));
+  moether.AddJobMinMaxStartTimeRange(GetJobMinMaxStartTimeRange(tasks_info));
+  vector<int> one_random_start_time = moether.GenerateRandomStartTimes();
+  for (int x : one_random_start_time)
+    cout << x << "\n";
+  for (int i = 0; i < tasks_info.variableDimension; i++) {
+    EXPECT_GE(one_random_start_time[i], moether.job_min_max_start_time_range_[i].first);
+    EXPECT_LE(one_random_start_time[i], moether.job_min_max_start_time_range_[i].second);
+  }
+}
+
 TEST(run_sa, v1) {
 
   auto dagTasks = ReadDAG_Tasks(GlobalVariablesDAGOpt::PROJECT_PATH + "TaskData/test_n5_v3.csv", "orig");
