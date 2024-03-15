@@ -12,7 +12,8 @@
 
 namespace OrderOptDAG_SPACE {
 
-struct ScheduleResult {
+struct 
+ScheduleResult {
     VectorDynamic startTimeVector_;
     bool schedulable_;
     double obj_;
