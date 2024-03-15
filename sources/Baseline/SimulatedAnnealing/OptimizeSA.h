@@ -41,7 +41,7 @@ ScheduleResult OptimizeSchedulingSA(OrderOptDAG_SPACE::DAG_Model &dagTasks,
         ObjectiveFunctionBase::TrueObj(dagTasks, tasks_info, startTimeVector, scheduleOptions) * -1;
     bool schedulable = ExamAll_Feasibility(dagTasks, tasks_info, startTimeVector, processorJobVec,
                                            scheduleOptions.processorNum_);
-    std::cout << obj_main << "\n";
+    std::cout << "Obj during SA: " << obj_main << "\n";
     if (schedulable)
       return obj_main;
     else

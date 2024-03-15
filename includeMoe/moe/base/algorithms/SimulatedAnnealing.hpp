@@ -31,7 +31,8 @@ public:
 
     for (unsigned int i = 0; i < m_iterations; i++) {
       Moe<GenotypeType> candidate;
-      candidate.genotype = NumericAlgorithm<GenotypeType>::getRandomGenotype();
+      //   candidate.genotype = NumericAlgorithm<GenotypeType>::getRandomGenotype();
+      candidate.genotype = GenerateRandomStartTimes();
 
       while (m_temperature > m_absoluteZero) {
         double fitness = Algorithm<GenotypeType>::m_fitnessFunction(candidate);
@@ -63,8 +64,8 @@ public:
   void AddJobMinMaxStartTimeRange(std::vector<std::pair<int, int>> job_min_max_start_time_range) {
     job_min_max_start_time_range_ = job_min_max_start_time_range;
   }
-  std::vector<int> GenerateRandomStartTimes() {
-    std::vector<int> start_times;
+  std::vector<double> GenerateRandomStartTimes() {
+    std::vector<double> start_times;
     for (auto job_min_max_start_time : job_min_max_start_time_range_) {
       std::uniform_int_distribution<int> dist(job_min_max_start_time.first, job_min_max_start_time.second);
       start_times.push_back(dist(Algorithm<GenotypeType>::m_generator));
