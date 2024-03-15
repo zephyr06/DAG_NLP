@@ -59,6 +59,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 # find_package(GTest REQUIRED)
 include(GoogleTest)
+include_directories(includeMoe)
 
 add_library(${CONVENIENCE_LIB_NAME} SHARED ${sources})
 
