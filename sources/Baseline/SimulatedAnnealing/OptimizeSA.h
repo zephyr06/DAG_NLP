@@ -13,11 +13,13 @@
 #include <time.h>
 
 namespace OrderOptDAG_SPACE {
-using namespace OptimizeSF;
+
+std::vector<std::pair<int, int>> GetJobMinMaxStartTimeRange(const TaskSetInfoDerived &tasks_info);
+
 // NOTE: time limit is not used in this function!!!!
 template <typename ObjectiveFunctionBase>
 ScheduleResult OptimizeSchedulingSA(OrderOptDAG_SPACE::DAG_Model &dagTasks,
-                                    const ScheduleOptions &scheduleOptions,
+                                    const OptimizeSF::ScheduleOptions &scheduleOptions,
                                     double timeLimits = GlobalVariablesDAGOpt::OPTIMIZE_TIME_LIMIT) {
   TaskSet tasks = dagTasks.tasks;
   RegularTaskSystem::TaskSetInfoDerived tasks_info(tasks);
@@ -31,7 +33,7 @@ ScheduleResult OptimizeSchedulingSA(OrderOptDAG_SPACE::DAG_Model &dagTasks,
                                               .withCoolingRate(GlobalVariablesDAGOpt::coolingRateSA)
                                               .withDimensions(tasks_info.variableDimension + 1)
                                               .withRange({0, double(tasks_info.hyper_period)}));
-
+  moether.AddJobMinMaxStartTimeRange(GetJobMinMaxStartTimeRange(tasks_info));
   moether.setFitnessFunction([&](auto startTimeVec) -> double {
     VectorDynamic startTimeVector = Vector2Eigen<double>(startTimeVec.genotype);
     // VectorDynamic startTimeVector;
