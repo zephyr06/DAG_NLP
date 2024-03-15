@@ -34,35 +34,31 @@ public:
       Algorithm<GenotypeType>::m_fitnessFunction(Algorithm<GenotypeType>::m_bestMoe);
     m_initial_fitness = Algorithm<GenotypeType>::m_bestMoe.fitness;
 
-    // for (unsigned int i = 0; i < m_iterations; i++) {
-
     while (m_temperature > m_absoluteZero) {
       if (ifTimeout(start_time_))
         break;
-      Moe<GenotypeType> candidate;
-      //   candidate.genotype = NumericAlgorithm<GenotypeType>::getRandomGenotype();
-      candidate.genotype = GenerateRandomStartTimes();
+      for (unsigned int i = 0; i < m_iterations; i++) {
+        Moe<GenotypeType> candidate;
+        //   candidate.genotype = NumericAlgorithm<GenotypeType>::getRandomGenotype();
+        candidate.genotype = GenerateRandomStartTimes();
 
-      double fitness = Algorithm<GenotypeType>::m_fitnessFunction(candidate);
+        double fitness = Algorithm<GenotypeType>::m_fitnessFunction(candidate);
 
-      double delta = fitness - m_initial_fitness;
+        double delta = fitness - m_initial_fitness;
 
-      std::uniform_real_distribution<double> dist(0, 1);
-      double rdm_normal = dist(Algorithm<GenotypeType>::m_generator);
+        std::uniform_real_distribution<double> dist(0, 1);
+        double rdm_normal = dist(Algorithm<GenotypeType>::m_generator);
 
-      if (delta > 0 || (std::exp(delta / m_temperature)) > rdm_normal) {
-        m_initial_fitness = fitness;
-        m_initial_candidate = candidate.genotype;
+        if (delta > 0 || (std::exp(delta / m_temperature)) > rdm_normal) {
+          m_initial_fitness = fitness;
+          m_initial_candidate = candidate.genotype;
 
-        if (m_initial_fitness > Algorithm<GenotypeType>::m_bestMoe.fitness) {
-          Algorithm<GenotypeType>::m_bestMoe.genotype = m_initial_candidate;
-          Algorithm<GenotypeType>::m_bestMoe.fitness = m_initial_fitness;
+          if (m_initial_fitness > Algorithm<GenotypeType>::m_bestMoe.fitness) {
+            Algorithm<GenotypeType>::m_bestMoe.genotype = m_initial_candidate;
+            Algorithm<GenotypeType>::m_bestMoe.fitness = m_initial_fitness;
+          }
         }
-      }
 
-      for (unsigned int j = 0; j < NumericAlgorithm<GenotypeType>::m_dimensions; j++) {
-        dist = std::uniform_real_distribution<double>(-1, 1);
-        candidate.genotype[j] += dist(Algorithm<GenotypeType>::m_generator);
       }
       m_temperature *= m_coolingRate;
     }
