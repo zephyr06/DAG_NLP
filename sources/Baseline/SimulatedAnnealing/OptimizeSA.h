@@ -14,6 +14,7 @@
 
 namespace OrderOptDAG_SPACE {
 using namespace OptimizeSF;
+// NOTE: time limit is not used in this function!!!!
 template <typename ObjectiveFunctionBase>
 ScheduleResult OptimizeSchedulingSA(OrderOptDAG_SPACE::DAG_Model &dagTasks,
                                     const ScheduleOptions &scheduleOptions,
