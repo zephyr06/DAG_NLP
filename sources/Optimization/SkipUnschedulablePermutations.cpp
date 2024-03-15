@@ -97,25 +97,25 @@ bool WhetherSkipInsertFinishByFollowingInstance(const JobCEC &jobRelocate, LLint
 bool WhetherStartFinishTooLong(double &accumLengthMin, const JobCEC &jobRelocate, LLint finishP,
                                const TaskSetInfoDerived &tasksInfo, SFOrder &jobOrderCurrForStart,
                                LLint startP) {
-#ifdef PROFILE_CODE
-  BeginTimer(__FUNCTION__);
-#endif
+// #ifdef PROFILE_CODE
+//   BeginTimer(__FUNCTION__);
+// #endif
 
-  if (finishP >= 1 && finishP <= jobOrderCurrForStart.size()) {
-    TimeInstance jobPrevInsertInst = jobOrderCurrForStart.at(finishP - 1);
-    if (jobPrevInsertInst.type == 'f' &&
-        jobOrderCurrForStart.GetJobStartInstancePosition(jobPrevInsertInst.job) > startP) //
-      accumLengthMin += tasksInfo.tasks[jobPrevInsertInst.job.taskId].executionTime;
-  }
-  if (accumLengthMin >= tasksInfo.tasks[jobRelocate.taskId].executionTime) {
-#ifdef PROFILE_CODE
-    EndTimer(__FUNCTION__);
-#endif
-    return true;
-  }
-#ifdef PROFILE_CODE
-  EndTimer(__FUNCTION__);
-#endif
+//   if (finishP >= 1 && finishP <= jobOrderCurrForStart.size()) {
+//     TimeInstance jobPrevInsertInst = jobOrderCurrForStart.at(finishP - 1);
+//     if (jobPrevInsertInst.type == 'f' &&
+//         jobOrderCurrForStart.GetJobStartInstancePosition(jobPrevInsertInst.job) > startP) //
+//       accumLengthMin += tasksInfo.tasks[jobPrevInsertInst.job.taskId].executionTime;
+//   }
+//   if (accumLengthMin >= tasksInfo.tasks[jobRelocate.taskId].executionTime) {
+// #ifdef PROFILE_CODE
+//     EndTimer(__FUNCTION__);
+// #endif
+//     return true;
+//   }
+// #ifdef PROFILE_CODE
+//   EndTimer(__FUNCTION__);
+// #endif
   return false;
 }
 
