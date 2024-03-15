@@ -46,7 +46,15 @@ template <class T> inline std::vector<T> Eigen2Vector(const VectorDynamic &input
     res.push_back(input.coeff(i, 0));
   return res;
 }
-template <class T> VectorDynamic Vector2Eigen(const std::vector<T> &input);
+template <class T> VectorDynamic Vector2Eigen(const std::vector<T> &input) {
+
+  LLint len = input.size();
+  VectorDynamic res;
+  res.resize(len, 1);
+  for (LLint i = 0; i < len; i++)
+    res(i, 0) = input.at(i);
+  return res;
+}
 
 inline VectorDynamic GenerateVectorDynamic(LLint N) {
   VectorDynamic v;
