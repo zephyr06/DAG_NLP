@@ -7,7 +7,7 @@ int main(int argc, char *argv[]) {
     program.add_argument("-v", "--verbose"); // parameter packing
 
     program.add_argument("--N")
-        .default_value(3)
+        .default_value(5)
         .help("the folder of task sets to run experiments")
         .scan<'i', int>();
     program.add_argument("--begin")
@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
         .help("the first file index that's going to be optimized")
         .scan<'i', int>();
     program.add_argument("--end")
-        .default_value(1)
+        .default_value(1000)
         .help(
             "the last file index that's going to be optimized (Not INCLUSIVE)")
         .scan<'i', int>();
