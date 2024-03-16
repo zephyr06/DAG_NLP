@@ -91,21 +91,21 @@ def plot_Runtime_results(task_set_number_range, method_names, obj, exclude_time_
 
 
 def draw_RT_results(task_set_number_range):
-    method_names = ["InitialMethod", "TOM", "TOM_Fast", "TOM_Raw", "TOM_FarReach", "Verucchi20"]
+    method_names = ["InitialMethod", "SimulatedAnnealing", "TOM", "TOM_Fast", "TOM_Raw", "TOM_FarReach", "Verucchi20"]
                     # "TOM_IA", "Verucchi20"]
     plot_Obj_results(task_set_number_range, method_names, "ReactionTime")
     plot_Runtime_results(task_set_number_range, method_names, "ReactionTime")
 
 
 def draw_DA_results(task_set_number_range):
-    method_names = ["InitialMethod", "TOM", "TOM_Fast", "TOM_Raw", "TOM_FarReach", "Verucchi20"]
+    method_names = ["InitialMethod", "SimulatedAnnealing", "TOM", "TOM_Fast", "TOM_Raw", "TOM_FarReach", "Verucchi20"]
                     # "TOM_IA", "Verucchi20"]
     plot_Obj_results(task_set_number_range, method_names, "DataAge")
     plot_Runtime_results(task_set_number_range, method_names, "DataAge")
 
 
 def draw_SF_results(task_set_number_range, exclude_time_out=False):
-    method_names = ["InitialMethod", "TOM", "TOM_Fast", "TOM_Raw", "TOM_FarReach"]
+    method_names = ["InitialMethod", "SimulatedAnnealing", "TOM", "TOM_Fast", "TOM_Raw", "TOM_FarReach"]
     plot_Obj_results(task_set_number_range, method_names,
                      "SensorFusion", exclude_time_out)
     plot_Runtime_results(task_set_number_range, method_names,

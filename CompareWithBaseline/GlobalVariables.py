@@ -3,6 +3,7 @@ baseline_method_names = ["InitialMethod", "ImplicitCommunication", "Martinez18",
                          "TOM_Sort_Offset", "Bardatsch16", "TOM_BF", "TOM_WSkip", "TOM_Sort"]
 
 baseline_method_labels = {"InitialMethod": "List Scheduling",
+                          "SimulatedAnnealing": "Simulated Annealing",
                           "TOM": "TOM",
                           "TOM_IA": "TOM_IA",
                           "TOM_Fast": "TOM_Fast",
@@ -11,6 +12,7 @@ baseline_method_labels = {"InitialMethod": "List Scheduling",
                           "Verucchi20": "Verucchi20"}
 
 marker_map = {"InitialMethod": "o",
+              "SimulatedAnnealing": "*",
               "TOM": "D",
               "TOM_IA": "*",
               "TOM_Fast": "^",
@@ -21,6 +23,7 @@ marker_map = {"InitialMethod": "o",
               "TOM_FarReach": "P",
               "Bardatsch16": "X"}
 marker_size_map = {"InitialMethod": 8,
+                   "SimulatedAnnealing": 12,
                    "TOM": 10,
                    "TOM_IA": 12,
                    "TOM_Fast": 12,
@@ -39,6 +42,7 @@ marker_size_map = {"InitialMethod": 8,
 #                    "TOM_Sort_Offset": 6,
 #                    "Bardatsch16": 3}
 color_map = {"InitialMethod": "#0084DB",
+             "SimulatedAnnealing": "r",
              "TOM": "#ffa64d",
              "TOM_IA": "r",
              "TOM_Fast": "y",
