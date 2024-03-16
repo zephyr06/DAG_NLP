@@ -217,15 +217,15 @@ VectorDynamic SFOrderScheduling(const TaskSet &tasks, const TaskSetInfoDerived &
           }
         }
         if (!currentJobScheduled) { // cant't find available processor, wait to earliest available time
-                                    //   LLint leastAvailableProcessorTime = LLONG_MAX;
-          //   for (int processorId = 0; processorId < processorNum; processorId++) {
-          //     if (leastAvailableProcessorTime > nextFree[processorId]) {
-          //       leastAvailableProcessorTime = nextFree[processorId];
-          //     }
-          //   }
-          //   timeNow = leastAvailableProcessorTime;
+          LLint leastAvailableProcessorTime = LLONG_MAX;
+          for (int processorId = 0; processorId < processorNum; processorId++) {
+            if (leastAvailableProcessorTime > nextFree[processorId]) {
+              leastAvailableProcessorTime = nextFree[processorId];
+            }
+          }
+          timeNow = leastAvailableProcessorTime;
 
-          return GetInfeasibleStartTimeVector(tasksInfo);
+          // return GetInfeasibleStartTimeVector(tasksInfo);
         }
       }
     } else {
