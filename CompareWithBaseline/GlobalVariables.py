@@ -6,9 +6,9 @@ baseline_method_labels = {"InitialMethod": "List Scheduling",
                           "SimulatedAnnealing": "Simulated Annealing",
                           "TOM": "TOM",
                           "TOM_IA": "TOM_IA",
-                          "TOM_Fast": "TOM_Fast",
-                          "TOM_Raw": "TOM_Raw",
-                          "TOM_FarReach": "TOM_FarReach",
+                          "TOM_Fast": "TOM_SimpleScheduler",
+                          "TOM_Raw": "TOM_Basic",
+                          "TOM_FarReach": "TOM_Extended",
                           "Verucchi20": "Verucchi20"}
 
 marker_map = {"InitialMethod": "o",
