@@ -29,7 +29,7 @@ def plot_Obj_results(task_set_number_range, method_names, obj, exclude_time_out=
         splot.set_ylim([-62, 5])
         
     splot.set_xticks([i for i in range(5,22,2)])
-    # ax.get_legend().remove()
+    ax.get_legend().remove()
 
     # ax.set_title(f"{obj}", fontsize=axis_label_font_size)
     
@@ -40,7 +40,8 @@ def plot_Obj_results(task_set_number_range, method_names, obj, exclude_time_out=
     elif obj == "SensorFusion":
         plt.ylabel("Relative Gap of Time Disparity (%)", fontsize=axis_label_font_size)
         
-        
+    splot.set_xticks([i for i in range(5,21,3)])
+    
     plt.grid(linestyle="--")
     plt.tight_layout()
     
@@ -70,10 +71,10 @@ def plot_Runtime_results(task_set_number_range, method_names, obj, exclude_time_
     splot.set_ylim([1e-4, 5e3])
     splot.set(yscale="log")
 
-    splot.set_xticks([i for i in range(5,20,2)])
+    splot.set_xticks([i for i in range(5,21,3)])
     splot.set_yticks([10**i for i in range(-4,4)])
     
-    # ax.get_legend().remove()
+    ax.get_legend().remove()
     
     # ax.set_title(f'{obj} Running Time')
     

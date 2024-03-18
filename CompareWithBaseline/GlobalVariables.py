@@ -1,6 +1,6 @@
 import pathlib
-baseline_method_names = ["InitialMethod", "ImplicitCommunication", "Martinez18",
-                         "TOM_Sort_Offset", "Bardatsch16", "TOM_BF", "TOM_WSkip", "TOM_Sort"]
+baseline_method_names = ["InitialMethod", "SimulatedAnnealing", "Verucchi20",
+                         "TOM", "TOM_Fast", "TOM_Raw", "TOM_FarReach"]
 
 baseline_method_labels = {"InitialMethod": "List Scheduling",
                           "SimulatedAnnealing": "Simulated Annealing",
@@ -66,7 +66,7 @@ color_map = {"InitialMethod": "#0084DB",
 ROOT_PATH = str(pathlib.Path(__file__).parent.resolve().parent.resolve()) + "/"
 ROOT_CompareWithBaseline_PATH = ROOT_PATH + "CompareWithBaseline/"
 
-axis_label_font_size=15
+axis_label_font_size=17
 tick_font_size=12
 
 verbose_mode = False
