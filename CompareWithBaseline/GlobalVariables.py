@@ -1,6 +1,6 @@
 import pathlib
 baseline_method_names = ["InitialMethod", "SimulatedAnnealing", "Verucchi20",
-                         "TOM", "TOM_Fast", "TOM_Raw", "TOM_FarReach"]
+                         "TOM", "TOM_Fast", "TOM_FarReach"]
 
 baseline_method_labels = {"InitialMethod": "List Scheduling",
                           "SimulatedAnnealing": "Simulated Annealing",

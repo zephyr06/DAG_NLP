@@ -24,9 +24,9 @@ def plot_Obj_results(task_set_number_range, method_names, obj, exclude_time_out=
     plt.ylabel("Relative gap(%)", fontsize=axis_label_font_size)
 
     if (obj == "ReactionTime" or obj == "DataAge"):
-        splot.set_ylim([-62, 12])
+        splot.set_ylim([-52, 12])
     else:
-        splot.set_ylim([-62, 5])
+        splot.set_ylim([-52, 5])
         
     splot.set_xticks([i for i in range(5,22,2)])
     ax.get_legend().remove()
@@ -92,21 +92,21 @@ def plot_Runtime_results(task_set_number_range, method_names, obj, exclude_time_
 
 
 def draw_RT_results(task_set_number_range):
-    method_names = ["InitialMethod", "SimulatedAnnealing", "Verucchi20", "TOM", "TOM_Fast", "TOM_Raw", "TOM_FarReach"]
+    method_names = ["InitialMethod", "SimulatedAnnealing", "Verucchi20", "TOM", "TOM_Fast", "TOM_FarReach"]
                     # "TOM_IA", "Verucchi20"]
     plot_Obj_results(task_set_number_range, method_names, "ReactionTime")
     plot_Runtime_results(task_set_number_range, method_names, "ReactionTime")
 
 
 def draw_DA_results(task_set_number_range):
-    method_names = ["InitialMethod", "SimulatedAnnealing", "Verucchi20", "TOM", "TOM_Fast", "TOM_Raw", "TOM_FarReach"]
+    method_names = ["InitialMethod", "SimulatedAnnealing", "Verucchi20", "TOM", "TOM_Fast", "TOM_FarReach"]
                     # "TOM_IA", "Verucchi20"]
     plot_Obj_results(task_set_number_range, method_names, "DataAge")
     plot_Runtime_results(task_set_number_range, method_names, "DataAge")
 
 
 def draw_SF_results(task_set_number_range, exclude_time_out=False):
-    method_names = ["InitialMethod", "SimulatedAnnealing", "TOM", "TOM_Fast", "TOM_Raw", "TOM_FarReach"]
+    method_names = ["InitialMethod", "SimulatedAnnealing", "TOM", "TOM_Fast", "TOM_FarReach"]
     plot_Obj_results(task_set_number_range, method_names,
                      "SensorFusion", exclude_time_out)
     plot_Runtime_results(task_set_number_range, method_names,
