@@ -53,6 +53,7 @@ def Average(res_vec, base_vec, obj_type="DataAge", task_num=5, method_name = "TO
     average_obj = 0
     average_runtime = 0
     total_case = len(base_vec)
+    timeout_case = 0
     # for res in res_vec:
     for i in range(len(res_vec)):
         if exclude_time_out and excluded_table[i]:
@@ -68,11 +69,15 @@ def Average(res_vec, base_vec, obj_type="DataAge", task_num=5, method_name = "TO
                 print("Find an error result! N{}_{}_{}_{}".format(task_num, i, method_name, obj_type))
             average_obj += Normalize(res_vec[i].obj, base_vec[i].obj)
             average_runtime += res_vec[i].runtime
+            if res_vec[i].runtime > 1000:
+                timeout_case+=1
         elif obj_type=="SensorFusion":
             if (base_vec[i].obj > 0):
                 average_obj += Normalize(res_vec[i].obj, base_vec[i].obj)
             else:
                 total_case -= 1
             average_runtime += res_vec[i].runtime
-            
+            if res_vec[i].runtime > 1000:
+                timeout_case+=1
+    print("T", task_num, method_name, obj_type, "time out case count:", timeout_case, ", average time is:", average_runtime / total_case)
     return average_obj / total_case, average_runtime / total_case
