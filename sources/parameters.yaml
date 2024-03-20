@@ -67,7 +67,7 @@ activeJobThresholdIA: 100
 coolingRateSA: 0.99
 randomInitialize: 0
 temperatureSA: 100000000
-SA_iteration: 10000 # the number of random choices under a specific temperature
+SA_iteration: 50000 # the number of random choices under a specific temperature
 #*************************************************************
 # Verucchi20 settings
 # OPTIMIZE_TIME_LIMIT: 60 # seconds, -1 means unlimited time
